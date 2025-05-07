@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Activity, ChevronLeft, ChevronRight, Clock, Calendar, Flag, Loader2 } from 'lucide-react';
+import { Activity, ChevronLeft, ChevronRight, Clock, Calendar, Flag } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { formatElapsedTime, isLiveMatch, formatDateTime, formatMatchDate } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -20,8 +20,19 @@ const LiveScoreboard = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const [currentFixtureIndex, setCurrentFixtureIndex] = useState(0);
   
   const { live: liveFixtures, upcoming: upcomingFixtures, loading } = useSelector((state: RootState) => state.fixtures);
+  
+  // Combined fixtures array
+  const availableFixtures = [...liveFixtures, ...(upcomingFixtures || [])];
+  
+  // Reset current index if it's out of bounds
+  useEffect(() => {
+    if (availableFixtures.length > 0 && currentFixtureIndex >= availableFixtures.length) {
+      setCurrentFixtureIndex(0);
+    }
+  }, [availableFixtures.length, currentFixtureIndex]);
   
   // Fetch live fixtures
   useEffect(() => {
@@ -52,6 +63,21 @@ const LiveScoreboard = () => {
     
     return () => clearInterval(intervalId);
   }, [dispatch, toast]);
+  
+  // Navigation handlers
+  const handlePrevFixture = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (availableFixtures.length > 1) {
+      setCurrentFixtureIndex(prev => prev === 0 ? availableFixtures.length - 1 : prev - 1);
+    }
+  };
+  
+  const handleNextFixture = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (availableFixtures.length > 1) {
+      setCurrentFixtureIndex(prev => (prev + 1) % availableFixtures.length);
+    }
+  };
   
   // Show loading state
   if (loading) {
@@ -93,15 +119,8 @@ const LiveScoreboard = () => {
     );
   }
   
-  // Choose a fixture to display - either a live one or upcoming
-  const featureFixture = liveFixtures.length > 0 
-    ? liveFixtures[0] 
-    : upcomingFixtures && upcomingFixtures.length > 0 
-      ? upcomingFixtures[0] 
-      : null;
-  
   // No matches to display
-  if (!featureFixture) {
+  if (availableFixtures.length === 0) {
     return (
       <div className="bg-white">
         <div className="container mx-auto px-4 py-4">
@@ -122,7 +141,10 @@ const LiveScoreboard = () => {
     );
   }
   
-  // Featured match view
+  // Current fixture to display
+  const featureFixture = availableFixtures[currentFixtureIndex];
+  
+  // Match details
   const isLive = isLiveMatch(featureFixture.fixture.status.short);
   const matchDate = formatMatchDate(featureFixture.fixture.date);
   const matchTime = formatDateTime(featureFixture.fixture.date).split('|')[1].trim();
@@ -208,39 +230,78 @@ const LiveScoreboard = () => {
               className="cursor-pointer"
               onClick={() => navigate(`/match/${featureFixture.fixture.id}`)}
             >
-              <div className="relative flex justify-between bg-gradient-to-r from-blue-800 via-blue-600 to-red-600 text-white p-4">
-                {/* Left Team (Home) */}
-                <div className="w-2/5 flex flex-col items-center">
-                  <img 
-                    src={featureFixture.teams.home.logo} 
-                    alt={featureFixture.teams.home.name}
-                    className="h-16 w-16 mb-2"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                    }}
-                  />
-                  <div className="font-bold text-sm text-center">{featureFixture.teams.home.name}</div>
-                </div>
+              {/* Compact Match Display with Left/Right Navigation */}
+              <div className="relative h-24 bg-gradient-to-r from-blue-800 via-blue-600 to-red-600 text-white">
+                {/* Navigation Controls */}
+                {availableFixtures.length > 1 && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 z-20 text-white hover:bg-black/20"
+                      onClick={handlePrevFixture}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 z-20 text-white hover:bg-black/20"
+                      onClick={handleNextFixture}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  </>
+                )}
                 
-                {/* Center VS */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                  <div className="flex items-center justify-center bg-white text-blue-900 font-bold text-lg rounded-full h-10 w-10 shadow-lg">
-                    VS
+                {/* Teams and Score Display */}
+                <div className="flex justify-between items-center h-full px-12">
+                  {/* Left Team (Home) */}
+                  <div className="flex flex-col items-center w-2/5">
+                    <img 
+                      src={featureFixture.teams.home.logo} 
+                      alt={featureFixture.teams.home.name}
+                      className="absolute left-10 top-1/2 -translate-y-1/2 h-14 w-14 z-10"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/56?text=Team';
+                      }}
+                    />
+                    <div className="font-bold text-sm ml-10">{featureFixture.teams.home.name}</div>
+                  </div>
+                  
+                  {/* Center VS */}
+                  <div className="z-10">
+                    <div className="flex items-center justify-center bg-white text-blue-900 font-bold text-lg rounded-full h-10 w-10 shadow-lg">
+                      VS
+                    </div>
+                  </div>
+                  
+                  {/* Right Team (Away) */}
+                  <div className="flex flex-col items-center w-2/5">
+                    <img 
+                      src={featureFixture.teams.away.logo} 
+                      alt={featureFixture.teams.away.name}
+                      className="absolute right-10 top-1/2 -translate-y-1/2 h-14 w-14 z-10"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/56?text=Team';
+                      }}
+                    />
+                    <div className="font-bold text-sm mr-10">{featureFixture.teams.away.name}</div>
                   </div>
                 </div>
                 
-                {/* Right Team (Away) */}
-                <div className="w-2/5 flex flex-col items-center">
-                  <img 
-                    src={featureFixture.teams.away.logo} 
-                    alt={featureFixture.teams.away.name}
-                    className="h-16 w-16 mb-2"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                    }}
-                  />
-                  <div className="font-bold text-sm text-center">{featureFixture.teams.away.name}</div>
-                </div>
+                {/* Pagination Indicator */}
+                {availableFixtures.length > 1 && (
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+                    {availableFixtures.map((_, i) => (
+                      <div 
+                        key={`page-${i}`}
+                        className={`h-1 w-1 rounded-full ${i === currentFixtureIndex ? 'bg-white' : 'bg-white/40'}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Match Details & Intensity */}
