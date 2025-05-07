@@ -6,12 +6,8 @@ import {
   users, userPreferences, cachedFixtures, cachedLeagues
 } from "@shared/schema";
 import { FixtureResponse, LeagueResponse, NewsItem } from "./types";
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase client
-const supabaseUrl = 'https://mnqugjhbztzbkkvifzie.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 
 // Modify the interface with any CRUD methods needed
 export interface IStorage {
@@ -79,7 +75,12 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { ...insertUser, id, createdAt: new Date() };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      createdAt: new Date(),
+      fullName: insertUser.fullName || null 
+    };
     this.users.set(id, user);
     return user;
   }
@@ -93,7 +94,14 @@ export class MemStorage implements IStorage {
 
   async createUserPreferences(insertPrefs: InsertUserPreferences): Promise<UserPreferences> {
     const id = this.prefIdCounter++;
-    const prefs: UserPreferences = { ...insertPrefs, id };
+    const prefs: UserPreferences = { 
+      ...insertPrefs, 
+      id,
+      favoriteTeams: insertPrefs.favoriteTeams || [],
+      favoriteLeagues: insertPrefs.favoriteLeagues || [],
+      favoriteMatches: insertPrefs.favoriteMatches || [],
+      region: insertPrefs.region || 'global'
+    };
     this.preferences.set(id, prefs);
     return prefs;
   }
@@ -199,18 +207,12 @@ export class MemStorage implements IStorage {
   }
 }
 
-export class SupabaseStorage implements IStorage {
+export class DatabaseStorage implements IStorage {
   // User management
   async getUser(id: number): Promise<User | undefined> {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      if (error) throw error;
-      return data || undefined;
+      const result = await db.select().from(users).where(eq(users.id, id));
+      return result[0];
     } catch (error) {
       console.error('Error getting user by ID:', error);
       return undefined;
@@ -219,14 +221,8 @@ export class SupabaseStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || undefined;
+      const result = await db.select().from(users).where(eq(users.username, username));
+      return result[0];
     } catch (error) {
       console.error('Error getting user by username:', error);
       return undefined;
@@ -235,35 +231,24 @@ export class SupabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || undefined;
+      const result = await db.select().from(users).where(eq(users.email, email));
+      return result[0];
     } catch (error) {
       console.error('Error getting user by email:', error);
       return undefined;
     }
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(user: InsertUser): Promise<User> {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .insert({ 
-          ...insertUser,
-          created_at: new Date().toISOString() 
-        })
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      if (!data) throw new Error('Failed to create user');
+      const result = await db.insert(users).values({
+        ...user,
+        fullName: user.fullName || null,
+        createdAt: new Date()
+      }).returning();
       
-      return data;
+      if (!result[0]) throw new Error('Failed to create user');
+      return result[0];
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
@@ -273,14 +258,10 @@ export class SupabaseStorage implements IStorage {
   // User preferences
   async getUserPreferences(userId: number): Promise<UserPreferences | undefined> {
     try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || undefined;
+      const result = await db.select()
+        .from(userPreferences)
+        .where(eq(userPreferences.userId, userId));
+      return result[0];
     } catch (error) {
       console.error('Error getting user preferences:', error);
       return undefined;
@@ -289,16 +270,21 @@ export class SupabaseStorage implements IStorage {
 
   async createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences> {
     try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .insert(preferences)
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      if (!data) throw new Error('Failed to create user preferences');
+      // Ensure the arrays are properly initialized
+      const prefsToInsert = {
+        userId: preferences.userId,
+        favoriteTeams: preferences.favoriteTeams || [],
+        favoriteLeagues: preferences.favoriteLeagues || [],
+        favoriteMatches: preferences.favoriteMatches || [],
+        region: preferences.region || 'global'
+      };
+
+      const result = await db.insert(userPreferences)
+        .values(prefsToInsert)
+        .returning();
       
-      return data;
+      if (!result[0]) throw new Error('Failed to create user preferences');
+      return result[0];
     } catch (error) {
       console.error('Error creating user preferences:', error);
       throw error;
@@ -317,16 +303,32 @@ export class SupabaseStorage implements IStorage {
         return undefined;
       }
       
+      // Prepare the updates with proper type handling
+      const updates: Record<string, any> = {};
+      
+      if (updatedFields.favoriteTeams !== undefined) {
+        updates.favoriteTeams = updatedFields.favoriteTeams || [];
+      }
+      
+      if (updatedFields.favoriteLeagues !== undefined) {
+        updates.favoriteLeagues = updatedFields.favoriteLeagues || [];
+      }
+      
+      if (updatedFields.favoriteMatches !== undefined) {
+        updates.favoriteMatches = updatedFields.favoriteMatches || [];
+      }
+      
+      if (updatedFields.region !== undefined) {
+        updates.region = updatedFields.region || 'global';
+      }
+      
       // Update preferences
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .update(updatedFields)
-        .eq('id', existingPrefs.id)
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      return data || undefined;
+      const result = await db.update(userPreferences)
+        .set(updates)
+        .where(eq(userPreferences.id, existingPrefs.id))
+        .returning();
+      
+      return result[0];
     } catch (error) {
       console.error('Error updating user preferences:', error);
       return undefined;
@@ -336,14 +338,10 @@ export class SupabaseStorage implements IStorage {
   // Fixtures
   async getCachedFixture(fixtureId: string): Promise<CachedFixture | undefined> {
     try {
-      const { data, error } = await supabase
-        .from('cached_fixtures')
-        .select('*')
-        .eq('fixture_id', fixtureId)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || undefined;
+      const result = await db.select()
+        .from(cachedFixtures)
+        .where(eq(cachedFixtures.fixtureId, fixtureId));
+      return result[0];
     } catch (error) {
       console.error('Error getting cached fixture:', error);
       return undefined;
@@ -352,19 +350,18 @@ export class SupabaseStorage implements IStorage {
 
   async getCachedFixturesByLeague(leagueId: string, date?: string): Promise<CachedFixture[]> {
     try {
-      let query = supabase
-        .from('cached_fixtures')
-        .select('*')
-        .eq('league', leagueId);
-        
+      let query = db.select().from(cachedFixtures).where(eq(cachedFixtures.league, leagueId));
+      
       if (date) {
-        query = query.eq('date', date);
+        query = db.select()
+          .from(cachedFixtures)
+          .where(and(
+            eq(cachedFixtures.league, leagueId),
+            eq(cachedFixtures.date, date)
+          ));
       }
       
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      return data || [];
+      return await query;
     } catch (error) {
       console.error('Error getting fixtures by league:', error);
       return [];
@@ -373,19 +370,15 @@ export class SupabaseStorage implements IStorage {
 
   async createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture> {
     try {
-      const { data, error } = await supabase
-        .from('cached_fixtures')
-        .insert({ 
+      const result = await db.insert(cachedFixtures)
+        .values({
           ...fixture,
-          timestamp: new Date().toISOString() 
+          timestamp: new Date()
         })
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      if (!data) throw new Error('Failed to cache fixture');
+        .returning();
       
-      return data;
+      if (!result[0]) throw new Error('Failed to cache fixture');
+      return result[0];
     } catch (error) {
       console.error('Error caching fixture:', error);
       throw error;
@@ -394,18 +387,15 @@ export class SupabaseStorage implements IStorage {
 
   async updateCachedFixture(fixtureId: string, data: any): Promise<CachedFixture | undefined> {
     try {
-      const { data: updatedData, error } = await supabase
-        .from('cached_fixtures')
-        .update({ 
+      const result = await db.update(cachedFixtures)
+        .set({
           data,
-          timestamp: new Date().toISOString() 
+          timestamp: new Date()
         })
-        .eq('fixture_id', fixtureId)
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      return updatedData || undefined;
+        .where(eq(cachedFixtures.fixtureId, fixtureId))
+        .returning();
+      
+      return result[0];
     } catch (error) {
       console.error('Error updating cached fixture:', error);
       return undefined;
@@ -415,14 +405,10 @@ export class SupabaseStorage implements IStorage {
   // Leagues
   async getCachedLeague(leagueId: string): Promise<CachedLeague | undefined> {
     try {
-      const { data, error } = await supabase
-        .from('cached_leagues')
-        .select('*')
-        .eq('league_id', leagueId)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || undefined;
+      const result = await db.select()
+        .from(cachedLeagues)
+        .where(eq(cachedLeagues.leagueId, leagueId));
+      return result[0];
     } catch (error) {
       console.error('Error getting cached league:', error);
       return undefined;
@@ -431,12 +417,7 @@ export class SupabaseStorage implements IStorage {
 
   async getAllCachedLeagues(): Promise<CachedLeague[]> {
     try {
-      const { data, error } = await supabase
-        .from('cached_leagues')
-        .select('*');
-        
-      if (error) throw error;
-      return data || [];
+      return await db.select().from(cachedLeagues);
     } catch (error) {
       console.error('Error getting all cached leagues:', error);
       return [];
@@ -445,19 +426,15 @@ export class SupabaseStorage implements IStorage {
 
   async createCachedLeague(league: InsertCachedLeague): Promise<CachedLeague> {
     try {
-      const { data, error } = await supabase
-        .from('cached_leagues')
-        .insert({ 
+      const result = await db.insert(cachedLeagues)
+        .values({
           ...league,
-          timestamp: new Date().toISOString() 
+          timestamp: new Date()
         })
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      if (!data) throw new Error('Failed to cache league');
+        .returning();
       
-      return data;
+      if (!result[0]) throw new Error('Failed to cache league');
+      return result[0];
     } catch (error) {
       console.error('Error caching league:', error);
       throw error;
@@ -466,18 +443,15 @@ export class SupabaseStorage implements IStorage {
 
   async updateCachedLeague(leagueId: string, data: any): Promise<CachedLeague | undefined> {
     try {
-      const { data: updatedData, error } = await supabase
-        .from('cached_leagues')
-        .update({ 
+      const result = await db.update(cachedLeagues)
+        .set({
           data,
-          timestamp: new Date().toISOString() 
+          timestamp: new Date()
         })
-        .eq('league_id', leagueId)
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      return updatedData || undefined;
+        .where(eq(cachedLeagues.leagueId, leagueId))
+        .returning();
+      
+      return result[0];
     } catch (error) {
       console.error('Error updating cached league:', error);
       return undefined;
@@ -486,5 +460,5 @@ export class SupabaseStorage implements IStorage {
 }
 
 // Choose which storage to use
-// We're using Supabase storage for production
-export const storage = new SupabaseStorage();
+// We're using PostgreSQL database with Drizzle ORM
+export const storage = new DatabaseStorage();
