@@ -42,7 +42,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       
       // Check if the data is in the React Query cache
       const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}`]);
-      if (cachedData) {
+      if (cachedData && typeof cachedData === 'object' && 'league' in cachedData) {
         dispatch(leaguesActions.setLeagues([...leagues.list, cachedData]));
         return;
       }
@@ -83,7 +83,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       
       // Check if the data is in the React Query cache
       const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}/fixtures`]);
-      if (cachedData) {
+      if (cachedData && Array.isArray(cachedData)) {
         const recentFixtures = [...cachedData]
           .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
           .slice(0, 5);

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
@@ -12,6 +12,7 @@ import LiveScoreboard from '@/components/matches/LiveScoreboard';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
+import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -20,8 +21,20 @@ import { format, addDays } from 'date-fns';
 const Home = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
   
   const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
+  const allLeagues = useSelector((state: RootState) => state.leagues.list);
+  
+  // Map countries to league IDs
+  const countryLeagueMap: Record<string, number[]> = {
+    'england': [39], // Premier League
+    'italy': [135],  // Serie A (Italy)
+    'europe': [2, 3], // Champions League, Europa League
+    'brazil': [71],  // Serie A (Brazil)
+    'spain': [140],  // La Liga
+    'germany': [78]  // Bundesliga
+  };
   
   // Fetch all leagues
   useEffect(() => {
@@ -94,12 +107,14 @@ const Home = () => {
           
           {/* Right column - Popular Leagues */}
           <div className="lg:col-span-3 bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="p-3 border-b">
-              <h2 className="text-base font-bold">Popular Football Leagues</h2>
-            </div>
+            {/* Country filter */}
+            <LeagueCountryFilter onSelectCountry={setFilteredCountry} />
             
             <div className="space-y-1">
-              {popularLeagues.map((leagueId) => (
+              {(filteredCountry 
+                ? countryLeagueMap[filteredCountry] || [] 
+                : popularLeagues
+              ).map((leagueId) => (
                 <LeagueMatchCard key={leagueId} leagueId={leagueId} />
               ))}
             </div>

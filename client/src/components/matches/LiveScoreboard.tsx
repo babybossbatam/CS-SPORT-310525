@@ -232,8 +232,8 @@ const LiveScoreboard = memo(() => {
             </div>
           </div>
           
-          {/* VS label (positioned at the center of the gradients) */}
-          <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 text-white font-bold text-xl bg-black/80 rounded-full h-8 w-8 flex items-center justify-center z-20" style={{ marginBottom: '16px' }}>
+          {/* VS label (positioned in center of gradient containers) */}
+          <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 text-white font-bold text-xl bg-black/80 rounded-full h-8 w-8 flex items-center justify-center z-20" style={{ marginBottom: '16px', bottom: '16px' }}>
             VS
           </div>
         </div>
