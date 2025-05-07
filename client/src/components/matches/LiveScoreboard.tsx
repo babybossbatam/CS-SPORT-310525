@@ -193,45 +193,48 @@ const LiveScoreboard = memo(() => {
           </div>
         </div>
         
-        {/* Teams with dynamic gradients based on team names - meeting in the middle */}
+        {/* Teams with dynamic gradients based on team names - equal width meeting in middle */}
         <div className="flex rounded-md overflow-hidden relative h-16">
-          {/* Home team logo - positioned at the leftmost */}
-          <div className="absolute bottom-0 left-0 z-10">
-            <img 
-              src={featured.teams.home.logo} 
-              alt={featured.teams.home.name}
-              className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-              }}
-            />
+          {/* Container for both gradients that meet in the middle with same width */}
+          <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
+            {/* Home team logo - positioned at the leftmost */}
+            <div className="absolute bottom-0 left-0 z-10">
+              <img 
+                src={featured.teams.home.logo} 
+                alt={featured.teams.home.name}
+                className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                }}
+              />
+            </div>
+            
+            {/* Home team - gradient extending exactly 50% */}
+            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center`}>
+              <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+            </div>
+            
+            {/* Away team - gradient extending exactly 50% */}
+            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`}>
+              <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+            </div>
+            
+            {/* Away team logo - positioned at the rightmost */}
+            <div className="absolute bottom-0 right-0 z-10">
+              <img 
+                src={featured.teams.away.logo} 
+                alt={featured.teams.away.name}
+                className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                }}
+              />
+            </div>
           </div>
           
-          {/* Home team - gradient extending from logo to middle */}
-          <div className={`absolute bottom-0 left-8 w-[calc(50%-8px)] ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
-            <div className="ml-10 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
-          </div>
-          
-          {/* VS label (positioned in center, on top of where gradients meet) */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
+          {/* VS label (positioned exactly in the center where gradients meet) */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/80 rounded-full h-8 w-8 flex items-center justify-center z-20">
             VS
-          </div>
-          
-          {/* Away team - gradient extending from logo to middle */}
-          <div className={`absolute bottom-0 right-8 w-[calc(50%-8px)] ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
-            <div className="mr-10 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
-          </div>
-          
-          {/* Away team logo - positioned at the rightmost */}
-          <div className="absolute bottom-0 right-0 z-10">
-            <img 
-              src={featured.teams.away.logo} 
-              alt={featured.teams.away.name}
-              className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-              }}
-            />
           </div>
         </div>
         
