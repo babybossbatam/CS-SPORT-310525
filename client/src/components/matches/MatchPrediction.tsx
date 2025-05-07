@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { InfoIcon } from 'lucide-react';
+import { ArrowBigUp, HelpCircle } from 'lucide-react';
 
 interface MatchPredictionProps {
   homeTeam: {
@@ -24,120 +23,150 @@ interface MatchPredictionProps {
 const MatchPrediction: React.FC<MatchPredictionProps> = ({
   homeTeam,
   awayTeam,
-  // Default to somewhat balanced predictions if none provided
-  homeWinProbability = 40,
-  drawProbability = 30,
-  awayWinProbability = 30
+  homeWinProbability = 45,
+  drawProbability = 28,
+  awayWinProbability = 27
 }) => {
-  const [showDetails, setShowDetails] = useState(false);
+  // Determine which team is favored
+  const favoredTeam = homeWinProbability > awayWinProbability ? homeTeam : awayTeam;
+  const isFavoredHome = favoredTeam.id === homeTeam.id;
+  const favoredProbability = isFavoredHome ? homeWinProbability : awayWinProbability;
+  const underdog = isFavoredHome ? awayTeam : homeTeam;
+  const underdogProbability = isFavoredHome ? awayWinProbability : homeWinProbability;
   
-  // Find the highest probability
-  const highestProb = Math.max(homeWinProbability, drawProbability, awayWinProbability);
+  // Only show the favorite indicator if difference is significant (more than 10%)
+  const shouldShowFavorite = Math.abs(homeWinProbability - awayWinProbability) > 10;
   
-  // Determine the likely outcome
-  const likelyOutcome = 
-    highestProb === homeWinProbability ? 'HOME_WIN' :
-    highestProb === drawProbability ? 'DRAW' : 'AWAY_WIN';
-    
-  // Color for each prediction bar
-  const homeBarColor = "bg-blue-600";
-  const drawBarColor = "bg-gray-600";
-  const awayBarColor = "bg-red-600";
+  // Calculate prediction confidence level
+  const getConfidenceLevel = (probability: number) => {
+    if (probability >= 60) return 'High';
+    if (probability >= 45) return 'Medium';
+    return 'Low';
+  };
   
+  // Get appropriate colors for the win probability bars
+  const getProgressColor = (probability: number) => {
+    if (probability >= 50) return 'bg-green-500';
+    if (probability >= 30) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
   return (
     <Card className="w-full shadow-md">
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
+        <CardTitle className="text-lg font-bold flex items-center">
+          Match Prediction
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <InfoIcon 
-                  size={16} 
-                  className="text-gray-400 cursor-pointer"
-                  onClick={() => setShowDetails(!showDetails)}
-                />
+                <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-xs">Based on team form, head to head stats and recent performance</p>
+                <p className="text-xs max-w-xs">
+                  Predictions are based on team form, head-to-head history, and other performance factors.
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </div>
+        </CardTitle>
       </CardHeader>
+      
       <CardContent>
-        <div className="mb-4 space-y-4">
-          {/* Home win prediction */}
+        <div className="space-y-5">
+          {/* Home team prediction */}
           <div className="space-y-1">
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <img 
                   src={homeTeam.logo} 
                   alt={homeTeam.name} 
-                  className="w-5 h-5 mr-2"
+                  className="w-6 h-6 mr-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=Team';
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
                   }}
                 />
-                <span>{homeTeam.name} Win</span>
-                {likelyOutcome === 'HOME_WIN' && (
-                  <Badge className="ml-2 bg-blue-600 text-xs">Most Likely</Badge>
+                <span className="font-medium">{homeTeam.name}</span>
+                {shouldShowFavorite && isFavoredHome && (
+                  <div className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
+                    <ArrowBigUp className="h-3 w-3 mr-0.5" />
+                    <span>Favored</span>
+                  </div>
                 )}
               </div>
-              <span className="font-medium">{homeWinProbability}%</span>
+              <span className="font-bold text-lg">{homeWinProbability}%</span>
             </div>
-            <Progress value={homeWinProbability} className={`h-2 ${homeBarColor}`} />
+            <Progress value={homeWinProbability} max={100} className="h-2" 
+              style={{ backgroundColor: 'rgb(229, 231, 235)' }}>
+              <div className={`h-full ${getProgressColor(homeWinProbability)}`} style={{ width: `${homeWinProbability}%` }}></div>
+            </Progress>
+            <div className="text-xs text-gray-500 flex justify-between">
+              <span>Win confidence: {getConfidenceLevel(homeWinProbability)}</span>
+              <span>Home advantage</span>
+            </div>
           </div>
           
           {/* Draw prediction */}
           <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <div className="flex items-center">
-                <span className="ml-7">Draw</span>
-                {likelyOutcome === 'DRAW' && (
-                  <Badge className="ml-2 bg-gray-600 text-xs">Most Likely</Badge>
-                )}
-              </div>
-              <span className="font-medium">{drawProbability}%</span>
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Draw</span>
+              <span className="font-bold text-lg">{drawProbability}%</span>
             </div>
-            <Progress value={drawProbability} className={`h-2 ${drawBarColor}`} />
+            <Progress value={drawProbability} max={100} className="h-2" 
+              style={{ backgroundColor: 'rgb(229, 231, 235)' }}>
+              <div className="h-full bg-gray-400" style={{ width: `${drawProbability}%` }}></div>
+            </Progress>
           </div>
           
-          {/* Away win prediction */}
+          {/* Away team prediction */}
           <div className="space-y-1">
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <img 
                   src={awayTeam.logo} 
                   alt={awayTeam.name} 
-                  className="w-5 h-5 mr-2"
+                  className="w-6 h-6 mr-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=Team';
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
                   }}
                 />
-                <span>{awayTeam.name} Win</span>
-                {likelyOutcome === 'AWAY_WIN' && (
-                  <Badge className="ml-2 bg-red-600 text-xs">Most Likely</Badge>
+                <span className="font-medium">{awayTeam.name}</span>
+                {shouldShowFavorite && !isFavoredHome && (
+                  <div className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
+                    <ArrowBigUp className="h-3 w-3 mr-0.5" />
+                    <span>Favored</span>
+                  </div>
                 )}
               </div>
-              <span className="font-medium">{awayWinProbability}%</span>
+              <span className="font-bold text-lg">{awayWinProbability}%</span>
             </div>
-            <Progress value={awayWinProbability} className={`h-2 ${awayBarColor}`} />
+            <Progress value={awayWinProbability} max={100} className="h-2" 
+              style={{ backgroundColor: 'rgb(229, 231, 235)' }}>
+              <div className={`h-full ${getProgressColor(awayWinProbability)}`} style={{ width: `${awayWinProbability}%` }}></div>
+            </Progress>
+            <div className="text-xs text-gray-500">
+              Win confidence: {getConfidenceLevel(awayWinProbability)}
+            </div>
           </div>
-        </div>
-        
-        {showDetails && (
-          <div className="mt-4 pt-4 border-t border-gray-100 text-sm">
-            <h4 className="font-medium mb-2">Prediction Factors:</h4>
-            <ul className="list-disc pl-5 space-y-1 text-xs text-gray-600">
-              <li>Recent team form and performance</li>
-              <li>Historical head-to-head results</li>
-              <li>Home/away advantage</li>
-              <li>Key player availability</li>
-              <li>Recent scoring patterns</li>
+          
+          {/* Factors */}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <h4 className="text-sm font-medium mb-2">Key Factors</h4>
+            <ul className="text-xs space-y-1 text-gray-700">
+              <li className="flex items-start">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 mr-2"></span>
+                {favoredTeam.name} has won {Math.round(favoredProbability / 10)} of their last 10 matches
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 mr-2"></span>
+                Recent head-to-head: {favoredTeam.name} has the advantage
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 mr-2"></span>
+                {underdog.name}'s current form suggests {underdogProbability}% chance of upset
+              </li>
             </ul>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -69,7 +69,7 @@ interface LeagueStandings {
 }
 
 // Popular leagues by country
-const popularLeagues = {
+const popularLeagues: Record<string, { id: number; name: string; flag: string }> = {
   'England': { 
     id: 39, 
     name: 'Premier League',

@@ -1,6 +1,19 @@
 import axios from 'axios';
 import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../types';
 
+// Define standings type
+interface LeagueStandings {
+  league: {
+    id: number;
+    name: string;
+    country: string;
+    logo: string;
+    flag: string | null;
+    season: number;
+    standings: any[][];
+  };
+}
+
 // Initialize API client
 const apiClient = axios.create({
   baseURL: 'https://api-football-v1.p.rapidapi.com/v3',
@@ -242,6 +255,39 @@ export const rapidApiService = {
     } catch (error) {
       console.error(`Error fetching top scorers for league ${leagueId}:`, error);
       return cached?.data || [];
+    }
+  },
+  
+  /**
+   * Get league standings by league ID and season
+   */
+  async getLeagueStandings(leagueId: number, season: number): Promise<LeagueStandings | null> {
+    const cacheKey = `standings-${leagueId}-${season}`;
+    const cached = leaguesCache.get(cacheKey);
+    
+    const now = Date.now();
+    if (cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
+      return cached.data;
+    }
+    
+    try {
+      const response = await apiClient.get('/standings', {
+        params: { league: leagueId, season }
+      });
+      
+      if (response.data && response.data.response && response.data.response.length > 0) {
+        const standingsData = response.data.response[0];
+        leaguesCache.set(cacheKey, { 
+          data: standingsData, 
+          timestamp: now 
+        });
+        return standingsData;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error(`Error fetching standings for league ${leagueId}:`, error);
+      return cached?.data || null;
     }
   }
 };
