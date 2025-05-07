@@ -6,6 +6,12 @@ import {
   users, userPreferences, cachedFixtures, cachedLeagues
 } from "@shared/schema";
 import { FixtureResponse, LeagueResponse, NewsItem } from "./types";
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = 'https://mnqugjhbztzbkkvifzie.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Modify the interface with any CRUD methods needed
 export interface IStorage {
@@ -193,4 +199,292 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class SupabaseStorage implements IStorage {
+  // User management
+  async getUser(id: number): Promise<User | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (error) throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error getting user by ID:', error);
+      return undefined;
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      return undefined;
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      return undefined;
+    }
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .insert({ 
+          ...insertUser,
+          created_at: new Date().toISOString() 
+        })
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create user');
+      
+      return data;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  // User preferences
+  async getUserPreferences(userId: number): Promise<UserPreferences | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error getting user preferences:', error);
+      return undefined;
+    }
+  }
+
+  async createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences> {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .insert(preferences)
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create user preferences');
+      
+      return data;
+    } catch (error) {
+      console.error('Error creating user preferences:', error);
+      throw error;
+    }
+  }
+
+  async updateUserPreferences(
+    userId: number, 
+    updatedFields: Partial<InsertUserPreferences>
+  ): Promise<UserPreferences | undefined> {
+    try {
+      // First check if preferences exist
+      const existingPrefs = await this.getUserPreferences(userId);
+      
+      if (!existingPrefs) {
+        return undefined;
+      }
+      
+      // Update preferences
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .update(updatedFields)
+        .eq('id', existingPrefs.id)
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      return undefined;
+    }
+  }
+
+  // Fixtures
+  async getCachedFixture(fixtureId: string): Promise<CachedFixture | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('cached_fixtures')
+        .select('*')
+        .eq('fixture_id', fixtureId)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error getting cached fixture:', error);
+      return undefined;
+    }
+  }
+
+  async getCachedFixturesByLeague(leagueId: string, date?: string): Promise<CachedFixture[]> {
+    try {
+      let query = supabase
+        .from('cached_fixtures')
+        .select('*')
+        .eq('league', leagueId);
+        
+      if (date) {
+        query = query.eq('date', date);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error getting fixtures by league:', error);
+      return [];
+    }
+  }
+
+  async createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture> {
+    try {
+      const { data, error } = await supabase
+        .from('cached_fixtures')
+        .insert({ 
+          ...fixture,
+          timestamp: new Date().toISOString() 
+        })
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      if (!data) throw new Error('Failed to cache fixture');
+      
+      return data;
+    } catch (error) {
+      console.error('Error caching fixture:', error);
+      throw error;
+    }
+  }
+
+  async updateCachedFixture(fixtureId: string, data: any): Promise<CachedFixture | undefined> {
+    try {
+      const { data: updatedData, error } = await supabase
+        .from('cached_fixtures')
+        .update({ 
+          data,
+          timestamp: new Date().toISOString() 
+        })
+        .eq('fixture_id', fixtureId)
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      return updatedData || undefined;
+    } catch (error) {
+      console.error('Error updating cached fixture:', error);
+      return undefined;
+    }
+  }
+
+  // Leagues
+  async getCachedLeague(leagueId: string): Promise<CachedLeague | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('cached_leagues')
+        .select('*')
+        .eq('league_id', leagueId)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      return data || undefined;
+    } catch (error) {
+      console.error('Error getting cached league:', error);
+      return undefined;
+    }
+  }
+
+  async getAllCachedLeagues(): Promise<CachedLeague[]> {
+    try {
+      const { data, error } = await supabase
+        .from('cached_leagues')
+        .select('*');
+        
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error getting all cached leagues:', error);
+      return [];
+    }
+  }
+
+  async createCachedLeague(league: InsertCachedLeague): Promise<CachedLeague> {
+    try {
+      const { data, error } = await supabase
+        .from('cached_leagues')
+        .insert({ 
+          ...league,
+          timestamp: new Date().toISOString() 
+        })
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      if (!data) throw new Error('Failed to cache league');
+      
+      return data;
+    } catch (error) {
+      console.error('Error caching league:', error);
+      throw error;
+    }
+  }
+
+  async updateCachedLeague(leagueId: string, data: any): Promise<CachedLeague | undefined> {
+    try {
+      const { data: updatedData, error } = await supabase
+        .from('cached_leagues')
+        .update({ 
+          data,
+          timestamp: new Date().toISOString() 
+        })
+        .eq('league_id', leagueId)
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      return updatedData || undefined;
+    } catch (error) {
+      console.error('Error updating cached league:', error);
+      return undefined;
+    }
+  }
+}
+
+// Choose which storage to use
+// We're using Supabase storage for production
+export const storage = new SupabaseStorage();
