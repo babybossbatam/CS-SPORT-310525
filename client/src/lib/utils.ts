@@ -140,3 +140,36 @@ export function isLiveMatch(status: string): boolean {
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
+
+// Team color mapping based on common team colors
+export const teamColorMap: Record<string, { primary: string, secondary: string }> = {
+  // Champions League teams
+  'PSG': { primary: 'from-blue-900', secondary: 'to-blue-700' },
+  'Arsenal': { primary: 'from-red-900', secondary: 'to-red-700' },
+  'Real Madrid': { primary: 'from-indigo-900', secondary: 'to-indigo-700' },
+  'Barcelona': { primary: 'from-blue-800', secondary: 'to-red-800' },
+  'Manchester City': { primary: 'from-sky-600', secondary: 'to-sky-400' },
+  'Manchester United': { primary: 'from-red-800', secondary: 'to-red-600' },
+  'Chelsea': { primary: 'from-blue-800', secondary: 'to-blue-600' },
+  'Liverpool': { primary: 'from-red-700', secondary: 'to-red-500' },
+  'Bayern Munich': { primary: 'from-red-800', secondary: 'to-blue-800' },
+  'Juventus': { primary: 'from-black', secondary: 'to-white' },
+  'AC Milan': { primary: 'from-red-900', secondary: 'to-black' },
+  'Inter': { primary: 'from-blue-900', secondary: 'to-black' },
+  'Atletico Madrid': { primary: 'from-red-700', secondary: 'to-white' },
+  'Borussia Dortmund': { primary: 'from-yellow-500', secondary: 'to-black' },
+  
+  // Default fallback
+  'default': { primary: 'from-gray-800', secondary: 'to-gray-600' }
+};
+
+// Get team gradient colors
+export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
+  const teamKey = Object.keys(teamColorMap).find(key => 
+    teamName.toLowerCase().includes(key.toLowerCase())
+  ) || 'default';
+  
+  const colors = teamColorMap[teamKey];
+  
+  return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+}

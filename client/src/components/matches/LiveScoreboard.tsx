@@ -7,6 +7,7 @@ import { Activity, Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-rea
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
 import { format } from 'date-fns';
+import { formatMatchDate, getTeamGradient } from '@/lib/utils';
 
 const LiveScoreboard = () => {
   const [, navigate] = useLocation();
@@ -109,10 +110,10 @@ const LiveScoreboard = () => {
           </div>
         </div>
         
-        {/* Teams with gradients - based on your image */}
+        {/* Teams with dynamic gradients based on team names */}
         <div className="flex rounded-md overflow-hidden">
-          {/* Home team */}
-          <div className="w-1/2 bg-gradient-to-r from-blue-900 to-blue-700 p-4 flex items-center group cursor-pointer transition-all duration-300 hover:from-blue-800 hover:to-blue-600">
+          {/* Home team - using dynamic color from team name */}
+          <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center group cursor-pointer transition-all duration-300`} style={{ height: '64px' }}>
             <img 
               src={featured.teams.home.logo} 
               alt={featured.teams.home.name}
@@ -121,7 +122,7 @@ const LiveScoreboard = () => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
               }}
             />
-            <div className="text-white font-bold text-lg uppercase group-hover:text-white/90">{featured.teams.home.name}</div>
+            <div className="text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
           </div>
           
           {/* VS label (positioned absolutely) */}
@@ -129,9 +130,9 @@ const LiveScoreboard = () => {
             VS
           </div>
           
-          {/* Away team */}
-          <div className="w-1/2 bg-gradient-to-l from-red-900 to-red-700 p-4 flex items-center justify-end group cursor-pointer transition-all duration-300 hover:from-red-800 hover:to-red-600">
-            <div className="text-white font-bold text-lg uppercase text-right group-hover:text-white/90">{featured.teams.away.name}</div>
+          {/* Away team - using dynamic color from team name */}
+          <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end group cursor-pointer transition-all duration-300`} style={{ height: '64px' }}>
+            <div className="text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             <img 
               src={featured.teams.away.logo} 
               alt={featured.teams.away.name}
