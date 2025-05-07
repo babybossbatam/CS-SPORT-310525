@@ -22,7 +22,7 @@ const LiveScoreboard = () => {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-20 w-full" />
         </CardContent>
       </Card>
     );
@@ -69,51 +69,71 @@ const LiveScoreboard = () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="bg-gradient-to-r from-blue-700 to-red-700 p-4 text-white">
-          <div className="flex justify-between items-center">
-            <div className="text-center">
-              <img 
-                src={featured.teams.home.logo} 
-                alt={featured.teams.home.name}
-                className="h-16 w-16 mx-auto"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <div className="mt-2 font-semibold">{featured.teams.home.name}</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-xl font-bold bg-white text-black rounded-full w-10 h-10 flex items-center justify-center mx-auto">
-                VS
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <img 
-                src={featured.teams.away.logo} 
-                alt={featured.teams.away.name}
-                className="h-16 w-16 mx-auto"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <div className="mt-2 font-semibold">{featured.teams.away.name}</div>
-            </div>
-          </div>
+      
+      {/* Match display with straight line background */}
+      <div 
+        className="relative h-20 cursor-pointer overflow-hidden"
+        onClick={() => navigate(`/match/${featured.fixture.id}`)}
+      >
+        {/* Background with gradient */}
+        <div className="absolute inset-0 flex">
+          <div className="w-1/2 bg-blue-800"></div>
+          <div className="w-1/2 bg-red-700"></div>
         </div>
         
-        <div className="p-4 text-center">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/match/${featured.fixture.id}`)}
-            className="text-sm"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Match Details
-          </Button>
+        {/* Content */}
+        <div className="relative flex items-center justify-between h-full px-2 text-white z-10">
+          {/* Home Team Logo */}
+          <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center">
+            <img 
+              src={featured.teams.home.logo} 
+              alt={featured.teams.home.name}
+              className="max-h-16 max-w-16 rounded-full border-2 border-white shadow-lg"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
+              }}
+            />
+          </div>
+          
+          {/* Home Team Name */}
+          <div className="flex-1 text-right font-bold mr-2 text-shadow">
+            {featured.teams.home.name}
+          </div>
+          
+          {/* VS */}
+          <div className="flex-shrink-0 bg-white text-gray-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mx-2 shadow-md">
+            VS
+          </div>
+          
+          {/* Away Team Name */}
+          <div className="flex-1 text-left font-bold ml-2 text-shadow">
+            {featured.teams.away.name}
+          </div>
+          
+          {/* Away Team Logo */}
+          <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center">
+            <img 
+              src={featured.teams.away.logo} 
+              alt={featured.teams.away.name}
+              className="max-h-16 max-w-16 rounded-full border-2 border-white shadow-lg"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
+              }}
+            />
+          </div>
         </div>
+      </div>
+      
+      <CardContent className="p-3 text-center bg-gray-100">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate(`/match/${featured.fixture.id}`)}
+          className="text-xs"
+        >
+          <Calendar className="h-3 w-3 mr-1" />
+          View Match Details
+        </Button>
       </CardContent>
     </Card>
   );
