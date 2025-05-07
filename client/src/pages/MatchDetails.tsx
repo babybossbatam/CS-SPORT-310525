@@ -58,7 +58,7 @@ const MatchDetails = () => {
     
     // If match is live, set up polling for updates
     if (currentFixture && isLiveMatch(currentFixture.fixture.status.short)) {
-      const intervalId = setInterval(fetchMatchDetails, 60000); // Update every minute
+      const intervalId = setInterval(fetchMatchDetails, 1800000); // Update every 30 minutes (1,800,000 ms)
       return () => clearInterval(intervalId);
     }
   }, [id, dispatch, toast, currentFixture?.fixture.status.short]);
