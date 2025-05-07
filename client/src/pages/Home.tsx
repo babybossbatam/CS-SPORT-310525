@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, leaguesActions } from '@/lib/store';
+import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
@@ -15,6 +15,7 @@ import RegionModal from '@/components/modals/RegionModal';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { format, addDays } from 'date-fns';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -48,6 +49,29 @@ const Home = () => {
     
     fetchLeagues();
   }, [dispatch, toast]);
+  
+  // Fetch upcoming fixtures for tomorrow to display in the scoreboard when no live matches
+  useEffect(() => {
+    const fetchUpcomingFixtures = async () => {
+      try {
+        // Get tomorrow's date in YYYY-MM-DD format
+        const tomorrow = addDays(new Date(), 1);
+        const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
+        
+        const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowFormatted}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          dispatch(fixturesActions.setUpcomingFixtures(data));
+        }
+      } catch (error) {
+        console.error('Error fetching upcoming fixtures:', error);
+        // No toast needed for this as it's not critical - we'll just fallback gracefully
+      }
+    };
+    
+    fetchUpcomingFixtures();
+  }, [dispatch]);
   
   return (
     <>
