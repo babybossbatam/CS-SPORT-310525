@@ -1,193 +1,151 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip as RechartsTooltip, 
-  Legend, 
-  ResponsiveContainer,
-  LineChart,
-  Line
-} from 'recharts';
+import { HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Type for match result
-interface MatchResult {
+interface TeamInfo {
+  id: number;
+  name: string;
+  logo: string;
+}
+
+interface PerformanceData {
   date: string;
-  competition: string;
   opponent: string;
   result: 'W' | 'D' | 'L';
   score: string;
-  venue: 'H' | 'A';
-}
-
-// Type for performance metrics
-interface PerformanceMetrics {
-  goalsScored: number[];
-  goalsConceded: number[];
-  possession: number[];
-  shotsOnTarget: number[];
-  fouls: number[];
-  matches: string[];
+  isHome: boolean;
 }
 
 interface TeamPerformanceTimelineProps {
-  teamId: number;
-  teamName: string;
-  teamLogo: string;
-  recentMatches?: MatchResult[];
-  performanceMetrics?: PerformanceMetrics;
+  team: TeamInfo;
+  performances?: PerformanceData[];
 }
 
-const defaultRecentMatches: MatchResult[] = [
-  { date: '2025-05-01', competition: 'Premier League', opponent: 'Manchester City', result: 'W', score: '2-1', venue: 'H' },
-  { date: '2025-04-24', competition: 'Premier League', opponent: 'Liverpool', result: 'D', score: '2-2', venue: 'A' },
-  { date: '2025-04-17', competition: 'Premier League', opponent: 'Chelsea', result: 'L', score: '0-3', venue: 'A' },
-  { date: '2025-04-10', competition: 'Premier League', opponent: 'Arsenal', result: 'W', score: '1-0', venue: 'H' },
-  { date: '2025-04-03', competition: 'Premier League', opponent: 'Tottenham', result: 'W', score: '3-1', venue: 'H' },
-];
-
-const defaultPerformanceMetrics: PerformanceMetrics = {
-  goalsScored: [2, 2, 0, 1, 3],
-  goalsConceded: [1, 2, 3, 0, 1],
-  possession: [52, 45, 38, 55, 60],
-  shotsOnTarget: [6, 4, 2, 7, 8],
-  fouls: [10, 8, 12, 7, 5],
-  matches: ['vs MCI', 'vs LIV', 'vs CHE', 'vs ARS', 'vs TOT']
-};
-
 const TeamPerformanceTimeline: React.FC<TeamPerformanceTimelineProps> = ({
-  teamId,
-  teamName,
-  teamLogo,
-  recentMatches = defaultRecentMatches,
-  performanceMetrics = defaultPerformanceMetrics
+  team,
+  performances = [
+    // Sample data - in a real app this would come from API
+    { date: '2025-04-25', opponent: 'Chelsea', result: 'W', score: '2-1', isHome: true },
+    { date: '2025-04-18', opponent: 'Crystal Palace', result: 'D', score: '0-0', isHome: false },
+    { date: '2025-04-12', opponent: 'Manchester City', result: 'L', score: '0-3', isHome: true },
+    { date: '2025-04-05', opponent: 'Aston Villa', result: 'W', score: '2-0', isHome: false },
+    { date: '2025-03-29', opponent: 'Liverpool', result: 'D', score: '1-1', isHome: true }
+  ]
 }) => {
-  const [activeTab, setActiveTab] = useState('form');
-  
-  // Combine metrics data for charts
-  const chartData = performanceMetrics.matches.map((match, idx) => ({
-    match,
-    goalsScored: performanceMetrics.goalsScored[idx],
-    goalsConceded: performanceMetrics.goalsConceded[idx],
-    possession: performanceMetrics.possession[idx],
-    shotsOnTarget: performanceMetrics.shotsOnTarget[idx],
-    fouls: performanceMetrics.fouls[idx]
-  }));
+  // Get a color for the result
+  const getResultColor = (result: string) => {
+    switch(result) {
+      case 'W': return 'bg-green-500';
+      case 'D': return 'bg-yellow-500';
+      case 'L': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  // Format date to be more readable
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   return (
-    <Card className="w-full shadow-md overflow-hidden">
+    <Card className="w-full shadow-md">
       <CardHeader className="pb-2">
-        <div className="flex items-center">
-          <img 
-            src={teamLogo} 
-            alt={teamName} 
-            className="w-6 h-6 mr-2"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-            }}
-          />
-          <CardTitle className="text-lg font-bold">{teamName} Performance</CardTitle>
-        </div>
+        <CardTitle className="text-lg font-bold flex items-center">
+          {team.name} Recent Performance
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">
+                  Recent match results for {team.name}, showing their performance over the last 5 games.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </CardTitle>
       </CardHeader>
-      
-      <Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
-        <div className="px-4 border-b">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="form">Recent Form</TabsTrigger>
-            <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="stats">Stats</TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <CardContent>
-          {/* Recent Form Tab */}
-          <TabsContent value="form" className="pt-4">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium text-sm">Last {recentMatches.length} Matches</h3>
-                <div className="flex gap-2">
-                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
-                    W: {recentMatches.filter(m => m.result === 'W').length}
-                  </Badge>
-                  <Badge variant="outline" className="bg-gray-100 text-gray-700 border-gray-200">
-                    D: {recentMatches.filter(m => m.result === 'D').length}
-                  </Badge>
-                  <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">
-                    L: {recentMatches.filter(m => m.result === 'L').length}
-                  </Badge>
+      <CardContent>
+        <div className="relative pt-1 pb-3">
+          {/* Team logo */}
+          <div className="flex items-center mb-4">
+            <img 
+              src={team.logo} 
+              alt={team.name} 
+              className="w-10 h-10 mr-3"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
+              }}
+            />
+            <div>
+              <div className="font-medium">{team.name}</div>
+              <div className="text-xs text-gray-500">Last 5 matches</div>
+            </div>
+          </div>
+          
+          {/* Performance Timeline */}
+          <div className="space-y-4">
+            {performances.map((perf, index) => (
+              <div key={index} className="relative flex">
+                {/* Timeline connector */}
+                {index < performances.length - 1 && (
+                  <div className="absolute left-3 top-6 w-0.5 h-full bg-gray-200"></div>
+                )}
+                
+                {/* Result indicator */}
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-xs z-10 ${getResultColor(perf.result)}`}>
+                  {perf.result}
+                </div>
+                
+                {/* Match details */}
+                <div className="ml-4 flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-medium text-sm">
+                        vs {perf.opponent} {perf.isHome ? '(Home)' : '(Away)'}
+                      </div>
+                      <div className="text-xs text-gray-500">{formatDate(perf.date)}</div>
+                    </div>
+                    <div className="text-sm font-semibold">{perf.score}</div>
+                  </div>
+                  
+                  {/* Divider */}
+                  {index < performances.length - 1 && (
+                    <div className="pt-3"></div>
+                  )}
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                {recentMatches.map((match, index) => (
-                  <div 
-                    key={`${match.date}-${match.opponent}`}
-                    className="flex items-center justify-between p-2 rounded bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center">
-                      <Badge 
-                        className={`mr-2 ${
-                          match.result === 'W' ? 'bg-green-600' : 
-                          match.result === 'D' ? 'bg-gray-400' : 'bg-red-600'
-                        }`}
-                      >
-                        {match.result}
-                      </Badge>
-                      <div>
-                        <div className="text-sm font-medium">{match.opponent}</div>
-                        <div className="text-xs text-gray-500">{match.competition} • {match.venue === 'H' ? 'Home' : 'Away'}</div>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold">{match.score}</div>
-                  </div>
-                ))}
+            ))}
+          </div>
+          
+          {/* Performance Summary */}
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div className="text-xl font-bold text-green-600">
+                  {performances.filter(p => p.result === 'W').length}
+                </div>
+                <div className="text-xs text-gray-500">Wins</div>
+              </div>
+              <div>
+                <div className="text-xl font-bold text-yellow-600">
+                  {performances.filter(p => p.result === 'D').length}
+                </div>
+                <div className="text-xs text-gray-500">Draws</div>
+              </div>
+              <div>
+                <div className="text-xl font-bold text-red-600">
+                  {performances.filter(p => p.result === 'L').length}
+                </div>
+                <div className="text-xs text-gray-500">Losses</div>
               </div>
             </div>
-          </TabsContent>
-          
-          {/* Goals Tab */}
-          <TabsContent value="goals" className="pt-4 h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={chartData}
-                margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="match" />
-                <YAxis />
-                <RechartsTooltip />
-                <Legend />
-                <Bar dataKey="goalsScored" name="Goals Scored" fill="#3b82f6" />
-                <Bar dataKey="goalsConceded" name="Goals Conceded" fill="#ef4444" />
-              </BarChart>
-            </ResponsiveContainer>
-          </TabsContent>
-          
-          {/* Stats Tab */}
-          <TabsContent value="stats" className="pt-4 h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={chartData}
-                margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="match" />
-                <YAxis />
-                <RechartsTooltip />
-                <Legend />
-                <Line type="monotone" dataKey="possession" name="Possession %" stroke="#6366f1" />
-                <Line type="monotone" dataKey="shotsOnTarget" name="Shots on Target" stroke="#f97316" />
-                <Line type="monotone" dataKey="fouls" name="Fouls" stroke="#a855f7" />
-              </LineChart>
-            </ResponsiveContainer>
-          </TabsContent>
-        </CardContent>
-      </Tabs>
+          </div>
+        </div>
+      </CardContent>
     </Card>
   );
 };

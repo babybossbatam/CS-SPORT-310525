@@ -14,6 +14,9 @@ import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered } from 'lucide-r
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import MatchPrediction from '@/components/matches/MatchPrediction';
+import HistoricalMatchStats from '@/components/matches/HistoricalMatchStats';
+import TeamPerformanceTimeline from '@/components/matches/TeamPerformanceTimeline';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -386,27 +389,30 @@ const MatchDetails = () => {
               </TabsContent>
               
               <TabsContent value="h2h" className="mt-2">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-500">
-                        Head-to-head comparison and previous matches between these teams will be displayed here.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <HistoricalMatchStats 
+                    homeTeam={currentFixture.teams.home}
+                    awayTeam={currentFixture.teams.away}
+                  />
+                  <TeamPerformanceTimeline
+                    team={currentFixture.teams.home}
+                  />
+                </div>
               </TabsContent>
               
               <TabsContent value="lineups" className="mt-2">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-500">
-                        Team lineups and formations will be displayed here.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <MatchPrediction 
+                    homeTeam={currentFixture.teams.home}
+                    awayTeam={currentFixture.teams.away}
+                    homeWinProbability={55}
+                    drawProbability={25}
+                    awayWinProbability={20}
+                  />
+                  <TeamPerformanceTimeline
+                    team={currentFixture.teams.away}
+                  />
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
