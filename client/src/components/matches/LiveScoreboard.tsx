@@ -22,7 +22,7 @@ const LiveScoreboard = () => {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-10 w-full" />
         </CardContent>
       </Card>
     );
@@ -70,9 +70,9 @@ const LiveScoreboard = () => {
         </div>
       </CardHeader>
       
-      {/* Match display with straight line background */}
+      {/* Match display with straight line background - 50% reduced height */}
       <div 
-        className="relative h-20 cursor-pointer overflow-hidden"
+        className="relative h-10 cursor-pointer overflow-hidden"
         onClick={() => navigate(`/match/${featured.fixture.id}`)}
       >
         {/* Background with gradient */}
@@ -83,39 +83,39 @@ const LiveScoreboard = () => {
         
         {/* Content */}
         <div className="relative flex items-center justify-between h-full px-2 text-white z-10">
-          {/* Home Team Logo */}
-          <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center">
+          {/* Home Team Logo - 50% larger */}
+          <div className="flex-shrink-0 w-20 h-10 flex items-center justify-center">
             <img 
               src={featured.teams.home.logo} 
               alt={featured.teams.home.name}
-              className="max-h-16 max-w-16 rounded-full border-2 border-white shadow-lg"
+              className="max-h-9 max-w-9 rounded-full border-2 border-white shadow-lg"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
               }}
             />
           </div>
           
-          {/* Home Team Name */}
-          <div className="flex-1 text-right font-bold mr-2 text-shadow">
+          {/* Home Team Name - moved away and uppercase */}
+          <div className="flex-1 text-right font-semibold mr-4 text-shadow uppercase text-sm tracking-wider">
             {featured.teams.home.name}
           </div>
           
           {/* VS */}
-          <div className="flex-shrink-0 bg-white text-gray-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mx-2 shadow-md">
+          <div className="flex-shrink-0 bg-white text-gray-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md text-xs">
             VS
           </div>
           
-          {/* Away Team Name */}
-          <div className="flex-1 text-left font-bold ml-2 text-shadow">
+          {/* Away Team Name - moved away and uppercase */}
+          <div className="flex-1 text-left font-semibold ml-4 text-shadow uppercase text-sm tracking-wider">
             {featured.teams.away.name}
           </div>
           
-          {/* Away Team Logo */}
-          <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center">
+          {/* Away Team Logo - 50% larger */}
+          <div className="flex-shrink-0 w-20 h-10 flex items-center justify-center">
             <img 
               src={featured.teams.away.logo} 
               alt={featured.teams.away.name}
-              className="max-h-16 max-w-16 rounded-full border-2 border-white shadow-lg"
+              className="max-h-9 max-w-9 rounded-full border-2 border-white shadow-lg"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
               }}
