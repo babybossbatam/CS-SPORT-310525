@@ -272,6 +272,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch top scorers" });
     }
   });
+  
+  // New endpoint for league standings
+  apiRouter.get("/leagues/:id/standings", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const season = parseInt(req.query.season as string) || new Date().getFullYear();
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid league ID" });
+      }
+      
+      const standings = await rapidApiService.getLeagueStandings(id, season);
+      res.json(standings);
+    } catch (error) {
+      console.error("Error fetching standings for league:", error);
+      res.status(500).json({ message: "Failed to fetch standings data" });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);
