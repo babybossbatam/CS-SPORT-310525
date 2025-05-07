@@ -12,6 +12,10 @@ import { formatElapsedTime, isLiveMatch, formatDateTime, formatMatchDate } from 
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 
+// Import custom components
+import TeamPerformanceChart from './TeamPerformanceChart';
+import MatchIntensityIndicator from './MatchIntensityIndicator';
+
 const LiveScoreboard = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
@@ -239,8 +243,39 @@ const LiveScoreboard = () => {
                 </div>
               </div>
 
-              <div className="text-center p-2 text-sm text-gray-600">
-                {matchTime} {venue ? `| ${venue}` : ''}
+              {/* Match Details & Intensity */}
+              <div className="py-3 px-4 flex items-center justify-between border-b border-gray-100">
+                <div className="text-xs text-gray-600">
+                  {matchTime} {venue ? `| ${venue}` : ''}
+                </div>
+                
+                <MatchIntensityIndicator 
+                  intensity={isLive ? 75 : 50} 
+                  isLive={isLive} 
+                />
+              </div>
+              
+              {/* Team Performance Charts */}
+              <div className="flex justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+                <div className="w-5/12">
+                  <div className="text-xs font-medium mb-1 text-gray-700">Home Form</div>
+                  <TeamPerformanceChart 
+                    teamId={featureFixture.teams.home.id}
+                    recentForm="W,W,D,L,W"
+                    performance={70}
+                  />
+                </div>
+                
+                <div className="border-r border-gray-200"></div>
+                
+                <div className="w-5/12">
+                  <div className="text-xs font-medium mb-1 text-gray-700">Away Form</div>
+                  <TeamPerformanceChart 
+                    teamId={featureFixture.teams.away.id}
+                    recentForm="L,W,W,D,W"
+                    performance={80}
+                  />
+                </div>
               </div>
               
               <div className="flex justify-around p-2 border-t border-gray-100">
