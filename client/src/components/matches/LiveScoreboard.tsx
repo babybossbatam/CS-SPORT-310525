@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Activity, ChevronLeft, ChevronRight, Clock, Calendar } from 'lucide-react';
+import { Activity, ChevronLeft, ChevronRight, Clock, Calendar, Flag, Loader2 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { formatElapsedTime, isLiveMatch, formatDateTime, formatMatchDate } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
 const LiveScoreboard = () => {
   const [, navigate] = useLocation();
@@ -130,6 +131,7 @@ const LiveScoreboard = () => {
           <CardHeader className="p-2 bg-gray-700 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
+                {/* League Logo */}
                 <img 
                   src={featureFixture.league.logo} 
                   alt={featureFixture.league.name}
@@ -138,7 +140,53 @@ const LiveScoreboard = () => {
                     (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
                   }}
                 />
+                
+                {/* League Name */}
                 <h3 className="text-xs font-semibold">{featureFixture.league.name} - {featureFixture.league.round}</h3>
+                
+                {/* Animated Country Flag */}
+                {featureFixture.league.flag && (
+                  <motion.div 
+                    className="ml-2 flex items-center"
+                    initial={{ y: 0 }}
+                    animate={{ 
+                      y: [0, -3, 0, -3, 0],
+                      rotateZ: [0, -5, 0, 5, 0]
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 3,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <img 
+                      src={featureFixture.league.flag}
+                      alt={`${featureFixture.league.country} flag`}
+                      className="h-4 w-6 rounded-sm shadow-sm"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </motion.div>
+                )}
+                
+                {!featureFixture.league.flag && (
+                  <motion.div 
+                    className="ml-2 flex items-center"
+                    initial={{ opacity: 0.7, scale: 1 }}
+                    animate={{ 
+                      opacity: [0.7, 1, 0.7],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 2,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <Flag className="h-3 w-3 text-yellow-400" />
+                  </motion.div>
+                )}
               </div>
               <Badge 
                 variant="outline" 
