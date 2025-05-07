@@ -79,7 +79,15 @@ const initialFixturesState: FixturesState = {
 const initialLeaguesState: LeaguesState = {
   list: [],
   current: null,
-  popularLeagues: [2, 3, 4, 39, 140], // Champions League, Europa League, World Cup, Premier League, La Liga
+  // Updated to include leagues from England, Italy, America, Brazil, Spain, Germany
+  popularLeagues: [
+    39,  // Premier League (England)
+    135, // Serie A (Italy)
+    2,   // Champions League (Europe)
+    71,  // Serie A (Brazil)
+    140, // La Liga (Spain)
+    78   // Bundesliga (Germany)
+  ], 
   loading: false,
   error: null,
 };
