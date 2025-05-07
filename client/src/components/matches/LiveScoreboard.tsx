@@ -193,23 +193,23 @@ const LiveScoreboard = memo(() => {
           </div>
         </div>
         
-        {/* Teams with dynamic gradients based on team names - with overlapping logos */}
+        {/* Teams with dynamic gradients based on team names - with logos at the leftmost/rightmost */}
         <div className="flex rounded-md overflow-hidden relative h-16">
-          {/* Home team - using dynamic color from team name */}
-          <div className={`absolute bottom-0 left-0 w-1/3 ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
-            <div className="ml-16 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
-          </div>
-          
-          {/* Home team logo - positioned above gradient */}
-          <div className="absolute bottom-0 left-4 z-10">
+          {/* Home team logo - positioned at the leftmost */}
+          <div className="absolute bottom-0 left-0 z-10">
             <img 
               src={featured.teams.home.logo} 
               alt={featured.teams.home.name}
-              className="h-16 w-16 transform transition-transform duration-300 group-hover:scale-110"
+              className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
               }}
             />
+          </div>
+          
+          {/* Home team - using dynamic color from team name */}
+          <div className={`absolute bottom-0 left-16 w-1/3 ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
+            <div className="ml-2 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
           </div>
           
           {/* VS label (positioned absolutely) */}
@@ -218,16 +218,16 @@ const LiveScoreboard = memo(() => {
           </div>
           
           {/* Away team - using dynamic color from team name */}
-          <div className={`absolute bottom-0 right-0 w-1/3 ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
-            <div className="mr-16 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+          <div className={`absolute bottom-0 right-16 w-1/3 ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
+            <div className="mr-2 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
           </div>
           
-          {/* Away team logo - positioned above gradient */}
-          <div className="absolute bottom-0 right-4 z-10">
+          {/* Away team logo - positioned at the rightmost */}
+          <div className="absolute bottom-0 right-0 z-10">
             <img 
               src={featured.teams.away.logo} 
               alt={featured.teams.away.name}
-              className="h-16 w-16 transform transition-transform duration-300 group-hover:scale-110"
+              className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
               }}
