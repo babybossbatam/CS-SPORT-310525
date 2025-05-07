@@ -8,6 +8,7 @@ import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
+import LiveScoreboard from '@/components/matches/LiveScoreboard';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
@@ -57,14 +58,8 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
       
-      {/* Ad Banner - Placeholder */}
-      <div className="bg-gray-100 py-4">
-        <div className="container mx-auto px-4">
-          <div className="bg-gray-200 rounded-md h-20 flex items-center justify-center">
-            <span className="text-gray-500 text-sm">Advertisement</span>
-          </div>
-        </div>
-      </div>
+      {/* Live Scoreboard */}
+      <LiveScoreboard />
       
       <DateNavigator />
       <MatchFilters />

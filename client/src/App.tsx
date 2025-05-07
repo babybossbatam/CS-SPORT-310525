@@ -9,6 +9,7 @@ import LeagueDetails from "@/pages/LeagueDetails";
 import MyScores from "@/pages/MyScores";
 import Settings from "@/pages/Settings";
 import SearchResults from "@/pages/SearchResults";
+import LiveMatches from "@/pages/LiveMatches";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/my-scores" component={MyScores} />
       <Route path="/settings" component={Settings} />
       <Route path="/search" component={SearchResults} />
+      <Route path="/live" component={LiveMatches} />
       <Route component={NotFound} />
     </Switch>
   );
