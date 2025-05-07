@@ -129,18 +129,16 @@ const LiveScoreboard = () => {
         <Card className="overflow-hidden">
           <CardHeader className="p-2 bg-gray-700 text-white">
             <div className="flex items-center justify-between">
-              <div className="flex items-center justify-center w-full">
-                <div className="flex items-center">
-                  <img 
-                    src={featureFixture.league.logo} 
-                    alt={featureFixture.league.name}
-                    className="h-5 w-5 mr-2"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-                    }}
-                  />
-                  <h3 className="text-xs font-semibold">{featureFixture.league.name} - {featureFixture.league.round}</h3>
-                </div>
+              <div className="flex items-center">
+                <img 
+                  src={featureFixture.league.logo} 
+                  alt={featureFixture.league.name}
+                  className="h-5 w-5 mr-2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                  }}
+                />
+                <h3 className="text-xs font-semibold">{featureFixture.league.name} - {featureFixture.league.round}</h3>
               </div>
               <Badge 
                 variant="outline" 
@@ -158,33 +156,38 @@ const LiveScoreboard = () => {
               className="cursor-pointer"
               onClick={() => navigate(`/match/${featureFixture.fixture.id}`)}
             >
-              <div className="flex bg-gradient-to-r from-blue-800 via-blue-600 to-red-600 text-white">
-                <div className="w-1/2 bg-blue-800 p-4 flex items-center justify-between">
-                  <div className="flex-grow text-right mr-3">
-                    <div className="font-bold text-lg">{featureFixture.teams.home.name}</div>
-                  </div>
+              <div className="relative flex justify-between bg-gradient-to-r from-blue-800 via-blue-600 to-red-600 text-white p-4">
+                {/* Left Team (Home) */}
+                <div className="w-2/5 flex flex-col items-center">
                   <img 
                     src={featureFixture.teams.home.logo} 
                     alt={featureFixture.teams.home.name}
-                    className="h-12 w-12"
+                    className="h-16 w-16 mb-2"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                     }}
                   />
+                  <div className="font-bold text-sm text-center">{featureFixture.teams.home.name}</div>
                 </div>
-                <div className="flex items-center justify-center text-xl font-bold mx-2">VS</div>
-                <div className="w-1/2 bg-red-600 p-4 flex items-center justify-between">
+                
+                {/* Center VS */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                  <div className="flex items-center justify-center bg-white text-blue-900 font-bold text-lg rounded-full h-10 w-10 shadow-lg">
+                    VS
+                  </div>
+                </div>
+                
+                {/* Right Team (Away) */}
+                <div className="w-2/5 flex flex-col items-center">
                   <img 
                     src={featureFixture.teams.away.logo} 
                     alt={featureFixture.teams.away.name}
-                    className="h-12 w-12"
+                    className="h-16 w-16 mb-2"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                     }}
                   />
-                  <div className="flex-grow ml-3">
-                    <div className="font-bold text-lg">{featureFixture.teams.away.name}</div>
-                  </div>
+                  <div className="font-bold text-sm text-center">{featureFixture.teams.away.name}</div>
                 </div>
               </div>
 
