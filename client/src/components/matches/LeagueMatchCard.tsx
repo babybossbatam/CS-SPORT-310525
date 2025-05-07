@@ -2,6 +2,17 @@ import { useEffect, memo, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
+
+// Type guard to check if an object is a league response
+function isValidLeagueResponse(object: any): boolean {
+  return (
+    typeof object === 'object' &&
+    object !== null &&
+    'league' in object &&
+    'country' in object &&
+    'seasons' in object
+  );
+}
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Star, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -42,7 +53,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       
       // Check if the data is in the React Query cache
       const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}`]);
-      if (cachedData && typeof cachedData === 'object' && 'league' in cachedData) {
+      if (cachedData && isValidLeagueResponse(cachedData)) {
         dispatch(leaguesActions.setLeagues([...leagues.list, cachedData]));
         return;
       }
