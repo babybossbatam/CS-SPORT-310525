@@ -193,7 +193,7 @@ const LiveScoreboard = memo(() => {
           </div>
         </div>
         
-        {/* Teams with dynamic gradients based on team names - with logos at the leftmost/rightmost */}
+        {/* Teams with dynamic gradients based on team names - meeting in the middle */}
         <div className="flex rounded-md overflow-hidden relative h-16">
           {/* Home team logo - positioned at the leftmost */}
           <div className="absolute bottom-0 left-0 z-10">
@@ -207,18 +207,18 @@ const LiveScoreboard = memo(() => {
             />
           </div>
           
-          {/* Home team - gradient from logo center to middle (VS) */}
-          <div className={`absolute bottom-0 left-8 w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
+          {/* Home team - gradient extending from logo to middle */}
+          <div className={`absolute bottom-0 left-8 w-[calc(50%-8px)] ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
             <div className="ml-10 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
           </div>
           
-          {/* VS label (positioned absolutely) */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/50 rounded-full h-8 w-8 flex items-center justify-center z-20">
+          {/* VS label (positioned in center, on top of where gradients meet) */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
             VS
           </div>
           
-          {/* Away team - gradient from logo center to middle (VS) */}
-          <div className={`absolute bottom-0 right-8 w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
+          {/* Away team - gradient extending from logo to middle */}
+          <div className={`absolute bottom-0 right-8 w-[calc(50%-8px)] ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
             <div className="mr-10 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
           </div>
           
