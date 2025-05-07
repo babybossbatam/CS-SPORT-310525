@@ -113,7 +113,7 @@ const LiveScoreboard = () => {
         {/* Teams with dynamic gradients based on team names */}
         <div className="flex rounded-md overflow-hidden">
           {/* Home team - using dynamic color from team name */}
-          <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center group cursor-pointer transition-all duration-300`} style={{ height: '64px' }}>
+          <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center group cursor-pointer transition-all duration-300`} style={{ height: '40px' }}>
             <img 
               src={featured.teams.home.logo} 
               alt={featured.teams.home.name}
@@ -131,7 +131,7 @@ const LiveScoreboard = () => {
           </div>
           
           {/* Away team - using dynamic color from team name */}
-          <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end group cursor-pointer transition-all duration-300`} style={{ height: '64px' }}>
+          <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end group cursor-pointer transition-all duration-300`} style={{ height: '40px' }}>
             <div className="text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             <img 
               src={featured.teams.away.logo} 

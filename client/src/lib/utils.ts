@@ -141,23 +141,57 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
-// Team color mapping based on common team colors
+// Team color mapping based on common team logos and colors
 export const teamColorMap: Record<string, { primary: string, secondary: string }> = {
-  // Champions League teams
-  'PSG': { primary: 'from-blue-900', secondary: 'to-blue-700' },
+  // Premier League teams
+  'Manchester City': { primary: 'from-sky-700', secondary: 'to-sky-500' },
+  'Manchester United': { primary: 'from-red-800', secondary: 'to-red-600' },
+  'Liverpool': { primary: 'from-red-700', secondary: 'to-red-500' },
+  'Chelsea': { primary: 'from-blue-800', secondary: 'to-blue-600' },
   'Arsenal': { primary: 'from-red-900', secondary: 'to-red-700' },
+  'Tottenham': { primary: 'from-blue-900', secondary: 'to-blue-800' },
+  'Newcastle': { primary: 'from-black', secondary: 'to-gray-800' },
+  'Aston Villa': { primary: 'from-indigo-900', secondary: 'to-indigo-700' },
+  'West Ham': { primary: 'from-purple-800', secondary: 'to-purple-600' },
+  'Brighton': { primary: 'from-blue-600', secondary: 'to-blue-400' },
+  'Everton': { primary: 'from-blue-800', secondary: 'to-blue-600' },
+  'Leicester': { primary: 'from-blue-700', secondary: 'to-blue-500' },
+  
+  // LaLiga teams
   'Real Madrid': { primary: 'from-indigo-900', secondary: 'to-indigo-700' },
   'Barcelona': { primary: 'from-blue-800', secondary: 'to-red-800' },
-  'Manchester City': { primary: 'from-sky-600', secondary: 'to-sky-400' },
-  'Manchester United': { primary: 'from-red-800', secondary: 'to-red-600' },
-  'Chelsea': { primary: 'from-blue-800', secondary: 'to-blue-600' },
-  'Liverpool': { primary: 'from-red-700', secondary: 'to-red-500' },
-  'Bayern Munich': { primary: 'from-red-800', secondary: 'to-blue-800' },
+  'Atletico Madrid': { primary: 'from-red-700', secondary: 'to-white' },
+  'Sevilla': { primary: 'from-red-800', secondary: 'to-red-600' },
+  'Valencia': { primary: 'from-orange-600', secondary: 'to-orange-400' },
+  'Real Betis': { primary: 'from-green-800', secondary: 'to-green-600' },
+  'Athletic Bilbao': { primary: 'from-red-700', secondary: 'to-red-500' },
+
+  // Serie A teams
   'Juventus': { primary: 'from-black', secondary: 'to-white' },
   'AC Milan': { primary: 'from-red-900', secondary: 'to-black' },
   'Inter': { primary: 'from-blue-900', secondary: 'to-black' },
-  'Atletico Madrid': { primary: 'from-red-700', secondary: 'to-white' },
+  'Napoli': { primary: 'from-blue-700', secondary: 'to-blue-500' },
+  'Roma': { primary: 'from-amber-700', secondary: 'to-red-800' },
+  'Lazio': { primary: 'from-sky-600', secondary: 'to-sky-400' },
+  
+  // Bundesliga teams
+  'Bayern Munich': { primary: 'from-red-800', secondary: 'to-blue-800' },
   'Borussia Dortmund': { primary: 'from-yellow-500', secondary: 'to-black' },
+  'RB Leipzig': { primary: 'from-red-600', secondary: 'to-red-400' },
+  'Bayer Leverkusen': { primary: 'from-red-700', secondary: 'to-red-500' },
+  
+  // Ligue 1 teams
+  'PSG': { primary: 'from-blue-900', secondary: 'to-blue-700' },
+  'Marseille': { primary: 'from-sky-600', secondary: 'to-sky-400' },
+  'Lyon': { primary: 'from-blue-700', secondary: 'to-red-700' },
+  'Monaco': { primary: 'from-red-700', secondary: 'to-white' },
+  
+  // Color mapping by common team name components
+  'United': { primary: 'from-red-900', secondary: 'to-red-700' },
+  'City': { primary: 'from-sky-700', secondary: 'to-sky-500' },
+  'Real': { primary: 'from-blue-800', secondary: 'to-blue-600' },
+  'FC': { primary: 'from-blue-900', secondary: 'to-blue-700' },
+  'Athletic': { primary: 'from-red-800', secondary: 'to-red-600' },
   
   // Default fallback
   'default': { primary: 'from-gray-800', secondary: 'to-gray-600' }
@@ -165,11 +199,27 @@ export const teamColorMap: Record<string, { primary: string, secondary: string }
 
 // Get team gradient colors
 export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
-  const teamKey = Object.keys(teamColorMap).find(key => 
+  // First try to find an exact match
+  const exactMatch = Object.keys(teamColorMap).find(key => 
+    teamName.toLowerCase() === key.toLowerCase()
+  );
+  
+  if (exactMatch) {
+    const colors = teamColorMap[exactMatch];
+    return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+  }
+  
+  // Then try to find a partial match
+  const partialMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase().includes(key.toLowerCase())
-  ) || 'default';
+  );
   
-  const colors = teamColorMap[teamKey];
+  if (partialMatch) {
+    const colors = teamColorMap[partialMatch];
+    return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+  }
   
+  // Default fallback
+  const colors = teamColorMap['default'];
   return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
 }
