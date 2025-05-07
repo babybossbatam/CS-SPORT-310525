@@ -207,9 +207,9 @@ const LiveScoreboard = memo(() => {
             />
           </div>
           
-          {/* Home team - using dynamic color from team name */}
-          <div className={`absolute bottom-0 left-16 w-1/3 ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
-            <div className="ml-2 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+          {/* Home team - gradient from logo center to middle (VS) */}
+          <div className={`absolute bottom-0 left-8 w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} group cursor-pointer transition-all duration-300 flex items-center`} style={{ height: '40px' }}>
+            <div className="ml-10 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
           </div>
           
           {/* VS label (positioned absolutely) */}
@@ -217,9 +217,9 @@ const LiveScoreboard = memo(() => {
             VS
           </div>
           
-          {/* Away team - using dynamic color from team name */}
-          <div className={`absolute bottom-0 right-16 w-1/3 ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
-            <div className="mr-2 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+          {/* Away team - gradient from logo center to middle (VS) */}
+          <div className={`absolute bottom-0 right-8 w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} group cursor-pointer transition-all duration-300 flex items-center justify-end`} style={{ height: '40px' }}>
+            <div className="mr-10 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
           </div>
           
           {/* Away team logo - positioned at the rightmost */}
