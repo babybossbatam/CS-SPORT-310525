@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, memo, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
@@ -7,7 +7,7 @@ import { Star, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getMatchStatusText } from '@/lib/utils';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 interface LeagueMatchCardProps {
@@ -29,51 +29,62 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
   
   const isFavorite = user.preferences.favoriteLeagues.includes(leagueId.toString());
   
-  // Fetch league data and fixtures
-  useEffect(() => {
-    const fetchLeagueData = async () => {
-      // If league is already in state, don't fetch again
-      if (league) return;
-      
-      try {
-        dispatch(leaguesActions.setLoadingLeagues(true));
-        
-        const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
-        const data = await response.json();
-        
-        if (data) {
-          dispatch(leaguesActions.setLeagues([...leagues.list, data]));
-        }
-      } catch (error) {
-        console.error(`Error fetching league ${leagueId}:`, error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load league information',
-          variant: 'destructive',
-        });
-      } finally {
-        dispatch(leaguesActions.setLoadingLeagues(false));
-      }
-    };
+  // Fetch league data - memoized to prevent unnecessary re-renders
+  const fetchLeagueData = useCallback(async () => {
+    // If league is already in state, don't fetch again
+    if (league) return;
     
-    const fetchLeagueFixtures = async () => {
-      // If fixtures for this league are already in state, don't fetch again
-      if (fixturesByLeague.length > 0) return;
+    // Check if we're already loading leagues
+    if (leagues.loading) return;
+    
+    try {
+      dispatch(leaguesActions.setLoadingLeagues(true));
       
-      try {
-        dispatch(fixturesActions.setLoadingFixtures(true));
-        
-        // Get current season
-        const currentYear = new Date().getFullYear();
-        
-        const response = await apiRequest(
-          'GET', 
-          `/api/leagues/${leagueId}/fixtures?season=${currentYear}`
-        );
-        const data = await response.json();
-        
-        // Get the most recent fixtures (limit to 5)
-        const recentFixtures = [...data]
+      // Check if the data is in the React Query cache
+      const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}`]);
+      if (cachedData) {
+        dispatch(leaguesActions.setLeagues([...leagues.list, cachedData]));
+        return;
+      }
+      
+      const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
+      const data = await response.json();
+      
+      if (data) {
+        dispatch(leaguesActions.setLeagues([...leagues.list, data]));
+        // Store in React Query cache
+        queryClient.setQueryData([`/api/leagues/${leagueId}`], data);
+      }
+    } catch (error) {
+      console.error(`Error fetching league ${leagueId}:`, error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load league information',
+        variant: 'destructive',
+      });
+    } finally {
+      dispatch(leaguesActions.setLoadingLeagues(false));
+    }
+  }, [leagueId, league, leagues.loading, leagues.list, dispatch, toast]);
+  
+  // Fetch league fixtures - memoized to prevent unnecessary re-renders
+  const fetchLeagueFixtures = useCallback(async () => {
+    // If fixtures for this league are already in state, don't fetch again
+    if (fixturesByLeague.length > 0) return;
+    
+    // Check if we're already loading fixtures
+    if (fixtures.loading) return;
+    
+    try {
+      dispatch(fixturesActions.setLoadingFixtures(true));
+      
+      // Get current season
+      const currentYear = new Date().getFullYear();
+      
+      // Check if the data is in the React Query cache
+      const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}/fixtures`]);
+      if (cachedData) {
+        const recentFixtures = [...cachedData]
           .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
           .slice(0, 5);
         
@@ -81,21 +92,49 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
           leagueId: leagueId.toString(),
           fixtures: recentFixtures 
         }));
-      } catch (error) {
-        console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load league matches',
-          variant: 'destructive',
-        });
-      } finally {
-        dispatch(fixturesActions.setLoadingFixtures(false));
+        return;
       }
+      
+      const response = await apiRequest(
+        'GET', 
+        `/api/leagues/${leagueId}/fixtures?season=${currentYear}`
+      );
+      const data = await response.json();
+      
+      // Store in React Query cache
+      queryClient.setQueryData([`/api/leagues/${leagueId}/fixtures`], data);
+      
+      // Get the most recent fixtures (limit to 5)
+      const recentFixtures = [...data]
+        .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
+        .slice(0, 5);
+      
+      dispatch(fixturesActions.setFixturesByLeague({ 
+        leagueId: leagueId.toString(),
+        fixtures: recentFixtures 
+      }));
+    } catch (error) {
+      console.error(`Error fetching fixtures for league ${leagueId}:`, error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load league matches',
+        variant: 'destructive',
+      });
+    } finally {
+      dispatch(fixturesActions.setLoadingFixtures(false));
+    }
+  }, [leagueId, fixturesByLeague.length, fixtures.loading, dispatch, toast]);
+  
+  // Run effects
+  useEffect(() => {
+    // Use a single request to fetch both data and fixtures
+    const fetchData = async () => {
+      await fetchLeagueData();
+      await fetchLeagueFixtures();
     };
     
-    fetchLeagueData();
-    fetchLeagueFixtures();
-  }, [leagueId, league, fixturesByLeague.length, dispatch, leagues.list, toast]);
+    fetchData();
+  }, [fetchLeagueData, fetchLeagueFixtures]);
   
   // Toggle favorite status
   const toggleFavorite = () => {

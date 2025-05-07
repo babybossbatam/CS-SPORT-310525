@@ -82,9 +82,6 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
       
-      {/* Live Scoreboard */}
-      <LiveScoreboard />
-      
       <DateNavigator />
       <MatchFilters />
       
