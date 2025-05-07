@@ -62,9 +62,9 @@ const LiveScoreboard = () => {
   };
   
   return (
-    <div className="mx-4 my-4">
+    <div className="mx-2 my-4">
       {/* Match filter controls */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-3">
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -77,7 +77,7 @@ const LiveScoreboard = () => {
       </div>
     
       {/* Featured match card */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
         {/* Featured Match badge */}
         <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded-bl-md">
           Featured Match
@@ -112,38 +112,34 @@ const LiveScoreboard = () => {
         {/* Teams with gradients - based on your image */}
         <div className="flex rounded-md overflow-hidden">
           {/* Home team */}
-          <div className="w-1/2 bg-gradient-to-r from-blue-900 to-blue-700 p-3 flex items-center">
-            <div className="h-14 w-14 bg-white rounded-full flex items-center justify-center mr-3 shadow-md">
-              <img 
-                src={featured.teams.home.logo} 
-                alt={featured.teams.home.name}
-                className="max-h-10 max-w-10"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
-                }}
-              />
-            </div>
-            <div className="text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+          <div className="w-1/2 bg-gradient-to-r from-blue-900 to-blue-700 p-4 flex items-center group cursor-pointer transition-all duration-300 hover:from-blue-800 hover:to-blue-600">
+            <img 
+              src={featured.teams.home.logo} 
+              alt={featured.teams.home.name}
+              className="h-16 w-16 mr-3 transform transition-transform duration-300 group-hover:scale-110"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+              }}
+            />
+            <div className="text-white font-bold text-lg uppercase group-hover:text-white/90">{featured.teams.home.name}</div>
           </div>
           
           {/* VS label (positioned absolutely) */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl">
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/50 rounded-full h-8 w-8 flex items-center justify-center">
             VS
           </div>
           
           {/* Away team */}
-          <div className="w-1/2 bg-gradient-to-l from-red-900 to-red-700 p-3 flex items-center justify-end">
-            <div className="text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
-            <div className="h-14 w-14 bg-white rounded-full flex items-center justify-center ml-3 shadow-md">
-              <img 
-                src={featured.teams.away.logo} 
-                alt={featured.teams.away.name}
-                className="max-h-10 max-w-10"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
-                }}
-              />
-            </div>
+          <div className="w-1/2 bg-gradient-to-l from-red-900 to-red-700 p-4 flex items-center justify-end group cursor-pointer transition-all duration-300 hover:from-red-800 hover:to-red-600">
+            <div className="text-white font-bold text-lg uppercase text-right group-hover:text-white/90">{featured.teams.away.name}</div>
+            <img 
+              src={featured.teams.away.logo} 
+              alt={featured.teams.away.name}
+              className="h-16 w-16 ml-3 transform transition-transform duration-300 group-hover:scale-110"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+              }}
+            />
           </div>
         </div>
         

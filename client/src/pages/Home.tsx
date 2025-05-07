@@ -90,7 +90,12 @@ const Home = () => {
       
       <main className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-          {/* Left column - Popular Leagues */}
+          {/* Left column - Featured Match */}
+          <div className="lg:col-span-4">
+            <LiveScoreboard />
+          </div>
+          
+          {/* Right column - Popular Leagues */}
           <div className="lg:col-span-3 bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="p-3 border-b">
               <h2 className="text-base font-bold">Popular Football Leagues</h2>
@@ -101,11 +106,6 @@ const Home = () => {
                 <LeagueMatchCard key={leagueId} leagueId={leagueId} />
               ))}
             </div>
-          </div>
-          
-          {/* Right column - Featured Match */}
-          <div className="lg:col-span-4">
-            <LiveScoreboard />
           </div>
         </div>
         
