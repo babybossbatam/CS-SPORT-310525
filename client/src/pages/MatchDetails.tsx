@@ -244,17 +244,17 @@ const MatchDetails = () => {
             <div className="grid grid-cols-3 gap-4 mb-8">
               {/* Home Team */}
               <div className="flex flex-col items-center">
-                <div className="h-20 w-20 flex items-center justify-center mb-2">
+                <div className="h-40 w-40 flex items-center justify-center mb-3">
                   <img 
                     src={currentFixture.teams.home.logo} 
                     alt={currentFixture.teams.home.name} 
                     className="max-h-full max-w-full"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/160?text=Team';
                     }}
                   />
                 </div>
-                <div className="text-lg font-semibold text-center">{currentFixture.teams.home.name}</div>
+                <div className="text-lg font-semibold text-center uppercase">{currentFixture.teams.home.name}</div>
                 {currentFixture.teams.home.winner && (
                   <Badge variant="outline" className="mt-1 border-green-500 text-green-600">Winner</Badge>
                 )}
@@ -262,51 +262,71 @@ const MatchDetails = () => {
               
               {/* Score */}
               <div className="flex flex-col items-center justify-center">
-                <div className="text-3xl font-bold mb-2">
+                <div className="text-5xl font-bold mb-3 mt-4">
                   {currentFixture.goals.home !== null ? currentFixture.goals.home : '-'} - {currentFixture.goals.away !== null ? currentFixture.goals.away : '-'}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 bg-gray-50 rounded-lg px-4 py-2 shadow-sm">
                   {formatDateTime(currentFixture.fixture.date)}
                   {currentFixture.fixture.venue.name && (
-                    <div className="text-center mt-1">{currentFixture.fixture.venue.name}</div>
+                    <div className="text-center mt-1 font-medium">{currentFixture.fixture.venue.name}</div>
                   )}
                 </div>
                 
-                {/* Show half-time score if available */}
-                {currentFixture.score.halftime.home !== null && currentFixture.score.halftime.away !== null && (
-                  <div className="text-xs text-gray-500 mt-2">
-                    HT: {currentFixture.score.halftime.home} - {currentFixture.score.halftime.away}
-                  </div>
-                )}
+                {/* Show match status badge */}
+                <div className="mt-4 mb-2">
+                  {isLiveMatch(currentFixture.fixture.status.short) ? (
+                    <Badge variant="default" className="bg-green-600 px-3 py-1">
+                      LIVE {currentFixture.fixture.status.elapsed && `• ${currentFixture.fixture.status.elapsed}'`}
+                    </Badge>
+                  ) : currentFixture.fixture.status.short === "FT" ? (
+                    <Badge variant="outline" className="px-3 py-1">FULL TIME</Badge>
+                  ) : (
+                    <Badge variant="outline" className="px-3 py-1">SCHEDULED</Badge>
+                  )}
+                </div>
                 
-                {/* Show extra time score if available */}
-                {currentFixture.score.extratime.home !== null && currentFixture.score.extratime.away !== null && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    ET: {currentFixture.score.extratime.home} - {currentFixture.score.extratime.away}
-                  </div>
-                )}
-                
-                {/* Show penalty score if available */}
-                {currentFixture.score.penalty.home !== null && currentFixture.score.penalty.away !== null && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    Penalties: {currentFixture.score.penalty.home} - {currentFixture.score.penalty.away}
+                {/* Additional scores in a styled box */}
+                {(currentFixture.score.halftime.home !== null || 
+                  currentFixture.score.extratime.home !== null || 
+                  currentFixture.score.penalty.home !== null) && (
+                  <div className="text-xs text-gray-600 border border-gray-200 rounded p-2 mt-2 bg-gray-50 w-full max-w-[200px]">
+                    {currentFixture.score.halftime.home !== null && currentFixture.score.halftime.away !== null && (
+                      <div className="flex justify-between items-center py-1">
+                        <span>Half Time:</span>
+                        <span className="font-medium">{currentFixture.score.halftime.home} - {currentFixture.score.halftime.away}</span>
+                      </div>
+                    )}
+                    
+                    {currentFixture.score.extratime.home !== null && currentFixture.score.extratime.away !== null && (
+                      <div className="flex justify-between items-center py-1 border-t border-gray-200">
+                        <span>Extra Time:</span>
+                        <span className="font-medium">{currentFixture.score.extratime.home} - {currentFixture.score.extratime.away}</span>
+                      </div>
+                    )}
+                    
+                    {currentFixture.score.penalty.home !== null && currentFixture.score.penalty.away !== null && (
+                      <div className="flex justify-between items-center py-1 border-t border-gray-200">
+                        <span>Penalties:</span>
+                        <span className="font-medium">{currentFixture.score.penalty.home} - {currentFixture.score.penalty.away}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
               
               {/* Away Team */}
               <div className="flex flex-col items-center">
-                <div className="h-20 w-20 flex items-center justify-center mb-2">
+                <div className="h-40 w-40 flex items-center justify-center mb-3">
                   <img 
                     src={currentFixture.teams.away.logo} 
                     alt={currentFixture.teams.away.name} 
                     className="max-h-full max-w-full"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/160?text=Team';
                     }}
                   />
                 </div>
-                <div className="text-lg font-semibold text-center">{currentFixture.teams.away.name}</div>
+                <div className="text-lg font-semibold text-center uppercase">{currentFixture.teams.away.name}</div>
                 {currentFixture.teams.away.winner && (
                   <Badge variant="outline" className="mt-1 border-green-500 text-green-600">Winner</Badge>
                 )}
