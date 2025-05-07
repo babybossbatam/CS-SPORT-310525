@@ -10,7 +10,6 @@ import {
   Dumbbell, 
   Beaker, 
   Tablet, 
-  WavesLadder, 
   Flag, 
   Award, 
   Volleyball, 
@@ -26,16 +25,15 @@ const SportsCategoryTabs = () => {
   // Define sports categories
   const categories = [
     { id: 'tv', name: 'TV', icon: Tv },
-    { id: 'football', name: 'Trophy', icon: Trophy },
-    { id: 'basketball', name: 'Cuboid', icon: Cuboid },
+    { id: 'football', name: 'Football', icon: Trophy },
+    { id: 'basketball', name: 'Basketball', icon: Cuboid },
     { id: 'hockey', name: 'Hockey', icon: Dumbbell },
-    { id: 'baseball', name: 'Beaker', icon: Beaker },
+    { id: 'baseball', name: 'Baseball', icon: Beaker },
     { id: 'tennis', name: 'Tennis', icon: Tablet },
-    { id: 'football', name: 'Trophy', icon: Trophy },
     { id: 'handball', name: 'Handball', icon: Flag },
     { id: 'rugby', name: 'Rugby', icon: Award },
     { id: 'volleyball', name: 'Volleyball', icon: Volleyball },
-    { id: 'cricket', name: 'Bug', icon: Bug },
+    { id: 'cricket', name: 'Cricket', icon: Bug },
   ];
 
   // Scroll to selected tab

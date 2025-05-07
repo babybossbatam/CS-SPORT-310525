@@ -1,20 +1,110 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
+import React, { memo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Activity, Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Activity, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
 import { format } from 'date-fns';
-import { formatMatchDate, getTeamGradient } from '@/lib/utils';
+import { getTeamGradient } from '@/lib/utils';
 
-const LiveScoreboard = () => {
+interface FixtureTeam {
+  id: number;
+  name: string;
+  logo: string;
+  winner?: boolean;
+}
+
+interface Goals {
+  home: number | null;
+  away: number | null;
+}
+
+interface Score {
+  halftime: Goals;
+  fulltime: Goals;
+  extratime: Goals;
+  penalty: Goals;
+}
+
+interface Fixture {
+  id: number;
+  referee: string | null;
+  timezone: string;
+  date: string;
+  timestamp: number;
+  periods: {
+    first: number | null;
+    second: number | null;
+  };
+  venue: {
+    id: number | null;
+    name: string | null;
+    city: string | null;
+  };
+  status: {
+    long: string;
+    short: string;
+    elapsed: number | null;
+  };
+}
+
+interface League {
+  id: number;
+  name: string;
+  country: string;
+  logo: string;
+  flag: string | null;
+  season: number;
+  round: string;
+}
+
+interface FixtureResponse {
+  fixture: Fixture;
+  league: League;
+  teams: {
+    home: FixtureTeam;
+    away: FixtureTeam;
+  };
+  goals: Goals;
+  score: Score;
+}
+
+// Format match date
+const formatMatchDateFn = (dateString: string): string => {
+  const date = new Date(dateString);
+  return format(date, "EEEE, do MMM | HH:mm");
+};
+
+// Check if match is live or ended
+const isLiveMatch = (status: string): boolean => {
+  return ['1H', '2H', 'HT', 'ET', 'P', 'BT', 'INT'].includes(status);
+};
+
+const LiveScoreboard = memo(() => {
   const [, navigate] = useLocation();
-  const { live: liveFixtures, upcoming: upcomingFixtures, loading } = useSelector((state: RootState) => state.fixtures);
+  
+  // Use React Query to fetch live fixtures with proper caching
+  const { data: liveFixtures, isLoading: loadingLive } = useQuery<FixtureResponse[]>({
+    queryKey: ['/api/fixtures/live'],
+    staleTime: 30000, // 30 seconds
+  });
+  
+  // Get tomorrow's date in YYYY-MM-DD format for upcoming fixtures
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
+  
+  // Use React Query to fetch upcoming fixtures with proper caching
+  const { data: upcomingFixtures, isLoading: loadingUpcoming } = useQuery<FixtureResponse[]>({
+    queryKey: [`/api/fixtures/date/${tomorrowFormatted}`],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  
+  const isLoading = loadingLive || loadingUpcoming;
   
   // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="m-4">
         <CardHeader className="bg-gray-700 text-white p-3">
@@ -31,7 +121,11 @@ const LiveScoreboard = () => {
   }
   
   // No matches state
-  const availableFixtures = [...liveFixtures, ...(upcomingFixtures || [])];
+  const availableFixtures = [
+    ...(liveFixtures || []), 
+    ...(upcomingFixtures || [])
+  ];
+  
   if (availableFixtures.length === 0) {
     return (
       <Card className="m-4">
@@ -50,17 +144,6 @@ const LiveScoreboard = () => {
   
   // Use first match as featured
   const featured = availableFixtures[0];
-  
-  // Format match date
-  const formatMatchDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return format(date, "EEEE, do MMM | HH:mm");
-  };
-  
-  // Check if match is live or ended
-  const isLiveMatch = (status: string): boolean => {
-    return ['1H', '2H', 'HT', 'ET', 'P', 'BT', 'INT'].includes(status);
-  };
   
   return (
     <div className="mx-2 my-4">
@@ -156,7 +239,7 @@ const LiveScoreboard = () => {
         <div className="p-2 text-center text-sm border-t border-gray-100">
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
-            <span>{formatMatchDate(featured.fixture.date)}</span>
+            <span>{formatMatchDateFn(featured.fixture.date)}</span>
             {featured.fixture.venue.name && (
               <span> | {featured.fixture.venue.name}</span>
             )}
@@ -216,6 +299,6 @@ const LiveScoreboard = () => {
       </div>
     </div>
   );
-};
+});
 
 export default LiveScoreboard;
