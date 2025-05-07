@@ -214,6 +214,11 @@ const LiveScoreboard = memo(() => {
               <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
+            {/* VS label (positioned exactly in the center where gradients meet) */}
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
+              VS
+            </div>
+            
             {/* Away team - gradient extending exactly 50% */}
             <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`}>
               <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
@@ -230,11 +235,6 @@ const LiveScoreboard = memo(() => {
                 }}
               />
             </div>
-          </div>
-          
-          {/* VS label (positioned in center of gradient containers) */}
-          <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 text-white font-bold text-xl bg-black/80 rounded-full h-8 w-8 flex items-center justify-center z-20" style={{ marginBottom: '16px', bottom: '16px' }}>
-            VS
           </div>
         </div>
         
