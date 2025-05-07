@@ -3,9 +3,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Activity, Calendar } from 'lucide-react';
+import { Activity, Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
+import { format } from 'date-fns';
 
 const LiveScoreboard = () => {
   const [, navigate] = useLocation();
@@ -49,93 +50,166 @@ const LiveScoreboard = () => {
   // Use first match as featured
   const featured = availableFixtures[0];
   
+  // Format match date
+  const formatMatchDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return format(date, "EEEE, do MMM | HH:mm");
+  };
+  
+  // Check if match is live or ended
+  const isLiveMatch = (status: string): boolean => {
+    return ['1H', '2H', 'HT', 'ET', 'P', 'BT', 'INT'].includes(status);
+  };
+  
   return (
-    <Card className="m-4 overflow-hidden">
-      <CardHeader className="bg-gray-700 text-white p-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <img 
-              src={featured.league.logo} 
-              alt={featured.league.name}
-              className="h-5 w-5 mr-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <span className="font-semibold text-sm">{featured.league.name}</span>
-          </div>
-          <div className="text-xs bg-blue-500 px-2 py-1 rounded">
-            Featured Match
-          </div>
-        </div>
-      </CardHeader>
-      
-      {/* Match display with straight line background - 50% reduced height */}
-      <div 
-        className="relative h-10 cursor-pointer overflow-hidden"
-        onClick={() => navigate(`/match/${featured.fixture.id}`)}
-      >
-        {/* Background with gradient */}
-        <div className="absolute inset-0 flex">
-          <div className="w-1/2 bg-blue-800"></div>
-          <div className="w-1/2 bg-red-700"></div>
+    <div className="mx-4 my-4">
+      {/* Match filter controls */}
+      <div className="flex items-center justify-between mb-2">
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        
+        <div className="font-medium text-sm">Today's Matches</div>
+        
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    
+      {/* Featured match card */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Featured Match badge */}
+        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded-bl-md">
+          Featured Match
         </div>
         
-        {/* Content */}
-        <div className="relative flex items-center justify-between h-full px-2 text-white z-10">
-          {/* Home Team Logo - 50% larger */}
-          <div className="flex-shrink-0 w-20 h-10 flex items-center justify-center">
-            <img 
-              src={featured.teams.home.logo} 
-              alt={featured.teams.home.name}
-              className="max-h-9 max-w-9 rounded-full border-2 border-white shadow-lg"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
-              }}
-            />
+        {/* League and status info */}
+        <div className="text-center p-2 flex justify-center items-center gap-2">
+          <img 
+            src={featured.league.logo}
+            alt={featured.league.name}
+            className="w-4 h-4"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
+            }}
+          />
+          <span className="text-sm">{featured.league.name} - {featured.league.round}</span>
+        </div>
+        
+        {/* Status badge */}
+        <div className="text-xs text-center text-gray-500 -mt-1 mb-1">
+          {isLiveMatch(featured.fixture.status.short) ? 'Live' : 
+           featured.fixture.status.short === 'FT' ? 'Ended' : 'Scheduled'}
+        </div>
+        
+        {/* Score */}
+        <div className="text-center px-4 py-1">
+          <div className="text-3xl font-bold">
+            {featured.goals.home !== null ? featured.goals.home : '0'} - {featured.goals.away !== null ? featured.goals.away : '0'}
+          </div>
+        </div>
+        
+        {/* Teams with gradients - based on your image */}
+        <div className="flex rounded-md overflow-hidden">
+          {/* Home team */}
+          <div className="w-1/2 bg-gradient-to-r from-blue-900 to-blue-700 p-3 flex items-center">
+            <div className="h-14 w-14 bg-white rounded-full flex items-center justify-center mr-3 shadow-md">
+              <img 
+                src={featured.teams.home.logo} 
+                alt={featured.teams.home.name}
+                className="max-h-10 max-w-10"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
+                }}
+              />
+            </div>
+            <div className="text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
           </div>
           
-          {/* Home Team Name - moved away and uppercase */}
-          <div className="flex-1 text-right font-semibold mr-4 text-shadow uppercase text-sm tracking-wider">
-            {featured.teams.home.name}
-          </div>
-          
-          {/* VS */}
-          <div className="flex-shrink-0 bg-white text-gray-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md text-xs">
+          {/* VS label (positioned absolutely) */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl">
             VS
           </div>
           
-          {/* Away Team Name - moved away and uppercase */}
-          <div className="flex-1 text-left font-semibold ml-4 text-shadow uppercase text-sm tracking-wider">
-            {featured.teams.away.name}
-          </div>
-          
-          {/* Away Team Logo - 50% larger */}
-          <div className="flex-shrink-0 w-20 h-10 flex items-center justify-center">
-            <img 
-              src={featured.teams.away.logo} 
-              alt={featured.teams.away.name}
-              className="max-h-9 max-w-9 rounded-full border-2 border-white shadow-lg"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
-              }}
-            />
+          {/* Away team */}
+          <div className="w-1/2 bg-gradient-to-l from-red-900 to-red-700 p-3 flex items-center justify-end">
+            <div className="text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+            <div className="h-14 w-14 bg-white rounded-full flex items-center justify-center ml-3 shadow-md">
+              <img 
+                src={featured.teams.away.logo} 
+                alt={featured.teams.away.name}
+                className="max-h-10 max-w-10"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Team';
+                }}
+              />
+            </div>
           </div>
         </div>
+        
+        {/* Match details footer */}
+        <div className="p-2 text-center text-sm border-t border-gray-100">
+          <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
+            <Clock className="h-3 w-3" />
+            <span>{formatMatchDate(featured.fixture.date)}</span>
+            {featured.fixture.venue.name && (
+              <span> | {featured.fixture.venue.name}</span>
+            )}
+          </div>
+        </div>
+        
+        {/* Action buttons */}
+        <div className="grid grid-cols-4 border-t border-gray-200">
+          <button 
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
+            onClick={() => navigate(`/match/${featured.fixture.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <div className="text-xs mt-1">Match Page</div>
+            </div>
+          </button>
+          
+          <button 
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
+            onClick={() => navigate(`/match/${featured.fixture.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <div className="text-xs mt-1">Lineups</div>
+            </div>
+          </button>
+          
+          <button 
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
+            onClick={() => navigate(`/match/${featured.fixture.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <div className="text-xs mt-1">Stats</div>
+            </div>
+          </button>
+          
+          <button 
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors"
+            onClick={() => navigate(`/league/${featured.league.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              <div className="text-xs mt-1">Bracket</div>
+            </div>
+          </button>
+        </div>
       </div>
-      
-      <CardContent className="p-3 text-center bg-gray-100">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate(`/match/${featured.fixture.id}`)}
-          className="text-xs"
-        >
-          <Calendar className="h-3 w-3 mr-1" />
-          View Match Details
-        </Button>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 

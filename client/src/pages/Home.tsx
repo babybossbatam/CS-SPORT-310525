@@ -89,20 +89,30 @@ const Home = () => {
       <MatchFilters />
       
       <main className="container mx-auto px-4 py-4">
-        <FeaturedMatch />
-        
-        <div className="mb-6">
-          <div className="flex items-center mb-2">
-            <h3 className="text-sm font-semibold">Popular Football Leagues</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+          {/* Left column - Popular Leagues */}
+          <div className="lg:col-span-3 bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="p-3 border-b">
+              <h2 className="text-base font-bold">Popular Football Leagues</h2>
+            </div>
+            
+            <div className="space-y-1">
+              {popularLeagues.map((leagueId) => (
+                <LeagueMatchCard key={leagueId} leagueId={leagueId} />
+              ))}
+            </div>
           </div>
           
-          {popularLeagues.map((leagueId) => (
-            <LeagueMatchCard key={leagueId} leagueId={leagueId} />
-          ))}
+          {/* Right column - Featured Match */}
+          <div className="lg:col-span-4">
+            <LiveScoreboard />
+          </div>
         </div>
         
-        <StatsPanel />
-        <NewsSection />
+        <div className="mt-8">
+          <StatsPanel />
+          <NewsSection />
+        </div>
       </main>
       
       <RegionModal />
