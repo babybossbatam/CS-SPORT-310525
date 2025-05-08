@@ -384,24 +384,24 @@ function LiveScoreboardPage() {
             </div>
             
             {/* Match bar with two-color dynamic gradient */}
-            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden">
+            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden -mx-5"> {/* Extended 5px on each side */}
               {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
                 {/* Home team gradient section */}
-                <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')}`}>
-                  <div className="pl-14 h-full flex items-center">
+                <div className={`w-[calc(50%-20px)] ${getTeamGradient(featured.teams.home.name, 'to-r')}`}>
+                  <div className="pl-16 h-full flex items-center"> {/* Increased padding to account for bar extension */}
                     <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.home.name}</span>
                   </div>
                 </div>
                 
-                {/* Divider with VS */}
-                <div className="bg-black/80 text-white font-bold px-3 flex items-center">
+                {/* Centered VS divider */}
+                <div className="bg-black/80 text-white font-bold text-xl w-40 flex items-center justify-center">
                   VS
                 </div>
                 
                 {/* Away team gradient section */}
-                <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')}`}>
-                  <div className="pr-14 h-full flex items-center justify-end">
+                <div className={`w-[calc(50%-20px)] ${getTeamGradient(featured.teams.away.name, 'to-l')}`}>
+                  <div className="pr-16 h-full flex items-center justify-end"> {/* Increased padding to account for bar extension */}
                     <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.away.name}</span>
                   </div>
                 </div>

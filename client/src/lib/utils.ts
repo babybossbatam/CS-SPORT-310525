@@ -240,7 +240,39 @@ export const teamColorMap: Record<string, { primary: string, secondary: string }
 
 // Get team gradient colors
 export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
-  // For white and green logos, use green gradient
+  // Avoid black and white colors - use more vibrant colors
+  
+  // Special case for Juventus (black and white stripes)
+  if (teamName.toLowerCase().includes('juventus')) {
+    return `bg-gradient-${direction} from-purple-700 to-purple-500`;
+  }
+  
+  // Special case for Real Madrid (known for white)
+  if (
+    teamName.toLowerCase().includes('real madrid') || 
+    (teamName.toLowerCase().includes('real') && !teamName.toLowerCase().includes('sociedad'))
+  ) {
+    return `bg-gradient-${direction} from-blue-600 to-blue-400`;
+  }
+  
+  // For white kit teams, use vibrant colors
+  if (
+    teamName.toLowerCase().includes('tottenham') ||
+    teamName.toLowerCase().includes('fulham') ||
+    teamName.toLowerCase().includes('swansea')
+  ) {
+    return `bg-gradient-${direction} from-indigo-600 to-blue-400`;
+  }
+  
+  // For black kit teams, use vibrant colors
+  if (
+    teamName.toLowerCase().includes('newcastle') ||
+    teamName.toLowerCase().includes('watford')
+  ) {
+    return `bg-gradient-${direction} from-amber-600 to-amber-400`;
+  }
+  
+  // For green teams
   if (
     teamName.toLowerCase().includes('celtic') ||
     teamName.toLowerCase().includes('betis') ||
@@ -248,10 +280,10 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     teamName.toLowerCase().includes('sporting') ||
     teamName.toLowerCase().includes('werder')
   ) {
-    return `bg-gradient-${direction} from-green-800 to-green-600`;
+    return `bg-gradient-${direction} from-green-700 to-green-500`;
   }
   
-  // For white and blue logos, use blue gradient
+  // For blue teams
   if (
     teamName.toLowerCase().includes('chelsea') ||
     teamName.toLowerCase().includes('everton') ||
@@ -262,10 +294,22 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     teamName.toLowerCase().includes('real sociedad') ||
     teamName.toLowerCase().includes('marseille')
   ) {
-    return `bg-gradient-${direction} from-blue-800 to-blue-600`;
+    return `bg-gradient-${direction} from-blue-700 to-blue-500`;
   }
   
-  // First try to find an exact match
+  // For red teams
+  if (
+    teamName.toLowerCase().includes('manchester united') ||
+    teamName.toLowerCase().includes('liverpool') ||
+    teamName.toLowerCase().includes('arsenal') ||
+    teamName.toLowerCase().includes('atletico') ||
+    teamName.toLowerCase().includes('milan') ||
+    teamName.toLowerCase().includes('bayern')
+  ) {
+    return `bg-gradient-${direction} from-red-700 to-red-500`;
+  }
+  
+  // Try to find an exact match
   const exactMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase() === key.toLowerCase()
   );
@@ -275,7 +319,7 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
   }
   
-  // Then try to find a partial match
+  // Try to find a partial match
   const partialMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase().includes(key.toLowerCase())
   );
@@ -287,14 +331,13 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   
   // Default fallback - check the team name for common colors
   if (teamName.toLowerCase().includes('green')) {
-    return `bg-gradient-${direction} from-green-800 to-green-600`;
+    return `bg-gradient-${direction} from-green-700 to-green-500`;
   } else if (teamName.toLowerCase().includes('blue')) {
-    return `bg-gradient-${direction} from-blue-800 to-blue-600`;
+    return `bg-gradient-${direction} from-blue-700 to-blue-500`;
   } else if (teamName.toLowerCase().includes('red')) {
-    return `bg-gradient-${direction} from-red-800 to-red-600`;
+    return `bg-gradient-${direction} from-red-700 to-red-500`;
   }
   
-  // Fallback to default colors
-  const colors = teamColorMap['default'];
-  return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+  // Fallback to default colors - vibrant blue or red
+  return `bg-gradient-${direction} from-blue-700 to-blue-500`;
 }
