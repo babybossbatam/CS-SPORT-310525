@@ -256,7 +256,7 @@ const LiveScoreboard = memo(() => {
   
   return (
     <div className="mx-2 my-4">
-      {/* Match filter controls */}
+      {/* Match filter controls with match status */}
       <div className="flex items-center justify-between mb-3">
         <Button 
           variant="ghost" 
@@ -268,9 +268,22 @@ const LiveScoreboard = memo(() => {
         </Button>
         
         <div className="font-medium text-sm">
-          {filteredFixtures.length > 0 ? 
-            `${currentFixtureIndex + 1} of ${filteredFixtures.length} Matches` : 
-            "Today's Matches"}
+          {filteredFixtures.length > 0 && featured ? (
+            <div className="flex items-center justify-center gap-2">
+              {isLiveMatch(featured.fixture.status.short) ? (
+                <div className="flex items-center">
+                  <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
+                  <span>LIVE MATCH</span>
+                </div>
+              ) : featured.fixture.status.short === 'FT' ? (
+                <span>MATCH ENDED</span>
+              ) : (
+                <span>UPCOMING MATCH</span>
+              )}
+            </div>
+          ) : (
+            "Today's Matches"
+          )}
         </div>
         
         <Button 
@@ -320,27 +333,14 @@ const LiveScoreboard = memo(() => {
           )}
         </div>
         
-        {/* Score */}
-        <div className="text-center px-4 py-1">
-          <div className="text-3xl font-bold">
-            {featured.goals.home !== null ? featured.goals.home : '0'} - {featured.goals.away !== null ? featured.goals.away : '0'}
-          </div>
-        </div>
+        {/* Removed scores as requested */}
         
         {/* Teams with dynamic gradients based on team names - equal width meeting in middle */}
         <div className="flex rounded-md overflow-hidden relative h-16">
           {/* Container for both gradients that meet in the middle with same width */}
           <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
-            {/* Navigation button before home team */}
-            <div className="absolute bottom-0 left-0 z-20 flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full bg-black/30 text-white mr-2 hover:bg-black/50"
-                onClick={handlePreviousFixture}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
+            {/* Home team logo - positioned at the leftmost */}
+            <div className="absolute bottom-0 left-0 z-10">
               <img 
                 src={featured.teams.home.logo} 
                 alt={featured.teams.home.name}
@@ -366,8 +366,8 @@ const LiveScoreboard = memo(() => {
               <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
-            {/* Away team logo with navigation button - positioned at the rightmost */}
-            <div className="absolute bottom-0 right-0 z-20 flex items-center">
+            {/* Away team logo - positioned at the rightmost */}
+            <div className="absolute bottom-0 right-0 z-10">
               <img 
                 src={featured.teams.away.logo} 
                 alt={featured.teams.away.name}
@@ -376,14 +376,6 @@ const LiveScoreboard = memo(() => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                 }}
               />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full bg-black/30 text-white ml-2 hover:bg-black/50"
-                onClick={handleNextFixture}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
