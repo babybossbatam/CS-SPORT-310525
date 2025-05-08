@@ -288,108 +288,139 @@ export function LiveScoreboard({
             </div>
           </div>
           
-          {/* Match content */}
+          {/* Match content - New design based on the image */}
           <div className="p-4">
-            {/* Create background with two different colors */}
-            <div className="relative mb-6 rounded-lg overflow-hidden h-48">
-              {/* Home team background */}
-              <div 
-                className="absolute left-0 top-0 w-1/2 h-full" 
-                style={{ 
-                  background: getTeamColor(featuredMatch.teams.home.name)
+            {/* League logo and match countdown */}
+            <div className="flex justify-center items-center mb-4 relative">
+              <img 
+                src={featuredMatch.league.logo} 
+                alt={featuredMatch.league.name}
+                className="h-10 w-10 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=League';
                 }}
-              ></div>
+              />
               
-              {/* Away team background - use opposing color */}
-              <div 
-                className="absolute right-0 top-0 w-1/2 h-full" 
-                style={{ 
-                  background: getOpposingTeamColor(
-                    featuredMatch.teams.home.name, 
-                    featuredMatch.teams.away.name
-                  )
-                }}
-              ></div>
-              
-              {/* Match content overlay */}
-              <div className="relative z-10 flex items-center h-full">
-                {/* Home team */}
-                <div className="flex-1 flex flex-col items-center justify-center text-center px-2">
-                  <div className="relative">
-                    <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                    <img 
-                      src={featuredMatch.teams.home.logo} 
-                      alt={featuredMatch.teams.home.name}
-                      className="h-24 w-24 relative z-10 drop-shadow-lg"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Team';
-                      }}
-                    />
-                  </div>
-                  <h3 className="font-bold mt-2 text-center text-white drop-shadow-md" style={{ 
-                    fontSize: featuredMatch.teams.home.name.length > 15 ? '0.9rem' : '1.1rem',
-                    maxWidth: '130px' 
-                  }}>
-                    {featuredMatch.teams.home.name}
-                  </h3>
-                </div>
-                
-                {/* Score overlay centered absolutely */}
-                <div className="z-30 flex flex-col items-center justify-center bg-white shadow-lg rounded-full h-20 w-20">
-                  <div className="flex items-center gap-1">
-                    <span className="text-2xl font-bold">{featuredMatch.goals.home ?? 0}</span>
-                    <span className="text-sm font-bold text-gray-400">VS</span>
-                    <span className="text-2xl font-bold">{featuredMatch.goals.away ?? 0}</span>
-                  </div>
-                  
-                  {/* Show match time or status */}
-                  <span className="text-xs font-semibold">
-                    {isLiveMatch(featuredMatch.fixture.status.short) 
-                      ? `${featuredMatch.fixture.status.elapsed}'` 
-                      : formatMatchTime(featuredMatch.fixture)}
-                  </span>
-                </div>
-                
-                {/* Away team */}
-                <div className="flex-1 flex flex-col items-center justify-center text-center px-2">
-                  <div className="relative">
-                    <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                    <img 
-                      src={featuredMatch.teams.away.logo} 
-                      alt={featuredMatch.teams.away.name}
-                      className="h-24 w-24 relative z-10 drop-shadow-lg"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Team';
-                      }}
-                    />
-                  </div>
-                  <h3 className="font-bold mt-2 text-center text-white drop-shadow-md" style={{ 
-                    fontSize: featuredMatch.teams.away.name.length > 15 ? '0.9rem' : '1.1rem',
-                    maxWidth: '130px' 
-                  }}>
-                    {featuredMatch.teams.away.name}
-                  </h3>
+              {/* Match countdown */}
+              <div className="text-center mx-4">
+                <div className="text-2xl font-bold">
+                  {isLiveMatch(featuredMatch.fixture.status.short) 
+                    ? 'LIVE NOW' 
+                    : '3 Days'}
                 </div>
               </div>
             </div>
             
-            {/* Match info footer */}
-            <div className="text-center text-sm text-gray-500 mb-2">
-              {featuredMatch.fixture.venue.name && featuredMatch.fixture.venue.city ? (
-                <p>{featuredMatch.fixture.venue.name}, {featuredMatch.fixture.venue.city}</p>
-              ) : (
-                <p>{featuredMatch.fixture.venue.name || 'Venue TBA'}</p>
-              )}
+            {/* Team bar */}
+            <div className="relative mb-4">
+              <div className="grid grid-cols-2 overflow-hidden rounded-md">
+                {/* Home team section */}
+                <div 
+                  className="flex items-center justify-end p-4 text-white"
+                  style={{ 
+                    background: getTeamColor(featuredMatch.teams.home.name)
+                  }}
+                >
+                  <div className="font-bold text-lg uppercase text-right mr-2">
+                    {featuredMatch.teams.home.name}
+                  </div>
+                  <img 
+                    src={featuredMatch.teams.home.logo} 
+                    alt={featuredMatch.teams.home.name}
+                    className="h-12 w-12 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                    }}
+                  />
+                </div>
+                
+                {/* Away team section */}
+                <div 
+                  className="flex items-center p-4 text-white"
+                  style={{ 
+                    background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)
+                  }}
+                >
+                  <img 
+                    src={featuredMatch.teams.away.logo} 
+                    alt={featuredMatch.teams.away.name}
+                    className="h-12 w-12 object-contain mr-2"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                    }}
+                  />
+                  <div className="font-bold text-lg uppercase">
+                    {featuredMatch.teams.away.name}
+                  </div>
+                </div>
+                
+                {/* VS text overlay */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                  <div className="text-2xl font-bold text-white drop-shadow-lg">VS</div>
+                </div>
+                
+                {/* Featured Match badge */}
+                <div className="absolute top-0 right-0 bg-gray-600 text-white text-xs px-2 py-1 z-20">
+                  Featured Match
+                </div>
+              </div>
             </div>
             
-            {/* Action button */}
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={() => navigate(`/match/${featuredMatch.fixture.id.toString()}`)}
-            >
-              Match Details
-            </Button>
+            {/* Match date and venue */}
+            <div className="text-center text-sm text-gray-600 mb-4">
+              {format(new Date(featuredMatch.fixture.date), 'EEEE, do MMM')} | {format(new Date(featuredMatch.fixture.date), 'HH:mm')} | {featuredMatch.fixture.venue.name || 'Venue TBA'}
+            </div>
+            
+            {/* Match navigation tabs */}
+            <div className="grid grid-cols-4 gap-2 mb-2">
+              <div className="flex flex-col items-center p-2 text-blue-600 border-b-2 border-blue-600">
+                <div className="h-5 w-5 mb-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                </div>
+                <span className="text-xs">Match Page</span>
+              </div>
+              <div className="flex flex-col items-center p-2 text-gray-500">
+                <div className="h-5 w-5 mb-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                    <line x1="8" y1="16" x2="16" y2="16"></line>
+                    <line x1="8" y1="8" x2="16" y2="8"></line>
+                  </svg>
+                </div>
+                <span className="text-xs">Lineups</span>
+              </div>
+              <div className="flex flex-col items-center p-2 text-gray-500">
+                <div className="h-5 w-5 mb-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+                <span className="text-xs">Stats</span>
+              </div>
+              <div className="flex flex-col items-center p-2 text-gray-500">
+                <div className="h-5 w-5 mb-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                </div>
+                <span className="text-xs">Standings</span>
+              </div>
+            </div>
+            
+            {/* Navigation dots */}
+            <div className="flex justify-center items-center gap-1 mt-2">
+              <div className="h-1 w-1 rounded-full bg-blue-600"></div>
+              <div className="h-1 w-1 rounded-full bg-gray-300"></div>
+              <div className="h-1 w-1 rounded-full bg-gray-300"></div>
+            </div>
           </div>
         </div>
       )}
