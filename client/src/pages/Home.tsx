@@ -8,7 +8,7 @@ import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
-import LiveScoreboard from '@/components/matches/LiveScoreboard';
+import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
@@ -150,7 +150,7 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
           {/* Left column - Featured Match */}
           <div className="lg:col-span-4">
-            <LiveScoreboard />
+            <LiveScoreboardPage />
           </div>
           
           {/* Right column - Popular Leagues */}
