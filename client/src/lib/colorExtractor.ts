@@ -136,12 +136,21 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     teamName.toLowerCase().includes('newcastle') ||
     teamName.toLowerCase().includes('fulham') 
   ) {
-    return `bg-gradient-${direction} from-purple-700 to-purple-500`;
+    return direction === 'to-r'
+      ? 'bg-gradient-to-r from-purple-700 to-purple-500'
+      : 'bg-gradient-to-l from-purple-500 to-purple-700';
   }
   
   // Check if we have cached the result
   if (colorCache[teamName]) {
-    return `bg-gradient-${direction} ${colorCache[teamName].primary} ${colorCache[teamName].secondary}`;
+    const { primary, secondary } = colorCache[teamName];
+    // Extract the color values without the from-/to- prefixes
+    const primaryColor = primary.replace('from-', '');
+    const secondaryColor = secondary.replace('to-', '');
+    
+    return direction === 'to-r'
+      ? `bg-gradient-to-r from-${primaryColor} to-${secondaryColor}`
+      : `bg-gradient-to-l from-${secondaryColor} to-${primaryColor}`;
   }
   
   // Try to find an exact match in our predefined map
@@ -151,12 +160,19 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   
   if (exactMatch) {
     const colors = teamColorMap[exactMatch];
-    // Cache the result
+    // Extract the color values without the from-/to- prefixes
+    const primaryColor = colors.primary.replace('from-', '');
+    const secondaryColor = colors.secondary.replace('to-', '');
+    
+    // Cache the result without prefixes
     colorCache[teamName] = { 
-      primary: colors.primary, 
-      secondary: colors.secondary 
+      primary: primaryColor, 
+      secondary: secondaryColor 
     };
-    return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+    
+    return direction === 'to-r'
+      ? `bg-gradient-to-r from-${primaryColor} to-${secondaryColor}`
+      : `bg-gradient-to-l from-${secondaryColor} to-${primaryColor}`;
   }
   
   // Get colors based on team name (deterministic but with visual variety)
@@ -173,14 +189,20 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   const primaryHue = hue;
   const secondaryHue = (hue + 30) % 360; // Slightly offset for complementary feel
   
-  // Map to the closest tailwind color classes
-  const primary = getTailwindColorFromHue(primaryHue, 600);
-  const secondary = getTailwindColorFromHue(secondaryHue, 500);
+  // Map to the closest tailwind color classes (without from-/to- prefixes)
+  const primaryClass = getTailwindColorFromHue(primaryHue, 600);
+  const secondaryClass = getTailwindColorFromHue(secondaryHue, 500);
   
-  // Cache the result
-  colorCache[teamName] = { primary, secondary };
+  // Extract colors without prefixes
+  const primaryColor = primaryClass.replace('from-', '');
+  const secondaryColor = secondaryClass.replace('to-', '');
   
-  return `bg-gradient-${direction} ${primary} ${secondary}`;
+  // Cache the result without prefixes
+  colorCache[teamName] = { primary: primaryColor, secondary: secondaryColor };
+  
+  return direction === 'to-r'
+    ? `bg-gradient-to-r from-${primaryColor} to-${secondaryColor}`
+    : `bg-gradient-to-l from-${secondaryColor} to-${primaryColor}`;
 }
 
 /**
