@@ -20,7 +20,6 @@ import TeamPerformanceTimeline from '@/components/matches/TeamPerformanceTimelin
 import StatHighlight from '@/components/matches/StatHighlight';
 import HistoricalStats from '@/components/matches/HistoricalStats';
 import PredictionMeter from '@/components/matches/PredictionMeter';
-import MatchAtmosphericSounds from '@/components/matches/MatchAtmosphericSounds';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -431,13 +430,6 @@ const MatchDetails = () => {
                     confidence={75}
                   />
                 </div>
-                
-                {/* Match Atmosphere Sound Controls */}
-                <MatchAtmosphericSounds 
-                  matchIntensity={isLiveMatch(currentFixture.fixture.status.short) ? 'high' : 'medium'}
-                  homeTeamId={currentFixture.teams.home.id}
-                  awayTeamId={currentFixture.teams.away.id}
-                />
               </TabsContent>
               
               <TabsContent value="stats" className="mt-2">
