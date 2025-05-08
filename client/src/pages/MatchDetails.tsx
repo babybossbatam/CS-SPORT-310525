@@ -10,13 +10,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered } from 'lucide-react';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info } from 'lucide-react';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import MatchPrediction from '@/components/matches/MatchPrediction';
 import HistoricalMatchStats from '@/components/matches/HistoricalMatchStats';
 import TeamPerformanceTimeline from '@/components/matches/TeamPerformanceTimeline';
+import StatHighlight from '@/components/matches/StatHighlight';
+import HistoricalStats from '@/components/matches/HistoricalStats';
+import PredictionMeter from '@/components/matches/PredictionMeter';
+import MatchAtmosphericSounds from '@/components/matches/MatchAtmosphericSounds';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -351,62 +355,212 @@ const MatchDetails = () => {
               </TabsList>
               
               <TabsContent value="summary" className="mt-2">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center text-sm text-gray-500">
-                      {currentFixture.fixture.status.long === "Match Finished" ? (
-                        <p>This match has ended. Final score: {currentFixture.goals.home} - {currentFixture.goals.away}</p>
-                      ) : isLiveMatch(currentFixture.fixture.status.short) ? (
-                        <p>
-                          This match is currently in progress. 
-                          {currentFixture.fixture.status.elapsed && ` Elapsed time: ${currentFixture.fixture.status.elapsed} minutes`}
-                        </p>
-                      ) : (
-                        <p>This match has not started yet. Scheduled to begin at {formatDateTime(currentFixture.fixture.date)}</p>
-                      )}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                  {/* Match Info Card */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-center text-sm text-gray-500">
+                        {currentFixture.fixture.status.long === "Match Finished" ? (
+                          <p>This match has ended. Final score: {currentFixture.goals.home} - {currentFixture.goals.away}</p>
+                        ) : isLiveMatch(currentFixture.fixture.status.short) ? (
+                          <p>
+                            This match is currently in progress. 
+                            {currentFixture.fixture.status.elapsed && ` Elapsed time: ${currentFixture.fixture.status.elapsed} minutes`}
+                          </p>
+                        ) : (
+                          <p>This match has not started yet. Scheduled to begin at {formatDateTime(currentFixture.fixture.date)}</p>
+                        )}
+                        
+                        {currentFixture.fixture.referee && (
+                          <p className="mt-2">Referee: {currentFixture.fixture.referee}</p>
+                        )}
+                        
+                        {currentFixture.fixture.venue.name && currentFixture.fixture.venue.city && (
+                          <p className="mt-2">Venue: {currentFixture.fixture.venue.name}, {currentFixture.fixture.venue.city}</p>
+                        )}
+                      </div>
                       
-                      {currentFixture.fixture.referee && (
-                        <p className="mt-2">Referee: {currentFixture.fixture.referee}</p>
-                      )}
-                      
-                      {currentFixture.fixture.venue.name && currentFixture.fixture.venue.city && (
-                        <p className="mt-2">Venue: {currentFixture.fixture.venue.name}, {currentFixture.fixture.venue.city}</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                      {/* Match Stats Highlights */}
+                      <div className="mt-6 border-t pt-4">
+                        <h3 className="text-sm font-medium text-center mb-4">Key Match Statistics</h3>
+                        <div className="space-y-3">
+                          <StatHighlight 
+                            label="Possession" 
+                            homeValue={55} 
+                            awayValue={45} 
+                            isPrimary={true} 
+                          />
+                          <StatHighlight 
+                            label="Shots on Goal" 
+                            homeValue={8} 
+                            awayValue={6} 
+                          />
+                          <StatHighlight 
+                            label="Corner Kicks" 
+                            homeValue={7} 
+                            awayValue={4} 
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Prediction Meter Card */}
+                  <PredictionMeter 
+                    homeTeam={{
+                      id: currentFixture.teams.home.id,
+                      name: currentFixture.teams.home.name,
+                      logo: currentFixture.teams.home.logo,
+                      prediction: {
+                        chance: 45,
+                        form: 'ascending',
+                        history: 50
+                      }
+                    }}
+                    awayTeam={{
+                      id: currentFixture.teams.away.id,
+                      name: currentFixture.teams.away.name,
+                      logo: currentFixture.teams.away.logo,
+                      prediction: {
+                        chance: 35,
+                        form: 'stable',
+                        history: 35
+                      }
+                    }}
+                    drawChance={20}
+                    confidence={75}
+                  />
+                </div>
+                
+                {/* Match Atmosphere Sound Controls */}
+                <MatchAtmosphericSounds 
+                  matchIntensity={isLiveMatch(currentFixture.fixture.status.short) ? 'high' : 'medium'}
+                  homeTeamId={currentFixture.teams.home.id}
+                  awayTeamId={currentFixture.teams.away.id}
+                />
               </TabsContent>
               
               <TabsContent value="stats" className="mt-2">
                 <Card>
+                  <CardHeader className="p-4 border-b flex items-center">
+                    <BarChart2 className="h-5 w-5 mr-2 text-blue-600" />
+                    <h3 className="font-semibold">Match Statistics</h3>
+                  </CardHeader>
                   <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-500 mb-4">
-                        Detailed match statistics will be available here.
-                      </p>
-                      
-                      {/* Placeholder for stats that would come from the API */}
+                    {/* Enhanced Stats with interactive highlights */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        {['Possession', 'Shots', 'Shots on Target', 'Corners', 'Fouls'].map((stat) => (
-                          <div key={stat} className="flex items-center justify-between">
-                            <div className="w-16 text-right text-sm font-medium">--</div>
-                            <div className="flex-1 mx-4">
-                              <div className="text-xs text-center mb-1">{stat}</div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '50%' }}></div>
-                              </div>
-                            </div>
-                            <div className="w-16 text-left text-sm font-medium">--</div>
-                          </div>
-                        ))}
+                        <h4 className="text-sm font-medium mb-3 text-gray-600">Match Control</h4>
+                        
+                        <StatHighlight 
+                          label="Possession (%)" 
+                          homeValue={58} 
+                          awayValue={42} 
+                          isPrimary={true}
+                        />
+                        
+                        <StatHighlight 
+                          label="Passing Accuracy (%)" 
+                          homeValue={86} 
+                          awayValue={79} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Total Passes" 
+                          homeValue={452} 
+                          awayValue={321} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Attacks" 
+                          homeValue={83} 
+                          awayValue={64} 
+                        />
                       </div>
+                      
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium mb-3 text-gray-600">Attack Effectiveness</h4>
+                        
+                        <StatHighlight 
+                          label="Shots" 
+                          homeValue={16} 
+                          awayValue={9} 
+                          isPrimary={true}
+                        />
+                        
+                        <StatHighlight 
+                          label="Shots on Target" 
+                          homeValue={7} 
+                          awayValue={4} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Corner Kicks" 
+                          homeValue={6} 
+                          awayValue={3} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Expected Goals (xG)" 
+                          homeValue={2.3} 
+                          awayValue={1.1} 
+                        />
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium mb-3 text-gray-600">Discipline</h4>
+                        
+                        <StatHighlight 
+                          label="Fouls" 
+                          homeValue={12} 
+                          awayValue={15} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Yellow Cards" 
+                          homeValue={2} 
+                          awayValue={3} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Red Cards" 
+                          homeValue={0} 
+                          awayValue={0} 
+                        />
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium mb-3 text-gray-600">Defense</h4>
+                        
+                        <StatHighlight 
+                          label="Tackles" 
+                          homeValue={22} 
+                          awayValue={28} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Interceptions" 
+                          homeValue={14} 
+                          awayValue={19} 
+                        />
+                        
+                        <StatHighlight 
+                          label="Saves" 
+                          homeValue={2} 
+                          awayValue={5} 
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 text-center text-xs text-gray-500">
+                      <p>Hover over each stat bar to see more details and insights</p>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
               
               <TabsContent value="h2h" className="mt-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <HistoricalMatchStats 
                     homeTeam={currentFixture.teams.home}
                     awayTeam={currentFixture.teams.away}
@@ -415,6 +569,55 @@ const MatchDetails = () => {
                     team={currentFixture.teams.home}
                   />
                 </div>
+                
+                {/* New Historical Stats Component with enhanced UI */}
+                <HistoricalStats
+                  homeTeamId={currentFixture.teams.home.id}
+                  homeTeamName={currentFixture.teams.home.name}
+                  homeTeamLogo={currentFixture.teams.home.logo}
+                  awayTeamId={currentFixture.teams.away.id}
+                  awayTeamName={currentFixture.teams.away.name}
+                  awayTeamLogo={currentFixture.teams.away.logo}
+                  previousMatches={[
+                    {
+                      date: "2025-03-15",
+                      homeTeam: currentFixture.teams.home.name,
+                      awayTeam: currentFixture.teams.away.name,
+                      homeScore: 2,
+                      awayScore: 1,
+                      competition: currentFixture.league.name
+                    },
+                    {
+                      date: "2024-11-22",
+                      homeTeam: currentFixture.teams.away.name,
+                      awayTeam: currentFixture.teams.home.name,
+                      homeScore: 0,
+                      awayScore: 3,
+                      competition: currentFixture.league.name
+                    },
+                    {
+                      date: "2024-08-05",
+                      homeTeam: currentFixture.teams.home.name,
+                      awayTeam: currentFixture.teams.away.name,
+                      homeScore: 1,
+                      awayScore: 1,
+                      competition: "Cup"
+                    }
+                  ]}
+                  headToHead={{
+                    totalMatches: 10,
+                    homeWins: 4,
+                    awayWins: 3,
+                    draws: 3,
+                    lastFiveResults: ['H', 'A', 'D', 'H', 'A']
+                  }}
+                  teamForm={{
+                    homeTeamForm: ['W', 'W', 'D', 'L', 'W'],
+                    awayTeamForm: ['L', 'W', 'W', 'D', 'L'],
+                    homeTeamPosition: 4,
+                    awayTeamPosition: 7
+                  }}
+                />
               </TabsContent>
               
               <TabsContent value="lineups" className="mt-2">
