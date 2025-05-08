@@ -414,8 +414,8 @@ function LiveScoreboardPage() {
                   
                   {/* VS text positioned absolutely in the center with enhanced styling */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                    <div className="bg-black/40 rounded-full h-6 w-6 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold drop-shadow-md">VS</span>
+                    <div className="bg-black/40 rounded-full h-12 w-12 flex items-center justify-center">
+                      <span className="text-white text-3xl font-bold drop-shadow-md">VS</span>
                     </div>
                   </div>
                   
