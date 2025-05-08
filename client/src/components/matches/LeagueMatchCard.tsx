@@ -4,13 +4,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
 
 // Type guard to check if an object is a league response
-function isValidLeagueResponse(object: any): boolean {
+function isValidLeagueResponse(object: any): object is import('../../../server/types').LeagueResponse {
   return (
     typeof object === 'object' &&
     object !== null &&
     'league' in object &&
     'country' in object &&
-    'seasons' in object
+    'seasons' in object &&
+    typeof object.league === 'object' &&
+    typeof object.country === 'object'
   );
 }
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
