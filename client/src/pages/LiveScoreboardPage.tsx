@@ -124,7 +124,7 @@ function LiveScoreboardPage() {
   });
   
   // Top priority leagues that should always be shown first if available
-  const topPriorityLeagues = [2, 3, 39]; // UEFA Champions League, UEFA Europa League, Premier League
+  const topPriorityLeagues = [3, 135, 140]; // UEFA Europa League, Serie A (Italy), La Liga (Spain)
   
   // Process fixtures when data is available
   useEffect(() => {
@@ -355,14 +355,14 @@ function LiveScoreboardPage() {
           <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
             {/* Previous match button */}
             <button 
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-r-sm shadow flex items-center justify-center"
               onClick={previousFixture}
             >
               <ChevronLeft className="h-4 w-4 text-gray-700" />
             </button>
             
             {/* Home team logo with drop shadow effect */}
-            <div className="absolute bottom-0 left-10 z-10">
+            <div className="absolute bottom-0 left-8 z-10">
               <div className="relative">
                 <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
                 <img 
@@ -378,7 +378,7 @@ function LiveScoreboardPage() {
             
             {/* Home team gradient - with rounded right edge */}
             <div className="h-full w-1/2 bg-gradient-to-r from-blue-700 to-green-600 flex items-center rounded-r-lg">
-              <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+              <div className="ml-24 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
             {/* VS label */}
@@ -388,11 +388,11 @@ function LiveScoreboardPage() {
             
             {/* Away team gradient - with rounded left edge */}
             <div className="h-full w-1/2 bg-gradient-to-l from-blue-700 to-green-600 flex items-center justify-end rounded-l-lg">
-              <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+              <div className="mr-24 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
             {/* Away team logo with drop shadow effect */}
-            <div className="absolute bottom-0 right-10 z-10">
+            <div className="absolute bottom-0 right-8 z-10">
               <div className="relative">
                 <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
                 <img 
@@ -408,7 +408,7 @@ function LiveScoreboardPage() {
             
             {/* Next match button */}
             <button 
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-l-sm shadow flex items-center justify-center"
               onClick={nextFixture}
             >
               <ChevronRight className="h-4 w-4 text-gray-700" />
