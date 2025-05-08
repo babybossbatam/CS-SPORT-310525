@@ -17,8 +17,8 @@ export default function LiveScoresPage() {
       </header>
       
       <main className="grid grid-cols-12 gap-6">
-        {/* Main content - 8 columns */}
-        <div className="col-span-12 lg:col-span-8">
+        {/* Main content - 9 columns */}
+        <div className="col-span-12 lg:col-span-9">
           <LiveScoreboard 
             showFeaturedMatch={true}
             showFilters={true}
@@ -26,8 +26,8 @@ export default function LiveScoresPage() {
           />
         </div>
         
-        {/* Sidebar - 4 columns */}
-        <div className="col-span-12 lg:col-span-4">
+        {/* Sidebar - 3 columns */}
+        <div className="col-span-12 lg:col-span-3">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
             <h2 className="font-bold text-lg mb-4">Today's Highlights</h2>
             <div className="space-y-2">

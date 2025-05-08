@@ -30,6 +30,19 @@ export const teamColorMap: Record<string, { primary: string, secondary: string, 
   // Ligue 1
   'paris': { primary: 'from-blue-800', secondary: 'to-blue-600', accent: 'rgb(0, 36, 125)' },
   
+  // South American Teams
+  'sportivo': { primary: 'from-yellow-600', secondary: 'to-red-600', accent: 'rgb(204, 85, 0)' },
+  'sportivo trinidense': { primary: 'from-red-600', secondary: 'to-yellow-500', accent: 'rgb(204, 85, 0)' },
+  'sportivo luqueño': { primary: 'from-blue-500', secondary: 'to-yellow-500', accent: 'rgb(0, 85, 184)' },
+  'sportivo belgrano': { primary: 'from-green-600', secondary: 'to-white', accent: 'rgb(0, 102, 51)' },
+  'flamengo': { primary: 'from-red-700', secondary: 'to-black', accent: 'rgb(157, 0, 0)' },
+  'palmeiras': { primary: 'from-green-700', secondary: 'to-green-500', accent: 'rgb(0, 102, 37)' },
+  'santos': { primary: 'from-white', secondary: 'to-black', accent: 'rgb(0, 0, 0)' },
+  'corinthians': { primary: 'from-black', secondary: 'to-white', accent: 'rgb(0, 0, 0)' },
+  'gremio': { primary: 'from-blue-700', secondary: 'to-blue-500', accent: 'rgb(25, 63, 121)' },
+  'river plate': { primary: 'from-red-600', secondary: 'to-white', accent: 'rgb(209, 36, 33)' },
+  'boca juniors': { primary: 'from-blue-600', secondary: 'to-yellow-500', accent: 'rgb(0, 34, 104)' },
+  
   // Default gradient
   'default': { primary: 'from-blue-700', secondary: 'to-blue-500', accent: 'rgb(59, 130, 246)' }
 };
