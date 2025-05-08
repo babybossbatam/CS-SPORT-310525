@@ -271,8 +271,8 @@ export function LiveScoreboard({
       {/* Featured match */}
       {showFeaturedMatch && featuredMatch && (
         <div className="rounded-xl overflow-hidden shadow-lg bg-white border border-gray-100">
-          {/* Featured badge */}
-          <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
+          {/* Featured badge - gray background */}
+          <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
             FEATURED MATCH
           </div>
           
@@ -472,7 +472,7 @@ export function LiveScoreboard({
       {/* Match list */}
       <div className="space-y-2">
         <h3 className="font-bold text-xl mb-3">
-          {liveMatches?.length ? 'Live Matches' : "Today's Matches"}
+          Today's Matches
         </h3>
         
         {filteredMatches.slice(showFeaturedMatch ? 1 : 0).map((match) => (
