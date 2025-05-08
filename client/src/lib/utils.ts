@@ -177,6 +177,29 @@ export function isLiveMatch(status: string): boolean {
   return liveStatuses.includes(status.toLowerCase());
 }
 
+// Format time until match for display in featured matches widget
+export function formatTimeUntilMatch(dateString: string): string {
+  const matchDate = new Date(dateString);
+  const now = new Date();
+  const diffInMs = matchDate.getTime() - now.getTime();
+  
+  if (diffInMs < 0) {
+    return "Live";
+  }
+  
+  const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  
+  if (days > 0) {
+    return `${days} ${days === 1 ? 'Day' : 'Days'}`;
+  } else if (hours > 0) {
+    return `${hours} ${hours === 1 ? 'Hour' : 'Hours'}`;
+  } else {
+    const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${minutes} ${minutes === 1 ? 'Minute' : 'Minutes'}`;
+  }
+}
+
 // Generate a random ID
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
