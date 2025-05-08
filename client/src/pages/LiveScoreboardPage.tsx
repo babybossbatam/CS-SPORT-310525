@@ -350,80 +350,74 @@ function LiveScoreboardPage() {
           </div>
         </div>
         
-        {/* Teams with gradients */}
-        <div className="flex rounded-md overflow-hidden relative h-16">
-          <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
-            {/* Previous match button */}
-            <button 
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-r-sm shadow flex items-center justify-center"
-              onClick={previousFixture}
-            >
-              <ChevronLeft className="h-4 w-4 text-gray-700" />
-            </button>
-            
-            {/* Home team logo with drop shadow effect */}
-            <div className="absolute bottom-0 left-8 z-10">
+        {/* Tomorrow label */}
+        <div className="text-center my-2">
+          <h2 className="text-2xl font-bold">Tomorrow</h2>
+        </div>
+        
+        {/* Teams with match bar - design similar to reference image */}
+        <div className="relative mb-3">
+          {/* Previous match button */}
+          <button 
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 h-10 w-10 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+            onClick={previousFixture}
+          >
+            <ChevronLeft className="h-5 w-5 text-gray-700" />
+          </button>
+          
+          {/* Match bar with team info */}
+          <div className="flex items-center justify-between mx-12">
+            {/* Home team logo */}
+            <div className="relative z-10 -mr-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
                 <img 
                   src={featured.teams.home.logo} 
                   alt={featured.teams.home.name}
-                  className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
+                  className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                   }}
                 />
               </div>
             </div>
             
-            {/* Home team gradient - with rounded right edge */}
-            <div className="h-full w-2/5 bg-gradient-to-r from-blue-700 to-green-600 flex items-center rounded-r-lg">
-              <div className="ml-24 text-white font-bold text-lg uppercase text-ellipsis overflow-hidden whitespace-nowrap">{featured.teams.home.name}</div>
+            {/* Match info bar */}
+            <div className="flex-1 h-12 bg-red-600 text-white rounded-md flex items-center justify-between px-16 shadow-md">
+              <div className="font-bold text-lg uppercase">{featured.teams.home.name}</div>
+              <div className="font-bold text-xl">VS</div>
+              <div className="font-bold text-lg uppercase">{featured.teams.away.name}</div>
             </div>
             
-            {/* VS label */}
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20 shadow-lg">
-              VS
-            </div>
-            
-            {/* Away team gradient - with rounded left edge */}
-            <div className="h-full w-2/5 bg-gradient-to-l from-blue-700 to-green-600 flex items-center justify-end rounded-l-lg">
-              <div className="mr-24 text-white font-bold text-lg uppercase text-right text-ellipsis overflow-hidden whitespace-nowrap">{featured.teams.away.name}</div>
-            </div>
-            
-            {/* Away team logo with drop shadow effect */}
-            <div className="absolute bottom-0 right-8 z-10">
+            {/* Away team logo */}
+            <div className="relative z-10 -ml-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
                 <img 
                   src={featured.teams.away.logo} 
                   alt={featured.teams.away.name}
-                  className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
+                  className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                   }}
                 />
               </div>
             </div>
-            
-            {/* Next match button */}
-            <button 
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-l-sm shadow flex items-center justify-center"
-              onClick={nextFixture}
-            >
-              <ChevronRight className="h-4 w-4 text-gray-700" />
-            </button>
           </div>
+          
+          {/* Next match button */}
+          <button 
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 h-10 w-10 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+            onClick={nextFixture}
+          >
+            <ChevronRight className="h-5 w-5 text-gray-700" />
+          </button>
         </div>
         
         {/* Match details footer */}
-        <div className="p-2 text-center text-sm border-t border-gray-100">
-          <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
-            <Clock className="h-3 w-3" />
-            <span>{formatMatchDateFn(featured.fixture.date)}</span>
-            {featured.fixture.venue.name && (
-              <span> | {featured.fixture.venue.name}</span>
-            )}
+        <div className="text-center text-sm pb-3">
+          <div className="text-sm text-gray-700">
+            {formatMatchDateFn(featured.fixture.date)} | {featured.fixture.venue.name || 'TBD'}
           </div>
         </div>
         
