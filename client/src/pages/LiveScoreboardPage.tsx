@@ -362,7 +362,7 @@ function LiveScoreboardPage() {
             </button>
             
             {/* Home team logo with drop shadow effect */}
-            <div className="absolute bottom-0 left-0 z-10">
+            <div className="absolute bottom-0 left-10 z-10">
               <div className="relative">
                 <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
                 <img 
@@ -378,7 +378,7 @@ function LiveScoreboardPage() {
             
             {/* Home team gradient - with rounded right edge */}
             <div className="h-full w-1/2 bg-gradient-to-r from-blue-700 to-green-600 flex items-center rounded-r-lg">
-              <div className="ml-10 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+              <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
             {/* VS label */}
@@ -388,11 +388,11 @@ function LiveScoreboardPage() {
             
             {/* Away team gradient - with rounded left edge */}
             <div className="h-full w-1/2 bg-gradient-to-l from-blue-700 to-green-600 flex items-center justify-end rounded-l-lg">
-              <div className="mr-10 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+              <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
             {/* Away team logo with drop shadow effect */}
-            <div className="absolute bottom-0 right-0 z-10">
+            <div className="absolute bottom-0 right-10 z-10">
               <div className="relative">
                 <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
                 <img 
