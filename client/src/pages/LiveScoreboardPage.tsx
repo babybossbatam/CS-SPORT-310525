@@ -387,22 +387,25 @@ function LiveScoreboardPage() {
             <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden -mx-5"> {/* Extended 5px on each side */}
               {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
-                {/* Home team gradient section */}
-                <div className={`w-[calc(50%-20px)] ${getTeamGradient(featured.teams.home.name, 'to-r')}`}>
-                  <div className="pl-16 h-full flex items-center"> {/* Increased padding to account for bar extension */}
-                    <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.home.name}</span>
+                {/* Single continuous gradient bar with home and away team colors */}
+                <div className="flex h-full w-full relative">
+                  {/* Home team gradient section */}
+                  <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')}`}>
+                    <div className="pl-16 h-full flex items-center"> {/* Increased padding to account for bar extension */}
+                      <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.home.name}</span>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Centered VS divider */}
-                <div className="bg-black/80 text-white font-bold text-xl w-40 flex items-center justify-center">
-                  VS
-                </div>
-                
-                {/* Away team gradient section */}
-                <div className={`w-[calc(50%-20px)] ${getTeamGradient(featured.teams.away.name, 'to-l')}`}>
-                  <div className="pr-16 h-full flex items-center justify-end"> {/* Increased padding to account for bar extension */}
-                    <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.away.name}</span>
+                  
+                  {/* VS text positioned absolutely in the center */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="text-white text-sm font-bold shadow-sm">VS</span>
+                  </div>
+                  
+                  {/* Away team gradient section */}
+                  <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')}`}>
+                    <div className="pr-16 h-full flex items-center justify-end"> {/* Increased padding to account for bar extension */}
+                      <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.away.name}</span>
+                    </div>
                   </div>
                 </div>
               </div>
