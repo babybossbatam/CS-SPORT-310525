@@ -14,12 +14,16 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
-  getTeamGradient, 
   formatMatchDateFn, 
   formatExactDateTime,
   getCountdownTimer,
   isLiveMatch
 } from '@/lib/utils';
+import { 
+  getTeamGradient, 
+  getOpposingTeamColor,
+  getTeamColor
+} from '@/lib/colorExtractor';
 
 // Define types locally
 interface Team {
@@ -419,8 +423,11 @@ function LiveScoreboardPage() {
                     </div>
                   </div>
                   
-                  {/* Away team gradient section with 45-degree slice */}
-                  <div className={`w-[52%] ${getTeamGradient(featuredFixture.teams.away.name, 'to-l')} relative -ml-4`}>
+                  {/* Away team gradient section with 45-degree slice - using different color */}
+                  <div className={`w-[52%] bg-gradient-to-l relative -ml-4`} 
+                       style={{
+                         backgroundImage: `linear-gradient(to left, ${getOpposingTeamColor(featuredFixture.teams.home.name, featuredFixture.teams.away.name)}, ${getTeamColor(featuredFixture.teams.away.name)})`
+                       }}>
                     {/* Angled edge for away team */}
                     <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>

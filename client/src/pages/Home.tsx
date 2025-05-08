@@ -13,6 +13,7 @@ import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
 import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
+import TopScorersList from '@/components/leagues/TopScorersList';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -154,20 +155,33 @@ const Home = () => {
           </div>
           
           {/* Right column - Popular Leagues */}
-          <div className="lg:col-span-4 bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="py-2 px-3 bg-gray-100 border-b">
-              <h3 className="font-semibold text-gray-700">Popular Football Leagues</h3>
+          <div className="lg:col-span-4 space-y-4">
+            {/* Popular Leagues section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="py-2 px-3 bg-gray-100 border-b">
+                <h3 className="font-semibold text-gray-700">Popular Football Leagues</h3>
+              </div>
+              {/* Country filter */}
+              <LeagueCountryFilter onSelectCountry={setFilteredCountry} />
+              
+              <div className="space-y-1">
+                {(filteredCountry 
+                  ? countryLeagueMap[filteredCountry] || [] 
+                  : popularLeagues
+                ).map((leagueId) => (
+                  <LeagueMatchCard key={leagueId} leagueId={leagueId} />
+                ))}
+              </div>
             </div>
-            {/* Country filter */}
-            <LeagueCountryFilter onSelectCountry={setFilteredCountry} />
             
-            <div className="space-y-1">
-              {(filteredCountry 
-                ? countryLeagueMap[filteredCountry] || [] 
-                : popularLeagues
-              ).map((leagueId) => (
-                <LeagueMatchCard key={leagueId} leagueId={leagueId} />
-              ))}
+            {/* Top Scorers Section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="py-2 px-3 bg-gray-100 border-b">
+                <h3 className="font-semibold text-gray-700">Top Scorers</h3>
+              </div>
+              <div className="p-3">
+                <TopScorersList />
+              </div>
             </div>
           </div>
         </div>
