@@ -339,8 +339,8 @@ const LiveScoreboard = memo(() => {
         <div className="flex rounded-md overflow-hidden relative h-16">
           {/* Container for both gradients that meet in the middle with same width */}
           <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
-            {/* Home team logo - positioned at the leftmost */}
-            <div className="absolute bottom-0 left-0 z-10">
+            {/* Home team logo - positioned at the leftmost, lowered by 5px */}
+            <div className="absolute bottom-0 left-0 z-10" style={{ paddingBottom: '5px' }}>
               <img 
                 src={featured.teams.home.logo} 
                 alt={featured.teams.home.name}
@@ -351,8 +351,8 @@ const LiveScoreboard = memo(() => {
               />
             </div>
             
-            {/* Home team - gradient extending exactly 50% */}
-            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center`}>
+            {/* Home team - gradient reduced by 5px width */}
+            <div className={`h-full ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center`} style={{ width: 'calc(50% - 5px)' }}>
               <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
@@ -361,13 +361,13 @@ const LiveScoreboard = memo(() => {
               VS
             </div>
             
-            {/* Away team - gradient extending exactly 50% */}
-            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`}>
+            {/* Away team - gradient reduced by 5px width */}
+            <div className={`h-full ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`} style={{ width: 'calc(50% - 5px)', marginLeft: '10px' }}>
               <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
-            {/* Away team logo - positioned at the rightmost */}
-            <div className="absolute bottom-0 right-0 z-10">
+            {/* Away team logo - positioned at the rightmost, lowered by 5px */}
+            <div className="absolute bottom-0 right-0 z-10" style={{ paddingBottom: '5px' }}>
               <img 
                 src={featured.teams.away.logo} 
                 alt={featured.teams.away.name}
