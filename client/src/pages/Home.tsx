@@ -8,7 +8,7 @@ import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
-import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
+import { Link } from 'wouter';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
@@ -151,7 +151,12 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column - Featured Match */}
           <div className="lg:col-span-8">
-            <LiveScoreboardPage />
+            <div className="text-center mb-6">
+              <Link href="/live-scoreboard" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                View Full Live Scoreboard
+              </Link>
+            </div>
+            <FeaturedMatch />
           </div>
           
           {/* Right column - Popular Leagues */}
