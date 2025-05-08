@@ -245,7 +245,7 @@ function LiveScoreboardPage() {
       setFilteredFixtures(fixtures);
       setCurrentFixtureIndex(0);
     }
-  }, [liveFixturesQuery.data, upcomingFixturesQuery.data, selectedCountry, countryLeagueMap, filteredFixtures]);
+  }, [liveFixturesQuery.data, upcomingFixturesQuery.data, selectedCountry, countryLeagueMap]);
   
   // Handle navigation
   const previousFixture = () => {
@@ -406,6 +406,11 @@ function LiveScoreboardPage() {
           </div>
         </div>
         
+        {/* Tomorrow label */}
+        <div className="text-center my-2">
+          <h2 className="text-2xl font-bold">Tomorrow</h2>
+        </div>
+        
         {/* Teams with match bar - design similar to reference image */}
         <div className="relative mb-3">
           {/* Previous match button - positioned at far left with improved animation */}
@@ -434,31 +439,43 @@ function LiveScoreboardPage() {
               </div>
             </div>
             
-            {/* Match bar with dynamic team colors */}
-            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden">
+            {/* Match bar with two-color dynamic gradient */}
+            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden -mx-5"> {/* Extended 5px on each side */}
+              {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
-                {/* Home team color bar */}
-                <div
-                  className="w-1/2 flex items-center justify-start pl-3 h-full"
-                  style={{
-                    backgroundColor: getTeamColor(featuredFixture.teams.home.logo) || '#3B82F6'
-                  }}
-                >
-                  <span className="font-semibold text-white text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
-                    {featuredFixture.teams.home.name}
-                  </span>
-                </div>
-                
-                {/* Away team color bar */}
-                <div
-                  className="w-1/2 flex items-center justify-end pr-3 h-full"
-                  style={{
-                    backgroundColor: getTeamColor(featuredFixture.teams.away.logo) || '#EF4444'
-                  }}
-                >
-                  <span className="font-semibold text-white text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] text-right">
-                    {featuredFixture.teams.away.name}
-                  </span>
+                {/* Single continuous gradient bar with home and away team colors */}
+                <div className="flex h-full w-full relative overflow-hidden">
+                  {/* Home team section with 45-degree slice */}
+                  <div className={`w-[52%] relative ml-3`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
+                    {/* Angled edge for home team */}
+                    <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
+                      style={{backgroundColor: 'inherit'}}></div>
+                    
+                    <div className="pl-10 h-full flex items-center justify-start z-10 relative">
+                      <span className="text-white font-bold text-sm uppercase truncate">{featuredFixture.teams.home.name}</span>
+                    </div>
+                  </div>
+                  
+                  {/* VS text positioned absolutely in the center with enhanced styling */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                    <div className="bg-black/40 rounded-full h-12 w-12 flex items-center justify-center">
+                      <span className="text-white text-3xl font-bold drop-shadow-md">VS</span>
+                    </div>
+                  </div>
+                  
+                  {/* Away team section with 45-degree slice - using different color */}
+                  <div className={`w-[52%] relative -ml-1 mr-3`} 
+                       style={{
+                         backgroundColor: getTeamColor(featuredFixture.teams.away.name)
+                       }}>
+                    {/* Angled edge for away team */}
+                    <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
+                      style={{backgroundColor: 'inherit'}}></div>
+                    
+                    <div className="pr-10 h-full flex items-center justify-end z-10 relative">
+                      <span className="text-white font-bold text-sm uppercase truncate">{featuredFixture.teams.away.name}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -478,80 +495,68 @@ function LiveScoreboardPage() {
                 />
               </div>
             </div>
-            
-            {/* Next match button - positioned at far right with improved animation */}
-            <button 
-              className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              onClick={nextFixture}
-            >
-              <ChevronRight className="h-6 w-6 text-gray-700" />
-            </button>
           </div>
+          
+          {/* Next match button - positioned at far right with improved animation */}
+          <button 
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+            onClick={nextFixture}
+          >
+            <ChevronRight className="h-6 w-6 text-gray-700" />
+          </button>
         </div>
         
-        {/* Score display */}
-        <div className="flex justify-center items-center mb-5 mt-2">
-          <div className="text-5xl font-extrabold tracking-tighter">
-            {isLiveMatch(featuredFixture.fixture.status.short) || featuredFixture.fixture.status.short === 'FT' ? (
-              <>
-                <span className={featuredFixture.teams.home.winner ? 'text-green-600' : ''}>{featuredFixture.goals.home ?? 0}</span>
-                <span className="text-gray-400 mx-3">-</span>
-                <span className={featuredFixture.teams.away.winner ? 'text-green-600' : ''}>{featuredFixture.goals.away ?? 0}</span>
-              </>
-            ) : (
-              <>
-                <span className="text-gray-300">0</span>
-                <span className="text-gray-200 mx-3">-</span>
-                <span className="text-gray-300">0</span>
-              </>
-            )}
+        {/* Match details footer */}
+        <div className="text-center text-sm pb-3">
+          <div className="text-sm text-gray-700">
+            {formatMatchDateFn(featuredFixture.fixture.date)} | {featuredFixture.fixture.venue.name || 'TBD'}
           </div>
         </div>
         
         {/* Action buttons */}
-        <div className="flex justify-center pb-5 gap-4">
+        <div className="grid grid-cols-4 border-t border-gray-200">
           <button 
-            className="flex flex-col items-center justify-center"
-            onClick={() => navigate(`/match/${featuredFixture.fixture.id}/stats`)}
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
+            onClick={() => navigate(`/match/${featuredFixture.fixture.id}`)}
           >
-            <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <div className="text-xs mt-1">Match Page</div>
+            </div>
+          </button>
+          
+          <button 
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
+            onClick={() => navigate(`/match/${featuredFixture.fixture.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <div className="text-xs mt-1">Lineups</div>
+            </div>
+          </button>
+          
+          <button 
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
+            onClick={() => navigate(`/match/${featuredFixture.fixture.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               <div className="text-xs mt-1">Stats</div>
             </div>
           </button>
           
           <button 
-            className="flex flex-col items-center justify-center"
-            onClick={() => navigate(`/match/${featuredFixture.fixture.id}/events`)}
+            className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors"
+            onClick={() => navigate(`/league/${featuredFixture.league.id}`)}
           >
-            <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <div className="text-xs mt-1">Events</div>
-            </div>
-          </button>
-          
-          <button 
-            className="flex flex-col items-center justify-center"
-            onClick={() => navigate(`/match/${featuredFixture.fixture.id}/lineup`)}
-          >
-            <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <div className="text-xs mt-1">Line-Up</div>
-            </div>
-          </button>
-          
-          <button 
-            className="flex flex-col items-center justify-center"
-            onClick={() => navigate(`/match/${featuredFixture.fixture.id}/bracket`)}
-          >
-            <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
               <div className="text-xs mt-1">Bracket</div>

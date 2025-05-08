@@ -12,7 +12,6 @@ import Settings from "@/pages/Settings";
 import SearchResults from "@/pages/SearchResults";
 import LiveMatches from "@/pages/LiveMatches";
 import LiveScoresPage from "@/pages/LiveScoresPage";
-import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
 
 function Router() {
   return (
@@ -29,7 +28,6 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/search" component={SearchResults} />
       <Route path="/live" component={LiveMatches} />
-      <Route path="/live-scoreboard" component={LiveScoreboardPage} />
       <Route component={NotFound} />
     </Switch>
   );
