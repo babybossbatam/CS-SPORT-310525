@@ -15,10 +15,13 @@ interface LeagueStandings {
 }
 
 // Initialize API client
+const apiKey = process.env.RAPID_API_KEY || '';
+console.log(`Using RapidAPI Key: ${apiKey ? apiKey.substring(0, 5) + '...' : 'NOT SET'}`);
+
 const apiClient = axios.create({
   baseURL: 'https://api-football-v1.p.rapidapi.com/v3',
   headers: {
-    'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+    'X-RapidAPI-Key': apiKey,
     'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
   }
 });
@@ -206,10 +209,14 @@ export const rapidApiService = {
     }
     
     try {
+      console.log(`Fetching league with ID ${id}`);
       const response = await apiClient.get('/leagues', {
         params: { id }
       });
       
+      console.log(`API response status: ${response.status}, data:`, 
+        JSON.stringify(response.data).substring(0, 200) + '...');
+        
       if (response.data && response.data.response && response.data.response.length > 0) {
         const leagueData = response.data.response[0];
         leaguesCache.set(cacheKey, { 
@@ -219,6 +226,7 @@ export const rapidApiService = {
         return leagueData;
       }
       
+      console.log(`No league data found for ID ${id}`);
       return null;
     } catch (error) {
       console.error(`Error fetching league with ID ${id}:`, error);
@@ -239,9 +247,13 @@ export const rapidApiService = {
     }
     
     try {
+      console.log(`Fetching top scorers for league ${leagueId}, season ${season}`);
       const response = await apiClient.get('/players/topscorers', {
         params: { league: leagueId, season }
       });
+      
+      console.log(`API response status: ${response.status}, data:`, 
+        JSON.stringify(response.data).substring(0, 200) + '...');
       
       if (response.data && response.data.response) {
         playersCache.set(cacheKey, { 
@@ -251,6 +263,7 @@ export const rapidApiService = {
         return response.data.response;
       }
       
+      console.log(`No top scorers data for league ${leagueId}, season ${season}`);
       return [];
     } catch (error) {
       console.error(`Error fetching top scorers for league ${leagueId}:`, error);
