@@ -8,12 +8,14 @@ import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
+import TodayMatches from '@/components/matches/TodayMatches';
 import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
 import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import TopScorersList from '@/components/leagues/TopScorersList';
+import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -149,13 +151,33 @@ const Home = () => {
       
       <main className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Left column - Featured Match */}
+          {/* Left column (8 columns) - Live Scoreboard */}
           <div className="lg:col-span-8">
             <LiveScoreboardPage />
+            
+            {/* Popular Teams Section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
+              <div className="py-2 px-3 bg-gray-100 border-b">
+                <h3 className="font-semibold text-gray-700">Popular Teams</h3>
+              </div>
+              <div>
+                <PopularTeamsList />
+              </div>
+            </div>
           </div>
           
-          {/* Right column - Popular Leagues */}
+          {/* Right column (4 columns) */}
           <div className="lg:col-span-4 space-y-4">
+            {/* Today's Matches Section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="py-2 px-3 bg-gray-100 border-b">
+                <h3 className="font-semibold text-gray-700">Today's Matches</h3>
+              </div>
+              <div>
+                <TodayMatches />
+              </div>
+            </div>
+            
             {/* Popular Leagues section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="py-2 px-3 bg-gray-100 border-b">
