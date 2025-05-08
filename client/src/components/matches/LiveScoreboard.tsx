@@ -297,38 +297,38 @@ const LiveScoreboard = memo(() => {
       </div>
     
       {/* Featured match card */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-        {/* Featured Match badge */}
-        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded-bl-md">
-          Featured Match
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 relative">
+        {/* Featured Match badge - moved to top-right corner with better styling */}
+        <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs px-3 py-1 rounded-bl-md z-30 font-semibold">
+          FEATURED MATCH
         </div>
         
-        {/* League and status info */}
-        <div className="text-center p-2 flex justify-center items-center gap-2">
+        {/* Tournament info - moved before match status */}
+        <div className="text-center p-2 flex justify-center items-center gap-2 bg-gray-50">
           <img 
             src={featured.league.logo}
             alt={featured.league.name}
-            className="w-4 h-4"
+            className="w-5 h-5"
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
             }}
           />
-          <span className="text-sm">{featured.league.name} - {featured.league.round}</span>
+          <span className="text-sm font-medium">{featured.league.name} - {featured.league.round}</span>
         </div>
         
         {/* Status badge */}
-        <div className="text-xs text-center text-gray-500 -mt-1 mb-1">
+        <div className="text-sm text-center text-gray-700 py-1 border-b border-gray-100">
           {isLiveMatch(featured.fixture.status.short) ? (
             <div className="flex items-center justify-center">
               <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-              <span>LIVE • {featured.fixture.status.elapsed}′</span>
+              <h1 className="text-xl font-bold">LIVE • {featured.fixture.status.elapsed}′</h1>
             </div>
           ) : featured.fixture.status.short === 'FT' ? (
-            <span>Match Ended</span>
+            <h1 className="text-xl font-bold">MATCH ENDED</h1>
           ) : (
             <div className="flex items-center justify-center">
-              <Calendar className="h-3 w-3 mr-1" />
-              <span>{formatRelativeTime(featured.fixture.date)}</span>
+              <Calendar className="h-4 w-4 mr-2" />
+              <h1 className="text-xl font-bold">UPCOMING MATCH</h1>
             </div>
           )}
         </div>
