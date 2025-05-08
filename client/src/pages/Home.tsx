@@ -8,6 +8,7 @@ import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
+import SimpleMatchCard from '@/components/matches/SimpleMatchCard';
 import { Link } from 'wouter';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
@@ -15,7 +16,7 @@ import RegionModal from '@/components/modals/RegionModal';
 import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import TopScorersList from '@/components/leagues/TopScorersList';
 import { apiRequest } from '@/lib/queryClient';
-import { Trophy } from 'lucide-react';
+import { Trophy, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 
@@ -159,8 +160,22 @@ const Home = () => {
             <FeaturedMatch />
           </div>
           
-          {/* Right column - Popular Leagues */}
+          {/* Right column - Match Scores, Popular Leagues, Top Scorers */}
           <div className="lg:col-span-4 space-y-4">
+            {/* Match Scoreboard section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="py-2 px-3 bg-gray-100 border-b flex items-center justify-between">
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2 text-neutral-600" />
+                  <h3 className="font-semibold text-gray-700">Today's Matches</h3>
+                </div>
+                <div className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
+                  LIVE
+                </div>
+              </div>
+              <SimpleMatchCard limit={5} />
+            </div>
+            
             {/* Popular Leagues section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="py-2 px-3 bg-gray-100 border-b">
