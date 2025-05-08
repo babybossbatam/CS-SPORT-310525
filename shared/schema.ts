@@ -16,10 +16,13 @@ export const users = pgTable("users", {
 export const userPreferences = pgTable("user_preferences", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  favoriteTeams: jsonb("favorite_teams").$type<string[]>().default([]),
-  favoriteLeagues: jsonb("favorite_leagues").$type<string[]>().default([]),
-  favoriteMatches: jsonb("favorite_matches").$type<string[]>().default([]),
+  favoriteTeams: jsonb("favorite_teams").$type<number[]>().default([]),
+  favoriteLeagues: jsonb("favorite_leagues").$type<number[]>().default([]),
+  favoriteMatches: jsonb("favorite_matches").$type<number[]>().default([]),
   region: text("region").default("global"),
+  notifications: boolean("notifications").default(true),
+  theme: text("theme").default("light"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Cached fixtures table
@@ -48,6 +51,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({
   id: true,
+  updatedAt: true,
 });
 
 export const insertCachedFixturesSchema = createInsertSchema(cachedFixtures).omit({

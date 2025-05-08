@@ -81,14 +81,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user ID" });
       }
       
-      const preferences = await storage.getUserPreferences(userId);
+      let preferences = await storage.getUserPreferences(userId);
       
+      // If preferences don't exist, create default preferences
       if (!preferences) {
-        return res.status(404).json({ message: "User preferences not found" });
+        // Check if user exists first
+        const user = await storage.getUser(userId);
+        
+        if (!user) {
+          // For demo purposes, we'll create a default preferences without checking for user existence
+          // In production, you would return a 404 if the user doesn't exist
+          
+          const defaultPreferences = {
+            userId,
+            favoriteTeams: [33, 42, 49], // Default to Manchester United, Arsenal, Chelsea
+            favoriteLeagues: [39, 2, 140], // Default to Premier League, Champions League, La Liga
+            notifications: true,
+            theme: 'light',
+            region: 'global'
+          };
+          
+          preferences = await storage.createUserPreferences(defaultPreferences);
+        } else {
+          // Create preferences for existing user
+          preferences = await storage.createUserPreferences({
+            userId,
+            favoriteTeams: [],
+            favoriteLeagues: [],
+            notifications: true,
+            theme: 'light',
+            region: 'global'
+          });
+        }
       }
       
       res.json(preferences);
     } catch (error) {
+      console.error("Error fetching user preferences:", error);
       res.status(500).json({ message: "Failed to fetch user preferences" });
     }
   });
@@ -104,15 +133,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Partial validation of preferences
       const preferencesData = req.body;
       
-      // Update preferences
+      // Check if preferences exist
+      let preferences = await storage.getUserPreferences(userId);
+      
+      if (!preferences) {
+        // Create default preferences first
+        preferences = await storage.createUserPreferences({
+          userId,
+          favoriteTeams: [],
+          favoriteLeagues: [],
+          notifications: true,
+          theme: 'light',
+          region: 'global',
+          ...preferencesData // Apply the requested changes to new preferences
+        });
+        
+        return res.status(201).json(preferences);
+      }
+      
+      // Update existing preferences
       const updatedPreferences = await storage.updateUserPreferences(userId, preferencesData);
       
       if (!updatedPreferences) {
-        return res.status(404).json({ message: "User preferences not found" });
+        return res.status(404).json({ message: "Failed to update user preferences" });
       }
       
       res.json(updatedPreferences);
     } catch (error) {
+      console.error("Error updating user preferences:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
