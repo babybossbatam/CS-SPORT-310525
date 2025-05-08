@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSpring, animated } from 'framer-motion';
-import { Calendar, Clock, Award, Flag, Whistle, Soccer, User } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Calendar, Clock, Award, Flag, Shield, User } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Types for match events
@@ -39,17 +39,23 @@ const MatchTimeline: React.FC<MatchTimelineProps> = ({
     }
   }, [currentMinute, totalMinutes]);
   
-  // Pulse animation for live indicator
-  const livePulse = useSpring({
-    scale: isLive ? [1, 1.2, 1] : 1,
-    config: { duration: 2000, loop: Infinity }
-  });
+  // Animation values for live indicator
+  const liveAnimationVariants = {
+    pulse: {
+      scale: [1, 1.2, 1],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+      }
+    },
+    static: { scale: 1 }
+  };
   
   // Get icon for event type
   const getEventIcon = (type: string) => {
     switch (type) {
       case 'goal':
-        return <Soccer className="h-3 w-3" />;
+        return <Award className="h-3 w-3" />;
       case 'card':
         return <div className="h-3 w-2 bg-yellow-400 rounded-sm"></div>;
       case 'substitution':
@@ -57,7 +63,7 @@ const MatchTimeline: React.FC<MatchTimelineProps> = ({
       case 'var':
         return <div className="h-3 w-3 text-blue-500">VAR</div>;
       case 'break':
-        return <Whistle className="h-3 w-3" />;
+        return <Shield className="h-3 w-3" />;
       default:
         return <Flag className="h-3 w-3" />;
     }
@@ -92,13 +98,14 @@ const MatchTimeline: React.FC<MatchTimelineProps> = ({
         </div>
         
         {isLive && (
-          <animated.div 
-            style={livePulse} 
+          <motion.div 
+            variants={liveAnimationVariants}
+            animate="pulse"
             className="flex items-center bg-red-100 px-2 py-0.5 rounded-full"
           >
             <div className="h-2 w-2 rounded-full bg-red-500 mr-1"></div>
             <span className="text-xs font-medium text-red-500">LIVE</span>
-          </animated.div>
+          </motion.div>
         )}
       </div>
       

@@ -1,19 +1,67 @@
-import * as React from "react"
+import { useState, useEffect } from 'react';
 
-const MOBILE_BREAKPOINT = 768
+/**
+ * Hook to detect if current screen is mobile size
+ * @param breakpoint Width threshold to consider as mobile (default 768px)
+ * @returns Boolean indicating if screen is mobile size
+ */
+export function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  useEffect(() => {
+    // Check on initial render
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    // Set initial value
+    checkMobile();
 
-  return !!isMobile
+    // Set up event listener
+    window.addEventListener('resize', checkMobile);
+
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
+/**
+ * Hook to detect current screen size category
+ * @returns Screen size category: 'xs', 'sm', 'md', 'lg', 'xl', or '2xl'
+ */
+export function useScreenSize() {
+  const [screenSize, setScreenSize] = useState<'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'>('md');
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      
+      if (width < 640) {
+        setScreenSize('xs');
+      } else if (width < 768) {
+        setScreenSize('sm');
+      } else if (width < 1024) {
+        setScreenSize('md');
+      } else if (width < 1280) {
+        setScreenSize('lg');
+      } else if (width < 1536) {
+        setScreenSize('xl');
+      } else {
+        setScreenSize('2xl');
+      }
+    };
+
+    // Set initial value
+    handleResize();
+
+    // Set up event listener
+    window.addEventListener('resize', handleResize);
+
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return screenSize;
 }
