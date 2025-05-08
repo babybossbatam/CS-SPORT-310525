@@ -75,7 +75,26 @@ const Home = () => {
         const data = await response.json();
         
         if (data && data.length > 0) {
+          console.log(`Loaded ${data.length} leagues from API`);
           dispatch(leaguesActions.setLeagues(data));
+        } else {
+          console.warn('No leagues data found from API');
+          // If no global leagues are found, at least load the direct ones we need
+          await Promise.all(
+            popularLeagues.map(async (leagueId) => {
+              try {
+                const leagueResponse = await apiRequest('GET', `/api/leagues/${leagueId}`);
+                const leagueData = await leagueResponse.json();
+                
+                if (leagueData && leagueData.league) {
+                  console.log(`Directly loaded league: ${leagueData.league.name}`);
+                  dispatch(leaguesActions.setLeagues([...allLeagues, leagueData]));
+                }
+              } catch (err) {
+                console.error(`Error loading league ${leagueId}:`, err);
+              }
+            })
+          );
         }
       } catch (error) {
         console.error('Error fetching leagues:', error);
@@ -90,7 +109,7 @@ const Home = () => {
     };
     
     fetchLeagues();
-  }, [dispatch, toast]);
+  }, [dispatch, toast, popularLeagues, allLeagues]);
   
   // Fetch upcoming fixtures for tomorrow to display in the scoreboard when no live matches
   useEffect(() => {

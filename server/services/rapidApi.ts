@@ -147,9 +147,31 @@ export const rapidApiService = {
     }
     
     try {
+      console.log(`Fetching fixtures for league ${leagueId}, season ${season}`);
+      
+      // First let's check if the league exists and get the current season
+      const leagueInfo = await this.getLeagueById(leagueId);
+      if (!leagueInfo) {
+        console.log(`League with ID ${leagueId} not found`);
+        return [];
+      }
+      
+      // Find the current season
+      const currentSeason = leagueInfo.seasons.find(s => s.current) || leagueInfo.seasons[0];
+      if (!currentSeason) {
+        console.log(`No season data found for league ${leagueId}`);
+        return [];
+      }
+      
+      // Use the correct season from the league info
+      const correctSeason = currentSeason.year;
+      console.log(`Using correct season ${correctSeason} for league ${leagueId} (${leagueInfo.league.name})`);
+      
       const response = await apiClient.get('/fixtures', {
-        params: { league: leagueId, season }
+        params: { league: leagueId, season: correctSeason }
       });
+      
+      console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);
       
       if (response.data && response.data.response) {
         fixturesCache.set(cacheKey, { 
@@ -248,12 +270,30 @@ export const rapidApiService = {
     
     try {
       console.log(`Fetching top scorers for league ${leagueId}, season ${season}`);
+      
+      // First let's check if the league exists and get the current season
+      const leagueInfo = await this.getLeagueById(leagueId);
+      if (!leagueInfo) {
+        console.log(`League with ID ${leagueId} not found`);
+        return [];
+      }
+      
+      // Find the current season
+      const currentSeason = leagueInfo.seasons.find(s => s.current) || leagueInfo.seasons[0];
+      if (!currentSeason) {
+        console.log(`No season data found for league ${leagueId}`);
+        return [];
+      }
+      
+      // Use the correct season from the league info
+      const correctSeason = currentSeason.year;
+      console.log(`Using correct season ${correctSeason} for league ${leagueId} (${leagueInfo.league.name})`);
+      
       const response = await apiClient.get('/players/topscorers', {
-        params: { league: leagueId, season }
+        params: { league: leagueId, season: correctSeason }
       });
       
-      console.log(`API response status: ${response.status}, data:`, 
-        JSON.stringify(response.data).substring(0, 200) + '...');
+      console.log(`Top scorers API response status: ${response.status}, results count: ${response.data?.results || 0}`);
       
       if (response.data && response.data.response) {
         playersCache.set(cacheKey, { 
@@ -263,7 +303,7 @@ export const rapidApiService = {
         return response.data.response;
       }
       
-      console.log(`No top scorers data for league ${leagueId}, season ${season}`);
+      console.log(`No top scorers data for league ${leagueId}, season ${correctSeason}`);
       return [];
     } catch (error) {
       console.error(`Error fetching top scorers for league ${leagueId}:`, error);
@@ -284,9 +324,31 @@ export const rapidApiService = {
     }
     
     try {
+      console.log(`Fetching standings for league ${leagueId}, season ${season}`);
+      
+      // First let's check if the league exists and get the current season
+      const leagueInfo = await this.getLeagueById(leagueId);
+      if (!leagueInfo) {
+        console.log(`League with ID ${leagueId} not found`);
+        return null;
+      }
+      
+      // Find the current season
+      const currentSeason = leagueInfo.seasons.find(s => s.current) || leagueInfo.seasons[0];
+      if (!currentSeason) {
+        console.log(`No season data found for league ${leagueId}`);
+        return null;
+      }
+      
+      // Use the correct season from the league info
+      const correctSeason = currentSeason.year;
+      console.log(`Using correct season ${correctSeason} for league ${leagueId} (${leagueInfo.league.name})`);
+      
       const response = await apiClient.get('/standings', {
-        params: { league: leagueId, season }
+        params: { league: leagueId, season: correctSeason }
       });
+      
+      console.log(`Standings API response status: ${response.status}, results count: ${response.data?.results || 0}`);
       
       if (response.data && response.data.response && response.data.response.length > 0) {
         const standingsData = response.data.response[0];
@@ -297,6 +359,7 @@ export const rapidApiService = {
         return standingsData;
       }
       
+      console.log(`No standings data for league ${leagueId}, season ${correctSeason}`);
       return null;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
