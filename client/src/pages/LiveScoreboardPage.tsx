@@ -335,43 +335,49 @@ function LiveScoreboardPage() {
               <ChevronLeft className="h-4 w-4 text-gray-700" />
             </button>
             
-            {/* Home team logo */}
+            {/* Home team logo with drop shadow effect */}
             <div className="absolute bottom-0 left-0 z-10">
-              <img 
-                src={featured.teams.home.logo} 
-                alt={featured.teams.home.name}
-                className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                }}
-              />
+              <div className="relative">
+                <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
+                <img 
+                  src={featured.teams.home.logo} 
+                  alt={featured.teams.home.name}
+                  className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                  }}
+                />
+              </div>
             </div>
             
             {/* Home team gradient - with rounded right edge */}
-            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center rounded-r-lg`}>
-              <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+            <div className="h-full w-1/2 bg-gradient-to-r from-blue-700 to-green-600 flex items-center rounded-r-lg">
+              <div className="ml-10 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
             {/* VS label */}
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20 shadow-lg">
               VS
             </div>
             
             {/* Away team gradient - with rounded left edge */}
-            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end rounded-l-lg`}>
-              <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+            <div className="h-full w-1/2 bg-gradient-to-l from-blue-700 to-green-600 flex items-center justify-end rounded-l-lg">
+              <div className="mr-10 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
-            {/* Away team logo */}
+            {/* Away team logo with drop shadow effect */}
             <div className="absolute bottom-0 right-0 z-10">
-              <img 
-                src={featured.teams.away.logo} 
-                alt={featured.teams.away.name}
-                className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                }}
-              />
+              <div className="relative">
+                <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
+                <img 
+                  src={featured.teams.away.logo} 
+                  alt={featured.teams.away.name}
+                  className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                  }}
+                />
+              </div>
             </div>
             
             {/* Next match button */}
