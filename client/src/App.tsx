@@ -11,6 +11,7 @@ import MyScores from "@/pages/MyScores";
 import Settings from "@/pages/Settings";
 import SearchResults from "@/pages/SearchResults";
 import LiveMatches from "@/pages/LiveMatches";
+import LiveScoresPage from "@/pages/LiveScoresPage";
 
 function Router() {
   return (

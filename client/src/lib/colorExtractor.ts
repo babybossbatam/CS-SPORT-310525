@@ -59,10 +59,20 @@ function hexToRgb(hex: string): RGB | null {
     : null;
 }
 
-// Check if color is too dark or too light
+// Check if color is too dark, too light, or is black/white
 function isValidColor(rgb: RGB): boolean {
+  const { r, g, b } = rgb;
   const luminance = calculateLuminance(rgb);
-  return luminance > 0.1 && luminance < 0.9;
+  
+  // Check if it's too close to black or white
+  const isNearBlack = r < 30 && g < 30 && b < 30;
+  const isNearWhite = r > 225 && g > 225 && b > 225;
+  
+  // Check if it's grayscale (all RGB values are very close)
+  const isGrayscale = Math.abs(r - g) < 15 && Math.abs(g - b) < 15 && Math.abs(r - b) < 15;
+  
+  // Valid colors: not too dark, not too light, not black/white, and not grayscale
+  return luminance > 0.1 && luminance < 0.9 && !isNearBlack && !isNearWhite && !isGrayscale;
 }
 
 // Extract vibrant color from RGB
@@ -113,6 +123,9 @@ function generateComplementaryColor(primary: RGB): RGB {
   };
 }
 
+// Store extracted colors in cache to avoid redundant computation
+const colorCache: Record<string, { primary: string, secondary: string }> = {};
+
 /**
  * Get tailwind gradient classes based on team name
  */
@@ -121,56 +134,134 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   if (
     teamName.toLowerCase().includes('juventus') ||
     teamName.toLowerCase().includes('newcastle') ||
-    teamName.toLowerCase().includes('fulham')
+    teamName.toLowerCase().includes('fulham') 
   ) {
     return `bg-gradient-${direction} from-purple-700 to-purple-500`;
   }
   
-  // Try to find an exact match
+  // Check if we have cached the result
+  if (colorCache[teamName]) {
+    return `bg-gradient-${direction} ${colorCache[teamName].primary} ${colorCache[teamName].secondary}`;
+  }
+  
+  // Try to find an exact match in our predefined map
   const exactMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase().includes(key.toLowerCase())
   );
   
   if (exactMatch) {
     const colors = teamColorMap[exactMatch];
+    // Cache the result
+    colorCache[teamName] = { 
+      primary: colors.primary, 
+      secondary: colors.secondary 
+    };
     return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
   }
   
-  // Default fallback based on team name first character
-  const firstChar = teamName.charAt(0).toLowerCase();
-  if ('abc'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-red-700 to-red-500`;
-  } else if ('def'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-blue-700 to-blue-500`;
-  } else if ('ghi'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-green-700 to-green-500`;
-  } else if ('jkl'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-purple-700 to-purple-500`;
-  } else if ('mno'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-yellow-600 to-yellow-400`;
-  } else if ('pqr'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-orange-600 to-orange-400`;
-  } else if ('stu'.includes(firstChar)) {
-    return `bg-gradient-${direction} from-indigo-600 to-indigo-400`;
-  } else {
-    return `bg-gradient-${direction} from-cyan-600 to-cyan-400`;
+  // Get colors based on team name (deterministic but with visual variety)
+  // This creates a stable hash from the team name
+  let hash = 0;
+  for (let i = 0; i < teamName.length; i++) {
+    hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
   }
+  
+  // Generate a hue value between 0-360 based on the hash
+  const hue = Math.abs(hash) % 360;
+  
+  // Get two adjacent hues for a nice gradient
+  const primaryHue = hue;
+  const secondaryHue = (hue + 30) % 360; // Slightly offset for complementary feel
+  
+  // Map to the closest tailwind color classes
+  const primary = getTailwindColorFromHue(primaryHue, 600);
+  const secondary = getTailwindColorFromHue(secondaryHue, 500);
+  
+  // Cache the result
+  colorCache[teamName] = { primary, secondary };
+  
+  return `bg-gradient-${direction} ${primary} ${secondary}`;
 }
+
+/**
+ * Maps a hue value (0-360) to the closest Tailwind color class
+ */
+function getTailwindColorFromHue(hue: number, intensity: number): string {
+  // Map hue ranges to tailwind color families
+  if (hue >= 0 && hue < 20) return `from-red-${intensity}`;
+  if (hue >= 20 && hue < 40) return `from-orange-${intensity}`;
+  if (hue >= 40 && hue < 65) return `from-amber-${intensity}`;
+  if (hue >= 65 && hue < 80) return `from-yellow-${intensity}`;
+  if (hue >= 80 && hue < 140) return `from-green-${intensity}`;
+  if (hue >= 140 && hue < 170) return `from-emerald-${intensity}`;
+  if (hue >= 170 && hue < 195) return `from-teal-${intensity}`;
+  if (hue >= 195 && hue < 220) return `from-cyan-${intensity}`;
+  if (hue >= 220 && hue < 255) return `from-blue-${intensity}`;
+  if (hue >= 255 && hue < 270) return `from-indigo-${intensity}`;
+  if (hue >= 270 && hue < 295) return `from-purple-${intensity}`;
+  if (hue >= 295 && hue < 335) return `from-pink-${intensity}`;
+  return `from-rose-${intensity}`;
+}
+
+// Cache for solid colors
+const solidColorCache: Record<string, string> = {};
 
 /**
  * Get a solid CSS color for a team (for charts, accents, etc.)
  */
 export function getTeamColor(teamName: string): string {
+  // Check cache first
+  if (solidColorCache[teamName]) {
+    return solidColorCache[teamName];
+  }
+  
+  // Try predefined map
   const exactMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase().includes(key.toLowerCase())
   );
   
   if (exactMatch) {
-    return teamColorMap[exactMatch].accent;
+    const color = teamColorMap[exactMatch].accent;
+    solidColorCache[teamName] = color;
+    return color;
   }
   
-  // Default fallback
-  return 'rgb(59, 130, 246)'; // blue
+  // Generate dynamic color based on team name hash (same algorithm as gradient)
+  let hash = 0;
+  for (let i = 0; i < teamName.length; i++) {
+    hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // Generate hue (0-360)
+  const hue = Math.abs(hash) % 360;
+  
+  // Create a vibrant RGB color
+  const saturation = 80; // 0-100
+  const lightness = 45;  // 0-100
+  
+  // Convert HSL to RGB
+  const color = hslToRgb(hue, saturation, lightness);
+  solidColorCache[teamName] = color;
+  
+  return color;
+}
+
+/**
+ * Convert HSL values to RGB string
+ */
+function hslToRgb(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
+  
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  
+  const r = Math.round(255 * f(0));
+  const g = Math.round(255 * f(8));
+  const b = Math.round(255 * f(4));
+  
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 /**
