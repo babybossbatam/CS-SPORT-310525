@@ -36,6 +36,35 @@ const Home = () => {
     'germany': [78]      // Bundesliga
   };
   
+  // Pre-fetch all these leagues to ensure they're available for country filtering
+  useEffect(() => {
+    const preloadLeagueData = async () => {
+      try {
+        // Fetch data for all the leagues used in country filters
+        const allLeagueIds = Object.values(countryLeagueMap).flat();
+        
+        for (const leagueId of allLeagueIds) {
+          // Use React Query's caching through our wrapper
+          const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
+          const data = await response.json();
+          
+          if (data && data.league && data.country) {
+            // Add to Redux store if not already there
+            if (!allLeagues.some(l => l.league.id === leagueId)) {
+              dispatch(leaguesActions.setLeagues([...allLeagues, data]));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error preloading league data:', error);
+      }
+    };
+    
+    if (allLeagues.length === 0) {
+      preloadLeagueData();
+    }
+  }, [dispatch, allLeagues, countryLeagueMap]);
+  
   // Fetch all leagues
   useEffect(() => {
     const fetchLeagues = async () => {

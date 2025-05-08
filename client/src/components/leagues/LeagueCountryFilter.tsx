@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, Flag } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 interface LeagueCountryFilterProps {
   onSelectCountry: (country: string | null) => void;
@@ -37,7 +37,11 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
                 : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
             }`}
           >
-            {country.icon || <span className="text-base">{country.flag}</span>}
+            {country.icon || (
+              <span className="text-lg mr-1 transform transition-transform duration-200 hover:scale-110 inline-block">
+                {country.flag}
+              </span>
+            )}
             <span>{country.name}</span>
           </button>
         ))}

@@ -54,7 +54,10 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       // Check if the data is in the React Query cache
       const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}`]);
       if (cachedData && isValidLeagueResponse(cachedData)) {
-        dispatch(leaguesActions.setLeagues([...leagues.list, cachedData]));
+        // Only add to store if it's not already there
+        if (!leagues.list.some(l => l.league?.id === leagueId)) {
+          dispatch(leaguesActions.setLeagues([...leagues.list, cachedData as any]));
+        }
         return;
       }
       
