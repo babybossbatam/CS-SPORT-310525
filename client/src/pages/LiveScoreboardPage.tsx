@@ -434,8 +434,8 @@ function LiveScoreboardPage() {
                   {/* Home team section - exactly 50% width */}
                   <div className="w-1/2 h-full absolute left-0" 
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
-                    <div className="h-full flex items-center pl-24">
-                      <span className="text-white font-bold text-sm uppercase truncate text-left">{featuredFixture.teams.home.name}</span>
+                    <div className="h-full flex items-center pl-14">
+                      <span className="text-white font-bold text-sm uppercase truncate text-left max-w-[80%]">{featuredFixture.teams.home.name}</span>
                     </div>
                   </div>
                   
@@ -449,15 +449,15 @@ function LiveScoreboardPage() {
                   {/* Away team section - exactly 50% width */}
                   <div className="w-1/2 h-full absolute right-0"
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.away.name) }}>
-                    <div className="h-full flex items-center justify-end pr-24">
-                      <span className="text-white font-bold text-sm uppercase truncate text-right">{featuredFixture.teams.away.name}</span>
+                    <div className="h-full flex items-center justify-end pr-14">
+                      <span className="text-white font-bold text-sm uppercase truncate text-right max-w-[80%]">{featuredFixture.teams.away.name}</span>
                     </div>
                   </div>
                 </div>
               </div>
               
-              {/* Home team logo - positioned on top of bar */}
-              <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
+              {/* Home team logo - positioned at left edge with half inside */}
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 translate-x-[-50%] z-20">
                 <div className="relative">
                   {/* Smaller shadow (50% of original size) */}
                   <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
@@ -472,8 +472,8 @@ function LiveScoreboardPage() {
                 </div>
               </div>
               
-              {/* Away team logo - positioned on top of bar */}
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20">
+              {/* Away team logo - positioned at right edge with half inside */}
+              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-[50%] z-20">
                 <div className="relative">
                   {/* Smaller shadow (50% of original size) */}
                   <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
