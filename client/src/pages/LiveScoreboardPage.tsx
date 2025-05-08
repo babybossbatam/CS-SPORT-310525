@@ -425,7 +425,7 @@ function LiveScoreboardPage() {
           <div className="flex items-center justify-between mx-10">
             
             {/* Match bar with two-color dynamic gradient */}
-            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden relative mx-0"> 
+            <div className="flex-1 h-20 rounded-md shadow-md overflow-hidden relative mx-0"> 
               {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
                 {/* Single continuous gradient bar with home and away team colors */}
@@ -439,32 +439,32 @@ function LiveScoreboardPage() {
                       <img 
                         src={featuredFixture.teams.home.logo}
                         alt={featuredFixture.teams.home.name}
-                        className="h-8 w-8 mr-3"
+                        className="h-16 w-16 mr-3 -ml-10 drop-shadow-md"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                         }}
                       />
-                      <span className="text-white font-bold text-sm uppercase truncate text-left max-w-[70%]">{featuredFixture.teams.home.name}</span>
+                      <span className="text-white font-bold text-base uppercase truncate text-left max-w-[70%] drop-shadow-sm">{featuredFixture.teams.home.name}</span>
                     </div>
                   </div>
                   
                   {/* VS text positioned absolutely in the center with enhanced styling */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-                    <span className="text-white text-xl font-bold tracking-wider drop-shadow-md">VS</span>
+                    <span className="text-white text-3xl font-bold tracking-wider drop-shadow-lg">VS</span>
                   </div>
                   
                   {/* Away team section - exactly 50% width */}
                   <div className="w-1/2 h-full absolute right-0"
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.away.name) }}>
                     <div className="h-full flex items-center justify-end pr-5">
-                      <span className="text-white font-bold text-sm uppercase truncate text-right max-w-[70%]">{featuredFixture.teams.away.name}</span>
+                      <span className="text-white font-bold text-base uppercase truncate text-right max-w-[70%] drop-shadow-sm">{featuredFixture.teams.away.name}</span>
                       {/* Away team logo inside the bar */}
                       <img 
                         src={featuredFixture.teams.away.logo}
                         alt={featuredFixture.teams.away.name}
-                        className="h-8 w-8 ml-3"
+                        className="h-16 w-16 ml-3 -mr-10 drop-shadow-md"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                         }}
                       />
                     </div>
