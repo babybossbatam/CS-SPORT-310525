@@ -192,9 +192,15 @@ function LiveScoreboardPage() {
       return compareAsc(parseISO(a.fixture.date), parseISO(b.fixture.date));
     });
     
-    setFilteredFixtures(fixtures);
-    // Reset to first fixture when the list changes
-    setCurrentFixtureIndex(0);
+    // Compare stringified arrays to check for actual changes
+    const currentFixturesStr = JSON.stringify(fixtures.map(f => f.fixture.id));
+    const prevFixturesStr = JSON.stringify(filteredFixtures.map(f => f.fixture.id));
+    
+    // Only update if the fixtures have actually changed
+    if (currentFixturesStr !== prevFixturesStr) {
+      setFilteredFixtures(fixtures);
+      setCurrentFixtureIndex(0);
+    }
   }, [liveFixturesQuery.data, upcomingFixturesQuery.data, selectedCountry, countryLeagueMap]);
   
   // Handle navigation
@@ -219,6 +225,7 @@ function LiveScoreboardPage() {
     }
     
     const featured = filteredFixtures[currentFixtureIndex];
+    const fixtureId = featured.fixture.id; // Store ID for reference
     
     // Only set up timer for upcoming matches
     if (isLiveMatch(featured.fixture.status.short) || featured.fixture.status.short === 'FT') {
@@ -226,16 +233,20 @@ function LiveScoreboardPage() {
       return;
     }
     
+    // Calculate countdown outside of state change to prevent multiple renders
+    const updateCountdown = () => {
+      const time = getCountdownTimer(featured.fixture.date);
+      setCountdown(time);
+    };
+    
     // Initial countdown
-    setCountdown(getCountdownTimer(featured.fixture.date));
+    updateCountdown();
     
     // Update countdown every second
-    const intervalId = setInterval(() => {
-      setCountdown(getCountdownTimer(featured.fixture.date));
-    }, 1000);
+    const intervalId = setInterval(updateCountdown, 1000);
     
     return () => clearInterval(intervalId);
-  }, [filteredFixtures, currentFixtureIndex]);
+  }, [currentFixtureIndex]); // Only depend on index, not the full fixtures array
   
   // Loading state
   if (liveFixturesQuery.isLoading || upcomingFixturesQuery.isLoading) {
@@ -357,12 +368,12 @@ function LiveScoreboardPage() {
         
         {/* Teams with match bar - design similar to reference image */}
         <div className="relative mb-3">
-          {/* Previous match button */}
+          {/* Previous match button - positioned at far left with improved animation */}
           <button 
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 h-10 w-10 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
             onClick={previousFixture}
           >
-            <ChevronLeft className="h-5 w-5 text-gray-700" />
+            <ChevronLeft className="h-6 w-6 text-gray-700" />
           </button>
           
           {/* Match bar with team info */}
@@ -400,9 +411,11 @@ function LiveScoreboardPage() {
                     </div>
                   </div>
                   
-                  {/* VS text positioned absolutely in the center */}
+                  {/* VS text positioned absolutely in the center with enhanced styling */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                    <span className="text-white text-sm font-bold drop-shadow-md">VS</span>
+                    <div className="bg-black/40 rounded-full h-6 w-6 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold drop-shadow-md">VS</span>
+                    </div>
                   </div>
                   
                   {/* Away team gradient section with 45-degree slice */}
@@ -436,12 +449,12 @@ function LiveScoreboardPage() {
             </div>
           </div>
           
-          {/* Next match button */}
+          {/* Next match button - positioned at far right with improved animation */}
           <button 
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 h-10 w-10 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
             onClick={nextFixture}
           >
-            <ChevronRight className="h-5 w-5 text-gray-700" />
+            <ChevronRight className="h-6 w-6 text-gray-700" />
           </button>
         </div>
         
