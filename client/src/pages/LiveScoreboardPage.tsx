@@ -218,24 +218,25 @@ function LiveScoreboardPage() {
     });
   };
   
+  // Memoize current featured fixture to prevent unnecessary re-renders
+  const featuredFixture = filteredFixtures[currentFixtureIndex];
+  
   // Update countdown timer
   useEffect(() => {
-    if (filteredFixtures.length === 0 || currentFixtureIndex >= filteredFixtures.length) {
+    // Exit early if we don't have valid fixtures or index
+    if (!featuredFixture) {
       return;
     }
     
-    const featured = filteredFixtures[currentFixtureIndex];
-    const fixtureId = featured.fixture.id; // Store ID for reference
-    
     // Only set up timer for upcoming matches
-    if (isLiveMatch(featured.fixture.status.short) || featured.fixture.status.short === 'FT') {
+    if (isLiveMatch(featuredFixture.fixture.status.short) || featuredFixture.fixture.status.short === 'FT') {
       setCountdown('');
       return;
     }
     
     // Calculate countdown outside of state change to prevent multiple renders
     const updateCountdown = () => {
-      const time = getCountdownTimer(featured.fixture.date);
+      const time = getCountdownTimer(featuredFixture.fixture.date);
       setCountdown(time);
     };
     
@@ -246,7 +247,7 @@ function LiveScoreboardPage() {
     const intervalId = setInterval(updateCountdown, 1000);
     
     return () => clearInterval(intervalId);
-  }, [currentFixtureIndex]); // Only depend on index, not the full fixtures array
+  }, [featuredFixture]); // Depend on the memoized fixture itself
   
   // Loading state
   if (liveFixturesQuery.isLoading || upcomingFixturesQuery.isLoading) {
@@ -282,8 +283,8 @@ function LiveScoreboardPage() {
     );
   }
   
-  // Get the featured match
-  const featured = filteredFixtures[currentFixtureIndex];
+  // We already have featuredFixture defined above, no need to redefine it
+  // Just use it directly in place of "featured" below
   
   return (
     <div className="mx-2 my-4">
@@ -291,12 +292,12 @@ function LiveScoreboardPage() {
       <div className="mb-2 text-center">
         {filteredFixtures.length > 0 ? (
           <div className="flex items-center justify-center gap-2">
-            {isLiveMatch(featured.fixture.status.short) ? (
+            {isLiveMatch(featuredFixture.fixture.status.short) ? (
               <div className="flex items-center">
                 <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
                 <span className="text-lg font-bold">LIVE MATCH</span>
               </div>
-            ) : featured.fixture.status.short === 'FT' ? (
+            ) : featuredFixture.fixture.status.short === 'FT' ? (
               <span className="text-lg font-bold">MATCH ENDED</span>
             ) : (
               <div className="flex items-center">
@@ -324,18 +325,18 @@ function LiveScoreboardPage() {
         <div className="bg-gray-50 relative">
           {/* Match status at top */}
           <div className="text-sm text-center py-2 border-b border-gray-100">
-            {isLiveMatch(featured.fixture.status.short) ? (
+            {isLiveMatch(featuredFixture.fixture.status.short) ? (
               <div className="flex items-center justify-center">
                 <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                <h1 className="text-xl font-bold">LIVE • {featured.fixture.status.elapsed}′</h1>
+                <h1 className="text-xl font-bold">LIVE • {featuredFixture.fixture.status.elapsed}′</h1>
               </div>
-            ) : featured.fixture.status.short === 'FT' ? (
+            ) : featuredFixture.fixture.status.short === 'FT' ? (
               <h1 className="text-xl font-bold">MATCH ENDED</h1>
             ) : (
               <div className="flex flex-col items-center justify-center">
                 <div className="flex items-center mb-1">
                   <Timer className="h-4 w-4 mr-2 text-blue-600" />
-                  <h1 className="text-xl font-bold">{formatExactDateTime(featured.fixture.date)}</h1>
+                  <h1 className="text-xl font-bold">{formatExactDateTime(featuredFixture.fixture.date)}</h1>
                 </div>
                 {countdown && (
                   <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full text-blue-700 text-xs font-medium">
@@ -350,14 +351,14 @@ function LiveScoreboardPage() {
           {/* League info below timer */}
           <div className="text-center p-2 flex justify-center items-center gap-2">
             <img 
-              src={featured.league.logo}
-              alt={featured.league.name}
+              src={featuredFixture.league.logo}
+              alt={featuredFixture.league.name}
               className="w-5 h-5"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
               }}
             />
-            <span className="text-sm font-medium">{featured.league.name} - {featured.league.round}</span>
+            <span className="text-sm font-medium">{featuredFixture.league.name} - {featuredFixture.league.round}</span>
           </div>
         </div>
         
@@ -384,8 +385,8 @@ function LiveScoreboardPage() {
                 {/* Smaller shadow (50% of original size) */}
                 <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
                 <img 
-                  src={featured.teams.home.logo} 
-                  alt={featured.teams.home.name}
+                  src={featuredFixture.teams.home.logo} 
+                  alt={featuredFixture.teams.home.name}
                   className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
@@ -401,13 +402,13 @@ function LiveScoreboardPage() {
                 {/* Single continuous gradient bar with home and away team colors */}
                 <div className="flex h-full w-full relative overflow-hidden">
                   {/* Home team gradient section with 45-degree slice */}
-                  <div className={`w-[52%] ${getTeamGradient(featured.teams.home.name, 'to-r')} relative`}>
+                  <div className={`w-[52%] ${getTeamGradient(featuredFixture.teams.home.name, 'to-r')} relative`}>
                     {/* Angled edge for home team */}
                     <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
                     
                     <div className="pl-16 h-full flex items-center z-10 relative"> {/* Increased padding to account for bar extension */}
-                      <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.home.name}</span>
+                      <span className="text-white font-bold text-lg uppercase truncate">{featuredFixture.teams.home.name}</span>
                     </div>
                   </div>
                   
@@ -419,13 +420,13 @@ function LiveScoreboardPage() {
                   </div>
                   
                   {/* Away team gradient section with 45-degree slice */}
-                  <div className={`w-[52%] ${getTeamGradient(featured.teams.away.name, 'to-l')} relative -ml-4`}>
+                  <div className={`w-[52%] ${getTeamGradient(featuredFixture.teams.away.name, 'to-l')} relative -ml-4`}>
                     {/* Angled edge for away team */}
                     <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
                     
                     <div className="pr-16 h-full flex items-center justify-end z-10 relative"> {/* Increased padding to account for bar extension */}
-                      <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.away.name}</span>
+                      <span className="text-white font-bold text-lg uppercase truncate">{featuredFixture.teams.away.name}</span>
                     </div>
                   </div>
                 </div>
@@ -438,8 +439,8 @@ function LiveScoreboardPage() {
                 {/* Smaller shadow (50% of original size) */}
                 <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
                 <img 
-                  src={featured.teams.away.logo} 
-                  alt={featured.teams.away.name}
+                  src={featuredFixture.teams.away.logo} 
+                  alt={featuredFixture.teams.away.name}
                   className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
@@ -461,7 +462,7 @@ function LiveScoreboardPage() {
         {/* Match details footer */}
         <div className="text-center text-sm pb-3">
           <div className="text-sm text-gray-700">
-            {formatMatchDateFn(featured.fixture.date)} | {featured.fixture.venue.name || 'TBD'}
+            {formatMatchDateFn(featuredFixture.fixture.date)} | {featuredFixture.fixture.venue.name || 'TBD'}
           </div>
         </div>
         
@@ -469,7 +470,7 @@ function LiveScoreboardPage() {
         <div className="grid grid-cols-4 border-t border-gray-200">
           <button 
             className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
-            onClick={() => navigate(`/match/${featured.fixture.id}`)}
+            onClick={() => navigate(`/match/${featuredFixture.fixture.id}`)}
           >
             <div className="flex flex-col items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -481,7 +482,7 @@ function LiveScoreboardPage() {
           
           <button 
             className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
-            onClick={() => navigate(`/match/${featured.fixture.id}`)}
+            onClick={() => navigate(`/match/${featuredFixture.fixture.id}`)}
           >
             <div className="flex flex-col items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -493,7 +494,7 @@ function LiveScoreboardPage() {
           
           <button 
             className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors border-r border-gray-200"
-            onClick={() => navigate(`/match/${featured.fixture.id}`)}
+            onClick={() => navigate(`/match/${featuredFixture.fixture.id}`)}
           >
             <div className="flex flex-col items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -505,7 +506,7 @@ function LiveScoreboardPage() {
           
           <button 
             className="p-2 text-center text-blue-600 hover:bg-blue-50 transition-colors"
-            onClick={() => navigate(`/league/${featured.league.id}`)}
+            onClick={() => navigate(`/league/${featuredFixture.league.id}`)}
           >
             <div className="flex flex-col items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
