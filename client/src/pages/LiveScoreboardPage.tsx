@@ -377,8 +377,8 @@ function LiveScoreboardPage() {
             </div>
             
             {/* Home team gradient - with rounded right edge */}
-            <div className="h-full w-1/2 bg-gradient-to-r from-blue-700 to-green-600 flex items-center rounded-r-lg">
-              <div className="ml-24 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
+            <div className="h-full w-2/5 bg-gradient-to-r from-blue-700 to-green-600 flex items-center rounded-r-lg">
+              <div className="ml-24 text-white font-bold text-lg uppercase text-ellipsis overflow-hidden whitespace-nowrap">{featured.teams.home.name}</div>
             </div>
             
             {/* VS label */}
@@ -387,8 +387,8 @@ function LiveScoreboardPage() {
             </div>
             
             {/* Away team gradient - with rounded left edge */}
-            <div className="h-full w-1/2 bg-gradient-to-l from-blue-700 to-green-600 flex items-center justify-end rounded-l-lg">
-              <div className="mr-24 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
+            <div className="h-full w-2/5 bg-gradient-to-l from-blue-700 to-green-600 flex items-center justify-end rounded-l-lg">
+              <div className="mr-24 text-white font-bold text-lg uppercase text-right text-ellipsis overflow-hidden whitespace-nowrap">{featured.teams.away.name}</div>
             </div>
             
             {/* Away team logo with drop shadow effect */}
