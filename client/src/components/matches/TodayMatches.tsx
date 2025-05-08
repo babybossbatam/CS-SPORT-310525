@@ -63,20 +63,79 @@ const TodayMatches = () => {
     fetchTodaysFixtures();
   }, [currentDate, dispatch, toast, todayFixtures.length]);
   
+  // Define top teams for popular leagues (id: team names array)
+  const topTeamsByLeague: Record<number, string[]> = {
+    // UEFA Champions League (2)
+    2: ['Manchester City', 'Real Madrid', 'Bayern Munich'],
+    // Premier League (39)
+    39: ['Manchester City', 'Arsenal', 'Liverpool'],
+    // Serie A Italy (135)
+    135: ['Inter', 'AC Milan', 'Juventus'],
+  };
+  
+  // Helper to check if a team is popular
+  const isPopularTeam = (fixture: FixtureResponse): boolean => {
+    const leagueId = fixture.league.id;
+    const homeTeam = fixture.teams.home.name;
+    const awayTeam = fixture.teams.away.name;
+    
+    if (topTeamsByLeague[leagueId]) {
+      const topTeams = topTeamsByLeague[leagueId];
+      return topTeams.some(team => 
+        homeTeam.includes(team) || awayTeam.includes(team)
+      );
+    }
+    
+    return false;
+  };
+  
+  // Filter fixtures by league and prioritize popular teams
+  const filterAndPrioritizeFixtures = (fixtures: FixtureResponse[]): FixtureResponse[] => {
+    // Step 1: Filter to only include our priority leagues
+    const leagueFixtures = fixtures.filter(f => POPULAR_LEAGUES.includes(f.league.id));
+    
+    if (leagueFixtures.length === 0) return fixtures; // Fallback to all fixtures if none in our leagues
+    
+    // Step 2: Sort by priority - popular teams first, then by time
+    return leagueFixtures.sort((a, b) => {
+      // First prioritize popular team matches
+      const aIsPopular = isPopularTeam(a);
+      const bIsPopular = isPopularTeam(b);
+      
+      if (aIsPopular && !bIsPopular) return -1;
+      if (!aIsPopular && bIsPopular) return 1;
+      
+      // Then prioritize by league (using the order in POPULAR_LEAGUES)
+      const aLeagueIndex = POPULAR_LEAGUES.indexOf(a.league.id);
+      const bLeagueIndex = POPULAR_LEAGUES.indexOf(b.league.id);
+      
+      if (aLeagueIndex !== bLeagueIndex) {
+        return aLeagueIndex - bLeagueIndex;
+      }
+      
+      // Finally sort by time
+      return a.fixture.timestamp - b.fixture.timestamp;
+    });
+  };
+  
   // Get fixtures by category for tabs
   const getLiveFixtures = (): FixtureResponse[] => {
-    return todayFixtures.filter(f => 
+    const liveMatches = todayFixtures.filter(f => 
       f.fixture.status.short === 'LIVE' || 
       f.fixture.status.short === '1H' || 
       f.fixture.status.short === '2H' || 
       f.fixture.status.short === 'HT'
     );
+    
+    return filterAndPrioritizeFixtures(liveMatches);
   };
   
   const getUpcomingFixtures = (): FixtureResponse[] => {
-    return todayFixtures.filter(f => 
+    const upcomingMatches = todayFixtures.filter(f => 
       f.fixture.status.short === 'NS'
-    ).sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+    );
+    
+    return filterAndPrioritizeFixtures(upcomingMatches);
   };
   
   // Format time from timestamp (HH:MM format)
@@ -145,62 +204,93 @@ const TodayMatches = () => {
           </div>
         )}
         
-        {/* Sample fixtures from reference image */}
+        {/* Sample fixtures from Premier League */}
         <div 
           className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
           onClick={() => navigate(`/match/123456`)}
         >
           <div className="flex items-center justify-between mb-1">
             <img 
-              src="https://media.api-sports.io/football/teams/33.png" 
-              alt="Manchester United" 
+              src="https://media.api-sports.io/football/teams/50.png" 
+              alt="Manchester City" 
               className="w-6 h-6"
             />
             <div className="text-center text-sm font-semibold">
-              03:00
+              20:00
             </div>
             <img 
-              src="https://media.api-sports.io/football/teams/531.png" 
-              alt="Athletic Club" 
+              src="https://media.api-sports.io/football/teams/40.png" 
+              alt="Liverpool" 
               className="w-6 h-6"
             />
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm w-[40%] text-left truncate">Man Utd</span>
+            <span className="text-sm w-[40%] text-left truncate">Man City</span>
             <div className="text-xs text-gray-500 text-center">
-              Aggregate 3 - 0
+              Premier League
             </div>
-            <span className="text-sm w-[40%] text-right truncate">Athletic</span>
+            <span className="text-sm w-[40%] text-right truncate">Liverpool</span>
           </div>
         </div>
         
+        {/* Sample fixtures from Champions League */}
         <div 
           className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
           onClick={() => navigate(`/match/123457`)}
         >
           <div className="flex items-center justify-between mb-1">
             <img 
-              src="https://media.api-sports.io/football/teams/165.png" 
-              alt="Borussia Dortmund" 
+              src="https://media.api-sports.io/football/teams/541.png" 
+              alt="Real Madrid" 
               className="w-6 h-6"
             />
             <div className="text-center text-sm font-semibold">
-              03:00
+              22:00
             </div>
             <img 
-              src="https://media.api-sports.io/football/teams/47.png" 
-              alt="Tottenham" 
+              src="https://media.api-sports.io/football/teams/49.png" 
+              alt="Chelsea" 
               className="w-6 h-6"
             />
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm w-[40%] text-left truncate">Bodo Glmt</span>
+            <span className="text-sm w-[40%] text-left truncate">Real Madrid</span>
             <div className="text-xs text-gray-500 text-center">
-              Aggregate 1 - 0
+              Champions League
             </div>
-            <span className="text-sm w-[40%] text-right truncate">Tottenham</span>
+            <span className="text-sm w-[40%] text-right truncate">Chelsea</span>
+          </div>
+        </div>
+        
+        {/* Sample fixtures from Serie A */}
+        <div 
+          className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+          onClick={() => navigate(`/match/123458`)}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <img 
+              src="https://media.api-sports.io/football/teams/489.png" 
+              alt="AC Milan" 
+              className="w-6 h-6"
+            />
+            <div className="text-center text-sm font-semibold">
+              19:45
+            </div>
+            <img 
+              src="https://media.api-sports.io/football/teams/505.png" 
+              alt="Inter" 
+              className="w-6 h-6"
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-sm w-[40%] text-left truncate">AC Milan</span>
+            <div className="text-xs text-gray-500 text-center">
+              Serie A
+            </div>
+            <span className="text-sm w-[40%] text-right truncate">Inter</span>
           </div>
         </div>
         
@@ -210,10 +300,10 @@ const TodayMatches = () => {
             className="text-xs text-blue-600 hover:underline block py-2"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/leagues/3');
+              navigate('/leagues/2');
             }}
           >
-            UEFA Europa League Bracket &gt;
+            UEFA Champions League Bracket &gt;
           </a>
         </div>
       </div>
