@@ -2,10 +2,10 @@ import React, { memo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Activity, Clock, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Activity, Clock, ChevronLeft, ChevronRight, Calendar, Timer } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
-import { format, formatDistanceToNow, isPast, parseISO, compareAsc } from 'date-fns';
+import { format, formatDistanceToNow, isPast, parseISO, compareAsc, differenceInSeconds, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { getTeamGradient } from '@/lib/utils';
 import { useSelector } from 'react-redux';
 
@@ -84,6 +84,42 @@ const formatRelativeTime = (dateString: string): string => {
     return `${formatDistanceToNow(date)} ago`;
   } else {
     return `starts in ${formatDistanceToNow(date)}`;
+  }
+};
+
+// Format exact date and time for match
+const formatExactDateTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return format(date, "EEE, MMM do, yyyy • HH:mm");
+};
+
+// Get countdown timer for upcoming match
+const getCountdownTimer = (dateString: string): string => {
+  const targetDate = new Date(dateString);
+  const now = new Date();
+  
+  // If the date is in the past, return empty string
+  if (isPast(targetDate)) {
+    return '';
+  }
+  
+  const diffInSeconds = differenceInSeconds(targetDate, now);
+  
+  // Calculate days, hours, minutes, seconds
+  const days = Math.floor(diffInSeconds / (24 * 60 * 60));
+  const hours = Math.floor((diffInSeconds % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
+  const seconds = Math.floor(diffInSeconds % 60);
+  
+  // Format the countdown string based on how far away the match is
+  if (days > 0) {
+    return `${days}d ${hours}h ${minutes}m`;
+  } else if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  } else {
+    return `${seconds}s`;
   }
 };
 
@@ -254,6 +290,27 @@ const LiveScoreboard = memo(() => {
   // Use the current index for the featured match
   const featured = filteredFixtures[currentFixtureIndex];
   
+  // Implement countdown timer for upcoming matches
+  const [countdown, setCountdown] = useState<string>('');
+  
+  // Update countdown every second for upcoming matches
+  useEffect(() => {
+    if (!featured || isLiveMatch(featured.fixture.status.short) || featured.fixture.status.short === 'FT') {
+      return;
+    }
+    
+    // Initial countdown
+    setCountdown(getCountdownTimer(featured.fixture.date));
+    
+    // Set up interval for countdown
+    const intervalId = setInterval(() => {
+      setCountdown(getCountdownTimer(featured.fixture.date));
+    }, 1000);
+    
+    // Cleanup on unmount or when featured match changes
+    return () => clearInterval(intervalId);
+  }, [featured]);
+  
   return (
     <div className="mx-2 my-4">
       {/* Match filter controls with match status */}
@@ -278,7 +335,14 @@ const LiveScoreboard = memo(() => {
               ) : featured.fixture.status.short === 'FT' ? (
                 <span className="text-lg font-bold">MATCH ENDED</span>
               ) : (
-                <h1 className="text-xl font-bold m-0 p-0">UPCOMING MATCH</h1>
+                <div className="flex flex-col items-center">
+                  <h1 className="text-xl font-bold m-0 p-0">UPCOMING MATCH</h1>
+                  {countdown && (
+                    <div className="text-xs font-semibold text-blue-600 mt-1">
+                      Match starts in {countdown}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ) : (
@@ -317,7 +381,7 @@ const LiveScoreboard = memo(() => {
         </div>
         
         {/* Status badge */}
-        <div className="text-sm text-center text-gray-700 py-1 border-b border-gray-100">
+        <div className="text-sm text-center text-gray-700 py-2 border-b border-gray-100">
           {isLiveMatch(featured.fixture.status.short) ? (
             <div className="flex items-center justify-center">
               <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
@@ -326,9 +390,17 @@ const LiveScoreboard = memo(() => {
           ) : featured.fixture.status.short === 'FT' ? (
             <h1 className="text-xl font-bold">MATCH ENDED</h1>
           ) : (
-            <div className="flex items-center justify-center">
-              <Calendar className="h-4 w-4 mr-2" />
-              <h1 className="text-xl font-bold">UPCOMING MATCH</h1>
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex items-center mb-1">
+                <Timer className="h-4 w-4 mr-2 text-blue-600" />
+                <h1 className="text-xl font-bold">{formatExactDateTime(featured.fixture.date)}</h1>
+              </div>
+              {countdown && (
+                <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full text-blue-700 text-xs font-medium">
+                  <span className="animate-pulse mr-1">●</span>
+                  Kicks off in {countdown}
+                </div>
+              )}
             </div>
           )}
         </div>
