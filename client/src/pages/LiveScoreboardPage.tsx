@@ -84,14 +84,15 @@ interface FixtureResponse {
   score: Score;
 }
 
-// Popular football league IDs (most followed globally)
+// Popular football league IDs in the requested order: Europe, England, Spain, Italy, Brazil, Germany
 const POPULAR_LEAGUES = [
+  2,   // UEFA Champions League (Europe)
+  3,   // UEFA Europa League (Europe)
   39,  // Premier League (England)
   140, // La Liga (Spain)
   135, // Serie A (Italy)
-  78,  // Bundesliga (Germany)
-  2,   // Champions League
   71,  // Serie A (Brazil)
+  78,  // Bundesliga (Germany)
 ];
 
 function LiveScoreboardPage() {
@@ -286,42 +287,45 @@ function LiveScoreboardPage() {
           FEATURED MATCH
         </div>
         
-        {/* Tournament info */}
-        <div className="text-center p-2 flex justify-center items-center gap-2 bg-gray-50">
-          <img 
-            src={featured.league.logo}
-            alt={featured.league.name}
-            className="w-5 h-5"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
-            }}
-          />
-          <span className="text-sm font-medium">{featured.league.name} - {featured.league.round}</span>
-        </div>
-        
-        {/* Match status */}
-        <div className="text-sm text-center text-gray-700 py-2 border-b border-gray-100">
-          {isLiveMatch(featured.fixture.status.short) ? (
-            <div className="flex items-center justify-center">
-              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-              <h1 className="text-xl font-bold">LIVE • {featured.fixture.status.elapsed}′</h1>
-            </div>
-          ) : featured.fixture.status.short === 'FT' ? (
-            <h1 className="text-xl font-bold">MATCH ENDED</h1>
-          ) : (
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex items-center mb-1">
-                <Timer className="h-4 w-4 mr-2 text-blue-600" />
-                <h1 className="text-xl font-bold">{formatExactDateTime(featured.fixture.date)}</h1>
+        {/* Tournament info with match timer at the top */}
+        <div className="bg-gray-50 relative">
+          {/* Match status at top */}
+          <div className="text-sm text-center py-2 border-b border-gray-100">
+            {isLiveMatch(featured.fixture.status.short) ? (
+              <div className="flex items-center justify-center">
+                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
+                <h1 className="text-xl font-bold">LIVE • {featured.fixture.status.elapsed}′</h1>
               </div>
-              {countdown && (
-                <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full text-blue-700 text-xs font-medium">
-                  <span className="animate-pulse mr-1">●</span>
-                  Kicks off in {countdown}
+            ) : featured.fixture.status.short === 'FT' ? (
+              <h1 className="text-xl font-bold">MATCH ENDED</h1>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <div className="flex items-center mb-1">
+                  <Timer className="h-4 w-4 mr-2 text-blue-600" />
+                  <h1 className="text-xl font-bold">{formatExactDateTime(featured.fixture.date)}</h1>
                 </div>
-              )}
-            </div>
-          )}
+                {countdown && (
+                  <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full text-blue-700 text-xs font-medium">
+                    <span className="animate-pulse mr-1">●</span>
+                    Kicks off in {countdown}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* League info below timer */}
+          <div className="text-center p-2 flex justify-center items-center gap-2">
+            <img 
+              src={featured.league.logo}
+              alt={featured.league.name}
+              className="w-5 h-5"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
+              }}
+            />
+            <span className="text-sm font-medium">{featured.league.name} - {featured.league.round}</span>
+          </div>
         </div>
         
         {/* Teams with gradients */}

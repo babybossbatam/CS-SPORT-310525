@@ -10,8 +10,20 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   
   // Using flag icons instead of emoji to ensure consistent rendering
+  // Reordered as: All, Europe, England, Spain, Italy, Brazil, Germany
   const countries = [
     { id: 'all', name: 'All', icon: <Globe className="h-4 w-4" /> },
+    { 
+      id: 'europe', 
+      name: 'Europe', 
+      icon: <div className="w-5 h-3 rounded-sm overflow-hidden bg-blue-600 flex items-center justify-center">
+        <div className="flex flex-wrap w-3 h-3 items-center justify-center">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="w-[4px] h-[4px] bg-yellow-400 m-[1px]"></div>
+          ))}
+        </div>
+      </div>
+    },
     { 
       id: 'england', 
       name: 'England', 
@@ -25,23 +37,21 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
       </div>
     },
     { 
+      id: 'spain', 
+      name: 'Spain', 
+      icon: <div className="w-5 h-3 rounded-sm overflow-hidden">
+        <div className="w-full h-[25%] bg-red-600"></div>
+        <div className="w-full h-[50%] bg-yellow-500"></div>
+        <div className="w-full h-[25%] bg-red-600"></div>
+      </div>
+    },
+    { 
       id: 'italy', 
       name: 'Italy', 
       icon: <div className="w-5 h-3 rounded-sm overflow-hidden flex">
         <div className="w-1/3 h-full bg-green-600"></div>
         <div className="w-1/3 h-full bg-white"></div>
         <div className="w-1/3 h-full bg-red-600"></div>
-      </div>
-    },
-    { 
-      id: 'europe', 
-      name: 'Europe', 
-      icon: <div className="w-5 h-3 rounded-sm overflow-hidden bg-blue-600 flex items-center justify-center">
-        <div className="flex flex-wrap w-3 h-3 items-center justify-center">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="w-[4px] h-[4px] bg-yellow-400 m-[1px]"></div>
-          ))}
-        </div>
       </div>
     },
     { 
@@ -52,15 +62,6 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
         <div className="absolute w-2 h-2 rounded-full bg-blue-700 flex items-center justify-center">
           <div className="w-1.5 h-0.5 bg-white"></div>
         </div>
-      </div>
-    },
-    { 
-      id: 'spain', 
-      name: 'Spain', 
-      icon: <div className="w-5 h-3 rounded-sm overflow-hidden">
-        <div className="w-full h-[25%] bg-red-600"></div>
-        <div className="w-full h-[50%] bg-yellow-500"></div>
-        <div className="w-full h-[25%] bg-red-600"></div>
       </div>
     },
     { 
