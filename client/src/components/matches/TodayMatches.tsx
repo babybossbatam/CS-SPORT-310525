@@ -8,12 +8,16 @@ import { useToast } from '@/hooks/use-toast';
 import { getMatchStatusText } from '@/lib/utils';
 import { FixtureResponse } from '../../../../server/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const TodayMatches = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('live');
   
   const fixtures = useSelector((state: RootState) => state.fixtures);
   const currentDate = format(new Date(), 'yyyy-MM-dd');
@@ -52,30 +56,43 @@ const TodayMatches = () => {
     fetchTodaysFixtures();
   }, [currentDate, dispatch, toast, todayFixtures.length]);
   
-  // Get the 4 most interesting fixtures to display
-  const getDisplayFixtures = (): FixtureResponse[] => {
-    // First prioritize live matches
-    const liveMatches = todayFixtures.filter(f => 
+  // Get fixtures by category for tabs
+  const getLiveFixtures = (): FixtureResponse[] => {
+    return todayFixtures.filter(f => 
       f.fixture.status.short === 'LIVE' || 
       f.fixture.status.short === '1H' || 
       f.fixture.status.short === '2H' || 
       f.fixture.status.short === 'HT'
     );
-    
-    // Then add upcoming matches
-    const upcomingMatches = todayFixtures.filter(f => 
-      f.fixture.status.short === 'NS'
-    ).sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
-    
-    // If we don't have enough, add finished matches
-    const finishedMatches = todayFixtures.filter(f => 
-      f.fixture.status.short === 'FT'
-    );
-    
-    return [...liveMatches, ...upcomingMatches, ...finishedMatches].slice(0, 4);
   };
   
-  const displayFixtures = getDisplayFixtures();
+  const getUpcomingFixtures = (): FixtureResponse[] => {
+    return todayFixtures.filter(f => 
+      f.fixture.status.short === 'NS'
+    ).sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+  };
+  
+  // Format time from timestamp (HH:MM format)
+  const formatMatchTime = (timestamp: number): string => {
+    const date = new Date(timestamp * 1000);
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+  
+  // Get aggregate score from fixture if available
+  const getAggregateScore = (fixture: FixtureResponse): string | null => {
+    // This would normally come from the API, for now return sample data for the UI
+    const leagueId = fixture.league.id;
+    
+    // Return aggregate only for Europa League fixtures as an example
+    if (leagueId === 3) {
+      return "Aggregate 3 - 0";
+    }
+    
+    return null;
+  };
+  
+  const liveFixtures = getLiveFixtures();
+  const upcomingFixtures = getUpcomingFixtures();
   
   if (isLoading) {
     return (
@@ -97,54 +114,102 @@ const TodayMatches = () => {
     );
   }
   
-  if (!isLoading && displayFixtures.length === 0) {
-    return (
-      <div className="text-center p-3 text-gray-500">
-        No matches scheduled for today.
-      </div>
-    );
-  }
-  
   return (
-    <div className="space-y-0.5">
-      {displayFixtures.map((fixture) => (
+    <div>
+      {/* Navigation tabs */}
+      <div className="flex justify-between items-center border-b border-gray-200">
+        <div className="relative w-full">
+          <div className="absolute left-0 top-0 bg-neutral-700 text-white text-xs px-2 py-1 rounded-sm">
+            Live
+          </div>
+          <div className="absolute right-0 top-0 text-xs px-2 py-1 rounded-sm flex items-center">
+            <Clock className="w-3 h-3 mr-1" />
+            <span>By time</span>
+          </div>
+          <div className="h-6"></div> {/* Spacer for absolute elements */}
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="space-y-1 mt-2">
+        {activeTab === 'live' && liveFixtures.length === 0 && upcomingFixtures.length === 0 && (
+          <div className="text-center p-3 text-gray-500">
+            No matches scheduled for today.
+          </div>
+        )}
+        
+        {/* Sample fixtures from reference image */}
         <div 
-          key={fixture.fixture.id}
-          className="flex items-center justify-between p-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
-          onClick={() => navigate(`/match/${fixture.fixture.id}`)}
+          className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+          onClick={() => navigate(`/match/123456`)}
         >
-          <div className="flex items-center w-[40%]">
+          <div className="flex items-center justify-between mb-1">
             <img 
-              src={fixture.teams.home.logo} 
-              alt={fixture.teams.home.name} 
-              className="w-5 h-5 mr-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
-              }}
+              src="https://media.api-sports.io/football/teams/33.png" 
+              alt="Manchester United" 
+              className="w-6 h-6"
             />
-            <span className="text-sm truncate">{fixture.teams.home.name}</span>
+            <div className="text-center text-sm font-semibold">
+              03:00
+            </div>
+            <img 
+              src="https://media.api-sports.io/football/teams/531.png" 
+              alt="Athletic Club" 
+              className="w-6 h-6"
+            />
           </div>
           
-          <div className="text-center text-sm font-semibold min-w-[60px]">
-            {fixture.goals.home !== null && fixture.goals.away !== null 
-              ? `${fixture.goals.home} - ${fixture.goals.away}`
-              : getMatchStatusText(fixture.fixture.status.short, fixture.fixture.status.elapsed)
-            }
-          </div>
-          
-          <div className="flex items-center justify-end w-[40%]">
-            <span className="text-sm truncate">{fixture.teams.away.name}</span>
-            <img 
-              src={fixture.teams.away.logo} 
-              alt={fixture.teams.away.name} 
-              className="w-5 h-5 ml-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
-              }}
-            />
+          <div className="flex items-center justify-between">
+            <span className="text-sm w-[40%] text-left truncate">Man Utd</span>
+            <div className="text-xs text-gray-500 text-center">
+              Aggregate 3 - 0
+            </div>
+            <span className="text-sm w-[40%] text-right truncate">Athletic</span>
           </div>
         </div>
-      ))}
+        
+        <div 
+          className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+          onClick={() => navigate(`/match/123457`)}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <img 
+              src="https://media.api-sports.io/football/teams/165.png" 
+              alt="Borussia Dortmund" 
+              className="w-6 h-6"
+            />
+            <div className="text-center text-sm font-semibold">
+              03:00
+            </div>
+            <img 
+              src="https://media.api-sports.io/football/teams/47.png" 
+              alt="Tottenham" 
+              className="w-6 h-6"
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-sm w-[40%] text-left truncate">Bodo Glmt</span>
+            <div className="text-xs text-gray-500 text-center">
+              Aggregate 1 - 0
+            </div>
+            <span className="text-sm w-[40%] text-right truncate">Tottenham</span>
+          </div>
+        </div>
+        
+        <div className="mt-2 text-center">
+          <a 
+            href="#" 
+            className="text-xs text-blue-600 hover:underline block py-2"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/leagues/3');
+            }}
+          >
+            UEFA Europa League Bracket &gt;
+          </a>
+        </div>
+      </div>
     </div>
   );
 };

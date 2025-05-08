@@ -16,6 +16,9 @@ import RegionModal from '@/components/modals/RegionModal';
 import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import TopScorersList from '@/components/leagues/TopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
+import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
+import PlayerSpotlight from '@/components/players/PlayerSpotlight';
+import TeamPerformance from '@/components/teams/TeamPerformance';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -155,6 +158,12 @@ const Home = () => {
           <div className="lg:col-span-8">
             <LiveScoreboardPage />
             
+            {/* Player Spotlight & Team Performance (new features) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <PlayerSpotlight />
+              <TeamPerformance />
+            </div>
+            
             {/* Popular Teams Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
               <div className="py-2 px-3 bg-gray-100 border-b">
@@ -178,21 +187,13 @@ const Home = () => {
               </div>
             </div>
             
-            {/* Popular Leagues section */}
+            {/* Popular Leagues section - New Design */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="py-2 px-3 bg-gray-100 border-b">
-                <h3 className="font-semibold text-gray-700">Popular Football Leagues</h3>
+                <h3 className="font-semibold text-gray-700">Popular Leagues</h3>
               </div>
-              {/* Country filter */}
-              <LeagueCountryFilter onSelectCountry={setFilteredCountry} />
-              
-              <div className="space-y-1">
-                {(filteredCountry 
-                  ? countryLeagueMap[filteredCountry] || [] 
-                  : popularLeagues
-                ).map((leagueId) => (
-                  <LeagueMatchCard key={leagueId} leagueId={leagueId} />
-                ))}
+              <div>
+                <PopularLeaguesList />
               </div>
             </div>
             
