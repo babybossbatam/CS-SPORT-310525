@@ -149,12 +149,15 @@ const Home = () => {
       <main className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column - Featured Match */}
-          <div className="lg:col-span-9">
+          <div className="lg:col-span-8">
             <LiveScoreboardPage />
           </div>
           
           {/* Right column - Popular Leagues */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="lg:col-span-4 bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="py-2 px-3 bg-gray-100 border-b">
+              <h3 className="font-semibold text-gray-700">Popular Football Leagues</h3>
+            </div>
             {/* Country filter */}
             <LeagueCountryFilter onSelectCountry={setFilteredCountry} />
             
