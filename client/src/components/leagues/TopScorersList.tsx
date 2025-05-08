@@ -137,12 +137,13 @@ const TopScorersList = () => {
                     <img src={playerStats.team.logo} alt={playerStats.team.name} className="h-3.5 w-3.5 mr-1" />
                     {playerStats.team.name}
                   </div>
-                  <div className="h-1.5 bg-gray-100 w-full rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 w-full rounded-full overflow-hidden">
                     <div 
-                      className="h-full rounded-full transition-all"
+                      className="h-full rounded-full transition-all shadow-inner"
                       style={{ 
                         width: `${progressPercentage}%`,
-                        backgroundColor: teamColor || '#3b82f6'
+                        backgroundColor: teamColor || '#3b82f6',
+                        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3)'
                       }} 
                     />
                   </div>

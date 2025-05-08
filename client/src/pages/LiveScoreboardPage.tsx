@@ -159,6 +159,46 @@ function LiveScoreboardPage() {
       }
     }
     
+    // Define top teams for popular leagues (id: team names array)
+    const topTeamsByLeague: Record<number, string[]> = {
+      // UEFA Champions League (2)
+      2: ['Manchester City', 'Real Madrid', 'Bayern Munich'],
+      // UEFA Europa League (3)
+      3: ['Bayer Leverkusen', 'Atalanta', 'AS Roma'],
+      // Premier League (39)
+      39: ['Manchester City', 'Arsenal', 'Liverpool'],
+      // La Liga (140)
+      140: ['Real Madrid', 'FC Barcelona', 'Girona'],
+      // Serie A Italy (135)
+      135: ['Inter', 'AC Milan', 'Juventus'],
+      // Serie A Brazil (71)
+      71: ['Palmeiras', 'Botafogo', 'Flamengo'],
+      // Bundesliga (78)
+      78: ['Bayer Leverkusen', 'Bayern Munich', 'RB Leipzig'],
+    };
+    
+    // Filter fixtures to only include top teams from popular leagues
+    const topTeamFixtures = fixtures.filter(fixture => {
+      const leagueId = fixture.league.id;
+      const homeTeam = fixture.teams.home.name;
+      const awayTeam = fixture.teams.away.name;
+      
+      // If we have top team data for this league
+      if (topTeamsByLeague[leagueId]) {
+        const topTeams = topTeamsByLeague[leagueId];
+        // Check if either home or away team is in the top teams list
+        return topTeams.some(team => 
+          homeTeam.includes(team) || awayTeam.includes(team)
+        );
+      }
+      
+      // For other leagues we don't have data for, keep all fixtures
+      return true;
+    });
+    
+    // Use top team fixtures if we have any, otherwise fall back to regular fixtures
+    fixtures = topTeamFixtures.length > 0 ? topTeamFixtures : fixtures;
+    
     // Sort fixtures with complex prioritization
     fixtures.sort((a, b) => {
       // First priority: Live matches
@@ -405,8 +445,8 @@ function LiveScoreboardPage() {
               <div className="flex h-full">
                 {/* Single continuous gradient bar with home and away team colors */}
                 <div className="flex h-full w-full relative overflow-hidden">
-                  {/* Home team gradient section with 45-degree slice */}
-                  <div className={`w-[52%] ${getTeamGradient(featuredFixture.teams.home.name, 'to-r')} relative`}>
+                  {/* Home team section with 45-degree slice */}
+                  <div className={`w-[52%] relative`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
                     {/* Angled edge for home team */}
                     <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
@@ -424,9 +464,9 @@ function LiveScoreboardPage() {
                   </div>
                   
                   {/* Away team gradient section with 45-degree slice - using different color */}
-                  <div className={`w-[52%] bg-gradient-to-l relative -ml-4`} 
+                  <div className={`w-[52%] relative -ml-4`} 
                        style={{
-                         backgroundImage: `linear-gradient(to left, ${getOpposingTeamColor(featuredFixture.teams.home.name, featuredFixture.teams.away.name)}, ${getTeamColor(featuredFixture.teams.away.name)})`
+                         backgroundColor: getTeamColor(featuredFixture.teams.away.name)
                        }}>
                     {/* Angled edge for away team */}
                     <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
