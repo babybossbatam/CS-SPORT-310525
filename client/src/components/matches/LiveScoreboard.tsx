@@ -311,60 +311,66 @@ export function LiveScoreboard({
               </div>
             </div>
             
-            {/* Team bar - Wider design similar to reference image */}
-            <div className="relative mb-4">
-              {/* Featured Match badge */}
-              <div className="absolute top-0 right-0 bg-gray-600 text-white text-xs px-2 py-1 z-20">
-                Featured Match
-              </div>
-
-              <div className="w-full overflow-hidden rounded-md">
-                {/* Team bar */}
-                <div className="flex h-16 w-full overflow-hidden">
-                  {/* Home team section */}
+            {/* Match presentation - Clean design following reference image */}
+            <div className="relative mb-6">
+              {/* Main match container */}
+              <div className="w-full overflow-hidden rounded-lg shadow-md">
+                {/* Match date */}
+                <div className="bg-gray-100 text-center py-1 text-xs text-gray-600 font-medium border-b border-gray-200">
+                  TOMORROW
+                </div>
+                
+                {/* Team bars */}
+                <div className="flex h-14 w-full overflow-hidden">
+                  {/* Home team color bar */}
                   <div 
-                    className="w-1/2 flex items-center justify-end px-6 py-3 text-white"
-                    style={{ 
-                      background: getTeamColor(featuredMatch.teams.home.name)
-                    }}
+                    className="w-1/2 flex items-center justify-end px-4 text-white h-full"
+                    style={{ background: getTeamColor(featuredMatch.teams.home.name) }}
                   >
-                    <span className="font-bold text-lg uppercase mr-4">
+                    <span className="font-bold uppercase px-3 drop-shadow-sm text-sm md:text-base">
                       {featuredMatch.teams.home.name}
                     </span>
-                    <img 
-                      src={featuredMatch.teams.home.logo} 
-                      alt={featuredMatch.teams.home.name}
-                      className="h-14 w-14 -mt-2 object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
-                      }}
-                    />
                   </div>
                   
-                  {/* Away team section */}
+                  {/* Away team color bar */}
                   <div 
-                    className="w-1/2 flex items-center px-6 py-3 text-white"
-                    style={{ 
-                      background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)
-                    }}
+                    className="w-1/2 flex items-center px-4 text-white h-full"
+                    style={{ background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name) }}
                   >
-                    <img 
-                      src={featuredMatch.teams.away.logo} 
-                      alt={featuredMatch.teams.away.name}
-                      className="h-14 w-14 -mt-2 object-contain mr-4"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
-                      }}
-                    />
-                    <span className="font-bold text-lg uppercase">
+                    <span className="font-bold uppercase px-3 drop-shadow-sm text-sm md:text-base">
                       {featuredMatch.teams.away.name}
                     </span>
                   </div>
-                  
-                  {/* VS text overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                    <div className="text-3xl font-bold text-white drop-shadow-lg">VS</div>
-                  </div>
+                </div>
+              </div>
+              
+              {/* VS badge in the middle */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full h-8 w-8 flex items-center justify-center shadow-md z-20">
+                <span className="text-sm font-bold">VS</span>
+              </div>
+              
+              {/* Team logos */}
+              <div className="absolute top-1/3 left-0 w-full flex justify-between px-6">
+                <div className="bg-white rounded-full p-0.5 shadow-md transform -translate-y-1/2">
+                  <img 
+                    src={featuredMatch.teams.home.logo} 
+                    alt={featuredMatch.teams.home.name}
+                    className="h-12 w-12 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                    }}
+                  />
+                </div>
+                
+                <div className="bg-white rounded-full p-0.5 shadow-md transform -translate-y-1/2">
+                  <img 
+                    src={featuredMatch.teams.away.logo} 
+                    alt={featuredMatch.teams.away.name}
+                    className="h-12 w-12 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -466,49 +472,43 @@ export function LiveScoreboard({
                 />
               </div>
               
-              {/* Main match content with colored bar */}
-              <div className="flex-1 relative overflow-hidden">
-                <div className="flex h-10 rounded-md overflow-hidden shadow-sm">
-                  {/* Home team section - use solid color */}
-                  <div 
-                    className="w-1/2 relative" 
-                    style={{ 
-                      background: getTeamColor(match.teams.home.name)
+              {/* Teams info row */}
+              <div className="flex-1 grid grid-cols-9 gap-1">
+                {/* Home team */}
+                <div className="col-span-4 flex items-center justify-end space-x-2">
+                  <span className="font-medium text-sm text-right truncate">{match.teams.home.name}</span>
+                  <img 
+                    src={match.teams.home.logo} 
+                    alt={match.teams.home.name}
+                    className="h-6 w-6 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
                     }}
-                  >
-                    <div className="flex items-center justify-end h-full pl-3 pr-1">
-                      <span className="text-white font-semibold truncate text-right" style={{
-                        fontSize: match.teams.home.name.length > 15 ? '0.75rem' : '0.875rem'
-                      }}>
-                        {match.teams.home.name}
-                      </span>
-                    </div>
+                  />
+                </div>
+                
+                {/* Score */}
+                <div className="flex items-center justify-center">
+                  <div className="bg-gray-100 px-2 py-1 rounded-sm text-sm font-bold">
+                    {isLiveMatch(match.fixture.status.short) ? (
+                      <span className="text-red-500">{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
+                    ) : (
+                      <span>{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
+                    )}
                   </div>
-                  
-                  {/* Away team section - use opposing color */}
-                  <div 
-                    className="w-1/2 relative"
-                    style={{ 
-                      background: getOpposingTeamColor(match.teams.home.name, match.teams.away.name)
+                </div>
+                
+                {/* Away team */}
+                <div className="col-span-4 flex items-center justify-start space-x-2">
+                  <img 
+                    src={match.teams.away.logo} 
+                    alt={match.teams.away.name}
+                    className="h-6 w-6 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
                     }}
-                  >
-                    <div className="flex items-center h-full pl-1 pr-3">
-                      <span className="text-white font-semibold truncate text-left" style={{
-                        fontSize: match.teams.away.name.length > 15 ? '0.75rem' : '0.875rem'
-                      }}>
-                        {match.teams.away.name}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Score overlay in the center */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="bg-white px-3 py-1 rounded-full shadow-md">
-                      <span className="text-sm font-bold">
-                        {match.goals.home ?? 0} <span className="text-xs text-gray-500">VS</span> {match.goals.away ?? 0}
-                      </span>
-                    </div>
-                  </div>
+                  />
+                  <span className="font-medium text-sm truncate">{match.teams.away.name}</span>
                 </div>
               </div>
             </div>
