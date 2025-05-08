@@ -388,22 +388,30 @@ function LiveScoreboardPage() {
               {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
                 {/* Single continuous gradient bar with home and away team colors */}
-                <div className="flex h-full w-full relative">
-                  {/* Home team gradient section */}
-                  <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')}`}>
-                    <div className="pl-16 h-full flex items-center"> {/* Increased padding to account for bar extension */}
+                <div className="flex h-full w-full relative overflow-hidden">
+                  {/* Home team gradient section with 45-degree slice */}
+                  <div className={`w-[52%] ${getTeamGradient(featured.teams.home.name, 'to-r')} relative`}>
+                    {/* Angled edge for home team */}
+                    <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
+                      style={{backgroundColor: 'inherit'}}></div>
+                    
+                    <div className="pl-16 h-full flex items-center z-10 relative"> {/* Increased padding to account for bar extension */}
                       <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.home.name}</span>
                     </div>
                   </div>
                   
                   {/* VS text positioned absolutely in the center */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-white text-sm font-bold shadow-sm">VS</span>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                    <span className="text-white text-sm font-bold drop-shadow-md">VS</span>
                   </div>
                   
-                  {/* Away team gradient section */}
-                  <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')}`}>
-                    <div className="pr-16 h-full flex items-center justify-end"> {/* Increased padding to account for bar extension */}
+                  {/* Away team gradient section with 45-degree slice */}
+                  <div className={`w-[52%] ${getTeamGradient(featured.teams.away.name, 'to-l')} relative -ml-4`}>
+                    {/* Angled edge for away team */}
+                    <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
+                      style={{backgroundColor: 'inherit'}}></div>
+                    
+                    <div className="pr-16 h-full flex items-center justify-end z-10 relative"> {/* Increased padding to account for bar extension */}
                       <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.away.name}</span>
                     </div>
                   </div>
