@@ -123,6 +123,9 @@ function LiveScoreboardPage() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
+  // Top priority leagues that should always be shown first if available
+  const topPriorityLeagues = [2, 3, 39]; // UEFA Champions League, UEFA Europa League, Premier League
+  
   // Process fixtures when data is available
   useEffect(() => {
     const liveFixtures = liveFixturesQuery.data || [];
@@ -136,20 +139,13 @@ function LiveScoreboardPage() {
     // Combine fixtures
     const allFixtures = [...liveFixtures, ...upcomingFixtures];
     
-    // Filter by popular leagues first
-    const popularFixtures = allFixtures.filter(fixture => 
-      POPULAR_LEAGUES.includes(fixture.league.id)
-    );
-    
-    // Default to popular fixtures if we have any
-    let fixtures = popularFixtures.length > 0 ? popularFixtures : allFixtures;
-    
     // Filter by country if selected
+    let fixtures = allFixtures;
     if (selectedCountry && selectedCountry !== 'all' && countryLeagueMap) {
       const countryLeagueIds = countryLeagueMap[selectedCountry] || [];
       
       if (countryLeagueIds.length > 0) {
-        const countryFixtures = fixtures.filter(fixture => 
+        const countryFixtures = allFixtures.filter(fixture => 
           countryLeagueIds.includes(fixture.league.id)
         );
         
@@ -159,14 +155,40 @@ function LiveScoreboardPage() {
       }
     }
     
-    // Sort fixtures (live first, then by date)
+    // Sort fixtures with complex prioritization
     fixtures.sort((a, b) => {
-      if (isLiveMatch(a.fixture.status.short) && !isLiveMatch(b.fixture.status.short)) {
-        return -1;
+      // First priority: Live matches
+      const aIsLive = isLiveMatch(a.fixture.status.short);
+      const bIsLive = isLiveMatch(b.fixture.status.short);
+      
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+      
+      // Second priority: Top priority leagues (Champions League, Europa League, Premier League)
+      const aIsTopPriority = topPriorityLeagues.includes(a.league.id);
+      const bIsTopPriority = topPriorityLeagues.includes(b.league.id);
+      
+      if (aIsTopPriority && !bIsTopPriority) return -1;
+      if (!aIsTopPriority && bIsTopPriority) return 1;
+      
+      // If both are top priority, sort by the specific order within top priority leagues
+      if (aIsTopPriority && bIsTopPriority) {
+        return topPriorityLeagues.indexOf(a.league.id) - topPriorityLeagues.indexOf(b.league.id);
       }
-      if (!isLiveMatch(a.fixture.status.short) && isLiveMatch(b.fixture.status.short)) {
-        return 1;
+      
+      // Third priority: Other popular leagues
+      const aIsPopular = POPULAR_LEAGUES.includes(a.league.id);
+      const bIsPopular = POPULAR_LEAGUES.includes(b.league.id);
+      
+      if (aIsPopular && !bIsPopular) return -1;
+      if (!aIsPopular && bIsPopular) return 1;
+      
+      // If both are popular, sort by the specific order in POPULAR_LEAGUES
+      if (aIsPopular && bIsPopular) {
+        return POPULAR_LEAGUES.indexOf(a.league.id) - POPULAR_LEAGUES.indexOf(b.league.id);
       }
+      
+      // Final sorting: By match time
       return compareAsc(parseISO(a.fixture.date), parseISO(b.fixture.date));
     });
     
