@@ -175,8 +175,20 @@ export function LiveScoreboard({
     setFilteredMatches(filtered.slice(0, maxMatches));
   }, [liveMatches, todayMatches, selectedLeague, maxMatches]);
   
-  // Featured match is the first one after sorting and filtering
-  const featuredMatch = filteredMatches.length > 0 ? filteredMatches[0] : null;
+  // Popular teams for featuring
+  const popularTeams = [
+    'Manchester United', 'Liverpool', 'Manchester City', 'Arsenal', 
+    'Chelsea', 'Real Madrid', 'Barcelona', 'Tottenham', 'Bayern'
+  ];
+  
+  // Find a featured match with popular teams
+  const featuredMatch = filteredMatches.find(match => {
+    const homeTeam = match.teams.home.name;
+    const awayTeam = match.teams.away.name;
+    return popularTeams.some(team => 
+      homeTeam.includes(team) || awayTeam.includes(team)
+    );
+  }) || (filteredMatches.length > 0 ? filteredMatches[0] : null);
   
   if (isLoading) {
     return (
@@ -278,9 +290,9 @@ export function LiveScoreboard({
           
           {/* Match content */}
           <div className="p-4">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center mb-6 relative">
               {/* Home team */}
-              <div className="flex flex-col items-center text-center w-5/12">
+              <div className="flex-1 flex flex-col items-center text-center">
                 <div className="relative">
                   <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
                   <img 
@@ -292,12 +304,17 @@ export function LiveScoreboard({
                     }}
                   />
                 </div>
-                <h3 className="font-bold text-lg mt-2 truncate max-w-full">{featuredMatch.teams.home.name}</h3>
+                <h3 className="font-bold mt-2 text-center" style={{ 
+                  fontSize: featuredMatch.teams.home.name.length > 15 ? '0.9rem' : '1.1rem',
+                  maxWidth: '130px' 
+                }}>
+                  {featuredMatch.teams.home.name}
+                </h3>
               </div>
               
-              {/* Score */}
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="flex items-center gap-2 mb-1">
+              {/* Score overlay centered absolutely */}
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-white/95 px-4 py-2 rounded-lg shadow-md z-20">
+                <div className="flex items-center gap-3 mb-1">
                   <span className="text-4xl font-bold">{featuredMatch.goals.home ?? 0}</span>
                   <span className="text-xl font-bold text-gray-400">-</span>
                   <span className="text-4xl font-bold">{featuredMatch.goals.away ?? 0}</span>
@@ -312,7 +329,7 @@ export function LiveScoreboard({
               </div>
               
               {/* Away team */}
-              <div className="flex flex-col items-center text-center w-5/12">
+              <div className="flex-1 flex flex-col items-center text-center">
                 <div className="relative">
                   <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
                   <img 
@@ -324,7 +341,12 @@ export function LiveScoreboard({
                     }}
                   />
                 </div>
-                <h3 className="font-bold text-lg mt-2 truncate max-w-full">{featuredMatch.teams.away.name}</h3>
+                <h3 className="font-bold mt-2 text-center" style={{ 
+                  fontSize: featuredMatch.teams.away.name.length > 15 ? '0.9rem' : '1.1rem',
+                  maxWidth: '130px' 
+                }}>
+                  {featuredMatch.teams.away.name}
+                </h3>
               </div>
             </div>
             
@@ -392,15 +414,23 @@ export function LiveScoreboard({
                 <div className="flex h-10 rounded-md overflow-hidden shadow-sm">
                   {/* Home team section */}
                   <div className={`w-1/2 relative ${getTeamGradient(match.teams.home.name, 'to-r')}`}>
-                    <div className="flex items-center h-full pl-3 pr-1">
-                      <span className="text-white font-semibold truncate">{match.teams.home.name}</span>
+                    <div className="flex items-center justify-end h-full pl-3 pr-1">
+                      <span className="text-white font-semibold truncate text-right" style={{
+                        fontSize: match.teams.home.name.length > 15 ? '0.75rem' : '0.875rem'
+                      }}>
+                        {match.teams.home.name}
+                      </span>
                     </div>
                   </div>
                   
                   {/* Away team section */}
                   <div className={`w-1/2 relative ${getTeamGradient(match.teams.away.name, 'to-l')}`}>
-                    <div className="flex items-center justify-end h-full pl-1 pr-3">
-                      <span className="text-white font-semibold truncate">{match.teams.away.name}</span>
+                    <div className="flex items-center h-full pl-1 pr-3">
+                      <span className="text-white font-semibold truncate text-left" style={{
+                        fontSize: match.teams.away.name.length > 15 ? '0.75rem' : '0.875rem'
+                      }}>
+                        {match.teams.away.name}
+                      </span>
                     </div>
                   </div>
                   
