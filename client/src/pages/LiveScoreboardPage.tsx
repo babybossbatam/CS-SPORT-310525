@@ -446,7 +446,7 @@ function LiveScoreboardPage() {
                 {/* Single continuous gradient bar with home and away team colors */}
                 <div className="flex h-full w-full relative overflow-hidden">
                   {/* Home team section with 45-degree slice */}
-                  <div className={`w-[52%] relative`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
+                  <div className={`w-[52%] relative ml-3`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
                     {/* Angled edge for home team */}
                     <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
@@ -456,15 +456,15 @@ function LiveScoreboardPage() {
                     </div>
                   </div>
                   
-                  {/* VS text positioned absolutely in the center with enhanced styling, shifted 3px left */}
-                  <div className="absolute inset-0 flex items-center justify-center -ml-3 pointer-events-none z-20">
+                  {/* VS text positioned absolutely in the center with enhanced styling */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
                     <div className="bg-black/40 rounded-full h-12 w-12 flex items-center justify-center">
                       <span className="text-white text-3xl font-bold drop-shadow-md">VS</span>
                     </div>
                   </div>
                   
-                  {/* Away team gradient section with 45-degree slice - using different color */}
-                  <div className={`w-[52%] relative -ml-4`} 
+                  {/* Away team section with 45-degree slice - using different color */}
+                  <div className={`w-[52%] relative -ml-1 mr-3`} 
                        style={{
                          backgroundColor: getTeamColor(featuredFixture.teams.away.name)
                        }}>
