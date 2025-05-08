@@ -425,7 +425,7 @@ function LiveScoreboardPage() {
           <div className="flex items-center justify-between mx-10">
             
             {/* Match bar with two-color dynamic gradient */}
-            <div className="flex-1 h-14 rounded-md shadow-md overflow-hidden relative mx-0"> 
+            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden relative mx-0"> 
               {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
                 {/* Single continuous gradient bar with home and away team colors */}
@@ -434,57 +434,41 @@ function LiveScoreboardPage() {
                   {/* Home team section - exactly 50% width */}
                   <div className="w-1/2 h-full absolute left-0" 
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
-                    <div className="h-full flex items-center pl-14">
-                      <span className="text-white font-bold text-sm uppercase truncate text-left max-w-[80%]">{featuredFixture.teams.home.name}</span>
+                    <div className="h-full flex items-center pl-5">
+                      {/* Home team logo inside the bar */}
+                      <img 
+                        src={featuredFixture.teams.home.logo}
+                        alt={featuredFixture.teams.home.name}
+                        className="h-8 w-8 mr-3"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=Team';
+                        }}
+                      />
+                      <span className="text-white font-bold text-sm uppercase truncate text-left max-w-[70%]">{featuredFixture.teams.home.name}</span>
                     </div>
                   </div>
                   
                   {/* VS text positioned absolutely in the center with enhanced styling */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-                    <div className="bg-black/40 rounded-full h-12 w-12 flex items-center justify-center">
-                      <span className="text-white text-3xl font-bold drop-shadow-md">VS</span>
-                    </div>
+                    <span className="text-white text-xl font-bold tracking-wider drop-shadow-md">VS</span>
                   </div>
                   
                   {/* Away team section - exactly 50% width */}
                   <div className="w-1/2 h-full absolute right-0"
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.away.name) }}>
-                    <div className="h-full flex items-center justify-end pr-14">
-                      <span className="text-white font-bold text-sm uppercase truncate text-right max-w-[80%]">{featuredFixture.teams.away.name}</span>
+                    <div className="h-full flex items-center justify-end pr-5">
+                      <span className="text-white font-bold text-sm uppercase truncate text-right max-w-[70%]">{featuredFixture.teams.away.name}</span>
+                      {/* Away team logo inside the bar */}
+                      <img 
+                        src={featuredFixture.teams.away.logo}
+                        alt={featuredFixture.teams.away.name}
+                        className="h-8 w-8 ml-3"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=Team';
+                        }}
+                      />
                     </div>
                   </div>
-                </div>
-              </div>
-              
-              {/* Home team logo - positioned at left edge with half inside */}
-              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 translate-x-[-50%] z-20">
-                <div className="relative">
-                  {/* Smaller shadow (50% of original size) */}
-                  <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                  <img 
-                    src={featuredFixture.teams.home.logo} 
-                    alt={featuredFixture.teams.home.name}
-                    className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                    }}
-                  />
-                </div>
-              </div>
-              
-              {/* Away team logo - positioned at right edge with half inside */}
-              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-[50%] z-20">
-                <div className="relative">
-                  {/* Smaller shadow (50% of original size) */}
-                  <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                  <img 
-                    src={featuredFixture.teams.away.logo} 
-                    alt={featuredFixture.teams.away.name}
-                    className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                    }}
-                  />
                 </div>
               </div>
             </div>
