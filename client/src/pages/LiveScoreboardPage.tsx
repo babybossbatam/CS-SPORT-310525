@@ -424,7 +424,7 @@ function LiveScoreboardPage() {
           {/* Match bar with team info */}
           <div className="flex items-center justify-between mx-12">
             {/* Home team logo */}
-            <div className="relative z-10 -mr-4">
+            <div className="relative z-10 mr-3">
               <div className="relative">
                 {/* Smaller shadow (50% of original size) */}
                 <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
@@ -451,8 +451,8 @@ function LiveScoreboardPage() {
                     <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
                     
-                    <div className="pl-16 h-full flex items-center z-10 relative"> {/* Increased padding to account for bar extension */}
-                      <span className="text-white font-bold text-lg uppercase truncate">{featuredFixture.teams.home.name}</span>
+                    <div className="pl-10 h-full flex items-center justify-start z-10 relative">
+                      <span className="text-white font-bold text-sm uppercase truncate">{featuredFixture.teams.home.name}</span>
                     </div>
                   </div>
                   
@@ -472,8 +472,8 @@ function LiveScoreboardPage() {
                     <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
                     
-                    <div className="pr-16 h-full flex items-center justify-end z-10 relative"> {/* Increased padding to account for bar extension */}
-                      <span className="text-white font-bold text-lg uppercase truncate">{featuredFixture.teams.away.name}</span>
+                    <div className="pr-10 h-full flex items-center justify-end z-10 relative">
+                      <span className="text-white font-bold text-sm uppercase truncate">{featuredFixture.teams.away.name}</span>
                     </div>
                   </div>
                 </div>
@@ -481,7 +481,7 @@ function LiveScoreboardPage() {
             </div>
             
             {/* Away team logo */}
-            <div className="relative z-10 -ml-4">
+            <div className="relative z-10 ml-3">
               <div className="relative">
                 {/* Smaller shadow (50% of original size) */}
                 <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
