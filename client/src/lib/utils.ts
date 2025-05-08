@@ -238,7 +238,7 @@ export const teamColorMap: Record<string, { primary: string, secondary: string }
   'default': { primary: 'from-gray-800', secondary: 'to-gray-600' }
 };
 
-// Get team gradient colors
+// Get team gradient colors with enhanced vibrancy
 export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
   // Avoid black and white colors - use more vibrant colors
   
@@ -340,4 +340,52 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   
   // Fallback to default colors - vibrant blue or red
   return `bg-gradient-${direction} from-blue-700 to-blue-500`;
+}
+
+// Get team accent colors for background elements
+export function getTeamBackgroundColor(teamName: string): string {
+  // Special team-specific colors
+  if (teamName.toLowerCase().includes('juventus')) {
+    return 'bg-gray-100';
+  }
+  
+  if (teamName.toLowerCase().includes('real madrid')) {
+    return 'bg-blue-50';
+  }
+  
+  // Color themes based on team kits
+  if (
+    teamName.toLowerCase().includes('chelsea') ||
+    teamName.toLowerCase().includes('everton') ||
+    teamName.toLowerCase().includes('leicester') ||
+    teamName.toLowerCase().includes('brighton') ||
+    teamName.toLowerCase().includes('napoli') ||
+    teamName.toLowerCase().includes('lazio') ||
+    teamName.toLowerCase().includes('marseille')
+  ) {
+    return 'bg-blue-50';
+  }
+  
+  if (
+    teamName.toLowerCase().includes('manchester united') ||
+    teamName.toLowerCase().includes('liverpool') ||
+    teamName.toLowerCase().includes('arsenal') ||
+    teamName.toLowerCase().includes('atletico') ||
+    teamName.toLowerCase().includes('milan') ||
+    teamName.toLowerCase().includes('bayern')
+  ) {
+    return 'bg-red-50';
+  }
+  
+  if (
+    teamName.toLowerCase().includes('celtic') ||
+    teamName.toLowerCase().includes('betis') ||
+    teamName.toLowerCase().includes('wolfsburg') ||
+    teamName.toLowerCase().includes('sporting')
+  ) {
+    return 'bg-green-50';
+  }
+  
+  // Default light background
+  return 'bg-gray-50';
 }
