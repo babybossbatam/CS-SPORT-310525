@@ -124,7 +124,7 @@ function LiveScoreboardPage() {
   });
   
   // Top priority leagues that should always be shown first if available
-  const topPriorityLeagues = [3, 135, 140]; // UEFA Europa League, Serie A (Italy), La Liga (Spain)
+  const topPriorityLeagues = [3, 135, 140]; // UEFA Europa League (3), Serie A (135), La Liga (140)
   
   // Process fixtures when data is available
   useEffect(() => {
@@ -370,7 +370,8 @@ function LiveScoreboardPage() {
             {/* Home team logo */}
             <div className="relative z-10 -mr-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
+                {/* Smaller shadow (50% of original size) */}
+                <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
                 <img 
                   src={featured.teams.home.logo} 
                   alt={featured.teams.home.name}
@@ -382,17 +383,36 @@ function LiveScoreboardPage() {
               </div>
             </div>
             
-            {/* Match info bar */}
-            <div className="flex-1 h-12 bg-red-600 text-white rounded-md flex items-center justify-between px-16 shadow-md">
-              <div className="font-bold text-lg uppercase">{featured.teams.home.name}</div>
-              <div className="font-bold text-xl">VS</div>
-              <div className="font-bold text-lg uppercase">{featured.teams.away.name}</div>
+            {/* Match bar with two-color dynamic gradient */}
+            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden">
+              {/* Two-color bar with dynamically determined colors */}
+              <div className="flex h-full">
+                {/* Home team gradient section */}
+                <div className={`w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')}`}>
+                  <div className="pl-14 h-full flex items-center">
+                    <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.home.name}</span>
+                  </div>
+                </div>
+                
+                {/* Divider with VS */}
+                <div className="bg-black/80 text-white font-bold px-3 flex items-center">
+                  VS
+                </div>
+                
+                {/* Away team gradient section */}
+                <div className={`w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')}`}>
+                  <div className="pr-14 h-full flex items-center justify-end">
+                    <span className="text-white font-bold text-lg uppercase truncate">{featured.teams.away.name}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
             {/* Away team logo */}
             <div className="relative z-10 -ml-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-black/20 rounded-full filter blur-sm transform translate-y-1"></div>
+                {/* Smaller shadow (50% of original size) */}
+                <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
                 <img 
                   src={featured.teams.away.logo} 
                   alt={featured.teams.away.name}
