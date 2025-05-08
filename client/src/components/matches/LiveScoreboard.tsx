@@ -359,7 +359,7 @@ export function LiveScoreboard({
           <div 
             key={match.fixture.id}
             className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate(`/match/${match.fixture.id}`)}
+            onClick={() => navigate(`/match/${match.fixture.id.toString()}`)}
           >
             {/* Match time and status */}
             <div className="w-16 text-center">
