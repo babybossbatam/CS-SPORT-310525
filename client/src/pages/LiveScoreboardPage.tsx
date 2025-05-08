@@ -435,17 +435,20 @@ function LiveScoreboardPage() {
                   <div className="w-1/2 h-full absolute left-0" 
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
                     <div className="h-full flex items-center pl-5">
-                      {/* Home team logo inside the bar */}
-                      <img 
-                        src={featuredFixture.teams.home.logo}
-                        alt={featuredFixture.teams.home.name}
-                        className="h-16 w-16 mr-3 -ml-10 drop-shadow-md"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                        }}
-                      />
-                      <span className="text-white font-bold text-base uppercase truncate text-left max-w-[70%] drop-shadow-sm">{featuredFixture.teams.home.name}</span>
+                      <span className="text-white font-bold text-base uppercase truncate text-left max-w-[70%] drop-shadow-sm ml-8">{featuredFixture.teams.home.name}</span>
                     </div>
+                  </div>
+                  
+                  {/* Home team logo on top of the bar */}
+                  <div className="absolute left-0 top-0 transform -translate-y-1/3 z-40 ml-5">
+                    <img 
+                      src={featuredFixture.teams.home.logo}
+                      alt={featuredFixture.teams.home.name}
+                      className="h-20 w-20 drop-shadow-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                      }}
+                    />
                   </div>
                   
                   {/* VS text positioned absolutely in the center with enhanced styling */}
@@ -457,17 +460,20 @@ function LiveScoreboardPage() {
                   <div className="w-1/2 h-full absolute right-0"
                        style={{ backgroundColor: getTeamColor(featuredFixture.teams.away.name) }}>
                     <div className="h-full flex items-center justify-end pr-5">
-                      <span className="text-white font-bold text-base uppercase truncate text-right max-w-[70%] drop-shadow-sm">{featuredFixture.teams.away.name}</span>
-                      {/* Away team logo inside the bar */}
-                      <img 
-                        src={featuredFixture.teams.away.logo}
-                        alt={featuredFixture.teams.away.name}
-                        className="h-16 w-16 ml-3 -mr-10 drop-shadow-md"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                        }}
-                      />
+                      <span className="text-white font-bold text-base uppercase truncate text-right max-w-[70%] drop-shadow-sm mr-8">{featuredFixture.teams.away.name}</span>
                     </div>
+                  </div>
+                  
+                  {/* Away team logo on top of the bar */}
+                  <div className="absolute right-0 top-0 transform -translate-y-1/3 z-40 mr-5">
+                    <img 
+                      src={featuredFixture.teams.away.logo}
+                      alt={featuredFixture.teams.away.name}
+                      className="h-20 w-20 drop-shadow-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                      }}
+                    />
                   </div>
                 </div>
               </div>
