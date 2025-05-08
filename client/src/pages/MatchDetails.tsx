@@ -10,7 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles } from 'lucide-react';
+import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch, getTeamGradient } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -355,7 +356,7 @@ const MatchDetails = () => {
             </div>
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-4 mb-4">
+              <TabsList className="grid grid-cols-5 mb-4">
                 <TabsTrigger value="summary" className="flex items-center">
                   <BarChart2 className="h-4 w-4 mr-2" />
                   <span>Summary</span>
@@ -371,6 +372,10 @@ const MatchDetails = () => {
                 <TabsTrigger value="lineups" className="flex items-center">
                   <Trophy className="h-4 w-4 mr-2" />
                   <span>Lineups</span>
+                </TabsTrigger>
+                <TabsTrigger value="highlights" className="flex items-center">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  <span>Highlights</span>
                 </TabsTrigger>
               </TabsList>
               
@@ -646,6 +651,20 @@ const MatchDetails = () => {
                     team={currentFixture.teams.away}
                   />
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="highlights" className="mt-2">
+                <Card>
+                  <CardHeader className="p-4 border-b flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-blue-600" />
+                    <h3 className="font-semibold">Create Your Own Highlights</h3>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    {currentFixture && (
+                      <HighlightGenerator match={currentFixture} />
+                    )}
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </CardContent>
