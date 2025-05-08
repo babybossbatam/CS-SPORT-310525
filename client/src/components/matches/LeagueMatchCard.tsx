@@ -2,9 +2,16 @@ import { useEffect, memo, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
+import { Star, ChevronRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getMatchStatusText } from '@/lib/utils';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 // Type guard to check if an object is a league response
-function isValidLeagueResponse(object: any): object is import('../../../server/types').LeagueResponse {
+function isValidLeagueResponse(object: any): boolean {
   return (
     typeof object === 'object' &&
     object !== null &&
@@ -15,13 +22,6 @@ function isValidLeagueResponse(object: any): object is import('../../../server/t
     typeof object.country === 'object'
   );
 }
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Star, ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { getMatchStatusText } from '@/lib/utils';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
 
 interface LeagueMatchCardProps {
   leagueId: number;
