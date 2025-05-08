@@ -240,6 +240,31 @@ export const teamColorMap: Record<string, { primary: string, secondary: string }
 
 // Get team gradient colors
 export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
+  // For white and green logos, use green gradient
+  if (
+    teamName.toLowerCase().includes('celtic') ||
+    teamName.toLowerCase().includes('betis') ||
+    teamName.toLowerCase().includes('wolfsburg') ||
+    teamName.toLowerCase().includes('sporting') ||
+    teamName.toLowerCase().includes('werder')
+  ) {
+    return `bg-gradient-${direction} from-green-800 to-green-600`;
+  }
+  
+  // For white and blue logos, use blue gradient
+  if (
+    teamName.toLowerCase().includes('chelsea') ||
+    teamName.toLowerCase().includes('everton') ||
+    teamName.toLowerCase().includes('leicester') ||
+    teamName.toLowerCase().includes('brighton') ||
+    teamName.toLowerCase().includes('napoli') ||
+    teamName.toLowerCase().includes('lazio') ||
+    teamName.toLowerCase().includes('real sociedad') ||
+    teamName.toLowerCase().includes('marseille')
+  ) {
+    return `bg-gradient-${direction} from-blue-800 to-blue-600`;
+  }
+  
   // First try to find an exact match
   const exactMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase() === key.toLowerCase()
@@ -260,7 +285,16 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
   }
   
-  // Default fallback
+  // Default fallback - check the team name for common colors
+  if (teamName.toLowerCase().includes('green')) {
+    return `bg-gradient-${direction} from-green-800 to-green-600`;
+  } else if (teamName.toLowerCase().includes('blue')) {
+    return `bg-gradient-${direction} from-blue-800 to-blue-600`;
+  } else if (teamName.toLowerCase().includes('red')) {
+    return `bg-gradient-${direction} from-red-800 to-red-600`;
+  }
+  
+  // Fallback to default colors
   const colors = teamColorMap['default'];
   return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
 }

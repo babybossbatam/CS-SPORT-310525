@@ -253,51 +253,30 @@ function LiveScoreboardPage() {
   
   return (
     <div className="mx-2 my-4">
-      {/* Navigation controls with match status */}
-      <div className="flex items-center justify-between mb-3">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8"
-          onClick={previousFixture}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        
-        <div className="font-medium text-sm">
-          {filteredFixtures.length > 0 ? (
-            <div className="flex items-center justify-center gap-2">
-              {isLiveMatch(featured.fixture.status.short) ? (
-                <div className="flex items-center">
-                  <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                  <span className="text-lg font-bold">LIVE MATCH</span>
-                </div>
-              ) : featured.fixture.status.short === 'FT' ? (
-                <span className="text-lg font-bold">MATCH ENDED</span>
-              ) : (
-                <div className="flex flex-col items-center">
-                  <h1 className="text-xl font-bold m-0 p-0">UPCOMING MATCH</h1>
-                  {countdown && (
-                    <div className="text-xs font-semibold text-blue-600 mt-1">
-                      Match starts in {countdown}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            "Today's Matches"
-          )}
-        </div>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8"
-          onClick={nextFixture}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+      {/* Status display - without navigation controls */}
+      <div className="mb-2 text-center">
+        {filteredFixtures.length > 0 ? (
+          <div className="flex items-center justify-center gap-2">
+            {isLiveMatch(featured.fixture.status.short) ? (
+              <div className="flex items-center">
+                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
+                <span className="text-lg font-bold">LIVE MATCH</span>
+              </div>
+            ) : featured.fixture.status.short === 'FT' ? (
+              <span className="text-lg font-bold">MATCH ENDED</span>
+            ) : (
+              <div className="flex items-center">
+                {countdown && (
+                  <div className="text-sm font-semibold text-blue-600">
+                    Match starts in {countdown}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          "Today's Matches"
+        )}
       </div>
     
       {/* Featured match card */}
@@ -348,6 +327,14 @@ function LiveScoreboardPage() {
         {/* Teams with gradients */}
         <div className="flex rounded-md overflow-hidden relative h-16">
           <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
+            {/* Previous match button */}
+            <button 
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+              onClick={previousFixture}
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-700" />
+            </button>
+            
             {/* Home team logo */}
             <div className="absolute bottom-0 left-0 z-10">
               <img 
@@ -360,8 +347,8 @@ function LiveScoreboardPage() {
               />
             </div>
             
-            {/* Home team gradient */}
-            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center`}>
+            {/* Home team gradient - with rounded right edge */}
+            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center rounded-r-lg`}>
               <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
@@ -370,8 +357,8 @@ function LiveScoreboardPage() {
               VS
             </div>
             
-            {/* Away team gradient */}
-            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`}>
+            {/* Away team gradient - with rounded left edge */}
+            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end rounded-l-lg`}>
               <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
@@ -386,6 +373,14 @@ function LiveScoreboardPage() {
                 }}
               />
             </div>
+            
+            {/* Next match button */}
+            <button 
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 h-7 w-7 bg-white/70 hover:bg-white rounded-full shadow flex items-center justify-center"
+              onClick={nextFixture}
+            >
+              <ChevronRight className="h-4 w-4 text-gray-700" />
+            </button>
           </div>
         </div>
         
