@@ -325,7 +325,9 @@ export function LiveScoreboard({
                   {/* Home team color bar */}
                   <div 
                     className="w-1/2 flex items-center justify-end px-4 text-white h-full"
-                    style={{ background: getTeamColor(featuredMatch.teams.home.name) }}
+                    style={{ 
+                      background: getTeamColor(featuredMatch.teams.home.name)
+                    }}
                   >
                     <span className="font-bold uppercase px-3 drop-shadow-sm text-sm md:text-base">
                       {featuredMatch.teams.home.name}
@@ -335,8 +337,9 @@ export function LiveScoreboard({
                   {/* Away team color bar */}
                   <div 
                     className="w-1/2 flex items-center px-4 text-white h-full"
-                    style={{ background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name) }}
-                  >
+                    style={{ 
+                      background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name) 
+                    }}>
                     <span className="font-bold uppercase px-3 drop-shadow-sm text-sm md:text-base">
                       {featuredMatch.teams.away.name}
                     </span>
