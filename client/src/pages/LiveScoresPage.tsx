@@ -4,7 +4,7 @@ import { format } from "date-fns";
 
 export default function LiveScoresPage() {
   return (
-    <div className="container max-w-6xl mx-auto py-6 px-4">
+    <div className="container max-w-7xl mx-auto py-6 px-4">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Live Scores</h1>
         <div className="flex items-center text-sm text-gray-500">
@@ -16,12 +16,32 @@ export default function LiveScoresPage() {
         </div>
       </header>
       
-      <main>
-        <LiveScoreboard 
-          showFeaturedMatch={true}
-          showFilters={true}
-          maxMatches={20}
-        />
+      <main className="grid grid-cols-12 gap-6">
+        {/* Main content - 8 columns */}
+        <div className="col-span-12 lg:col-span-8">
+          <LiveScoreboard 
+            showFeaturedMatch={true}
+            showFilters={true}
+            maxMatches={20}
+          />
+        </div>
+        
+        {/* Sidebar - 4 columns */}
+        <div className="col-span-12 lg:col-span-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+            <h2 className="font-bold text-lg mb-4">Today's Highlights</h2>
+            <div className="space-y-2">
+              <p className="text-gray-500 text-sm">Featured matches and highlights will appear here</p>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+            <h2 className="font-bold text-lg mb-4">Trending Leagues</h2>
+            <div className="space-y-2">
+              <p className="text-gray-500 text-sm">Popular leagues will appear here</p>
+            </div>
+          </div>
+        </div>
       </main>
       
       <footer className="mt-12 text-center text-sm text-gray-500">
