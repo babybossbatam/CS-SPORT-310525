@@ -335,7 +335,7 @@ function LiveScoreboardPage() {
             {isLiveMatch(featuredFixture.fixture.status.short) ? (
               <div className="flex items-center">
                 <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                <span className="text-lg font-bold">LIVE MATCH</span>
+                <span className="text-lg font-bold">Today's Matches</span>
               </div>
             ) : featuredFixture.fixture.status.short === 'FT' ? (
               <span className="text-lg font-bold">MATCH ENDED</span>
@@ -357,7 +357,7 @@ function LiveScoreboardPage() {
       {/* Featured match card */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 relative">
         {/* Featured Match badge */}
-        <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs px-3 py-1 rounded-bl-md z-30 font-semibold">
+        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-30 font-semibold">
           FEATURED MATCH
         </div>
         
