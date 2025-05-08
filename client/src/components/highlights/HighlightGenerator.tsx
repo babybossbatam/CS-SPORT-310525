@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { X, Trash, Plus, Share2, Sparkles, Save, Download, Upload } from 'lucide-react';
+import { X, Trash, Plus, Share2, Sparkles, Save, Download, Upload, Pencil } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import type { FixtureResponse } from '@/types/fixtures';
@@ -264,7 +264,7 @@ export function HighlightGenerator({ match }: HighlightGeneratorProps) {
                           }}
                         >
                           <span className="sr-only">Edit</span>
-                          <pencil-icon className="h-4 w-4" />
+                          <Pencil className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
