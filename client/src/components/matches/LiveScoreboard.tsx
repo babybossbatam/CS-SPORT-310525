@@ -102,6 +102,7 @@ export function LiveScoreboard({
   });
   
   // Popular leagues
+  // Ordered according to user request: Europe, England, Spain, Italy, Brazil, Germany
   const popularLeagues = [
     { id: "all", name: "All Leagues" },
     { id: "europe", name: "Europe" },
@@ -143,7 +144,7 @@ export function LiveScoreboard({
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
       
-      // Then sort by popular leagues
+      // Then sort by popular leagues (Europe, England, Spain, Italy, Brazil, Germany)
       const aLeagueIsPriority = [39, 140, 135, 71, 78].includes(a.league.id);
       const bLeagueIsPriority = [39, 140, 135, 71, 78].includes(b.league.id);
       
@@ -175,20 +176,37 @@ export function LiveScoreboard({
     setFilteredMatches(filtered.slice(0, maxMatches));
   }, [liveMatches, todayMatches, selectedLeague, maxMatches]);
   
-  // Popular teams for featuring
-  const popularTeams = [
-    'Manchester United', 'Liverpool', 'Manchester City', 'Arsenal', 
-    'Chelsea', 'Real Madrid', 'Barcelona', 'Tottenham', 'Bayern'
-  ];
+  // Popular teams for featuring - Top 3 teams from popular leagues
+  const popularTeams = {
+    // Premier League (England)
+    '39': ['Manchester City', 'Arsenal', 'Liverpool'],
+    // La Liga (Spain)
+    '140': ['Real Madrid', 'Barcelona', 'Atletico Madrid'],
+    // Serie A (Italy)
+    '135': ['Inter', 'Milan', 'Juventus'],
+    // Bundesliga (Germany)
+    '78': ['Bayern', 'Dortmund', 'Leipzig'],
+    // Ligue 1 (France)
+    '61': ['PSG', 'Marseille', 'Lyon']
+  };
   
-  // Find a featured match with popular teams
-  const featuredMatch = filteredMatches.find(match => {
+  // Get upcoming matches by date
+  const sortedByDate = [...filteredMatches].sort((a, b) => 
+    new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+  );
+  
+  // Find a featured match with top 3 teams from popular leagues and nearest date
+  const featuredMatch = sortedByDate.find(match => {
     const homeTeam = match.teams.home.name;
     const awayTeam = match.teams.away.name;
-    return popularTeams.some(team => 
-      homeTeam.includes(team) || awayTeam.includes(team)
+    
+    // Check if either team is in the top 3 of their league
+    return Object.values(popularTeams).some(leagueTeams => 
+      leagueTeams.some(team => 
+        homeTeam.includes(team) || awayTeam.includes(team)
+      )
     );
-  }) || (filteredMatches.length > 0 ? filteredMatches[0] : null);
+  }) || (sortedByDate.length > 0 ? sortedByDate[0] : null);
   
   if (isLoading) {
     return (
@@ -350,7 +368,7 @@ export function LiveScoreboard({
                     />
                   </div>
                   
-                  <div className="text-xl font-bold text-center">VS</div>
+                  <div className="text-3xl font-bold text-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-black bg-opacity-50 rounded-full w-12 h-12 flex items-center justify-center text-white">VS</div>
                   
                   <div className="flex flex-col items-center">
                     <img 
