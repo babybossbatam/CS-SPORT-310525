@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
@@ -17,10 +17,11 @@ import {
   getTeamGradient, 
   formatMatchDateFn, 
   formatExactDateTime,
-  getCountdownTimer
+  getCountdownTimer,
+  isLiveMatch
 } from '@/lib/utils';
 
-// Define types in this file to avoid import issues
+// Define types locally
 interface Team {
   id: number;
   name: string;
@@ -83,7 +84,7 @@ interface FixtureResponse {
   score: Score;
 }
 
-// Popular football league IDs
+// Popular football league IDs (most followed globally)
 const POPULAR_LEAGUES = [
   39,  // Premier League (England)
   140, // La Liga (Spain)
@@ -93,12 +94,7 @@ const POPULAR_LEAGUES = [
   71,  // Serie A (Brazil)
 ];
 
-// Check if a match is live
-const isLiveMatch = (status: string) => {
-  return ['1H', '2H', 'HT', 'ET', 'P', 'BT', 'LIVE'].includes(status);
-};
-
-const LiveScoreboard = memo(() => {
+function LiveScoreboardPage() {
   const [, navigate] = useLocation();
   const [filteredFixtures, setFilteredFixtures] = useState<FixtureResponse[]>([]);
   const [currentFixtureIndex, setCurrentFixtureIndex] = useState(0);
@@ -457,6 +453,6 @@ const LiveScoreboard = memo(() => {
       </div>
     </div>
   );
-});
+}
 
-export default LiveScoreboard;
+export default LiveScoreboardPage;

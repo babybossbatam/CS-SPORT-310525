@@ -22,6 +22,47 @@ export function formatMatchDate(dateString: string): string {
   }
 }
 
+// Format exact date and time for upcoming matches
+export function formatExactDateTime(dateString: string): string {
+  const date = parseISO(dateString);
+  return format(date, 'EEE, MMM d, yyyy • h:mm a');
+}
+
+// Function to get formatted match date for display in cards
+export function formatMatchDateFn(dateString: string): string {
+  const date = parseISO(dateString);
+  return format(date, 'EEE, MMM d • h:mm a');
+}
+
+// Function to calculate countdown timer
+export function getCountdownTimer(dateString: string): string {
+  const matchDate = parseISO(dateString);
+  const now = new Date();
+  
+  // Get difference in milliseconds
+  const diffMs = matchDate.getTime() - now.getTime();
+  
+  if (diffMs <= 0) {
+    return "Starting now";
+  }
+  
+  // Convert to days, hours, minutes, seconds
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+  
+  if (days > 0) {
+    return `${days}d ${hours}h`;
+  } else if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  } else {
+    return `${seconds}s`;
+  }
+}
+
 // Format match time for display
 export function formatMatchTime(dateString: string): string {
   const date = parseISO(dateString);
