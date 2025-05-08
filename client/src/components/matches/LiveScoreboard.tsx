@@ -2,10 +2,10 @@ import React, { memo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Activity, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Activity, Clock, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow, isPast, parseISO, compareAsc } from 'date-fns';
 import { getTeamGradient } from '@/lib/utils';
 import { useSelector } from 'react-redux';
 
@@ -77,10 +77,38 @@ const formatMatchDateFn = (dateString: string): string => {
   return format(date, "EEEE, do MMM | HH:mm");
 };
 
+// Format relative time (e.g., "starts in 2 hours" or "3 days ago")
+const formatRelativeTime = (dateString: string): string => {
+  const date = parseISO(dateString);
+  if (isPast(date)) {
+    return `${formatDistanceToNow(date)} ago`;
+  } else {
+    return `starts in ${formatDistanceToNow(date)}`;
+  }
+};
+
 // Check if match is live or ended
 const isLiveMatch = (status: string): boolean => {
   return ['1H', '2H', 'HT', 'ET', 'P', 'BT', 'INT'].includes(status);
 };
+
+// Popular league IDs to filter by default
+const POPULAR_LEAGUE_IDS = [
+  // Top European Leagues
+  39,  // Premier League (England)
+  140, // La Liga (Spain)
+  78,  // Bundesliga (Germany)
+  135, // Serie A (Italy)
+  61,  // Ligue 1 (France)
+  2,   // UEFA Champions League
+  3,   // UEFA Europa League
+  4,   // Euro Championship
+  // North/South American Leagues
+  71,  // Brazilian Serie A
+  128, // MLS (USA)
+  132, // Liga MX (Mexico)
+  384, // CONMEBOL Libertadores
+];
 
 const LiveScoreboard = memo(() => {
   const [, navigate] = useLocation();
@@ -109,7 +137,7 @@ const LiveScoreboard = memo(() => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
-  // Filter fixtures based on selected country
+  // Filter fixtures based on selected country and popular leagues
   useEffect(() => {
     // Only run when we have data
     if (!liveFixtures && !upcomingFixtures) {
@@ -122,37 +150,50 @@ const LiveScoreboard = memo(() => {
       ...(upcomingFixtures || [])
     ];
     
-    // If no country selected or country has no mapped leagues, use all fixtures
-    if (!selectedCountry || !countryLeagueMap || Object.keys(countryLeagueMap).length === 0) {
-      setFilteredFixtures(allFixtures);
-      setCurrentFixtureIndex(0);
-      return;
-    }
-    
-    // Get the league IDs for the selected country
-    const countryLeagueIds = countryLeagueMap[selectedCountry] || [];
-    
-    // If no league IDs found for the country, use all fixtures
-    if (countryLeagueIds.length === 0) {
-      setFilteredFixtures(allFixtures);
-      setCurrentFixtureIndex(0);
-      return;
-    }
-    
-    // Filter fixtures by the league IDs
-    const fixtures = allFixtures.filter(
-      fixture => countryLeagueIds.includes(fixture.league.id)
+    // First, filter to only include popular leagues
+    const popularFixtures = allFixtures.filter(
+      fixture => POPULAR_LEAGUE_IDS.includes(fixture.league.id)
     );
     
-    // If we have fixtures after filtering, use them
-    if (fixtures.length > 0) {
-      setFilteredFixtures(fixtures);
-      setCurrentFixtureIndex(0);
-    } else {
-      // Otherwise fall back to all fixtures
-      setFilteredFixtures(allFixtures);
-      setCurrentFixtureIndex(0);
+    // Default to popular fixtures if we have any
+    let fixtures = popularFixtures.length > 0 ? popularFixtures : allFixtures;
+    
+    // If a country is selected, further filter by country's leagues
+    if (selectedCountry && countryLeagueMap && Object.keys(countryLeagueMap).length > 0) {
+      const countryLeagueIds = countryLeagueMap[selectedCountry] || [];
+      
+      if (countryLeagueIds.length > 0) {
+        const countryFixtures = fixtures.filter(
+          fixture => countryLeagueIds.includes(fixture.league.id)
+        );
+        
+        // Only use country fixtures if we found any
+        if (countryFixtures.length > 0) {
+          fixtures = countryFixtures;
+        }
+      }
     }
+    
+    // Sort fixtures by:
+    // 1. Live matches first
+    // 2. Then upcoming matches by nearest start time
+    // 3. Then completed matches by most recent
+    fixtures.sort((a, b) => {
+      // Live matches go first
+      if (isLiveMatch(a.fixture.status.short) && !isLiveMatch(b.fixture.status.short)) {
+        return -1;
+      }
+      if (!isLiveMatch(a.fixture.status.short) && isLiveMatch(b.fixture.status.short)) {
+        return 1;
+      }
+      
+      // Sort by match date/time
+      return compareAsc(parseISO(a.fixture.date), parseISO(b.fixture.date));
+    });
+    
+    // Update state with filtered and sorted fixtures
+    setFilteredFixtures(fixtures);
+    setCurrentFixtureIndex(0);
   }, [liveFixtures, upcomingFixtures, selectedCountry, countryLeagueMap]);
   
   // Handle navigation between fixtures
@@ -264,8 +305,19 @@ const LiveScoreboard = memo(() => {
         
         {/* Status badge */}
         <div className="text-xs text-center text-gray-500 -mt-1 mb-1">
-          {isLiveMatch(featured.fixture.status.short) ? 'Live' : 
-           featured.fixture.status.short === 'FT' ? 'Ended' : 'Scheduled'}
+          {isLiveMatch(featured.fixture.status.short) ? (
+            <div className="flex items-center justify-center">
+              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
+              <span>LIVE • {featured.fixture.status.elapsed}′</span>
+            </div>
+          ) : featured.fixture.status.short === 'FT' ? (
+            <span>Match Ended</span>
+          ) : (
+            <div className="flex items-center justify-center">
+              <Calendar className="h-3 w-3 mr-1" />
+              <span>{formatRelativeTime(featured.fixture.date)}</span>
+            </div>
+          )}
         </div>
         
         {/* Score */}
@@ -279,8 +331,16 @@ const LiveScoreboard = memo(() => {
         <div className="flex rounded-md overflow-hidden relative h-16">
           {/* Container for both gradients that meet in the middle with same width */}
           <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
-            {/* Home team logo - positioned at the leftmost */}
-            <div className="absolute bottom-0 left-0 z-10">
+            {/* Navigation button before home team */}
+            <div className="absolute bottom-0 left-0 z-20 flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full bg-black/30 text-white mr-2 hover:bg-black/50"
+                onClick={handlePreviousFixture}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
               <img 
                 src={featured.teams.home.logo} 
                 alt={featured.teams.home.name}
@@ -306,8 +366,8 @@ const LiveScoreboard = memo(() => {
               <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
-            {/* Away team logo - positioned at the rightmost */}
-            <div className="absolute bottom-0 right-0 z-10">
+            {/* Away team logo with navigation button - positioned at the rightmost */}
+            <div className="absolute bottom-0 right-0 z-20 flex items-center">
               <img 
                 src={featured.teams.away.logo} 
                 alt={featured.teams.away.name}
@@ -316,6 +376,14 @@ const LiveScoreboard = memo(() => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                 }}
               />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full bg-black/30 text-white ml-2 hover:bg-black/50"
+                onClick={handleNextFixture}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
