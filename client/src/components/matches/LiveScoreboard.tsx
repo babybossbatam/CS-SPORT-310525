@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { Clock, Calendar, Star, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import { getTeamGradient, getTeamColor, getContrastTextColor } from '@/lib/colorExtractor';
+import { getTeamGradient, getTeamColor, getContrastTextColor, getOpposingTeamColor } from '@/lib/colorExtractor';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -290,63 +290,86 @@ export function LiveScoreboard({
           
           {/* Match content */}
           <div className="p-4">
-            <div className="flex items-center mb-6 relative">
-              {/* Home team */}
-              <div className="flex-1 flex flex-col items-center text-center">
-                <div className="relative">
-                  <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                  <img 
-                    src={featuredMatch.teams.home.logo} 
-                    alt={featuredMatch.teams.home.name}
-                    className="h-24 w-24 relative z-10 drop-shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Team';
-                    }}
-                  />
-                </div>
-                <h3 className="font-bold mt-2 text-center" style={{ 
-                  fontSize: featuredMatch.teams.home.name.length > 15 ? '0.9rem' : '1.1rem',
-                  maxWidth: '130px' 
-                }}>
-                  {featuredMatch.teams.home.name}
-                </h3>
-              </div>
+            {/* Create background with two different colors */}
+            <div className="relative mb-6 rounded-lg overflow-hidden h-48">
+              {/* Home team background */}
+              <div 
+                className="absolute left-0 top-0 w-1/2 h-full" 
+                style={{ 
+                  background: getTeamColor(featuredMatch.teams.home.name)
+                }}
+              ></div>
               
-              {/* Score overlay centered absolutely */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-white/95 px-4 py-2 rounded-lg shadow-md z-20">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-4xl font-bold">{featuredMatch.goals.home ?? 0}</span>
-                  <span className="text-xl font-bold text-gray-400">-</span>
-                  <span className="text-4xl font-bold">{featuredMatch.goals.away ?? 0}</span>
+              {/* Away team background - use opposing color */}
+              <div 
+                className="absolute right-0 top-0 w-1/2 h-full" 
+                style={{ 
+                  background: getOpposingTeamColor(
+                    featuredMatch.teams.home.name, 
+                    featuredMatch.teams.away.name
+                  )
+                }}
+              ></div>
+              
+              {/* Match content overlay */}
+              <div className="relative z-10 flex items-center h-full">
+                {/* Home team */}
+                <div className="flex-1 flex flex-col items-center justify-center text-center px-2">
+                  <div className="relative">
+                    <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
+                    <img 
+                      src={featuredMatch.teams.home.logo} 
+                      alt={featuredMatch.teams.home.name}
+                      className="h-24 w-24 relative z-10 drop-shadow-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Team';
+                      }}
+                    />
+                  </div>
+                  <h3 className="font-bold mt-2 text-center text-white drop-shadow-md" style={{ 
+                    fontSize: featuredMatch.teams.home.name.length > 15 ? '0.9rem' : '1.1rem',
+                    maxWidth: '130px' 
+                  }}>
+                    {featuredMatch.teams.home.name}
+                  </h3>
                 </div>
                 
-                {/* Show half-time score if available */}
-                {featuredMatch.score.halftime.home !== null && featuredMatch.score.halftime.away !== null && (
-                  <span className="text-xs text-gray-500">
-                    HT: {featuredMatch.score.halftime.home} - {featuredMatch.score.halftime.away}
+                {/* Score overlay centered absolutely */}
+                <div className="z-30 flex flex-col items-center justify-center bg-white shadow-lg rounded-full h-20 w-20">
+                  <div className="flex items-center gap-1">
+                    <span className="text-2xl font-bold">{featuredMatch.goals.home ?? 0}</span>
+                    <span className="text-sm font-bold text-gray-400">VS</span>
+                    <span className="text-2xl font-bold">{featuredMatch.goals.away ?? 0}</span>
+                  </div>
+                  
+                  {/* Show match time or status */}
+                  <span className="text-xs font-semibold">
+                    {isLiveMatch(featuredMatch.fixture.status.short) 
+                      ? `${featuredMatch.fixture.status.elapsed}'` 
+                      : formatMatchTime(featuredMatch.fixture)}
                   </span>
-                )}
-              </div>
-              
-              {/* Away team */}
-              <div className="flex-1 flex flex-col items-center text-center">
-                <div className="relative">
-                  <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                  <img 
-                    src={featuredMatch.teams.away.logo} 
-                    alt={featuredMatch.teams.away.name}
-                    className="h-24 w-24 relative z-10 drop-shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Team';
-                    }}
-                  />
                 </div>
-                <h3 className="font-bold mt-2 text-center" style={{ 
-                  fontSize: featuredMatch.teams.away.name.length > 15 ? '0.9rem' : '1.1rem',
-                  maxWidth: '130px' 
-                }}>
-                  {featuredMatch.teams.away.name}
-                </h3>
+                
+                {/* Away team */}
+                <div className="flex-1 flex flex-col items-center justify-center text-center px-2">
+                  <div className="relative">
+                    <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
+                    <img 
+                      src={featuredMatch.teams.away.logo} 
+                      alt={featuredMatch.teams.away.name}
+                      className="h-24 w-24 relative z-10 drop-shadow-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Team';
+                      }}
+                    />
+                  </div>
+                  <h3 className="font-bold mt-2 text-center text-white drop-shadow-md" style={{ 
+                    fontSize: featuredMatch.teams.away.name.length > 15 ? '0.9rem' : '1.1rem',
+                    maxWidth: '130px' 
+                  }}>
+                    {featuredMatch.teams.away.name}
+                  </h3>
+                </div>
               </div>
             </div>
             
@@ -412,8 +435,13 @@ export function LiveScoreboard({
               {/* Main match content with colored bar */}
               <div className="flex-1 relative overflow-hidden">
                 <div className="flex h-10 rounded-md overflow-hidden shadow-sm">
-                  {/* Home team section */}
-                  <div className={`w-1/2 relative ${getTeamGradient(match.teams.home.name, 'to-r')}`}>
+                  {/* Home team section - use solid color */}
+                  <div 
+                    className="w-1/2 relative" 
+                    style={{ 
+                      background: getTeamColor(match.teams.home.name)
+                    }}
+                  >
                     <div className="flex items-center justify-end h-full pl-3 pr-1">
                       <span className="text-white font-semibold truncate text-right" style={{
                         fontSize: match.teams.home.name.length > 15 ? '0.75rem' : '0.875rem'
@@ -423,8 +451,13 @@ export function LiveScoreboard({
                     </div>
                   </div>
                   
-                  {/* Away team section */}
-                  <div className={`w-1/2 relative ${getTeamGradient(match.teams.away.name, 'to-l')}`}>
+                  {/* Away team section - use opposing color */}
+                  <div 
+                    className="w-1/2 relative"
+                    style={{ 
+                      background: getOpposingTeamColor(match.teams.home.name, match.teams.away.name)
+                    }}
+                  >
                     <div className="flex items-center h-full pl-1 pr-3">
                       <span className="text-white font-semibold truncate text-left" style={{
                         fontSize: match.teams.away.name.length > 15 ? '0.75rem' : '0.875rem'
@@ -436,9 +469,9 @@ export function LiveScoreboard({
                   
                   {/* Score overlay in the center */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="bg-white/90 px-3 py-1 rounded-full shadow-sm">
+                    <div className="bg-white px-3 py-1 rounded-full shadow-md">
                       <span className="text-sm font-bold">
-                        {match.goals.home ?? 0} - {match.goals.away ?? 0}
+                        {match.goals.home ?? 0} <span className="text-xs text-gray-500">VS</span> {match.goals.away ?? 0}
                       </span>
                     </div>
                   </div>

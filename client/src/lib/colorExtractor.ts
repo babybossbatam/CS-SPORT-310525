@@ -225,8 +225,102 @@ function getTailwindColorFromHue(hue: number, intensity: number): string {
   return `from-rose-${intensity}`;
 }
 
-// Cache for solid colors
+// Cache for solid colors and team color pairings
 const solidColorCache: Record<string, string> = {};
+const opposingTeamColors: Record<string, string> = {};
+
+/**
+ * Ensure the second team gets a different color compared to the first team
+ */
+export function getOpposingTeamColor(homeTeam: string, awayTeam: string): string {
+  const homeColor = getTeamColor(homeTeam);
+  
+  // Create a unique key for the pairing
+  const pairingKey = `${homeTeam}-${awayTeam}`;
+  
+  // Check if we already calculated an opposing color
+  if (opposingTeamColors[pairingKey]) {
+    return opposingTeamColors[pairingKey];
+  }
+  
+  // Get the base color for away team
+  let awayColor = getTeamColor(awayTeam);
+  
+  // Convert colors to RGB objects
+  const homeRgb = parseRgb(homeColor);
+  const awayRgb = parseRgb(awayColor);
+  
+  // If colors are too similar, generate a clearly different one
+  if (colorSimilarity(homeRgb, awayRgb) > 75) {
+    // Create a complementary color to ensure difference
+    const hue = extractHue(homeRgb);
+    const oppositeHue = (hue + 180) % 360; // opposite on color wheel
+    
+    // Create a new color with opposite hue but similar saturation/lightness
+    awayColor = hslToRgb(oppositeHue, 80, 45);
+  }
+  
+  // Cache the result
+  opposingTeamColors[pairingKey] = awayColor;
+  return awayColor;
+}
+
+/**
+ * Extract the approximate hue from RGB values
+ */
+function extractHue(rgb: RGB): number {
+  const { r, g, b } = rgb;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+  
+  if (delta === 0) return 0;
+  
+  let hue = 0;
+  if (max === r) {
+    hue = ((g - b) / delta) % 6;
+  } else if (max === g) {
+    hue = (b - r) / delta + 2;
+  } else {
+    hue = (r - g) / delta + 4;
+  }
+  
+  hue = Math.round(hue * 60);
+  if (hue < 0) hue += 360;
+  
+  return hue;
+}
+
+/**
+ * Parse RGB string into RGB object
+ */
+function parseRgb(rgbStr: string): RGB {
+  const match = rgbStr.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (!match) return { r: 0, g: 0, b: 0 };
+  
+  return {
+    r: parseInt(match[1], 10),
+    g: parseInt(match[2], 10),
+    b: parseInt(match[3], 10)
+  };
+}
+
+/**
+ * Calculate color similarity percentage between two RGB colors
+ * Higher value = more similar
+ */
+function colorSimilarity(color1: RGB, color2: RGB): number {
+  const rDiff = Math.abs(color1.r - color2.r);
+  const gDiff = Math.abs(color1.g - color2.g);
+  const bDiff = Math.abs(color1.b - color2.b);
+  
+  // Max difference would be 255 for each channel
+  const maxDiff = 255 * 3;
+  const actualDiff = rDiff + gDiff + bDiff;
+  
+  // Convert to a similarity percentage
+  return 100 - (actualDiff * 100 / maxDiff);
+}
 
 /**
  * Get a solid CSS color for a team (for charts, accents, etc.)
