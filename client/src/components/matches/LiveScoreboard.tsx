@@ -273,12 +273,12 @@ const LiveScoreboard = memo(() => {
               {isLiveMatch(featured.fixture.status.short) ? (
                 <div className="flex items-center">
                   <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                  <span>LIVE MATCH</span>
+                  <span className="text-lg font-bold">LIVE MATCH</span>
                 </div>
               ) : featured.fixture.status.short === 'FT' ? (
-                <span>MATCH ENDED</span>
+                <span className="text-lg font-bold">MATCH ENDED</span>
               ) : (
-                <span>UPCOMING MATCH</span>
+                <h1 className="text-xl font-bold m-0 p-0">UPCOMING MATCH</h1>
               )}
             </div>
           ) : (
@@ -339,8 +339,8 @@ const LiveScoreboard = memo(() => {
         <div className="flex rounded-md overflow-hidden relative h-16">
           {/* Container for both gradients that meet in the middle with same width */}
           <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
-            {/* Home team logo - positioned at the leftmost, lowered by 5px */}
-            <div className="absolute bottom-0 left-0 z-10" style={{ paddingBottom: '5px' }}>
+            {/* Home team logo - original position */}
+            <div className="absolute bottom-0 left-0 z-10">
               <img 
                 src={featured.teams.home.logo} 
                 alt={featured.teams.home.name}
@@ -351,8 +351,8 @@ const LiveScoreboard = memo(() => {
               />
             </div>
             
-            {/* Home team - gradient reduced by 5px width */}
-            <div className={`h-full ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center`} style={{ width: 'calc(50% - 5px)' }}>
+            {/* Home team - original width */}
+            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.home.name, 'to-r')} flex items-center`}>
               <div className="ml-20 text-white font-bold text-lg uppercase">{featured.teams.home.name}</div>
             </div>
             
@@ -361,13 +361,13 @@ const LiveScoreboard = memo(() => {
               VS
             </div>
             
-            {/* Away team - gradient reduced by 5px width */}
-            <div className={`h-full ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`} style={{ width: 'calc(50% - 5px)', marginLeft: '10px' }}>
+            {/* Away team - original width */}
+            <div className={`h-full w-1/2 ${getTeamGradient(featured.teams.away.name, 'to-l')} flex items-center justify-end`}>
               <div className="mr-20 text-white font-bold text-lg uppercase text-right">{featured.teams.away.name}</div>
             </div>
             
-            {/* Away team logo - positioned at the rightmost, lowered by 5px */}
-            <div className="absolute bottom-0 right-0 z-10" style={{ paddingBottom: '5px' }}>
+            {/* Away team logo - original position */}
+            <div className="absolute bottom-0 right-0 z-10">
               <img 
                 src={featured.teams.away.logo} 
                 alt={featured.teams.away.name}

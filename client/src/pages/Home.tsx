@@ -169,9 +169,12 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="mt-8">
+        {/* Stats and News Section */}
+        <div className="mt-8 grid grid-cols-1 gap-6">
           <StatsPanel />
-          <NewsSection />
+          <div className="bg-white rounded-lg shadow p-4">
+            <NewsSection />
+          </div>
         </div>
       </main>
       
