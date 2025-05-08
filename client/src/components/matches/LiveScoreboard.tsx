@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
 import { format } from 'date-fns';
 import { getTeamGradient } from '@/lib/utils';
+import { useSelector } from 'react-redux';
 
 interface FixtureTeam {
   id: number;
@@ -83,6 +84,13 @@ const isLiveMatch = (status: string): boolean => {
 
 const LiveScoreboard = memo(() => {
   const [, navigate] = useLocation();
+  const [filteredFixtures, setFilteredFixtures] = useState<FixtureResponse[]>([]);
+  const [currentFixtureIndex, setCurrentFixtureIndex] = useState(0);
+  
+  // Get the selected country/league filter from Redux
+  const selectedCountry = useSelector((state: any) => state.ui.selectedFilter);
+  const popularLeagues = useSelector((state: any) => state.leagues.popularLeagues);
+  const countryLeagueMap = useSelector((state: any) => state.leagues.countryLeagueMap || {});
   
   // Use React Query to fetch live fixtures with proper caching
   const { data: liveFixtures, isLoading: loadingLive } = useQuery<FixtureResponse[]>({
@@ -100,6 +108,71 @@ const LiveScoreboard = memo(() => {
     queryKey: [`/api/fixtures/date/${tomorrowFormatted}`],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+  
+  // Filter fixtures based on selected country
+  useEffect(() => {
+    // Only run when we have data
+    if (!liveFixtures && !upcomingFixtures) {
+      return;
+    }
+    
+    // Get all available fixtures
+    const allFixtures = [
+      ...(liveFixtures || []), 
+      ...(upcomingFixtures || [])
+    ];
+    
+    // If no country selected or country has no mapped leagues, use all fixtures
+    if (!selectedCountry || !countryLeagueMap || Object.keys(countryLeagueMap).length === 0) {
+      setFilteredFixtures(allFixtures);
+      setCurrentFixtureIndex(0);
+      return;
+    }
+    
+    // Get the league IDs for the selected country
+    const countryLeagueIds = countryLeagueMap[selectedCountry] || [];
+    
+    // If no league IDs found for the country, use all fixtures
+    if (countryLeagueIds.length === 0) {
+      setFilteredFixtures(allFixtures);
+      setCurrentFixtureIndex(0);
+      return;
+    }
+    
+    // Filter fixtures by the league IDs
+    const fixtures = allFixtures.filter(
+      fixture => countryLeagueIds.includes(fixture.league.id)
+    );
+    
+    // If we have fixtures after filtering, use them
+    if (fixtures.length > 0) {
+      setFilteredFixtures(fixtures);
+      setCurrentFixtureIndex(0);
+    } else {
+      // Otherwise fall back to all fixtures
+      setFilteredFixtures(allFixtures);
+      setCurrentFixtureIndex(0);
+    }
+  }, [liveFixtures, upcomingFixtures, selectedCountry, countryLeagueMap]);
+  
+  // Handle navigation between fixtures
+  const handlePreviousFixture = () => {
+    if (currentFixtureIndex > 0) {
+      setCurrentFixtureIndex(currentFixtureIndex - 1);
+    } else {
+      // Wrap around to the end if at the beginning
+      setCurrentFixtureIndex(filteredFixtures.length - 1);
+    }
+  };
+  
+  const handleNextFixture = () => {
+    if (currentFixtureIndex < filteredFixtures.length - 1) {
+      setCurrentFixtureIndex(currentFixtureIndex + 1);
+    } else {
+      // Wrap around to the beginning if at the end
+      setCurrentFixtureIndex(0);
+    }
+  };
   
   const isLoading = loadingLive || loadingUpcoming;
   
@@ -121,12 +194,7 @@ const LiveScoreboard = memo(() => {
   }
   
   // No matches state
-  const availableFixtures = [
-    ...(liveFixtures || []), 
-    ...(upcomingFixtures || [])
-  ];
-  
-  if (availableFixtures.length === 0) {
+  if (filteredFixtures.length === 0) {
     return (
       <Card className="m-4">
         <CardHeader className="bg-gray-700 text-white p-3">
@@ -142,20 +210,34 @@ const LiveScoreboard = memo(() => {
     );
   }
   
-  // Use first match as featured
-  const featured = availableFixtures[0];
+  // Use the current index for the featured match
+  const featured = filteredFixtures[currentFixtureIndex];
   
   return (
     <div className="mx-2 my-4">
       {/* Match filter controls */}
       <div className="flex items-center justify-between mb-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8"
+          onClick={handlePreviousFixture}
+        >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        <div className="font-medium text-sm">Today's Matches</div>
+        <div className="font-medium text-sm">
+          {filteredFixtures.length > 0 ? 
+            `${currentFixtureIndex + 1} of ${filteredFixtures.length} Matches` : 
+            "Today's Matches"}
+        </div>
         
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8"
+          onClick={handleNextFixture}
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

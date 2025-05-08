@@ -10,8 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info } from 'lucide-react';
-import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
+import { formatDateTime, getMatchStatusText, isLiveMatch, getTeamGradient } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import MatchPrediction from '@/components/matches/MatchPrediction';
@@ -244,10 +244,23 @@ const MatchDetails = () => {
             </Button>
           </CardHeader>
           <CardContent className="p-6">
-            {/* Modern scoreboard with gradients */}
-            <div className="relative rounded-lg overflow-hidden mb-8 shadow-lg">
-              {/* Match status banner */}
-              <div className="absolute top-0 left-0 right-0 bg-black bg-opacity-70 text-white text-center py-1 text-sm">
+            {/* Modern scoreboard with gradients - matching the main page style */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8 relative">
+              {/* League and status info */}
+              <div className="text-center p-2 flex justify-center items-center gap-2">
+                <img 
+                  src={currentFixture.league.logo}
+                  alt={currentFixture.league.name}
+                  className="w-4 h-4"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
+                  }}
+                />
+                <span className="text-sm">{currentFixture.league.name} - {currentFixture.league.round}</span>
+              </div>
+              
+              {/* Status badge */}
+              <div className="text-xs text-center text-gray-500 -mt-1 mb-1">
                 {isLiveMatch(currentFixture.fixture.status.short) ? (
                   <div className="flex items-center justify-center">
                     <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
@@ -260,73 +273,81 @@ const MatchDetails = () => {
                 )}
               </div>
               
-              {/* Teams and score section */}
-              <div className="flex">
-                {/* Home Team - Left side gradient */}
-                <div className="w-[45%] bg-gradient-to-r from-blue-900 to-blue-700 py-6 px-4 flex items-center">
-                  <div className="flex items-center">
-                    <div className="h-20 w-20 flex items-center justify-center bg-white rounded-full p-1 shadow-md mr-4">
-                      <img 
-                        src={currentFixture.teams.home.logo} 
-                        alt={currentFixture.teams.home.name} 
-                        className="max-h-full max-w-full"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <div className="text-white font-bold text-xl uppercase">{currentFixture.teams.home.name}</div>
+              {/* Score */}
+              <div className="text-center px-4 py-1">
+                <div className="text-3xl font-bold">
+                  {currentFixture.goals.home !== null ? currentFixture.goals.home : '0'} - {currentFixture.goals.away !== null ? currentFixture.goals.away : '0'}
+                </div>
+              </div>
+              
+              {/* Teams with dynamic gradients based on team names - equal width meeting in middle */}
+              <div className="flex rounded-md overflow-hidden relative h-16">
+                {/* Container for both gradients that meet in the middle with same width */}
+                <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
+                  {/* Home team logo - positioned at the leftmost */}
+                  <div className="absolute bottom-0 left-0 z-10">
+                    <img 
+                      src={currentFixture.teams.home.logo} 
+                      alt={currentFixture.teams.home.name}
+                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Home team - gradient extending exactly 50% */}
+                  <div className={`h-full w-1/2 ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center`}>
+                    <div className="ml-20 text-white font-bold text-lg uppercase">
+                      {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
-                        <div className="text-xs uppercase text-white mt-1 bg-green-600 inline-block px-2 rounded">Winner</div>
+                        <span className="text-xs uppercase text-white ml-2 bg-green-600 inline-block px-2 rounded">Winner</span>
                       )}
                     </div>
                   </div>
-                </div>
-                
-                {/* Center score section */}
-                <div className="w-[10%] flex items-center justify-center bg-white">
-                  <div className="text-3xl font-bold text-gray-800">
-                    {currentFixture.goals.home !== null ? currentFixture.goals.home : '0'}
-                    <span className="mx-1">-</span>
-                    {currentFixture.goals.away !== null ? currentFixture.goals.away : '0'}
+                  
+                  {/* VS label (positioned exactly in the center where gradients meet) */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
+                    VS
                   </div>
-                </div>
-                
-                {/* Away Team - Right side gradient */}
-                <div className="w-[45%] bg-gradient-to-l from-red-900 to-red-700 py-6 px-4 flex items-center justify-end">
-                  <div className="flex items-center">
-                    <div>
-                      <div className="text-white font-bold text-xl uppercase text-right">{currentFixture.teams.away.name}</div>
+                  
+                  {/* Away team - gradient extending exactly 50% */}
+                  <div className={`h-full w-1/2 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} flex items-center justify-end`}>
+                    <div className="mr-20 text-white font-bold text-lg uppercase text-right">
+                      {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
-                        <div className="text-xs uppercase text-white mt-1 bg-green-600 inline-block px-2 rounded float-right">Winner</div>
+                        <span className="text-xs uppercase text-white mr-2 bg-green-600 inline-block px-2 rounded">Winner</span>
                       )}
                     </div>
-                    <div className="h-20 w-20 flex items-center justify-center bg-white rounded-full p-1 shadow-md ml-4">
-                      <img 
-                        src={currentFixture.teams.away.logo} 
-                        alt={currentFixture.teams.away.name} 
-                        className="max-h-full max-w-full"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                        }}
-                      />
-                    </div>
+                  </div>
+                  
+                  {/* Away team logo - positioned at the rightmost */}
+                  <div className="absolute bottom-0 right-0 z-10">
+                    <img 
+                      src={currentFixture.teams.away.logo} 
+                      alt={currentFixture.teams.away.name}
+                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                      }}
+                    />
                   </div>
                 </div>
               </div>
               
               {/* Match details footer */}
-              <div className="bg-gray-100 py-2 px-4 flex justify-between items-center">
-                <div className="text-sm text-gray-700">
+              <div className="p-2 text-center text-sm border-t border-gray-100">
+                <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
+                  <Clock className="h-3 w-3" />
+                  <span>{formatDateTime(currentFixture.fixture.date)}</span>
                   {currentFixture.fixture.venue.name && (
-                    <span>{currentFixture.fixture.venue.name}, {currentFixture.fixture.venue.city || ''}</span>
+                    <span> | {currentFixture.fixture.venue.name}, {currentFixture.fixture.venue.city || ''}</span>
                   )}
                 </div>
                 
                 {/* HT score if available */}
                 {currentFixture.score.halftime.home !== null && currentFixture.score.halftime.away !== null && (
-                  <div className="text-sm text-gray-700">
+                  <div className="text-xs text-gray-700 mt-1">
                     HT: {currentFixture.score.halftime.home} - {currentFixture.score.halftime.away}
                   </div>
                 )}
