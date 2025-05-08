@@ -415,91 +415,84 @@ function LiveScoreboardPage() {
         <div className="relative mb-3">
           {/* Previous match button - positioned at far left with improved animation */}
           <button 
-            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-40 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
             onClick={previousFixture}
           >
             <ChevronLeft className="h-6 w-6 text-gray-700" />
           </button>
           
           {/* Match bar with team info */}
-          <div className="flex items-center justify-between mx-12">
-            {/* Home team logo */}
-            <div className="relative z-10 mr-3">
-              <div className="relative">
-                {/* Smaller shadow (50% of original size) */}
-                <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                <img 
-                  src={featuredFixture.teams.home.logo} 
-                  alt={featuredFixture.teams.home.name}
-                  className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                  }}
-                />
-              </div>
-            </div>
+          <div className="flex items-center justify-between mx-10">
             
             {/* Match bar with two-color dynamic gradient */}
-            <div className="flex-1 h-12 rounded-md shadow-md overflow-hidden -mx-5"> {/* Extended 5px on each side */}
+            <div className="flex-1 h-14 rounded-md shadow-md overflow-hidden relative mx-0"> 
               {/* Two-color bar with dynamically determined colors */}
               <div className="flex h-full">
                 {/* Single continuous gradient bar with home and away team colors */}
                 <div className="flex h-full w-full relative overflow-hidden">
-                  {/* Home team section with 45-degree slice */}
-                  <div className={`w-[52%] relative ml-3`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
-                    {/* Angled edge for home team */}
-                    <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
-                      style={{backgroundColor: 'inherit'}}></div>
-                    
-                    <div className="pl-10 h-full flex items-center justify-start z-10 relative">
-                      <span className="text-white font-bold text-sm uppercase truncate">{featuredFixture.teams.home.name}</span>
+                  
+                  {/* Home team section - exactly 50% width */}
+                  <div className="w-1/2 h-full absolute left-0" 
+                       style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
+                    <div className="h-full flex items-center pl-24">
+                      <span className="text-white font-bold text-sm uppercase truncate text-left">{featuredFixture.teams.home.name}</span>
                     </div>
                   </div>
                   
                   {/* VS text positioned absolutely in the center with enhanced styling */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
                     <div className="bg-black/40 rounded-full h-12 w-12 flex items-center justify-center">
                       <span className="text-white text-3xl font-bold drop-shadow-md">VS</span>
                     </div>
                   </div>
                   
-                  {/* Away team section with 45-degree slice - using different color */}
-                  <div className={`w-[52%] relative -ml-1 mr-3`} 
-                       style={{
-                         backgroundColor: getTeamColor(featuredFixture.teams.away.name)
-                       }}>
-                    {/* Angled edge for away team */}
-                    <div className="absolute top-0 left-0 h-full w-8 transform skew-x-[20deg] -translate-x-4" 
-                      style={{backgroundColor: 'inherit'}}></div>
-                    
-                    <div className="pr-10 h-full flex items-center justify-end z-10 relative">
-                      <span className="text-white font-bold text-sm uppercase truncate">{featuredFixture.teams.away.name}</span>
+                  {/* Away team section - exactly 50% width */}
+                  <div className="w-1/2 h-full absolute right-0"
+                       style={{ backgroundColor: getTeamColor(featuredFixture.teams.away.name) }}>
+                    <div className="h-full flex items-center justify-end pr-24">
+                      <span className="text-white font-bold text-sm uppercase truncate text-right">{featuredFixture.teams.away.name}</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Away team logo */}
-            <div className="relative z-10 ml-3">
-              <div className="relative">
-                {/* Smaller shadow (50% of original size) */}
-                <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-                <img 
-                  src={featuredFixture.teams.away.logo} 
-                  alt={featuredFixture.teams.away.name}
-                  className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                  }}
-                />
+              
+              {/* Home team logo - positioned on top of bar */}
+              <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
+                <div className="relative">
+                  {/* Smaller shadow (50% of original size) */}
+                  <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
+                  <img 
+                    src={featuredFixture.teams.home.logo} 
+                    alt={featuredFixture.teams.home.name}
+                    className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Away team logo - positioned on top of bar */}
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20">
+                <div className="relative">
+                  {/* Smaller shadow (50% of original size) */}
+                  <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
+                  <img 
+                    src={featuredFixture.teams.away.logo} 
+                    alt={featuredFixture.teams.away.name}
+                    className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 relative z-10 drop-shadow-lg"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
           
           {/* Next match button - positioned at far right with improved animation */}
           <button 
-            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-40 h-12 w-12 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
             onClick={nextFixture}
           >
             <ChevronRight className="h-6 w-6 text-gray-700" />
