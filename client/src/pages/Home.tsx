@@ -32,14 +32,11 @@ const Home = () => {
   const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const allLeagues = useSelector((state: RootState) => state.leagues.list);
   
-  // Map countries to league IDs - using the actual league IDs from our Popular Leagues list
+  // Map countries to league IDs - only including the requested leagues
   const countryLeagueMap: Record<string, number[]> = {
     'england': [39],     // Premier League
     'italy': [135],      // Serie A (Italy)
-    'europe': [2],       // Champions League
-    'brazil': [71],      // Serie A (Brazil)
-    'spain': [140],      // La Liga
-    'germany': [78]      // Bundesliga
+    'europe': [2]        // Champions League
   };
   
   // Pre-fetch all these leagues to ensure they're available for country filtering

@@ -88,15 +88,11 @@ interface FixtureResponse {
   score: Score;
 }
 
-// Popular football league IDs in the requested order: Europe, England, Spain, Italy, Brazil, Germany
+// Only include Premier League, UEFA Champions League, and Serie A as requested
 const POPULAR_LEAGUES = [
   2,   // UEFA Champions League (Europe)
-  3,   // UEFA Europa League (Europe)
   39,  // Premier League (England)
-  140, // La Liga (Spain)
   135, // Serie A (Italy)
-  71,  // Serie A (Brazil)
-  78,  // Bundesliga (Germany)
 ];
 
 function LiveScoreboardPage() {
@@ -127,8 +123,8 @@ function LiveScoreboardPage() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
-  // Top priority leagues that should always be shown first if available
-  const topPriorityLeagues = [3, 135, 140]; // UEFA Europa League (3), Serie A (135), La Liga (140)
+  // Top priority leagues that should always be shown first if available - updated to match requirements
+  const topPriorityLeagues = [2, 39, 135]; // UEFA Champions League (2), Premier League (39), Serie A (135)
   
   // Process fixtures when data is available
   useEffect(() => {

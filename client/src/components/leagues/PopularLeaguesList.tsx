@@ -6,18 +6,11 @@ import { Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// Popular leagues with their data
+// Popular leagues with their data - only including requested leagues
 const leagueData = [
   { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe' },
-  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe' },
   { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England' },
-  { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England' },
-  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain' },
-  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy' },
-  { id: 528, name: 'Community Shield', logo: 'https://media.api-sports.io/football/leagues/528.png', country: 'England' },
-  { id: 46, name: 'EFL Cup', logo: 'https://media.api-sports.io/football/leagues/46.png', country: 'England' },
-  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany' },
-  { id: 40, name: 'Championship', logo: 'https://media.api-sports.io/football/leagues/40.png', country: 'England' }
+  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy' }
 ];
 
 const PopularLeaguesList = () => {

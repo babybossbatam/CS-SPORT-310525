@@ -12,6 +12,13 @@ import { Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+// Only include Premier League, UEFA Champions League, and Serie A as requested
+const POPULAR_LEAGUES = [
+  2,   // UEFA Champions League (Europe)
+  39,  // Premier League (England)
+  135, // Serie A (Italy)
+];
+
 const TodayMatches = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
