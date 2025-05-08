@@ -3,7 +3,8 @@ import { useLocation } from 'wouter';
 import { Clock, Calendar, Star, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import { getTeamGradient, getTeamColor, getContrastTextColor, isLiveMatch } from '@/lib/colorExtractor';
+import { getTeamGradient, getTeamColor, getContrastTextColor } from '@/lib/colorExtractor';
+import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -82,7 +83,7 @@ export function LiveScoreboard({
   showFilters = true,
   maxMatches = 10
 }: LiveScoreboardProps) {
-  const [navigate] = useLocation();
+  const [, navigate] = useLocation();
   const [selectedLeague, setSelectedLeague] = useState<string>("all");
   const [filteredMatches, setFilteredMatches] = useState<FixtureResponse[]>([]);
   
@@ -340,7 +341,7 @@ export function LiveScoreboard({
             <Button 
               variant="outline" 
               className="w-full" 
-              onClick={() => navigate(`/match/${featuredMatch.fixture.id}`)}
+              onClick={() => navigate(`/match/${featuredMatch.fixture.id.toString()}`)}
             >
               Match Details
             </Button>
