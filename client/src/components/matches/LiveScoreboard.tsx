@@ -311,69 +311,83 @@ export function LiveScoreboard({
               </div>
             </div>
             
-            {/* Match presentation - Clean design following reference image */}
+            {/* Match presentation - Updated design to match 365scores */}
             <div className="relative mb-6">
-              {/* Main match container */}
-              <div className="w-full overflow-hidden rounded-lg shadow-md">
-                {/* Match date */}
-                <div className="bg-gray-100 text-center py-1 text-xs text-gray-600 font-medium border-b border-gray-200">
-                  TOMORROW
+              {/* Featured tag */}
+              <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 z-10">
+                Featured Match
+              </div>
+              
+              {/* League logo and countdown */}
+              <div className="flex flex-col items-center justify-center py-2">
+                <img 
+                  src={featuredMatch.league.logo} 
+                  alt={featuredMatch.league.name}
+                  className="h-8 w-8 object-contain mb-2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=League';
+                  }}
+                />
+                <div className="text-3xl font-bold text-center mb-3">
+                  {isLiveMatch(featuredMatch.fixture.status.short) 
+                    ? 'LIVE NOW' 
+                    : '3 Days'}
+                </div>
+              </div>
+              
+              {/* Main match container with team bar colors */}
+              <div className="w-full overflow-hidden relative">
+                {/* Team logos */}
+                <div className="flex justify-between items-center px-8 mb-2">
+                  <div className="flex flex-col items-center">
+                    <img 
+                      src={featuredMatch.teams.home.logo} 
+                      alt={featuredMatch.teams.home.name}
+                      className="h-16 w-16 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="text-xl font-bold text-center">VS</div>
+                  
+                  <div className="flex flex-col items-center">
+                    <img 
+                      src={featuredMatch.teams.away.logo} 
+                      alt={featuredMatch.teams.away.name}
+                      className="h-16 w-16 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                      }}
+                    />
+                  </div>
                 </div>
                 
-                {/* Team bars */}
-                <div className="flex h-14 w-full overflow-hidden">
+                {/* Team names with colored bars */}
+                <div className="flex h-12 w-full overflow-hidden">
                   {/* Home team color bar */}
                   <div 
-                    className="w-1/2 flex items-center justify-end px-4 text-white h-full"
+                    className="w-1/2 flex items-center justify-center px-4 text-white h-full"
                     style={{ 
                       background: getTeamColor(featuredMatch.teams.home.name)
                     }}
                   >
-                    <span className="font-bold uppercase px-3 drop-shadow-sm text-sm md:text-base">
+                    <span className="font-bold uppercase text-sm md:text-base tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
                       {featuredMatch.teams.home.name}
                     </span>
                   </div>
                   
                   {/* Away team color bar */}
                   <div 
-                    className="w-1/2 flex items-center px-4 text-white h-full"
+                    className="w-1/2 flex items-center justify-center px-4 text-white h-full"
                     style={{ 
                       background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name) 
                     }}>
-                    <span className="font-bold uppercase px-3 drop-shadow-sm text-sm md:text-base">
+                    <span className="font-bold uppercase text-sm md:text-base tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
                       {featuredMatch.teams.away.name}
                     </span>
                   </div>
-                </div>
-              </div>
-              
-              {/* VS badge in the middle */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full h-8 w-8 flex items-center justify-center shadow-md z-20">
-                <span className="text-sm font-bold">VS</span>
-              </div>
-              
-              {/* Team logos */}
-              <div className="absolute top-1/3 left-0 w-full flex justify-between px-6">
-                <div className="bg-white rounded-full p-0.5 shadow-md transform -translate-y-1/2">
-                  <img 
-                    src={featuredMatch.teams.home.logo} 
-                    alt={featuredMatch.teams.home.name}
-                    className="h-12 w-12 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
-                    }}
-                  />
-                </div>
-                
-                <div className="bg-white rounded-full p-0.5 shadow-md transform -translate-y-1/2">
-                  <img 
-                    src={featuredMatch.teams.away.logo} 
-                    alt={featuredMatch.teams.away.name}
-                    className="h-12 w-12 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
-                    }}
-                  />
                 </div>
               </div>
             </div>

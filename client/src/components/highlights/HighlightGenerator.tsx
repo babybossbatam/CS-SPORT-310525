@@ -1,300 +1,544 @@
-import React, { useState } from 'react';
-import { Film, Loader2, Download, Check, Camera, Share2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { X, Trash, Plus, Share2, Sparkles, Save, Download, Upload } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { getTeamColor } from '@/lib/colorExtractor';
+import { Badge } from '@/components/ui/badge';
+import type { FixtureResponse } from '@/types/fixtures';
 
-interface HighlightGeneratorProps {
-  matchId: number;
-  homeTeam: {
-    id: number;
-    name: string;
-    logo: string;
-  };
-  awayTeam: {
-    id: number;
-    name: string;
-    logo: string;
-  };
-  league: {
-    id: number;
-    name: string;
-    logo: string;
-  };
-  score?: {
-    home: number;
-    away: number;
-  };
-  isMatchEnded: boolean;
+interface HighlightMoment {
+  id: string;
+  time: number; // Match minute
+  title: string;
+  description: string;
+  type: 'goal' | 'card' | 'substitution' | 'chance' | 'other';
+  teamId: number;
+  playerId?: number;
 }
 
-type HighlightType = 'goals' | 'cards' | 'all' | 'top';
-type ClipDuration = 15 | 30 | 45 | 60;
+interface HighlightClip {
+  id: string;
+  title: string;
+  description: string;
+  moments: HighlightMoment[];
+  matchId: number;
+  creator: string;
+  createdAt: Date;
+  likes: number;
+  duration: number; // in seconds
+}
 
-const HighlightGenerator: React.FC<HighlightGeneratorProps> = ({
-  matchId,
-  homeTeam,
-  awayTeam,
-  league,
-  score,
-  isMatchEnded
-}) => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isGenerated, setIsGenerated] = useState(false);
-  const [highlightType, setHighlightType] = useState<HighlightType>('goals');
-  const [clipDuration, setClipDuration] = useState<ClipDuration>(30);
-  const [includeReplays, setIncludeReplays] = useState(true);
-  const [includeCommentary, setIncludeCommentary] = useState(true);
-  const { toast } = useToast();
-  
-  // Progress states for animation
-  const [progressPercentage, setProgressPercentage] = useState(0);
-  
-  const homeTeamColor = getTeamColor(homeTeam.name);
-  const awayTeamColor = getTeamColor(awayTeam.name);
-  
-  const handleGenerate = async () => {
-    if (!isMatchEnded) {
-      toast({
-        title: "Match not ended",
-        description: "Highlights can only be generated after the match has ended.",
-        variant: "destructive"
-      });
-      return;
+interface HighlightGeneratorProps {
+  match: FixtureResponse;
+}
+
+const DEFAULT_DURATION = 30; // 30 second highlight by default
+
+export function HighlightGenerator({ match }: HighlightGeneratorProps) {
+  const [activeTab, setActiveTab] = useState('create');
+  const [highlights, setHighlights] = useState<HighlightClip[]>([]);
+  const [currentHighlight, setCurrentHighlight] = useState<HighlightClip>({
+    id: crypto.randomUUID(),
+    title: `${match.teams.home.name} vs ${match.teams.away.name} Highlights`,
+    description: 'User generated highlights',
+    moments: [],
+    matchId: match.fixture.id,
+    creator: 'You',
+    createdAt: new Date(),
+    likes: 0,
+    duration: DEFAULT_DURATION
+  });
+  const [selectedMoment, setSelectedMoment] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  // Sample moment types with icons
+  const momentTypes = [
+    { value: 'goal', label: 'Goal', icon: '⚽' },
+    { value: 'card', label: 'Card', icon: '🟨' },
+    { value: 'substitution', label: 'Sub', icon: '🔄' },
+    { value: 'chance', label: 'Chance', icon: '💫' },
+    { value: 'other', label: 'Other', icon: '📌' }
+  ];
+
+  const addMoment = () => {
+    const newMoment: HighlightMoment = {
+      id: crypto.randomUUID(),
+      time: match.fixture.status.elapsed || 45,
+      title: 'New Moment',
+      description: '',
+      type: 'other',
+      teamId: match.teams.home.id
+    };
+    
+    setCurrentHighlight({
+      ...currentHighlight,
+      moments: [...currentHighlight.moments, newMoment]
+    });
+    
+    setSelectedMoment(newMoment.id);
+    setIsDialogOpen(true);
+  };
+
+  const updateMoment = (updatedMoment: HighlightMoment) => {
+    setCurrentHighlight({
+      ...currentHighlight,
+      moments: currentHighlight.moments.map(moment => 
+        moment.id === updatedMoment.id ? updatedMoment : moment
+      )
+    });
+    setIsDialogOpen(false);
+  };
+
+  const deleteMoment = (id: string) => {
+    setCurrentHighlight({
+      ...currentHighlight,
+      moments: currentHighlight.moments.filter(moment => moment.id !== id)
+    });
+    setSelectedMoment(null);
+  };
+
+  const saveHighlight = () => {
+    if (editMode) {
+      // Update existing highlight
+      setHighlights(highlights.map(h => 
+        h.id === currentHighlight.id ? currentHighlight : h
+      ));
+      setEditMode(false);
+    } else {
+      // Create new highlight
+      setHighlights([...highlights, currentHighlight]);
     }
     
-    setIsGenerating(true);
-    setProgressPercentage(0);
-    
-    // Simulate highlight generation progress
-    const interval = setInterval(() => {
-      setProgressPercentage(prev => {
-        const next = prev + Math.random() * 15;
-        if (next >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return next;
-      });
-    }, 500);
-    
-    // Simulate API call for highlight generation
-    setTimeout(() => {
-      clearInterval(interval);
-      setProgressPercentage(100);
-      setIsGenerating(false);
-      setIsGenerated(true);
-      
-      toast({
-        title: "Highlights generated!",
-        description: "Your personalized highlight clip is ready to watch.",
-      });
-    }, 3000);
-  };
-  
-  const handleDownload = () => {
-    toast({
-      title: "Download started",
-      description: "Your highlights clip is being downloaded.",
+    // Reset to a new highlight
+    setCurrentHighlight({
+      id: crypto.randomUUID(),
+      title: `${match.teams.home.name} vs ${match.teams.away.name} Highlights`,
+      description: 'User generated highlights',
+      moments: [],
+      matchId: match.fixture.id,
+      creator: 'You',
+      createdAt: new Date(),
+      likes: 0,
+      duration: DEFAULT_DURATION
     });
+    
+    setActiveTab('explore');
   };
-  
-  const handleShare = () => {
-    toast({
-      title: "Share link copied",
-      description: "The link to your highlights has been copied to clipboard.",
-    });
+
+  const editHighlight = (highlight: HighlightClip) => {
+    setCurrentHighlight(highlight);
+    setEditMode(true);
+    setActiveTab('create');
   };
-  
+
+  const shareHighlight = (highlight: HighlightClip) => {
+    // Implement sharing functionality (could be a URL or social media integration)
+    alert(`Sharing highlight: ${highlight.title}`);
+  };
+
+  const getTeamColor = (teamId: number) => {
+    if (teamId === match.teams.home.id) {
+      return 'bg-red-500';
+    }
+    return 'bg-blue-500';
+  };
+
+  const getTeamName = (teamId: number) => {
+    if (teamId === match.teams.home.id) {
+      return match.teams.home.name;
+    }
+    return match.teams.away.name;
+  };
+
+  const getMomentTypeDetails = (type: string) => {
+    return momentTypes.find(t => t.value === type) || momentTypes[4]; // Default to "other"
+  };
+
   return (
-    <Card className="w-full overflow-hidden shadow-md">
-      <CardHeader className="p-4 bg-gradient-to-r from-gray-800 to-gray-700 text-white">
-        <div className="flex items-center gap-2">
-          <Film className="h-5 w-5" />
-          <CardTitle className="text-lg">Match Highlight Generator</CardTitle>
-        </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Sparkles className="h-5 w-5 mr-2" />
+          Match Highlight Generator
+        </CardTitle>
+        <CardDescription>
+          Create and share your own match highlights
+        </CardDescription>
       </CardHeader>
       
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex flex-col items-center">
-            <img 
-              src={homeTeam.logo} 
-              alt={homeTeam.name} 
-              className="h-14 w-14 mb-1"
-              style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))' }}
-            />
-            <span className="text-sm font-semibold">{homeTeam.name}</span>
-            {score && <span className="text-2xl font-bold">{score.home}</span>}
-          </div>
-          
-          <div className="flex flex-col items-center">
-            <span className="text-sm font-medium text-gray-500 mb-1">VS</span>
-            <img 
-              src={league.logo} 
-              alt={league.name} 
-              className="h-8 w-8 mb-1" 
-            />
-            <span className="text-xs text-gray-500">{league.name}</span>
-          </div>
-          
-          <div className="flex flex-col items-center">
-            <img 
-              src={awayTeam.logo} 
-              alt={awayTeam.name} 
-              className="h-14 w-14 mb-1"
-              style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))' }}
-            />
-            <span className="text-sm font-semibold">{awayTeam.name}</span>
-            {score && <span className="text-2xl font-bold">{score.away}</span>}
-          </div>
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="create">Create Highlights</TabsTrigger>
+          <TabsTrigger value="explore">Explore Highlights</TabsTrigger>
+        </TabsList>
         
-        {/* Highlight Options */}
-        <div className="space-y-4 my-4">
-          <div>
-            <h3 className="text-sm font-medium mb-2">Highlight Type</h3>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Button 
-                variant={highlightType === 'goals' ? 'default' : 'outline'} 
-                size="sm"
-                onClick={() => setHighlightType('goals')}
-              >
-                Goals Only
-              </Button>
-              <Button 
-                variant={highlightType === 'cards' ? 'default' : 'outline'} 
-                size="sm"
-                onClick={() => setHighlightType('cards')}
-              >
-                Cards & Fouls
-              </Button>
-              <Button 
-                variant={highlightType === 'top' ? 'default' : 'outline'} 
-                size="sm"
-                onClick={() => setHighlightType('top')}
-              >
-                Top Moments
-              </Button>
-              <Button 
-                variant={highlightType === 'all' ? 'default' : 'outline'} 
-                size="sm"
-                onClick={() => setHighlightType('all')}
-              >
-                All Highlights
-              </Button>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-medium mb-2">Clip Duration: {clipDuration} seconds</h3>
-            <Slider
-              defaultValue={[30]}
-              min={15}
-              max={60}
-              step={15}
-              onValueChange={(value) => setClipDuration(value[0] as ClipDuration)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="replays"
-                checked={includeReplays}
-                onCheckedChange={setIncludeReplays}
+        <TabsContent value="create" className="space-y-4">
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input 
+                id="title" 
+                value={currentHighlight.title}
+                onChange={(e) => setCurrentHighlight({...currentHighlight, title: e.target.value})}
+                placeholder="Highlight title"
               />
-              <Label htmlFor="replays">Include Replays</Label>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="commentary"
-                checked={includeCommentary}
-                onCheckedChange={setIncludeCommentary}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea 
+                id="description" 
+                value={currentHighlight.description}
+                onChange={(e) => setCurrentHighlight({...currentHighlight, description: e.target.value})}
+                placeholder="Describe your highlight"
+                rows={2}
               />
-              <Label htmlFor="commentary">Include Commentary</Label>
             </div>
-          </div>
-        </div>
-        
-        {/* Generation Progress */}
-        {isGenerating && (
-          <div className="my-4">
-            <div className="flex justify-between text-sm mb-1">
-              <span>Generating highlight clip...</span>
-              <span>{Math.round(progressPercentage)}%</span>
+            
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration (seconds): {currentHighlight.duration}s</Label>
+              <Slider 
+                id="duration"
+                defaultValue={[currentHighlight.duration]} 
+                min={10} 
+                max={120} 
+                step={5}
+                onValueChange={(value) => setCurrentHighlight({...currentHighlight, duration: value[0]})} 
+              />
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full rounded-full transition-all duration-300 ease-out"
-                style={{ 
-                  width: `${progressPercentage}%`,
-                  backgroundImage: `linear-gradient(to right, ${homeTeamColor}, ${awayTeamColor})` 
-                }}
-              ></div>
-            </div>
-          </div>
-        )}
-        
-        {/* Buttons */}
-        <div className="flex flex-col space-y-2 mt-4">
-          {!isGenerated ? (
-            <Button 
-              onClick={handleGenerate} 
-              disabled={isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Generate Highlight Clip
-                </>
-              )}
-            </Button>
-          ) : (
-            <>
-              <Button className="w-full bg-green-600 hover:bg-green-700">
-                <Check className="mr-2 h-4 w-4" />
-                Watch Highlights
-              </Button>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={handleDownload}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={handleShare}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Key Moments</Label>
+                <Button variant="outline" size="sm" onClick={addMoment}>
+                  <Plus className="h-4 w-4 mr-1" /> Add Moment
                 </Button>
               </div>
-            </>
-          )}
-        </div>
-      </CardContent>
+              
+              {currentHighlight.moments.length === 0 ? (
+                <div className="text-center py-8 border border-dashed rounded-md border-gray-300">
+                  <p className="text-gray-500">No moments added yet</p>
+                  <Button variant="ghost" size="sm" onClick={addMoment} className="mt-2">
+                    <Plus className="h-4 w-4 mr-1" /> Add your first moment
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {currentHighlight.moments
+                    .sort((a, b) => a.time - b.time)
+                    .map((moment) => (
+                    <div 
+                      key={moment.id} 
+                      className={`flex items-center justify-between p-2 rounded-md border ${
+                        selectedMoment === moment.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                      }`}
+                      onClick={() => setSelectedMoment(moment.id)}
+                    >
+                      <div className="flex items-center">
+                        <Badge 
+                          variant="outline" 
+                          className={`mr-2 ${getTeamColor(moment.teamId)} text-white`}
+                        >
+                          {moment.time}'
+                        </Badge>
+                        <span className="mr-2">{getMomentTypeDetails(moment.type).icon}</span>
+                        <div>
+                          <p className="font-medium text-sm">{moment.title}</p>
+                          <p className="text-xs text-gray-500">{getTeamName(moment.teamId)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMoment(moment.id);
+                            setIsDialogOpen(true);
+                          }}
+                        >
+                          <span className="sr-only">Edit</span>
+                          <pencil-icon className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteMoment(moment.id);
+                          }}
+                        >
+                          <span className="sr-only">Delete</span>
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+          
+          <CardFooter className="flex justify-between">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setCurrentHighlight({
+                  id: crypto.randomUUID(),
+                  title: `${match.teams.home.name} vs ${match.teams.away.name} Highlights`,
+                  description: 'User generated highlights',
+                  moments: [],
+                  matchId: match.fixture.id,
+                  creator: 'You',
+                  createdAt: new Date(),
+                  likes: 0,
+                  duration: DEFAULT_DURATION
+                });
+                setEditMode(false);
+              }}
+            >
+              Reset
+            </Button>
+            <Button 
+              onClick={saveHighlight}
+              disabled={currentHighlight.moments.length === 0}
+            >
+              <Save className="h-4 w-4 mr-1" />
+              {editMode ? 'Update Highlight' : 'Save Highlight'}
+            </Button>
+          </CardFooter>
+        </TabsContent>
+        
+        <TabsContent value="explore">
+          <CardContent>
+            {highlights.length === 0 ? (
+              <div className="text-center py-12 border border-dashed rounded-md border-gray-300">
+                <p className="text-gray-500 mb-2">No highlights created yet</p>
+                <Button onClick={() => setActiveTab('create')}>
+                  Create Your First Highlight
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {highlights.map((highlight) => (
+                  <Card key={highlight.id}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between">
+                        <CardTitle className="text-lg">{highlight.title}</CardTitle>
+                        <div className="text-xs text-gray-500">
+                          {highlight.moments.length} moments • {highlight.duration}s
+                        </div>
+                      </div>
+                      <CardDescription>
+                        Created by {highlight.creator} • {new Date(highlight.createdAt).toLocaleDateString()}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="py-2">
+                      <p className="text-sm mb-2">{highlight.description}</p>
+                      <div className="flex overflow-x-auto pb-2 space-x-1">
+                        {highlight.moments
+                          .sort((a, b) => a.time - b.time)
+                          .map((moment) => (
+                          <Badge 
+                            key={moment.id} 
+                            variant="outline" 
+                            className={`flex-shrink-0 ${getTeamColor(moment.teamId)} text-white`}
+                          >
+                            {moment.time}' {getMomentTypeDetails(moment.type).icon} {moment.title}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="pt-2 flex justify-between">
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => editHighlight(highlight)}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => {
+                            setHighlights(highlights.filter(h => h.id !== highlight.id));
+                          }}
+                        >
+                          <Trash className="h-4 w-4 mr-1" /> Delete
+                        </Button>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => shareHighlight(highlight)}
+                      >
+                        <Share2 className="h-4 w-4 mr-1" /> Share
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </TabsContent>
+      </Tabs>
       
-      <CardFooter className="px-4 py-3 bg-gray-50 text-xs text-gray-500">
-        Note: Generated highlights are subject to copyright and available for personal use only.
-      </CardFooter>
+      {/* Moment editing dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Moment</DialogTitle>
+            <DialogDescription>
+              Customize this highlight moment
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedMoment && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="moment-title">Title</Label>
+                <Input 
+                  id="moment-title" 
+                  value={currentHighlight.moments.find(m => m.id === selectedMoment)?.title || ''}
+                  onChange={(e) => {
+                    const updatedMoment = {...currentHighlight.moments.find(m => m.id === selectedMoment)!, title: e.target.value};
+                    updateMoment(updatedMoment);
+                  }}
+                  placeholder="Moment title"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="moment-time">Time (minute)</Label>
+                  <Input 
+                    id="moment-time" 
+                    type="number"
+                    min="0"
+                    max="120"
+                    value={currentHighlight.moments.find(m => m.id === selectedMoment)?.time || 0}
+                    onChange={(e) => {
+                      const updatedMoment = {
+                        ...currentHighlight.moments.find(m => m.id === selectedMoment)!, 
+                        time: parseInt(e.target.value) || 0
+                      };
+                      updateMoment(updatedMoment);
+                    }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="moment-type">Type</Label>
+                  <select 
+                    id="moment-type"
+                    className="w-full border border-gray-300 rounded-md p-2"
+                    value={currentHighlight.moments.find(m => m.id === selectedMoment)?.type || 'other'}
+                    onChange={(e) => {
+                      const updatedMoment = {
+                        ...currentHighlight.moments.find(m => m.id === selectedMoment)!, 
+                        type: e.target.value as HighlightMoment['type']
+                      };
+                      updateMoment(updatedMoment);
+                    }}
+                  >
+                    {momentTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.icon} {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="moment-team">Team</Label>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant={currentHighlight.moments.find(m => m.id === selectedMoment)?.teamId === match.teams.home.id ? "default" : "outline"}
+                    className="flex-1"
+                    onClick={() => {
+                      const updatedMoment = {
+                        ...currentHighlight.moments.find(m => m.id === selectedMoment)!, 
+                        teamId: match.teams.home.id
+                      };
+                      updateMoment(updatedMoment);
+                    }}
+                  >
+                    <img 
+                      src={match.teams.home.logo} 
+                      alt={match.teams.home.name} 
+                      className="w-5 h-5 mr-2"
+                    />
+                    {match.teams.home.name}
+                  </Button>
+                  
+                  <Button 
+                    variant={currentHighlight.moments.find(m => m.id === selectedMoment)?.teamId === match.teams.away.id ? "default" : "outline"}
+                    className="flex-1"
+                    onClick={() => {
+                      const updatedMoment = {
+                        ...currentHighlight.moments.find(m => m.id === selectedMoment)!, 
+                        teamId: match.teams.away.id
+                      };
+                      updateMoment(updatedMoment);
+                    }}
+                  >
+                    <img 
+                      src={match.teams.away.logo} 
+                      alt={match.teams.away.name} 
+                      className="w-5 h-5 mr-2"
+                    />
+                    {match.teams.away.name}
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="moment-description">Description</Label>
+                <Textarea 
+                  id="moment-description" 
+                  value={currentHighlight.moments.find(m => m.id === selectedMoment)?.description || ''}
+                  onChange={(e) => {
+                    const updatedMoment = {
+                      ...currentHighlight.moments.find(m => m.id === selectedMoment)!, 
+                      description: e.target.value
+                    };
+                    updateMoment(updatedMoment);
+                  }}
+                  placeholder="Describe what happened"
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                const updatedMoment = currentHighlight.moments.find(m => m.id === selectedMoment)!;
+                updateMoment(updatedMoment);
+              }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
-};
-
-export default HighlightGenerator;
+}
