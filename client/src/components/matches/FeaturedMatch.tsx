@@ -5,7 +5,7 @@ import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatDateTime } from '@/lib/utils';
+import { formatDateTime, isLiveMatch } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
 
@@ -49,63 +49,108 @@ const FeaturedMatch = () => {
     // Combine all fixtures
     const allFixtures = [...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures];
     
+    // Create a map to track unique fixture IDs and detect duplicates
+    const fixtureIdMap = new Map<number, FixtureResponse>();
+    
+    // Process each data source, only adding new unique fixtures
+    const processSource = (fixtures: FixtureResponse[] | undefined, sourceName: string) => {
+      if (!fixtures) return;
+      fixtures.forEach(fixture => {
+        if (!fixtureIdMap.has(fixture.fixture.id)) {
+          fixtureIdMap.set(fixture.fixture.id, fixture);
+        }
+      });
+    };
+    
+    // Process sources
+    processSource(championsLeagueFixtures, "Champions League");
+    processSource(europaLeagueFixtures, "Europa League");
+    processSource(serieAFixtures, "Serie A");
+    
+    // Convert map back to array
+    const uniqueFixtures = Array.from(fixtureIdMap.values());
+    
     // Get the current time in seconds (unix timestamp)
     const currentTime = Math.floor(Date.now() / 1000);
+    const eightHoursInSeconds = 8 * 60 * 60; // 8 hours in seconds
     
-    // Calculate today's date range
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime() / 1000;
+    // Apply the exact same filtering logic as UpcomingMatchesScoreboard
+    const scoreBoardMatches = uniqueFixtures.filter(match => {
+      // Only include matches from our featured leagues
+      if (!POPULAR_LEAGUES.includes(match.league.id)) {
+        return false;
+      }
+      
+      // Get time difference from current time
+      const timeDiff = currentTime - match.fixture.timestamp;
+      
+      // Case 1: Today's finished matches that aren't more than 8 hours old
+      if (
+        (match.fixture.status.short === 'FT' || 
+         match.fixture.status.short === 'AET' || 
+         match.fixture.status.short === 'PEN') && 
+        timeDiff >= 0 && 
+        timeDiff <= eightHoursInSeconds
+      ) {
+        return true;
+      }
+      
+      // Case 2: Upcoming matches (not yet started)
+      if (
+        (match.fixture.status.short === 'NS' || 
+         match.fixture.status.short === 'TBD') && 
+        match.fixture.timestamp > currentTime
+      ) {
+        return true;
+      }
+      
+      // Case 3: Live matches
+      if (isLiveMatch(match.fixture.status.short)) {
+        return true;
+      }
+      
+      // Exclude all other matches
+      return false;
+    });
     
-    // Create an array of unique fixtures
-    const uniqueFixtures = allFixtures
-      // Remove duplicates by fixture ID
-      .filter((fixture, index, self) => 
-        index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-      )
-      // Filter to only include popular leagues
-      .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id));
-    
-    // Get today's matches with priority to matches that are in-play or finished
-    const todaysMatches = uniqueFixtures
-      .filter(fixture => 
-        fixture.fixture.timestamp >= startOfDay && 
-        fixture.fixture.timestamp <= endOfDay
-      )
-      // Sort with priority to in-play and then finished matches
-      .sort((a, b) => {
-        // In-play matches first
-        if (a.fixture.status.short === 'IN_PLAY' && b.fixture.status.short !== 'IN_PLAY') return -1;
-        if (a.fixture.status.short !== 'IN_PLAY' && b.fixture.status.short === 'IN_PLAY') return 1;
-        
-        // Then finished matches
-        if (a.fixture.status.short === 'FT' && b.fixture.status.short !== 'FT') return -1;
-        if (a.fixture.status.short !== 'FT' && b.fixture.status.short === 'FT') return 1;
-        
-        // Then by time
-        return a.fixture.timestamp - b.fixture.timestamp;
-      });
-    
-    // Get upcoming matches (not today)
-    const upcomingMatches = uniqueFixtures
-      .filter(fixture => 
-        // Not started yet
-        (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD') &&
-        // After today
-        fixture.fixture.timestamp > endOfDay
-      );
-    
-    // Combine and sort all matches prioritizing today's matches first, then upcoming
-    const filteredFixtures = [
-      ...todaysMatches,
-      ...upcomingMatches
-    ]
-    // Sort by timestamp (nearest first)
-    .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+    // Apply the same sorting logic as UpcomingMatchesScoreboard
+    const sortedFixtures = scoreBoardMatches.sort((a, b) => {
+      // First sort by match status: Live > Upcoming > Finished
+      const aIsLive = isLiveMatch(a.fixture.status.short);
+      const bIsLive = isLiveMatch(b.fixture.status.short);
+      
+      // Check if matches are finished
+      const aIsFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
+      const bIsFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
+      
+      // Live matches get highest priority
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+      
+      // Then upcoming matches (sort by nearest timestamp)
+      if (!aIsFinished && !aIsLive && bIsFinished) return -1;
+      if (aIsFinished && !bIsFinished && !bIsLive) return 1;
+      
+      // For upcoming matches, sort by nearest time first
+      const aTimeUntilMatch = a.fixture.timestamp - currentTime;
+      const bTimeUntilMatch = b.fixture.timestamp - currentTime;
+      
+      if (!aIsFinished && !bIsFinished) {
+        return aTimeUntilMatch - bTimeUntilMatch; // Nearest match first
+      }
+      
+      // For finished matches, sort by most recent first
+      if (aIsFinished && bIsFinished) {
+        return b.fixture.timestamp - a.fixture.timestamp; // Most recent first
+      }
+      
+      // Finally sort by timestamp for matches with the same priority
+      return a.fixture.timestamp - b.fixture.timestamp;
+    });
     
     // Set the first match as featured
-    if (filteredFixtures.length > 0) {
-      setFeaturedMatch(filteredFixtures[0]);
+    if (sortedFixtures.length > 0) {
+      setFeaturedMatch(sortedFixtures[0]);
     }
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures]);
   
