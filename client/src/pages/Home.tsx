@@ -40,7 +40,7 @@ const Home = () => {
   const countryLeagueMap: Record<string, number[]> = {
     'england': [39],     // Premier League
     'italy': [135],      // Serie A (Italy)
-    'europe': [2]        // Champions League
+    'europe': [2, 3]     // Champions League (2), Europa League (3)
   };
   
   // Pre-fetch all these leagues to ensure they're available for country filtering

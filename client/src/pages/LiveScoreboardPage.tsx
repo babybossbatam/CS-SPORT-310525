@@ -97,6 +97,7 @@ interface FixtureResponse {
 // Popular leagues for prioritization in the scoreboard
 const POPULAR_LEAGUES = [
   2,   // UEFA Champions League (Europe)
+  3,   // UEFA Europa League (Europe)
   39,  // Premier League (England)
   135, // Serie A (Italy)
 ];
@@ -130,7 +131,7 @@ function LiveScoreboardPage() {
   });
   
   // Top priority leagues that should always be shown first if available
-  const topPriorityLeagues = [2, 39, 135]; // UEFA Champions League (2), Premier League (39), Serie A (135)
+  const topPriorityLeagues = [2, 3, 39, 135]; // UEFA Champions League (2), Europa League (3), Premier League (39), Serie A (135)
   
   // Process fixtures when data is available
   useEffect(() => {
