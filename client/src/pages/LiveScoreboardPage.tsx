@@ -417,8 +417,8 @@ function LiveScoreboardPage() {
               <div className="flex h-full">
                 {/* Single continuous gradient bar with home and away team colors */}
                 <div className="flex h-full w-full relative overflow-hidden">
-                  {/* Home team section with 45-degree slice - extended all the way to the left edge and 8px to the right */}
-                  <div className={`w-[52%] relative ml-3 -translate-x-[100%] translate-x-5`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
+                  {/* Home team section with 45-degree slice - filling exactly to the middle */}
+                  <div className={`w-[50%] relative ml-3 -translate-x-[100%]`} style={{ backgroundColor: getTeamColor(featuredFixture.teams.home.name) }}>
                     {/* Angled edge for home team */}
                     <div className="absolute top-0 right-0 h-full w-8 transform skew-x-[20deg] translate-x-4" 
                       style={{backgroundColor: 'inherit'}}></div>
@@ -435,8 +435,8 @@ function LiveScoreboardPage() {
                     </div>
                   </div>
                   
-                  {/* Away team section with 45-degree slice - using different color, extended 10px to the right and 2px to the left */}
-                  <div className={`w-[52%] relative -ml-1 ml-[-0.5rem] mr-3 translate-x-10`} 
+                  {/* Away team section with 45-degree slice - also filling exactly to the middle */}
+                  <div className={`w-[50%] relative mr-3 -mr-[100%]`} 
                        style={{
                          backgroundColor: getTeamColor(featuredFixture.teams.away.name)
                        }}>
