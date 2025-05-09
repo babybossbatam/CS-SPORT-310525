@@ -318,8 +318,14 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label - large, visible divider between the teams */}
-                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/75 rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white shadow-md">
+                  {/* VS label - large, visible divider between the teams with HOME team color on the left half */}
+                  <div 
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white shadow-md overflow-hidden"
+                    style={{
+                      background: `linear-gradient(90deg, ${getTeamColor(currentFixture.teams.home.name, true)} 50%, rgba(0, 0, 0, 0.6) 50%)`,
+                      textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)'
+                    }}
+                  >
                     VS
                   </div>
                   
