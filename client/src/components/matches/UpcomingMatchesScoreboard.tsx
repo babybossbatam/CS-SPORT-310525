@@ -11,6 +11,7 @@ import { useLocation } from 'wouter';
 // League IDs we care about (only show matches from these leagues)
 const FEATURED_LEAGUE_IDS = [
   135,  // Serie A (Italy)
+  2,    // UEFA Champions League
 ];
 
 // Define the types we need
