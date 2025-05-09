@@ -162,10 +162,8 @@ const Home = () => {
             
             {/* Top Scorers Section - Moved below Featured Match */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <div className="py-2 px-3 bg-gray-100 border-b">
-                <h3 className="font-semibold text-gray-700">Top Scorers</h3>
-              </div>
-              <div className="p-3">
+              <h3 className="font-semibold text-gray-700 p-3">Top Scorers</h3>
+              <div className="px-3 pb-3">
                 <TopScorersList />
               </div>
             </div>
@@ -174,9 +172,7 @@ const Home = () => {
             
             {/* Popular Teams Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <div className="py-2 px-3 bg-gray-100 border-b">
-                <h3 className="font-semibold text-gray-700">Popular Teams</h3>
-              </div>
+              <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
               <div>
                 <PopularTeamsList />
               </div>
@@ -187,9 +183,7 @@ const Home = () => {
           <div className="lg:col-span-4 space-y-4">
             {/* Today's Matches Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="py-2 px-3 bg-gray-100 border-b">
-                <h3 className="font-semibold text-gray-700">Today's Matches</h3>
-              </div>
+              <h3 className="font-semibold text-gray-700 p-3">Today's Matches</h3>
               <div>
                 <TodayMatches />
               </div>
@@ -205,9 +199,7 @@ const Home = () => {
             
             {/* Popular Leagues section - New Design */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <div className="py-2 px-3 bg-gray-100 border-b">
-                <h3 className="font-semibold text-gray-700">Popular Leagues</h3>
-              </div>
+              <h3 className="font-semibold text-gray-700 p-3">Popular Leagues</h3>
               <div>
                 <PopularLeaguesList />
               </div>
