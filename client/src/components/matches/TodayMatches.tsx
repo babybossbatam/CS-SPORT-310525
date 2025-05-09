@@ -1,14 +1,20 @@
 import { useLocation } from 'wouter';
-import { format, parseISO, isToday, differenceInHours, addHours } from 'date-fns';
+import { 
+  format, 
+  parseISO, 
+  isToday, 
+  isYesterday, 
+  isTomorrow, 
+  addDays, 
+  differenceInHours, 
+  subDays 
+} from 'date-fns';
 import { FixtureResponse } from '../../../../server/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Calendar, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
+import { Clock, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect, useRef } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
 
 // Same league list as UpcomingMatchesScoreboard
 const POPULAR_LEAGUES = [
@@ -20,7 +26,6 @@ const POPULAR_LEAGUES = [
 const TodayMatches = () => {
   const [, navigate] = useLocation();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [showCalendar, setShowCalendar] = useState(false);
   const [filterByTime, setFilterByTime] = useState(false);
   
   // Format date for API request
@@ -95,7 +100,12 @@ const TodayMatches = () => {
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
     // Apply time filter if enabled (only show matches finished within last 8 hours)
-    .filter(fixture => !filterByTime || isRecentFinishedMatch(fixture))
+    .filter(fixture => {
+      if (filterByTime) {
+        return fixture.fixture.status.short === 'FT' && isRecentFinishedMatch(fixture);
+      }
+      return true;
+    })
     // Filter to only include our priority leagues
     .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
     // Sort by timestamp (nearest first)
@@ -137,54 +147,75 @@ const TodayMatches = () => {
   return (
     <div>
       {/* Filter controls */}
-      <div className="flex items-center justify-between mb-3 mx-1">
-        <div className="flex items-center">
-          <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-xs h-8 gap-1 border-gray-300"
-              >
-                <span className="whitespace-nowrap">{selectedDate ? format(selectedDate, 'MMM dd, yyyy') : 'Today'}</span>
-                {showCalendar ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <DayPicker
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => {
-                  setSelectedDate(date || new Date());
-                  setShowCalendar(false);
-                }}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+      <div className="flex flex-col mb-3 mx-1">
+        {/* Date filter buttons */}
+        <div className="flex space-x-1 mb-2 overflow-x-auto pb-1">
+          <Button 
+            variant={isYesterday(selectedDate || new Date()) ? "default" : "outline"}
+            size="sm" 
+            className="text-xs h-7 min-w-16"
+            onClick={() => setSelectedDate(subDays(new Date(), 1))}
+          >
+            Yesterday
+          </Button>
           
-          {!isToday(selectedDate || new Date()) && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="ml-2 h-8 text-xs"
-              onClick={() => setSelectedDate(new Date())}
-            >
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Today
-            </Button>
-          )}
+          <Button 
+            variant={isToday(selectedDate || new Date()) ? "default" : "outline"}
+            size="sm" 
+            className="text-xs h-7 min-w-16"
+            onClick={() => setSelectedDate(new Date())}
+          >
+            Today
+          </Button>
+          
+          <Button 
+            variant={isTomorrow(selectedDate || new Date()) ? "default" : "outline"}
+            size="sm" 
+            className="text-xs h-7 min-w-16"
+            onClick={() => setSelectedDate(addDays(new Date(), 1))}
+          >
+            Tomorrow
+          </Button>
+          
+          <Button 
+            variant={!isYesterday(selectedDate || new Date()) && 
+                   !isToday(selectedDate || new Date()) && 
+                   !isTomorrow(selectedDate || new Date()) &&
+                   format(selectedDate || new Date(), 'yyyy-MM-dd') === format(addDays(new Date(), 2), 'yyyy-MM-dd') ? 
+                   "default" : "outline"}
+            size="sm" 
+            className="text-xs h-7"
+            onClick={() => setSelectedDate(addDays(new Date(), 2))}
+          >
+            {format(addDays(new Date(), 2), 'EEE, MMM d')}
+          </Button>
+          
+          <Button 
+            variant={!isYesterday(selectedDate || new Date()) && 
+                   !isToday(selectedDate || new Date()) && 
+                   !isTomorrow(selectedDate || new Date()) &&
+                   format(selectedDate || new Date(), 'yyyy-MM-dd') === format(addDays(new Date(), 3), 'yyyy-MM-dd') ? 
+                   "default" : "outline"}
+            size="sm" 
+            className="text-xs h-7"
+            onClick={() => setSelectedDate(addDays(new Date(), 3))}
+          >
+            {format(addDays(new Date(), 3), 'EEE, MMM d')}
+          </Button>
         </div>
         
-        <Button 
-          variant={filterByTime ? "default" : "outline"}
-          size="sm" 
-          className={`text-xs h-8 gap-1 ${filterByTime ? 'bg-blue-600' : 'border-gray-300'}`}
-          onClick={() => setFilterByTime(!filterByTime)}
-        >
-          <Clock className="h-3 w-3" />
-          by time
-        </Button>
+        {/* Time filter buttons */}
+        <div className="flex justify-end">
+          <Button 
+            variant={filterByTime ? "default" : "outline"}
+            size="sm" 
+            className={`text-xs h-7 gap-1 ${filterByTime ? 'bg-blue-600' : 'border-gray-300'}`}
+            onClick={() => setFilterByTime(!filterByTime)}
+          >
+            <Clock className="h-3 w-3" />
+            Recent matches
+          </Button>
+        </div>
       </div>
       
       {/* Main content */}
