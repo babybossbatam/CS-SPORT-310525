@@ -400,6 +400,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Champions League fixtures endpoint (League ID 2)
+  apiRouter.get("/champions-league/fixtures", async (_req: Request, res: Response) => {
+    try {
+      console.log("Champions League fixtures API call initiated");
+      
+      // Champions League ID is 2
+      const leagueId = 2;
+      // Use current year for the season
+      const currentYear = new Date().getFullYear();
+      
+      console.log(`Attempting to fetch Champions League (ID: ${leagueId}) fixtures for season ${currentYear}`);
+      
+      // First, let's verify the league exists
+      const leagueData = await rapidApiService.getLeagueById(leagueId);
+      if (!leagueData) {
+        console.error("Champions League data not found in API");
+        return res.status(404).json({ message: "Champions League not found in API" });
+      }
+      
+      console.log(`Champions League found: ${leagueData.league.name}, attempting to fetch fixtures...`);
+      
+      // Check if we should use a different season from the league data
+      const currentSeason = leagueData.seasons.find(s => s.current);
+      const seasonToUse = currentSeason ? currentSeason.year : currentYear;
+      
+      console.log(`Using season ${seasonToUse} for Champions League fixtures`);
+      
+      // Fetch fixtures using the verified season
+      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
+      
+      console.log(`Champions League fixtures response received, count: ${fixtures ? fixtures.length : 0}`);
+      
+      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+        console.warn("No Champions League fixtures found in API response");
+        
+        // Provide mock data for testing if in development environment
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Sending empty array in response");
+        }
+        
+        return res.status(404).json({ 
+          message: "No Champions League fixtures found",
+          leagueInfo: leagueData
+        });
+      }
+      
+      // Sort fixtures by date (newest first)
+      const sortedFixtures = [...fixtures].sort((a, b) => {
+        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+      });
+      
+      console.log(`Returning ${sortedFixtures.length} sorted Champions League fixtures`);
+      return res.json(sortedFixtures);
+    } catch (error) {
+      console.error("Error fetching Champions League fixtures:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch Champions League data",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);
