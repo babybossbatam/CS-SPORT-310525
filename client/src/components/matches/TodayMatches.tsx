@@ -293,7 +293,7 @@ const TodayMatches = () => {
 
       {/* Filter controls based on the provided image */}
       <div className="flex flex-col mb-3 mx-1 border-b pb-3">
-        {/* Top row - LIVE and by time */}
+        {/* Top row with filters and date picker centered */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
             <Button 
@@ -326,6 +326,39 @@ const TodayMatches = () => {
             </Button>
           </div>
           
+          {/* Date picker moved to center */}
+          <div className="flex-1 mx-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 justify-between text-xs w-full font-medium"
+                >
+                  <div className="flex items-center">
+                    {selectedDate && !isSameDay(selectedDate, new Date()) 
+                      ? format(selectedDate, 'MMMM d, yyyy') 
+                      : "Today's Matches"}
+                  </div>
+                  <ChevronRight className="h-3.5 w-3.5 ml-2 rotate-90" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <DayPicker
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    setSelectedDate(date);
+                    setShowLiveOnly(false);
+                  }}
+                  weekStartsOn={1}
+                  showOutsideDays
+                  fixedWeeks
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
           <div className="flex justify-end">
             <Button 
               variant="ghost"
@@ -340,39 +373,6 @@ const TodayMatches = () => {
               by time
             </Button>
           </div>
-        </div>
-
-        {/* Today's Matches dropdown with calendar */}
-        <div className="flex flex-col w-full mt-1">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 justify-between text-xs w-full font-medium"
-              >
-                <div className="flex items-center">
-                  {selectedDate && !isSameDay(selectedDate, new Date()) 
-                    ? format(selectedDate, 'MMMM d, yyyy') 
-                    : "Today's Matches"}
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 ml-2 rotate-90" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="center">
-              <DayPicker
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => {
-                  setSelectedDate(date);
-                  setShowLiveOnly(false);
-                }}
-                weekStartsOn={1}
-                showOutsideDays
-                fixedWeeks
-              />
-            </PopoverContent>
-          </Popover>
         </div>
       </div>
       
