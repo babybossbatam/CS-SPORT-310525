@@ -298,7 +298,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* Home team - gradient extending exactly to meet at the middle */}
-                  <div className={`h-full w-[50%] ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center -ml-[100%]`}>
+                  <div className={`h-full w-[50%] ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center justify-start`}>
                     <div className="ml-20 text-white font-bold text-lg uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
@@ -313,7 +313,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* Away team - gradient extending exactly to meet at the middle */}
-                  <div className={`h-full w-[50%] ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} flex items-center justify-end -mr-[100%]`}>
+                  <div className={`h-full w-[50%] ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} flex items-center justify-end`}>
                     <div className="mr-20 text-white font-bold text-lg uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
