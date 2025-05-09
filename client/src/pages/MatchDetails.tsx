@@ -13,7 +13,7 @@ import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
-import { getTeamGradient, getEnhancedHomeTeamGradient } from '@/lib/colorExtractor';
+import { getTeamGradient, getEnhancedHomeTeamGradient, getTeamColor, getOpposingTeamColor } from '@/lib/colorExtractor';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import MatchPrediction from '@/components/matches/MatchPrediction';
