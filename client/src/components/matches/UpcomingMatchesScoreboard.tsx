@@ -12,6 +12,8 @@ import { useLocation } from 'wouter';
 const FEATURED_LEAGUE_IDS = [
   135,  // Serie A (Italy)
   2,    // UEFA Champions League
+  39,   // Premier League
+  3,    // UEFA Europa League
 ];
 
 // Define the types we need
@@ -105,29 +107,48 @@ const UpcomingMatchesScoreboard = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
+  // Fetch Europa League fixtures
+  const { data: europaLeagueFixtures, isLoading: isEuropaLeagueLoading } = useQuery<FixtureResponse[]>({
+    queryKey: ['/api/europa-league/fixtures'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  
   // Process the fixtures when data is available
   useEffect(() => {
-    if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures) return;
+    if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures) return;
     
-    // Combine live, upcoming fixtures, and Champions League fixtures
+    // Combine live, upcoming fixtures, Champions League fixtures, and Europa League fixtures
     const allFixtures = [
       ...(liveFixtures || []),
       ...(tomorrowFixtures || []),
-      ...(championsLeagueFixtures || [])
+      ...(championsLeagueFixtures || []),
+      ...(europaLeagueFixtures || [])
     ];
     
-    // Filter to include ONLY upcoming matches from our featured leagues
-    // Filter out finished matches (status 'FT', 'AET', 'PEN', etc.)
-    const featuredLeagueFixtures = allFixtures.filter(match => 
-      FEATURED_LEAGUE_IDS.includes(match.league.id) &&
-      match.fixture.status.short !== 'FT' &&
-      match.fixture.status.short !== 'AET' &&
-      match.fixture.status.short !== 'PEN' &&
-      match.fixture.status.short !== 'PST' &&
-      match.fixture.status.short !== 'CANC' &&
-      match.fixture.status.short !== 'ABD' &&
-      match.fixture.status.short !== 'AWD'
+    // Check for the Inter vs Barcelona match
+    const interBarcelonaMatch = allFixtures.find(match => 
+      (match.teams.home.name === 'Inter' && match.teams.away.name === 'Barcelona') ||
+      (match.teams.home.name === 'Barcelona' && match.teams.away.name === 'Inter')
     );
+    
+    // Include that match regardless of status if found
+    const featuredLeagueFixtures = allFixtures.filter(match => {
+      // Special case for Inter vs Barcelona match - always include it
+      if (match.fixture.id === interBarcelonaMatch?.fixture.id) {
+        return true;
+      }
+      
+      // Filter to include matches from our featured leagues
+      // Filter out finished matches (status 'FT', 'AET', 'PEN', etc.)
+      return FEATURED_LEAGUE_IDS.includes(match.league.id) &&
+        match.fixture.status.short !== 'FT' &&
+        match.fixture.status.short !== 'AET' &&
+        match.fixture.status.short !== 'PEN' &&
+        match.fixture.status.short !== 'PST' &&
+        match.fixture.status.short !== 'CANC' &&
+        match.fixture.status.short !== 'ABD' &&
+        match.fixture.status.short !== 'AWD';
+    });
     
     // Sort by date and prioritize live matches
     const sortedFixtures = featuredLeagueFixtures.sort((a, b) => {
@@ -147,7 +168,7 @@ const UpcomingMatchesScoreboard = () => {
     
     // Set the first page of matches
     updateCurrentPage(0, sortedFixtures);
-  }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures]);
+  }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures, europaLeagueFixtures]);
   
   // Function to update the current page of matches to display
   const updateCurrentPage = (page: number, fixtures = allMatches) => {
@@ -174,7 +195,7 @@ const UpcomingMatchesScoreboard = () => {
   };
   
   // Loading state
-  if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading) {
+  if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading || isEuropaLeagueLoading) {
     return (
       <Card>
         <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">

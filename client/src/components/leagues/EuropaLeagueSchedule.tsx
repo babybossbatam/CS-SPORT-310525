@@ -73,10 +73,21 @@ const EuropaLeagueSchedule = () => {
   const [, navigate] = useLocation();
   const [visibleFixtures, setVisibleFixtures] = useState<FixtureResponse[]>([]);
   
-  // Fetch the Europa League fixtures from our API
+  // Europa League ID is 3
+  const leagueId = 3;
+  const currentYear = new Date().getFullYear();
+  
+  // Get Europa League info
+  const { data: leagueInfo } = useQuery({
+    queryKey: [`/api/leagues/${leagueId}`],
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+  
+  // Get the league fixtures with current season from league info
   const { data: allFixtures, isLoading, error } = useQuery<FixtureResponse[]>({
-    queryKey: ['/api/europa-league/fixtures'],
-    staleTime: 5 * 60 * 1000, // Refresh every 5 minutes
+    queryKey: [`/api/leagues/${leagueId}/fixtures`],
+    enabled: !!leagueInfo,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
   // Group fixtures by matchday or round when data is available
@@ -96,10 +107,10 @@ const EuropaLeagueSchedule = () => {
       .filter(f => new Date(f.fixture.date) <= now)
       .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
     
-    // Take 5 upcoming fixtures and 5 recent fixtures
+    // Take a limited number of fixtures
     const visibleFixtures = [
-      ...upcomingFixtures.slice(0, 5),
-      ...pastFixtures.slice(0, 5)
+      ...upcomingFixtures.slice(0, 3),
+      ...pastFixtures.slice(0, 2)
     ];
     
     // Sort by date
@@ -130,16 +141,6 @@ const EuropaLeagueSchedule = () => {
     setVisibleFixtures(visibleFixtures);
   }, [allFixtures]);
   
-  // Format date to display
-  const formatDate = (dateString: string) => {
-    try {
-      const date = parseISO(dateString);
-      return format(date, 'MMM dd, HH:mm');
-    } catch (error) {
-      return dateString;
-    }
-  };
-  
   // Loading state
   if (isLoading) {
     return (
@@ -152,7 +153,6 @@ const EuropaLeagueSchedule = () => {
         </CardHeader>
         <CardContent className="p-0">
           <div className="p-4">
-            <Skeleton className="h-10 w-full mb-3" />
             <Skeleton className="h-10 w-full mb-3" />
             <Skeleton className="h-10 w-full mb-3" />
             <Skeleton className="h-10 w-full" />
@@ -187,7 +187,7 @@ const EuropaLeagueSchedule = () => {
                   alt="UEFA Europa League" 
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128?text=UEFA+Europa+League';
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128?text=Europa+League';
                   }}
                 />
               </div>
@@ -212,7 +212,7 @@ const EuropaLeagueSchedule = () => {
           <div className="text-center space-y-3">
             <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-100 text-sm">
               <p className="font-medium">No Europa League fixtures are currently available.</p>
-              <p className="mt-1 text-xs text-yellow-600">Fixtures will be listed here when the tournament begins or when matches are scheduled.</p>
+              <p className="mt-1 text-xs text-yellow-600">Fixtures will be listed here when matches are scheduled.</p>
             </div>
             
             {/* Fallback image */}
@@ -223,7 +223,7 @@ const EuropaLeagueSchedule = () => {
                   alt="UEFA Europa League" 
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=UEFA+Europa+League';
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Europa+League';
                   }}
                 />
               </div>
@@ -240,10 +240,10 @@ const EuropaLeagueSchedule = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Europa League Schedule</span>
+            <span className="font-semibold">UEFA Europa League</span>
           </div>
           <button 
-            onClick={() => navigate(`/league/3`)}
+            onClick={() => navigate(`/league/${leagueId}`)}
             className="flex items-center text-xs bg-blue-800 hover:bg-blue-900 px-2 py-1 rounded transition-colors"
           >
             View All <ChevronRight className="h-3 w-3 ml-1" />
