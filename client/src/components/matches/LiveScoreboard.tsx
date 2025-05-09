@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { Clock, Calendar, Star, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import { getTeamGradient, getTeamColor, getContrastTextColor, getOpposingTeamColor } from '@/lib/colorExtractor';
+import { getTeamGradient, getTeamColor, getContrastTextColor, getOpposingTeamColor, getEnhancedHomeTeamGradient } from '@/lib/colorExtractor';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -384,11 +384,11 @@ export function LiveScoreboard({
                 
                 {/* Team names with colored bars */}
                 <div className="flex h-12 w-full overflow-hidden relative">
-                  {/* Home team color bar - filling all the way to the middle at the VS text */}
+                  {/* Home team color bar - filling all the way to the middle at the VS text with 10% enhanced intensity */}
                   <div 
                     className="w-[50%] flex items-center justify-start px-4 text-white h-full"
                     style={{ 
-                      background: getTeamColor(featuredMatch.teams.home.name)
+                      background: getTeamColor(featuredMatch.teams.home.name, true) /* Enhanced home team color */
                     }}
                   >
                     <span className="font-bold uppercase text-sm md:text-base tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">

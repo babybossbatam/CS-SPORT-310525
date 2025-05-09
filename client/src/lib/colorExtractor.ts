@@ -370,11 +370,16 @@ function colorSimilarity(color1: RGB, color2: RGB): number {
 
 /**
  * Get a solid CSS color for a team (for charts, accents, etc.)
+ * @param teamName - The team name
+ * @param enhance - Optional. If true, makes color 10% more intense for home teams
  */
-export function getTeamColor(teamName: string): string {
+export function getTeamColor(teamName: string, enhance = false): string {
+  // Create cache key that includes enhancement info
+  const cacheKey = enhance ? `${teamName}_enhanced` : teamName;
+  
   // Check cache first
-  if (solidColorCache[teamName]) {
-    return solidColorCache[teamName];
+  if (solidColorCache[cacheKey]) {
+    return solidColorCache[cacheKey];
   }
   
   // Try predefined map
@@ -384,7 +389,20 @@ export function getTeamColor(teamName: string): string {
   
   if (exactMatch) {
     const color = teamColorMap[exactMatch].accent;
-    solidColorCache[teamName] = color;
+    // Apply enhancement for home teams if requested
+    if (enhance) {
+      const rgb = parseRgb(color);
+      const enhancedRgb = {
+        r: Math.min(255, Math.round(rgb.r * 0.9)), // Make slightly darker (more saturated)
+        g: Math.min(255, Math.round(rgb.g * 0.9)), 
+        b: Math.min(255, Math.round(rgb.b * 0.9))
+      };
+      const enhancedColor = `rgb(${enhancedRgb.r}, ${enhancedRgb.g}, ${enhancedRgb.b})`;
+      solidColorCache[cacheKey] = enhancedColor;
+      return enhancedColor;
+    }
+    
+    solidColorCache[cacheKey] = color;
     return color;
   }
   
@@ -398,12 +416,12 @@ export function getTeamColor(teamName: string): string {
   const hue = Math.abs(hash) % 360;
   
   // Create a vibrant RGB color
-  const saturation = 80; // 0-100
-  const lightness = 45;  // 0-100
+  const saturation = enhance ? 90 : 80; // 0-100, 10% higher for HOME
+  const lightness = enhance ? 40 : 45;  // 0-100, 5% darker for HOME (more vivid)
   
   // Convert HSL to RGB
   const color = hslToRgb(hue, saturation, lightness);
-  solidColorCache[teamName] = color;
+  solidColorCache[cacheKey] = color;
   
   return color;
 }
