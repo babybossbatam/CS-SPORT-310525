@@ -251,23 +251,25 @@ const FeaturedMatch = () => {
             <span className="font-semibold text-center truncate max-w-[120px]">{featuredMatch.teams.home.name}</span>
           </div>
           
-          {/* Match Bar - Updated with gradient colors spanning from HOME team logo to V and from S to AWAY team logo */}
-          <div className="absolute left-0 right-0 h-10 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden rounded-md shadow-md">
+          {/* Match Bar - Enhanced with strong vibrant colors for HOME/AWAY team matching team logos */}
+          <div className="absolute left-0 right-0 h-12 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden rounded-md shadow-lg">
             <div className="w-full h-full flex">
-              {/* Home team color from behind logo to V word */}
+              {/* Home team color with enhanced saturation and vibrance */}
               <div 
                 className="w-[50%] h-full" 
                 style={{ 
                   background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)} 0%, ${getTeamColor(featuredMatch.teams.home.name, true)} 100%)`,
-                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+                  boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)'
                 }}
               ></div>
-              {/* Away team color from S word to away team logo */}
+              {/* Away team color with enhanced opposing color */}
               <div 
                 className="w-[50%] h-full" 
                 style={{ 
                   background: `linear-gradient(90deg, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 0%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 100%)`,
-                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+                  boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)'
                 }}
               ></div>
             </div>

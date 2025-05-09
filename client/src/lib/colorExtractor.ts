@@ -389,14 +389,22 @@ export function getTeamColor(teamName: string, enhance = false): string {
   
   if (exactMatch) {
     const color = teamColorMap[exactMatch].accent;
-    // Apply enhancement for home teams if requested
+    // Apply strong enhancement for home teams if requested - make colors much more vibrant
     if (enhance) {
       const rgb = parseRgb(color);
+      // Make colors more saturated and vibrant by increasing contrast
       const enhancedRgb = {
-        r: Math.min(255, Math.round(rgb.r * 0.9)), // Make slightly darker (more saturated)
-        g: Math.min(255, Math.round(rgb.g * 0.9)), 
-        b: Math.min(255, Math.round(rgb.b * 0.9))
+        r: Math.min(255, Math.round(rgb.r * 0.75)), // Make notably darker for more saturation
+        g: Math.min(255, Math.round(rgb.g * 0.75)), 
+        b: Math.min(255, Math.round(rgb.b * 0.75))
       };
+      
+      // Find dominant color channel and boost it slightly to increase vibrancy
+      const maxChannel = Math.max(rgb.r, rgb.g, rgb.b);
+      if (maxChannel === rgb.r) enhancedRgb.r = Math.min(255, Math.round(enhancedRgb.r * 1.4));
+      if (maxChannel === rgb.g) enhancedRgb.g = Math.min(255, Math.round(enhancedRgb.g * 1.4));
+      if (maxChannel === rgb.b) enhancedRgb.b = Math.min(255, Math.round(enhancedRgb.b * 1.4));
+      
       const enhancedColor = `rgb(${enhancedRgb.r}, ${enhancedRgb.g}, ${enhancedRgb.b})`;
       solidColorCache[cacheKey] = enhancedColor;
       return enhancedColor;
@@ -415,9 +423,9 @@ export function getTeamColor(teamName: string, enhance = false): string {
   // Generate hue (0-360)
   const hue = Math.abs(hash) % 360;
   
-  // Create a vibrant RGB color
-  const saturation = enhance ? 90 : 80; // 0-100, 10% higher for HOME
-  const lightness = enhance ? 40 : 45;  // 0-100, 5% darker for HOME (more vivid)
+  // Create a vibrant RGB color with much more intensity
+  const saturation = enhance ? 100 : 90; // 0-100, higher saturation for more vivid colors
+  const lightness = enhance ? 35 : 40;   // 0-100, darker for more intense colors
   
   // Convert HSL to RGB
   const color = hslToRgb(hue, saturation, lightness);
