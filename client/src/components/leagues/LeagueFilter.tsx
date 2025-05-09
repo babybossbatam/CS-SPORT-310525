@@ -64,9 +64,9 @@ const LeagueFilter = () => {
       case 'Champions League': return 'UCL';
       case 'Europa League': return 'UEL';
       case 'Premier League': return 'EPL';
-      case 'La Liga': return 'LL';
-      case 'Bundesliga': return 'BL';
-      case 'Serie A': return 'SA';
+      case 'La Liga': return 'La Liga';
+      case 'Bundesliga': return 'BundesLiga';
+      case 'Serie A': return 'Serie A';
       default: return name.substring(0, 3);
     }
   };
