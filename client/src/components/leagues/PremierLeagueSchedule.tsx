@@ -142,10 +142,10 @@ const PremierLeagueSchedule = () => {
   if (isLoading) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-purple-700 to-purple-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Premier League</span>
+            <Trophy className="h-5 w-5 mr-2 text-purple-600" />
+            <span className="font-semibold text-purple-800">Premier League</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -163,10 +163,10 @@ const PremierLeagueSchedule = () => {
   if (error) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-purple-700 to-purple-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Premier League</span>
+            <Trophy className="h-5 w-5 mr-2 text-purple-600" />
+            <span className="font-semibold text-purple-800">Premier League</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -199,10 +199,10 @@ const PremierLeagueSchedule = () => {
   if (!visibleFixtures || visibleFixtures.length === 0) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-purple-700 to-purple-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Premier League</span>
+            <Trophy className="h-5 w-5 mr-2 text-purple-600" />
+            <span className="font-semibold text-purple-800">Premier League</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -233,15 +233,15 @@ const PremierLeagueSchedule = () => {
   
   return (
     <Card className="mb-4">
-      <CardHeader className="bg-gradient-to-r from-purple-700 to-purple-500 text-white p-3">
+      <CardHeader className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Premier League</span>
+            <Trophy className="h-5 w-5 mr-2 text-purple-600" />
+            <span className="font-semibold text-purple-800">Premier League</span>
           </div>
           <button 
             onClick={() => navigate(`/league/${leagueId}`)}
-            className="flex items-center text-xs bg-purple-800 hover:bg-purple-900 px-2 py-1 rounded transition-colors"
+            className="flex items-center text-xs bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded transition-colors"
           >
             View All <ChevronRight className="h-3 w-3 ml-1" />
           </button>

@@ -142,10 +142,10 @@ const SerieASchedule = () => {
   if (isLoading) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-sky-700 to-sky-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <ShieldHalf className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Serie A</span>
+            <ShieldHalf className="h-5 w-5 mr-2 text-sky-600" />
+            <span className="font-semibold text-sky-800">Serie A</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -163,10 +163,10 @@ const SerieASchedule = () => {
   if (error) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-sky-700 to-sky-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <ShieldHalf className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Serie A</span>
+            <ShieldHalf className="h-5 w-5 mr-2 text-sky-600" />
+            <span className="font-semibold text-sky-800">Serie A</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -199,10 +199,10 @@ const SerieASchedule = () => {
   if (!visibleFixtures || visibleFixtures.length === 0) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-sky-700 to-sky-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <ShieldHalf className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Serie A</span>
+            <ShieldHalf className="h-5 w-5 mr-2 text-sky-600" />
+            <span className="font-semibold text-sky-800">Serie A</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
