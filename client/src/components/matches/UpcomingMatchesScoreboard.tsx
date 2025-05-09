@@ -161,16 +161,32 @@ const UpcomingMatchesScoreboard = () => {
         match.fixture.status.short !== 'AWD';
     });
     
-    // Sort by date and prioritize live matches
+    // Custom sort order: Champions League (2), Europa League (3), Serie A (135), Premier League (39)
+    const leaguePriority: Record<number, number> = {
+      2: 1,  // Champions League - highest priority
+      3: 2,  // Europa League - second priority
+      135: 3, // Serie A - third priority
+      39: 4,  // Premier League - fourth priority
+      // Any other league will have lower priority
+    };
+    
     const sortedFixtures = featuredLeagueFixtures.sort((a, b) => {
-      // Prioritize live matches
+      // First, prioritize live matches
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
       
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
       
-      // Then sort by timestamp
+      // Then prioritize by league according to our custom order
+      const aPriority = leaguePriority[a.league.id] || 999;
+      const bPriority = leaguePriority[b.league.id] || 999;
+      
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      
+      // Then sort by timestamp for matches within the same league
       return a.fixture.timestamp - b.fixture.timestamp;
     });
     
@@ -195,6 +211,9 @@ const UpcomingMatchesScoreboard = () => {
     const maxPage = Math.ceil(allMatches.length / matchesPerPage) - 1;
     if (currentPage < maxPage) {
       updateCurrentPage(currentPage + 1);
+    } else {
+      // If on the last page, loop back to page 1
+      updateCurrentPage(0);
     }
   };
   
@@ -409,14 +428,9 @@ const UpcomingMatchesScoreboard = () => {
             
             <button
               onClick={nextPage}
-              disabled={currentPage >= Math.ceil(allMatches.length / matchesPerPage) - 1}
-              className={`flex items-center text-xs px-2 py-1 rounded transition-colors ${
-                currentPage >= Math.ceil(allMatches.length / matchesPerPage) - 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
+              className="flex items-center text-xs px-2 py-1 rounded transition-colors bg-gray-200 hover:bg-gray-300 text-gray-700"
             >
-              Next
+              {currentPage >= Math.ceil(allMatches.length / matchesPerPage) - 1 ? 'Back to First' : 'Next'}
               <ChevronRight className="h-3 w-3 ml-1" />
             </button>
           </div>
