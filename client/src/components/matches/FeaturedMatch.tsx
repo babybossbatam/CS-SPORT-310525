@@ -1,62 +1,93 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, fixturesActions } from '@/lib/store';
+import { format, parseISO } from 'date-fns';
 import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime } from '@/lib/utils';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { FixtureResponse } from '../../../../server/types';
+
+// Same league list as TodayMatches and UpcomingMatchesScoreboard
+const POPULAR_LEAGUES = [
+  2,   // UEFA Champions League (Europe)
+  3,   // UEFA Europa League (Europe)
+  135, // Serie A (Italy)
+];
 
 const FeaturedMatch = () => {
   const [, navigate] = useLocation();
-  const dispatch = useDispatch();
-  const { toast } = useToast();
+  const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
   
-  const loading = useSelector((state: RootState) => state.fixtures.loading);
-  const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
-  const featuredMatch = upcomingFixtures.length > 0 ? upcomingFixtures[0] : null;
+  // Get fixture data using React Query
+  const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
+    queryKey: ['/api/champions-league/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/champions-league/fixtures');
+      return response.json();
+    }
+  });
+  
+  const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
+    queryKey: ['/api/europa-league/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/europa-league/fixtures');
+      return response.json();
+    }
+  });
+  
+  const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
+    queryKey: ['/api/leagues/135/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/leagues/135/fixtures');
+      return response.json();
+    }
+  });
   
   useEffect(() => {
-    const fetchUpcomingFixtures = async () => {
-      try {
-        dispatch(fixturesActions.setLoadingFixtures(true));
-        
-        // Get tomorrow's date
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        
-        const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowStr}`);
-        const data = await response.json();
-        
-        // Sort matches by league importance (Champions League first)
-        const sortedData = [...data].sort((a, b) => {
-          // Prioritize Champions League matches
-          if (a.league.id === 2) return -1;
-          if (b.league.id === 2) return 1;
-          return 0;
-        });
-        
-        dispatch(fixturesActions.setUpcomingFixtures(sortedData));
-      } catch (error) {
-        console.error('Error fetching upcoming fixtures:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load upcoming matches',
-          variant: 'destructive',
-        });
-      } finally {
-        dispatch(fixturesActions.setLoadingFixtures(false));
-      }
-    };
+    // Combine all fixtures
+    const allFixtures = [...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures];
     
-    fetchUpcomingFixtures();
-  }, [dispatch, toast]);
+    // Get the current time in seconds (unix timestamp)
+    const currentTime = Math.floor(Date.now() / 1000);
+    
+    // Filter and sort matches using the same logic as TodayMatches
+    const filteredFixtures = allFixtures
+      // Remove duplicates by fixture ID
+      .filter((fixture, index, self) => 
+        index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+      )
+      // Only include upcoming matches (timestamp > current time)
+      .filter(fixture => fixture.fixture.timestamp > currentTime)
+      // Filter to only include popular leagues
+      .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
+      // Sort by timestamp (nearest first)
+      .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+    
+    // Set the first match as featured
+    if (filteredFixtures.length > 0) {
+      setFeaturedMatch(filteredFixtures[0]);
+    }
+  }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures]);
   
-  if (loading) {
+  // Format date for match display (Today, Tomorrow, or date)
+  const formatMatchDate = (dateString: string): string => {
+    const date = parseISO(dateString);
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return format(date, 'E, MMM d');
+    }
+  };
+  
+  if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading) {
     return (
       <Card className="mb-6">
         <CardHeader className="bg-gray-200 px-4 py-2 flex justify-between items-center">
@@ -104,13 +135,7 @@ const FeaturedMatch = () => {
       </CardHeader>
       <CardContent className="p-4">
         <h2 className="text-xl font-semibold text-center mb-6">
-          {
-            new Date(featuredMatch.fixture.date).toDateString() === new Date().toDateString()
-              ? 'Today'
-              : new Date(featuredMatch.fixture.date).toDateString() === new Date(new Date().setDate(new Date().getDate() + 1)).toDateString()
-                ? 'Tomorrow'
-                : new Date(featuredMatch.fixture.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-          }
+          {formatMatchDate(featuredMatch.fixture.date)}
         </h2>
         
         <div className="flex justify-center items-center space-x-4 mb-4">
