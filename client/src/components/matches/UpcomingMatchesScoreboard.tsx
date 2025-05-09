@@ -12,6 +12,7 @@ import { useLocation } from 'wouter';
 const FEATURED_LEAGUE_IDS = [
   2,    // UEFA Champions League
   3,    // UEFA Europa League
+  4,    // Euro Championship
   39,   // Premier League (England)
   78,   // Bundesliga (Germany)
   135,  // Serie A (Italy)
