@@ -52,18 +52,56 @@ const FeaturedMatch = () => {
     // Get the current time in seconds (unix timestamp)
     const currentTime = Math.floor(Date.now() / 1000);
     
-    // Filter and sort matches using the same logic as TodayMatches
-    const filteredFixtures = allFixtures
+    // Calculate today's date range
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime() / 1000;
+    
+    // Create an array of unique fixtures
+    const uniqueFixtures = allFixtures
       // Remove duplicates by fixture ID
       .filter((fixture, index, self) => 
         index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
       )
-      // Only include upcoming matches (timestamp > current time)
-      .filter(fixture => fixture.fixture.timestamp > currentTime)
       // Filter to only include popular leagues
-      .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
-      // Sort by timestamp (nearest first)
-      .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+      .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id));
+    
+    // Get today's matches with priority to matches that are in-play or finished
+    const todaysMatches = uniqueFixtures
+      .filter(fixture => 
+        fixture.fixture.timestamp >= startOfDay && 
+        fixture.fixture.timestamp <= endOfDay
+      )
+      // Sort with priority to in-play and then finished matches
+      .sort((a, b) => {
+        // In-play matches first
+        if (a.fixture.status.short === 'IN_PLAY' && b.fixture.status.short !== 'IN_PLAY') return -1;
+        if (a.fixture.status.short !== 'IN_PLAY' && b.fixture.status.short === 'IN_PLAY') return 1;
+        
+        // Then finished matches
+        if (a.fixture.status.short === 'FT' && b.fixture.status.short !== 'FT') return -1;
+        if (a.fixture.status.short !== 'FT' && b.fixture.status.short === 'FT') return 1;
+        
+        // Then by time
+        return a.fixture.timestamp - b.fixture.timestamp;
+      });
+    
+    // Get upcoming matches (not today)
+    const upcomingMatches = uniqueFixtures
+      .filter(fixture => 
+        // Not started yet
+        (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD') &&
+        // After today
+        fixture.fixture.timestamp > endOfDay
+      );
+    
+    // Combine and sort all matches prioritizing today's matches first, then upcoming
+    const filteredFixtures = [
+      ...todaysMatches,
+      ...upcomingMatches
+    ]
+    // Sort by timestamp (nearest first)
+    .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
     
     // Set the first match as featured
     if (filteredFixtures.length > 0) {
@@ -154,9 +192,28 @@ const FeaturedMatch = () => {
             <span className="font-semibold text-center">{featuredMatch.teams.home.name}</span>
           </div>
           
-          {/* VS */}
+          {/* VS or Score */}
           <div className="flex flex-col items-center w-1/3">
-            <div className="text-3xl font-bold text-neutral-500 mb-2">VS</div>
+            {/* Show score if match is in progress or finished */}
+            {(featuredMatch.fixture.status.short === 'FT' || 
+              featuredMatch.fixture.status.short === 'AET' || 
+              featuredMatch.fixture.status.short === 'PEN' || 
+              featuredMatch.fixture.status.short === 'IN_PLAY' || 
+              featuredMatch.fixture.status.short === 'HT') ? (
+              <div className="text-3xl font-bold text-neutral-500 mb-2">
+                {featuredMatch.goals.home} - {featuredMatch.goals.away}
+                {featuredMatch.fixture.status.short === 'AET' && 
+                  <span className="text-xs ml-2 text-blue-600">AET</span>}
+                {featuredMatch.fixture.status.short === 'PEN' && 
+                  <span className="text-xs ml-2 text-blue-600">PEN</span>}
+                {featuredMatch.fixture.status.short === 'IN_PLAY' && 
+                  <span className="text-xs ml-2 text-red-600">LIVE</span>}
+                {featuredMatch.fixture.status.short === 'HT' && 
+                  <span className="text-xs ml-2 text-orange-600">HT</span>}
+              </div>
+            ) : (
+              <div className="text-3xl font-bold text-neutral-500 mb-2">VS</div>
+            )}
             <div className="text-sm text-neutral-500">
               {formatDateTime(featuredMatch.fixture.date)}
               {featuredMatch.fixture.venue.name && ` | ${featuredMatch.fixture.venue.name}`}

@@ -87,44 +87,20 @@ const TodayMatches = () => {
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime() / 1000;
   
   // Filter and sort matches
-  const allUniqueFixtures = allFixtures
+  const filteredFixtures = allFixtures
     // Remove duplicates by fixture ID
     .filter((fixture, index, self) => 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
+    // Only include today's matches (timestamp between start and end of today)
+    .filter(fixture => fixture.fixture.timestamp >= startOfDay && fixture.fixture.timestamp <= endOfDay)
     // Filter to only include our priority leagues
-    .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id));
-  
-  // Today's matches (matches happening today)
-  const todaysMatches = allUniqueFixtures
-    .filter(fixture => fixture.fixture.timestamp >= startOfDay && fixture.fixture.timestamp <= endOfDay);
-  
-  // Upcoming matches for the next few days (matches not yet started)
-  const upcomingMatches = allUniqueFixtures
-    .filter(fixture => 
-      // Matches that haven't started yet
-      fixture.fixture.status.short === 'NS' || 
-      fixture.fixture.status.short === 'TBD'
-    )
-    // and are scheduled for the future
-    .filter(fixture => fixture.fixture.timestamp > currentTime)
+    .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
     // Sort by timestamp (nearest first)
     .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
-  
-  // Combine today's matches with upcoming ones, prioritizing today's
-  const combinedFixtures = [
-    ...todaysMatches,
-    ...upcomingMatches
-  ]
-  // Remove any remaining duplicates
-  .filter((fixture, index, self) => 
-    index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-  )
-  // Sort by timestamp (nearest first)
-  .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
 
-  // Take the first 5 fixtures for the display
-  const todayMatches = combinedFixtures.slice(0, 5);
+  // Take the first 5 fixtures for the today matches display
+  const todayMatches = filteredFixtures.slice(0, 5);
   
   // Display loading state
   if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isLiveLoading) {
@@ -162,7 +138,7 @@ const TodayMatches = () => {
       <div className="flex justify-between items-center border-b border-gray-200">
         <div className="relative w-full">
           <div className="absolute left-0 top-0 bg-neutral-700 text-white text-xs px-2 py-1 rounded-sm">
-            Today's & Upcoming Matches
+            Today's Matches
           </div>
           <div className="absolute right-0 top-0 text-xs px-2 py-1 rounded-sm flex items-center">
             <Clock className="w-3 h-3 mr-1" />
