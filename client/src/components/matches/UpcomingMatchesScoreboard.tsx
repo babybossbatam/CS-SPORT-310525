@@ -84,16 +84,8 @@ const UpcomingMatchesScoreboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const matchesPerPage = 1; // Show only 1 match per page as requested
   
-  // Get tomorrow's date for upcoming fixtures
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
-  
-  // Fetch upcoming fixtures for tomorrow
-  const { data: tomorrowFixtures, isLoading: isTomorrowLoading } = useQuery<FixtureResponse[]>({
-    queryKey: [`/api/fixtures/date/${tomorrowFormatted}`],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  // We are no longer getting tomorrow's fixtures directly
+  // Instead, we'll only use our curated league fixtures
   
   // Fetch live fixtures
   const { data: liveFixtures, isLoading: isLiveLoading } = useQuery<FixtureResponse[]>({
@@ -121,7 +113,7 @@ const UpcomingMatchesScoreboard = () => {
   
   // Process the fixtures when data is available
   useEffect(() => {
-    if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures && !serieAFixtures) return;
+    if (!liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures && !serieAFixtures) return;
     
     console.log("Processing fixtures for upcoming matches scoreboard");
     
@@ -148,7 +140,6 @@ const UpcomingMatchesScoreboard = () => {
     processSource(championsLeagueFixtures, "Champions League");
     processSource(europaLeagueFixtures, "Europa League");
     processSource(serieAFixtures, "Serie A");
-    processSource(tomorrowFixtures, "Tomorrow");
     
     // Convert map back to array
     const uniqueFixtures = Array.from(fixtureIdMap.values());
@@ -235,7 +226,7 @@ const UpcomingMatchesScoreboard = () => {
     
     // Set the first page of matches
     updateCurrentPage(0, sortedFixtures);
-  }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures, europaLeagueFixtures, serieAFixtures]);
+  }, [liveFixtures, championsLeagueFixtures, europaLeagueFixtures, serieAFixtures]);
   
   // Function to update the current page of matches to display
   const updateCurrentPage = (page: number, fixtures = allMatches) => {
@@ -269,7 +260,7 @@ const UpcomingMatchesScoreboard = () => {
   };
   
   // Loading state
-  if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading) {
+  if (isLiveLoading || isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading) {
     return (
       <Card>
         <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
