@@ -172,8 +172,27 @@ const EuropaLeagueSchedule = () => {
             <span className="font-semibold">UEFA Europa League</span>
           </div>
         </CardHeader>
-        <CardContent className="p-4 text-center">
-          <p className="text-gray-500">Unable to load Europa League data.</p>
+        <CardContent className="p-4">
+          <div className="text-center space-y-3">
+            <div className="bg-blue-50 text-blue-800 p-3 rounded-md border border-blue-100 text-sm">
+              <p className="font-medium">We're having trouble connecting to the Europa League API.</p>
+              <p className="mt-1 text-xs text-blue-600">This data will be available soon.</p>
+            </div>
+            
+            {/* Fallback image */}
+            <div className="flex justify-center mt-4">
+              <div className="relative w-32 h-32 opacity-50">
+                <img 
+                  src="https://media.api-sports.io/football/leagues/3.png"
+                  alt="UEFA Europa League" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128?text=UEFA+Europa+League';
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -189,8 +208,27 @@ const EuropaLeagueSchedule = () => {
             <span className="font-semibold">UEFA Europa League</span>
           </div>
         </CardHeader>
-        <CardContent className="p-4 text-center">
-          <p className="text-gray-500">No Europa League fixtures available at the moment.</p>
+        <CardContent className="p-4">
+          <div className="text-center space-y-3">
+            <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-100 text-sm">
+              <p className="font-medium">No Europa League fixtures are currently available.</p>
+              <p className="mt-1 text-xs text-yellow-600">Fixtures will be listed here when the tournament begins or when matches are scheduled.</p>
+            </div>
+            
+            {/* Fallback image */}
+            <div className="flex justify-center mt-4">
+              <div className="relative w-24 h-24 opacity-60">
+                <img 
+                  src="https://media.api-sports.io/football/leagues/3.png"
+                  alt="UEFA Europa League" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=UEFA+Europa+League';
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );

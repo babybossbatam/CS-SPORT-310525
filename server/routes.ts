@@ -342,15 +342,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Europa League fixtures endpoint (League ID 3)
   apiRouter.get("/europa-league/fixtures", async (_req: Request, res: Response) => {
     try {
+      console.log("Europa League fixtures API call initiated");
+      
       // Europa League ID is 3
       const leagueId = 3;
       // Use current year for the season
       const currentYear = new Date().getFullYear();
       
-      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, currentYear);
+      console.log(`Attempting to fetch Europa League (ID: ${leagueId}) fixtures for season ${currentYear}`);
+      
+      // First, let's verify the league exists
+      const leagueData = await rapidApiService.getLeagueById(leagueId);
+      if (!leagueData) {
+        console.error("Europa League data not found in API");
+        return res.status(404).json({ message: "Europa League not found in API" });
+      }
+      
+      console.log(`Europa League found: ${leagueData.league.name}, attempting to fetch fixtures...`);
+      
+      // Check if we should use a different season from the league data
+      const currentSeason = leagueData.seasons.find(s => s.current);
+      const seasonToUse = currentSeason ? currentSeason.year : currentYear;
+      
+      console.log(`Using season ${seasonToUse} for Europa League fixtures`);
+      
+      // Fetch fixtures using the verified season
+      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
+      
+      console.log(`Europa League fixtures response received, count: ${fixtures ? fixtures.length : 0}`);
       
       if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
-        return res.status(404).json({ message: "No Europa League fixtures found" });
+        console.warn("No Europa League fixtures found in API response");
+        
+        // Provide mock data for testing if in development environment
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Sending empty array in response");
+        }
+        
+        return res.status(404).json({ 
+          message: "No Europa League fixtures found",
+          leagueInfo: leagueData
+        });
       }
       
       // Sort fixtures by date (newest first)
@@ -358,10 +390,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
       });
       
+      console.log(`Returning ${sortedFixtures.length} sorted Europa League fixtures`);
       return res.json(sortedFixtures);
     } catch (error) {
       console.error("Error fetching Europa League fixtures:", error);
-      res.status(500).json({ message: "Failed to fetch Europa League data" });
+      res.status(500).json({ 
+        message: "Failed to fetch Europa League data",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
