@@ -114,6 +114,20 @@ const ChampionsLeagueSchedule = () => {
     // Only show finished matches as requested by user
     const visibleFixtures = [...selectedPastFixtures];
     
+    // Fix the Barcelona vs Inter Milan score to 3-4 as requested
+    visibleFixtures.forEach(fixture => {
+      if ((fixture.teams.home.name === "Barcelona" && fixture.teams.away.name === "Inter") || 
+          (fixture.teams.home.name === "Inter" && fixture.teams.away.name === "Barcelona")) {
+        if (fixture.teams.home.name === "Barcelona") {
+          fixture.goals.home = 3;
+          fixture.goals.away = 4;
+        } else {
+          fixture.goals.home = 4;
+          fixture.goals.away = 3;
+        }
+      }
+    });
+    
     // Sort by date
     visibleFixtures.sort((a, b) => {
       // First, prioritize live matches

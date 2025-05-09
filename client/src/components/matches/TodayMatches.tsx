@@ -81,21 +81,26 @@ const TodayMatches = () => {
   // Get the current time in seconds (unix timestamp)
   const currentTime = Math.floor(Date.now() / 1000);
   
+  // Get today's date (start and end of day)
+  const today = new Date();
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime() / 1000;
+  
   // Filter and sort matches
   const filteredFixtures = allFixtures
     // Remove duplicates by fixture ID
     .filter((fixture, index, self) => 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
-    // Only include upcoming matches (timestamp > current time)
-    .filter(fixture => fixture.fixture.timestamp > currentTime)
+    // Only include today's matches (timestamp between start and end of today)
+    .filter(fixture => fixture.fixture.timestamp >= startOfDay && fixture.fixture.timestamp <= endOfDay)
     // Filter to only include our priority leagues
     .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
     // Sort by timestamp (nearest first)
     .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
 
   // Take the first 5 fixtures for the today matches display
-  const upcomingMatches = filteredFixtures.slice(0, 5);
+  const todayMatches = filteredFixtures.slice(0, 5);
   
   // Display loading state
   if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isLiveLoading) {
@@ -119,10 +124,10 @@ const TodayMatches = () => {
   }
   
   // Display empty state
-  if (upcomingMatches.length === 0) {
+  if (todayMatches.length === 0) {
     return (
       <div className="text-center p-3 text-gray-500">
-        No upcoming matches found.
+        No matches scheduled for today.
       </div>
     );
   }
@@ -133,7 +138,7 @@ const TodayMatches = () => {
       <div className="flex justify-between items-center border-b border-gray-200">
         <div className="relative w-full">
           <div className="absolute left-0 top-0 bg-neutral-700 text-white text-xs px-2 py-1 rounded-sm">
-            Upcoming
+            Today's Matches
           </div>
           <div className="absolute right-0 top-0 text-xs px-2 py-1 rounded-sm flex items-center">
             <Clock className="w-3 h-3 mr-1" />
@@ -145,8 +150,8 @@ const TodayMatches = () => {
       
       {/* Main content */}
       <div className="space-y-1 mt-2">
-        {/* Display upcoming fixtures */}
-        {upcomingMatches.map((match) => (
+        {/* Display today's fixtures */}
+        {todayMatches.map((match) => (
           <div 
             key={match.fixture.id}
             className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
