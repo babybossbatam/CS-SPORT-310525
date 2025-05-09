@@ -123,33 +123,40 @@ const UpcomingMatchesScoreboard = () => {
   useEffect(() => {
     if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures && !serieAFixtures) return;
     
-    // Combine live, upcoming fixtures, Champions League fixtures, Europa League fixtures, and Serie A fixtures
-    const allFixtures = [
-      ...(liveFixtures || []),
-      ...(tomorrowFixtures || []),
-      ...(championsLeagueFixtures || []),
-      ...(europaLeagueFixtures || []),
-      ...(serieAFixtures || [])
-    ];
+    console.log("Processing fixtures for upcoming matches scoreboard");
     
-    // Check for the Inter vs Barcelona match
-    const interBarcelonaMatch = allFixtures.find(match => 
-      (match.teams.home.name === 'Inter' && match.teams.away.name === 'Barcelona') ||
-      (match.teams.home.name === 'Barcelona' && match.teams.away.name === 'Inter')
-    );
+    // Create a map to track unique fixture IDs and detect duplicates
+    const fixtureIdMap = new Map<number, FixtureResponse>();
     
-    // Include Inter vs Barcelona match only if it's finished (to show the final score)
-    // For other matches, only include upcoming/live matches
-    const featuredLeagueFixtures = allFixtures.filter(match => {
-      // Special case for Inter vs Barcelona match - only include if it's finished
-      if (match.fixture.id === interBarcelonaMatch?.fixture.id) {
-        // Make sure we're only including the match if it's actually finished
-        return match.fixture.status.short === 'FT' || 
-               match.fixture.status.short === 'AET' ||
-               match.fixture.status.short === 'PEN';
-      }
+    // Process each data source in order of priority, only adding new unique fixtures
+    const processSource = (fixtures: FixtureResponse[] | undefined, sourceName: string) => {
+      if (!fixtures) return;
       
-      // For all other matches, filter to include matches from our featured leagues
+      let addedCount = 0;
+      fixtures.forEach(fixture => {
+        if (!fixtureIdMap.has(fixture.fixture.id)) {
+          fixtureIdMap.set(fixture.fixture.id, fixture);
+          addedCount++;
+        }
+      });
+      
+      console.log(`Added ${addedCount} unique fixtures from ${sourceName}`);
+    };
+    
+    // Process sources in order of priority
+    processSource(liveFixtures, "Live");
+    processSource(championsLeagueFixtures, "Champions League");
+    processSource(europaLeagueFixtures, "Europa League");
+    processSource(serieAFixtures, "Serie A");
+    processSource(tomorrowFixtures, "Tomorrow");
+    
+    // Convert map back to array
+    const uniqueFixtures = Array.from(fixtureIdMap.values());
+    console.log(`Total unique fixtures: ${uniqueFixtures.length}`);
+    
+    // Filter to include only matches from our featured leagues and with appropriate status
+    const featuredLeagueFixtures = uniqueFixtures.filter(match => {
+      // For all matches, filter to include matches from our featured leagues
       // Filter out finished matches (status 'FT', 'AET', 'PEN', etc.)
       return FEATURED_LEAGUE_IDS.includes(match.league.id) &&
         match.fixture.status.short !== 'FT' &&

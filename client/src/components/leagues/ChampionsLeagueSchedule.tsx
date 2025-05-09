@@ -97,50 +97,19 @@ const ChampionsLeagueSchedule = () => {
     // Filter fixtures by most recent/upcoming
     const fixtures = [...allFixtures];
     
-    // Check for the Inter vs Barcelona match specifically
-    const interBarcelonaMatch = fixtures.find(match => 
-      (match.teams.home.name === 'Inter' && match.teams.away.name === 'Barcelona') ||
-      (match.teams.home.name === 'Barcelona' && match.teams.away.name === 'Inter')
-    );
-    
     // Sort fixtures by date (oldest first for upcoming, newest first for past)
     const now = new Date();
     const upcomingFixtures = fixtures
-      .filter(f => {
-        // Exclude the Inter vs Barcelona match from upcoming fixtures if it exists
-        if (interBarcelonaMatch && f.fixture.id === interBarcelonaMatch.fixture.id) {
-          return false;
-        }
-        return new Date(f.fixture.date) > now;
-      })
+      .filter(f => new Date(f.fixture.date) > now)
       .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
     
     const pastFixtures = fixtures
-      .filter(f => {
-        // Always include the Inter vs Barcelona match in past fixtures if it exists
-        if (interBarcelonaMatch && f.fixture.id === interBarcelonaMatch.fixture.id) {
-          return true;
-        }
-        return new Date(f.fixture.date) <= now;
-      })
+      .filter(f => new Date(f.fixture.date) <= now && f.fixture.status.short === 'FT')
       .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
     
-    // Only show past/finished matches as requested
-    // Take past fixtures, ensure Inter vs Barcelona is included if it exists
-    let selectedPastFixtures = [];
-    if (interBarcelonaMatch) {
-      // Make sure Inter vs Barcelona is the first past fixture
-      selectedPastFixtures = [interBarcelonaMatch];
-      
-      // Add other past fixtures excluding Inter vs Barcelona
-      const otherPastFixtures = pastFixtures
-        .filter(f => f.fixture.id !== interBarcelonaMatch.fixture.id)
-        .slice(0, 3);  // Take 3 more since we're not showing upcoming matches
-      
-      selectedPastFixtures = [...selectedPastFixtures, ...otherPastFixtures];
-    } else {
-      selectedPastFixtures = pastFixtures.slice(0, 4); // Show up to 4 finished matches
-    }
+    // Only show past/finished matches as requested by user
+    // Take a maximum of 4 past fixtures
+    const selectedPastFixtures = pastFixtures.slice(0, 4);
     
     // Only show finished matches as requested by user
     const visibleFixtures = [...selectedPastFixtures];
