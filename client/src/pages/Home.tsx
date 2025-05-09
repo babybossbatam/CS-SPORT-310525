@@ -18,7 +18,7 @@ import TopScorersList from '@/components/leagues/TopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 
-import TeamPerformance from '@/components/teams/TeamPerformance';
+
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
@@ -161,11 +161,6 @@ const Home = () => {
             <FeaturedMatch />
             
             <LiveScoreboardPage />
-            
-            {/* Team Performance */}
-            <div className="mt-4">
-              <TeamPerformance />
-            </div>
             
             {/* Popular Teams Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
