@@ -1,9 +1,14 @@
 import { useLocation } from 'wouter';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isToday, differenceInHours, addHours } from 'date-fns';
 import { FixtureResponse } from '../../../../server/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Calendar } from 'lucide-react';
+import { Clock, Calendar, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
 
 // Same league list as UpcomingMatchesScoreboard
 const POPULAR_LEAGUES = [
@@ -14,32 +19,25 @@ const POPULAR_LEAGUES = [
 
 const TodayMatches = () => {
   const [, navigate] = useLocation();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [filterByTime, setFilterByTime] = useState(false);
   
-  // Get fixture data using React Query
-  const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
-    queryKey: ['/api/champions-league/fixtures'],
+  // Format date for API request
+  const formattedSelectedDate = selectedDate ? 
+    format(selectedDate, 'yyyy-MM-dd') : 
+    format(new Date(), 'yyyy-MM-dd');
+  
+  // Get fixture data for the selected date
+  const { data: selectedDateFixtures = [], isLoading: isSelectedDateFixturesLoading } = useQuery({
+    queryKey: ['/api/fixtures/date', formattedSelectedDate],
     queryFn: async () => {
-      const response = await fetch('/api/champions-league/fixtures');
+      const response = await fetch(`/api/fixtures/date/${formattedSelectedDate}`);
       return response.json();
     }
   });
   
-  const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
-    queryKey: ['/api/europa-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/europa-league/fixtures');
-      return response.json();
-    }
-  });
-  
-  const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
-    queryKey: ['/api/leagues/135/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/135/fixtures');
-      return response.json();
-    }
-  });
-  
+  // Get live matches
   const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
     queryKey: ['/api/fixtures/live'],
     queryFn: async () => {
@@ -75,25 +73,29 @@ const TodayMatches = () => {
     return format(date, 'HH:mm');
   };
   
-  // Combine all fixtures and sort them by timestamp
-  const allFixtures = [...liveFixtures, ...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures];
-  
   // Get the current time in seconds (unix timestamp)
   const currentTime = Math.floor(Date.now() / 1000);
   
-  // Get today's date (start and end of day)
-  const today = new Date();
-  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
-  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime() / 1000;
-  
-  // Filter and sort matches
+  // Function to check if a match is "recent" (finished within last 8 hours)
+  const isRecentFinishedMatch = (fixture: FixtureResponse): boolean => {
+    if (fixture.fixture.status.short !== 'FT') return false;
+    const fixtureTime = new Date(fixture.fixture.timestamp * 1000);
+    const currentTime = new Date();
+    const hoursDifference = differenceInHours(currentTime, fixtureTime);
+    return hoursDifference <= 8;
+  };
+
+  // Combine fixtures from the selected date and live fixtures
+  const allFixtures = [...selectedDateFixtures, ...liveFixtures];
+
+  // Filter fixtures based on time filter and league
   const filteredFixtures = allFixtures
     // Remove duplicates by fixture ID
     .filter((fixture, index, self) => 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
-    // Only include today's matches (timestamp between start and end of today)
-    .filter(fixture => fixture.fixture.timestamp >= startOfDay && fixture.fixture.timestamp <= endOfDay)
+    // Apply time filter if enabled (only show matches finished within last 8 hours)
+    .filter(fixture => !filterByTime || isRecentFinishedMatch(fixture))
     // Filter to only include our priority leagues
     .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
     // Sort by timestamp (nearest first)
@@ -103,7 +105,7 @@ const TodayMatches = () => {
   const todayMatches = filteredFixtures.slice(0, 5);
   
   // Display loading state
-  if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isLiveLoading) {
+  if (isSelectedDateFixturesLoading || isLiveLoading) {
     return (
       <div className="animate-pulse">
         {[1, 2, 3, 4].map(i => (
@@ -134,6 +136,57 @@ const TodayMatches = () => {
   
   return (
     <div>
+      {/* Filter controls */}
+      <div className="flex items-center justify-between mb-3 mx-1">
+        <div className="flex items-center">
+          <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs h-8 gap-1 border-gray-300"
+              >
+                <span className="whitespace-nowrap">{selectedDate ? format(selectedDate, 'MMM dd, yyyy') : 'Today'}</span>
+                {showCalendar ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <DayPicker
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date || new Date());
+                  setShowCalendar(false);
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          
+          {!isToday(selectedDate || new Date()) && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="ml-2 h-8 text-xs"
+              onClick={() => setSelectedDate(new Date())}
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Today
+            </Button>
+          )}
+        </div>
+        
+        <Button 
+          variant={filterByTime ? "default" : "outline"}
+          size="sm" 
+          className={`text-xs h-8 gap-1 ${filterByTime ? 'bg-blue-600' : 'border-gray-300'}`}
+          onClick={() => setFilterByTime(!filterByTime)}
+        >
+          <Clock className="h-3 w-3" />
+          by time
+        </Button>
+      </div>
+      
       {/* Main content */}
       <div className="space-y-1">
         {/* Display today's fixtures */}
