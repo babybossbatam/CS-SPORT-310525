@@ -94,28 +94,28 @@ const LeagueFilter = () => {
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-4 w-4 p-0 mr-1" 
+            className="h-6 w-6 p-0 mr-1" 
             onClick={handlePrevious}
             disabled={visibleStart === 0}
           >
-            <ChevronLeft className="h-2.5 w-2.5" />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
           
-          <TabsList className="flex-1 grid grid-cols-5 h-4 max-w-[256px]">
+          <TabsList className="flex-1 grid grid-cols-5 h-6 max-w-[400px]">
             {visibleLeagues.map((league) => (
               <TabsTrigger 
                 key={league.id} 
                 value={league.id.toString()}
-                className="px-0.5 py-0.5 text-[10px] flex items-center justify-center gap-0.5 min-h-0 max-w-[48px]"
+                className="px-1 py-0.5 text-xs flex items-center justify-center gap-1 min-h-0 max-w-[72px]"
               >
                 {getLeagueLogo(league.id) ? (
                   <img 
                     src={getLeagueLogo(league.id) as string} 
                     alt={league.name} 
-                    className="h-[14px] w-[14px] object-contain"
+                    className="h-[21px] w-[21px] object-contain"
                   />
                 ) : (
-                  <Filter className="h-2.5 w-2.5" />
+                  <Filter className="h-4 w-4" />
                 )}
                 <span className="truncate">
                   {getAbbreviatedName(league.name)}
@@ -127,11 +127,11 @@ const LeagueFilter = () => {
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-4 w-4 p-0 ml-1" 
+            className="h-6 w-6 p-0 ml-1" 
             onClick={handleNext}
             disabled={visibleStart >= POPULAR_LEAGUES.length - visibleCount}
           >
-            <ChevronRight className="h-2.5 w-2.5" />
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </Tabs>
