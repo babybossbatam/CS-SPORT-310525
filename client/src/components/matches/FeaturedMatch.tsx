@@ -228,9 +228,9 @@ const FeaturedMatch = () => {
             Featured Match
           </Badge>
         </div>
-        <h2 className="text-xl font-semibold text-center mb-6">
+        <div className="text-xl font-semibold text-center mb-6">
           {formatMatchDate(featuredMatch.fixture.date)}
-        </h2>
+        </div>
         
         {/* Teams with improved match bar in the middle */}
         <div className="flex justify-center items-center space-x-4 mb-6 relative">
