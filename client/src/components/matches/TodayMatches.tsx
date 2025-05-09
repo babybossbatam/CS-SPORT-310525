@@ -327,12 +327,12 @@ const TodayMatches = () => {
           </div>
           
           {/* Date picker moved to center, styled like DateNavigator */}
-          <div className="flex-1 mx-1">
+          <div className="flex-1 mx-1 flex justify-center">
             <Popover>
               <PopoverTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="relative flex items-center space-x-2"
+                  className="relative flex items-center justify-center space-x-2 mx-auto"
                 >
                   <span className="text-sm font-medium">
                     {selectedDate && !isSameDay(selectedDate, new Date()) 
