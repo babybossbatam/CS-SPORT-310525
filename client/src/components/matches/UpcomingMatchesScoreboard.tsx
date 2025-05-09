@@ -82,7 +82,7 @@ const UpcomingMatchesScoreboard = () => {
   const [upcomingMatches, setUpcomingMatches] = useState<FixtureResponse[]>([]);
   const [allMatches, setAllMatches] = useState<FixtureResponse[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const matchesPerPage = 3; // Number of matches to show per page - reduced to 3 for clearer pagination
+  const matchesPerPage = 1; // Show only 1 match per page as requested
   
   // Get tomorrow's date for upcoming fixtures
   const tomorrow = new Date();
@@ -154,6 +154,17 @@ const UpcomingMatchesScoreboard = () => {
     const uniqueFixtures = Array.from(fixtureIdMap.values());
     console.log(`Total unique fixtures: ${uniqueFixtures.length}`);
     
+    // Log some example timestamp data for debugging
+    const currentUnixTime = new Date().getTime() / 1000;
+    if (uniqueFixtures.length > 0) {
+      const sample = uniqueFixtures[0];
+      const timeUntilMatch = sample.fixture.timestamp - currentUnixTime;
+      console.log(`Current time (unix): ${currentUnixTime}`);
+      console.log(`Example match: ${sample.teams.home.name} vs ${sample.teams.away.name}`);
+      console.log(`Match timestamp: ${sample.fixture.timestamp}`);
+      console.log(`Time until match: ${timeUntilMatch} seconds (${(timeUntilMatch / 3600).toFixed(2)} hours)`);
+    }
+    
     // Filter to include only matches from our featured leagues and with appropriate status
     const featuredLeagueFixtures = uniqueFixtures.filter(match => {
       // For all matches, filter to include matches from our featured leagues
@@ -185,7 +196,21 @@ const UpcomingMatchesScoreboard = () => {
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
       
-      // Then prioritize by league according to our custom order
+      // Then sort by nearest date (timestamp) as the highest priority for upcoming matches
+      const sortingTime = new Date().getTime() / 1000; // Current time in seconds
+      const aTimeUntilMatch = a.fixture.timestamp - sortingTime;
+      const bTimeUntilMatch = b.fixture.timestamp - sortingTime;
+      
+      // Only compare future matches (positive time difference)
+      if (aTimeUntilMatch > 0 && bTimeUntilMatch > 0) {
+        return aTimeUntilMatch - bTimeUntilMatch; // Nearest match first
+      }
+      
+      // If one match is in the past and one is in the future, prioritize the future match
+      if (aTimeUntilMatch > 0 && bTimeUntilMatch <= 0) return -1;
+      if (aTimeUntilMatch <= 0 && bTimeUntilMatch > 0) return 1;
+      
+      // For matches in the same timeframe, use league priority
       const aPriority = leaguePriority[a.league.id] || 999;
       const bPriority = leaguePriority[b.league.id] || 999;
       
@@ -193,8 +218,16 @@ const UpcomingMatchesScoreboard = () => {
         return aPriority - bPriority;
       }
       
-      // Then sort by timestamp for matches within the same league
+      // Finally sort by timestamp for matches with the same priority
       return a.fixture.timestamp - b.fixture.timestamp;
+    });
+    
+    // Log top matches after sorting to verify order
+    console.log("Sorted matches by nearest date (first 3):");
+    const currentTime = new Date().getTime() / 1000; // Define a new timestamp variable
+    sortedFixtures.slice(0, 3).forEach((match, index) => {
+      const timeUntilMatch = match.fixture.timestamp - currentTime;
+      console.log(`${index+1}. ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name}) - Time until match: ${(timeUntilMatch / 3600).toFixed(2)} hours`);
     });
     
     // Store all matches for pagination
