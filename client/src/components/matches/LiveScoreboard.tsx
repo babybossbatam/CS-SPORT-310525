@@ -384,9 +384,9 @@ export function LiveScoreboard({
                 
                 {/* Team names with colored bars */}
                 <div className="flex h-12 w-full overflow-hidden relative">
-                  {/* Home team color bar - extended 10px to the left and 8px to the right */}
+                  {/* Home team color bar - extending fully to the edge and 8px to the right */}
                   <div 
-                    className="w-[calc(50%+8px)] flex items-center justify-center -ml-10 mr-0 px-4 text-white h-full"
+                    className="w-[calc(50%+8px)] flex items-center justify-center -ml-[100%] mr-0 px-4 text-white h-full"
                     style={{ 
                       background: getTeamColor(featuredMatch.teams.home.name)
                     }}

@@ -297,8 +297,8 @@ const MatchDetails = () => {
                     />
                   </div>
                   
-                  {/* Home team - gradient extending to the left by 10px and right by 8px */}
-                  <div className={`h-full w-[calc(50%+8px)] ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center -ml-10`}>
+                  {/* Home team - gradient extending fully to the left edge and right by 8px */}
+                  <div className={`h-full w-[calc(50%+8px)] ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center -ml-[100%]`}>
                     <div className="ml-20 text-white font-bold text-lg uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
