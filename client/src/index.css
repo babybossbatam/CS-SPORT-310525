@@ -3,33 +3,77 @@
 @tailwind utilities;
 
 /* Day Picker calendar styling */
+.rdp {
+  --rdp-cell-size: 32px;
+  margin: 0;
+}
+
+.rdp-caption {
+  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+}
+
 .rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover {
-  background-color: #3b82f6 !important;
+  background-color: #2196f3 !important;
   color: white !important;
+  font-weight: bold !important;
 }
 
 .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-  background-color: #e0f2fe !important;
+  background-color: #e6f4ff !important;
 }
 
 .rdp-caption_label {
   font-size: 1rem !important;
   font-weight: 500 !important;
+  text-align: center;
+  flex: 1;
 }
 
 .rdp-head_cell {
   font-weight: 500 !important;
   font-size: 0.8rem !important;
   color: #6b7280 !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .rdp-nav_button {
-  width: 24px !important;
-  height: 24px !important;
+  width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .rdp-nav_button:hover {
-  background-color: #e0f2fe !important;
+  background-color: #f3f4f6 !important;
+}
+
+.rdp-day {
+  width: var(--rdp-cell-size);
+  height: var(--rdp-cell-size);
+  border-radius: 0 !important;
+}
+
+.rdp-cell {
+  padding: 0 !important;
+}
+
+.rdp-table {
+  border-spacing: 0 !important;
+  border-collapse: collapse !important;
+}
+
+.rdp-month {
+  border-collapse: collapse !important;
+}
+
+.rdp-day_today {
+  background-color: #f3f4f6 !important;
+  font-weight: bold !important;
 }
 
 .text-shadow {

@@ -48,10 +48,107 @@ const TodayMatches = () => {
     }
   });
   
-  // Get live matches
+  // Mock data for live matches (for testing as requested)
+  const mockLiveFixtures = [
+    {
+      fixture: {
+        id: 1000001,
+        referee: "Mike Dean",
+        timezone: "UTC",
+        date: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'+00:00'"),
+        timestamp: Math.floor(Date.now() / 1000),
+        periods: { first: 1746750000, second: 1746753600 },
+        venue: { id: 5555, name: "Santiago Bernabéu", city: "Madrid" },
+        status: { long: "First Half", short: "1H", elapsed: 32 }
+      },
+      league: {
+        id: 2, // Champions League
+        name: "UEFA Champions League",
+        country: "World",
+        logo: "https://media.api-sports.io/football/leagues/2.png",
+        flag: null,
+        season: 2024,
+        round: "Quarter-finals"
+      },
+      teams: {
+        home: {
+          id: 541,
+          name: "Real Madrid",
+          logo: "https://media.api-sports.io/football/teams/541.png",
+          winner: null
+        },
+        away: {
+          id: 489,
+          name: "AC Milan",
+          logo: "https://media.api-sports.io/football/teams/489.png",
+          winner: null
+        }
+      },
+      goals: { home: 2, away: 1 },
+      score: {
+        halftime: { home: 1, away: 1 },
+        fulltime: { home: null, away: null },
+        extratime: { home: null, away: null },
+        penalty: { home: null, away: null }
+      }
+    },
+    {
+      fixture: {
+        id: 1000002,
+        referee: "Anthony Taylor",
+        timezone: "UTC",
+        date: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'+00:00'"),
+        timestamp: Math.floor(Date.now() / 1000),
+        periods: { first: 1746750000, second: 1746753600 },
+        venue: { id: 550, name: "Anfield", city: "Liverpool" },
+        status: { long: "Second Half", short: "2H", elapsed: 67 }
+      },
+      league: {
+        id: 2, // Champions League
+        name: "UEFA Champions League",
+        country: "World",
+        logo: "https://media.api-sports.io/football/leagues/2.png",
+        flag: null,
+        season: 2024,
+        round: "Quarter-finals"
+      },
+      teams: {
+        home: {
+          id: 40,
+          name: "Liverpool",
+          logo: "https://media.api-sports.io/football/teams/40.png",
+          winner: null
+        },
+        away: {
+          id: 212,
+          name: "FC Porto",
+          logo: "https://media.api-sports.io/football/teams/212.png",
+          winner: null
+        }
+      },
+      goals: { home: 1, away: 0 },
+      score: {
+        halftime: { home: 0, away: 0 },
+        fulltime: { home: null, away: null },
+        extratime: { home: null, away: null },
+        penalty: { home: null, away: null }
+      }
+    }
+  ];
+
+  // Get live matches (use either real API or mock data)
   const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
     queryKey: ['/api/fixtures/live'],
     queryFn: async () => {
+      // Toggle between real and mock data for testing
+      const useMockData = true; // Set to false for real API data
+      
+      if (useMockData) {
+        // For testing live match functionality without real live matches
+        return mockLiveFixtures;
+      }
+      
+      // For real data:
       const response = await fetch('/api/fixtures/live');
       return response.json();
     }
@@ -114,18 +211,24 @@ const TodayMatches = () => {
     .filter((fixture, index, self) => 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
-    // Apply live filter if enabled
+    // Apply both filters independently
     .filter(fixture => {
-      if (showLiveOnly) {
-        return ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(fixture.fixture.status.short);
+      const isLive = ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(fixture.fixture.status.short);
+      const isRecentlyFinished = fixture.fixture.status.short === 'FT' && isRecentFinishedMatch(fixture);
+      
+      // Apply filters
+      if (showLiveOnly && filterByTime) {
+        // If both filters are enabled, show both live and recent
+        return isLive || isRecentlyFinished;
+      } else if (showLiveOnly) {
+        // Only show live matches
+        return isLive;
+      } else if (filterByTime) {
+        // Only show recently finished matches
+        return isRecentlyFinished;
       }
-      return true;
-    })
-    // Apply time filter if enabled (only show matches finished within last 8 hours)
-    .filter(fixture => {
-      if (filterByTime && !showLiveOnly) {
-        return fixture.fixture.status.short === 'FT' && isRecentFinishedMatch(fixture);
-      }
+      
+      // No filters - show all matches
       return true;
     })
     // Filter to only include our priority leagues
@@ -203,7 +306,7 @@ const TodayMatches = () => {
                 
                 // If turning on live filter
                 if (!showLiveOnly) {
-                  setFilterByTime(false);
+                  // Don't turn off time filter - keep them independent
                   
                   // Select the first live match if available (for the video player)
                   const liveMatches = filteredFixtures.filter(fixture => 
@@ -230,8 +333,7 @@ const TodayMatches = () => {
               className={`text-xs h-7 gap-1 flex items-center ${filterByTime ? 'text-blue-600' : 'text-gray-500'}`}
               onClick={() => {
                 setFilterByTime(!filterByTime);
-                // If turning on time filter, turn off live filter
-                if (!filterByTime) setShowLiveOnly(false);
+                // No longer turn off live filter when time filter is enabled
               }}
             >
               <Clock className="h-3.5 w-3.5 mr-1" />
@@ -240,7 +342,7 @@ const TodayMatches = () => {
           </div>
         </div>
 
-        {/* Calendar date picker */}
+        {/* Today's Matches dropdown with calendar */}
         <div className="flex flex-col w-full mt-1">
           <Popover>
             <PopoverTrigger asChild>
@@ -250,10 +352,11 @@ const TodayMatches = () => {
                 className="h-8 justify-between text-xs w-full font-medium"
               >
                 <div className="flex items-center">
-                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                  {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select date'}
+                  {selectedDate && !isSameDay(selectedDate, new Date()) 
+                    ? format(selectedDate, 'MMMM d, yyyy') 
+                    : "Today's Matches"}
                 </div>
-                <ChevronRight className="h-3.5 w-3.5 ml-2" />
+                <ChevronRight className="h-3.5 w-3.5 ml-2 rotate-90" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="center">
@@ -265,7 +368,6 @@ const TodayMatches = () => {
                   setShowLiveOnly(false);
                 }}
                 weekStartsOn={1}
-                className="p-3"
                 showOutsideDays
                 fixedWeeks
               />
