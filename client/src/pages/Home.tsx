@@ -19,6 +19,10 @@ import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PlayerSpotlight from '@/components/players/PlayerSpotlight';
 import TeamPerformance from '@/components/teams/TeamPerformance';
+import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
+import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
+import SerieASchedule from '@/components/leagues/SerieASchedule';
+import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -184,8 +188,16 @@ const Home = () => {
               </div>
             </div>
             
+            {/* League Schedules below Today's Matches - Moved from LiveScoreboardPage */}
+            <div className="mt-4 space-y-4">
+              <ChampionsLeagueSchedule />
+              <PremierLeagueSchedule />
+              <SerieASchedule />
+              <EuropaLeagueSchedule />
+            </div>
+            
             {/* Popular Leagues section - New Design */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
               <div className="py-2 px-3 bg-gray-100 border-b">
                 <h3 className="font-semibold text-gray-700">Popular Leagues</h3>
               </div>

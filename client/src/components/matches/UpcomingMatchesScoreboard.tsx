@@ -10,9 +10,6 @@ import { useLocation } from 'wouter';
 
 // League IDs we care about (only show matches from these leagues)
 const FEATURED_LEAGUE_IDS = [
-  2,    // UEFA Champions League
-  3,    // UEFA Europa League
-  39,   // Premier League (England)
   135,  // Serie A (Italy)
 ];
 

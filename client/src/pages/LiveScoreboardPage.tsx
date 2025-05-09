@@ -331,9 +331,9 @@ function LiveScoreboardPage() {
   
   return (
     <div className="container mx-auto my-4 px-2">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left column - Upcoming Matches Scoreboard (takes 2/3 width on large screens) */}
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 gap-4">
+        {/* Main column - Upcoming Matches Scoreboard */}
+        <div className="space-y-4">
           {/* New component for the upcoming matches scoreboard */}
           <UpcomingMatchesScoreboard />
           
@@ -545,13 +545,7 @@ function LiveScoreboardPage() {
           </div>
         </div>
         
-        {/* Right column - League schedules (takes 1/3 width on large screens) */}
-        <div className="space-y-4">
-          <ChampionsLeagueSchedule />
-          <PremierLeagueSchedule />
-          <SerieASchedule />
-          <EuropaLeagueSchedule />
-        </div>
+        {/* League schedules moved to Home.tsx below Today's Matches */}
       </div>
     </div>
   );
