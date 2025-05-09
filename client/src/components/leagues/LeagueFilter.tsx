@@ -101,12 +101,12 @@ const LeagueFilter = () => {
             <ChevronLeft className="h-3 w-3" />
           </Button>
           
-          <TabsList className="flex-1 grid grid-cols-3 h-5">
+          <TabsList className="flex-1 grid grid-cols-3 h-5 max-w-[225px]">
             {visibleLeagues.map((league) => (
               <TabsTrigger 
                 key={league.id} 
                 value={league.id.toString()}
-                className="px-1 py-0.5 text-[10px] flex items-center justify-center gap-1 min-h-0"
+                className="px-1 py-0.5 text-xs flex items-center justify-center gap-1 min-h-0 max-w-[75px]"
               >
                 {getLeagueLogo(league.id) ? (
                   <img 
