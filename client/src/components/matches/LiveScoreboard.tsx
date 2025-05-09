@@ -295,7 +295,7 @@ export function LiveScoreboard({
                 {isLiveMatch(featuredMatch.fixture.status.short) ? (
                   <Badge variant="destructive" className="animate-pulse flex gap-1">
                     <Activity className="h-3 w-3" />
-                    <span>LIVE • {featuredMatch.fixture.status.elapsed}'</span>
+                    {/* LIVE text removed as requested */}
                   </Badge>
                 ) : (
                   <Badge variant="outline">
@@ -469,11 +469,9 @@ export function LiveScoreboard({
         </div>
       )}
       
-      {/* Match list */}
+      {/* Match list - heading removed */}
       <div className="space-y-2">
-        <h3 className="font-bold text-xl mb-3">
-          Today's Matches
-        </h3>
+        {/* Today's Matches heading removed */}
         
         {filteredMatches.slice(showFeaturedMatch ? 1 : 0).map((match) => (
           <div 
