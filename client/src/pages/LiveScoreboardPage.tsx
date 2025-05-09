@@ -11,6 +11,8 @@ import {
   Trophy,
 } from 'lucide-react';
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
+import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
+import SerieASchedule from '@/components/leagues/SerieASchedule';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -330,7 +332,15 @@ function LiveScoreboardPage() {
   
   return (
     <div className="mx-2 my-4">
-      {/* Europa League Schedule Widget */}
+      {/* League Schedule Widgets */}
+      <div className="mb-4">
+        <PremierLeagueSchedule />
+      </div>
+      
+      <div className="mb-4">
+        <SerieASchedule />
+      </div>
+      
       <div className="mb-4">
         <EuropaLeagueSchedule />
       </div>
