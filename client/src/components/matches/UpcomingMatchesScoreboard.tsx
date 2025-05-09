@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
-import { Activity, Calendar, Clock, ChevronRight } from 'lucide-react';
+import { Activity, Calendar, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
@@ -78,6 +78,9 @@ interface FixtureResponse {
 const UpcomingMatchesScoreboard = () => {
   const [, navigate] = useLocation();
   const [upcomingMatches, setUpcomingMatches] = useState<FixtureResponse[]>([]);
+  const [allMatches, setAllMatches] = useState<FixtureResponse[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const matchesPerPage = 5; // Number of matches to show per page
   
   // Get tomorrow's date for upcoming fixtures
   const tomorrow = new Date();
@@ -139,9 +142,34 @@ const UpcomingMatchesScoreboard = () => {
       return a.fixture.timestamp - b.fixture.timestamp;
     });
     
-    // Take top 10 matches
-    setUpcomingMatches(sortedFixtures.slice(0, 10));
+    // Store all matches for pagination
+    setAllMatches(sortedFixtures);
+    
+    // Set the first page of matches
+    updateCurrentPage(0, sortedFixtures);
   }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures]);
+  
+  // Function to update the current page of matches to display
+  const updateCurrentPage = (page: number, fixtures = allMatches) => {
+    const startIndex = page * matchesPerPage;
+    setUpcomingMatches(fixtures.slice(startIndex, startIndex + matchesPerPage));
+    setCurrentPage(page);
+  };
+  
+  // Navigate to next page
+  const nextPage = () => {
+    const maxPage = Math.ceil(allMatches.length / matchesPerPage) - 1;
+    if (currentPage < maxPage) {
+      updateCurrentPage(currentPage + 1);
+    }
+  };
+  
+  // Navigate to previous page
+  const prevPage = () => {
+    if (currentPage > 0) {
+      updateCurrentPage(currentPage - 1);
+    }
+  };
   
   // Loading state
   if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading) {
@@ -325,6 +353,40 @@ const UpcomingMatchesScoreboard = () => {
             </div>
           ))}
         </div>
+        {/* Pagination controls */}
+        {allMatches.length > matchesPerPage && (
+          <div className="flex justify-between items-center px-4 py-3 border-t border-gray-100">
+            <button
+              onClick={prevPage}
+              disabled={currentPage === 0}
+              className={`flex items-center text-xs px-2 py-1 rounded transition-colors ${
+                currentPage === 0 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              }`}
+            >
+              <ChevronLeft className="h-3 w-3 mr-1" />
+              Previous
+            </button>
+            
+            <div className="text-xs text-gray-500">
+              Page {currentPage + 1} of {Math.ceil(allMatches.length / matchesPerPage)}
+            </div>
+            
+            <button
+              onClick={nextPage}
+              disabled={currentPage >= Math.ceil(allMatches.length / matchesPerPage) - 1}
+              className={`flex items-center text-xs px-2 py-1 rounded transition-colors ${
+                currentPage >= Math.ceil(allMatches.length / matchesPerPage) - 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              }`}
+            >
+              Next
+              <ChevronRight className="h-3 w-3 ml-1" />
+            </button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
