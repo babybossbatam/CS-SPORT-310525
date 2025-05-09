@@ -131,14 +131,18 @@ const UpcomingMatchesScoreboard = () => {
       (match.teams.home.name === 'Barcelona' && match.teams.away.name === 'Inter')
     );
     
-    // Include that match regardless of status if found
+    // Include Inter vs Barcelona match only if it's finished (to show the final score)
+    // For other matches, only include upcoming/live matches
     const featuredLeagueFixtures = allFixtures.filter(match => {
-      // Special case for Inter vs Barcelona match - always include it
+      // Special case for Inter vs Barcelona match - only include if it's finished
       if (match.fixture.id === interBarcelonaMatch?.fixture.id) {
-        return true;
+        // Make sure we're only including the match if it's actually finished
+        return match.fixture.status.short === 'FT' || 
+               match.fixture.status.short === 'AET' ||
+               match.fixture.status.short === 'PEN';
       }
       
-      // Filter to include matches from our featured leagues
+      // For all other matches, filter to include matches from our featured leagues
       // Filter out finished matches (status 'FT', 'AET', 'PEN', etc.)
       return FEATURED_LEAGUE_IDS.includes(match.league.id) &&
         match.fixture.status.short !== 'FT' &&
