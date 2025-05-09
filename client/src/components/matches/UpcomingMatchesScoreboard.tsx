@@ -113,9 +113,17 @@ const UpcomingMatchesScoreboard = () => {
       ...(championsLeagueFixtures || [])
     ];
     
-    // Filter to include ONLY matches from our featured leagues
+    // Filter to include ONLY upcoming matches from our featured leagues
+    // Filter out finished matches (status 'FT', 'AET', 'PEN', etc.)
     const featuredLeagueFixtures = allFixtures.filter(match => 
-      FEATURED_LEAGUE_IDS.includes(match.league.id)
+      FEATURED_LEAGUE_IDS.includes(match.league.id) &&
+      match.fixture.status.short !== 'FT' &&
+      match.fixture.status.short !== 'AET' &&
+      match.fixture.status.short !== 'PEN' &&
+      match.fixture.status.short !== 'PST' &&
+      match.fixture.status.short !== 'CANC' &&
+      match.fixture.status.short !== 'ABD' &&
+      match.fixture.status.short !== 'AWD'
     );
     
     // Sort by date and prioritize live matches
