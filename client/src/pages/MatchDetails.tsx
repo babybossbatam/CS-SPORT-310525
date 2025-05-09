@@ -356,7 +356,7 @@ const MatchDetails = () => {
             </div>
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-5 mb-4">
+              <TabsList className="grid grid-cols-6 mb-4">
                 <TabsTrigger value="summary" className="flex items-center">
                   <BarChart2 className="h-4 w-4 mr-2" />
                   <span>Summary</span>
@@ -373,9 +373,13 @@ const MatchDetails = () => {
                   <Trophy className="h-4 w-4 mr-2" />
                   <span>Lineups</span>
                 </TabsTrigger>
+                <TabsTrigger value="history" className="flex items-center">
+                  <Info className="h-4 w-4 mr-2" />
+                  <span>History</span>
+                </TabsTrigger>
                 <TabsTrigger value="highlights" className="flex items-center">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  <span>Highlights</span>
+                  <span>Analysis</span>
                 </TabsTrigger>
               </TabsList>
               
@@ -653,6 +657,67 @@ const MatchDetails = () => {
                 </div>
               </TabsContent>
               
+              <TabsContent value="history" className="mt-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <TeamPerformanceTimeline
+                    team={currentFixture.teams.home}
+                  />
+                  <TeamPerformanceTimeline
+                    team={currentFixture.teams.away}
+                  />
+                </div>
+                
+                <div className="mt-4">
+                  <HistoricalStats
+                    homeTeamId={currentFixture.teams.home.id}
+                    homeTeamName={currentFixture.teams.home.name}
+                    homeTeamLogo={currentFixture.teams.home.logo}
+                    awayTeamId={currentFixture.teams.away.id}
+                    awayTeamName={currentFixture.teams.away.name}
+                    awayTeamLogo={currentFixture.teams.away.logo}
+                    previousMatches={[
+                      {
+                        date: "2025-03-15",
+                        homeTeam: currentFixture.teams.home.name,
+                        awayTeam: currentFixture.teams.away.name,
+                        homeScore: 2,
+                        awayScore: 1,
+                        competition: currentFixture.league.name
+                      },
+                      {
+                        date: "2024-11-22",
+                        homeTeam: currentFixture.teams.away.name,
+                        awayTeam: currentFixture.teams.home.name,
+                        homeScore: 0,
+                        awayScore: 3,
+                        competition: currentFixture.league.name
+                      },
+                      {
+                        date: "2024-08-05",
+                        homeTeam: currentFixture.teams.home.name,
+                        awayTeam: currentFixture.teams.away.name,
+                        homeScore: 1,
+                        awayScore: 1,
+                        competition: currentFixture.league.name
+                      }
+                    ]}
+                    headToHead={{
+                      homeWins: 3,
+                      awayWins: 1,
+                      draws: 2,
+                      totalMatches: 6,
+                      lastFiveResults: ['H', 'H', 'D', 'A', 'D']
+                    }}
+                    teamForm={{
+                      homeTeamForm: ['W', 'W', 'D', 'L', 'W'],
+                      awayTeamForm: ['L', 'W', 'D', 'L', 'W'],
+                      homeTeamPosition: 3,
+                      awayTeamPosition: 6
+                    }}
+                  />
+                </div>
+              </TabsContent>
+                            
               <TabsContent value="highlights" className="mt-2">
                 <Card>
                   <CardHeader className="p-4 border-b flex items-center">
@@ -820,6 +885,32 @@ const MatchDetails = () => {
                     </div>
                   </CardContent>
                 </Card>
+                <div className="mt-4">
+                  <PredictionMeter 
+                    homeTeam={{
+                      id: currentFixture.teams.home.id,
+                      name: currentFixture.teams.home.name,
+                      logo: currentFixture.teams.home.logo,
+                      prediction: {
+                        chance: 45,
+                        form: 'ascending',
+                        history: 50
+                      }
+                    }}
+                    awayTeam={{
+                      id: currentFixture.teams.away.id,
+                      name: currentFixture.teams.away.name,
+                      logo: currentFixture.teams.away.logo,
+                      prediction: {
+                        chance: 35,
+                        form: 'stable',
+                        history: 35
+                      }
+                    }}
+                    drawChance={20}
+                    confidence={75}
+                  />
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
