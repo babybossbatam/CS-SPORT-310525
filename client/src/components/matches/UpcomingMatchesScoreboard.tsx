@@ -113,16 +113,23 @@ const UpcomingMatchesScoreboard = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
+  // Fetch Serie A fixtures (ID 135)
+  const { data: serieAFixtures, isLoading: isSerieALoading } = useQuery<FixtureResponse[]>({
+    queryKey: [`/api/leagues/135/fixtures`],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  
   // Process the fixtures when data is available
   useEffect(() => {
-    if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures) return;
+    if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures && !serieAFixtures) return;
     
-    // Combine live, upcoming fixtures, Champions League fixtures, and Europa League fixtures
+    // Combine live, upcoming fixtures, Champions League fixtures, Europa League fixtures, and Serie A fixtures
     const allFixtures = [
       ...(liveFixtures || []),
       ...(tomorrowFixtures || []),
       ...(championsLeagueFixtures || []),
-      ...(europaLeagueFixtures || [])
+      ...(europaLeagueFixtures || []),
+      ...(serieAFixtures || [])
     ];
     
     // Check for the Inter vs Barcelona match
@@ -172,7 +179,7 @@ const UpcomingMatchesScoreboard = () => {
     
     // Set the first page of matches
     updateCurrentPage(0, sortedFixtures);
-  }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures, europaLeagueFixtures]);
+  }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures, europaLeagueFixtures, serieAFixtures]);
   
   // Function to update the current page of matches to display
   const updateCurrentPage = (page: number, fixtures = allMatches) => {
@@ -199,7 +206,7 @@ const UpcomingMatchesScoreboard = () => {
   };
   
   // Loading state
-  if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading || isEuropaLeagueLoading) {
+  if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading) {
     return (
       <Card>
         <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
