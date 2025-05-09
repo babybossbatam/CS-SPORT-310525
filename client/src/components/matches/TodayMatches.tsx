@@ -15,6 +15,7 @@ import { Clock, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import LiveMatchPlayer from './LiveMatchPlayer';
 
 // Same league list as UpcomingMatchesScoreboard
 const POPULAR_LEAGUES = [
@@ -28,6 +29,7 @@ const TodayMatches = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [filterByTime, setFilterByTime] = useState(false);
   const [showLiveOnly, setShowLiveOnly] = useState(false);
+  const [selectedLiveMatch, setSelectedLiveMatch] = useState<FixtureResponse | null>(null);
   
   // Format date for API request
   const formattedSelectedDate = selectedDate ? 
@@ -173,36 +175,105 @@ const TodayMatches = () => {
   
   return (
     <div>
+      {/* Show LiveMatchPlayer when a live match is selected */}
+      {selectedLiveMatch && (
+        <LiveMatchPlayer 
+          fixture={selectedLiveMatch} 
+          onClose={() => {
+            setSelectedLiveMatch(null);
+            setShowLiveOnly(false);
+          }}
+        />
+      )}
+
       {/* Filter controls based on the provided image */}
-      <div className="flex items-center justify-between mb-3 mx-1 border-b pb-3">
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="ghost"
-            size="sm" 
-            className={`text-xs h-7 font-medium px-3 ${showLiveOnly ? 'bg-red-500 text-white hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
-            onClick={() => {
-              setShowLiveOnly(!showLiveOnly);
-              // If turning on live filter, turn off time filter
-              if (!showLiveOnly) setFilterByTime(false);
-            }}
-          >
-            LIVE
-          </Button>
+      <div className="flex flex-col mb-3 mx-1 border-b pb-3">
+        {/* Top row - LIVE and by time */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost"
+              size="sm" 
+              className={`text-xs h-7 font-medium px-3 ${showLiveOnly ? 'bg-red-500 text-white hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => {
+                // Toggle live matches filter
+                setShowLiveOnly(!showLiveOnly);
+                
+                // If turning on live filter
+                if (!showLiveOnly) {
+                  setFilterByTime(false);
+                  
+                  // Select the first live match if available (for the video player)
+                  const liveMatches = filteredFixtures.filter(fixture => 
+                    ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(fixture.fixture.status.short)
+                  );
+                  
+                  if (liveMatches.length > 0) {
+                    setSelectedLiveMatch(liveMatches[0]);
+                  }
+                } else {
+                  // If turning off live filter, clear selected match
+                  setSelectedLiveMatch(null);
+                }
+              }}
+            >
+              LIVE
+            </Button>
+          </div>
+          
+          <div className="flex justify-end">
+            <Button 
+              variant="ghost"
+              size="sm" 
+              className={`text-xs h-7 gap-1 flex items-center ${filterByTime ? 'text-blue-600' : 'text-gray-500'}`}
+              onClick={() => {
+                setFilterByTime(!filterByTime);
+                // If turning on time filter, turn off live filter
+                if (!filterByTime) setShowLiveOnly(false);
+              }}
+            >
+              <Clock className="h-3.5 w-3.5 mr-1" />
+              by time
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex justify-end">
+
+        {/* Day picker controls */}
+        <div className="flex items-center space-x-1 mt-1">
           <Button 
             variant="ghost"
             size="sm" 
-            className={`text-xs h-7 gap-1 flex items-center ${filterByTime ? 'text-blue-600' : 'text-gray-500'}`}
+            className={`text-xs py-1 px-2 h-6 font-medium ${isYesterday(selectedDate || new Date()) ? 'bg-blue-100 text-blue-600' : 'text-gray-500'}`}
             onClick={() => {
-              setFilterByTime(!filterByTime);
-              // If turning on time filter, turn off live filter
-              if (!filterByTime) setShowLiveOnly(false);
+              const yesterday = subDays(new Date(), 1);
+              setSelectedDate(yesterday);
+              setShowLiveOnly(false);
             }}
           >
-            <Clock className="h-3.5 w-3.5 mr-1" />
-            by time
+            Yesterday
+          </Button>
+          <Button 
+            variant="ghost"
+            size="sm" 
+            className={`text-xs py-1 px-2 h-6 font-medium ${isToday(selectedDate || new Date()) ? 'bg-blue-100 text-blue-600' : 'text-gray-500'}`}
+            onClick={() => {
+              setSelectedDate(new Date());
+              setShowLiveOnly(false);
+            }}
+          >
+            Today
+          </Button>
+          <Button 
+            variant="ghost"
+            size="sm" 
+            className={`text-xs py-1 px-2 h-6 font-medium ${isTomorrow(selectedDate || new Date()) ? 'bg-blue-100 text-blue-600' : 'text-gray-500'}`}
+            onClick={() => {
+              const tomorrow = addDays(new Date(), 1);
+              setSelectedDate(tomorrow);
+              setShowLiveOnly(false);
+            }}
+          >
+            Tomorrow
           </Button>
         </div>
       </div>
@@ -214,7 +285,16 @@ const TodayMatches = () => {
           <div 
             key={match.fixture.id}
             className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
-            onClick={() => navigate(`/match/${match.fixture.id}`)}
+            onClick={(e) => {
+              // If it's a live match and live filter is on, show the video player
+              if (showLiveOnly && ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(match.fixture.status.short)) {
+                e.stopPropagation();
+                setSelectedLiveMatch(match);
+              } else {
+                // Otherwise navigate to match details
+                navigate(`/match/${match.fixture.id}`);
+              }
+            }}
           >
             <div className="flex items-center justify-between mb-1">
               <img 
