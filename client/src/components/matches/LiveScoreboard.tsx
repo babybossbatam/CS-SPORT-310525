@@ -384,9 +384,9 @@ export function LiveScoreboard({
                 
                 {/* Team names with colored bars */}
                 <div className="flex h-12 w-full overflow-hidden relative">
-                  {/* Home team color bar - resized to the right by 3px */}
+                  {/* Home team color bar - extended 10px to the left and 3px to the right */}
                   <div 
-                    className="w-[calc(50%+3px)] flex items-center justify-center px-4 text-white h-full"
+                    className="w-[calc(50%+3px)] flex items-center justify-center -ml-10 mr-0 px-4 text-white h-full"
                     style={{ 
                       background: getTeamColor(featuredMatch.teams.home.name)
                     }}
@@ -396,9 +396,9 @@ export function LiveScoreboard({
                     </span>
                   </div>
                   
-                  {/* Away team color bar */}
+                  {/* Away team color bar - extended 10px to the right */}
                   <div 
-                    className="w-1/2 flex items-center justify-center px-4 text-white h-full"
+                    className="w-1/2 flex items-center justify-center ml-0 -mr-10 px-4 text-white h-full"
                     style={{ 
                       background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name) 
                     }}>
