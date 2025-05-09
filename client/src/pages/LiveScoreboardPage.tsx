@@ -13,6 +13,8 @@ import {
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
+import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
+import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -334,11 +336,19 @@ function LiveScoreboardPage() {
     <div className="mx-2 my-4">
       {/* League Schedule Widgets */}
       <div className="mb-4">
+        <ChampionsLeagueSchedule />
+      </div>
+      
+      <div className="mb-4">
         <PremierLeagueSchedule />
       </div>
       
       <div className="mb-4">
         <SerieASchedule />
+      </div>
+      
+      <div className="mb-4">
+        <BundesligaSchedule />
       </div>
       
       <div className="mb-4">
