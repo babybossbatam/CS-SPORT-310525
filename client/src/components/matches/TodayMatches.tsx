@@ -30,7 +30,7 @@ const POPULAR_LEAGUES = [
 const TodayMatches = () => {
   const [, navigate] = useLocation();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [filterByTime, setFilterByTime] = useState(false);
+  const [filterByTime, setFilterByTime] = useState(true); // Default to showing today's ended matches
   const [showLiveOnly, setShowLiveOnly] = useState(false);
   const [selectedLiveMatch, setSelectedLiveMatch] = useState<FixtureResponse | null>(null);
   
@@ -370,7 +370,7 @@ const TodayMatches = () => {
               }}
             >
               <Clock className="h-3.5 w-3.5 mr-1" />
-              by time
+              today ended
             </Button>
           </div>
         </div>
