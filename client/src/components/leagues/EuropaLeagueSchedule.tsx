@@ -312,7 +312,7 @@ const EuropaLeagueSchedule = () => {
                     </div>
                   ) : (fixture.fixture.status.short === 'FT' || fixture.fixture.status.short === 'AET' || fixture.fixture.status.short === 'PEN') ? (
                     <span className="font-bold text-sm">
-                      {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                      {fixture.goals.home} - {fixture.goals.away}
                       {fixture.fixture.status.short === 'AET' && (
                         <span className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded ml-1 font-medium">AET</span>
                       )}
