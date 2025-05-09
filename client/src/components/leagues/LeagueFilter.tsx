@@ -117,8 +117,7 @@ const LeagueFilter = () => {
                 ) : (
                   <Filter className="h-3 w-3" />
                 )}
-                <span className="hidden sm:inline truncate">{league.name}</span>
-                <span className="inline sm:hidden truncate">
+                <span className="truncate">
                   {getAbbreviatedName(league.name)}
                 </span>
               </TabsTrigger>
