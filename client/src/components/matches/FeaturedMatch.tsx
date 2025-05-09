@@ -236,13 +236,13 @@ const FeaturedMatch = () => {
         <div className="flex justify-center items-center space-x-4 mb-6 relative">
           {/* Home Team */}
           <div className="flex flex-col items-center w-1/3">
-            <div className="h-16 w-16 mb-2 flex items-center justify-center relative">
-              {/* Shadow effect at 50% size as requested */}
-              <div className="absolute inset-0 scale-50 origin-center bg-black/20 rounded-full filter blur-[5px] transform translate-y-1"></div>
+            <div className="h-20 w-20 mb-2 flex items-center justify-center relative group">
+              {/* Enhanced shadow effect at 50% size with better visual depth */}
+              <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
               <img 
                 src={featuredMatch.teams.home.logo} 
                 alt={featuredMatch.teams.home.name} 
-                className="h-full w-full object-contain relative z-10"
+                className="h-full w-full object-contain relative z-10 drop-shadow-lg transform transition-transform duration-300 hover:scale-110"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                 }}
@@ -252,22 +252,22 @@ const FeaturedMatch = () => {
           </div>
           
           {/* Match Bar - NEW ADDITION with Dynamic Team Colors */}
-          <div className="absolute left-0 right-0 h-6 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden">
+          <div className="absolute left-0 right-0 h-10 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden rounded-md shadow-md">
             <div className="w-full h-full flex">
-              {/* Home team color (60%) with dynamic color extraction */}
+              {/* Home team color (60%) with enhanced dynamic color extraction */}
               <div 
                 className="w-[60%] h-full" 
                 style={{ 
-                  background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)}CC 0%, ${getTeamColor(featuredMatch.teams.home.name, true)}99 100%)`,
-                  clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0 100%)'
+                  background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)} 0%, ${getTeamColor(featuredMatch.teams.home.name, true)}DD 100%)`,
+                  clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0 100%)'
                 }}
               ></div>
-              {/* Away team color (40%) with dynamic opposing color extraction */}
+              {/* Away team color (40%) with enhanced dynamic opposing color extraction */}
               <div 
                 className="w-[40%] h-full" 
                 style={{ 
-                  background: `linear-gradient(90deg, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)}99 0%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)}CC 100%)`,
-                  clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 0% 100%)'
+                  background: `linear-gradient(90deg, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)}DD 0%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 100%)`,
+                  clipPath: 'polygon(5% 0, 100% 0, 100% 100%, 0% 100%)'
                 }}
               ></div>
             </div>
@@ -293,7 +293,7 @@ const FeaturedMatch = () => {
                   <span className="text-xs ml-2 text-orange-600">HT</span>}
               </div>
             ) : (
-              <div className="text-4xl font-bold bg-white py-1 px-5 rounded-full shadow-sm mb-2 transform -translate-x-1">VS</div>
+              <div className="text-5xl font-bold bg-white/90 py-1 px-5 rounded-full shadow-md mb-2 transform -translate-x-3 z-20">VS</div>
             )}
             <div className="text-sm text-white bg-gray-800/70 px-2 py-1 rounded-full">
               {formatDateTime(featuredMatch.fixture.date)}
@@ -302,13 +302,13 @@ const FeaturedMatch = () => {
           
           {/* Away Team */}
           <div className="flex flex-col items-center w-1/3">
-            <div className="h-16 w-16 mb-2 flex items-center justify-center relative">
-              {/* Shadow effect at 50% size as requested */}
-              <div className="absolute inset-0 scale-50 origin-center bg-black/20 rounded-full filter blur-[5px] transform translate-y-1"></div>
+            <div className="h-20 w-20 mb-2 flex items-center justify-center relative group">
+              {/* Enhanced shadow effect at 50% size with better visual depth */}
+              <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
               <img 
                 src={featuredMatch.teams.away.logo} 
                 alt={featuredMatch.teams.away.name} 
-                className="h-full w-full object-contain relative z-10"
+                className="h-full w-full object-contain relative z-10 drop-shadow-lg transform transition-transform duration-300 hover:scale-110"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                 }}
