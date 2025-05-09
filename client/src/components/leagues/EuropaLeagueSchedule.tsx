@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 import { Trophy, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
 import { getTeamColor } from '@/lib/colorExtractor';
 import { useLocation } from 'wouter';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 
 // Define the types we need
 interface Team {
@@ -77,6 +79,12 @@ const EuropaLeagueSchedule = () => {
   const leagueId = 3;
   const currentYear = new Date().getFullYear();
   
+  // Get selected date from Redux store
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+  // Check if the selected date is today
+  const today = new Date();
+  const isToday = isSameDay(parseISO(selectedDate), today);
+  
   // Get Europa League info
   const { data: leagueInfo } = useQuery({
     queryKey: [`/api/leagues/${leagueId}`],
@@ -90,32 +98,61 @@ const EuropaLeagueSchedule = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
-  // Group fixtures by matchday or round when data is available
+  // Handle fixtures based on selected date
   useEffect(() => {
     if (!allFixtures) return;
     
-    // Filter fixtures by most recent/upcoming
     const fixtures = [...allFixtures];
-    
-    // Sort fixtures by date (oldest first for upcoming, newest first for past)
     const now = new Date();
-    const upcomingFixtures = fixtures
-      .filter(f => new Date(f.fixture.date) > now)
-      .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+    const selectedDateObj = parseISO(selectedDate);
     
-    const pastFixtures = fixtures
-      .filter(f => new Date(f.fixture.date) <= now)
-      .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
+    // Filter fixtures by the selected date
+    let filteredFixtures: FixtureResponse[] = [];
     
-    // Only show finished matches as requested by user
-    const finishedMatches = pastFixtures.filter(fixture => 
-      fixture.fixture.status.short === 'FT' || 
-      fixture.fixture.status.short === 'AET' ||
-      fixture.fixture.status.short === 'PEN'
-    );
+    if (isToday) {
+      // For today, show both completed and upcoming matches
+      // 1. Get finished and live matches from today
+      const todayFinishedMatches = fixtures.filter(f => {
+        const fixtureDate = new Date(f.fixture.date);
+        return (
+          isSameDay(fixtureDate, now) && 
+          (f.fixture.status.short === 'FT' || 
+           f.fixture.status.short === 'AET' || 
+           f.fixture.status.short === 'PEN' || 
+           isLiveMatch(f.fixture.status.short))
+        );
+      });
+      
+      // 2. Get upcoming matches for today
+      const todayUpcomingMatches = fixtures.filter(f => {
+        const fixtureDate = new Date(f.fixture.date);
+        return (
+          isSameDay(fixtureDate, now) && 
+          f.fixture.status.short !== 'FT' && 
+          f.fixture.status.short !== 'AET' && 
+          f.fixture.status.short !== 'PEN' && 
+          !isLiveMatch(f.fixture.status.short) &&
+          fixtureDate > now
+        );
+      });
+      
+      // 3. Combine finished and upcoming matches for today
+      filteredFixtures = [...todayFinishedMatches, ...todayUpcomingMatches];
+    } else {
+      // For other dates, show only completed matches for that date
+      filteredFixtures = fixtures.filter(f => {
+        const fixtureDate = new Date(f.fixture.date);
+        return (
+          isSameDay(fixtureDate, selectedDateObj) && 
+          (f.fixture.status.short === 'FT' || 
+           f.fixture.status.short === 'AET' || 
+           f.fixture.status.short === 'PEN')
+        );
+      });
+    }
     
     // Find Manchester United vs Lyon match from April 17th
-    const manUtdLyonMatch = finishedMatches.find(fixture => 
+    const manUtdLyonMatch = fixtures.find(fixture => 
       ((fixture.teams.home.name === "Manchester United" && fixture.teams.away.name === "Lyon") ||
        (fixture.teams.away.name === "Manchester United" && fixture.teams.home.name === "Lyon")) &&
       new Date(fixture.fixture.date).getMonth() === 3 // April is month 3 (0-indexed)
@@ -131,28 +168,56 @@ const EuropaLeagueSchedule = () => {
         manUtdLyonMatch.goals.away = 5;
       }
       manUtdLyonMatch.fixture.status.short = 'AET'; // Set to After Extra Time
+      
+      // Check if the match should be shown based on date filter
+      const manUtdLyonMatchDate = new Date(manUtdLyonMatch.fixture.date);
+      if (!isSameDay(manUtdLyonMatchDate, selectedDateObj)) {
+        // If we're not showing this date, don't add the special match
+        manUtdLyonMatch = undefined;
+      }
     }
     
-    // Take top 4 most recent finished matches
-    const recentMatches = [...finishedMatches.slice(0, 4)];
+    // Add the Man Utd vs Lyon match if it's available for this date
+    let finalFixtures = [...filteredFixtures];
+    if (manUtdLyonMatch && 
+        (isSameDay(new Date(manUtdLyonMatch.fixture.date), selectedDateObj) || 
+         selectedDateObj.getMonth() === 3)) { // April
+      finalFixtures = [
+        manUtdLyonMatch, 
+        ...finalFixtures.filter(match => match.fixture.id !== manUtdLyonMatch.fixture.id)
+      ];
+    }
     
-    // Add the Man Utd vs Lyon match if it's not already in the list
-    const visibleFixtures = manUtdLyonMatch 
-      ? [manUtdLyonMatch, ...recentMatches.filter(match => match.fixture.id !== manUtdLyonMatch.fixture.id)]
-      : [...recentMatches];
-    
-    // Keep only 5 matches maximum
-    const finalFixtures = visibleFixtures.slice(0, 5);
-    
-    // Sort by date - most recent first
+    // Sort the fixtures
     finalFixtures.sort((a, b) => {
+      // First, prioritize live matches
+      const aIsLive = isLiveMatch(a.fixture.status.short);
+      const bIsLive = isLiveMatch(b.fixture.status.short);
+      
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+      
       const aDate = new Date(a.fixture.date);
       const bDate = new Date(b.fixture.date);
+      
+      // Then upcoming matches vs completed matches
+      if (aDate > now && bDate <= now) return -1;
+      if (aDate <= now && bDate > now) return 1;
+      
+      // For upcoming matches, sort by time (earliest first)
+      if (aDate > now && bDate > now) {
+        return aDate.getTime() - bDate.getTime();
+      }
+      
+      // For completed matches, sort by time (latest first)
       return bDate.getTime() - aDate.getTime();
     });
     
-    setVisibleFixtures(finalFixtures);
-  }, [allFixtures]);
+    // Limit to a reasonable number
+    const limitedFixtures = finalFixtures.slice(0, 5);
+    
+    setVisibleFixtures(limitedFixtures);
+  }, [allFixtures, selectedDate, isToday]);
   
   // Loading state
   if (isLoading) {
