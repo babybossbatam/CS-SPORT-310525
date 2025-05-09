@@ -360,10 +360,6 @@ const UpcomingMatchesScoreboard = () => {
   return (
     <Card>
       <CardContent className="p-0">
-        <div className="flex items-center bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
-          <Activity className="h-5 w-5 mr-2" />
-          <span className="font-semibold">Upcoming Matches</span>
-        </div>
         <div className="divide-y divide-gray-100">
           {upcomingMatches.map((match) => (
             <div 
