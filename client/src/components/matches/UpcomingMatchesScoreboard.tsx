@@ -228,6 +228,10 @@ const UpcomingMatchesScoreboard = () => {
   const prevPage = () => {
     if (currentPage > 0) {
       updateCurrentPage(currentPage - 1);
+    } else {
+      // If on the first page, loop back to the last page
+      const maxPage = Math.ceil(allMatches.length / matchesPerPage) - 1;
+      updateCurrentPage(maxPage);
     }
   };
   
@@ -418,15 +422,10 @@ const UpcomingMatchesScoreboard = () => {
           <div className="flex justify-between items-center px-4 py-3 border-t border-gray-100">
             <button
               onClick={prevPage}
-              disabled={currentPage === 0}
-              className={`flex items-center text-xs px-2 py-1 rounded transition-colors ${
-                currentPage === 0 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
+              className="flex items-center text-xs px-2 py-1 rounded transition-colors bg-gray-200 hover:bg-gray-300 text-gray-700"
             >
               <ChevronLeft className="h-3 w-3 mr-1" />
-              Previous
+              {currentPage === 0 ? 'Last Page' : 'Previous'}
             </button>
             
             <div className="text-xs text-gray-500">
