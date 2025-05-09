@@ -3,18 +3,17 @@ import {
   format, 
   parseISO, 
   isToday, 
-  isYesterday, 
-  isTomorrow, 
-  addDays, 
   differenceInHours, 
   subDays 
 } from 'date-fns';
 import { FixtureResponse } from '../../../../server/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Calendar } from 'lucide-react';
+import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { DayPicker } from 'react-day-picker';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import LiveMatchPlayer from './LiveMatchPlayer';
 
 // Same league list as UpcomingMatchesScoreboard
@@ -81,14 +80,13 @@ const TodayMatches = () => {
     return format(date, 'HH:mm');
   };
   
-  // Check if the match should display scores instead of time
+  // Check if the match should display scores instead of time (only for today's matches)
   const shouldShowScores = (dateString: string): boolean => {
     const date = parseISO(dateString);
     const today = new Date();
-    const yesterday = subDays(today, 1);
     
-    return date.toDateString() === today.toDateString() || 
-           date.toDateString() === yesterday.toDateString();
+    // Only show scores for today's matches
+    return date.toDateString() === today.toDateString();
   };
   
   // Get the current time in seconds (unix timestamp)
@@ -238,43 +236,37 @@ const TodayMatches = () => {
           </div>
         </div>
 
-        {/* Day picker controls */}
-        <div className="flex items-center space-x-1 mt-1">
-          <Button 
-            variant="ghost"
-            size="sm" 
-            className={`text-xs py-1 px-2 h-6 font-medium ${isYesterday(selectedDate || new Date()) ? 'bg-blue-100 text-blue-600' : 'text-gray-500'}`}
-            onClick={() => {
-              const yesterday = subDays(new Date(), 1);
-              setSelectedDate(yesterday);
-              setShowLiveOnly(false);
-            }}
-          >
-            Yesterday
-          </Button>
-          <Button 
-            variant="ghost"
-            size="sm" 
-            className={`text-xs py-1 px-2 h-6 font-medium ${isToday(selectedDate || new Date()) ? 'bg-blue-100 text-blue-600' : 'text-gray-500'}`}
-            onClick={() => {
-              setSelectedDate(new Date());
-              setShowLiveOnly(false);
-            }}
-          >
-            Today
-          </Button>
-          <Button 
-            variant="ghost"
-            size="sm" 
-            className={`text-xs py-1 px-2 h-6 font-medium ${isTomorrow(selectedDate || new Date()) ? 'bg-blue-100 text-blue-600' : 'text-gray-500'}`}
-            onClick={() => {
-              const tomorrow = addDays(new Date(), 1);
-              setSelectedDate(tomorrow);
-              setShowLiveOnly(false);
-            }}
-          >
-            Tomorrow
-          </Button>
+        {/* Calendar date picker */}
+        <div className="flex flex-col w-full mt-1">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 justify-between text-xs w-full font-medium"
+              >
+                <div className="flex items-center">
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                  {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select date'}
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 ml-2" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <DayPicker
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date);
+                  setShowLiveOnly(false);
+                }}
+                weekStartsOn={1}
+                className="p-3"
+                showOutsideDays
+                fixedWeeks
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
       
@@ -326,7 +318,7 @@ const TodayMatches = () => {
                     </div>
                   </div>
                 ) : shouldShowScores(match.fixture.date) && match.fixture.status.short === 'FT' ? (
-                  /* Show scores for today's or yesterday's finished matches */
+                  /* Show scores for today's finished matches */
                   <div className="flex items-center justify-center space-x-1">
                     <span className="font-bold text-sm">{match.goals.home ?? 0}</span>
                     <span className="text-gray-400">:</span>
@@ -336,7 +328,7 @@ const TodayMatches = () => {
                   /* Show date and time for other matches */
                   <>
                     <div className="flex items-center justify-center">
-                      <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+                      <CalendarIcon className="h-3 w-3 mr-1 text-gray-400" />
                       <span className="text-gray-500">{formatMatchDate(match.fixture.date)}</span>
                     </div>
                     <span className="font-semibold">{formatMatchTime(match.fixture.timestamp)}</span>
