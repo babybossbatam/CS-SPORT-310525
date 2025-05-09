@@ -65,10 +65,7 @@ const TopScorersList = () => {
     staleTime: 30 * 60 * 1000, // 30 minutes cache
   });
   
-  // Get max goals to calculate progress bar widths
-  const maxGoals = topScorers && topScorers.length > 0 
-    ? Math.max(...topScorers.map(player => player.statistics[0].goals.total || 0))
-    : 0;
+  // No longer need maxGoals calculation since progress bar was removed
   
   if (isLoading) {
     return (
@@ -108,7 +105,6 @@ const TopScorersList = () => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
         const teamColor = getTeamColor(playerStats.team.name);
-        const progressPercentage = (goals / (maxGoals || 1)) * 100;
         
         return (
           <div key={scorer.player.id} className="group">
@@ -135,21 +131,11 @@ const TopScorersList = () => {
                   <div className="text-sm font-bold">{goals} {goals === 1 ? 'goal' : 'goals'}</div>
                 </div>
                 
-                {/* Team name and progress bar */}
+                {/* Team name */}
                 <div className="mt-1">
                   <div className="text-xs text-gray-500 mb-1 flex items-center">
                     <img src={playerStats.team.logo} alt={playerStats.team.name} className="h-3.5 w-3.5 mr-1" />
                     {playerStats.team.name}
-                  </div>
-                  <div className="h-2 bg-gray-100 w-full rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all shadow-inner"
-                      style={{ 
-                        width: `${progressPercentage}%`,
-                        backgroundColor: teamColor || '#3b82f6',
-                        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3)'
-                      }} 
-                    />
                   </div>
                 </div>
               </div>
