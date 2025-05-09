@@ -9,11 +9,12 @@ import { formatDateTime, isLiveMatch } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
 
-// Same league list as TodayMatches and UpcomingMatchesScoreboard
+// Same league list as UpcomingMatchesScoreboard
 const POPULAR_LEAGUES = [
+  135, // Serie A (Italy)
   2,   // UEFA Champions League (Europe)
   3,   // UEFA Europa League (Europe)
-  135, // Serie A (Italy)
+  39,  // Premier League (England)
 ];
 
 const FeaturedMatch = () => {
@@ -45,9 +46,17 @@ const FeaturedMatch = () => {
     }
   });
   
+  const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading } = useQuery({
+    queryKey: ['/api/leagues/39/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/leagues/39/fixtures');
+      return response.json();
+    }
+  });
+  
   useEffect(() => {
     // Combine all fixtures
-    const allFixtures = [...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures];
+    const allFixtures = [...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures, ...premierLeagueFixtures];
     
     // Create a map to track unique fixture IDs and detect duplicates
     const fixtureIdMap = new Map<number, FixtureResponse>();
@@ -66,6 +75,7 @@ const FeaturedMatch = () => {
     processSource(championsLeagueFixtures, "Champions League");
     processSource(europaLeagueFixtures, "Europa League");
     processSource(serieAFixtures, "Serie A");
+    processSource(premierLeagueFixtures, "Premier League");
     
     // Convert map back to array
     const uniqueFixtures = Array.from(fixtureIdMap.values());
@@ -152,7 +162,7 @@ const FeaturedMatch = () => {
     if (sortedFixtures.length > 0) {
       setFeaturedMatch(sortedFixtures[0]);
     }
-  }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures]);
+  }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
   // Format date for match display (Today, Tomorrow, or date)
   const formatMatchDate = (dateString: string): string => {
@@ -170,7 +180,7 @@ const FeaturedMatch = () => {
     }
   };
   
-  if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading) {
+  if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isPremierLeagueLoading) {
     return (
       <Card className="mb-6">
         <CardHeader className="bg-gray-200 px-4 py-2 flex justify-between items-center">
