@@ -80,7 +80,7 @@ const UpcomingMatchesScoreboard = () => {
   const [upcomingMatches, setUpcomingMatches] = useState<FixtureResponse[]>([]);
   const [allMatches, setAllMatches] = useState<FixtureResponse[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const matchesPerPage = 5; // Number of matches to show per page
+  const matchesPerPage = 3; // Number of matches to show per page - reduced to 3 for clearer pagination
   
   // Get tomorrow's date for upcoming fixtures
   const tomorrow = new Date();
@@ -152,7 +152,9 @@ const UpcomingMatchesScoreboard = () => {
   // Function to update the current page of matches to display
   const updateCurrentPage = (page: number, fixtures = allMatches) => {
     const startIndex = page * matchesPerPage;
-    setUpcomingMatches(fixtures.slice(startIndex, startIndex + matchesPerPage));
+    const paginated = fixtures.slice(startIndex, startIndex + matchesPerPage);
+    console.log(`Showing ${paginated.length} matches on page ${page + 1} of ${Math.ceil(fixtures.length / matchesPerPage)}`);
+    setUpcomingMatches(paginated);
     setCurrentPage(page);
   };
   
