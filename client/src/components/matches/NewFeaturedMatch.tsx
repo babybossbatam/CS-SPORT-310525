@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BarChart2, LineChart, Trophy } from "lucide-react";
 import { format, parseISO } from 'date-fns';
-import { BarChart2, LineChart, Trophy } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useLocation } from 'wouter';
 import { formatDateTime, isLiveMatch } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
 
-// Exact same IDs as UpcomingMatchesScoreboard
+// Constant from UpcomingMatchesScoreboard
 const FEATURED_LEAGUE_IDS = [
   135, // Serie A (Italy)
   2,   // UEFA Champions League (Europe)
@@ -17,12 +17,12 @@ const FEATURED_LEAGUE_IDS = [
   39,  // Premier League (England)
 ];
 
-const FeaturedMatch = () => {
+const NewFeaturedMatch = () => {
   const [, navigate] = useLocation();
   const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
   
-  // Get fixture data using React Query
-  const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
+  // Load Champions League fixtures
+  const { data: championsLeagueFixtures = [], isLoading: isLoadingCL } = useQuery({
     queryKey: ['/api/champions-league/fixtures'],
     queryFn: async () => {
       const response = await fetch('/api/champions-league/fixtures');
@@ -30,7 +30,8 @@ const FeaturedMatch = () => {
     }
   });
   
-  const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
+  // Load Europa League fixtures
+  const { data: europaLeagueFixtures = [], isLoading: isLoadingEL } = useQuery({
     queryKey: ['/api/europa-league/fixtures'],
     queryFn: async () => {
       const response = await fetch('/api/europa-league/fixtures');
@@ -38,7 +39,8 @@ const FeaturedMatch = () => {
     }
   });
   
-  const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
+  // Load Serie A fixtures
+  const { data: serieAFixtures = [], isLoading: isLoadingSA } = useQuery({
     queryKey: ['/api/leagues/135/fixtures'],
     queryFn: async () => {
       const response = await fetch('/api/leagues/135/fixtures');
@@ -46,7 +48,8 @@ const FeaturedMatch = () => {
     }
   });
   
-  const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading } = useQuery({
+  // Load Premier League fixtures
+  const { data: premierLeagueFixtures = [], isLoading: isLoadingPL } = useQuery({
     queryKey: ['/api/leagues/39/fixtures'],
     queryFn: async () => {
       const response = await fetch('/api/leagues/39/fixtures');
@@ -54,38 +57,44 @@ const FeaturedMatch = () => {
     }
   });
   
+  // Process fixtures when data is loaded
   useEffect(() => {
+    if (!championsLeagueFixtures.length && !europaLeagueFixtures.length && 
+        !serieAFixtures.length && !premierLeagueFixtures.length) {
+      return; // No data loaded yet
+    }
+    
+    console.log("Processing fixtures for NewFeaturedMatch");
+    
     // Combine all fixtures
-    const allFixtures = [...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures, ...premierLeagueFixtures];
+    const allFixtures = [];
     
-    // Create a map to track unique fixture IDs and detect duplicates
-    const fixtureIdMap = new Map<number, FixtureResponse>();
+    // Add fixtures from each league, avoiding duplicates
+    const processedIds = new Set<number>();
     
-    // Process each data source, only adding new unique fixtures
-    const processSource = (fixtures: FixtureResponse[] | undefined, sourceName: string) => {
-      if (!fixtures) return;
+    const addFixtures = (fixtures: FixtureResponse[], source: string) => {
+      console.log(`Adding fixtures from ${source}: ${fixtures.length}`);
       fixtures.forEach(fixture => {
-        if (!fixtureIdMap.has(fixture.fixture.id)) {
-          fixtureIdMap.set(fixture.fixture.id, fixture);
+        if (!processedIds.has(fixture.fixture.id)) {
+          processedIds.add(fixture.fixture.id);
+          allFixtures.push(fixture);
         }
       });
     };
     
-    // Process sources
-    processSource(championsLeagueFixtures, "Champions League");
-    processSource(europaLeagueFixtures, "Europa League");
-    processSource(serieAFixtures, "Serie A");
-    processSource(premierLeagueFixtures, "Premier League");
+    addFixtures(championsLeagueFixtures, 'Champions League');
+    addFixtures(europaLeagueFixtures, 'Europa League');
+    addFixtures(serieAFixtures, 'Serie A');
+    addFixtures(premierLeagueFixtures, 'Premier League');
     
-    // Convert map back to array
-    const uniqueFixtures = Array.from(fixtureIdMap.values());
+    console.log(`Total combined fixtures: ${allFixtures.length}`);
     
     // Get the current time in seconds (unix timestamp)
     const currentTime = Math.floor(Date.now() / 1000);
     const eightHoursInSeconds = 8 * 60 * 60; // 8 hours in seconds
     
-    // Apply the exact same filtering logic as UpcomingMatchesScoreboard
-    const scoreBoardMatches = uniqueFixtures.filter(match => {
+    // Filter matches for featured display
+    const filteredMatches = allFixtures.filter(match => {
       // Only include matches from our featured leagues
       if (!FEATURED_LEAGUE_IDS.includes(match.league.id)) {
         return false;
@@ -123,8 +132,10 @@ const FeaturedMatch = () => {
       return false;
     });
     
-    // Apply the same sorting logic as UpcomingMatchesScoreboard
-    const sortedFixtures = scoreBoardMatches.sort((a, b) => {
+    console.log(`Filtered matches: ${filteredMatches.length}`);
+    
+    // Sort matches by priority
+    const sortedMatches = filteredMatches.sort((a, b) => {
       // First sort by match status: Live > Upcoming > Finished
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
@@ -158,9 +169,11 @@ const FeaturedMatch = () => {
       return a.fixture.timestamp - b.fixture.timestamp;
     });
     
-    // Set the first match as featured
-    if (sortedFixtures.length > 0) {
-      setFeaturedMatch(sortedFixtures[0]);
+    if (sortedMatches.length > 0) {
+      console.log(`Featured match selected: ${sortedMatches[0].teams.home.name} vs ${sortedMatches[0].teams.away.name}`);
+      setFeaturedMatch(sortedMatches[0]);
+    } else {
+      console.log("No matches available for featuring");
     }
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
@@ -180,7 +193,8 @@ const FeaturedMatch = () => {
     }
   };
   
-  if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isPremierLeagueLoading) {
+  // Loading state
+  if (isLoadingCL || isLoadingEL || isLoadingSA || isLoadingPL) {
     return (
       <Card className="mb-6">
         <CardHeader className="bg-gray-200 px-4 py-2 flex justify-between items-center">
@@ -211,10 +225,12 @@ const FeaturedMatch = () => {
     );
   }
   
+  // No match state
   if (!featuredMatch) {
     return null;
   }
   
+  // Render featured match
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
       <CardHeader className="bg-gray-200 px-4 py-2 flex justify-between items-center">
@@ -319,4 +335,4 @@ const FeaturedMatch = () => {
   );
 };
 
-export default FeaturedMatch;
+export default NewFeaturedMatch;
