@@ -67,7 +67,7 @@ const NewFeaturedMatch = () => {
     console.log("Processing fixtures for NewFeaturedMatch");
     
     // Combine all fixtures
-    const allFixtures = [];
+    const allFixtures: FixtureResponse[] = [];
     
     // Add fixtures from each league, avoiding duplicates
     const processedIds = new Set<number>();
