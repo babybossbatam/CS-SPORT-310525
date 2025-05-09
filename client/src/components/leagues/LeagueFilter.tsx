@@ -28,7 +28,8 @@ const LeagueFilter = () => {
   const getLeagueLogo = (leagueId: number) => {
     if (!leagueData || isLoading || !Array.isArray(leagueData)) return null;
     
-    const league = leagueData.find((l: any) => l.league.id === leagueId);
+    const leagueArray = leagueData as Array<{league: {id: number, logo: string}}>;
+    const league = leagueArray.find(l => l.league.id === leagueId);
     return league?.league?.logo || null;
   };
   

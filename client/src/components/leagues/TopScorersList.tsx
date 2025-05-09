@@ -51,9 +51,12 @@ interface PlayerStatistics {
   }[];
 }
 
+// Default top league to show scorers for if none is selected
+const DEFAULT_LEAGUE_ID = 39; // Premier League
+
 const TopScorersList = () => {
   // Get selected league from Redux, fallback to default league
-  const selectedLeague = useSelector((state: any) => state.ui.selectedLeague || DEFAULT_LEAGUE_ID);
+  const selectedLeague = useSelector((state: RootState) => state.ui.selectedLeague || DEFAULT_LEAGUE_ID);
   const currentSeason = useSelector((state: any) => state.ui.currentSeason || new Date().getFullYear());
   
   // Query for top scorers data
@@ -99,6 +102,8 @@ const TopScorersList = () => {
   
   return (
     <div className="space-y-3">
+      <LeagueFilter />
+      
       {top5Scorers.map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
