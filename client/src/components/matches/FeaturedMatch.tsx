@@ -248,7 +248,7 @@ const FeaturedMatch = () => {
                 }}
               />
             </div>
-            <span className="font-bold text-lg text-center text-white uppercase tracking-wider truncate max-w-[130px]">{featuredMatch.teams.home.name}</span>
+            <span className="font-bold text-lg text-center text-black/90 uppercase tracking-wider truncate max-w-[130px] drop-shadow-sm">{featuredMatch.teams.home.name}</span>
           </div>
           
           {/* Match Bar - Full gradient from HOME logo through VS to AWAY logo */}
@@ -283,7 +283,7 @@ const FeaturedMatch = () => {
                   <span className="text-xs ml-2 text-orange-600">HT</span>}
               </div>
             ) : (
-              <div className="text-5xl font-bold text-white py-1 px-5 mb-2 z-20">VS</div>
+              <div className="text-5xl font-bold text-black/80 py-1 px-5 mb-2 z-20 bg-white/70 rounded-full shadow-sm">VS</div>
             )}
             <div className="text-sm text-white bg-gray-800/70 px-2 py-1 rounded-full">
               {formatDateTime(featuredMatch.fixture.date)}
@@ -304,7 +304,7 @@ const FeaturedMatch = () => {
                 }}
               />
             </div>
-            <span className="font-bold text-lg text-center text-white uppercase tracking-wider truncate max-w-[130px]">{featuredMatch.teams.away.name}</span>
+            <span className="font-bold text-lg text-center text-black/90 uppercase tracking-wider truncate max-w-[130px] drop-shadow-sm">{featuredMatch.teams.away.name}</span>
           </div>
         </div>
         
