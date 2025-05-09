@@ -114,17 +114,32 @@ const EuropaLeagueSchedule = () => {
       fixture.fixture.status.short === 'PEN'
     );
     
-    // Take top 5 most recent finished matches
-    const visibleFixtures = [...finishedMatches.slice(0, 5)];
+    // Find Manchester United vs Lyon match from April 17th
+    const manUtdLyonMatch = finishedMatches.find(fixture => 
+      ((fixture.teams.home.name === "Manchester United" && fixture.teams.away.name === "Lyon") ||
+       (fixture.teams.away.name === "Manchester United" && fixture.teams.home.name === "Lyon")) &&
+      new Date(fixture.fixture.date).getMonth() === 3 // April is month 3 (0-indexed)
+    );
+    
+    // Take top 4 most recent finished matches
+    const recentMatches = [...finishedMatches.slice(0, 4)];
+    
+    // Add the Man Utd vs Lyon match if it's not already in the list
+    const visibleFixtures = manUtdLyonMatch 
+      ? [manUtdLyonMatch, ...recentMatches.filter(match => match.fixture.id !== manUtdLyonMatch.fixture.id)]
+      : [...recentMatches];
+    
+    // Keep only 5 matches maximum
+    const finalFixtures = visibleFixtures.slice(0, 5);
     
     // Sort by date - most recent first
-    visibleFixtures.sort((a, b) => {
+    finalFixtures.sort((a, b) => {
       const aDate = new Date(a.fixture.date);
       const bDate = new Date(b.fixture.date);
       return bDate.getTime() - aDate.getTime();
     });
     
-    setVisibleFixtures(visibleFixtures);
+    setVisibleFixtures(finalFixtures);
   }, [allFixtures]);
   
   // Loading state
@@ -283,9 +298,11 @@ const EuropaLeagueSchedule = () => {
                         LIVE
                       </span>
                     </div>
-                  ) : fixture.fixture.status.short === 'FT' ? (
+                  ) : (fixture.fixture.status.short === 'FT' || fixture.fixture.status.short === 'AET' || fixture.fixture.status.short === 'PEN') ? (
                     <span className="font-bold text-sm">
                       {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                      {fixture.fixture.status.short === 'AET' && <span className="text-xs text-gray-500 ml-1">(AET)</span>}
+                      {fixture.fixture.status.short === 'PEN' && <span className="text-xs text-gray-500 ml-1">(PEN)</span>}
                     </span>
                   ) : (
                     <span className="text-xs text-gray-500 font-medium">vs</span>
