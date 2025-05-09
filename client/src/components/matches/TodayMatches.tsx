@@ -27,6 +27,7 @@ const TodayMatches = () => {
   const [, navigate] = useLocation();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [filterByTime, setFilterByTime] = useState(false);
+  const [showLiveOnly, setShowLiveOnly] = useState(false);
   
   // Format date for API request
   const formattedSelectedDate = selectedDate ? 
@@ -78,6 +79,16 @@ const TodayMatches = () => {
     return format(date, 'HH:mm');
   };
   
+  // Check if the match should display scores instead of time
+  const shouldShowScores = (dateString: string): boolean => {
+    const date = parseISO(dateString);
+    const today = new Date();
+    const yesterday = subDays(today, 1);
+    
+    return date.toDateString() === today.toDateString() || 
+           date.toDateString() === yesterday.toDateString();
+  };
+  
   // Get the current time in seconds (unix timestamp)
   const currentTime = Math.floor(Date.now() / 1000);
   
@@ -93,15 +104,22 @@ const TodayMatches = () => {
   // Combine fixtures from the selected date and live fixtures
   const allFixtures = [...selectedDateFixtures, ...liveFixtures];
 
-  // Filter fixtures based on time filter and league
+  // Filter fixtures based on filters and league
   const filteredFixtures = allFixtures
     // Remove duplicates by fixture ID
     .filter((fixture, index, self) => 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
+    // Apply live filter if enabled
+    .filter(fixture => {
+      if (showLiveOnly) {
+        return ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(fixture.fixture.status.short);
+      }
+      return true;
+    })
     // Apply time filter if enabled (only show matches finished within last 8 hours)
     .filter(fixture => {
-      if (filterByTime) {
+      if (filterByTime && !showLiveOnly) {
         return fixture.fixture.status.short === 'FT' && isRecentFinishedMatch(fixture);
       }
       return true;
@@ -109,7 +127,16 @@ const TodayMatches = () => {
     // Filter to only include our priority leagues
     .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
     // Sort by timestamp (nearest first)
-    .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+    .sort((a, b) => {
+      // Always prioritize live matches when using live filter
+      if (showLiveOnly) {
+        const aIsLive = ['1H', '2H', 'HT', 'LIVE'].includes(a.fixture.status.short);
+        const bIsLive = ['1H', '2H', 'HT', 'LIVE'].includes(b.fixture.status.short);
+        if (aIsLive && !bIsLive) return -1;
+        if (!aIsLive && bIsLive) return 1;
+      }
+      return a.fixture.timestamp - b.fixture.timestamp;
+    });
 
   // Take the first 5 fixtures for the today matches display
   const todayMatches = filteredFixtures.slice(0, 5);
@@ -146,74 +173,36 @@ const TodayMatches = () => {
   
   return (
     <div>
-      {/* Filter controls */}
-      <div className="flex flex-col mb-3 mx-1">
-        {/* Date filter buttons */}
-        <div className="flex space-x-1 mb-2 overflow-x-auto pb-1">
+      {/* Filter controls based on the provided image */}
+      <div className="flex items-center justify-between mb-3 mx-1 border-b pb-3">
+        <div className="flex items-center space-x-2">
           <Button 
-            variant={isYesterday(selectedDate || new Date()) ? "default" : "outline"}
+            variant="ghost"
             size="sm" 
-            className="text-xs h-7 min-w-16"
-            onClick={() => setSelectedDate(subDays(new Date(), 1))}
+            className={`text-xs h-7 font-medium px-3 ${showLiveOnly ? 'bg-red-500 text-white hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={() => {
+              setShowLiveOnly(!showLiveOnly);
+              // If turning on live filter, turn off time filter
+              if (!showLiveOnly) setFilterByTime(false);
+            }}
           >
-            Yesterday
-          </Button>
-          
-          <Button 
-            variant={isToday(selectedDate || new Date()) ? "default" : "outline"}
-            size="sm" 
-            className="text-xs h-7 min-w-16"
-            onClick={() => setSelectedDate(new Date())}
-          >
-            Today
-          </Button>
-          
-          <Button 
-            variant={isTomorrow(selectedDate || new Date()) ? "default" : "outline"}
-            size="sm" 
-            className="text-xs h-7 min-w-16"
-            onClick={() => setSelectedDate(addDays(new Date(), 1))}
-          >
-            Tomorrow
-          </Button>
-          
-          <Button 
-            variant={!isYesterday(selectedDate || new Date()) && 
-                   !isToday(selectedDate || new Date()) && 
-                   !isTomorrow(selectedDate || new Date()) &&
-                   format(selectedDate || new Date(), 'yyyy-MM-dd') === format(addDays(new Date(), 2), 'yyyy-MM-dd') ? 
-                   "default" : "outline"}
-            size="sm" 
-            className="text-xs h-7"
-            onClick={() => setSelectedDate(addDays(new Date(), 2))}
-          >
-            {format(addDays(new Date(), 2), 'EEE, MMM d')}
-          </Button>
-          
-          <Button 
-            variant={!isYesterday(selectedDate || new Date()) && 
-                   !isToday(selectedDate || new Date()) && 
-                   !isTomorrow(selectedDate || new Date()) &&
-                   format(selectedDate || new Date(), 'yyyy-MM-dd') === format(addDays(new Date(), 3), 'yyyy-MM-dd') ? 
-                   "default" : "outline"}
-            size="sm" 
-            className="text-xs h-7"
-            onClick={() => setSelectedDate(addDays(new Date(), 3))}
-          >
-            {format(addDays(new Date(), 3), 'EEE, MMM d')}
+            LIVE
           </Button>
         </div>
         
-        {/* Time filter buttons */}
         <div className="flex justify-end">
           <Button 
-            variant={filterByTime ? "default" : "outline"}
+            variant="ghost"
             size="sm" 
-            className={`text-xs h-7 gap-1 ${filterByTime ? 'bg-blue-600' : 'border-gray-300'}`}
-            onClick={() => setFilterByTime(!filterByTime)}
+            className={`text-xs h-7 gap-1 flex items-center ${filterByTime ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => {
+              setFilterByTime(!filterByTime);
+              // If turning on time filter, turn off live filter
+              if (!filterByTime) setShowLiveOnly(false);
+            }}
           >
-            <Clock className="h-3 w-3" />
-            Recent matches
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            by time
           </Button>
         </div>
       </div>
@@ -237,11 +226,42 @@ const TodayMatches = () => {
                 }}
               />
               <div className="text-center text-xs flex flex-col">
-                <div className="flex items-center justify-center">
-                  <Calendar className="h-3 w-3 mr-1 text-gray-400" />
-                  <span className="text-gray-500">{formatMatchDate(match.fixture.date)}</span>
-                </div>
-                <span className="font-semibold">{formatMatchTime(match.fixture.timestamp)}</span>
+                {['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(match.fixture.status.short) ? (
+                  /* Show live scores with indicator for live matches */
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <span className="font-bold text-sm">{match.goals.home ?? 0}</span>
+                      <span className="text-gray-400">:</span>
+                      <span className="font-bold text-sm">{match.goals.away ?? 0}</span>
+                    </div>
+                    <div className="flex items-center mt-0.5">
+                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-1"></span>
+                      <span className="text-red-500 font-medium text-[10px]">
+                        {match.fixture.status.short === 'HT' ? 'HALF TIME' : 
+                         match.fixture.status.short === '1H' ? '1ST HALF' : 
+                         match.fixture.status.short === '2H' ? '2ND HALF' : 
+                         match.fixture.status.short === 'ET' ? 'EXTRA TIME' : 
+                         match.fixture.status.short === 'P' ? 'PENALTY' : 'LIVE'}
+                      </span>
+                    </div>
+                  </div>
+                ) : shouldShowScores(match.fixture.date) && match.fixture.status.short === 'FT' ? (
+                  /* Show scores for today's or yesterday's finished matches */
+                  <div className="flex items-center justify-center space-x-1">
+                    <span className="font-bold text-sm">{match.goals.home ?? 0}</span>
+                    <span className="text-gray-400">:</span>
+                    <span className="font-bold text-sm">{match.goals.away ?? 0}</span>
+                  </div>
+                ) : (
+                  /* Show date and time for other matches */
+                  <>
+                    <div className="flex items-center justify-center">
+                      <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+                      <span className="text-gray-500">{formatMatchDate(match.fixture.date)}</span>
+                    </div>
+                    <span className="font-semibold">{formatMatchTime(match.fixture.timestamp)}</span>
+                  </>
+                )}
               </div>
               <img 
                 src={match.teams.away.logo} 
