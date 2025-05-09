@@ -12,11 +12,12 @@ import { Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Only include Premier League, UEFA Champions League, and Serie A as requested
+// Include Champions League, Europa League, Serie A, and Premier League
 const POPULAR_LEAGUES = [
   2,   // UEFA Champions League (Europe)
-  39,  // Premier League (England)
+  3,   // UEFA Europa League (Europe)
   135, // Serie A (Italy)
+  39,  // Premier League (England)
 ];
 
 const TodayMatches = () => {
@@ -67,6 +68,8 @@ const TodayMatches = () => {
   const topTeamsByLeague: Record<number, string[]> = {
     // UEFA Champions League (2)
     2: ['Manchester City', 'Real Madrid', 'Bayern Munich'],
+    // UEFA Europa League (3)
+    3: ['Manchester United', 'Arsenal', 'Sevilla'],
     // Premier League (39)
     39: ['Manchester City', 'Arsenal', 'Liverpool'],
     // Serie A Italy (135)
@@ -89,32 +92,32 @@ const TodayMatches = () => {
     return false;
   };
   
-  // Filter fixtures by league and prioritize popular teams
+  // Filter fixtures by league and prioritize by timestamp first, then popular teams
   const filterAndPrioritizeFixtures = (fixtures: FixtureResponse[]): FixtureResponse[] => {
     // Step 1: Filter to only include our priority leagues
     const leagueFixtures = fixtures.filter(f => POPULAR_LEAGUES.includes(f.league.id));
     
     if (leagueFixtures.length === 0) return fixtures; // Fallback to all fixtures if none in our leagues
     
-    // Step 2: Sort by priority - popular teams first, then by time
+    // Step 2: Sort primarily by timestamp, then consider popular teams and league priority
     return leagueFixtures.sort((a, b) => {
-      // First prioritize popular team matches
+      // First sort by timestamp for nearest matches
+      if (a.fixture.timestamp !== b.fixture.timestamp) {
+        return a.fixture.timestamp - b.fixture.timestamp;
+      }
+      
+      // If timestamps are the same, then prioritize popular team matches
       const aIsPopular = isPopularTeam(a);
       const bIsPopular = isPopularTeam(b);
       
       if (aIsPopular && !bIsPopular) return -1;
       if (!aIsPopular && bIsPopular) return 1;
       
-      // Then prioritize by league (using the order in POPULAR_LEAGUES)
+      // Finally prioritize by league (using the order in POPULAR_LEAGUES)
       const aLeagueIndex = POPULAR_LEAGUES.indexOf(a.league.id);
       const bLeagueIndex = POPULAR_LEAGUES.indexOf(b.league.id);
       
-      if (aLeagueIndex !== bLeagueIndex) {
-        return aLeagueIndex - bLeagueIndex;
-      }
-      
-      // Finally sort by time
-      return a.fixture.timestamp - b.fixture.timestamp;
+      return aLeagueIndex - bLeagueIndex;
     });
   };
   

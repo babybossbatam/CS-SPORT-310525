@@ -319,17 +319,9 @@ const UpcomingMatchesScoreboard = () => {
   return (
     <Card>
       <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Activity className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Upcoming Matches</span>
-          </div>
-          <button 
-            onClick={() => navigate('/scoreboard')}
-            className="flex items-center text-xs bg-gray-900 hover:bg-black px-2 py-1 rounded transition-colors"
-          >
-            View All <ChevronRight className="h-3 w-3 ml-1" />
-          </button>
+        <div className="flex items-center">
+          <Activity className="h-5 w-5 mr-2" />
+          <span className="font-semibold">Upcoming Matches</span>
         </div>
       </CardHeader>
       <CardContent className="p-0">
