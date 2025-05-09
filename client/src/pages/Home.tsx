@@ -17,7 +17,7 @@ import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import TopScorersList from '@/components/leagues/TopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
-import PlayerSpotlight from '@/components/players/PlayerSpotlight';
+
 import TeamPerformance from '@/components/teams/TeamPerformance';
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
@@ -162,9 +162,8 @@ const Home = () => {
             
             <LiveScoreboardPage />
             
-            {/* Player Spotlight & Team Performance (new features) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <PlayerSpotlight />
+            {/* Team Performance */}
+            <div className="mt-4">
               <TeamPerformance />
             </div>
             
