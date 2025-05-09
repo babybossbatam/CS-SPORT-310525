@@ -134,20 +134,8 @@ const TodayMatches = () => {
   
   return (
     <div>
-      {/* Header with filter at the top */}
-      <div className="flex justify-between items-center p-2 bg-white">
-        <div className="text-sm font-medium">Today's Matches</div>
-        <div className="text-xs px-2 py-1 rounded-full bg-gray-100 flex items-center">
-          <Clock className="w-3 h-3 mr-1" />
-          <span>by time</span>
-        </div>
-      </div>
-      
-      {/* Divider */}
-      <div className="border-b border-gray-200"></div>
-      
       {/* Main content */}
-      <div className="space-y-1 mt-2">
+      <div className="space-y-1">
         {/* Display today's fixtures */}
         {todayMatches.map((match) => (
           <div 

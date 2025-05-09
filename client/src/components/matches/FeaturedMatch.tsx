@@ -251,23 +251,23 @@ const FeaturedMatch = () => {
             <span className="font-semibold text-center truncate max-w-[120px]">{featuredMatch.teams.home.name}</span>
           </div>
           
-          {/* Match Bar - NEW ADDITION with Dynamic Team Colors */}
+          {/* Match Bar - Updated with gradient colors spanning from HOME team logo to V and from S to AWAY team logo */}
           <div className="absolute left-0 right-0 h-10 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden rounded-md shadow-md">
             <div className="w-full h-full flex">
-              {/* Home team color (60%) with enhanced dynamic color extraction */}
+              {/* Home team color from behind logo to V word */}
               <div 
-                className="w-[60%] h-full" 
+                className="w-[50%] h-full" 
                 style={{ 
-                  background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)} 0%, ${getTeamColor(featuredMatch.teams.home.name, true)}DD 100%)`,
-                  clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0 100%)'
+                  background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)} 0%, ${getTeamColor(featuredMatch.teams.home.name, true)} 100%)`,
+                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
                 }}
               ></div>
-              {/* Away team color (40%) with enhanced dynamic opposing color extraction */}
+              {/* Away team color from S word to away team logo */}
               <div 
-                className="w-[40%] h-full" 
+                className="w-[50%] h-full" 
                 style={{ 
-                  background: `linear-gradient(90deg, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)}DD 0%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 100%)`,
-                  clipPath: 'polygon(5% 0, 100% 0, 100% 100%, 0% 100%)'
+                  background: `linear-gradient(90deg, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 0%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 100%)`,
+                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
                 }}
               ></div>
             </div>
