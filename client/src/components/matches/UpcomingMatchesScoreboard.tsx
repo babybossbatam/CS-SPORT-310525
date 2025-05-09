@@ -96,14 +96,21 @@ const UpcomingMatchesScoreboard = () => {
     staleTime: 30000, // 30 seconds
   });
   
+  // Fetch Champions League fixtures
+  const { data: championsLeagueFixtures, isLoading: isChampionsLeagueLoading } = useQuery<FixtureResponse[]>({
+    queryKey: ['/api/champions-league/fixtures'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  
   // Process the fixtures when data is available
   useEffect(() => {
-    if (!tomorrowFixtures && !liveFixtures) return;
+    if (!tomorrowFixtures && !liveFixtures && !championsLeagueFixtures) return;
     
-    // Combine live and upcoming fixtures
+    // Combine live, upcoming fixtures, and Champions League fixtures
     const allFixtures = [
       ...(liveFixtures || []),
-      ...(tomorrowFixtures || [])
+      ...(tomorrowFixtures || []),
+      ...(championsLeagueFixtures || [])
     ];
     
     // Filter to include ONLY matches from our featured leagues
@@ -126,10 +133,10 @@ const UpcomingMatchesScoreboard = () => {
     
     // Take top 10 matches
     setUpcomingMatches(sortedFixtures.slice(0, 10));
-  }, [tomorrowFixtures, liveFixtures]);
+  }, [tomorrowFixtures, liveFixtures, championsLeagueFixtures]);
   
   // Loading state
-  if (isTomorrowLoading || isLiveLoading) {
+  if (isTomorrowLoading || isLiveLoading || isChampionsLeagueLoading) {
     return (
       <Card>
         <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
