@@ -299,9 +299,9 @@ const MatchDetails = () => {
                   
                   {/* UPDATED HOME TEAM SECTION */}
                   <div className="h-full w-[50%] relative flex items-center justify-start">
-                    {/* Home team gradient - extends from 'V' to home team logo */}
+                    {/* Home team gradient - extends from 'V' to home team logo with 10% enhanced intensity */}
                     <div 
-                      className={`absolute inset-0 z-5 ${getTeamGradient(currentFixture.teams.home.name, 'to-r')}`} 
+                      className={`absolute inset-0 z-5 ${getEnhancedHomeTeamGradient(currentFixture.teams.home.name, 'to-r')}`} 
                       style={{ 
                         clipPath: 'polygon(0 0, 100% 0, 70% 100%, 0 100%)',
                         right: '-10%' // Push gradient out further to ensure it covers the area

@@ -140,6 +140,39 @@ function generateComplementaryColor(primary: RGB): RGB {
 const colorCache: Record<string, { primary: string, secondary: string }> = {};
 
 /**
+ * Get an enhanced version of the team color with 10% more intensity
+ * This is specifically for home teams to make their colors more prominent
+ */
+export function getEnhancedHomeTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
+  // Extract the regular gradient classes
+  const regularGradient = getTeamGradient(teamName, direction);
+  
+  // Parse out the color classes
+  const fromMatch = regularGradient.match(/from-([a-z]+-[0-9]+)/);
+  const toMatch = regularGradient.match(/to-([a-z]+-[0-9]+)/);
+  
+  if (!fromMatch || !toMatch) return regularGradient; // Fallback if can't parse
+  
+  const fromClass = fromMatch[1];
+  const toClass = toMatch[1];
+  
+  // Extract color name and intensity number
+  const [fromColor, fromIntensity] = fromClass.split('-');
+  const [toColor, toIntensity] = toClass.split('-');
+  
+  // Increase intensity by approx 10% (going 100 points higher in tailwind scale if possible)
+  // For example, from-red-500 becomes from-red-600
+  const enhancedFromIntensity = Math.min(900, parseInt(fromIntensity) + 100);
+  // Make secondary color slightly more intense too
+  const enhancedToIntensity = Math.min(900, parseInt(toIntensity) + 50);
+  
+  // Build enhanced gradient
+  return direction === 'to-r'
+    ? `bg-gradient-to-r from-${fromColor}-${enhancedFromIntensity} to-${toColor}-${enhancedToIntensity}`
+    : `bg-gradient-to-l from-${toColor}-${enhancedToIntensity} to-${fromColor}-${enhancedFromIntensity}`;
+}
+
+/**
  * Get tailwind gradient classes based on team name
  */
 export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
