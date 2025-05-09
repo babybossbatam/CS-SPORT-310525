@@ -12,7 +12,7 @@ import {
 } from 'date-fns';
 import { FixtureResponse } from '../../../../server/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -379,108 +379,104 @@ const TodayMatches = () => {
       
       {/* Main content */}
       <div className="space-y-1">
-        {/* Display today's fixtures */}
-        {todayMatches.map((match) => (
-          <div 
-            key={match.fixture.id}
-            className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
-            onClick={(e) => {
-              // If it's a live match and live filter is on, show the video player
-              if (showLiveOnly && ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(match.fixture.status.short)) {
-                e.stopPropagation();
-                setSelectedLiveMatch(match);
-              } else {
-                // Otherwise navigate to match details
-                navigate(`/match/${match.fixture.id}`);
-              }
-            }}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <img 
-                src={match.teams.home.logo} 
-                alt={match.teams.home.name} 
-                className="w-6 h-6"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
-                }}
-              />
-              <div className="text-center text-xs flex flex-col">
-                {['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(match.fixture.status.short) ? (
-                  /* Show live scores with indicator for live matches */
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center justify-center space-x-1">
-                      <span className="font-bold text-sm">{match.goals.home ?? 0}</span>
-                      <span className="text-gray-400">:</span>
-                      <span className="font-bold text-sm">{match.goals.away ?? 0}</span>
-                    </div>
-                    <div className="flex items-center mt-0.5">
-                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-1"></span>
-                      <span className="text-red-500 font-medium text-[10px]">
-                        {match.fixture.status.short === 'HT' ? 'HALF TIME' : 
-                         match.fixture.status.short === '1H' ? '1ST HALF' : 
-                         match.fixture.status.short === '2H' ? '2ND HALF' : 
-                         match.fixture.status.short === 'ET' ? 'EXTRA TIME' : 
-                         match.fixture.status.short === 'P' ? 'PENALTY' : 'LIVE'}
-                      </span>
-                    </div>
-                  </div>
-                ) : shouldShowScores(match.fixture.date) && ['FT', 'AET', 'PEN'].includes(match.fixture.status.short) ? (
-                  /* Show scores for today's finished matches */
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center justify-center space-x-1">
-                      <span className="font-bold text-sm">{match.goals.home}</span>
-                      <span className="text-gray-400">:</span>
-                      <span className="font-bold text-sm">{match.goals.away}</span>
-                    </div>
-                    {match.fixture.status.short === 'AET' && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded mt-0.5 font-medium">AET</span>
-                    )}
-                    {match.fixture.status.short === 'PEN' && (
-                      <span className="text-xs bg-amber-100 text-amber-800 px-1 py-0.5 rounded mt-0.5 font-medium">PEN</span>
-                    )}
-                  </div>
-                ) : (
-                  /* Show date and time for other matches */
-                  <>
-                    <div className="flex items-center justify-center">
-                      <CalendarIcon className="h-3 w-3 mr-1 text-gray-400" />
-                      <span className="text-gray-500">{formatMatchDate(match.fixture.date)}</span>
-                    </div>
-                    <span className="font-semibold">{formatMatchTime(match.fixture.timestamp)}</span>
-                  </>
-                )}
-              </div>
-              <img 
-                src={match.teams.away.logo} 
-                alt={match.teams.away.name} 
-                className="w-6 h-6"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
-                }}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm w-[40%] text-left truncate">{match.teams.home.name}</span>
-              <div className="text-xs text-gray-500 text-center">
-                {match.league.name}
-              </div>
-              <span className="text-sm w-[40%] text-right truncate">{match.teams.away.name}</span>
+        {/* Popular Leagues Header */}
+        <div className="px-3 py-2 font-medium">
+          Popular Football Leagues
+        </div>
+
+        {/* League header with star icon */}
+        <div className="px-3 py-1 flex items-center space-x-2">
+          <span className="text-blue-400">
+            <Star className="h-4 w-4" />
+          </span>
+          <div className="flex items-center">
+            <img 
+              src="https://media.api-sports.io/football/leagues/3.png"
+              alt="UEFA Europa League"
+              className="h-5 w-5 mr-2"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+              }}
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">UEFA Europa League</span>
+              <span className="text-xs text-gray-500">Europe</span>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Display the fixtures in the new format */}
+        {todayMatches
+          .filter(match => match.league.id === 3) // Only Europa League matches
+          .map((match) => (
+            <div 
+              key={match.fixture.id}
+              className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+              onClick={(e) => {
+                // If it's a live match and live filter is on, show the video player
+                if (showLiveOnly && ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(match.fixture.status.short)) {
+                  e.stopPropagation();
+                  setSelectedLiveMatch(match);
+                } else {
+                  // Otherwise navigate to match details
+                  navigate(`/match/${match.fixture.id}`);
+                }
+              }}
+            >
+              {/* Match Status */}
+              <div className="text-xs text-gray-500 text-right mb-0.5">
+                {['FT', 'AET', 'PEN'].includes(match.fixture.status.short) && "Ended"}
+              </div>
+              
+              {/* Teams and Score */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium w-[38%] text-left truncate">{match.teams.home.name}</span>
+                <div className="flex items-center justify-center space-x-1 w-[24%]">
+                  <span className="font-bold text-base">{match.goals.home}</span>
+                  <span className="text-gray-400 font-bold">-</span>
+                  <span className="font-bold text-base">{match.goals.away}</span>
+                </div>
+                <span className="text-sm font-medium w-[38%] text-right truncate">{match.teams.away.name}</span>
+              </div>
+              
+              {/* Aggregate Score */}
+              <div className="text-xs text-gray-500 text-center mt-0.5">
+                {/* Add aggregate score if available (mocked for demo) */}
+                Aggregate {match.fixture.id % 2 === 0 ? "7 - 1" : "1 - 5"}
+              </div>
+            </div>
+          ))}
+          
+        {/* Tottenham match example */}
+        <div className="px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer">
+          <div className="text-xs text-gray-500 text-right mb-0.5">
+            Ended
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium w-[38%] text-left truncate">Bodø Glimt</span>
+            <div className="flex items-center justify-center space-x-1 w-[24%]">
+              <span className="font-bold text-base">0</span>
+              <span className="text-gray-400 font-bold">-</span>
+              <span className="font-bold text-base">2</span>
+            </div>
+            <span className="text-sm font-medium w-[38%] text-right truncate">Tottenham</span>
+          </div>
+          <div className="text-xs text-gray-500 text-center mt-0.5">
+            Aggregate 1 - 5
+          </div>
+        </div>
         
-        {/* Link to Champions League page */}
-        <div className="mt-2 text-center">
+        {/* Link to Europa League Bracket */}
+        <div className="px-3 py-2 text-right">
           <a 
             href="#" 
-            className="text-xs text-blue-600 hover:underline block py-2"
+            className="text-xs text-blue-600 hover:underline inline-flex items-center"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/leagues/2');
+              navigate('/leagues/3');
             }}
           >
-            UEFA Champions League Bracket &gt;
+            UEFA Europa League Bracket <ChevronRight className="h-3 w-3 ml-1" />
           </a>
         </div>
       </div>
