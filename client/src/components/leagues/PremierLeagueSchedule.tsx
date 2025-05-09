@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 import { Trophy, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
 import { getTeamColor } from '@/lib/colorExtractor';
 import { useLocation } from 'wouter';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 
 // Define the types we need
 interface Team {
@@ -73,6 +75,10 @@ const PremierLeagueSchedule = () => {
   const [, navigate] = useLocation();
   const [visibleFixtures, setVisibleFixtures] = useState<FixtureResponse[]>([]);
   
+  // Get selected date from Redux store
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+  const isToday = isSameDay(parseISO(selectedDate), new Date());
+  
   // Premier League ID is 39
   const leagueId = 39;
   const currentYear = new Date().getFullYear();
@@ -104,14 +110,31 @@ const PremierLeagueSchedule = () => {
       .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
     
     const pastFixtures = fixtures
-      .filter(f => new Date(f.fixture.date) <= now)
+      .filter(f => new Date(f.fixture.date) <= now && f.fixture.status.short === 'FT')
       .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
     
-    // Only show finished matches as requested by user
-    const visibleFixtures = [...pastFixtures.slice(0, 5)];
+    let displayFixtures = [];
     
-    // Sort by date
-    visibleFixtures.sort((a, b) => {
+    // If today is selected, show both today's finished matches and upcoming matches
+    if (isToday) {
+      const liveMatches = fixtures.filter(f => isLiveMatch(f.fixture.status.short));
+      
+      // Take up to 3 finished matches and 2 upcoming matches (or more if we have fewer finished matches)
+      const finishedToShow = Math.min(pastFixtures.length, 3);
+      const upcomingToShow = Math.min(upcomingFixtures.length, 5 - finishedToShow);
+      
+      displayFixtures = [
+        ...liveMatches,
+        ...pastFixtures.slice(0, finishedToShow),
+        ...upcomingFixtures.slice(0, upcomingToShow)
+      ];
+    } else {
+      // For other dates, only show finished matches
+      displayFixtures = [...pastFixtures.slice(0, 5)];
+    }
+    
+    // Sort by status and time
+    displayFixtures.sort((a, b) => {
       // First, prioritize live matches
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
@@ -135,8 +158,8 @@ const PremierLeagueSchedule = () => {
       return bDate.getTime() - aDate.getTime();
     });
     
-    setVisibleFixtures(visibleFixtures);
-  }, [allFixtures]);
+    setVisibleFixtures(displayFixtures);
+  }, [allFixtures, isToday]);
   
   // Loading state
   if (isLoading) {

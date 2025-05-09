@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 import { ShieldHalf, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
 import { getTeamColor } from '@/lib/colorExtractor';
 import { useLocation } from 'wouter';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 
 // Define the types we need
 interface Team {
@@ -72,6 +74,10 @@ interface FixtureResponse {
 const SerieASchedule = () => {
   const [, navigate] = useLocation();
   const [visibleFixtures, setVisibleFixtures] = useState<FixtureResponse[]>([]);
+  
+  // Get selected date from Redux store
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+  const isToday = isSameDay(parseISO(selectedDate), new Date());
   
   // Serie A ID is 135
   const leagueId = 135;
