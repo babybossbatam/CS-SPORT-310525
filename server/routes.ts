@@ -292,15 +292,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const season = parseInt(req.query.season as string) || new Date().getFullYear();
+      // Always use 2025 season data as requested, unless explicitly overridden in the query
+      const season = parseInt(req.query.season as string) || 2025;
       
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid league ID" });
       }
       
+      console.log(`Fetching fixtures for league ${id} with fixed season ${season} as requested`);
       const fixtures = await rapidApiService.getFixturesByLeague(id, season);
+      console.log(`Received ${fixtures ? fixtures.length : 0} fixtures for league ${id}`);
+      
       res.json(fixtures);
     } catch (error) {
+      console.error(`Error fetching fixtures for league ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch league fixtures" });
     }
   });
@@ -308,15 +313,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/leagues/:id/topscorers", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const season = parseInt(req.query.season as string) || new Date().getFullYear();
+      // Always use 2025 season data as requested, unless explicitly overridden in the query
+      const season = parseInt(req.query.season as string) || 2025;
       
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid league ID" });
       }
       
+      console.log(`Fetching top scorers for league ${id} with fixed season ${season} as requested`);
       const topScorers = await rapidApiService.getTopScorers(id, season);
+      console.log(`Received top scorers data for league ${id}`);
+      
       res.json(topScorers);
     } catch (error) {
+      console.error(`Error fetching top scorers for league ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch top scorers" });
     }
   });
@@ -325,16 +335,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/leagues/:id/standings", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const season = parseInt(req.query.season as string) || new Date().getFullYear();
+      // Always use 2025 season data as requested, unless explicitly overridden in the query
+      const season = parseInt(req.query.season as string) || 2025;
       
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid league ID" });
       }
       
+      console.log(`Fetching standings for league ${id} with fixed season ${season} as requested`);
       const standings = await rapidApiService.getLeagueStandings(id, season);
+      console.log(`Received standings data for league ${id}`);
+      
       res.json(standings);
     } catch (error) {
-      console.error("Error fetching standings for league:", error);
+      console.error(`Error fetching standings for league ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch standings data" });
     }
   });
@@ -421,11 +435,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Champions League found: ${leagueData.league.name}, attempting to fetch fixtures...`);
       
-      // Check if we should use a different season from the league data
-      const currentSeason = leagueData.seasons.find(s => s.current);
-      const seasonToUse = currentSeason ? currentSeason.year : currentYear;
+      // Always use 2025 season data as requested
+      const seasonToUse = 2025;
       
-      console.log(`Using season ${seasonToUse} for Champions League fixtures`);
+      console.log(`Using fixed season ${seasonToUse} for Champions League fixtures as requested`);
       
       // Fetch fixtures using the verified season
       const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
