@@ -43,6 +43,7 @@ interface UIState {
   selectedDate: string;
   selectedFilter: string;
   selectedSport: string;
+  selectedLeague: number;
   showRegionModal: boolean;
   accessibility: {
     highContrast: boolean;
@@ -107,6 +108,7 @@ const initialUIState: UIState = {
   selectedDate: new Date().toISOString().split('T')[0],
   selectedFilter: 'all',
   selectedSport: 'football',
+  selectedLeague: 39, // Default to Premier League
   showRegionModal: false,
   accessibility: {
     highContrast: false,
@@ -256,6 +258,9 @@ const uiSlice = createSlice({
     },
     setSelectedSport: (state, action: PayloadAction<string>) => {
       state.selectedSport = action.payload;
+    },
+    setSelectedLeague: (state, action: PayloadAction<number>) => {
+      state.selectedLeague = action.payload;
     },
     toggleRegionModal: (state) => {
       state.showRegionModal = !state.showRegionModal;

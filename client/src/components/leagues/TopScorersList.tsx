@@ -6,9 +6,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getTeamColor } from '@/lib/colorExtractor';
-
-// Default top league to show scorers for if none is selected
-const DEFAULT_LEAGUE_ID = 39; // Premier League
+import LeagueFilter from '@/components/leagues/LeagueFilter';
+import { RootState } from '@/lib/store';
 
 interface Player {
   id: number;
