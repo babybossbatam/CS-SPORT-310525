@@ -177,7 +177,7 @@ const PremierLeagueSchedule = () => {
     });
     
     setVisibleFixtures(displayFixtures);
-  }, [allFixtures, isToday]);
+  }, [allFixtures, selectedDate, isToday]);
   
   // Loading state
   if (isLoading) {
@@ -335,10 +335,20 @@ const PremierLeagueSchedule = () => {
                         LIVE
                       </span>
                     </div>
-                  ) : fixture.fixture.status.short === 'FT' ? (
-                    <span className="font-bold text-sm">
-                      {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
-                    </span>
+                  ) : fixture.fixture.status.short === 'FT' || 
+                      fixture.fixture.status.short === 'AET' || 
+                      fixture.fixture.status.short === 'PEN' ? (
+                    <div className="flex flex-col items-center">
+                      <span className="font-bold text-sm">
+                        {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                      </span>
+                      {fixture.fixture.status.short === 'AET' && (
+                        <span className="text-xs bg-purple-100 text-purple-800 px-1 py-0.5 rounded ml-1 font-medium">AET</span>
+                      )}
+                      {fixture.fixture.status.short === 'PEN' && (
+                        <span className="text-xs bg-amber-100 text-amber-800 px-1 py-0.5 rounded ml-1 font-medium">PEN</span>
+                      )}
+                    </div>
                   ) : (
                     <span className="text-xs text-gray-500 font-medium">vs</span>
                   )}
