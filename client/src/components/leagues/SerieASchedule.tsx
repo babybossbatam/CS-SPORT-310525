@@ -107,11 +107,8 @@ const SerieASchedule = () => {
       .filter(f => new Date(f.fixture.date) <= now)
       .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
     
-    // Take a limited number of fixtures
-    const visibleFixtures = [
-      ...upcomingFixtures.slice(0, 3),
-      ...pastFixtures.slice(0, 2)
-    ];
+    // Only show finished matches as requested by user
+    const visibleFixtures = [...pastFixtures.slice(0, 5)];
     
     // Sort by date
     visibleFixtures.sort((a, b) => {

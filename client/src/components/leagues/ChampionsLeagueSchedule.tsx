@@ -125,7 +125,8 @@ const ChampionsLeagueSchedule = () => {
       })
       .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
     
-    // Take a limited number of fixtures, but ensure Inter vs Barcelona is included if it exists
+    // Only show past/finished matches as requested
+    // Take past fixtures, ensure Inter vs Barcelona is included if it exists
     let selectedPastFixtures = [];
     if (interBarcelonaMatch) {
       // Make sure Inter vs Barcelona is the first past fixture
@@ -134,17 +135,15 @@ const ChampionsLeagueSchedule = () => {
       // Add other past fixtures excluding Inter vs Barcelona
       const otherPastFixtures = pastFixtures
         .filter(f => f.fixture.id !== interBarcelonaMatch.fixture.id)
-        .slice(0, 1);  // Only take 1 more since we already have Inter vs Barcelona
+        .slice(0, 3);  // Take 3 more since we're not showing upcoming matches
       
       selectedPastFixtures = [...selectedPastFixtures, ...otherPastFixtures];
     } else {
-      selectedPastFixtures = pastFixtures.slice(0, 2);
+      selectedPastFixtures = pastFixtures.slice(0, 4); // Show up to 4 finished matches
     }
     
-    const visibleFixtures = [
-      ...upcomingFixtures.slice(0, 3),
-      ...selectedPastFixtures
-    ];
+    // Only show finished matches as requested by user
+    const visibleFixtures = [...selectedPastFixtures];
     
     // Sort by date
     visibleFixtures.sort((a, b) => {
