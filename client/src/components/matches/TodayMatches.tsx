@@ -195,7 +195,8 @@ const TodayMatches = () => {
   
   // Function to check if a match is "recent" (finished within last 8 hours)
   const isRecentFinishedMatch = (fixture: FixtureResponse): boolean => {
-    if (fixture.fixture.status.short !== 'FT') return false;
+    // Check for all finished match statuses (FT=full time, AET=after extra time, PEN=penalties)
+    if (!['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short)) return false;
     const fixtureTime = new Date(fixture.fixture.timestamp * 1000);
     const currentTime = new Date();
     const hoursDifference = differenceInHours(currentTime, fixtureTime);
@@ -214,7 +215,7 @@ const TodayMatches = () => {
     // Apply both filters independently
     .filter(fixture => {
       const isLive = ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(fixture.fixture.status.short);
-      const isRecentlyFinished = fixture.fixture.status.short === 'FT' && isRecentFinishedMatch(fixture);
+      const isRecentlyFinished = ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) && isRecentFinishedMatch(fixture);
       
       // Apply filters
       if (showLiveOnly && filterByTime) {
@@ -423,12 +424,20 @@ const TodayMatches = () => {
                       </span>
                     </div>
                   </div>
-                ) : shouldShowScores(match.fixture.date) && match.fixture.status.short === 'FT' ? (
+                ) : shouldShowScores(match.fixture.date) && ['FT', 'AET', 'PEN'].includes(match.fixture.status.short) ? (
                   /* Show scores for today's finished matches */
-                  <div className="flex items-center justify-center space-x-1">
-                    <span className="font-bold text-sm">{match.goals.home ?? 0}</span>
-                    <span className="text-gray-400">:</span>
-                    <span className="font-bold text-sm">{match.goals.away ?? 0}</span>
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <span className="font-bold text-sm">{match.goals.home}</span>
+                      <span className="text-gray-400">:</span>
+                      <span className="font-bold text-sm">{match.goals.away}</span>
+                    </div>
+                    {match.fixture.status.short === 'AET' && (
+                      <span className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded mt-0.5 font-medium">AET</span>
+                    )}
+                    {match.fixture.status.short === 'PEN' && (
+                      <span className="text-xs bg-amber-100 text-amber-800 px-1 py-0.5 rounded mt-0.5 font-medium">PEN</span>
+                    )}
                   </div>
                 ) : (
                   /* Show date and time for other matches */
