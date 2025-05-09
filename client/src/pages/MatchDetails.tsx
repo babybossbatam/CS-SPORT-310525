@@ -298,9 +298,9 @@ const MatchDetails = () => {
                     />
                   </div>
                   
-                  {/* UPDATED HOME TEAM SECTION */}
-                  <div className="h-full w-[50%] relative flex items-center justify-start">
-                    {/* Home team gradient - extends from 'V' to home team logo with 10% enhanced intensity */}
+                  {/* UPDATED HOME TEAM SECTION - 10% more to the left */}
+                  <div className="h-full w-[60%] relative flex items-center justify-start">
+                    {/* Home team gradient - extends from 'V' to home team logo with 10% enhanced intensity and more to the left */}
                     <div 
                       className={`absolute inset-0 z-5 ${getEnhancedHomeTeamGradient(currentFixture.teams.home.name, 'to-r')}`} 
                       style={{ 
@@ -323,8 +323,8 @@ const MatchDetails = () => {
                     VS
                   </div>
                   
-                  {/* UPDATED AWAY TEAM SECTION */}
-                  <div className="h-full w-[50%] relative flex items-center justify-end">
+                  {/* UPDATED AWAY TEAM SECTION - reduced to 40% width */}
+                  <div className="h-full w-[40%] relative flex items-center justify-end">
                     {/* Away team gradient - extends from 'S' to away team logo */}
                     <div 
                       className={`absolute inset-0 z-5 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')}`} 

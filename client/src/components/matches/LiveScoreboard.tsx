@@ -384,9 +384,9 @@ export function LiveScoreboard({
                 
                 {/* Team names with colored bars */}
                 <div className="flex h-12 w-full overflow-hidden relative">
-                  {/* Home team color bar - filling all the way to the middle at the VS text with 10% enhanced intensity */}
+                  {/* Home team color bar - extended 10% more to the left with 10% enhanced intensity */}
                   <div 
-                    className="w-[50%] flex items-center justify-start px-4 text-white h-full"
+                    className="w-[60%] flex items-center justify-start px-4 text-white h-full" 
                     style={{ 
                       background: getTeamColor(featuredMatch.teams.home.name, true) /* Enhanced home team color */
                     }}
@@ -396,9 +396,9 @@ export function LiveScoreboard({
                     </span>
                   </div>
                   
-                  {/* Away team color bar - also filling to meet the home team bar exactly at the middle */}
+                  {/* Away team color bar - reduced to 40% width due to home team extension */}
                   <div 
-                    className="w-[50%] flex items-center justify-end px-4 text-white h-full"
+                    className="w-[40%] flex items-center justify-end px-4 text-white h-full"
                     style={{ 
                       background: getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name) 
                     }}>
