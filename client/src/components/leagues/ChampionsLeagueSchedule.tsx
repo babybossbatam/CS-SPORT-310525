@@ -160,10 +160,10 @@ const ChampionsLeagueSchedule = () => {
   if (isLoading) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-indigo-700 to-indigo-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Star className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Champions League</span>
+            <Star className="h-5 w-5 mr-2 text-indigo-600" />
+            <span className="font-semibold text-indigo-800">UEFA Champions League</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -181,10 +181,10 @@ const ChampionsLeagueSchedule = () => {
   if (error) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-indigo-700 to-indigo-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Star className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Champions League</span>
+            <Star className="h-5 w-5 mr-2 text-indigo-600" />
+            <span className="font-semibold text-indigo-800">UEFA Champions League</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -217,10 +217,10 @@ const ChampionsLeagueSchedule = () => {
   if (!visibleFixtures || visibleFixtures.length === 0) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-indigo-700 to-indigo-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Star className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Champions League</span>
+            <Star className="h-5 w-5 mr-2 text-indigo-600" />
+            <span className="font-semibold text-indigo-800">UEFA Champions League</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">

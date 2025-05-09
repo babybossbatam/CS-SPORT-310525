@@ -233,15 +233,15 @@ const SerieASchedule = () => {
   
   return (
     <Card className="mb-4">
-      <CardHeader className="bg-gradient-to-r from-sky-700 to-sky-500 text-white p-3">
+      <CardHeader className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <ShieldHalf className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Serie A</span>
+            <ShieldHalf className="h-5 w-5 mr-2 text-sky-600" />
+            <span className="font-semibold text-sky-800">Serie A</span>
           </div>
           <button 
             onClick={() => navigate(`/league/${leagueId}`)}
-            className="flex items-center text-xs bg-sky-800 hover:bg-sky-900 px-2 py-1 rounded transition-colors"
+            className="flex items-center text-xs bg-sky-700 hover:bg-sky-800 text-white px-2 py-1 rounded transition-colors"
           >
             View All <ChevronRight className="h-3 w-3 ml-1" />
           </button>
