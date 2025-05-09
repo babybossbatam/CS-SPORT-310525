@@ -44,6 +44,11 @@ interface UIState {
   selectedFilter: string;
   selectedSport: string;
   showRegionModal: boolean;
+  accessibility: {
+    highContrast: boolean;
+    largerText: boolean;
+    reducedAnimations: boolean;
+  };
 }
 
 interface NewsState {
@@ -103,6 +108,11 @@ const initialUIState: UIState = {
   selectedFilter: 'all',
   selectedSport: 'football',
   showRegionModal: false,
+  accessibility: {
+    highContrast: false,
+    largerText: false,
+    reducedAnimations: false,
+  },
 };
 
 const initialNewsState: NewsState = {
@@ -252,6 +262,29 @@ const uiSlice = createSlice({
     },
     setShowRegionModal: (state, action: PayloadAction<boolean>) => {
       state.showRegionModal = action.payload;
+    },
+    // Accessibility actions
+    toggleHighContrast: (state) => {
+      state.accessibility.highContrast = !state.accessibility.highContrast;
+    },
+    setHighContrast: (state, action: PayloadAction<boolean>) => {
+      state.accessibility.highContrast = action.payload;
+    },
+    toggleLargerText: (state) => {
+      state.accessibility.largerText = !state.accessibility.largerText;
+    },
+    setLargerText: (state, action: PayloadAction<boolean>) => {
+      state.accessibility.largerText = action.payload;
+    },
+    toggleReducedAnimations: (state) => {
+      state.accessibility.reducedAnimations = !state.accessibility.reducedAnimations;
+    },
+    setReducedAnimations: (state, action: PayloadAction<boolean>) => {
+      state.accessibility.reducedAnimations = action.payload;
+    },
+    // Reset all accessibility settings to default
+    resetAccessibility: (state) => {
+      state.accessibility = initialUIState.accessibility;
     },
   },
 });
