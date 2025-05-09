@@ -297,8 +297,8 @@ const MatchDetails = () => {
                     />
                   </div>
                   
-                  {/* Home team - gradient extending exactly 50% */}
-                  <div className={`h-full w-1/2 ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center`}>
+                  {/* Home team - gradient extending to the left by 10px and right by 8px */}
+                  <div className={`h-full w-[calc(50%+8px)] ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center -ml-10`}>
                     <div className="ml-20 text-white font-bold text-lg uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
@@ -307,13 +307,13 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label (positioned exactly in the center where gradients meet) */}
-                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
+                  {/* VS label (positioned exactly in the center where gradients meet, shifted 3px to the right) */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 translate-x-3 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
                     VS
                   </div>
                   
-                  {/* Away team - gradient extending exactly 50% */}
-                  <div className={`h-full w-1/2 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} flex items-center justify-end`}>
+                  {/* Away team - gradient extending to the right by 10px and left by 2px */}
+                  <div className={`h-full w-1/2 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} flex items-center justify-end -ml-2 -mr-10`}>
                     <div className="mr-20 text-white font-bold text-lg uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
