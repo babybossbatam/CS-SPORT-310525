@@ -150,8 +150,6 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
       
-      <MatchFilters />
-      
       <main className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (8 columns) - Live Scoreboard */}
@@ -186,6 +184,10 @@ const Home = () => {
               {/* DateNavigator moved to today's matches section */}
               <div className="border-t border-gray-100">
                 <DateNavigator />
+              </div>
+              {/* MatchFilters moved below DateNavigator */}
+              <div className="border-t border-gray-100">
+                <MatchFilters />
               </div>
               <div>
                 <TodayMatches />

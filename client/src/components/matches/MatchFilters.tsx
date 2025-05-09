@@ -64,8 +64,8 @@ const MatchFilters = () => {
   const hasLiveMatches = liveFixtures.length > 0;
   
   return (
-    <div className="bg-white border-b border-neutral-200">
-      <div className="container mx-auto px-4 py-2">
+    <div>
+      <div className="px-3 py-2">
         <div className="flex justify-between items-center">
           <Button
             variant={selectedFilter === 'live' ? 'default' : 'outline'}
