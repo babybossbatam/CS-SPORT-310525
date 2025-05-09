@@ -9,6 +9,7 @@ import {
   Timer,
   Activity,
 } from 'lucide-react';
+import EuropaLeagueSchedule from '@/components/widgets/EuropaLeagueSchedule';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -328,8 +329,9 @@ function LiveScoreboardPage() {
   
   return (
     <div className="mx-2 my-4">
-      {/* Removed status display */}
-    
+      {/* Europa League Schedule Widget */}
+      <EuropaLeagueSchedule />
+
       {/* Featured match card */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 relative">
         {/* Featured Match badge */}
