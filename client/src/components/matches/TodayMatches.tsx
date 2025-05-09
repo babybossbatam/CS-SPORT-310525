@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, fixturesActions } from '@/lib/store';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { getMatchStatusText } from '@/lib/utils';
@@ -11,13 +11,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
 
-// Include Champions League, Europa League, Serie A, and Premier League
+// Same league list as UpcomingMatchesScoreboard
 const POPULAR_LEAGUES = [
   2,   // UEFA Champions League (Europe)
   3,   // UEFA Europa League (Europe)
   135, // Serie A (Italy)
-  39,  // Premier League (England)
 ];
 
 const TodayMatches = () => {
@@ -27,42 +27,38 @@ const TodayMatches = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('live');
   
-  const fixtures = useSelector((state: RootState) => state.fixtures);
-  const currentDate = format(new Date(), 'yyyy-MM-dd');
-  const todayFixtures = fixtures.byDate[currentDate] || [];
+  // Get fixture data using React Query
+  const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
+    queryKey: ['/api/champions-league/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/champions-league/fixtures');
+      return response.json();
+    }
+  });
   
-  useEffect(() => {
-    const fetchTodaysFixtures = async () => {
-      // If we already have fixtures for today, don't fetch again
-      if (todayFixtures.length > 0) return;
-      
-      setIsLoading(true);
-      
-      try {
-        const response = await apiRequest('GET', `/api/fixtures/date/${currentDate}`);
-        const data = await response.json();
-        
-        if (data) {
-          // Store the fixtures in Redux
-          dispatch(fixturesActions.setFixturesByDate({ 
-            date: currentDate,
-            fixtures: data
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching today\'s fixtures:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load today\'s matches',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchTodaysFixtures();
-  }, [currentDate, dispatch, toast, todayFixtures.length]);
+  const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
+    queryKey: ['/api/europa-league/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/europa-league/fixtures');
+      return response.json();
+    }
+  });
+  
+  const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
+    queryKey: ['/api/leagues/135/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/leagues/135/fixtures');
+      return response.json();
+    }
+  });
+  
+  const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
+    queryKey: ['/api/fixtures/live'],
+    queryFn: async () => {
+      const response = await fetch('/api/fixtures/live');
+      return response.json();
+    }
+  });
   
   // Define top teams for popular leagues (id: team names array)
   const topTeamsByLeague: Record<number, string[]> = {
@@ -70,8 +66,6 @@ const TodayMatches = () => {
     2: ['Manchester City', 'Real Madrid', 'Bayern Munich'],
     // UEFA Europa League (3)
     3: ['Manchester United', 'Arsenal', 'Sevilla'],
-    // Premier League (39)
-    39: ['Manchester City', 'Arsenal', 'Liverpool'],
     // Serie A Italy (135)
     135: ['Inter', 'AC Milan', 'Juventus'],
   };
@@ -121,24 +115,9 @@ const TodayMatches = () => {
     });
   };
   
-  // Get fixtures by category for tabs
-  const getLiveFixtures = (): FixtureResponse[] => {
-    const liveMatches = todayFixtures.filter(f => 
-      f.fixture.status.short === 'LIVE' || 
-      f.fixture.status.short === '1H' || 
-      f.fixture.status.short === '2H' || 
-      f.fixture.status.short === 'HT'
-    );
-    
-    return filterAndPrioritizeFixtures(liveMatches);
-  };
-  
-  const getUpcomingFixtures = (): FixtureResponse[] => {
-    const upcomingMatches = todayFixtures.filter(f => 
-      f.fixture.status.short === 'NS'
-    );
-    
-    return filterAndPrioritizeFixtures(upcomingMatches);
+  // Helper to check if a match is live
+  const isLiveMatch = (status: string): boolean => {
+    return ['LIVE', '1H', '2H', 'HT'].includes(status);
   };
   
   // Format time from timestamp (HH:MM format)
@@ -160,10 +139,27 @@ const TodayMatches = () => {
     return null;
   };
   
-  const liveFixtures = getLiveFixtures();
-  const upcomingFixtures = getUpcomingFixtures();
+  // Combine all fixtures and sort them by timestamp
+  const allFixtures = [...liveFixtures, ...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures];
   
-  if (isLoading) {
+  // Get the current time in seconds (unix timestamp)
+  const currentTime = Math.floor(Date.now() / 1000);
+  
+  // Filter and sort matches
+  const filteredFixtures = allFixtures
+    // Remove duplicates by fixture ID
+    .filter((fixture, index, self) => 
+      index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+    )
+    // Only include upcoming matches (timestamp > current time)
+    .filter(fixture => fixture.fixture.timestamp > currentTime)
+    // Sort by timestamp (nearest first)
+    .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+
+  // Take the first 5 fixtures for the today matches display
+  const upcomingFixtures = filteredFixtures.slice(0, 5);
+    
+  if (isLoading || isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isLiveLoading) {
     return (
       <div className="animate-pulse">
         {[1, 2, 3, 4].map(i => (
