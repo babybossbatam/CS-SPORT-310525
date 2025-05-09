@@ -251,15 +251,15 @@ const ChampionsLeagueSchedule = () => {
   
   return (
     <Card className="mb-4">
-      <CardHeader className="bg-gradient-to-r from-indigo-700 to-indigo-500 text-white p-3">
+      <CardHeader className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Star className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Champions League</span>
+            <Star className="h-5 w-5 mr-2 text-indigo-600" />
+            <span className="font-semibold text-indigo-800">UEFA Champions League</span>
           </div>
           <button 
             onClick={() => navigate(`/league/${leagueId}`)}
-            className="flex items-center text-xs bg-indigo-800 hover:bg-indigo-900 px-2 py-1 rounded transition-colors"
+            className="flex items-center text-xs bg-indigo-800 hover:bg-indigo-900 text-white px-2 py-1 rounded transition-colors"
           >
             View All <ChevronRight className="h-3 w-3 ml-1" />
           </button>

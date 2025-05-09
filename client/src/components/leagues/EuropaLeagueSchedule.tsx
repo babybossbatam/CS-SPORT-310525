@@ -158,10 +158,10 @@ const EuropaLeagueSchedule = () => {
   if (isLoading) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Europa League</span>
+            <Trophy className="h-5 w-5 mr-2 text-blue-600" />
+            <span className="font-semibold text-blue-800">UEFA Europa League</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -179,10 +179,10 @@ const EuropaLeagueSchedule = () => {
   if (error) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Europa League</span>
+            <Trophy className="h-5 w-5 mr-2 text-blue-600" />
+            <span className="font-semibold text-blue-800">UEFA Europa League</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -215,10 +215,10 @@ const EuropaLeagueSchedule = () => {
   if (!visibleFixtures || visibleFixtures.length === 0) {
     return (
       <Card className="mb-4">
-        <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-3">
+        <CardHeader className="p-3">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Europa League</span>
+            <Trophy className="h-5 w-5 mr-2 text-blue-600" />
+            <span className="font-semibold text-blue-800">UEFA Europa League</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -249,15 +249,15 @@ const EuropaLeagueSchedule = () => {
   
   return (
     <Card className="mb-4">
-      <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-3">
+      <CardHeader className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Trophy className="h-5 w-5 mr-2" />
-            <span className="font-semibold">UEFA Europa League</span>
+            <Trophy className="h-5 w-5 mr-2 text-blue-600" />
+            <span className="font-semibold text-blue-800">UEFA Europa League</span>
           </div>
           <button 
             onClick={() => navigate(`/league/${leagueId}`)}
-            className="flex items-center text-xs bg-blue-800 hover:bg-blue-900 px-2 py-1 rounded transition-colors"
+            className="flex items-center text-xs bg-blue-800 hover:bg-blue-900 text-white px-2 py-1 rounded transition-colors"
           >
             View All <ChevronRight className="h-3 w-3 ml-1" />
           </button>
