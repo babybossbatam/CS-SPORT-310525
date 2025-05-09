@@ -281,7 +281,7 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Teams with dynamic gradients based on team names - equal width meeting in middle */}
+              {/* Teams with dynamic gradients based on team names - with V and S boundaries */}
               <div className="flex rounded-md overflow-hidden relative h-16">
                 {/* Container for both gradients that meet in the middle with same width */}
                 <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
@@ -290,18 +290,25 @@ const MatchDetails = () => {
                     <img 
                       src={currentFixture.teams.home.logo} 
                       alt={currentFixture.teams.home.name}
-                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
+                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 shadow-lg"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                       }}
                     />
                   </div>
                   
-                  {/* Home team - gradient extending from 'V' to behind the home team's logo */}
-                  <div className="h-full w-[50%] relative overflow-hidden flex items-center justify-start">
-                    {/* Gradient overlay - positioned to start from V and cover entire left side */}
-                    <div className={`absolute inset-0 ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} right-[-20px]`}></div>
+                  {/* UPDATED HOME TEAM SECTION */}
+                  <div className="h-full w-[50%] relative flex items-center justify-start">
+                    {/* Home team gradient - extends from 'V' to home team logo */}
+                    <div 
+                      className={`absolute inset-0 z-5 ${getTeamGradient(currentFixture.teams.home.name, 'to-r')}`} 
+                      style={{ 
+                        clipPath: 'polygon(0 0, 100% 0, 70% 100%, 0 100%)',
+                        right: '-10%' // Push gradient out further to ensure it covers the area
+                      }}
+                    ></div>
                     
+                    {/* Team name display */}
                     <div className="ml-20 text-white font-bold text-lg uppercase relative z-10">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
@@ -310,16 +317,23 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label (positioned exactly in the center where gradients meet, shifted 3px to the right) */}
-                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 translate-x-3 text-white font-bold text-xl bg-black/70 rounded-full h-8 w-8 flex items-center justify-center z-20">
+                  {/* VS label - large, visible divider between the teams */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/75 rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white shadow-md">
                     VS
                   </div>
                   
-                  {/* Away team - gradient extending from 'S' to behind the away team's logo */}
-                  <div className="h-full w-[50%] relative overflow-hidden flex items-center justify-end">
-                    {/* Gradient overlay - positioned to start from S and cover entire right side */}
-                    <div className={`absolute inset-0 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} left-[-20px]`}></div>
+                  {/* UPDATED AWAY TEAM SECTION */}
+                  <div className="h-full w-[50%] relative flex items-center justify-end">
+                    {/* Away team gradient - extends from 'S' to away team logo */}
+                    <div 
+                      className={`absolute inset-0 z-5 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')}`} 
+                      style={{ 
+                        clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)',
+                        left: '-10%' // Push gradient out further to ensure it covers the area
+                      }}
+                    ></div>
                     
+                    {/* Team name display */}
                     <div className="mr-20 text-white font-bold text-lg uppercase text-right relative z-10">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
@@ -333,7 +347,7 @@ const MatchDetails = () => {
                     <img 
                       src={currentFixture.teams.away.logo} 
                       alt={currentFixture.teams.away.name}
-                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110"
+                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 shadow-lg"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                       }}
