@@ -13,9 +13,7 @@ import {
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
-import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
-import EuroChampionshipSchedule from '@/components/leagues/EuroChampionshipSchedule';
 import UpcomingMatchesScoreboard from '@/components/matches/UpcomingMatchesScoreboard';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -99,7 +97,6 @@ interface FixtureResponse {
 // Popular leagues for prioritization in the scoreboard
 const POPULAR_LEAGUES = [
   2,   // UEFA Champions League (Europe)
-  4,   // Euro Championship
   39,  // Premier League (England)
   135, // Serie A (Italy)
 ];
@@ -133,7 +130,7 @@ function LiveScoreboardPage() {
   });
   
   // Top priority leagues that should always be shown first if available
-  const topPriorityLeagues = [2, 4, 39, 135]; // UEFA Champions League (2), Euro Championship (4), Premier League (39), Serie A (135)
+  const topPriorityLeagues = [2, 39, 135]; // UEFA Champions League (2), Premier League (39), Serie A (135)
   
   // Process fixtures when data is available
   useEffect(() => {
@@ -170,8 +167,6 @@ function LiveScoreboardPage() {
       2: ['Manchester City', 'Real Madrid', 'Bayern Munich'],
       // UEFA Europa League (3)
       3: ['Bayer Leverkusen', 'Atalanta', 'AS Roma'],
-      // Euro Championship (4)
-      4: ['England', 'France', 'Spain', 'Germany', 'Portugal', 'Italy'],
       // Premier League (39)
       39: ['Manchester City', 'Arsenal', 'Liverpool'],
       // La Liga (140)
@@ -180,8 +175,6 @@ function LiveScoreboardPage() {
       135: ['Inter', 'AC Milan', 'Juventus'],
       // Serie A Brazil (71)
       71: ['Palmeiras', 'Botafogo', 'Flamengo'],
-      // Bundesliga (78)
-      78: ['Bayer Leverkusen', 'Bayern Munich', 'RB Leipzig'],
     };
     
     // Filter fixtures to only include top teams from popular leagues
@@ -555,10 +548,8 @@ function LiveScoreboardPage() {
         {/* Right column - League schedules (takes 1/3 width on large screens) */}
         <div className="space-y-4">
           <ChampionsLeagueSchedule />
-          <EuroChampionshipSchedule />
           <PremierLeagueSchedule />
           <SerieASchedule />
-          <BundesligaSchedule />
           <EuropaLeagueSchedule />
         </div>
       </div>
