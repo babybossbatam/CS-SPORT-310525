@@ -360,11 +360,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Europa League found: ${leagueData.league.name}, attempting to fetch fixtures...`);
       
-      // Check if we should use a different season from the league data
-      const currentSeason = leagueData.seasons.find(s => s.current);
-      const seasonToUse = currentSeason ? currentSeason.year : currentYear;
+      // Always use 2025 season data as requested
+      const seasonToUse = 2025;
       
-      console.log(`Using season ${seasonToUse} for Europa League fixtures`);
+      console.log(`Using fixed season ${seasonToUse} for Europa League fixtures as requested`);
       
       // Fetch fixtures using the verified season
       const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
