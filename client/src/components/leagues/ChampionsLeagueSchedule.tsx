@@ -312,9 +312,15 @@ const ChampionsLeagueSchedule = () => {
                         LIVE
                       </span>
                     </div>
-                  ) : fixture.fixture.status.short === 'FT' ? (
+                  ) : (fixture.fixture.status.short === 'FT' || fixture.fixture.status.short === 'AET' || fixture.fixture.status.short === 'PEN') ? (
                     <span className="font-bold text-sm">
                       {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                      {fixture.fixture.status.short === 'AET' && (
+                        <span className="text-xs bg-indigo-100 text-indigo-800 px-1 py-0.5 rounded ml-1 font-medium">AET</span>
+                      )}
+                      {fixture.fixture.status.short === 'PEN' && (
+                        <span className="text-xs bg-amber-100 text-amber-800 px-1 py-0.5 rounded ml-1 font-medium">PEN</span>
+                      )}
                     </span>
                   ) : (
                     <span className="text-xs text-gray-500 font-medium">vs</span>

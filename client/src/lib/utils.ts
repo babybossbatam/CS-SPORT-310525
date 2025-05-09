@@ -31,6 +31,15 @@ export function formatExactDateTime(dateString: string): string {
 // Function to get formatted match date for display in cards
 export function formatMatchDateFn(dateString: string): string {
   const date = parseISO(dateString);
+  
+  if (isToday(date)) {
+    return `Today • ${format(date, 'h:mm a')}`;
+  } else if (isTomorrow(date)) {
+    return `Tomorrow • ${format(date, 'h:mm a')}`;
+  } else if (isYesterday(date)) {
+    return `Yesterday • ${format(date, 'h:mm a')}`;
+  }
+  
   return format(date, 'EEE, MMM d • h:mm a');
 }
 
