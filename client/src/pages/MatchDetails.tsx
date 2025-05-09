@@ -297,9 +297,12 @@ const MatchDetails = () => {
                     />
                   </div>
                   
-                  {/* Home team - gradient extending exactly to meet at the middle */}
-                  <div className={`h-full w-[50%] ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} flex items-center justify-start`}>
-                    <div className="ml-20 text-white font-bold text-lg uppercase">
+                  {/* Home team - gradient extending from 'V' to behind the home team's logo */}
+                  <div className="h-full w-[50%] relative overflow-hidden flex items-center justify-start">
+                    {/* Gradient overlay - positioned to start from V and cover entire left side */}
+                    <div className={`absolute inset-0 ${getTeamGradient(currentFixture.teams.home.name, 'to-r')} right-[-20px]`}></div>
+                    
+                    <div className="ml-20 text-white font-bold text-lg uppercase relative z-10">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
                         <span className="text-xs uppercase text-white ml-2 bg-green-600 inline-block px-2 rounded">Winner</span>
@@ -312,9 +315,12 @@ const MatchDetails = () => {
                     VS
                   </div>
                   
-                  {/* Away team - gradient extending exactly to meet at the middle */}
-                  <div className={`h-full w-[50%] ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} flex items-center justify-end`}>
-                    <div className="mr-20 text-white font-bold text-lg uppercase text-right">
+                  {/* Away team - gradient extending from 'S' to behind the away team's logo */}
+                  <div className="h-full w-[50%] relative overflow-hidden flex items-center justify-end">
+                    {/* Gradient overlay - positioned to start from S and cover entire right side */}
+                    <div className={`absolute inset-0 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')} left-[-20px]`}></div>
+                    
+                    <div className="mr-20 text-white font-bold text-lg uppercase text-right relative z-10">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
                         <span className="text-xs uppercase text-white mr-2 bg-green-600 inline-block px-2 rounded">Winner</span>
