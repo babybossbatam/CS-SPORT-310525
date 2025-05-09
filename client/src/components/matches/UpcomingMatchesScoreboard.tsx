@@ -8,6 +8,15 @@ import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
 import { getTeamColor } from '@/lib/colorExtractor';
 import { useLocation } from 'wouter';
 
+// League IDs we care about (only show matches from these leagues)
+const FEATURED_LEAGUE_IDS = [
+  2,    // UEFA Champions League
+  3,    // UEFA Europa League
+  39,   // Premier League (England)
+  78,   // Bundesliga (Germany)
+  135,  // Serie A (Italy)
+];
+
 // Define the types we need
 interface Team {
   id: number;
@@ -100,8 +109,13 @@ const UpcomingMatchesScoreboard = () => {
       ...(tomorrowFixtures || [])
     ];
     
+    // Filter to include ONLY matches from our featured leagues
+    const featuredLeagueFixtures = allFixtures.filter(match => 
+      FEATURED_LEAGUE_IDS.includes(match.league.id)
+    );
+    
     // Sort by date and prioritize live matches
-    const sortedFixtures = [...allFixtures].sort((a, b) => {
+    const sortedFixtures = featuredLeagueFixtures.sort((a, b) => {
       // Prioritize live matches
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
