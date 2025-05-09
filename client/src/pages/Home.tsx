@@ -150,7 +150,6 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
       
-      <DateNavigator />
       <MatchFilters />
       
       <main className="container mx-auto px-4 py-4">
@@ -184,6 +183,10 @@ const Home = () => {
             {/* Today's Matches Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <h3 className="font-semibold text-gray-700 p-3">Today's Matches</h3>
+              {/* DateNavigator moved to today's matches section */}
+              <div className="border-t border-gray-100">
+                <DateNavigator />
+              </div>
               <div>
                 <TodayMatches />
               </div>
