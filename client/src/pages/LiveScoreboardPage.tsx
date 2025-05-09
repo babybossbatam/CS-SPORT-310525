@@ -328,31 +328,7 @@ function LiveScoreboardPage() {
   
   return (
     <div className="mx-2 my-4">
-      {/* Status display - without navigation controls */}
-      <div className="mb-2 text-center">
-        {filteredFixtures.length > 0 ? (
-          <div className="flex items-center justify-center gap-2">
-            {isLiveMatch(featuredFixture.fixture.status.short) ? (
-              <div className="flex items-center">
-                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                <span className="text-lg font-bold">Today's Matches</span>
-              </div>
-            ) : featuredFixture.fixture.status.short === 'FT' ? (
-              <span className="text-lg font-bold">MATCH ENDED</span>
-            ) : (
-              <div className="flex items-center">
-                {countdown && (
-                  <div className="text-sm font-semibold text-blue-600">
-                    Match starts in {countdown}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          "Today's Matches"
-        )}
-      </div>
+      {/* Removed status display */}
     
       {/* Featured match card */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 relative">
@@ -363,12 +339,12 @@ function LiveScoreboardPage() {
         
         {/* Tournament info with match timer at the top */}
         <div className="bg-gray-50 relative">
-          {/* Match status at top */}
+          {/* Match status at top - LIVE text removed */}
           <div className="text-sm text-center py-2 border-b border-gray-100">
             {isLiveMatch(featuredFixture.fixture.status.short) ? (
               <div className="flex items-center justify-center">
                 <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                <h1 className="text-xl font-bold">LIVE • {featuredFixture.fixture.status.elapsed}′</h1>
+                {/* LIVE text removed as requested */}
               </div>
             ) : featuredFixture.fixture.status.short === 'FT' ? (
               <h1 className="text-xl font-bold">MATCH ENDED</h1>
