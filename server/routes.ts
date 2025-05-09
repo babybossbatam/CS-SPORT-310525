@@ -338,6 +338,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch standings data" });
     }
   });
+  
+  // Europa League fixtures endpoint (League ID 3)
+  apiRouter.get("/europa-league/fixtures", async (_req: Request, res: Response) => {
+    try {
+      // Europa League ID is 3
+      const leagueId = 3;
+      // Use current year for the season
+      const currentYear = new Date().getFullYear();
+      
+      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, currentYear);
+      
+      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+        return res.status(404).json({ message: "No Europa League fixtures found" });
+      }
+      
+      // Sort fixtures by date (newest first)
+      const sortedFixtures = [...fixtures].sort((a, b) => {
+        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+      });
+      
+      return res.json(sortedFixtures);
+    } catch (error) {
+      console.error("Error fetching Europa League fixtures:", error);
+      res.status(500).json({ message: "Failed to fetch Europa League data" });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);
