@@ -189,19 +189,12 @@ const UpcomingMatchesScoreboard = () => {
     };
     
     const sortedFixtures = featuredLeagueFixtures.sort((a, b) => {
-      // First, prioritize live matches
-      const aIsLive = isLiveMatch(a.fixture.status.short);
-      const bIsLive = isLiveMatch(b.fixture.status.short);
+      // First, prioritize by timestamp - this is now our highest priority
+      const currentTime = new Date().getTime() / 1000; // Current time in seconds
+      const aTimeUntilMatch = a.fixture.timestamp - currentTime;
+      const bTimeUntilMatch = b.fixture.timestamp - currentTime;
       
-      if (aIsLive && !bIsLive) return -1;
-      if (!aIsLive && bIsLive) return 1;
-      
-      // Then sort by nearest date (timestamp) as the highest priority for upcoming matches
-      const sortingTime = new Date().getTime() / 1000; // Current time in seconds
-      const aTimeUntilMatch = a.fixture.timestamp - sortingTime;
-      const bTimeUntilMatch = b.fixture.timestamp - sortingTime;
-      
-      // Only compare future matches (positive time difference)
+      // For upcoming matches, sort by nearest time first
       if (aTimeUntilMatch > 0 && bTimeUntilMatch > 0) {
         return aTimeUntilMatch - bTimeUntilMatch; // Nearest match first
       }
@@ -210,7 +203,14 @@ const UpcomingMatchesScoreboard = () => {
       if (aTimeUntilMatch > 0 && bTimeUntilMatch <= 0) return -1;
       if (aTimeUntilMatch <= 0 && bTimeUntilMatch > 0) return 1;
       
-      // For matches in the same timeframe, use league priority
+      // If timestamps are effectively the same, then prioritize live matches
+      const aIsLive = isLiveMatch(a.fixture.status.short);
+      const bIsLive = isLiveMatch(b.fixture.status.short);
+      
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+      
+      // If both matches have the same live status, use league priority
       const aPriority = leaguePriority[a.league.id] || 999;
       const bPriority = leaguePriority[b.league.id] || 999;
       
