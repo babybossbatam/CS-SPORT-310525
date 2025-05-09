@@ -339,17 +339,7 @@ const EuropaLeagueSchedule = () => {
                 </div>
               </div>
               
-              {/* Status indicator bar - colored based on home/away team */}
-              <div className="h-1 w-full mt-2 rounded-full overflow-hidden flex">
-                <div 
-                  className="w-1/2 h-full" 
-                  style={{ backgroundColor: getTeamColor(fixture.teams.home.name, true) }}
-                ></div>
-                <div 
-                  className="w-1/2 h-full" 
-                  style={{ backgroundColor: getTeamColor(fixture.teams.away.name, true) }}
-                ></div>
-              </div>
+
             </div>
           ))}
         </div>
