@@ -343,7 +343,7 @@ const PremierLeagueSchedule = () => {
                         {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
                       </span>
                       {fixture.fixture.status.short === 'AET' && (
-                        <span className="text-xs bg-purple-100 text-purple-800 px-1 py-0.5 rounded ml-1 font-medium">AET</span>
+                        <span className="text-xs bg-indigo-100 text-indigo-800 px-1 py-0.5 rounded ml-1 font-medium">AET</span>
                       )}
                       {fixture.fixture.status.short === 'PEN' && (
                         <span className="text-xs bg-amber-100 text-amber-800 px-1 py-0.5 rounded ml-1 font-medium">PEN</span>
