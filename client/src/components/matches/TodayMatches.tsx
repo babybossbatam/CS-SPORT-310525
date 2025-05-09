@@ -326,21 +326,20 @@ const TodayMatches = () => {
             </Button>
           </div>
           
-          {/* Date picker moved to center */}
+          {/* Date picker moved to center, styled like DateNavigator */}
           <div className="flex-1 mx-1">
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 justify-between text-xs w-full font-medium"
+                <Button 
+                  variant="ghost" 
+                  className="relative flex items-center space-x-2"
                 >
-                  <div className="flex items-center">
+                  <span className="text-sm font-medium">
                     {selectedDate && !isSameDay(selectedDate, new Date()) 
                       ? format(selectedDate, 'MMMM d, yyyy') 
                       : "Today's Matches"}
-                  </div>
-                  <ChevronRight className="h-3.5 w-3.5 ml-2 rotate-90" />
+                  </span>
+                  <ChevronRight className="h-4 w-4 rotate-90" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="center">
@@ -354,6 +353,7 @@ const TodayMatches = () => {
                   weekStartsOn={1}
                   showOutsideDays
                   fixedWeeks
+                  initialFocus
                 />
               </PopoverContent>
             </Popover>
