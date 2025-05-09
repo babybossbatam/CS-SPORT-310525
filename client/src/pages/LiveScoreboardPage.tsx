@@ -386,9 +386,11 @@ function LiveScoreboardPage() {
               </div>
             </div>
             
-            {/* Tomorrow label */}
+            {/* Date label - Dynamic based on match date */}
             <div className="text-center my-2">
-              <h2 className="text-2xl font-bold">Tomorrow</h2>
+              <h2 className="text-2xl font-bold">
+                {formatMatchDateFn(featuredFixture.fixture.date)}
+              </h2>
             </div>
             
             {/* Teams with match bar - design similar to reference image */}

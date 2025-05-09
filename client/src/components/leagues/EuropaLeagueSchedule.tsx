@@ -108,30 +108,19 @@ const EuropaLeagueSchedule = () => {
       .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
     
     // Only show finished matches as requested by user
-    const visibleFixtures = [...pastFixtures.slice(0, 5)];
+    const finishedMatches = pastFixtures.filter(fixture => 
+      fixture.fixture.status.short === 'FT' || 
+      fixture.fixture.status.short === 'AET' ||
+      fixture.fixture.status.short === 'PEN'
+    );
     
-    // Sort by date
+    // Take top 5 most recent finished matches
+    const visibleFixtures = [...finishedMatches.slice(0, 5)];
+    
+    // Sort by date - most recent first
     visibleFixtures.sort((a, b) => {
-      // First, prioritize live matches
-      const aIsLive = isLiveMatch(a.fixture.status.short);
-      const bIsLive = isLiveMatch(b.fixture.status.short);
-      
-      if (aIsLive && !bIsLive) return -1;
-      if (!aIsLive && bIsLive) return 1;
-      
-      // Then upcoming matches
       const aDate = new Date(a.fixture.date);
       const bDate = new Date(b.fixture.date);
-      
-      if (aDate > now && bDate <= now) return -1;
-      if (aDate <= now && bDate > now) return 1;
-      
-      // For upcoming matches, sort by date (closest first)
-      if (aDate > now && bDate > now) {
-        return aDate.getTime() - bDate.getTime();
-      }
-      
-      // For past matches, sort by date (most recent first)
       return bDate.getTime() - aDate.getTime();
     });
     
