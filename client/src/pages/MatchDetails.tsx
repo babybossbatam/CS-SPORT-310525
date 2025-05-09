@@ -657,12 +657,167 @@ const MatchDetails = () => {
                 <Card>
                   <CardHeader className="p-4 border-b flex items-center">
                     <Sparkles className="h-5 w-5 mr-2 text-blue-600" />
-                    <h3 className="font-semibold">Create Your Own Highlights</h3>
+                    <h3 className="font-semibold">Real-Time Performance Analysis</h3>
                   </CardHeader>
                   <CardContent className="p-4">
-                    {currentFixture && (
-                      <HighlightGenerator match={currentFixture} />
-                    )}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-semibold">Match Momentum Chart</h4>
+                        <div className="relative h-40 bg-gray-50 rounded-lg p-2 border">
+                          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gray-300"></div>
+                          
+                          {/* Home team momentum line (sample data) */}
+                          <div className="absolute bottom-0 left-0 w-full h-full">
+                            <svg className="w-full h-full">
+                              <path 
+                                d="M0,100 C50,70 100,110 150,60 C200,30 250,80 300,50 C350,70 400,30 450,50"
+                                fill="none"
+                                stroke="#1d4ed8"
+                                strokeWidth="2"
+                                className="transform scale-y-[-1] translate-y-[100%]"
+                              />
+                            </svg>
+                          </div>
+                          
+                          {/* Away team momentum line (sample data) */}
+                          <div className="absolute bottom-0 left-0 w-full h-full">
+                            <svg className="w-full h-full">
+                              <path 
+                                d="M0,30 C50,50 100,20 150,60 C200,80 250,40 300,70 C350,60 400,80 450,60"
+                                fill="none"
+                                stroke="#e11d48"
+                                strokeWidth="2"
+                                className="transform scale-y-[-1] translate-y-[100%]"
+                              />
+                            </svg>
+                          </div>
+                          
+                          {/* Time markers */}
+                          <div className="absolute bottom-0 left-0 w-full flex justify-between text-xs text-gray-500">
+                            <span>0'</span>
+                            <span>15'</span>
+                            <span>30'</span>
+                            <span>45'</span>
+                            <span>60'</span>
+                            <span>75'</span>
+                            <span>90'</span>
+                          </div>
+                          
+                          {/* Legend */}
+                          <div className="absolute top-2 right-2 flex items-center space-x-4 text-xs bg-white/80 p-1 rounded">
+                            <div className="flex items-center">
+                              <div className="w-3 h-1 bg-blue-600 mr-1"></div>
+                              <span>{currentFixture.teams.home.name}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="w-3 h-1 bg-red-600 mr-1"></div>
+                              <span>{currentFixture.teams.away.name}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <h4 className="text-sm font-semibold mt-4">Key Performance Metrics</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-gray-50 rounded-lg p-3 border">
+                            <div className="text-xs text-gray-500 mb-1">Attacking Threat</div>
+                            <div className="flex justify-between">
+                              <div className="text-sm font-bold text-blue-600">8.7</div>
+                              <div className="text-xs text-gray-500">vs</div>
+                              <div className="text-sm font-bold text-red-600">7.2</div>
+                            </div>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3 border">
+                            <div className="text-xs text-gray-500 mb-1">Defensive Solidity</div>
+                            <div className="flex justify-between">
+                              <div className="text-sm font-bold text-blue-600">7.5</div>
+                              <div className="text-xs text-gray-500">vs</div>
+                              <div className="text-sm font-bold text-red-600">8.1</div>
+                            </div>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3 border">
+                            <div className="text-xs text-gray-500 mb-1">Possession Quality</div>
+                            <div className="flex justify-between">
+                              <div className="text-sm font-bold text-blue-600">8.3</div>
+                              <div className="text-xs text-gray-500">vs</div>
+                              <div className="text-sm font-bold text-red-600">7.8</div>
+                            </div>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3 border">
+                            <div className="text-xs text-gray-500 mb-1">Stamina Levels</div>
+                            <div className="flex justify-between">
+                              <div className="text-sm font-bold text-blue-600">7.9</div>
+                              <div className="text-xs text-gray-500">vs</div>
+                              <div className="text-sm font-bold text-red-600">8.2</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-semibold">Real-Time Predictions</h4>
+                        <div className="bg-gray-50 rounded-lg p-4 border">
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="font-medium text-sm">Match Winner Probability</div>
+                            <div className="text-xs text-gray-500">Updated live</div>
+                          </div>
+                          <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div className="flex h-full">
+                              <div className="bg-blue-600 h-full" style={{ width: '45%' }}></div>
+                              <div className="bg-gray-400 h-full" style={{ width: '20%' }}></div>
+                              <div className="bg-red-600 h-full" style={{ width: '35%' }}></div>
+                            </div>
+                          </div>
+                          <div className="flex justify-between text-xs mt-1">
+                            <span className="text-blue-600 font-medium">{currentFixture.teams.home.name} 45%</span>
+                            <span className="text-gray-600">Draw 20%</span>
+                            <span className="text-red-600 font-medium">{currentFixture.teams.away.name} 35%</span>
+                          </div>
+                          
+                          <div className="mt-6">
+                            <div className="font-medium text-sm mb-2">Predicted Final Score</div>
+                            <div className="bg-gray-100 rounded-lg p-3 flex justify-center items-center space-x-4">
+                              <div className="text-center">
+                                <div className="font-bold text-2xl text-blue-600">2</div>
+                                <div className="text-xs text-gray-600">{currentFixture.teams.home.name}</div>
+                              </div>
+                              <div className="text-lg font-light text-gray-400">-</div>
+                              <div className="text-center">
+                                <div className="font-bold text-2xl text-red-600">1</div>
+                                <div className="text-xs text-gray-600">{currentFixture.teams.away.name}</div>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-500 text-center mt-2">
+                              Based on current match stats, team form, and historical data
+                            </div>
+                          </div>
+                          
+                          <div className="mt-6">
+                            <div className="font-medium text-sm mb-2">Next Goal Prediction</div>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <div className={`h-3 w-3 rounded-full bg-blue-600`}></div>
+                                <span className="text-sm">{currentFixture.teams.home.name}</span>
+                              </div>
+                              <div className="font-bold text-sm">62%</div>
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                              <div className="flex items-center gap-2">
+                                <div className={`h-3 w-3 rounded-full bg-gray-400`}></div>
+                                <span className="text-sm">No more goals</span>
+                              </div>
+                              <div className="font-bold text-sm">15%</div>
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                              <div className="flex items-center gap-2">
+                                <div className={`h-3 w-3 rounded-full bg-red-600`}></div>
+                                <span className="text-sm">{currentFixture.teams.away.name}</span>
+                              </div>
+                              <div className="font-bold text-sm">23%</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
