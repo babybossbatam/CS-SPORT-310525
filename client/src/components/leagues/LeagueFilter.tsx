@@ -94,28 +94,28 @@ const LeagueFilter = () => {
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-7 w-7 p-0 mr-1" 
+            className="h-5 w-5 p-0 mr-1" 
             onClick={handlePrevious}
             disabled={visibleStart === 0}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3 w-3" />
           </Button>
           
-          <TabsList className="flex-1 grid grid-cols-3 h-9">
+          <TabsList className="flex-1 grid grid-cols-3 h-5">
             {visibleLeagues.map((league) => (
               <TabsTrigger 
                 key={league.id} 
                 value={league.id.toString()}
-                className="px-2 py-1 text-xs flex items-center justify-center gap-1"
+                className="px-1 py-0.5 text-[10px] flex items-center justify-center gap-1 min-h-0"
               >
                 {getLeagueLogo(league.id) ? (
                   <img 
                     src={getLeagueLogo(league.id) as string} 
                     alt={league.name} 
-                    className="h-4 w-4 object-contain"
+                    className="h-3 w-3 object-contain"
                   />
                 ) : (
-                  <Filter className="h-3 w-3" />
+                  <Filter className="h-2 w-2" />
                 )}
                 <span className="truncate">
                   {getAbbreviatedName(league.name)}
@@ -127,11 +127,11 @@ const LeagueFilter = () => {
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-7 w-7 p-0 ml-1" 
+            className="h-5 w-5 p-0 ml-1" 
             onClick={handleNext}
             disabled={visibleStart >= POPULAR_LEAGUES.length - visibleCount}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3" />
           </Button>
         </div>
       </Tabs>
