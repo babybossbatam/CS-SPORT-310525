@@ -201,102 +201,52 @@ const TodayMatches = () => {
       
       {/* Main content */}
       <div className="space-y-1 mt-2">
-        {activeTab === 'live' && liveFixtures.length === 0 && upcomingFixtures.length === 0 && (
+        {upcomingFixtures.length === 0 && liveFixtures.length === 0 && (
           <div className="text-center p-3 text-gray-500">
             No matches scheduled for today.
           </div>
         )}
         
-        {/* Sample fixtures from Premier League */}
-        <div 
-          className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
-          onClick={() => navigate(`/match/123456`)}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <img 
-              src="https://media.api-sports.io/football/teams/50.png" 
-              alt="Manchester City" 
-              className="w-6 h-6"
-            />
-            <div className="text-center text-sm font-semibold">
-              20:00
+        {/* Display upcoming fixtures */}
+        {upcomingFixtures.map((fixture) => (
+          <div 
+            key={fixture.fixture.id}
+            className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+            onClick={() => navigate(`/match/${fixture.fixture.id}`)}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <img 
+                src={fixture.teams.home.logo} 
+                alt={fixture.teams.home.name} 
+                className="w-6 h-6"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
+                }}
+              />
+              <div className="text-center text-sm font-semibold">
+                {formatMatchTime(fixture.fixture.timestamp)}
+              </div>
+              <img 
+                src={fixture.teams.away.logo} 
+                alt={fixture.teams.away.name} 
+                className="w-6 h-6"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
+                }}
+              />
             </div>
-            <img 
-              src="https://media.api-sports.io/football/teams/40.png" 
-              alt="Liverpool" 
-              className="w-6 h-6"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm w-[40%] text-left truncate">Man City</span>
-            <div className="text-xs text-gray-500 text-center">
-              Premier League
+            
+            <div className="flex items-center justify-between">
+              <span className="text-sm w-[40%] text-left truncate">{fixture.teams.home.name}</span>
+              <div className="text-xs text-gray-500 text-center">
+                {fixture.league.name}
+              </div>
+              <span className="text-sm w-[40%] text-right truncate">{fixture.teams.away.name}</span>
             </div>
-            <span className="text-sm w-[40%] text-right truncate">Liverpool</span>
           </div>
-        </div>
+        ))}
         
-        {/* Sample fixtures from Champions League */}
-        <div 
-          className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
-          onClick={() => navigate(`/match/123457`)}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <img 
-              src="https://media.api-sports.io/football/teams/541.png" 
-              alt="Real Madrid" 
-              className="w-6 h-6"
-            />
-            <div className="text-center text-sm font-semibold">
-              22:00
-            </div>
-            <img 
-              src="https://media.api-sports.io/football/teams/49.png" 
-              alt="Chelsea" 
-              className="w-6 h-6"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm w-[40%] text-left truncate">Real Madrid</span>
-            <div className="text-xs text-gray-500 text-center">
-              Champions League
-            </div>
-            <span className="text-sm w-[40%] text-right truncate">Chelsea</span>
-          </div>
-        </div>
-        
-        {/* Sample fixtures from Serie A */}
-        <div 
-          className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
-          onClick={() => navigate(`/match/123458`)}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <img 
-              src="https://media.api-sports.io/football/teams/489.png" 
-              alt="AC Milan" 
-              className="w-6 h-6"
-            />
-            <div className="text-center text-sm font-semibold">
-              19:45
-            </div>
-            <img 
-              src="https://media.api-sports.io/football/teams/505.png" 
-              alt="Inter" 
-              className="w-6 h-6"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm w-[40%] text-left truncate">AC Milan</span>
-            <div className="text-xs text-gray-500 text-center">
-              Serie A
-            </div>
-            <span className="text-sm w-[40%] text-right truncate">Inter</span>
-          </div>
-        </div>
-        
+        {/* Link to Champions League page */}
         <div className="mt-2 text-center">
           <a 
             href="#" 
