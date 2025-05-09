@@ -7,6 +7,8 @@ import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
+// League order as specified by user requirement:
+// 1.Europa League, 2.Champions League, 3.Premier League, 4.La Liga, 5.Serie A, 6.Bundesliga
 const POPULAR_LEAGUES = [
   { id: 3, name: 'Europa League', country: 'Europe' },
   { id: 2, name: 'Champions League', country: 'Europe' },
