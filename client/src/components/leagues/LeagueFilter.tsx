@@ -20,7 +20,7 @@ const LeagueFilter = () => {
   const dispatch = useDispatch();
   const selectedLeague = useSelector((state: RootState) => state.ui.selectedLeague);
   const [visibleStart, setVisibleStart] = useState(0);
-  const visibleCount = 3; // Number of tabs visible at once
+  const visibleCount = 5; // Number of tabs visible at once
   
   // Fetch league data for logos
   const { data: leagueData, isLoading } = useQuery({
@@ -101,21 +101,21 @@ const LeagueFilter = () => {
             <ChevronLeft className="h-3 w-3" />
           </Button>
           
-          <TabsList className="flex-1 grid grid-cols-3 h-5 max-w-[225px]">
+          <TabsList className="flex-1 grid grid-cols-5 h-5 max-w-[320px]">
             {visibleLeagues.map((league) => (
               <TabsTrigger 
                 key={league.id} 
                 value={league.id.toString()}
-                className="px-1 py-0.5 text-xs flex items-center justify-center gap-1 min-h-0 max-w-[75px]"
+                className="px-1 py-0.5 text-xs flex items-center justify-center gap-1 min-h-0 max-w-[60px]"
               >
                 {getLeagueLogo(league.id) ? (
                   <img 
                     src={getLeagueLogo(league.id) as string} 
                     alt={league.name} 
-                    className="h-3 w-3 object-contain"
+                    className="h-[18px] w-[18px] object-contain"
                   />
                 ) : (
-                  <Filter className="h-2 w-2" />
+                  <Filter className="h-3 w-3" />
                 )}
                 <span className="truncate">
                   {getAbbreviatedName(league.name)}
