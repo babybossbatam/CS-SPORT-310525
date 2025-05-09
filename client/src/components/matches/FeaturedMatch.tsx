@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime, isLiveMatch } from '@/lib/utils';
+import { getTeamColor, getOpposingTeamColor } from '@/lib/colorExtractor';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
 
@@ -231,31 +232,56 @@ const FeaturedMatch = () => {
           {formatMatchDate(featuredMatch.fixture.date)}
         </h2>
         
-        <div className="flex justify-center items-center space-x-4 mb-4">
+        {/* Teams with improved match bar in the middle */}
+        <div className="flex justify-center items-center space-x-4 mb-6 relative">
           {/* Home Team */}
           <div className="flex flex-col items-center w-1/3">
-            <div className="h-16 w-16 mb-2 flex items-center justify-center">
+            <div className="h-16 w-16 mb-2 flex items-center justify-center relative">
+              {/* Shadow effect at 50% size as requested */}
+              <div className="absolute inset-0 scale-50 origin-center bg-black/20 rounded-full filter blur-[5px] transform translate-y-1"></div>
               <img 
                 src={featuredMatch.teams.home.logo} 
                 alt={featuredMatch.teams.home.name} 
-                className="h-full object-contain"
+                className="h-full w-full object-contain relative z-10"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                 }}
               />
             </div>
-            <span className="font-semibold text-center">{featuredMatch.teams.home.name}</span>
+            <span className="font-semibold text-center truncate max-w-[120px]">{featuredMatch.teams.home.name}</span>
           </div>
           
-          {/* VS or Score */}
-          <div className="flex flex-col items-center w-1/3">
+          {/* Match Bar - NEW ADDITION with Dynamic Team Colors */}
+          <div className="absolute left-0 right-0 h-6 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden">
+            <div className="w-full h-full flex">
+              {/* Home team color (60%) with dynamic color extraction */}
+              <div 
+                className="w-[60%] h-full" 
+                style={{ 
+                  background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)}CC 0%, ${getTeamColor(featuredMatch.teams.home.name, true)}99 100%)`,
+                  clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0 100%)'
+                }}
+              ></div>
+              {/* Away team color (40%) with dynamic opposing color extraction */}
+              <div 
+                className="w-[40%] h-full" 
+                style={{ 
+                  background: `linear-gradient(90deg, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)}99 0%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)}CC 100%)`,
+                  clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 0% 100%)'
+                }}
+              ></div>
+            </div>
+          </div>
+          
+          {/* VS or Score section */}
+          <div className="flex flex-col items-center w-1/3 z-10">
             {/* Show score if match is in progress or finished */}
             {(featuredMatch.fixture.status.short === 'FT' || 
               featuredMatch.fixture.status.short === 'AET' || 
               featuredMatch.fixture.status.short === 'PEN' || 
               featuredMatch.fixture.status.short === 'IN_PLAY' || 
               featuredMatch.fixture.status.short === 'HT') ? (
-              <div className="text-3xl font-bold text-neutral-500 mb-2">
+              <div className="text-3xl font-bold bg-white py-1 px-4 rounded-full shadow-sm mb-2">
                 {featuredMatch.goals.home} - {featuredMatch.goals.away}
                 {featuredMatch.fixture.status.short === 'AET' && 
                   <span className="text-xs ml-2 text-blue-600">AET</span>}
@@ -267,27 +293,28 @@ const FeaturedMatch = () => {
                   <span className="text-xs ml-2 text-orange-600">HT</span>}
               </div>
             ) : (
-              <div className="text-3xl font-bold text-neutral-500 mb-2">VS</div>
+              <div className="text-4xl font-bold bg-white py-1 px-5 rounded-full shadow-sm mb-2 transform -translate-x-1">VS</div>
             )}
-            <div className="text-sm text-neutral-500">
+            <div className="text-sm text-white bg-gray-800/70 px-2 py-1 rounded-full">
               {formatDateTime(featuredMatch.fixture.date)}
-              {featuredMatch.fixture.venue.name && ` | ${featuredMatch.fixture.venue.name}`}
             </div>
           </div>
           
           {/* Away Team */}
           <div className="flex flex-col items-center w-1/3">
-            <div className="h-16 w-16 mb-2 flex items-center justify-center">
+            <div className="h-16 w-16 mb-2 flex items-center justify-center relative">
+              {/* Shadow effect at 50% size as requested */}
+              <div className="absolute inset-0 scale-50 origin-center bg-black/20 rounded-full filter blur-[5px] transform translate-y-1"></div>
               <img 
                 src={featuredMatch.teams.away.logo} 
                 alt={featuredMatch.teams.away.name} 
-                className="h-full object-contain"
+                className="h-full w-full object-contain relative z-10"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                 }}
               />
             </div>
-            <span className="font-semibold text-center">{featuredMatch.teams.away.name}</span>
+            <span className="font-semibold text-center truncate max-w-[120px]">{featuredMatch.teams.away.name}</span>
           </div>
         </div>
         
