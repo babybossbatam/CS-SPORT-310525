@@ -152,14 +152,17 @@ const EuropaLeagueSchedule = () => {
     }
     
     // Find Manchester United vs Lyon match from April 17th
-    const manUtdLyonMatch = fixtures.find(fixture => 
+    let manUtdLyonMatch = fixtures.find(fixture => 
       ((fixture.teams.home.name === "Manchester United" && fixture.teams.away.name === "Lyon") ||
        (fixture.teams.away.name === "Manchester United" && fixture.teams.home.name === "Lyon")) &&
       new Date(fixture.fixture.date).getMonth() === 3 // April is month 3 (0-indexed)
     );
     
-    // Make sure the Man Utd vs Lyon match is displayed with the correct score (5-4) and AET status
+    // Make a copy if we found the match
     if (manUtdLyonMatch) {
+      manUtdLyonMatch = {...manUtdLyonMatch};
+      
+      // Make sure the Man Utd vs Lyon match is displayed with the correct score (5-4) and AET status
       if (manUtdLyonMatch.teams.home.name === "Manchester United") {
         manUtdLyonMatch.goals.home = 5;
         manUtdLyonMatch.goals.away = 4;
@@ -169,10 +172,13 @@ const EuropaLeagueSchedule = () => {
       }
       manUtdLyonMatch.fixture.status.short = 'AET'; // Set to After Extra Time
       
-      // Check if the match should be shown based on date filter
+      // Flag to check if we should keep this match
       const manUtdLyonMatchDate = new Date(manUtdLyonMatch.fixture.date);
-      if (!isSameDay(manUtdLyonMatchDate, selectedDateObj)) {
-        // If we're not showing this date, don't add the special match
+      const shouldShowSpecialMatch = isSameDay(manUtdLyonMatchDate, selectedDateObj) || 
+                                    selectedDateObj.getMonth() === 3;
+      
+      // If we shouldn't show it, set to undefined later
+      if (!shouldShowSpecialMatch) {
         manUtdLyonMatch = undefined;
       }
     }

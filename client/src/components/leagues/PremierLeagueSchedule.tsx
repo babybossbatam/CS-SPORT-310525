@@ -96,42 +96,60 @@ const PremierLeagueSchedule = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
-  // Group fixtures by matchday or round when data is available
+  // Handle fixtures based on selected date
   useEffect(() => {
     if (!allFixtures) return;
     
-    // Filter fixtures by most recent/upcoming
     const fixtures = [...allFixtures];
-    
-    // Sort fixtures by date (oldest first for upcoming, newest first for past)
     const now = new Date();
-    const upcomingFixtures = fixtures
-      .filter(f => new Date(f.fixture.date) > now)
-      .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+    const selectedDateObj = parseISO(selectedDate);
     
-    const pastFixtures = fixtures
-      .filter(f => new Date(f.fixture.date) <= now && f.fixture.status.short === 'FT')
-      .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
+    // Filter fixtures by the selected date
+    let filteredFixtures: FixtureResponse[] = [];
     
-    let displayFixtures = [];
-    
-    // If today is selected, show both today's finished matches and upcoming matches
     if (isToday) {
-      const liveMatches = fixtures.filter(f => isLiveMatch(f.fixture.status.short));
+      // For today, show both completed and upcoming matches
+      // 1. Get finished and live matches from today
+      const todayFinishedMatches = fixtures.filter(f => {
+        const fixtureDate = new Date(f.fixture.date);
+        return (
+          isSameDay(fixtureDate, now) && 
+          (f.fixture.status.short === 'FT' || 
+           f.fixture.status.short === 'AET' || 
+           f.fixture.status.short === 'PEN' || 
+           isLiveMatch(f.fixture.status.short))
+        );
+      });
       
-      // Take up to 3 finished matches and 2 upcoming matches (or more if we have fewer finished matches)
-      const finishedToShow = Math.min(pastFixtures.length, 3);
-      const upcomingToShow = Math.min(upcomingFixtures.length, 5 - finishedToShow);
+      // 2. Get upcoming matches for today
+      const todayUpcomingMatches = fixtures.filter(f => {
+        const fixtureDate = new Date(f.fixture.date);
+        return (
+          isSameDay(fixtureDate, now) && 
+          f.fixture.status.short !== 'FT' && 
+          f.fixture.status.short !== 'AET' && 
+          f.fixture.status.short !== 'PEN' && 
+          !isLiveMatch(f.fixture.status.short) &&
+          fixtureDate > now
+        );
+      });
       
-      displayFixtures = [
-        ...liveMatches,
-        ...pastFixtures.slice(0, finishedToShow),
-        ...upcomingFixtures.slice(0, upcomingToShow)
-      ];
+      // 3. Combine finished and upcoming matches for today
+      filteredFixtures = [...todayFinishedMatches, ...todayUpcomingMatches];
     } else {
-      // For other dates, only show finished matches
-      displayFixtures = [...pastFixtures.slice(0, 5)];
+      // For other dates, show only completed matches for that date
+      filteredFixtures = fixtures.filter(f => {
+        const fixtureDate = new Date(f.fixture.date);
+        return (
+          isSameDay(fixtureDate, selectedDateObj) && 
+          (f.fixture.status.short === 'FT' || 
+           f.fixture.status.short === 'AET' || 
+           f.fixture.status.short === 'PEN')
+        );
+      });
     }
+    
+    let displayFixtures = filteredFixtures;
     
     // Sort by status and time
     displayFixtures.sort((a, b) => {

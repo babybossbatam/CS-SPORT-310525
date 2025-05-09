@@ -109,12 +109,15 @@ const SerieASchedule = () => {
     
     if (isToday) {
       // For today, show both completed and upcoming matches
-      // 1. Get finished matches from today
+      // 1. Get finished and live matches from today
       const todayFinishedMatches = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
         return (
           isSameDay(fixtureDate, now) && 
-          (f.fixture.status.short === 'FT' || isLiveMatch(f.fixture.status.short))
+          (f.fixture.status.short === 'FT' || 
+           f.fixture.status.short === 'AET' || 
+           f.fixture.status.short === 'PEN' || 
+           isLiveMatch(f.fixture.status.short))
         );
       });
       
@@ -124,6 +127,8 @@ const SerieASchedule = () => {
         return (
           isSameDay(fixtureDate, now) && 
           f.fixture.status.short !== 'FT' && 
+          f.fixture.status.short !== 'AET' && 
+          f.fixture.status.short !== 'PEN' && 
           !isLiveMatch(f.fixture.status.short) &&
           fixtureDate > now
         );
@@ -137,7 +142,9 @@ const SerieASchedule = () => {
         const fixtureDate = new Date(f.fixture.date);
         return (
           isSameDay(fixtureDate, selectedDateObj) && 
-          f.fixture.status.short === 'FT'
+          (f.fixture.status.short === 'FT' || 
+           f.fixture.status.short === 'AET' || 
+           f.fixture.status.short === 'PEN')
         );
       });
     }
@@ -329,10 +336,20 @@ const SerieASchedule = () => {
                         LIVE
                       </span>
                     </div>
-                  ) : fixture.fixture.status.short === 'FT' ? (
-                    <span className="font-bold text-sm">
-                      {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
-                    </span>
+                  ) : fixture.fixture.status.short === 'FT' || 
+                      fixture.fixture.status.short === 'AET' || 
+                      fixture.fixture.status.short === 'PEN' ? (
+                    <div className="flex flex-col items-center">
+                      <span className="font-bold text-sm">
+                        {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                      </span>
+                      {fixture.fixture.status.short === 'AET' && (
+                        <span className="text-xs text-gray-500">AET</span>
+                      )}
+                      {fixture.fixture.status.short === 'PEN' && (
+                        <span className="text-xs text-gray-500">PEN</span>
+                      )}
+                    </div>
                   ) : (
                     <span className="text-xs text-gray-500 font-medium">vs</span>
                   )}
