@@ -206,8 +206,38 @@ const fixturesSlice = createSlice({
     setFixturesByDate: (state, action: PayloadAction<{ date: string; fixtures: FixtureResponse[] }>) => {
       // Only update if we have fixtures, maintain existing data on empty responses to avoid losing data
       if (action.payload.fixtures && action.payload.fixtures.length > 0) {
-        state.byDate[action.payload.date] = action.payload.fixtures;
-        console.log(`Stored ${action.payload.fixtures.length} fixtures for date ${action.payload.date}`);
+        // Apply strict filtering to exclude youth teams, lower leagues, etc.
+        const filteredFixtures = action.payload.fixtures.filter(fixture => {
+          // Skip fixtures without proper data
+          if (!fixture || !fixture.league || !fixture.teams) return false;
+          
+          // Get league name and team names for filtering
+          const leagueName = (fixture.league.name || '').toLowerCase();
+          const homeTeamName = (fixture.teams.home.name || '').toLowerCase();
+          const awayTeamName = (fixture.teams.away.name || '').toLowerCase();
+          
+          // List of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
+          const exclusionTerms = [
+            'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
+            'regional', 'division 3', 'division 4', 'women', 'kosice', 
+            'development', 'friendly', 'test', 'academy'
+          ];
+          
+          // Check if any exclusion term exists in league or team names
+          const hasExclusionTerm = exclusionTerms.some(term => 
+            leagueName.includes(term) || 
+            homeTeamName.includes(term) || 
+            awayTeamName.includes(term)
+          );
+          
+          // Return true to keep matches that don't have an exclusion term
+          return !hasExclusionTerm;
+        });
+        
+        console.log(`Filtered out ${action.payload.fixtures.length - filteredFixtures.length} unwanted fixtures`);
+        console.log(`Storing ${filteredFixtures.length} filtered fixtures for date ${action.payload.date}`);
+        
+        state.byDate[action.payload.date] = filteredFixtures;
       } else if (!state.byDate[action.payload.date]) {
         // If we don't have data and received empty, create an empty array
         state.byDate[action.payload.date] = [];
@@ -220,8 +250,38 @@ const fixturesSlice = createSlice({
     setFixturesByLeague: (state, action: PayloadAction<{ leagueId: string; fixtures: FixtureResponse[] }>) => {
       // Only update if we have fixtures, maintain existing data on empty responses
       if (action.payload.fixtures && action.payload.fixtures.length > 0) {
-        state.byLeague[action.payload.leagueId] = action.payload.fixtures;
-        console.log(`Stored ${action.payload.fixtures.length} fixtures for league ${action.payload.leagueId}`);
+        // Apply same filtering as setFixturesByDate to exclude youth teams and unwanted matches
+        const filteredFixtures = action.payload.fixtures.filter(fixture => {
+          // Skip fixtures without proper data
+          if (!fixture || !fixture.league || !fixture.teams) return false;
+          
+          // Get league name and team names for filtering
+          const leagueName = (fixture.league.name || '').toLowerCase();
+          const homeTeamName = (fixture.teams.home.name || '').toLowerCase();
+          const awayTeamName = (fixture.teams.away.name || '').toLowerCase();
+          
+          // List of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
+          const exclusionTerms = [
+            'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
+            'regional', 'division 3', 'division 4', 'women', 'kosice', 
+            'development', 'friendly', 'test', 'academy'
+          ];
+          
+          // Check if any exclusion term exists in league or team names
+          const hasExclusionTerm = exclusionTerms.some(term => 
+            leagueName.includes(term) || 
+            homeTeamName.includes(term) || 
+            awayTeamName.includes(term)
+          );
+          
+          // Return true to keep matches that don't have an exclusion term
+          return !hasExclusionTerm;
+        });
+        
+        console.log(`Filtered out ${action.payload.fixtures.length - filteredFixtures.length} unwanted fixtures from league ${action.payload.leagueId}`);
+        console.log(`Storing ${filteredFixtures.length} filtered fixtures for league ${action.payload.leagueId}`);
+        
+        state.byLeague[action.payload.leagueId] = filteredFixtures;
       } else if (!state.byLeague[action.payload.leagueId]) {
         // If we don't have data and received empty, create an empty array
         state.byLeague[action.payload.leagueId] = [];
