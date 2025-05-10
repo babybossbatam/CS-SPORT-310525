@@ -32,6 +32,7 @@ const MatchFilters = () => {
   const fixturesByDate = useSelector((state: RootState) => 
     state.fixtures.byDate[selectedDate] || []
   );
+  const byDate = useSelector((state: RootState) => state.fixtures.byDate);
   
   // Get upcoming fixtures for display
   const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
@@ -116,27 +117,28 @@ const MatchFilters = () => {
   // Get popular leagues IDs from the store now that we've expanded the list
   const popularLeagueIds = useSelector((state: RootState) => state.leagues.popularLeagues);
   
-  // Add fixed hard-coded date for May 8th for testing/demo, using ISO format: YYYY-MM-DD
-  const mayEighthDate = '2023-05-08'; // Use this date to match the reference image from 365scores.com
-  
   // Function to get matches to display in the list
   const getMatchesToDisplay = () => {
-    // For demo purposes, we can override the selected date to May 8th for comparison with the reference
-    // This way we can test showing May 8th fixtures even when today is a different date
-    
-    // Uncomment this line to use a specific date instead of the selectedDate from the store
-    // const overrideDate = mayEighthDate;
-    
-    // Use fixtures for the selected date by default - create a safe copy to avoid mutation issues
+    // Initialize with an empty array instead of undefined to prevent flickering
+    // Always work with a copy to avoid mutation issues
     let matches = fixturesByDate ? [...fixturesByDate] : [];
     
     // If we're in live mode and have live matches, show only live matches
     if (selectedFilter === 'live' && liveFixtures.length > 0) {
       matches = [...liveFixtures];
     }
-    // If no matches for the selected date or we want more variety, add upcoming fixtures
-    else if ((matches.length < 10 || matches.length === 0) && upcomingFixtures.length > 0) {
-      // First ensure we have something to display while loading - prevents flickering
+    // If no matches for the selected date, show a loading state but keep any previously loaded
+    // fixtures visible during the transition (prevents flickering)
+    else if (matches.length === 0 && loading) {
+      // Return any previously loaded fixtures until new ones arrive
+      const previousDateFixtures = Object.values(byDate).flat();
+      if (previousDateFixtures.length > 0) {
+        matches = [...previousDateFixtures.slice(0, 20)];
+      }
+    }
+    // If no matches yet and we have upcoming fixtures, use those temporarily
+    else if (matches.length < 10 && upcomingFixtures.length > 0) {
+      // Add some upcoming fixtures to ensure we have content
       matches = [...matches, ...upcomingFixtures.slice(0, 20 - matches.length)];
     }
     
