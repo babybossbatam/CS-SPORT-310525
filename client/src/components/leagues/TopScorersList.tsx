@@ -5,7 +5,7 @@ import { Award, TrendingUp, Rocket, Users } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getTeamColor } from '@/lib/colorExtractor';
+import { getTeamColor } from '@/lib/colorUtils';
 import LeagueFilter from '@/components/leagues/LeagueFilter';
 import { RootState } from '@/lib/store';
 

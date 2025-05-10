@@ -182,3 +182,47 @@ export function getEnhancedHomeTeamGradient(teamName: string): string {
   // Make it more dramatic by adding a darkening effect
   return regularGradient.replace('bg-gradient-to-r', 'bg-gradient-to-br');
 }
+
+/**
+ * Get a contrasting text color (white or black) based on background color
+ * @param colorClass A Tailwind color class (e.g., 'bg-blue-700')
+ * @returns Text color class ('text-white' or 'text-black')
+ */
+export function getContrastTextColor(colorClass: string): string {
+  // Dark colors that need white text
+  const darkColors = [
+    'black',
+    'slate-700', 'slate-800', 'slate-900',
+    'gray-700', 'gray-800', 'gray-900',
+    'zinc-700', 'zinc-800', 'zinc-900',
+    'neutral-700', 'neutral-800', 'neutral-900',
+    'stone-700', 'stone-800', 'stone-900',
+    'red-700', 'red-800', 'red-900',
+    'orange-700', 'orange-800', 'orange-900',
+    'amber-800', 'amber-900',
+    'yellow-900',
+    'lime-900',
+    'green-700', 'green-800', 'green-900',
+    'emerald-700', 'emerald-800', 'emerald-900',
+    'teal-700', 'teal-800', 'teal-900',
+    'cyan-800', 'cyan-900',
+    'sky-800', 'sky-900',
+    'blue-600', 'blue-700', 'blue-800', 'blue-900',
+    'indigo-600', 'indigo-700', 'indigo-800', 'indigo-900',
+    'violet-700', 'violet-800', 'violet-900',
+    'purple-600', 'purple-700', 'purple-800', 'purple-900',
+    'fuchsia-700', 'fuchsia-800', 'fuchsia-900',
+    'pink-700', 'pink-800', 'pink-900',
+    'rose-700', 'rose-800', 'rose-900'
+  ];
+  
+  // Check if the color is in our list of dark colors
+  for (const darkColor of darkColors) {
+    if (colorClass.includes(darkColor)) {
+      return 'text-white';
+    }
+  }
+  
+  // Default to black text for lighter colors
+  return 'text-black';
+}

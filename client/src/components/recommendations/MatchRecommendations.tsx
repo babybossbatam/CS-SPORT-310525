@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { getTeamColor } from '@/lib/colorExtractor';
+import { getTeamColor } from '@/lib/colorUtils';
 import { useLocation } from 'wouter';
 
 interface Team {

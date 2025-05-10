@@ -288,9 +288,15 @@ function LiveScoreboardPage() {
         }
         
         // Use timestamp if available, otherwise use date string
-        const dateValue = featuredFixture.fixture.timestamp 
-          ? new Date(featuredFixture.fixture.timestamp * 1000) 
-          : featuredFixture.fixture.date;
+        // Make sure we have a valid date
+        let dateValue;
+        if (featuredFixture.fixture.timestamp) {
+          dateValue = new Date(featuredFixture.fixture.timestamp * 1000);
+        } else if (typeof featuredFixture.fixture.date === 'string') {
+          dateValue = new Date(featuredFixture.fixture.date);
+        } else {
+          dateValue = new Date(); // Fallback to current date if no valid date available
+        }
           
         const time = getCountdownTimer(dateValue);
         setCountdown(time);

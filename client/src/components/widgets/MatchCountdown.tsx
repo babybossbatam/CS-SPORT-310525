@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Clock, Calendar, Bell, BellOff, Star } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { getTeamColor } from '@/lib/colorExtractor';
+import { getTeamColor } from '@/lib/colorUtils';
 import { formatDistanceToNow, isBefore, isWithinInterval, addHours, subHours } from 'date-fns';
 
 interface MatchCountdownProps {
