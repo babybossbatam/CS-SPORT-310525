@@ -190,37 +190,52 @@ const MatchFilters = () => {
     
     console.log(`Before filtering: ${matches.length} matches, popular leagues: ${popularLeagueIds}`);
     
-    // Filter matches to only include popular leagues - IF we have enough matches
-    // If we don't have many matches, show all available regardless of league
-    if (matches.length > 15) {
-      // Convert league IDs to strings for comparison since some APIs might return them as strings
-      const popularLeagueIdsSet = new Set(popularLeagueIds.map(id => id.toString()));
+    // Always filter to include popular leagues - even if we don't have many matches
+    // Convert league IDs to strings for comparison since some APIs might return them as strings
+    const popularLeagueIdsSet = new Set(popularLeagueIds.map(id => id.toString()));
+    
+    // Create a more flexible filter to catch variations in league IDs
+    const filteredMatches = matches.filter(match => {
+      if (!match || !match.league) return false;
       
-      // Create a more flexible filter to catch variations in league IDs
-      const filteredMatches = matches.filter(match => {
-        if (!match || !match.league) return false;
-        
-        // Check if league ID directly matches
-        const leagueIdStr = match.league.id.toString();
-        if (popularLeagueIdsSet.has(leagueIdStr)) return true;
-        
-        // Check if league name contains common popular league names
-        const leagueName = match.league.name ? match.league.name.toLowerCase() : '';
-        const popularNames = [
-          'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
-          'europa', 'uefa', 'world cup', 'euro'
-        ];
-        
-        return popularNames.some(name => leagueName.includes(name));
-      });
+      // Check if league ID directly matches
+      const leagueIdStr = match.league.id.toString();
+      if (popularLeagueIdsSet.has(leagueIdStr)) return true;
       
-      // Only use filtered matches if we have enough, otherwise keep all
-      if (filteredMatches.length > 5) {
-        console.log(`After filtering: ${filteredMatches.length} matches in popular leagues`);
-        matches = filteredMatches;
-      } else {
-        console.log(`Few matches in popular leagues (${filteredMatches.length}), showing all ${matches.length} matches`);
-      }
+      // Check if league name contains common popular league names
+      const leagueName = match.league.name ? match.league.name.toLowerCase() : '';
+      const popularNames = [
+        'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
+        'europa', 'uefa', 'world cup', 'euro', 'copa del rey', 'fa cup', 'copa america',
+        'mls', 'eredivisie', 'primeira liga', 'championship', 'super league', 'pro league'
+      ];
+      
+      // Check for country name of major football countries
+      const country = match.league.country ? match.league.country.toLowerCase() : '';
+      const popularCountries = [
+        'england', 'spain', 'italy', 'germany', 'france', 'netherlands', 
+        'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
+      ];
+      
+      return popularNames.some(name => leagueName.includes(name)) ||
+             (popularCountries.includes(country) && leagueName.includes('league'));
+    });
+    
+    // Use filtered matches if we have enough, otherwise prioritize them but include some others
+    if (filteredMatches.length >= 10) {
+      console.log(`After filtering: ${filteredMatches.length} matches in popular leagues`);
+      matches = filteredMatches;
+    } else if (filteredMatches.length > 0) {
+      console.log(`Few matches in popular leagues (${filteredMatches.length}), prioritizing them`);
+      // Use all popular matches, then add other matches up to 20 total
+      const otherMatches = matches
+        .filter(match => !filteredMatches.includes(match))
+        .slice(0, 20 - filteredMatches.length);
+      matches = [...filteredMatches, ...otherMatches];
+    } else {
+      console.log(`No matches in popular leagues, showing top 20 matches from ${matches.length} total`);
+      // If no popular matches, just take first 20
+      matches = matches.slice(0, 20);
     }
     
     // Sort by status first (live matches first), then by time

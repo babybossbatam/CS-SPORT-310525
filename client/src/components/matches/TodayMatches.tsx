@@ -20,11 +20,22 @@ import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import LiveMatchPlayer from './LiveMatchPlayer';
 
-// Same league list as UpcomingMatchesScoreboard
+// Expanded list of popular leagues
 const POPULAR_LEAGUES = [
   2,   // UEFA Champions League (Europe)
   3,   // UEFA Europa League (Europe)
+  39,  // Premier League (England)
+  140, // La Liga (Spain)
   135, // Serie A (Italy)
+  78,  // Bundesliga (Germany)
+  61,  // Ligue 1 (France)
+  48,  // Eredivisie (Netherlands)
+  94,  // Primeira Liga (Portugal)
+  88,  // Belgian Pro League (Belgium)
+  144, // Saudi Pro League (Saudi Arabia)
+  203, // English Championship (England)
+  207, // Super League (Switzerland)
+  179  // MLS (USA)
 ];
 
 const TodayMatches = () => {
@@ -137,13 +148,28 @@ const TodayMatches = () => {
       // No filters - show all matches
       return true;
     })
-    // Filter to only include our priority leagues - but only if we have data for these leagues
+    // Always filter to popular leagues - with a more comprehensive approach
     .filter(fixture => {
-      // If we don't have any fixtures in our popular leagues, show all leagues
-      const hasPopularLeagueFixtures = allFixtures.some(f => POPULAR_LEAGUES.includes(f.league.id));
+      // Check if it's in our priority league list by ID
+      if (POPULAR_LEAGUES.includes(fixture.league.id)) return true;
       
-      // Either show all fixtures if no popular ones are available, or filter to popular ones
-      return !hasPopularLeagueFixtures || POPULAR_LEAGUES.includes(fixture.league.id);
+      // Otherwise check league name for popular keywords
+      const leagueName = fixture.league.name ? fixture.league.name.toLowerCase() : '';
+      const popularNames = [
+        'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
+        'europa', 'uefa', 'world cup', 'euro', 'copa del rey', 'fa cup', 'copa america',
+        'mls', 'eredivisie', 'primeira liga', 'championship', 'super league', 'pro league'
+      ];
+      
+      // Check for country name of major football countries
+      const country = fixture.league.country ? fixture.league.country.toLowerCase() : '';
+      const popularCountries = [
+        'england', 'spain', 'italy', 'germany', 'france', 'netherlands', 
+        'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
+      ];
+      
+      return popularNames.some(name => leagueName.includes(name)) ||
+             (popularCountries.includes(country) && leagueName.includes('league'));
     })
     // Sort by timestamp (nearest first)
     .sort((a, b) => {
