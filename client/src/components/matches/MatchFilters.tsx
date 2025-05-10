@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions, fixturesActions } from '@/lib/store';
 import { Clock } from 'lucide-react';
@@ -7,10 +7,21 @@ import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { useLocation } from 'wouter';
 
 const MatchFilters = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const [location] = useLocation();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    // Mark the component as mounted after it's been rendered
+    setMounted(true);
+    
+    // Clear the mounted state when the component unmounts
+    return () => setMounted(false);
+  }, []);
   
   const selectedFilter = useSelector((state: RootState) => state.ui.selectedFilter);
   const liveFixtures = useSelector((state: RootState) => state.fixtures.live);
@@ -163,6 +174,15 @@ const MatchFilters = () => {
   
   // Get the matches to display in the list
   const matchesToDisplay = getMatchesToDisplay();
+  
+  // Determine if we should show the component based on our current location
+  // Prevent flickering by checking if we're mounted and not in transition between pages
+  const shouldShowComponent = mounted;
+  
+  // Early return when we're navigating between pages or not yet mounted
+  if (!shouldShowComponent) {
+    return null;
+  }
   
   return (
     <div className="bg-white shadow-sm rounded-lg">
