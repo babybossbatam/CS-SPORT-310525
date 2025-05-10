@@ -191,11 +191,23 @@ const MatchFilters = () => {
     
     console.log(`Before filtering: ${matches.length} matches, popular leagues: ${popularLeagueIds}`);
     
-    // Always filter to include popular leagues - even if we don't have many matches
-    // Convert league IDs to strings for comparison since some APIs might return them as strings
-    const popularLeagueIdsSet = new Set(popularLeagueIds.map(id => id.toString()));
+    // DEBUG: Print first few matches to check league IDs
+    if (matches.length > 0) {
+      console.log("Sample matches with league IDs:");
+      for (let i = 0; i < Math.min(5, matches.length); i++) {
+        if (matches[i] && matches[i].league) {
+          console.log(`Match ${i}: League ID ${matches[i].league.id} (${typeof matches[i].league.id}), Name: ${matches[i].league.name}`);
+        }
+      }
+    }
     
-    // Explicitly exclude youth leagues and lower divisions
+    // Convert league IDs to strings for comparison since some APIs might return them as strings
+    const popularLeagueIdsArray = popularLeagueIds.map(id => id.toString());
+    
+    // Log popular leagues for debugging
+    console.log("Popular league IDs:", popularLeagueIdsArray);
+    
+    // First, filter out youth and lower division matches using our exclusion filter
     const excludedMatches = matches.filter(match => {
       if (!match || !match.league || !match.teams) return false;
       
@@ -203,34 +215,46 @@ const MatchFilters = () => {
       const homeTeamName = match.teams.home.name || '';
       const awayTeamName = match.teams.away.name || '';
       
-      // Use our centralized exclusion filter function that also excludes South American leagues
       return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
     });
     
-    // From the non-excluded matches, filter for popular leagues
+    console.log(`After exclusion filter: ${excludedMatches.length} matches remain`);
+    
+    // Now, be less restrictive in identifying popular leagues by using multiple criteria
     const filteredMatches = excludedMatches.filter(match => {
-      const leagueIdStr = match.league.id.toString();
-      if (popularLeagueIdsSet.has(leagueIdStr)) return true;
+      if (!match.league) return false;
       
-      // Check if league name contains common popular league names
-      const leagueName = match.league.name ? match.league.name.toLowerCase() : '';
+      // Check by ID - most reliable method
+      const leagueIdStr = String(match.league.id);
+      
+      // Debug any potential league ID matches
+      if (popularLeagueIdsArray.includes(leagueIdStr)) {
+        console.log(`Found popular league match: ${match.league.name} (ID: ${leagueIdStr})`);
+        return true;
+      }
+      
+      // Extended check by league name
+      const leagueName = (match.league.name || '').toLowerCase();
       const popularNames = [
         'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
         'europa', 'uefa', 'world cup', 'euro', 'copa del rey', 'fa cup', 'copa america',
         'mls', 'eredivisie', 'primeira liga', 'championship', 'super league', 'pro league'
       ];
       
-      // Check for country name of major football countries
-      const country = match.league.country ? match.league.country.toLowerCase() : '';
+      // Check by country
+      const country = (match.league.country || '').toLowerCase();
       const popularCountries = [
         'england', 'spain', 'italy', 'germany', 'france', 'netherlands', 
         'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
       ];
       
-      // Extra check: popular leagues must be from popular countries
-      return (popularNames.some(name => leagueName.includes(name)) && 
-             popularCountries.some(name => country.includes(name))) ||
-             (popularCountries.includes(country) && leagueName.includes('league 1'));
+      // More lenient check allowing major leagues without strict country restrictions
+      if (popularNames.some(name => leagueName.includes(name))) {
+        console.log(`Found popular league by name: ${match.league.name} (Country: ${match.league.country})`);
+        return true;
+      }
+      
+      return false;
     });
     
     // Use filtered matches if we have enough, otherwise prioritize them but include some others
@@ -366,28 +390,50 @@ const MatchFilters = () => {
               </div>
             </div>
             
-            {/* Show matches with more lenient filter - similar to 365scores.com approach */}
+            {/* Show matches with proper filtering for popular leagues */}
             {Object.entries(
-              // Create league-grouped matches directly without additional filtering - this was the problem
-              // We're using all available matches now to ensure we show results
+              // Group matches by league and identify popular leagues
               fixturesByDate.reduce((acc, match) => {
                 // Skip if match is missing key properties
                 if (!match || !match.league || !match.teams) return acc;
                 
                 const leagueId = match.league.id.toString();
+                // Check by league ID (most reliable method)
+                const isPopularById = popularLeagueIds.map(id => id.toString()).includes(leagueId);
+                
+                // Alternative check by league name - be more lenient
+                const leagueName = (match.league.name || '').toLowerCase();
+                const popularNames = [
+                  'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
+                  'europa', 'uefa', 'world cup', 'euro'
+                ];
+                const isPopularByName = popularNames.some(name => leagueName.includes(name));
+                
+                // Combined check
+                const isPopular = isPopularById || isPopularByName;
+                
+                // Debug important leagues
+                if (isPopular) {
+                  console.log(`Including league: ${match.league.name} (ID: ${leagueId}), Popular: ${isPopular}`);
+                }
+                
                 if (!acc[leagueId]) {
                   acc[leagueId] = {
                     league: match.league,
                     matches: [],
-                    isPopular: popularLeagueIds.includes(match.league.id)
+                    isPopular: isPopular
                   };
                 }
                 acc[leagueId].matches.push(match);
                 return acc;
               }, {} as Record<string, { league: any, matches: typeof matchesToDisplay, isPopular: boolean }>)
             )
-            // Sort to show popular leagues first
-            .sort(([_, a], [__, b]) => a.isPopular ? -1 : b.isPopular ? 1 : 0)
+            // Sort to show popular leagues first, then sort by popularity
+            .sort(([_, a], [__, b]) => {
+              if (a.isPopular && !b.isPopular) return -1;
+              if (!a.isPopular && b.isPopular) return 1;
+              return 0;
+            })
             // Limit to first 8 leagues to avoid overwhelming the user
             .slice(0, 8)  
             .map(([leagueId, { league, matches }]) => (
