@@ -270,13 +270,9 @@ const TodayMatches = () => {
     );
   }
   
-  // Display empty state
+  // No need for empty state display
   if (todayMatches.length === 0) {
-    return (
-      <div className="text-center p-3 text-gray-500">
-        No matches scheduled for today.
-      </div>
-    );
+    return null;
   }
   
   return (
