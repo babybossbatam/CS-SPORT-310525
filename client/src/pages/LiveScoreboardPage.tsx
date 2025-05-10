@@ -289,16 +289,16 @@ function LiveScoreboardPage() {
         
         // Use timestamp if available, otherwise use date string
         // Make sure we have a valid date
-        let dateValue;
+        let matchTime;
         if (featuredFixture.fixture.timestamp) {
-          dateValue = new Date(featuredFixture.fixture.timestamp * 1000);
-        } else if (typeof featuredFixture.fixture.date === 'string') {
-          dateValue = new Date(featuredFixture.fixture.date);
+          // If timestamp is available (in seconds), convert to milliseconds
+          matchTime = new Date(featuredFixture.fixture.timestamp * 1000);
         } else {
-          dateValue = new Date(); // Fallback to current date if no valid date available
+          // Pass the date string directly to getCountdownTimer which handles type checking
+          matchTime = featuredFixture.fixture.date;
         }
           
-        const time = getCountdownTimer(dateValue);
+        const time = getCountdownTimer(matchTime);
         setCountdown(time);
       } catch (error) {
         console.error('Error updating countdown:', error);
