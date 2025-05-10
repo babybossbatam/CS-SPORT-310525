@@ -366,58 +366,80 @@ const MatchFilters = () => {
               </div>
             </div>
             
-            {/* Simplified match cards - 365scores style */}
+            {/* Show matches with more lenient filter - similar to 365scores.com approach */}
             {Object.entries(
               matchesToDisplay.reduce((acc, match) => {
-                if (!popularLeagueIds.includes(match.league.id)) return acc;
-                
+                // Don't filter by popular leagues here as it's too restrictive
+                // Let all matches through and we'll order them so popular leagues appear first
                 const leagueId = match.league.id.toString();
                 if (!acc[leagueId]) {
                   acc[leagueId] = {
                     league: match.league,
-                    matches: []
+                    matches: [],
+                    isPopular: popularLeagueIds.includes(match.league.id)
                   };
                 }
                 acc[leagueId].matches.push(match);
                 return acc;
-              }, {} as Record<string, { league: any, matches: typeof matchesToDisplay }>)
-            ).map(([leagueId, { league, matches }]) => (
-              <div key={leagueId}>
+              }, {} as Record<string, { league: any, matches: typeof matchesToDisplay, isPopular: boolean }>)
+            )
+            // Sort to show popular leagues first
+            .sort(([_, a], [__, b]) => a.isPopular ? -1 : b.isPopular ? 1 : 0)
+            // Limit to first 8 leagues to avoid overwhelming the user
+            .slice(0, 8)  
+            .map(([leagueId, { league, matches }]) => (
+              <div key={leagueId} className="mb-2">
+                {/* League header */}
+                <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100 flex items-center">
+                  <img 
+                    src={league.logo} 
+                    alt={league.name}
+                    className="h-4 w-4 object-contain mr-2"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = `https://media.api-sports.io/football/leagues/${league.id}.png`;
+                      target.onerror = () => {
+                        target.src = 'https://static.livescore.com/i/competition/default.png';
+                        target.onerror = null;
+                      };
+                    }}
+                  />
+                  <span className="text-xs font-medium">{league.name}</span>
+                  {league.country && (
+                    <>
+                      <span className="mx-1 text-xs text-gray-400">·</span>
+                      <span className="text-xs text-gray-400">{league.country}</span>
+                    </>
+                  )}
+                </div>
+                
                 {matches.map((match) => (
                   <div 
                     key={match.fixture.id} 
                     className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                     onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
                   >
-                    {/* Competition info with location */}
-                    <div className="px-3 py-1.5 text-xs text-gray-500 flex items-center">
-                      <img 
-                        src={league.logo} 
-                        alt={league.name}
-                        className="h-4 w-4 object-contain mr-2"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = `https://media.api-sports.io/football/leagues/${league.id}.png`;
-                          target.onerror = () => {
-                            target.src = 'https://static.livescore.com/i/competition/default.png';
-                            target.onerror = null;
-                          };
-                        }}
-                      />
-                      <span>{league.name}</span>
-                      {league.country && (
-                        <>
-                          <span className="mx-1">·</span>
-                          <span>{league.country}</span>
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* Match details */}
+                    {/* Match row with simplified design like 365scores */}
                     <div className="px-3 py-2 flex items-center">
+                      {/* Time/Status */}
+                      <div className="w-[10%] mr-2">
+                        {['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? (
+                          <div className="w-10 text-center">
+                            <span className="text-xs font-semibold px-1.5 py-0.5 bg-red-100 text-red-600 rounded">
+                              {match.fixture.status.short === 'HT' ? 'HT' : 
+                               match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="w-10 text-center text-xs text-gray-500">
+                            {format(new Date(match.fixture.date), 'HH:mm')}
+                          </div>
+                        )}
+                      </div>
+                      
                       {/* Left team */}
-                      <div className="flex items-center justify-end w-[40%]">
-                        <span className="text-sm font-medium truncate text-right max-w-[120px] mr-3">
+                      <div className="flex items-center justify-end w-[35%]">
+                        <span className="text-sm font-medium truncate text-right max-w-[130px] mr-2">
                           {match.teams.home.name}
                         </span>
                         <img 
@@ -436,24 +458,24 @@ const MatchFilters = () => {
                       </div>
                       
                       {/* Score in the middle */}
-                      <div className="flex items-center justify-center w-[20%] px-2 text-center">
+                      <div className="flex items-center justify-center min-w-[40px] px-2 text-center">
                         {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
-                          <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} font-bold text-base`}>
+                          <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-bold`}>
                             {match.goals.home} - {match.goals.away}
                           </div>
                         ) : (
-                          <div className="text-gray-500 text-sm">
-                            {format(new Date(match.fixture.date), 'HH:mm')}
+                          <div className="text-gray-400 text-sm">
+                            vs
                           </div>
                         )}
                       </div>
                       
                       {/* Right team */}
-                      <div className="flex items-center w-[40%]">
+                      <div className="flex items-center w-[35%]">
                         <img 
                           src={match.teams.away.logo} 
                           alt={match.teams.away.name} 
-                          className="h-5 w-5 object-contain mr-3"
+                          className="h-5 w-5 object-contain mr-2"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.src = `https://media.api-sports.io/football/teams/${match.teams.away.id}.png`;
@@ -463,7 +485,7 @@ const MatchFilters = () => {
                             };
                           }}
                         />
-                        <span className="text-sm font-medium truncate max-w-[120px]">
+                        <span className="text-sm font-medium truncate max-w-[130px]">
                           {match.teams.away.name}
                         </span>
                       </div>
