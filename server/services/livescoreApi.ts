@@ -97,8 +97,8 @@ function mapFixtureResponse(fixture: LivescoreFixtureResponse): FixtureResponse 
       id: parseInt(fixture.Cid || '0'),
       name: fixture.Cnm || '',
       country: countryCode,
-      logo: `https://media.api-sports.io/football/leagues/${parseInt(fixture.Cid || '0')}.png`,
-      flag: `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`,
+      logo: parseInt(fixture.Cid || '0') ? `https://lsm-static-prod.livescore.com/medium/competition/${parseInt(fixture.Cid || '0')}.jpg` : `https://media.api-sports.io/football/leagues/${parseInt(fixture.Cid || '0')}.png`,
+      flag: countryCode ? `https://lsm-static-prod.livescore.com/medium/flag/${countryCode.toLowerCase()}.jpg` : `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`,
       season: new Date().getFullYear(),
       round: fixture.Scd || ''
     },

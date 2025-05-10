@@ -313,6 +313,12 @@ const TodayMatches = () => {
               className="h-5 w-5 mr-2"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/leagues/2.png';
+                
+                // Add a second error handler for complete fallback
+                (e.target as HTMLImageElement).onerror = () => {
+                  (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/leagues/default.png';
+                  (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                };
               }}
             />
             <div className="flex flex-col">
@@ -353,7 +359,14 @@ const TodayMatches = () => {
                     alt={match.teams.home.name}
                     className="h-5 w-5 mr-2 object-contain drop-shadow-md"
                     onError={(e) => {
+                      // Try first the api-sports URL
                       (e.target as HTMLImageElement).src = `https://media.api-sports.io/football/teams/${match.teams.home.id}.png`;
+                      
+                      // Add a second error handler for complete fallback
+                      (e.target as HTMLImageElement).onerror = () => {
+                        (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/teams/default.png';
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                      };
                     }}
                   />
                   <span className="text-sm font-medium text-left truncate">{match.teams.home.name}</span>
@@ -370,7 +383,14 @@ const TodayMatches = () => {
                     alt={match.teams.away.name}
                     className="h-5 w-5 ml-2 object-contain drop-shadow-md"
                     onError={(e) => {
+                      // Try first the api-sports URL
                       (e.target as HTMLImageElement).src = `https://media.api-sports.io/football/teams/${match.teams.away.id}.png`;
+                      
+                      // Add a second error handler for complete fallback
+                      (e.target as HTMLImageElement).onerror = () => {
+                        (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/teams/default.png';
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                      };
                     }}
                   />
                 </div>
@@ -388,25 +408,7 @@ const TodayMatches = () => {
             </div>
           ))}
           
-        {/* Tottenham match example */}
-        <div className="px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer">
-          <div className="text-xs text-gray-500 text-right mb-0.5">
-            Ended
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium w-[38%] text-left truncate">Bodø Glimt</span>
-            <div className="flex items-center justify-center space-x-1 w-[24%]">
-              <span className="font-bold text-base">0</span>
-              <span className="text-gray-400 font-bold">-</span>
-              <span className="font-bold text-base">2</span>
-            </div>
-            <span className="text-sm font-medium w-[38%] text-right truncate">Tottenham</span>
-          </div>
-          <div className="text-xs text-gray-500 text-center mt-0.5">
-            Aggregate 1 - 5
-          </div>
-        </div>
-        
+
         {/* Link to Europa League Bracket */}
         <div className="px-3 py-2 text-right">
           <a 
