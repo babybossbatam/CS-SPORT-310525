@@ -85,15 +85,22 @@ const initialFixturesState: FixturesState = {
 const initialLeaguesState: LeaguesState = {
   list: [],
   current: null,
-  // Updated leagues order based on user preference:
-  // Europa League, Champions League, Premier League, La Liga, Serie A, Bundesliga
+  // Expanded list of popular leagues to match 365scores.com
   popularLeagues: [
-    3,   // Europa League (Europe)
     2,   // Champions League (Europe)
+    3,   // Europa League (Europe)
     39,  // Premier League (England)
     140, // La Liga (Spain)
     135, // Serie A (Italy)
-    78   // Bundesliga (Germany)
+    78,  // Bundesliga (Germany)
+    61,  // Ligue 1 (France)
+    48,  // Eredivisie (Netherlands)
+    94,  // Primeira Liga (Portugal)
+    88,  // Belgian Pro League (Belgium)
+    144, // Saudi Pro League (Saudi Arabia)
+    203, // English Championship (England)
+    207, // Super League (Switzerland)
+    179  // MLS (USA)
   ], 
   loading: false,
   error: null,

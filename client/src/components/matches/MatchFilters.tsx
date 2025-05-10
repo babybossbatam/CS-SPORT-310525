@@ -101,8 +101,8 @@ const MatchFilters = () => {
   // Check if there are live matches
   const hasLiveMatches = liveFixtures.length > 0;
   
-  // Popular leagues IDs
-  const popularLeagueIds = [2, 39, 135, 3, 78]; // Champions League, Premier League, Serie A, Europa League, Bundesliga
+  // Get popular leagues IDs from the store now that we've expanded the list
+  const popularLeagueIds = useSelector((state: RootState) => state.leagues.popularLeagues);
   
   // Function to get matches to display in the list
   const getMatchesToDisplay = () => {
@@ -114,19 +114,37 @@ const MatchFilters = () => {
       matches = [...liveFixtures];
     }
     // If no matches for today or we want more variety, add upcoming fixtures
-    else if (fixturesByDate.length < 5 && upcomingFixtures.length > 0) {
-      matches = [...fixturesByDate, ...upcomingFixtures.slice(0, 14 - fixturesByDate.length)];
+    else if (fixturesByDate.length < 10 && upcomingFixtures.length > 0) {
+      matches = [...fixturesByDate, ...upcomingFixtures.slice(0, 20 - fixturesByDate.length)];
     }
     
-    // Filter matches to only include popular leagues
-    matches = matches.filter(match => popularLeagueIds.includes(match.league.id));
+    // Filter matches to only include popular leagues - IF we have enough matches
+    // If we don't have many matches, show all available regardless of league
+    if (matches.length > 15) {
+      matches = matches.filter(match => popularLeagueIds.includes(match.league.id));
+    }
     
-    // Sort by time
+    // Sort by status first (live matches first), then by time
     return matches.sort((a, b) => {
+      // Live matches first
+      if (a.fixture.status.short === 'LIVE' && b.fixture.status.short !== 'LIVE') return -1;
+      if (a.fixture.status.short !== 'LIVE' && b.fixture.status.short === 'LIVE') return 1;
+      
+      // Finished matches next, sorted by most recent
+      const aFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
+      const bFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
+      if (aFinished && !bFinished) return -1;
+      if (!aFinished && bFinished) return 1;
+      if (aFinished && bFinished) {
+        // Most recent finished match first
+        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+      }
+      
+      // Finally sort upcoming matches by time (soonest first)
       const timeA = new Date(a.fixture.date).getTime();
       const timeB = new Date(b.fixture.date).getTime();
       return timeA - timeB;
-    }).slice(0, 14); // Limit to 14 matches as requested
+    }).slice(0, 20); // Show more matches for better coverage
   };
   
   // Get the matches to display in the list
@@ -165,12 +183,12 @@ const MatchFilters = () => {
         </Button>
       </div>
       
-      {/* Match list in horizontal format */}
-      <div className="py-2">
+      {/* Match list in horizontal scrolling format with league badges */}
+      <div className="py-2 overflow-x-auto">
         {loading ? (
           // Loading state
           <div className="space-y-4 p-4">
-            {[...Array(2)].map((_, i) => (
+            {[...Array(3)].map((_, i) => (
               <div key={i} className="animate-pulse flex flex-col space-y-2">
                 <div className="h-3 bg-gray-200 rounded w-20 mx-auto"></div>
                 <div className="flex justify-between items-center">
@@ -188,47 +206,117 @@ const MatchFilters = () => {
             ))}
           </div>
         ) : matchesToDisplay.length > 0 ? (
-          // Match list
-          <div className="divide-y">
-            {matchesToDisplay.map((match) => (
-              <div key={match.fixture.id} className="px-4 py-3">
-                {/* Status indicator at the top */}
-                <div className="text-xs text-gray-500 text-center mb-1">
-                  {match.fixture.status.short === 'FT' ? 'Ended' : 
-                   match.fixture.status.short === 'AET' ? 'Ended' :
-                   match.fixture.status.short === 'PEN' ? 'Ended' :
-                   match.fixture.status.short === 'LIVE' ? 'LIVE' : 
-                   format(new Date(match.fixture.date), 'HH:mm')}
+          // 365scores-style match list with horizontal scrolling section
+          <div className="px-4 pb-2">
+            {/* Group matches by league */}
+            {Object.entries(
+              matchesToDisplay.reduce((acc, match) => {
+                const leagueId = match.league.id.toString();
+                if (!acc[leagueId]) {
+                  acc[leagueId] = {
+                    league: match.league,
+                    matches: []
+                  };
+                }
+                acc[leagueId].matches.push(match);
+                return acc;
+              }, {} as Record<string, { league: any, matches: typeof matchesToDisplay }>)
+            ).map(([leagueId, { league, matches }]) => (
+              <div key={leagueId} className="mb-6 last:mb-2">
+                {/* League header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <img 
+                    src={league.logo} 
+                    alt={league.name} 
+                    className="h-5 w-5 object-contain" 
+                  />
+                  <span className="text-xs font-semibold text-gray-700">
+                    {league.name}
+                  </span>
                 </div>
                 
-                <div className="flex flex-col">
-                  {/* Main match display */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-8 w-8 object-contain" />
-                      <span className="font-medium">{match.teams.home.name}</span>
+                {/* Matches for this league */}
+                <div className="space-y-3">
+                  {matches.map((match) => (
+                    <div key={match.fixture.id} className="bg-gray-50 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      {/* Match status indicator */}
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center">
+                          {match.fixture.status.short === 'LIVE' && (
+                            <Badge className="bg-red-500 text-[10px] px-1.5 mr-1.5">LIVE</Badge>
+                          )}
+                          <span className="text-xs font-medium">
+                            {match.fixture.status.short === 'FT' ? 'Full Time' : 
+                             match.fixture.status.short === 'AET' ? 'After Extra Time' :
+                             match.fixture.status.short === 'PEN' ? 'Penalties' :
+                             match.fixture.status.short === 'HT' ? 'Half Time' :
+                             match.fixture.status.short === 'LIVE' ? 
+                               `${match.fixture.status.elapsed}'` : 
+                             format(new Date(match.fixture.date), 'HH:mm')}
+                          </span>
+                        </div>
+                        
+                        {/* Match venue or round info if available */}
+                        {match.fixture.venue.name && (
+                          <span className="text-[10px] text-gray-500">
+                            {match.fixture.venue.name}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Main match display with team colors */}
+                      <div className="flex justify-between items-center">
+                        {/* Home team */}
+                        <div className="flex items-center gap-2 w-[40%]">
+                          <div className="relative">
+                            <img 
+                              src={match.teams.home.logo} 
+                              alt={match.teams.home.name} 
+                              className="h-8 w-8 object-contain drop-shadow-md" 
+                            />
+                            {match.teams.home.winner === true && (
+                              <div className="absolute -right-1 -bottom-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></div>
+                            )}
+                          </div>
+                          <span className="font-medium text-sm truncate">
+                            {match.teams.home.name}
+                          </span>
+                        </div>
+                        
+                        {/* Score/time */}
+                        <div className="font-bold text-base mx-2 min-w-[60px] text-center">
+                          {match.fixture.status.short === 'FT' || 
+                           match.fixture.status.short === 'AET' || 
+                           match.fixture.status.short === 'PEN' || 
+                           match.fixture.status.short === 'LIVE' || 
+                           match.fixture.status.short === 'HT' ? (
+                            <span className="text-center">
+                              {match.goals.home} - {match.goals.away}
+                            </span>
+                          ) : (
+                            <span className="font-normal text-gray-500">vs</span>
+                          )}
+                        </div>
+                        
+                        {/* Away team */}
+                        <div className="flex items-center justify-end gap-2 w-[40%]">
+                          <span className="font-medium text-sm truncate text-right">
+                            {match.teams.away.name}
+                          </span>
+                          <div className="relative">
+                            <img 
+                              src={match.teams.away.logo} 
+                              alt={match.teams.away.name} 
+                              className="h-8 w-8 object-contain drop-shadow-md" 
+                            />
+                            {match.teams.away.winner === true && (
+                              <div className="absolute -right-1 -bottom-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="font-bold text-base mx-2">
-                      {match.fixture.status.short === 'FT' || match.fixture.status.short === 'AET' || match.fixture.status.short === 'PEN' || match.fixture.status.short === 'LIVE' ? (
-                        <span>{match.goals.home}-{match.goals.away}</span>
-                      ) : (
-                        <span className="font-normal text-gray-500">vs</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{match.teams.away.name}</span>
-                      <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-8 w-8 object-contain" />
-                    </div>
-                  </div>
-                  
-                  {/* Extra time or penalties indicator */}
-                  {(match.fixture.status.short === 'AET' || match.fixture.status.short === 'PEN') && (
-                    <div className="text-xs text-center text-gray-500 mt-1">
-                      {match.fixture.status.short === 'AET' ? 'After Extra Time' : 'Penalties'}
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
             ))}
