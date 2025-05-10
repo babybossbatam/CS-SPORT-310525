@@ -14,7 +14,7 @@ const MatchFilters = () => {
   
   const selectedFilter = useSelector((state: RootState) => state.ui.selectedFilter);
   const liveFixtures = useSelector((state: RootState) => state.fixtures.live);
-  const isLoading = useSelector((state: RootState) => state.fixtures.isLoading);
+  const loading = useSelector((state: RootState) => state.fixtures.loading);
   
   // Get fixtures by date for the selected date
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
@@ -171,7 +171,7 @@ const MatchFilters = () => {
       {/* Match list - Added as requested */}
       <div className="border-t border-gray-100">
         <div className="px-3 py-2 space-y-3">
-          {isLoading ? (
+          {loading ? (
             // Loading state
             <div className="py-4">
               {[...Array(5)].map((_, i) => (
