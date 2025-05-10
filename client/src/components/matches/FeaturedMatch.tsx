@@ -56,8 +56,13 @@ const FeaturedMatch = () => {
   });
   
   useEffect(() => {
-    // Combine all fixtures
-    const allFixtures = [...championsLeagueFixtures, ...europaLeagueFixtures, ...serieAFixtures, ...premierLeagueFixtures];
+    // Combine all fixtures - making sure each source is an array
+    const allFixtures = [
+      ...(Array.isArray(championsLeagueFixtures) ? championsLeagueFixtures : []), 
+      ...(Array.isArray(europaLeagueFixtures) ? europaLeagueFixtures : []), 
+      ...(Array.isArray(serieAFixtures) ? serieAFixtures : []), 
+      ...(Array.isArray(premierLeagueFixtures) ? premierLeagueFixtures : [])
+    ];
     
     // Create a map to track unique fixture IDs and detect duplicates
     const fixtureIdMap = new Map<number, FixtureResponse>();
