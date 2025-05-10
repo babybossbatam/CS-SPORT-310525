@@ -90,9 +90,9 @@ const BundesligaSchedule = () => {
     staleTime: 60 * 60 * 1000, // 1 hour
   });
   
-  // Get the league fixtures with current season from league info
+  // Get the league fixtures with current season from league info using the dedicated endpoint
   const { data: allFixtures, isLoading, error } = useQuery<FixtureResponse[]>({
-    queryKey: [`/api/leagues/${leagueId}/fixtures`],
+    queryKey: [`/api/bundesliga/fixtures`],
     enabled: !!leagueInfo,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
