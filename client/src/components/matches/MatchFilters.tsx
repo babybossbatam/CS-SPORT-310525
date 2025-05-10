@@ -133,124 +133,112 @@ const MatchFilters = () => {
   const matchesToDisplay = getMatchesToDisplay();
   
   return (
-    <div>
-      <div className="px-3 py-2">
-        <div className="flex justify-between items-center">
-          <Button
-            variant={selectedFilter === 'live' ? 'default' : 'outline'}
-            size="sm"
-            className={`px-2 py-1 rounded-md text-xs flex items-center ${
-              selectedFilter === 'live' 
-                ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={toggleLiveFilter}
-            disabled={!hasLiveMatches && selectedFilter !== 'live'}
-          >
-            {selectedFilter === 'live' && (
-              <span className="relative flex h-2 w-2 mr-1">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-              </span>
-            )}
-            <span className={selectedFilter === 'live' ? 'text-white' : 'text-gray-700'}>
-              LIVE {hasLiveMatches && `(${liveFixtures.length})`}
+    <div className="bg-white shadow-sm rounded-lg">
+      <div className="flex justify-between items-center p-4 border-b">
+        <Button
+          variant={selectedFilter === 'live' ? 'default' : 'outline'}
+          size="sm"
+          className={`rounded-full text-xs px-3 py-1 ${
+            selectedFilter === 'live' 
+              ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+          onClick={toggleLiveFilter}
+        >
+          {selectedFilter === 'live' && (
+            <span className="relative flex h-2 w-2 mr-1">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
             </span>
-          </Button>
-          
-          <Button
-            variant={selectedFilter === 'time' ? 'default' : 'outline'}
-            size="sm"
-            className={`px-2 py-1 rounded-md text-xs flex items-center space-x-1 ${
-              selectedFilter === 'time' 
-                ? 'bg-gray-700 text-white hover:bg-gray-800' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={toggleTimeFilter}
-          >
-            <Clock className="h-3 w-3 mr-1" />
-            <span>by time</span>
-          </Button>
-        </div>
+          )}
+          <span>LIVE</span>
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-full text-xs px-3 py-1 bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-1"
+          onClick={toggleTimeFilter}
+        >
+          <Clock className="h-3 w-3" />
+          <span>by time</span>
+        </Button>
       </div>
       
-      {/* Match list - Added as requested */}
-      <div className="border-t border-gray-100">
-        <div className="px-3 py-2 space-y-3">
-          {loading ? (
-            // Loading state
-            <div className="py-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex justify-between items-center py-1.5 animate-pulse">
-                  <div className="flex-1 text-right pr-2">
-                    <div className="h-4 bg-gray-200 rounded w-24 ml-auto"></div>
+      {/* Match list in horizontal format */}
+      <div className="py-2">
+        {loading ? (
+          // Loading state
+          <div className="space-y-4 p-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="animate-pulse flex flex-col space-y-2">
+                <div className="h-3 bg-gray-200 rounded w-20 mx-auto"></div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
-                    <div className="h-4 w-10 bg-gray-200 rounded"></div>
-                    <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
-                  </div>
-                  
-                  <div className="flex-1 text-left pl-2">
-                    <div className="h-4 bg-gray-200 rounded w-24"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : matchesToDisplay.length > 0 ? (
-            // Match list
-            matchesToDisplay.map((match) => (
-              <div 
-                key={match.fixture.id} 
-                className={`relative py-1.5 ${
-                  // Highlight today's matches
-                  format(new Date(match.fixture.date), 'yyyy-MM-dd') === selectedDate 
-                    ? 'bg-gray-50 -mx-3 px-3 rounded-md' 
-                    : ''
-                }`}
-              >
-                {/* League indicator */}
-                <div className="absolute -left-1 top-0 bottom-0 flex items-center">
-                  <img src={match.league.logo} alt={match.league.name} className="h-3.5 w-3.5 object-contain" />
-                </div>
-                
-                <div className="flex justify-between items-center pl-4">
-                  <div className="flex-1 text-right pr-2">
-                    <span className="text-sm font-medium truncate max-w-[120px] inline-block">{match.teams.home.name}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-5 w-5 object-contain" />
-                    <div className="text-sm font-medium">
-                      {match.fixture.status.short === 'LIVE' ? (
-                        <span className="text-[#48BB78]">{match.fixture.status.elapsed}'</span>
-                      ) : match.fixture.status.short === 'FT' || match.fixture.status.short === 'AET' || match.fixture.status.short === 'PEN' ? (
-                        <span className="font-bold">
-                          {match.goals.home}-{match.goals.away}
-                          {match.fixture.status.short === 'AET' && <span className="text-xs ml-1 font-normal">AET</span>}
-                          {match.fixture.status.short === 'PEN' && <span className="text-xs ml-1 font-normal">PEN</span>}
-                        </span>
-                      ) : (
-                        format(new Date(match.fixture.date), 'HH:mm')
-                      )}
-                    </div>
-                    <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-5 w-5 object-contain" />
-                  </div>
-                  
-                  <div className="flex-1 text-left pl-2">
-                    <span className="text-sm font-medium truncate max-w-[120px] inline-block">{match.teams.away.name}</span>
+                  <div className="h-4 bg-gray-200 rounded w-10"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                    <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
-            // Empty state
-            <div className="text-center py-4 text-sm text-gray-500">
-              No matches available for the selected filter
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : matchesToDisplay.length > 0 ? (
+          // Match list
+          <div className="divide-y">
+            {matchesToDisplay.map((match) => (
+              <div key={match.fixture.id} className="px-4 py-3">
+                {/* Status indicator at the top */}
+                <div className="text-xs text-gray-500 text-center mb-1">
+                  {match.fixture.status.short === 'FT' ? 'Ended' : 
+                   match.fixture.status.short === 'AET' ? 'Ended' :
+                   match.fixture.status.short === 'PEN' ? 'Ended' :
+                   match.fixture.status.short === 'LIVE' ? 'LIVE' : 
+                   format(new Date(match.fixture.date), 'HH:mm')}
+                </div>
+                
+                <div className="flex flex-col">
+                  {/* Main match display */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-8 w-8 object-contain" />
+                      <span className="font-medium">{match.teams.home.name}</span>
+                    </div>
+                    
+                    <div className="font-bold text-base mx-2">
+                      {match.fixture.status.short === 'FT' || match.fixture.status.short === 'AET' || match.fixture.status.short === 'PEN' || match.fixture.status.short === 'LIVE' ? (
+                        <span>{match.goals.home}-{match.goals.away}</span>
+                      ) : (
+                        <span className="font-normal text-gray-500">vs</span>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{match.teams.away.name}</span>
+                      <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-8 w-8 object-contain" />
+                    </div>
+                  </div>
+                  
+                  {/* Extra time or penalties indicator */}
+                  {(match.fixture.status.short === 'AET' || match.fixture.status.short === 'PEN') && (
+                    <div className="text-xs text-center text-gray-500 mt-1">
+                      {match.fixture.status.short === 'AET' ? 'After Extra Time' : 'Penalties'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Empty state
+          <div className="text-center py-6 text-sm text-gray-500">
+            No matches available for the selected filter
+          </div>
+        )}
       </div>
     </div>
   );
