@@ -308,15 +308,15 @@ const TodayMatches = () => {
           </span>
           <div className="flex items-center">
             <img 
-              src="https://media.api-sports.io/football/leagues/2.png"
+              src="https://static.livescore.com/i/competition/2.png"
               alt="Popular Football Leagues"
               className="h-5 w-5 mr-2"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/leagues/2.png';
+                (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/2.png';
                 
                 // Add a second error handler for complete fallback
                 (e.target as HTMLImageElement).onerror = () => {
-                  (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/leagues/default.png';
+                  (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
                   (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
                 };
               }}
@@ -359,12 +359,12 @@ const TodayMatches = () => {
                     alt={match.teams.home.name}
                     className="h-5 w-5 mr-2 object-contain drop-shadow-md"
                     onError={(e) => {
-                      // Try first the api-sports URL
-                      (e.target as HTMLImageElement).src = `https://media.api-sports.io/football/teams/${match.teams.home.id}.png`;
+                      // Try first the livescore URL
+                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
                       
                       // Add a second error handler for complete fallback
                       (e.target as HTMLImageElement).onerror = () => {
-                        (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/teams/default.png';
+                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
                         (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
                       };
                     }}
@@ -383,12 +383,12 @@ const TodayMatches = () => {
                     alt={match.teams.away.name}
                     className="h-5 w-5 ml-2 object-contain drop-shadow-md"
                     onError={(e) => {
-                      // Try first the api-sports URL
-                      (e.target as HTMLImageElement).src = `https://media.api-sports.io/football/teams/${match.teams.away.id}.png`;
+                      // Try first the livescore URL
+                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
                       
                       // Add a second error handler for complete fallback
                       (e.target as HTMLImageElement).onerror = () => {
-                        (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/teams/default.png';
+                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
                         (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
                       };
                     }}
