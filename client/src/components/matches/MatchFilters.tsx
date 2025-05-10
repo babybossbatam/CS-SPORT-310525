@@ -368,9 +368,12 @@ const MatchFilters = () => {
             
             {/* Show matches with more lenient filter - similar to 365scores.com approach */}
             {Object.entries(
-              matchesToDisplay.reduce((acc, match) => {
-                // Don't filter by popular leagues here as it's too restrictive
-                // Let all matches through and we'll order them so popular leagues appear first
+              // Create league-grouped matches directly without additional filtering - this was the problem
+              // We're using all available matches now to ensure we show results
+              fixturesByDate.reduce((acc, match) => {
+                // Skip if match is missing key properties
+                if (!match || !match.league || !match.teams) return acc;
+                
                 const leagueId = match.league.id.toString();
                 if (!acc[leagueId]) {
                   acc[leagueId] = {
