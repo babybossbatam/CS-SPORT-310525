@@ -204,10 +204,32 @@ const fixturesSlice = createSlice({
       state.upcoming = action.payload;
     },
     setFixturesByDate: (state, action: PayloadAction<{ date: string; fixtures: FixtureResponse[] }>) => {
-      state.byDate[action.payload.date] = action.payload.fixtures;
+      // Only update if we have fixtures, maintain existing data on empty responses to avoid losing data
+      if (action.payload.fixtures && action.payload.fixtures.length > 0) {
+        state.byDate[action.payload.date] = action.payload.fixtures;
+        console.log(`Stored ${action.payload.fixtures.length} fixtures for date ${action.payload.date}`);
+      } else if (!state.byDate[action.payload.date]) {
+        // If we don't have data and received empty, create an empty array
+        state.byDate[action.payload.date] = [];
+        console.log(`No fixtures received for date ${action.payload.date}, using empty array`);
+      } else {
+        // If we have existing data and received empty, keep existing data
+        console.log(`Keeping ${state.byDate[action.payload.date].length} existing fixtures for date ${action.payload.date}`);
+      }
     },
     setFixturesByLeague: (state, action: PayloadAction<{ leagueId: string; fixtures: FixtureResponse[] }>) => {
-      state.byLeague[action.payload.leagueId] = action.payload.fixtures;
+      // Only update if we have fixtures, maintain existing data on empty responses
+      if (action.payload.fixtures && action.payload.fixtures.length > 0) {
+        state.byLeague[action.payload.leagueId] = action.payload.fixtures;
+        console.log(`Stored ${action.payload.fixtures.length} fixtures for league ${action.payload.leagueId}`);
+      } else if (!state.byLeague[action.payload.leagueId]) {
+        // If we don't have data and received empty, create an empty array
+        state.byLeague[action.payload.leagueId] = [];
+        console.log(`No fixtures received for league ${action.payload.leagueId}, using empty array`);
+      } else {
+        // If we have existing data and received empty, keep existing data
+        console.log(`Keeping ${state.byLeague[action.payload.leagueId].length} existing fixtures for league ${action.payload.leagueId}`);
+      }
     },
     setCurrentFixture: (state, action: PayloadAction<FixtureResponse | null>) => {
       state.currentFixture = action.payload;

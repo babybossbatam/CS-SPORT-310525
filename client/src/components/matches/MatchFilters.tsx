@@ -44,18 +44,43 @@ const MatchFilters = () => {
         // Always set loading state when changing date
         dispatch(fixturesActions.setLoadingFixtures(true));
         
-        // Always fetch fresh data when date changes to ensure we have the latest
+        // Check if we already have data for this date
+        const existingFixtures = byDate[selectedDate];
+        if (existingFixtures && existingFixtures.length > 0) {
+          console.log(`Using ${existingFixtures.length} cached fixtures for date ${selectedDate}`);
+          // We still make an API call to refresh in the background, but don't wait for it
+          setTimeout(() => {
+            apiRequest('GET', `/api/fixtures/date/${selectedDate}`)
+              .then(response => response.json())
+              .then(data => {
+                if (data && data.length > 0) {
+                  dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
+                }
+              })
+              .catch(err => console.error('Background refresh error:', err));
+          }, 100);
+          
+          // Keep showing existing data immediately
+          dispatch(fixturesActions.setLoadingFixtures(false));
+          return;
+        }
+        
+        // Always fetch fresh data when date changes or we don't have data
         const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
         const data = await response.json();
         
         dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
       } catch (error) {
         console.error('Error fetching fixtures by date:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load matches for selected date',
-          variant: 'destructive',
-        });
+        // Don't show toast on every error as it might be rate limiting
+        // Only show toast if we don't have any data at all for this date
+        if (!byDate[selectedDate] || byDate[selectedDate].length === 0) {
+          toast({
+            title: 'Error',
+            description: 'Failed to load matches for selected date',
+            variant: 'destructive',
+          });
+        }
       } finally {
         // Always clear loading state when done
         dispatch(fixturesActions.setLoadingFixtures(false));
@@ -63,7 +88,7 @@ const MatchFilters = () => {
     };
     
     fetchFixturesByDate();
-  }, [selectedDate, dispatch, toast]); // Remove fixturesByDate.length from dependencies
+  }, [selectedDate, dispatch, toast, byDate]);
 
   // Fetch live fixtures
   useEffect(() => {
@@ -123,20 +148,25 @@ const MatchFilters = () => {
     // Always work with a copy to avoid mutation issues
     let matches = fixturesByDate ? [...fixturesByDate] : [];
     
+    console.log(`Getting matches to display: ${matches.length} for date ${selectedDate}`);
+    
     // If we're in live mode and have live matches, show only live matches
-    if (selectedFilter === 'live' && liveFixtures.length > 0) {
+    if (selectedFilter === 'live' && liveFixtures && liveFixtures.length > 0) {
+      console.log(`Using ${liveFixtures.length} live matches`);
       matches = [...liveFixtures];
     }
-    // If no matches for the selected date, show a loading state but keep any previously loaded
-    // fixtures visible during the transition (prevents flickering)
-    else if (matches.length === 0 && loading) {
+    // If no matches for the selected date but we're loading, use a transition state
+    else if ((matches.length === 0 || !matches) && loading) {
+      console.log("No matches for selected date but loading, using transition state");
+      
       // Create an array from all fixtures we have in different dates
       let previousDateFixtures: any[] = [];
       
       // Safely collect fixtures from other dates
       if (byDate && typeof byDate === 'object') {
-        Object.values(byDate).forEach(fixtures => {
-          if (Array.isArray(fixtures)) {
+        Object.entries(byDate).forEach(([date, fixtures]) => {
+          if (Array.isArray(fixtures) && fixtures.length > 0 && date !== selectedDate) {
+            console.log(`Found ${fixtures.length} fixtures for date ${date}`);
             previousDateFixtures = [...previousDateFixtures, ...fixtures];
           }
         });
@@ -144,12 +174,14 @@ const MatchFilters = () => {
       
       // Use previous fixtures to prevent flickering
       if (previousDateFixtures.length > 0) {
+        console.log(`Using ${Math.min(previousDateFixtures.length, 20)} previous fixtures to prevent flickering`);
         matches = [...previousDateFixtures.slice(0, 20)];
       }
     }
-    // If no matches yet and we have upcoming fixtures, use those temporarily
-    else if (matches.length < 10 && upcomingFixtures.length > 0) {
+    // If no or few matches and we have upcoming fixtures, supplement with those
+    else if (matches.length < 10 && upcomingFixtures && upcomingFixtures.length > 0) {
       // Add some upcoming fixtures to ensure we have content
+      console.log(`Adding ${Math.min(upcomingFixtures.length, 20 - matches.length)} upcoming fixtures`);
       matches = [...matches, ...upcomingFixtures.slice(0, 20 - matches.length)];
     }
     
