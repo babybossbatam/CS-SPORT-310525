@@ -207,33 +207,18 @@ const fixturesSlice = createSlice({
     setFixturesByDate: (state, action: PayloadAction<{ date: string; fixtures: FixtureResponse[] }>) => {
       // Only update if we have fixtures, maintain existing data on empty responses to avoid losing data
       if (action.payload.fixtures && action.payload.fixtures.length > 0) {
-        // Apply strict filtering to exclude youth teams, lower leagues, etc.
+        // Apply strict filtering to exclude youth teams, lower leagues, and South American leagues
         const filteredFixtures = action.payload.fixtures.filter(fixture => {
           // Skip fixtures without proper data
           if (!fixture || !fixture.league || !fixture.teams) return false;
           
           // Get league name and team names for filtering
-          const leagueName = (fixture.league.name || '').toLowerCase();
-          const homeTeamName = (fixture.teams.home.name || '').toLowerCase();
-          const awayTeamName = (fixture.teams.away.name || '').toLowerCase();
+          const leagueName = fixture.league.name || '';
+          const homeTeamName = fixture.teams.home.name || '';
+          const awayTeamName = fixture.teams.away.name || '';
           
-          // Expanded list of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
-          const exclusionTerms = [
-            'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-            'regional', 'division 3', 'division 4', 'women', 'kosice', 'girls', 'boys',
-            'development', 'friendly', 'test', 'academy', 'club friendlies', 'reserves', 
-            'primavera', 'exhibition', 'futsal', 'indoor', 'national cup 3', 'cup qualifying'
-          ];
-          
-          // Check if any exclusion term exists in league or team names
-          const hasExclusionTerm = exclusionTerms.some(term => 
-            leagueName.includes(term) || 
-            homeTeamName.includes(term) || 
-            awayTeamName.includes(term)
-          );
-          
-          // Return true to keep matches that don't have an exclusion term
-          return !hasExclusionTerm;
+          // Use our centralized exclusion filter that also excludes South American leagues
+          return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
         });
         
         console.log(`Filtered out ${action.payload.fixtures.length - filteredFixtures.length} unwanted fixtures`);
@@ -258,27 +243,12 @@ const fixturesSlice = createSlice({
           if (!fixture || !fixture.league || !fixture.teams) return false;
           
           // Get league name and team names for filtering
-          const leagueName = (fixture.league.name || '').toLowerCase();
-          const homeTeamName = (fixture.teams.home.name || '').toLowerCase();
-          const awayTeamName = (fixture.teams.away.name || '').toLowerCase();
+          const leagueName = fixture.league.name || '';
+          const homeTeamName = fixture.teams.home.name || '';
+          const awayTeamName = fixture.teams.away.name || '';
           
-          // Expanded list of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
-          const exclusionTerms = [
-            'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-            'regional', 'division 3', 'division 4', 'women', 'kosice', 'girls', 'boys',
-            'development', 'friendly', 'test', 'academy', 'club friendlies', 'reserves', 
-            'primavera', 'exhibition', 'futsal', 'indoor', 'national cup 3', 'cup qualifying'
-          ];
-          
-          // Check if any exclusion term exists in league or team names
-          const hasExclusionTerm = exclusionTerms.some(term => 
-            leagueName.includes(term) || 
-            homeTeamName.includes(term) || 
-            awayTeamName.includes(term)
-          );
-          
-          // Return true to keep matches that don't have an exclusion term
-          return !hasExclusionTerm;
+          // Use our centralized exclusion filter that also excludes South American leagues
+          return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
         });
         
         console.log(`Filtered out ${action.payload.fixtures.length - filteredFixtures.length} unwanted fixtures from league ${action.payload.leagueId}`);

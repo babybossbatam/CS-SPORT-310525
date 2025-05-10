@@ -197,25 +197,14 @@ const MatchFilters = () => {
     
     // Explicitly exclude youth leagues and lower divisions
     const excludedMatches = matches.filter(match => {
-      if (!match || !match.league) return false;
+      if (!match || !match.league || !match.teams) return false;
       
-      const leagueName = match.league.name ? match.league.name.toLowerCase() : '';
-      const teamNames = [
-        (match.teams.home.name || '').toLowerCase(),
-        (match.teams.away.name || '').toLowerCase()
-      ];
+      const leagueName = match.league.name || '';
+      const homeTeamName = match.teams.home.name || '';
+      const awayTeamName = match.teams.away.name || '';
       
-      // Exclude youth teams, reserves, amateur leagues
-      const exclusionTerms = ['u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur', 
-                            'regional', 'division 3', 'division 4', 'women'];
-      
-      // Check if any exclusion term is found in league name or team names
-      const hasExclusionTerm = exclusionTerms.some(term => 
-        leagueName.includes(term) || 
-        teamNames.some(teamName => teamName.includes(term))
-      );
-      
-      return !hasExclusionTerm;
+      // Use our centralized exclusion filter function that also excludes South American leagues
+      return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
     });
     
     // From the non-excluded matches, filter for popular leagues
