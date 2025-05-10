@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import LiveMatchPlayer from './LiveMatchPlayer';
+import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 // Expanded list of popular leagues
 const POPULAR_LEAGUES = [
@@ -150,45 +151,14 @@ const TodayMatches = () => {
     })
     // First filter out youth leagues and other unwanted categories
     .filter(fixture => {
-      const leagueName = fixture.league.name ? fixture.league.name.toLowerCase() : '';
-      const teamNames = [
-        (fixture.teams.home.name || '').toLowerCase(),
-        (fixture.teams.away.name || '').toLowerCase()
-      ];
+      if (!fixture.league || !fixture.teams) return false;
       
-      // Expanded list to explicitly exclude these terms from match results
-      const exclusionTerms = [
-        // Youth and development leagues
-        'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-        'development', 'academy', 'primavera', 'reserves',
-        
-        // Women's competitions
-        'women', 'girls', 
-        
-        // Lower divisions and regional competitions
-        'regional', 'division 3', 'division 4', 'kosice', 'boys', 
-        
-        // Non-competitive matches
-        'friendly', 'test', 'club friendlies', 'exhibition',
-        
-        // Indoor/alternative formats
-        'futsal', 'indoor',
-        
-        // Minor competitions
-        'national cup 3', 'cup qualifying',
-        
-        // South American leagues we want to exclude
-        'brazilian serie b', 'brazilian serie c', 'chilean primera b', 'copa chile', 
-        'copa do brasil', 'copa argentina', 'copa colombia', 'copa ecuador',
-        'paraguay division profesional', 'peruvian primera division',
-        'uruguayan primera division', 'venezuelan primera division'
-      ];
+      const leagueName = fixture.league.name || '';
+      const homeTeamName = fixture.teams.home.name || '';
+      const awayTeamName = fixture.teams.away.name || '';
       
-      // Return false if any exclusion term is found in league name or team names
-      return !exclusionTerms.some(term => 
-        leagueName.includes(term) || 
-        teamNames.some(teamName => teamName.includes(term))
-      );
+      // Use our centralized exclusion filter that also excludes South American leagues
+      return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
     })
     
     // Then filter for popular leagues
