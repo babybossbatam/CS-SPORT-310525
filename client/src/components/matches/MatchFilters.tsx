@@ -40,14 +40,14 @@ const MatchFilters = () => {
   useEffect(() => {
     const fetchFixturesByDate = async () => {
       try {
-        if (!fixturesByDate.length) {
-          dispatch(fixturesActions.setLoadingFixtures(true));
-          
-          const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
-          const data = await response.json();
-          
-          dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
-        }
+        // Always set loading state when changing date
+        dispatch(fixturesActions.setLoadingFixtures(true));
+        
+        // Always fetch fresh data when date changes to ensure we have the latest
+        const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
+        const data = await response.json();
+        
+        dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
       } catch (error) {
         console.error('Error fetching fixtures by date:', error);
         toast({
@@ -56,12 +56,13 @@ const MatchFilters = () => {
           variant: 'destructive',
         });
       } finally {
+        // Always clear loading state when done
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
     };
     
     fetchFixturesByDate();
-  }, [selectedDate, dispatch, toast, fixturesByDate.length]);
+  }, [selectedDate, dispatch, toast]); // Remove fixturesByDate.length from dependencies
 
   // Fetch live fixtures
   useEffect(() => {
@@ -126,22 +127,21 @@ const MatchFilters = () => {
     // Uncomment this line to use a specific date instead of the selectedDate from the store
     // const overrideDate = mayEighthDate;
     
-    // Use fixtures for the selected date by default
-    let matches = [...fixturesByDate];
+    // Use fixtures for the selected date by default - create a safe copy to avoid mutation issues
+    let matches = fixturesByDate ? [...fixturesByDate] : [];
     
     // If we're in live mode and have live matches, show only live matches
     if (selectedFilter === 'live' && liveFixtures.length > 0) {
       matches = [...liveFixtures];
     }
     // If no matches for the selected date or we want more variety, add upcoming fixtures
-    else if (fixturesByDate.length < 10 && upcomingFixtures.length > 0) {
-      matches = [...fixturesByDate, ...upcomingFixtures.slice(0, 20 - fixturesByDate.length)];
+    else if ((matches.length < 10 || matches.length === 0) && upcomingFixtures.length > 0) {
+      // First ensure we have something to display while loading - prevents flickering
+      matches = [...matches, ...upcomingFixtures.slice(0, 20 - matches.length)];
     }
     
-    // When matches is empty, we could:
-    // 1. Show a specific message about not having fixtures for this date
-    // 2. Fetch fixtures for the closest date with matches
-    // 3. For demo purposes, we could show fixtures from another date
+    // When matches is empty, show a loading indicator or message in the UI
+    // But always return a valid array even if empty to prevent rendering errors
     
     // Filter matches to only include popular leagues - IF we have enough matches
     // If we don't have many matches, show all available regardless of league
