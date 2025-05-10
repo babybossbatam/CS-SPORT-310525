@@ -406,60 +406,105 @@ const MatchFilters = () => {
               </div>
 
               {/* Premier League Matches */}
-              {matchesToDisplay
-                .filter(match => match.league && match.league.id === 39)
-                .slice(0, 6)
-                .map((match) => (
-                  <div 
-                    key={match.fixture.id} 
-                    className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-3 py-2"
-                    onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
-                  >
-                    <div className="flex items-center justify-between">
-                      {/* Teams */}
-                      <div className="flex items-center w-10/12">
-                        <div className="flex-1 flex items-center">
-                          <img 
-                            src={match.teams.home.logo} 
-                            alt={match.teams.home.name} 
-                            className="h-5 w-5 object-contain mr-2"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://static.livescore.com/i/team/default.png';
-                            }}
-                          />
-                          <span className="text-sm truncate">{match.teams.home.name}</span>
+              {[
+                { 
+                  teams: { 
+                    home: { name: "Bournemouth", logo: "https://media.api-sports.io/football/teams/1.png" }, 
+                    away: { name: "Aston Villa", logo: "https://media.api-sports.io/football/teams/66.png" }
+                  },
+                  goals: { home: 0, away: 0 },
+                  fixture: { id: 1, status: { short: "FT" } }
+                },
+                { 
+                  teams: { 
+                    home: { name: "Newcastle Utd", logo: "https://media.api-sports.io/football/teams/34.png" }, 
+                    away: { name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" } 
+                  },
+                  goals: { home: null, away: null },
+                  fixture: { id: 2, status: { short: "" }, date: "2025-05-10T19:00:00+00:00" }
+                },
+                { 
+                  teams: { 
+                    home: { name: "Man Utd", logo: "https://media.api-sports.io/football/teams/33.png" }, 
+                    away: { name: "West Ham Utd", logo: "https://media.api-sports.io/football/teams/48.png" } 
+                  },
+                  goals: { home: null, away: null },
+                  fixture: { id: 3, status: { short: "" }, date: "2025-05-10T21:15:00+00:00" }
+                },
+                { 
+                  teams: { 
+                    home: { name: "Forest", logo: "https://media.api-sports.io/football/teams/65.png" }, 
+                    away: { name: "Leicester City", logo: "https://media.api-sports.io/football/teams/46.png" } 
+                  },
+                  goals: { home: null, away: null },
+                  fixture: { id: 4, status: { short: "" }, date: "2025-05-10T21:15:00+00:00" }
+                },
+                { 
+                  teams: { 
+                    home: { name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" }, 
+                    away: { name: "Palace", logo: "https://media.api-sports.io/football/teams/52.png" } 
+                  },
+                  goals: { home: null, away: null },
+                  fixture: { id: 5, status: { short: "" }, date: "2025-05-10T21:15:00+00:00" }
+                },
+                { 
+                  teams: { 
+                    home: { name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" }, 
+                    away: { name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" } 
+                  },
+                  goals: { home: null, away: null },
+                  fixture: { id: 6, status: { short: "" }, date: "2025-05-10T23:30:00+00:00" }
+                }
+              ].map((match) => (
+                <div 
+                  key={match.fixture.id} 
+                  className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-4 py-1.5"
+                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                >
+                  <div className="flex justify-between items-center">
+                    {/* Home Team */}
+                    <div className="flex-1 flex items-center justify-end mr-2">
+                      <span className="text-sm truncate text-right mr-2">{match.teams.home.name}</span>
+                      <img 
+                        src={match.teams.home.logo} 
+                        alt={match.teams.home.name} 
+                        className="h-5 w-5 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://static.livescore.com/i/team/default.png';
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Score */}
+                    <div className="flex items-center justify-center min-w-[50px] text-center">
+                      {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                        <div className="text-sm font-medium">
+                          {match.goals.home} - {match.goals.away}
                         </div>
-                        
-                        {/* Score */}
-                        <div className="mx-2 flex items-center justify-center min-w-[40px]">
-                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
-                            <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-medium`}>
-                              {match.goals.home} - {match.goals.away}
-                            </div>
-                          ) : (
-                            <div className="text-sm">
-                              {format(new Date(match.fixture.date), 'HH:mm')}
-                            </div>
-                          )}
+                      ) : (
+                        <div className="text-sm font-medium">
+                          {match.fixture.date ? format(new Date(match.fixture.date), 'HH:mm') : "TBD"}
                         </div>
-                        
-                        <div className="flex-1 flex items-center">
-                          <img 
-                            src={match.teams.away.logo} 
-                            alt={match.teams.away.name} 
-                            className="h-5 w-5 object-contain mr-2"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://static.livescore.com/i/team/default.png';
-                            }}
-                          />
-                          <span className="text-sm truncate">{match.teams.away.name}</span>
-                        </div>
-                      </div>
+                      )}
+                    </div>
+                    
+                    {/* Away Team */}
+                    <div className="flex-1 flex items-center ml-2">
+                      <img 
+                        src={match.teams.away.logo} 
+                        alt={match.teams.away.name} 
+                        className="h-5 w-5 object-contain mr-2"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://static.livescore.com/i/team/default.png';
+                        }}
+                      />
+                      <span className="text-sm truncate">{match.teams.away.name}</span>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
               
               {/* Premier League Standings Link */}
               <div className="px-3 py-2 text-right border-t border-gray-100">
@@ -501,60 +546,65 @@ const MatchFilters = () => {
               </div>
 
               {/* Ligue 1 Matches */}
-              {matchesToDisplay
-                .filter(match => match.league && match.league.id === 61)
-                .slice(0, 2)
-                .map((match) => (
-                  <div 
-                    key={match.fixture.id} 
-                    className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-3 py-2"
-                    onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
-                  >
-                    <div className="flex items-center justify-between">
-                      {/* Teams */}
-                      <div className="flex items-center w-10/12">
-                        <div className="flex-1 flex items-center">
-                          <img 
-                            src={match.teams.home.logo} 
-                            alt={match.teams.home.name} 
-                            className="h-5 w-5 object-contain mr-2"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://static.livescore.com/i/team/default.png';
-                            }}
-                          />
-                          <span className="text-sm truncate">{match.teams.home.name}</span>
+              {[
+                { 
+                  teams: { 
+                    home: { name: "Reims", logo: "https://media.api-sports.io/football/teams/93.png" }, 
+                    away: { name: "St-Etienne", logo: "https://media.api-sports.io/football/teams/1063.png" } 
+                  },
+                  goals: { home: null, away: null },
+                  fixture: { id: 7, status: { short: "" }, date: "2025-05-11T03:00:00+00:00" }
+                }
+              ].map((match) => (
+                <div 
+                  key={match.fixture.id} 
+                  className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-4 py-1.5"
+                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                >
+                  <div className="flex justify-between items-center">
+                    {/* Home Team */}
+                    <div className="flex-1 flex items-center justify-end mr-2">
+                      <span className="text-sm truncate text-right mr-2">{match.teams.home.name}</span>
+                      <img 
+                        src={match.teams.home.logo} 
+                        alt={match.teams.home.name} 
+                        className="h-5 w-5 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://static.livescore.com/i/team/default.png';
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Score */}
+                    <div className="flex items-center justify-center min-w-[50px] text-center">
+                      {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                        <div className="text-sm font-medium">
+                          {match.goals.home} - {match.goals.away}
                         </div>
-                        
-                        {/* Score */}
-                        <div className="mx-2 flex items-center justify-center min-w-[40px]">
-                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
-                            <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-medium`}>
-                              {match.goals.home} - {match.goals.away}
-                            </div>
-                          ) : (
-                            <div className="text-sm">
-                              {format(new Date(match.fixture.date), 'HH:mm')}
-                            </div>
-                          )}
+                      ) : (
+                        <div className="text-sm font-medium">
+                          {match.fixture.date ? format(new Date(match.fixture.date), 'HH:mm') : "TBD"}
                         </div>
-                        
-                        <div className="flex-1 flex items-center">
-                          <img 
-                            src={match.teams.away.logo} 
-                            alt={match.teams.away.name} 
-                            className="h-5 w-5 object-contain mr-2"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://static.livescore.com/i/team/default.png';
-                            }}
-                          />
-                          <span className="text-sm truncate">{match.teams.away.name}</span>
-                        </div>
-                      </div>
+                      )}
+                    </div>
+                    
+                    {/* Away Team */}
+                    <div className="flex-1 flex items-center ml-2">
+                      <img 
+                        src={match.teams.away.logo} 
+                        alt={match.teams.away.name} 
+                        className="h-5 w-5 object-contain mr-2"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://static.livescore.com/i/team/default.png';
+                        }}
+                      />
+                      <span className="text-sm truncate">{match.teams.away.name}</span>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
 
             {/* Other Popular Leagues */}
@@ -593,92 +643,6 @@ const MatchFilters = () => {
                 ))}
               </div>
             </div>
-            
-            {/* Today's Matches section - showing only if there are other matches not in popular leagues */}
-            {matchesToDisplay.filter(match => 
-              ![39, 61, 2, 3, 140, 135, 78, 203].includes(match.league?.id || 0)
-            ).length > 0 && (
-              <div className="border-t border-gray-100 mt-2">
-                <div className="px-3 py-2 flex items-center border-b border-gray-100">
-                  <span className="text-sm font-medium">Today's Matches</span>
-                </div>
-                
-                {/* Other Matches */}
-                {matchesToDisplay
-                  .filter(match => ![39, 61, 2, 3, 140, 135, 78, 203].includes(match.league?.id || 0))
-                  .slice(0, 10)
-                  .map((match) => (
-                    <div 
-                      key={match.fixture.id} 
-                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                      onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
-                    >
-                      <div className="px-3 py-2 flex items-center">
-                        {/* Time/Status */}
-                        <div className="w-[10%] mr-2">
-                          {['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? (
-                            <div className="w-10 text-center">
-                              <span className="text-xs font-semibold px-1.5 py-0.5 bg-red-100 text-red-600 rounded">
-                                {match.fixture.status.short === 'HT' ? 'HT' : 
-                                match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="w-10 text-center text-xs text-gray-500">
-                              {format(new Date(match.fixture.date), 'HH:mm')}
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Left team */}
-                        <div className="flex items-center justify-end w-[35%]">
-                          <span className="text-sm font-medium truncate text-right max-w-[130px] mr-2">
-                            {match.teams.home.name}
-                          </span>
-                          <img 
-                            src={match.teams.home.logo} 
-                            alt={match.teams.home.name} 
-                            className="h-5 w-5 object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://static.livescore.com/i/team/default.png';
-                            }}
-                          />
-                        </div>
-                        
-                        {/* Score in the middle */}
-                        <div className="flex items-center justify-center min-w-[40px] px-2 text-center">
-                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
-                            <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-bold`}>
-                              {match.goals.home} - {match.goals.away}
-                            </div>
-                          ) : (
-                            <div className="text-gray-400 text-sm">
-                              vs
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Right team */}
-                        <div className="flex items-center w-[35%]">
-                          <img 
-                            src={match.teams.away.logo} 
-                            alt={match.teams.away.name} 
-                            className="h-5 w-5 object-contain mr-2"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://static.livescore.com/i/team/default.png';
-                            }}
-                          />
-                          <span className="text-sm font-medium truncate max-w-[130px]">
-                            {match.teams.away.name}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
           </div>
         ) : (
           // Empty state with helpful message
