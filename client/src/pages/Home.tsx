@@ -23,6 +23,7 @@ import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedul
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
+import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
 import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,6 +41,7 @@ const Home = () => {
   const countryLeagueMap: Record<string, number[]> = {
     'england': [39],     // Premier League
     'italy': [135],      // Serie A (Italy)
+    'germany': [78],     // Bundesliga
     'europe': [2, 3]     // Champions League (2), Europa League (3)
   };
   
@@ -199,6 +201,7 @@ const Home = () => {
               <ChampionsLeagueSchedule />
               <PremierLeagueSchedule />
               <SerieASchedule />
+              <BundesligaSchedule />
               <EuropaLeagueSchedule />
             </div>
             
