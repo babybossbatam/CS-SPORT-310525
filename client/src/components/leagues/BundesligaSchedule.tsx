@@ -74,7 +74,11 @@ const BundesligaSchedule = () => {
   
   // Get selected date from Redux store
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
-  const isToday = isSameDay(parseISO(selectedDate), new Date());
+  // Check if selected date is today
+  const today = new Date();
+  const isToday = parseISO(selectedDate).getDate() === today.getDate() && 
+                 parseISO(selectedDate).getMonth() === today.getMonth() && 
+                 parseISO(selectedDate).getFullYear() === today.getFullYear();
   
   // Bundesliga ID is 78
   const leagueId = 78;
@@ -110,7 +114,9 @@ const BundesligaSchedule = () => {
       const todayFinishedMatches = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
         return (
-          isSameDay(fixtureDate, now) &&
+          fixtureDate.getDate() === now.getDate() &&
+          fixtureDate.getMonth() === now.getMonth() &&
+          fixtureDate.getFullYear() === now.getFullYear() &&
           ['FT', 'AET', 'PEN', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'].includes(f.fixture.status.short)
         );
       });
@@ -119,7 +125,9 @@ const BundesligaSchedule = () => {
       const todayUpcomingMatches = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
         return (
-          isSameDay(fixtureDate, now) && 
+          fixtureDate.getDate() === now.getDate() &&
+          fixtureDate.getMonth() === now.getMonth() &&
+          fixtureDate.getFullYear() === now.getFullYear() &&
           ['TBD', 'NS', 'WO', 'CANC', 'ABD', 'AWD', 'PST'].includes(f.fixture.status.short)
         );
       });
@@ -131,7 +139,9 @@ const BundesligaSchedule = () => {
       filteredFixtures = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
         return (
-          isSameDay(fixtureDate, selectedDateObj) && 
+          fixtureDate.getDate() === selectedDateObj.getDate() &&
+          fixtureDate.getMonth() === selectedDateObj.getMonth() &&
+          fixtureDate.getFullYear() === selectedDateObj.getFullYear() &&
           ['FT', 'AET', 'PEN'].includes(f.fixture.status.short)
         );
       });
@@ -150,8 +160,11 @@ const BundesligaSchedule = () => {
   // Format match date based on whether it's today or another day
   const formatMatchDateFn = (dateStr: string) => {
     const fixtureDate = parseISO(dateStr);
+    const today = new Date();
     
-    if (isSameDay(fixtureDate, new Date())) {
+    if (fixtureDate.getDate() === today.getDate() &&
+        fixtureDate.getMonth() === today.getMonth() &&
+        fixtureDate.getFullYear() === today.getFullYear()) {
       return 'Today';
     }
     
