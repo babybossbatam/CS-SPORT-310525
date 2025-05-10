@@ -348,7 +348,7 @@ const MatchFilters = () => {
                 {matches.map((match) => (
                   <div key={match.fixture.id} className="relative flex items-center border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer py-2.5 px-3">
                     {/* League logo on the left */}
-                    <div className="w-6 absolute left-1">
+                    <div className="w-6 min-w-6 flex-shrink-0 mr-2">
                       <img 
                         src={league.logo} 
                         alt={league.name}
@@ -370,29 +370,31 @@ const MatchFilters = () => {
                     <div className="flex items-center justify-between w-full">
                       {/* Left side: Home team */}
                       <div className="flex items-center justify-end gap-2 w-[40%] text-right">
-                        <span className="text-sm font-medium truncate text-right">
+                        <span className="text-sm font-medium truncate text-right max-w-[120px]">
                           {match.teams.home.name}
                         </span>
-                        <img 
-                          src={match.teams.home.logo} 
-                          alt={match.teams.home.name} 
-                          className="h-6 w-6 object-contain drop-shadow-md"
-                          onError={(e) => {
-                            // Try the livescore URL
-                            (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
-                            
-                            // Add a second error handler for complete fallback
-                            (e.target as HTMLImageElement).onerror = () => {
-                              (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
-                              (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                            };
-                          }}
-                        />
-                        
-                        {/* Red cards for home team as small red rectangle */}
-                        {match.fixture.id % 8 === 0 && (
-                          <div className="w-2 h-3 bg-red-600 mx-0.5"></div>
-                        )}
+                        <div className="relative">
+                          <img 
+                            src={match.teams.home.logo} 
+                            alt={match.teams.home.name} 
+                            className="h-6 w-6 object-contain drop-shadow-md"
+                            onError={(e) => {
+                              // Try the livescore URL
+                              (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
+                              
+                              // Add a second error handler for complete fallback
+                              (e.target as HTMLImageElement).onerror = () => {
+                                (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                                (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                              };
+                            }}
+                          />
+                          
+                          {/* Red cards for home team as small red rectangle */}
+                          {match.fixture.id % 8 === 0 && (
+                            <div className="absolute -top-1 -right-1 w-2 h-3 bg-red-600"></div>
+                          )}
+                        </div>
                       </div>
                       
                       {/* Middle section: Score + status - EXACTLY like 365scores */}
@@ -418,27 +420,29 @@ const MatchFilters = () => {
                       
                       {/* Right side: Away team */}
                       <div className="flex items-center gap-2 w-[40%]">
-                        {/* Red cards for away team as small red rectangle */}
-                        {match.fixture.id % 11 === 0 && (
-                          <div className="w-2 h-3 bg-red-600 mx-0.5"></div>
-                        )}
-                        
-                        <img 
-                          src={match.teams.away.logo} 
-                          alt={match.teams.away.name} 
-                          className="h-6 w-6 object-contain drop-shadow-md"
-                          onError={(e) => {
-                            // Try the livescore URL
-                            (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
-                            
-                            // Add a second error handler for complete fallback
-                            (e.target as HTMLImageElement).onerror = () => {
-                              (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
-                              (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                            };
-                          }}
-                        />
-                        <span className="text-sm font-medium truncate">
+                        <div className="relative">
+                          {/* Red cards for away team as small red rectangle */}
+                          {match.fixture.id % 11 === 0 && (
+                            <div className="absolute -top-1 -left-1 w-2 h-3 bg-red-600"></div>
+                          )}
+                          
+                          <img 
+                            src={match.teams.away.logo} 
+                            alt={match.teams.away.name} 
+                            className="h-6 w-6 object-contain drop-shadow-md"
+                            onError={(e) => {
+                              // Try the livescore URL
+                              (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
+                              
+                              // Add a second error handler for complete fallback
+                              (e.target as HTMLImageElement).onerror = () => {
+                                (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                                (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                              };
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium truncate max-w-[120px]">
                           {match.teams.away.name}
                         </span>
                       </div>
