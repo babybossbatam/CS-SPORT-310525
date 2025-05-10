@@ -97,8 +97,8 @@ function mapFixtureResponse(fixture: LivescoreFixtureResponse): FixtureResponse 
       id: parseInt(fixture.Cid || '0'),
       name: fixture.Cnm || '',
       country: countryCode,
-      logo: parseInt(fixture.Cid || '0') ? `https://lsm-static-prod.livescore.com/medium/competition/${parseInt(fixture.Cid || '0')}.jpg` : `https://media.api-sports.io/football/leagues/${parseInt(fixture.Cid || '0')}.png`,
-      flag: countryCode ? `https://lsm-static-prod.livescore.com/medium/flag/${countryCode.toLowerCase()}.jpg` : `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`,
+      logo: `https://static.livescore.com/i/competition/${parseInt(fixture.Cid || '0')}.png`,
+      flag: `https://static.livescore.com/i/flag/${countryCode.toLowerCase()}.png`,
       season: new Date().getFullYear(),
       round: fixture.Scd || ''
     },
@@ -106,13 +106,13 @@ function mapFixtureResponse(fixture: LivescoreFixtureResponse): FixtureResponse 
       home: {
         id: parseInt(homeTeamId),
         name: homeTeamName,
-        logo: homeTeam?.Img ? `https://lsm-static-prod.livescore.com/medium/${homeTeam.Img}.jpg` : `https://media.api-sports.io/football/teams/${parseInt(homeTeamId)}.png`,
+        logo: homeTeam?.Img ? `https://static.livescore.com/i/team/${homeTeam.Img}.png` : `https://static.livescore.com/i/team/${parseInt(homeTeamId)}.png`,
         winner: parseInt(fixture.Tr1 || '0') > parseInt(fixture.Tr2 || '0')
       },
       away: {
         id: parseInt(awayTeamId),
         name: awayTeamName,
-        logo: awayTeam?.Img ? `https://lsm-static-prod.livescore.com/medium/${awayTeam.Img}.jpg` : `https://media.api-sports.io/football/teams/${parseInt(awayTeamId)}.png`,
+        logo: awayTeam?.Img ? `https://static.livescore.com/i/team/${awayTeam.Img}.png` : `https://static.livescore.com/i/team/${parseInt(awayTeamId)}.png`,
         winner: parseInt(fixture.Tr2 || '0') > parseInt(fixture.Tr1 || '0')
       }
     },
