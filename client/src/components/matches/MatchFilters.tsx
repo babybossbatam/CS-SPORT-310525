@@ -240,70 +240,72 @@ const MatchFilters = () => {
                 </div>
                 
                 {matches.map((match) => (
-                  <div key={match.fixture.id} className="relative flex items-center justify-between py-3 px-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
-                    {/* Red cards for home team (if any) */}
-                    <div className="absolute left-1">
-                      {/* This would need actual cards data, using placeholder logic */}
-                      {match.fixture.id % 8 === 0 && (
-                        <div className="w-2 h-3 bg-red-500"></div>
-                      )}
-                    </div>
-                    
-                    {/* Left team */}
-                    <div className="flex items-center gap-2 w-[40%]">
+                  <div key={match.fixture.id} className="relative flex items-center border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer py-2.5 px-3">
+                    {/* League logo on the left */}
+                    <div className="w-6 absolute left-1">
                       <img 
-                        src={match.teams.home.logo} 
-                        alt={match.teams.home.name} 
-                        className="h-6 w-6 object-contain" 
+                        src={league.logo} 
+                        alt={league.name}
+                        className="h-4 w-4 object-contain"
                       />
-                      <span className="text-sm truncate">
-                        {match.teams.home.name}
-                      </span>
                     </div>
                     
-                    {/* Middle section: Score + status */}
-                    <div className="flex flex-col items-center min-w-[70px]">
-                      {/* Match status (Ended, etc.) */}
-                      <span className="text-[10px] text-gray-500 mb-1">
-                        {match.fixture.status.short === 'FT' ? 'Ended' : 
-                         match.fixture.status.short === 'AET' ? 'Ended' :
-                         match.fixture.status.short === 'PEN' ? 'Ended' :
-                         match.fixture.status.short === 'LIVE' ? 'LIVE' : 
-                         format(new Date(match.fixture.date), 'HH:mm')}
-                      </span>
-                      
-                      {/* Score */}
-                      <div className="font-bold text-sm">
-                        {match.fixture.status.short === 'FT' || 
-                         match.fixture.status.short === 'AET' || 
-                         match.fixture.status.short === 'PEN' || 
-                         match.fixture.status.short === 'LIVE' || 
-                         match.fixture.status.short === 'HT' ? (
-                          <span>{match.goals.home} - {match.goals.away}</span>
-                        ) : (
-                          <span className="font-normal text-gray-500">vs</span>
+                    {/* Main match display - center aligned like 365scores */}
+                    <div className="flex items-center justify-between w-full">
+                      {/* Left side: Home team */}
+                      <div className="flex items-center justify-end gap-2 w-[40%] text-right">
+                        <span className="text-sm font-medium truncate text-right">
+                          {match.teams.home.name}
+                        </span>
+                        <img 
+                          src={match.teams.home.logo} 
+                          alt={match.teams.home.name} 
+                          className="h-6 w-6 object-contain drop-shadow-md" 
+                        />
+                        
+                        {/* Red cards for home team as small red rectangle */}
+                        {match.fixture.id % 8 === 0 && (
+                          <div className="w-2 h-3 bg-red-600 mx-0.5"></div>
                         )}
                       </div>
-                    </div>
-                    
-                    {/* Right team */}
-                    <div className="flex items-center justify-end gap-2 w-[40%]">
-                      <span className="text-sm truncate text-right">
-                        {match.teams.away.name}
-                      </span>
-                      <img 
-                        src={match.teams.away.logo} 
-                        alt={match.teams.away.name} 
-                        className="h-6 w-6 object-contain" 
-                      />
-                    </div>
-                    
-                    {/* Red cards for away team (if any) */}
-                    <div className="absolute right-1">
-                      {/* This would need actual cards data, using placeholder logic */}
-                      {match.fixture.id % 11 === 0 && (
-                        <div className="w-2 h-3 bg-red-500"></div>
-                      )}
+                      
+                      {/* Middle section: Score + status - EXACTLY like 365scores */}
+                      <div className="flex flex-col items-center min-w-[60px]">
+                        {/* Status text above score */}
+                        <span className="text-[10px] text-gray-500 mb-0.5">
+                          {['FT', 'AET', 'PEN'].includes(match.fixture.status.short) ? 'Ended' :
+                           match.fixture.status.short === 'LIVE' || match.fixture.status.short === '1H' || match.fixture.status.short === '2H' ? 
+                             `${match.fixture.status.elapsed || ''}${match.fixture.status.elapsed ? "'" : 'LIVE'}` : 
+                           match.fixture.status.short === 'HT' ? 'HT' :
+                           format(new Date(match.fixture.date), 'HH:mm')}
+                        </span>
+                        
+                        {/* Score - bold for completed/live matches */}
+                        <div className="font-bold text-base">
+                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                            <span>{match.goals.home} - {match.goals.away}</span>
+                          ) : (
+                            <span className="font-normal text-gray-500 text-sm">vs</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Right side: Away team */}
+                      <div className="flex items-center gap-2 w-[40%]">
+                        {/* Red cards for away team as small red rectangle */}
+                        {match.fixture.id % 11 === 0 && (
+                          <div className="w-2 h-3 bg-red-600 mx-0.5"></div>
+                        )}
+                        
+                        <img 
+                          src={match.teams.away.logo} 
+                          alt={match.teams.away.name} 
+                          className="h-6 w-6 object-contain drop-shadow-md" 
+                        />
+                        <span className="text-sm font-medium truncate">
+                          {match.teams.away.name}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
