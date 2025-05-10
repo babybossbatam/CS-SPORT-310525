@@ -12,7 +12,7 @@ import {
 } from 'date-fns';
 import { FixtureResponse } from '../../../../server/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { Clock, Calendar, CalendarIcon, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -232,8 +232,14 @@ const TodayMatches = () => {
       // No filters - show all matches
       return true;
     })
-    // Filter to only include our priority leagues
-    .filter(fixture => POPULAR_LEAGUES.includes(fixture.league.id))
+    // Filter to only include our priority leagues - but only if we have data for these leagues
+    .filter(fixture => {
+      // If we don't have any fixtures in our popular leagues, show all leagues
+      const hasPopularLeagueFixtures = allFixtures.some(f => POPULAR_LEAGUES.includes(f.league.id));
+      
+      // Either show all fixtures if no popular ones are available, or filter to popular ones
+      return !hasPopularLeagueFixtures || POPULAR_LEAGUES.includes(fixture.league.id);
+    })
     // Sort by timestamp (nearest first)
     .sort((a, b) => {
       // Always prioritize live matches when using live filter
@@ -270,9 +276,19 @@ const TodayMatches = () => {
     );
   }
   
-  // No need for empty state display
+  // Show an empty state instead of disappearing
   if (todayMatches.length === 0) {
-    return null;
+    return (
+      <div className="p-4 text-center">
+        <div className="flex flex-col items-center justify-center space-y-2 text-gray-500">
+          <CalendarIcon className="h-10 w-10 text-gray-300" />
+          <h3 className="text-sm font-medium">No matches found</h3>
+          <p className="text-xs text-gray-400">
+            There are no matches available from the selected leagues today.
+          </p>
+        </div>
+      </div>
+    );
   }
   
   return (
