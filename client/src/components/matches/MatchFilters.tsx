@@ -353,6 +353,16 @@ const MatchFilters = () => {
                         src={league.logo} 
                         alt={league.name}
                         className="h-4 w-4 object-contain"
+                        onError={(e) => {
+                          // Try the livescore URL
+                          (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${league.id}.png`;
+                          
+                          // Add a second error handler for complete fallback
+                          (e.target as HTMLImageElement).onerror = () => {
+                            (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
+                            (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                          };
+                        }}
                       />
                     </div>
                     
@@ -366,7 +376,17 @@ const MatchFilters = () => {
                         <img 
                           src={match.teams.home.logo} 
                           alt={match.teams.home.name} 
-                          className="h-6 w-6 object-contain drop-shadow-md" 
+                          className="h-6 w-6 object-contain drop-shadow-md"
+                          onError={(e) => {
+                            // Try the livescore URL
+                            (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
+                            
+                            // Add a second error handler for complete fallback
+                            (e.target as HTMLImageElement).onerror = () => {
+                              (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                              (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                            };
+                          }}
                         />
                         
                         {/* Red cards for home team as small red rectangle */}
@@ -406,7 +426,17 @@ const MatchFilters = () => {
                         <img 
                           src={match.teams.away.logo} 
                           alt={match.teams.away.name} 
-                          className="h-6 w-6 object-contain drop-shadow-md" 
+                          className="h-6 w-6 object-contain drop-shadow-md"
+                          onError={(e) => {
+                            // Try the livescore URL
+                            (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
+                            
+                            // Add a second error handler for complete fallback
+                            (e.target as HTMLImageElement).onerror = () => {
+                              (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                              (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                            };
+                          }}
                         />
                         <span className="text-sm font-medium truncate">
                           {match.teams.away.name}
