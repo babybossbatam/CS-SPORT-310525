@@ -4,7 +4,8 @@ import { format, parseISO } from 'date-fns';
 import { Activity, Calendar, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatMatchDateFn, isLiveMatch, getTeamColor } from '@/lib/utils';
+import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
+import { getTeamColor } from '@/lib/colorUtils';
 import { useLocation } from 'wouter';
 
 // League IDs we care about (only show matches from these leagues)

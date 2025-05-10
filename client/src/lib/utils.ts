@@ -120,7 +120,7 @@ export function formatMatchDateFn(dateString: string | Date | number | null | un
 }
 
 // Function to calculate countdown timer
-export function getCountdownTimer(dateString: string | Date | number): string {
+export function getCountdownTimer(dateString: string | Date | number | null | undefined): string {
   // Handle missing or invalid input
   if (!dateString) {
     return "TBD";

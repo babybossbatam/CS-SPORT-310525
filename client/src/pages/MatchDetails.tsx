@@ -13,7 +13,7 @@ import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
-import { getTeamGradient, getEnhancedHomeTeamGradient, getTeamColor, getOpposingTeamColor } from '@/lib/colorExtractor';
+import { getTeamGradient, getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import MatchPrediction from '@/components/matches/MatchPrediction';
@@ -302,7 +302,7 @@ const MatchDetails = () => {
                   <div className="h-full w-[60%] relative flex items-center justify-start">
                     {/* Home team gradient - extends from 'V' to home team logo with 10% enhanced intensity and more to the left */}
                     <div 
-                      className={`absolute inset-0 z-5 ${getEnhancedHomeTeamGradient(currentFixture.teams.home.name, 'to-r')}`} 
+                      className={`absolute inset-0 z-5 ${getEnhancedHomeTeamGradient(currentFixture.teams.home.name)}`} 
                       style={{ 
                         clipPath: 'polygon(0 0, 100% 0, 70% 100%, 0 100%)',
                         right: '-10%' // Push gradient out further to ensure it covers the area
@@ -322,7 +322,7 @@ const MatchDetails = () => {
                   <div 
                     className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white shadow-md overflow-hidden"
                     style={{
-                      background: `linear-gradient(90deg, ${getTeamColor(currentFixture.teams.home.name, true)} 50%, rgba(0, 0, 0, 0.6) 50%)`,
+                      background: `linear-gradient(90deg, ${getTeamColor(currentFixture.teams.home.name)} 50%, rgba(0, 0, 0, 0.6) 50%)`,
                       textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)'
                     }}
                   >

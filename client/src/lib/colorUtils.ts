@@ -170,3 +170,15 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     return `bg-gradient-to-l from-${color}-${lighterIntensity} to-${color}-${intensityNum}`;
   }
 }
+
+/**
+ * Get an enhanced gradient for the home team with a darker appearance
+ * @param teamName The name of the team
+ * @returns Enhanced gradient string for CSS background property
+ */
+export function getEnhancedHomeTeamGradient(teamName: string): string {
+  const regularGradient = getTeamGradient(teamName, 'to-r');
+  
+  // Make it more dramatic by adding a darkening effect
+  return regularGradient.replace('bg-gradient-to-r', 'bg-gradient-to-br');
+}
