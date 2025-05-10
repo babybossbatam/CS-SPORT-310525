@@ -19,7 +19,28 @@ const apiClient = axios.create({
 async function makeRequest(url: string, params: any = {}): Promise<any> {
   try {
     const response = await apiClient.get(url, { params });
-    return response.data;
+    
+    // Check if response has the expected structure
+    if (response.data && response.data.success === true) {
+      // Different endpoints have different data structures - check for common response formats
+      if (response.data.sports) {
+        return response.data.sports;
+      } else if (response.data.tournaments) {
+        return response.data.tournaments;
+      } else if (response.data.matches) {
+        return response.data.matches;
+      } else if (response.data.data) {
+        return response.data.data;
+      } else {
+        // If we don't recognize the format, return the whole data object
+        console.log('Unrecognized response format:', Object.keys(response.data));
+        return response.data;
+      }
+    } else {
+      // API returned an error
+      console.error('API error:', response.data);
+      throw new Error(response.data?.message || 'Unknown API error');
+    }
   } catch (error) {
     console.error(`Error making API request to ${url}:`, error);
     
@@ -39,20 +60,18 @@ export async function getAllSports() {
   return makeRequest('/allsports');
 }
 
-// Get all football leagues
+// Get all football/soccer leagues
 export async function getFootballLeagues() {
-  // First get all sports to find football ID
-  const allSports = await getAllSports();
-  const football = allSports.find((sport: any) => 
-    sport.name.toLowerCase() === 'football' || sport.name.toLowerCase() === 'soccer'
-  );
+  // Soccer is always sport ID "sr:sport:1" in SportsRadar
+  const SOCCER_ID = 'sr:sport:1';
   
-  if (!football) {
-    throw new Error('Football sport not found');
+  try {
+    console.log(`Getting soccer leagues with ID: ${SOCCER_ID}`);
+    return makeRequest(`/sports/${SOCCER_ID}/tournaments`);
+  } catch (error) {
+    console.error('Error getting soccer leagues:', error);
+    throw error;
   }
-  
-  // Then get leagues for football
-  return makeRequest(`/sports/${football.id}/tournaments`);
 }
 
 // Get fixtures for a specific league
