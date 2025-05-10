@@ -390,76 +390,66 @@ const MatchFilters = () => {
               </div>
             </div>
             
-            {/* Show matches with proper filtering for popular leagues */}
-            {Object.entries(
-              // Group matches by league and identify popular leagues
-              fixturesByDate.reduce((acc, match) => {
-                // Skip if match is missing key properties
-                if (!match || !match.league || !match.teams) return acc;
+            {/* Display matches directly - we've identified that all leagues have ID 0 and no name */}
+            {/* Simplify to a clean approach using countries as categories instead */}
+            {(() => {
+              // Group matches by country
+              const matchesByCountry = fixturesByDate.reduce((groups, match) => {
+                // Skip invalid matches
+                if (!match || !match.league || !match.teams) return groups;
                 
-                const leagueId = match.league.id.toString();
-                // Check by league ID (most reliable method)
-                const isPopularById = popularLeagueIds.map(id => id.toString()).includes(leagueId);
+                // Use country as group key since league IDs are all 0
+                const country = match.league.country || 'Other';
                 
-                // Alternative check by league name - be more lenient
-                const leagueName = (match.league.name || '').toLowerCase();
-                const popularNames = [
-                  'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
-                  'europa', 'uefa', 'world cup', 'euro'
-                ];
-                const isPopularByName = popularNames.some(name => leagueName.includes(name));
-                
-                // Combined check
-                const isPopular = isPopularById || isPopularByName;
-                
-                // Debug important leagues
-                if (isPopular) {
-                  console.log(`Including league: ${match.league.name} (ID: ${leagueId}), Popular: ${isPopular}`);
-                }
-                
-                if (!acc[leagueId]) {
-                  acc[leagueId] = {
-                    league: match.league,
-                    matches: [],
-                    isPopular: isPopular
+                if (!groups[country]) {
+                  groups[country] = {
+                    country,
+                    matches: []
                   };
                 }
-                acc[leagueId].matches.push(match);
-                return acc;
-              }, {} as Record<string, { league: any, matches: typeof matchesToDisplay, isPopular: boolean }>)
-            )
-            // Sort to show popular leagues first, then sort by popularity
-            .sort(([_, a], [__, b]) => {
-              if (a.isPopular && !b.isPopular) return -1;
-              if (!a.isPopular && b.isPopular) return 1;
-              return 0;
-            })
-            // Limit to first 8 leagues to avoid overwhelming the user
-            .slice(0, 8)  
-            .map(([leagueId, { league, matches }]) => (
-              <div key={leagueId} className="mb-2">
-                {/* League header */}
+                
+                groups[country].matches.push(match);
+                return groups;
+              }, {} as Record<string, { country: string, matches: any[] }>);
+              
+              // Sort countries to prioritize major football countries
+              const popularCountries = [
+                'England', 'Spain', 'Italy', 'Germany', 'France', 
+                'World', 'Europe', 'Netherlands', 'Portugal'
+              ];
+              
+              return Object.entries(matchesByCountry)
+                // Sort by popular countries first
+                .sort(([countryA], [countryB]) => {
+                  const indexA = popularCountries.indexOf(countryA);
+                  const indexB = popularCountries.indexOf(countryB);
+                  
+                  // If both countries are in the popular list, sort by their index
+                  if (indexA >= 0 && indexB >= 0) return indexA - indexB;
+                  
+                  // If only countryA is popular, it comes first
+                  if (indexA >= 0) return -1;
+                  
+                  // If only countryB is popular, it comes first
+                  if (indexB >= 0) return 1;
+                  
+                  // Otherwise alphabetical sort
+                  return countryA.localeCompare(countryB);
+                })
+                // Limit to 8 countries
+                .slice(0, 8);
+            })()
+            // Map the results to UI components
+            .map(([country, { matches }]) => (
+              <div key={country} className="mb-2">
+                {/* Country header - we're using country as the group id since league data is missing */}
                 <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100 flex items-center">
-                  <img 
-                    src={league.logo} 
-                    alt={league.name}
-                    className="h-4 w-4 object-contain mr-2"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = `https://media.api-sports.io/football/leagues/${league.id}.png`;
-                      target.onerror = () => {
-                        target.src = 'https://static.livescore.com/i/competition/default.png';
-                        target.onerror = null;
-                      };
-                    }}
-                  />
-                  <span className="text-xs font-medium">{league.name}</span>
-                  {league.country && (
-                    <>
-                      <span className="mx-1 text-xs text-gray-400">·</span>
-                      <span className="text-xs text-gray-400">{league.country}</span>
-                    </>
-                  )}
+                  {/* Country flag or icon */}
+                  <div className="w-4 h-4 flex items-center justify-center mr-2 rounded-full bg-gray-200">
+                    <span className="text-xs">{country.substring(0, 1)}</span>
+                  </div>
+                  {/* Country name as the header */}
+                  <span className="text-xs font-medium">{country}</span>
                 </div>
                 
                 {matches.map((match) => (
