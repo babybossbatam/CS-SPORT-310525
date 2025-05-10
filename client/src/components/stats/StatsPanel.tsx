@@ -76,33 +76,33 @@ const StatsPanel = () => {
       <CardHeader className="p-4 border-b border-neutral-200">
         <h3 className="text-center font-medium">Goals</h3>
       </CardHeader>
-      <div className="p-4 space-y-4">
-        {/* Stats Tabs */}
-        <div className="flex overflow-x-auto py-2 space-x-4 border-b border-neutral-200">
-          {POPULAR_LEAGUES.map((league) => (
-            <button
-              key={league.id}
-              className={`flex items-center px-3 py-2 text-xs whitespace-nowrap rounded-full ${
-                selectedLeague === league.id 
-                  ? 'bg-gray-200 font-medium' 
-                  : 'hover:bg-gray-100'
-              }`}
-              onClick={() => handleLeagueSelect(league.id)}
-            >
-              <img 
-                src={league.logo} 
-                alt={league.name} 
-                className="h-5 w-5 mr-2"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=League';
-                }}
-              />
-              <span>{league.name}</span>
-            </button>
-          ))}
-        </div>
+      {/* Stats Tabs */}
+      <div className="flex overflow-x-auto p-4 pb-2 space-x-4 border-b border-neutral-200">
+        {POPULAR_LEAGUES.map((league) => (
+          <button
+            key={league.id}
+            className={`flex items-center px-3 py-2 text-xs whitespace-nowrap rounded-full ${
+              selectedLeague === league.id 
+                ? 'bg-gray-200 font-medium' 
+                : 'hover:bg-gray-100'
+            }`}
+            onClick={() => handleLeagueSelect(league.id)}
+          >
+            <img 
+              src={league.logo} 
+              alt={league.name} 
+              className="h-5 w-5 mr-2"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=League';
+              }}
+            />
+            <span>{league.name}</span>
+          </button>
+        ))}
+      </div>
 
-        {/* Player Stats */}
+      {/* Player Stats */}
+      <div className="p-4 space-y-4">
         {loading && !selectedLeagueTopScorers.length ? (
           Array(3).fill(0).map((_, index) => (
             <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100">
