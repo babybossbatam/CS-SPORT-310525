@@ -442,13 +442,33 @@ const TodayMatches = () => {
               
               {/* Teams and Score */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium w-[38%] text-left truncate">{match.teams.home.name}</span>
+                <div className="flex items-center w-[38%]">
+                  <img 
+                    src={match.teams.home.logo} 
+                    alt={match.teams.home.name}
+                    className="h-5 w-5 mr-2 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                    }}
+                  />
+                  <span className="text-sm font-medium text-left truncate">{match.teams.home.name}</span>
+                </div>
                 <div className="flex items-center justify-center space-x-1 w-[24%]">
                   <span className="font-bold text-base">{match.goals.home}</span>
                   <span className="text-gray-400 font-bold">-</span>
                   <span className="font-bold text-base">{match.goals.away}</span>
                 </div>
-                <span className="text-sm font-medium w-[38%] text-right truncate">{match.teams.away.name}</span>
+                <div className="flex items-center justify-end w-[38%]">
+                  <span className="text-sm font-medium text-right truncate">{match.teams.away.name}</span>
+                  <img 
+                    src={match.teams.away.logo} 
+                    alt={match.teams.away.name}
+                    className="h-5 w-5 ml-2 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                    }}
+                  />
+                </div>
               </div>
               
               {/* Aggregate Score */}
