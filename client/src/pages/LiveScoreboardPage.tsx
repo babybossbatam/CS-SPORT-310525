@@ -30,6 +30,7 @@ import {
   getOpposingTeamColor,
   getTeamColor
 } from '@/lib/colorUtils';
+import { getValidDate } from '@/lib/dateUtils';
 
 // Define types locally
 interface Team {
@@ -234,7 +235,7 @@ function LiveScoreboardPage() {
       }
       
       // Final sorting: By match time
-      return compareAsc(parseISO(a.fixture.date), parseISO(b.fixture.date));
+      return compareAsc(getValidDate(a.fixture.date), getValidDate(b.fixture.date));
     });
     
     // Compare stringified arrays to check for actual changes
