@@ -564,7 +564,14 @@ export function LiveScoreboard({
                     alt={match.teams.home.name}
                     className="h-6 w-6 object-contain"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                      // Try the livescore URL
+                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
+                      
+                      // Add a second error handler for complete fallback
+                      (e.target as HTMLImageElement).onerror = () => {
+                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                      };
                     }}
                   />
                 </div>
@@ -587,7 +594,14 @@ export function LiveScoreboard({
                     alt={match.teams.away.name}
                     className="h-6 w-6 object-contain"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                      // Try the livescore URL
+                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
+                      
+                      // Add a second error handler for complete fallback
+                      (e.target as HTMLImageElement).onerror = () => {
+                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                      };
                     }}
                   />
                   <span className="font-medium text-sm truncate">{match.teams.away.name}</span>
