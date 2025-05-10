@@ -185,8 +185,15 @@ const MatchFilters = () => {
     }).slice(0, 20); // Show more matches for better coverage
   };
   
-  // Get the matches to display in the list
-  const matchesToDisplay = getMatchesToDisplay();
+  // Get the matches to display in the list, with error handling
+  const matchesToDisplay = (() => {
+    try {
+      return getMatchesToDisplay();
+    } catch (error) {
+      console.error("Error getting matches to display:", error);
+      return []; // Return empty array on error instead of breaking the component
+    }
+  })();
   
   // Determine if we should show the component based on our current location
   // Prevent flickering by checking if we're mounted and not in transition between pages
@@ -196,6 +203,11 @@ const MatchFilters = () => {
   if (!shouldShowComponent) {
     return null;
   }
+  
+  // Log to help debug what we're actually displaying
+  console.log(`Displaying ${matchesToDisplay.length} matches for date ${selectedDate}`);
+  console.log(`Filter: ${selectedFilter}, Loading: ${loading}`);
+  
   
   return (
     <div className="bg-white shadow-sm rounded-lg">
@@ -346,9 +358,10 @@ const MatchFilters = () => {
             ))}
           </div>
         ) : (
-          // Empty state
-          <div className="text-center py-6 text-sm text-gray-500">
-            No matches available for the selected filter
+          // Empty state with helpful message
+          <div className="text-center py-8 px-4 text-sm text-gray-500">
+            <p className="mb-2">No matches available for the selected date.</p>
+            <p>Try selecting a different date or check back later.</p>
           </div>
         )}
       </div>
