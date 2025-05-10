@@ -176,6 +176,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const fixtures = await livescoreApiService.getLiveFixtures();
         if (fixtures && fixtures.length > 0) {
+          console.log(`Retrieved ${fixtures.length} live fixtures from Livescore API`);
+          
+          // Cache the live fixtures for later use
+          for (const fixture of fixtures) {
+            try {
+              const fixtureId = fixture.fixture.id.toString();
+              const existingFixture = await storage.getCachedFixture(fixtureId);
+              
+              if (existingFixture) {
+                await storage.updateCachedFixture(fixtureId, fixture);
+              } else {
+                await storage.createCachedFixture({
+                  fixtureId: fixtureId,
+                  date: new Date().toISOString().split('T')[0],
+                  leagueId: fixture.league.id.toString(),
+                  data: fixture
+                });
+              }
+            } catch (cacheError) {
+              console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
+            }
+          }
+          
           return res.json(fixtures);
         }
       } catch (livescoreError) {
@@ -183,8 +206,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Fall back to RapidAPI if needed
-      const fixtures = await rapidApiService.getLiveFixtures();
-      res.json(fixtures);
+      try {
+        const fixtures = await rapidApiService.getLiveFixtures();
+        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
+        
+        // Cache the live fixtures
+        for (const fixture of fixtures) {
+          try {
+            const fixtureId = fixture.fixture.id.toString();
+            const existingFixture = await storage.getCachedFixture(fixtureId);
+            
+            if (existingFixture) {
+              await storage.updateCachedFixture(fixtureId, fixture);
+            } else {
+              await storage.createCachedFixture({
+                fixtureId: fixtureId,
+                date: new Date().toISOString().split('T')[0],
+                leagueId: fixture.league.id.toString(),
+                data: fixture
+              });
+            }
+          } catch (cacheError) {
+            console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
+          }
+        }
+        
+        return res.json(fixtures);
+      } catch (rapidApiError) {
+        console.error('RapidAPI error for live fixtures:', rapidApiError);
+        
+        // If both APIs fail, try to return cached live fixtures from today
+        try {
+          const todayDate = new Date().toISOString().split('T')[0];
+          const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
+          const liveFixtures = cachedFixtures.filter(fixture => 
+            fixture.data.fixture.status.short === 'LIVE' || 
+            fixture.data.fixture.status.short === '1H' || 
+            fixture.data.fixture.status.short === '2H' || 
+            fixture.data.fixture.status.short === 'HT'
+          ).map(fixture => fixture.data);
+          
+          if (liveFixtures.length > 0) {
+            console.log(`Using ${liveFixtures.length} cached live fixtures`);
+            return res.json(liveFixtures);
+          }
+        } catch (cacheError) {
+          console.error('Error retrieving cached live fixtures:', cacheError);
+        }
+        
+        // If everything fails, return an empty array
+        return res.json([]);
+      }
     } catch (error) {
       console.error('Error fetching live fixtures:', error);
       res.status(500).json({ message: "Failed to fetch live fixtures" });

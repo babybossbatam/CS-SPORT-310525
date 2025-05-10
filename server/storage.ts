@@ -25,6 +25,7 @@ export interface IStorage {
   // Fixtures
   getCachedFixture(fixtureId: string): Promise<CachedFixture | undefined>;
   getCachedFixturesByLeague(leagueId: string, date?: string): Promise<CachedFixture[]>;
+  getCachedFixturesByDate(date: string): Promise<CachedFixture[]>;
   createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture>;
   updateCachedFixture(fixtureId: string, data: any): Promise<CachedFixture | undefined>;
   
@@ -138,6 +139,12 @@ export class MemStorage implements IStorage {
         }
         return fixture.league === leagueId;
       }
+    );
+  }
+  
+  async getCachedFixturesByDate(date: string): Promise<CachedFixture[]> {
+    return Array.from(this.fixtures.values()).filter(
+      (fixture) => fixture.date === date
     );
   }
 
