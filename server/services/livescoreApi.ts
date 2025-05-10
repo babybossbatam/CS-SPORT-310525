@@ -19,6 +19,24 @@ const HEADERS = {
  * Converts Livescore API fixture format to our application fixture format
  */
 function mapFixtureResponse(fixture: LivescoreFixtureResponse): FixtureResponse {
+  // Default team images/logos if not available
+  const defaultTeamLogo = 'https://lsm-static-prod.livescore.com/medium/generic-team.png';
+  
+  // Extract home team data safely with fallbacks
+  const homeTeam = fixture.T1 && fixture.T1.length > 0 ? fixture.T1[0] : undefined;
+  const homeTeamId = homeTeam?.Tid || '0';
+  const homeTeamName = homeTeam?.Nm || 'Home Team';
+  const homeTeamImg = homeTeam?.Img || 'generic-team';
+  
+  // Extract away team data safely with fallbacks
+  const awayTeam = fixture.T2 && fixture.T2.length > 0 ? fixture.T2[0] : undefined;
+  const awayTeamId = awayTeam?.Tid || '0';
+  const awayTeamName = awayTeam?.Nm || 'Away Team';
+  const awayTeamImg = awayTeam?.Img || 'generic-team';
+  
+  // Country code with fallback
+  const countryCode = fixture.Ccd || 'generic';
+  
   return {
     fixture: {
       id: parseInt(fixture.Eid || '0'),
@@ -44,23 +62,23 @@ function mapFixtureResponse(fixture: LivescoreFixtureResponse): FixtureResponse 
     league: {
       id: parseInt(fixture.Cid || '0'),
       name: fixture.Cnm || '',
-      country: fixture.Ccd || '',
-      logo: `https://lsm-static-prod.livescore.com/medium/${fixture.Ccd}.png`,
-      flag: `https://lsm-static-prod.livescore.com/medium/${fixture.Ccd}.png`,
+      country: countryCode,
+      logo: `https://lsm-static-prod.livescore.com/medium/${countryCode}.png`,
+      flag: `https://lsm-static-prod.livescore.com/medium/${countryCode}.png`,
       season: new Date().getFullYear(),
       round: fixture.Scd || ''
     },
     teams: {
       home: {
-        id: parseInt(fixture.T1[0]?.Tid || '0'),
-        name: fixture.T1[0]?.Nm || '',
-        logo: `https://lsm-static-prod.livescore.com/medium/${fixture.T1[0]?.Img}.png`,
+        id: parseInt(homeTeamId),
+        name: homeTeamName,
+        logo: homeTeamImg ? `https://lsm-static-prod.livescore.com/medium/${homeTeamImg}.png` : defaultTeamLogo,
         winner: parseInt(fixture.Tr1 || '0') > parseInt(fixture.Tr2 || '0')
       },
       away: {
-        id: parseInt(fixture.T2[0]?.Tid || '0'),
-        name: fixture.T2[0]?.Nm || '',
-        logo: `https://lsm-static-prod.livescore.com/medium/${fixture.T2[0]?.Img}.png`,
+        id: parseInt(awayTeamId),
+        name: awayTeamName,
+        logo: awayTeamImg ? `https://lsm-static-prod.livescore.com/medium/${awayTeamImg}.png` : defaultTeamLogo,
         winner: parseInt(fixture.Tr2 || '0') > parseInt(fixture.Tr1 || '0')
       }
     },

@@ -8,80 +8,235 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Format match date for display
-export function formatMatchDate(dateString: string): string {
-  const date = parseISO(dateString);
+export function formatMatchDate(dateString: string | Date | number | null | undefined): string {
+  if (!dateString) {
+    return 'TBD';
+  }
   
-  if (isToday(date)) {
-    return 'Today';
-  } else if (isYesterday(date)) {
-    return 'Yesterday';
-  } else if (isTomorrow(date)) {
-    return 'Tomorrow';
-  } else {
-    return format(date, 'EEE, do MMM');
+  try {
+    let date: Date;
+    
+    // Handle different input types
+    if (typeof dateString === 'string') {
+      date = parseISO(dateString);
+    } else if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === 'number') {
+      date = new Date(dateString);
+    } else {
+      return 'TBD';
+    }
+    
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      return 'TBD';
+    }
+    
+    if (isToday(date)) {
+      return 'Today';
+    } else if (isYesterday(date)) {
+      return 'Yesterday';
+    } else if (isTomorrow(date)) {
+      return 'Tomorrow';
+    } else {
+      return format(date, 'EEE, do MMM');
+    }
+  } catch (error) {
+    console.error('Error formatting match date:', error);
+    return 'TBD';
   }
 }
 
 // Format exact date and time for upcoming matches
-export function formatExactDateTime(dateString: string): string {
-  const date = parseISO(dateString);
-  return format(date, 'EEE, MMM d, yyyy • h:mm a');
+export function formatExactDateTime(dateString: string | Date | number | null | undefined): string {
+  if (!dateString) {
+    return 'TBD';
+  }
+  
+  try {
+    let date: Date;
+    
+    // Handle different input types
+    if (typeof dateString === 'string') {
+      date = parseISO(dateString);
+    } else if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === 'number') {
+      date = new Date(dateString);
+    } else {
+      return 'TBD';
+    }
+    
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      return 'TBD';
+    }
+    
+    return format(date, 'EEE, MMM d, yyyy • h:mm a');
+  } catch (error) {
+    console.error('Error formatting exact date time:', error);
+    return 'TBD';
+  }
 }
 
 // Function to get formatted match date for display in cards
-export function formatMatchDateFn(dateString: string): string {
-  const date = parseISO(dateString);
-  
-  if (isToday(date)) {
-    return `Today • ${format(date, 'h:mm a')}`;
-  } else if (isTomorrow(date)) {
-    return `Tomorrow • ${format(date, 'h:mm a')}`;
-  } else if (isYesterday(date)) {
-    return `Yesterday • ${format(date, 'h:mm a')}`;
+export function formatMatchDateFn(dateString: string | Date | number | null | undefined): string {
+  if (!dateString) {
+    return 'TBD';
   }
   
-  return format(date, 'EEE, MMM d • h:mm a');
+  try {
+    let date: Date;
+    
+    // Handle different input types
+    if (typeof dateString === 'string') {
+      date = parseISO(dateString);
+    } else if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === 'number') {
+      date = new Date(dateString);
+    } else {
+      return 'TBD';
+    }
+    
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      return 'TBD';
+    }
+    
+    if (isToday(date)) {
+      return `Today • ${format(date, 'h:mm a')}`;
+    } else if (isTomorrow(date)) {
+      return `Tomorrow • ${format(date, 'h:mm a')}`;
+    } else if (isYesterday(date)) {
+      return `Yesterday • ${format(date, 'h:mm a')}`;
+    }
+    
+    return format(date, 'EEE, MMM d • h:mm a');
+  } catch (error) {
+    console.error('Error formatting match date function:', error);
+    return 'TBD';
+  }
 }
 
 // Function to calculate countdown timer
-export function getCountdownTimer(dateString: string): string {
-  const matchDate = parseISO(dateString);
-  const now = new Date();
-  
-  // Get difference in milliseconds
-  const diffMs = matchDate.getTime() - now.getTime();
-  
-  if (diffMs <= 0) {
-    return "Starting now";
+export function getCountdownTimer(dateString: string | Date | number): string {
+  // Handle missing or invalid input
+  if (!dateString) {
+    return "TBD";
   }
   
-  // Convert to days, hours, minutes, seconds
-  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+  let matchDate: Date;
   
-  if (days > 0) {
-    return `${days}d ${hours}h`;
-  } else if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  } else if (minutes > 0) {
-    return `${minutes}m ${seconds}s`;
-  } else {
-    return `${seconds}s`;
+  try {
+    // Handle different input types
+    if (typeof dateString === 'string') {
+      matchDate = parseISO(dateString);
+    } else if (dateString instanceof Date) {
+      matchDate = dateString;
+    } else if (typeof dateString === 'number') {
+      matchDate = new Date(dateString);
+    } else {
+      return "TBD";
+    }
+    
+    // Check for invalid date
+    if (isNaN(matchDate.getTime())) {
+      return "TBD";
+    }
+    
+    const now = new Date();
+    
+    // Get difference in milliseconds
+    const diffMs = matchDate.getTime() - now.getTime();
+    
+    if (diffMs <= 0) {
+      return "Starting now";
+    }
+    
+    // Convert to days, hours, minutes, seconds
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+    
+    if (days > 0) {
+      return `${days}d ${hours}h`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  } catch (error) {
+    console.error("Error calculating countdown:", error);
+    return "TBD";
   }
 }
 
 // Format match time for display
-export function formatMatchTime(dateString: string): string {
-  const date = parseISO(dateString);
-  return format(date, 'HH:mm');
+export function formatMatchTime(dateString: string | Date | number | null | undefined): string {
+  if (!dateString) {
+    return 'TBD';
+  }
+  
+  try {
+    let date: Date;
+    
+    // Handle different input types
+    if (typeof dateString === 'string') {
+      date = parseISO(dateString);
+    } else if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === 'number') {
+      date = new Date(dateString);
+    } else {
+      return 'TBD';
+    }
+    
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      return 'TBD';
+    }
+    
+    return format(date, 'HH:mm');
+  } catch (error) {
+    console.error('Error formatting match time:', error);
+    return 'TBD';
+  }
 }
 
 // Format date and time for display
-export function formatDateTime(dateString: string): string {
-  const date = parseISO(dateString);
-  return `${format(date, 'EEE, do MMM')} | ${format(date, 'HH:mm')}`;
+export function formatDateTime(dateString: string | Date | number | null | undefined): string {
+  if (!dateString) {
+    return 'TBD';
+  }
+  
+  try {
+    let date: Date;
+    
+    // Handle different input types
+    if (typeof dateString === 'string') {
+      date = parseISO(dateString);
+    } else if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === 'number') {
+      date = new Date(dateString);
+    } else {
+      return 'TBD';
+    }
+    
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      return 'TBD';
+    }
+    
+    return `${format(date, 'EEE, do MMM')} | ${format(date, 'HH:mm')}`;
+  } catch (error) {
+    console.error('Error formatting date time:', error);
+    return 'TBD';
+  }
 }
 
 // Get match status text
@@ -354,12 +509,68 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
 // Get team accent colors for background elements
 export function getTeamBackgroundColor(teamName: string): string {
   // Special team-specific colors
-  if (teamName.toLowerCase().includes('juventus')) {
+  if (teamName && teamName.toLowerCase().includes('juventus')) {
     return 'bg-gray-100';
   }
   
-  if (teamName.toLowerCase().includes('real madrid')) {
+  if (teamName && teamName.toLowerCase().includes('real madrid')) {
     return 'bg-blue-50';
+  }
+  
+  // Color themes based on team kits
+  if (
+    teamName && (
+    teamName.toLowerCase().includes('chelsea') ||
+    teamName.toLowerCase().includes('everton') ||
+    teamName.toLowerCase().includes('leicester') ||
+    teamName.toLowerCase().includes('brighton') ||
+    teamName.toLowerCase().includes('napoli') ||
+    teamName.toLowerCase().includes('lazio') ||
+    teamName.toLowerCase().includes('marseille')
+    )
+  ) {
+    return 'bg-blue-50';
+  }
+  
+  if (
+    teamName && (
+    teamName.toLowerCase().includes('manchester united') ||
+    teamName.toLowerCase().includes('liverpool') ||
+    teamName.toLowerCase().includes('arsenal') ||
+    teamName.toLowerCase().includes('atletico') ||
+    teamName.toLowerCase().includes('milan') ||
+    teamName.toLowerCase().includes('bayern')
+    )
+  ) {
+    return 'bg-red-50';
+  }
+  
+  if (
+    teamName && (
+    teamName.toLowerCase().includes('celtic') ||
+    teamName.toLowerCase().includes('betis') ||
+    teamName.toLowerCase().includes('wolfsburg') ||
+    teamName.toLowerCase().includes('sporting')
+    )
+  ) {
+    return 'bg-green-50';
+  }
+  
+  // Default light background
+  return 'bg-gray-50';
+}
+
+// Get team primary color for text and borders
+export function getTeamColor(teamName: string): string {
+  if (!teamName) return 'text-gray-800';
+  
+  // Special team-specific colors
+  if (teamName.toLowerCase().includes('juventus')) {
+    return 'text-gray-800';
+  }
+  
+  if (teamName.toLowerCase().includes('real madrid')) {
+    return 'text-blue-600';
   }
   
   // Color themes based on team kits
@@ -372,7 +583,7 @@ export function getTeamBackgroundColor(teamName: string): string {
     teamName.toLowerCase().includes('lazio') ||
     teamName.toLowerCase().includes('marseille')
   ) {
-    return 'bg-blue-50';
+    return 'text-blue-600';
   }
   
   if (
@@ -383,7 +594,7 @@ export function getTeamBackgroundColor(teamName: string): string {
     teamName.toLowerCase().includes('milan') ||
     teamName.toLowerCase().includes('bayern')
   ) {
-    return 'bg-red-50';
+    return 'text-red-600';
   }
   
   if (
@@ -392,9 +603,52 @@ export function getTeamBackgroundColor(teamName: string): string {
     teamName.toLowerCase().includes('wolfsburg') ||
     teamName.toLowerCase().includes('sporting')
   ) {
-    return 'bg-green-50';
+    return 'text-green-600';
   }
   
-  // Default light background
-  return 'bg-gray-50';
+  // Default text color
+  return 'text-gray-800';
+}
+
+// Get opposing team color for visual contrast
+export function getOpposingTeamColor(teamName: string): string {
+  if (!teamName) return 'from-gray-800 to-gray-600';
+  
+  // For red teams, use blue
+  if (
+    teamName.toLowerCase().includes('manchester united') ||
+    teamName.toLowerCase().includes('liverpool') ||
+    teamName.toLowerCase().includes('arsenal') ||
+    teamName.toLowerCase().includes('atletico') ||
+    teamName.toLowerCase().includes('milan') ||
+    teamName.toLowerCase().includes('bayern')
+  ) {
+    return 'from-blue-700 to-blue-500';
+  }
+  
+  // For blue teams, use red
+  if (
+    teamName.toLowerCase().includes('chelsea') ||
+    teamName.toLowerCase().includes('everton') ||
+    teamName.toLowerCase().includes('leicester') ||
+    teamName.toLowerCase().includes('brighton') ||
+    teamName.toLowerCase().includes('napoli') ||
+    teamName.toLowerCase().includes('lazio') ||
+    teamName.toLowerCase().includes('marseille')
+  ) {
+    return 'from-red-700 to-red-500';
+  }
+  
+  // For green teams, use purple
+  if (
+    teamName.toLowerCase().includes('celtic') ||
+    teamName.toLowerCase().includes('betis') ||
+    teamName.toLowerCase().includes('wolfsburg') ||
+    teamName.toLowerCase().includes('sporting')
+  ) {
+    return 'from-purple-700 to-purple-500';
+  }
+  
+  // Default opposing gradient
+  return 'from-gray-800 to-gray-600';
 }
