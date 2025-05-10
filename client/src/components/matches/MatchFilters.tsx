@@ -440,6 +440,88 @@ const MatchFilters = () => {
               </div>
             </div>
 
+            {/* Display matches section */}
+            <div className="border-t border-gray-100">
+              {matchesToDisplay.map((match) => (
+                <div 
+                  key={match.fixture.id} 
+                  className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                >
+                  {/* Match row with simplified design like 365scores */}
+                  <div className="px-3 py-2 flex items-center">
+                    {/* Time/Status */}
+                    <div className="w-[10%] mr-2">
+                      {['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? (
+                        <div className="w-10 text-center">
+                          <span className="text-xs font-semibold px-1.5 py-0.5 bg-red-100 text-red-600 rounded">
+                            {match.fixture.status.short === 'HT' ? 'HT' : 
+                             match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="w-10 text-center text-xs text-gray-500">
+                          {format(new Date(match.fixture.date), 'HH:mm')}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Left team */}
+                    <div className="flex items-center justify-end w-[35%]">
+                      <span className="text-sm font-medium truncate text-right max-w-[130px] mr-2">
+                        {match.teams.home.name}
+                      </span>
+                      <img 
+                        src={match.teams.home.logo} 
+                        alt={match.teams.home.name} 
+                        className="h-5 w-5 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = `https://media.api-sports.io/football/teams/${match.teams.home.id}.png`;
+                          target.onerror = () => {
+                            target.src = 'https://static.livescore.com/i/team/default.png';
+                            target.onerror = null;
+                          };
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Score in the middle */}
+                    <div className="flex items-center justify-center min-w-[40px] px-2 text-center">
+                      {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                        <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-bold`}>
+                          {match.goals.home} - {match.goals.away}
+                        </div>
+                      ) : (
+                        <div className="text-gray-400 text-sm">
+                          vs
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Right team */}
+                    <div className="flex items-center w-[35%]">
+                      <img 
+                        src={match.teams.away.logo} 
+                        alt={match.teams.away.name} 
+                        className="h-5 w-5 object-contain mr-2"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = `https://media.api-sports.io/football/teams/${match.teams.away.id}.png`;
+                          target.onerror = () => {
+                            target.src = 'https://static.livescore.com/i/team/default.png';
+                            target.onerror = null;
+                          };
+                        }}
+                      />
+                      <span className="text-sm font-medium truncate max-w-[130px]">
+                        {match.teams.away.name}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           // Empty state with helpful message
