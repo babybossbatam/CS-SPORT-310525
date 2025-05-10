@@ -136,12 +136,12 @@ const TodayMatches = () => {
     }
   ];
 
-  // Get live matches (use either real API or mock data)
+  // Get live matches from the API
   const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
     queryKey: ['/api/fixtures/live'],
     queryFn: async () => {
-      // Toggle between real and mock data for testing
-      const useMockData = true; // Set to false for real API data
+      // Using real API data for production
+      const useMockData = false; // Use real data from API
       
       if (useMockData) {
         // For testing live match functionality without real live matches
@@ -387,23 +387,23 @@ const TodayMatches = () => {
           </span>
           <div className="flex items-center">
             <img 
-              src="https://media.api-sports.io/football/leagues/3.png"
-              alt="UEFA Europa League"
+              src="https://media.api-sports.io/football/leagues/2.png"
+              alt="Popular Football Leagues"
               className="h-5 w-5 mr-2"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
               }}
             />
             <div className="flex flex-col">
-              <span className="text-sm font-medium">UEFA Europa League</span>
-              <span className="text-xs text-gray-500">Europe</span>
+              <span className="text-sm font-medium">Popular Football Leagues</span>
+              <span className="text-xs text-gray-500">Champions, Europa, Serie A</span>
             </div>
           </div>
         </div>
 
         {/* Display the fixtures in the new format */}
         {todayMatches
-          .filter(match => match.league.id === 3) // Only Europa League matches
+          // Show matches from all popular leagues instead of just Europa League
           .map((match) => (
             <div 
               key={match.fixture.id}
