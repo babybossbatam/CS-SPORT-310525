@@ -174,6 +174,75 @@ export interface NewsItem {
   url: string;
 }
 
+// Sportsradar API Types
+export interface SportsradarTeam {
+  id: number | string;
+  name: string;
+  logo?: string;
+  cc?: string;  // Country code
+}
+
+export interface SportsradarCategory {
+  id: number | string;
+  name: string;
+  cc?: string;  // Country code
+}
+
+export interface SportsradarTournament {
+  id: number | string;
+  name: string;
+  category?: SportsradarCategory;
+  logo?: string;
+}
+
+export interface SportsradarVenue {
+  id?: number | string;
+  name?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface SportsradarRound {
+  id?: number | string;
+  name?: string;
+}
+
+export interface SportsradarFixture {
+  id: number | string;
+  tournament?: SportsradarTournament;
+  round?: SportsradarRound;
+  status?: string;
+  scheduled?: string;
+  minute?: number;
+  home_team?: SportsradarTeam;
+  away_team?: SportsradarTeam;
+  home_score?: number;
+  away_score?: number;
+  home_score_half_1?: number;
+  away_score_half_1?: number;
+  venue?: SportsradarVenue;
+  referee?: string;
+  timezone?: string;
+}
+
+export interface SportsradarLeague {
+  id: number | string;
+  name: string;
+  category?: SportsradarCategory;
+  current_season?: {
+    id: number | string;
+    name: string;
+    start_date: string;
+    end_date: string;
+  };
+  logo?: string;
+}
+
+export interface RapidApiResponse {
+  success: boolean;
+  data: any;
+}
+
 // Livescore API specific types - these will be transformed to match our app's common types
 
 export interface LivescoreTeam {
