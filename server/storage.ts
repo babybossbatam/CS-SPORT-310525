@@ -374,6 +374,19 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
   }
+  
+  async getCachedFixturesByDate(date: string): Promise<CachedFixture[]> {
+    try {
+      const query = db.select()
+        .from(cachedFixtures)
+        .where(eq(cachedFixtures.date, date));
+      
+      return await query;
+    } catch (error) {
+      console.error('Error getting fixtures by date:', error);
+      return [];
+    }
+  }
 
   async createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture> {
     try {

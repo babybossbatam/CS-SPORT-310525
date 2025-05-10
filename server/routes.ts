@@ -190,7 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 await storage.createCachedFixture({
                   fixtureId: fixtureId,
                   date: new Date().toISOString().split('T')[0],
-                  leagueId: fixture.league.id.toString(),
+                  league: fixture.league.id.toString(),
                   data: fixture
                 });
               }
@@ -222,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               await storage.createCachedFixture({
                 fixtureId: fixtureId,
                 date: new Date().toISOString().split('T')[0],
-                leagueId: fixture.league.id.toString(),
+                league: fixture.league.id.toString(),
                 data: fixture
               });
             }
@@ -239,12 +239,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const todayDate = new Date().toISOString().split('T')[0];
           const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
-          const liveFixtures = cachedFixtures.filter(fixture => 
-            fixture.data.fixture.status.short === 'LIVE' || 
-            fixture.data.fixture.status.short === '1H' || 
-            fixture.data.fixture.status.short === '2H' || 
-            fixture.data.fixture.status.short === 'HT'
-          ).map(fixture => fixture.data);
+          const liveFixtures = cachedFixtures
+            .filter((fixture: CachedFixture) => {
+              const fixtureData = fixture.data as any;
+              return fixtureData && fixtureData.fixture && 
+                (fixtureData.fixture.status.short === 'LIVE' || 
+                fixtureData.fixture.status.short === '1H' || 
+                fixtureData.fixture.status.short === '2H' || 
+                fixtureData.fixture.status.short === 'HT');
+            })
+            .map((fixture: CachedFixture) => fixture.data);
           
           if (liveFixtures.length > 0) {
             console.log(`Using ${liveFixtures.length} cached live fixtures`);
@@ -438,7 +442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   await storage.updateCachedLeague(leagueId, league);
                 } else {
                   await storage.createCachedLeague({
-                    leagueId: leagueId,
+                    league: leagueId,
                     data: league
                   });
                 }
