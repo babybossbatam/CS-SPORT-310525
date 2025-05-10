@@ -253,13 +253,16 @@ const FeaturedMatch = () => {
           {/* Match Bar - Full gradient from HOME logo through VS to AWAY logo */}
           <div className="absolute left-0 right-0 h-12 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden rounded-md shadow-lg">
             {/* Single gradient background from home team color to away team color */}
-            <div 
-              className="w-full h-full" 
-              style={{ 
-                background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name, true)} 0%, ${getTeamColor(featuredMatch.teams.home.name, true)} 49%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 51%, ${getOpposingTeamColor(featuredMatch.teams.home.name, featuredMatch.teams.away.name)} 100%)`,
-                boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)'
-              }}
-            ></div>
+            <div className="w-full h-full flex">
+              <div 
+                className={`w-1/2 h-full ${getTeamColor(featuredMatch.teams.home.name)}`} 
+                style={{ boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)' }}
+              ></div>
+              <div 
+                className={`w-1/2 h-full ${getTeamColor(featuredMatch.teams.away.name)}`} 
+                style={{ boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)' }}
+              ></div>
+            </div>
           </div>
           
           {/* VS or Score section */}

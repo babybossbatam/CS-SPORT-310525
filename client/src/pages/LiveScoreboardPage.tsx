@@ -279,8 +279,23 @@ function LiveScoreboardPage() {
     
     // Calculate countdown outside of state change to prevent multiple renders
     const updateCountdown = () => {
-      const time = getCountdownTimer(featuredFixture.fixture.date);
-      setCountdown(time);
+      try {
+        if (!featuredFixture.fixture.date) {
+          setCountdown('TBD');
+          return;
+        }
+        
+        // Use timestamp if available, otherwise use date string
+        const dateValue = featuredFixture.fixture.timestamp 
+          ? new Date(featuredFixture.fixture.timestamp * 1000) 
+          : featuredFixture.fixture.date;
+          
+        const time = getCountdownTimer(dateValue);
+        setCountdown(time);
+      } catch (error) {
+        console.error('Error updating countdown:', error);
+        setCountdown('TBD');
+      }
     };
     
     // Initial countdown

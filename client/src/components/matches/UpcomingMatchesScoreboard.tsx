@@ -458,12 +458,10 @@ const UpcomingMatchesScoreboard = () => {
               {/* Status indicator bar - colored based on home/away team */}
               <div className="h-1 w-full mt-2 rounded-full overflow-hidden flex">
                 <div 
-                  className="w-[60%] h-full rounded-l-full" 
-                  style={{ backgroundColor: getTeamColor(match.teams.home.name, true) }}
+                  className={`w-[60%] h-full rounded-l-full ${getTeamColor(match.teams.home.name)}`}
                 ></div>
                 <div 
-                  className="w-[40%] h-full rounded-r-full" 
-                  style={{ backgroundColor: getTeamColor(match.teams.away.name, true) }}
+                  className={`w-[40%] h-full rounded-r-full ${getTeamColor(match.teams.away.name)}`}
                 ></div>
               </div>
               
