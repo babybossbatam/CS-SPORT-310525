@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FixtureResponse } from '../../../../server/types';
-import { getTeamColor } from '@/lib/utils';
+import { getTeamColor } from '@/lib/colorUtils';
 import { Play, Volume2, VolumeX, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 

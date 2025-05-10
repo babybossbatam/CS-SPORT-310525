@@ -346,141 +346,62 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
-// Team color mapping based on common team logos and colors
-export const teamColorMap: Record<string, { primary: string, secondary: string }> = {
-  // Premier League teams
-  'Manchester City': { primary: 'from-sky-700', secondary: 'to-sky-500' },
-  'Manchester United': { primary: 'from-red-800', secondary: 'to-red-600' },
-  'Liverpool': { primary: 'from-red-700', secondary: 'to-red-500' },
-  'Chelsea': { primary: 'from-blue-800', secondary: 'to-blue-600' },
-  'Arsenal': { primary: 'from-red-900', secondary: 'to-red-700' },
-  'Tottenham': { primary: 'from-blue-900', secondary: 'to-blue-800' },
-  'Newcastle': { primary: 'from-black', secondary: 'to-gray-800' },
-  'Aston Villa': { primary: 'from-indigo-900', secondary: 'to-indigo-700' },
-  'West Ham': { primary: 'from-purple-800', secondary: 'to-purple-600' },
-  'Brighton': { primary: 'from-blue-600', secondary: 'to-blue-400' },
-  'Everton': { primary: 'from-blue-800', secondary: 'to-blue-600' },
-  'Leicester': { primary: 'from-blue-700', secondary: 'to-blue-500' },
-  
-  // LaLiga teams
-  'Real Madrid': { primary: 'from-indigo-900', secondary: 'to-indigo-700' },
-  'Barcelona': { primary: 'from-blue-800', secondary: 'to-red-800' },
-  'Atletico Madrid': { primary: 'from-red-700', secondary: 'to-white' },
-  'Sevilla': { primary: 'from-red-800', secondary: 'to-red-600' },
-  'Valencia': { primary: 'from-orange-600', secondary: 'to-orange-400' },
-  'Real Betis': { primary: 'from-green-800', secondary: 'to-green-600' },
-  'Athletic Bilbao': { primary: 'from-red-700', secondary: 'to-red-500' },
+/**
+ * Get team color as a Tailwind class
+ * @param teamName The name of the team
+ * @returns A Tailwind background color class (e.g., 'bg-blue-700')
+ */
+export function getTeamColor(teamName: string): string {
+  // Map common team names to Tailwind colors
+  const teamColorMap: Record<string, string> = {
+    // Premier League teams
+    'Manchester City': 'bg-sky-600',
+    'Manchester United': 'bg-red-700',
+    'Liverpool': 'bg-red-700',
+    'Chelsea': 'bg-blue-700',
+    'Arsenal': 'bg-red-700',
+    'Tottenham': 'bg-blue-900',
+    'Newcastle': 'bg-black',
+    'Aston Villa': 'bg-indigo-900',
+    'West Ham': 'bg-purple-800',
+    'Brighton': 'bg-blue-600',
+    'Everton': 'bg-blue-800',
+    'Leicester': 'bg-blue-700',
+    
+    // LaLiga teams
+    'Real Madrid': 'bg-indigo-900',
+    'Barcelona': 'bg-blue-800',
+    'Atletico Madrid': 'bg-red-700',
+    'Sevilla': 'bg-red-800',
+    'Valencia': 'bg-orange-600',
+    'Real Betis': 'bg-green-800',
+    'Athletic Bilbao': 'bg-red-700',
+   
+    // Serie A teams
+    'Juventus': 'bg-black',
+    'AC Milan': 'bg-red-900',
+    'Inter': 'bg-blue-900',
+    'Napoli': 'bg-blue-700',
+    'Roma': 'bg-amber-700',
+    'Lazio': 'bg-sky-600',
+    
+    // Bundesliga teams
+    'Bayern Munich': 'bg-red-800',
+    'Borussia Dortmund': 'bg-yellow-500',
+    'RB Leipzig': 'bg-red-600',
+    'Bayer Leverkusen': 'bg-red-700',
+    
+    // Ligue 1 teams
+    'Paris Saint Germain': 'bg-blue-900',
+    'PSG': 'bg-blue-900',
+    'Marseille': 'bg-sky-600',
+    'Lyon': 'bg-blue-700',
+    'Monaco': 'bg-red-700',
+  };
 
-  // Serie A teams
-  'Juventus': { primary: 'from-black', secondary: 'to-white' },
-  'AC Milan': { primary: 'from-red-900', secondary: 'to-black' },
-  'Inter': { primary: 'from-blue-900', secondary: 'to-black' },
-  'Napoli': { primary: 'from-blue-700', secondary: 'to-blue-500' },
-  'Roma': { primary: 'from-amber-700', secondary: 'to-red-800' },
-  'Lazio': { primary: 'from-sky-600', secondary: 'to-sky-400' },
-  
-  // Bundesliga teams
-  'Bayern Munich': { primary: 'from-red-800', secondary: 'to-blue-800' },
-  'Borussia Dortmund': { primary: 'from-yellow-500', secondary: 'to-black' },
-  'RB Leipzig': { primary: 'from-red-600', secondary: 'to-red-400' },
-  'Bayer Leverkusen': { primary: 'from-red-700', secondary: 'to-red-500' },
-  
-  // Ligue 1 teams
-  'PSG': { primary: 'from-blue-900', secondary: 'to-blue-700' },
-  'Marseille': { primary: 'from-sky-600', secondary: 'to-sky-400' },
-  'Lyon': { primary: 'from-blue-700', secondary: 'to-red-700' },
-  'Monaco': { primary: 'from-red-700', secondary: 'to-white' },
-  
-  // Color mapping by common team name components
-  'United': { primary: 'from-red-900', secondary: 'to-red-700' },
-  'City': { primary: 'from-sky-700', secondary: 'to-sky-500' },
-  'Real': { primary: 'from-blue-800', secondary: 'to-blue-600' },
-  'FC': { primary: 'from-blue-900', secondary: 'to-blue-700' },
-  'Athletic': { primary: 'from-red-800', secondary: 'to-red-600' },
-  
-  // Default fallback
-  'default': { primary: 'from-gray-800', secondary: 'to-gray-600' }
-};
-
-// Get team gradient colors with enhanced vibrancy
-export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
-  // Avoid black and white colors - use more vibrant colors
-  
-  // Special case for Juventus (black and white stripes)
-  if (teamName.toLowerCase().includes('juventus')) {
-    return `bg-gradient-${direction} from-purple-700 to-purple-500`;
-  }
-  
-  // Special case for Real Madrid (known for white)
-  if (
-    teamName.toLowerCase().includes('real madrid') || 
-    (teamName.toLowerCase().includes('real') && !teamName.toLowerCase().includes('sociedad'))
-  ) {
-    return `bg-gradient-${direction} from-blue-600 to-blue-400`;
-  }
-  
-  // For white kit teams, use vibrant colors
-  if (
-    teamName.toLowerCase().includes('tottenham') ||
-    teamName.toLowerCase().includes('fulham') ||
-    teamName.toLowerCase().includes('swansea')
-  ) {
-    return `bg-gradient-${direction} from-indigo-600 to-blue-400`;
-  }
-  
-  // For black kit teams, use vibrant colors
-  if (
-    teamName.toLowerCase().includes('newcastle') ||
-    teamName.toLowerCase().includes('watford')
-  ) {
-    return `bg-gradient-${direction} from-amber-600 to-amber-400`;
-  }
-  
-  // For green teams
-  if (
-    teamName.toLowerCase().includes('celtic') ||
-    teamName.toLowerCase().includes('betis') ||
-    teamName.toLowerCase().includes('wolfsburg') ||
-    teamName.toLowerCase().includes('sporting') ||
-    teamName.toLowerCase().includes('werder')
-  ) {
-    return `bg-gradient-${direction} from-green-700 to-green-500`;
-  }
-  
-  // For blue teams
-  if (
-    teamName.toLowerCase().includes('chelsea') ||
-    teamName.toLowerCase().includes('everton') ||
-    teamName.toLowerCase().includes('leicester') ||
-    teamName.toLowerCase().includes('brighton') ||
-    teamName.toLowerCase().includes('napoli') ||
-    teamName.toLowerCase().includes('lazio') ||
-    teamName.toLowerCase().includes('real sociedad') ||
-    teamName.toLowerCase().includes('marseille')
-  ) {
-    return `bg-gradient-${direction} from-blue-700 to-blue-500`;
-  }
-  
-  // For red teams
-  if (
-    teamName.toLowerCase().includes('manchester united') ||
-    teamName.toLowerCase().includes('liverpool') ||
-    teamName.toLowerCase().includes('arsenal') ||
-    teamName.toLowerCase().includes('atletico') ||
-    teamName.toLowerCase().includes('milan') ||
-    teamName.toLowerCase().includes('bayern')
-  ) {
-    return `bg-gradient-${direction} from-red-700 to-red-500`;
-  }
-  
   // Try to find an exact match
-  const exactMatch = Object.keys(teamColorMap).find(key => 
-    teamName.toLowerCase() === key.toLowerCase()
-  );
-  
-  if (exactMatch) {
-    const colors = teamColorMap[exactMatch];
-    return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+  if (teamColorMap[teamName]) {
+    return teamColorMap[teamName];
   }
   
   // Try to find a partial match
@@ -489,166 +410,106 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   );
   
   if (partialMatch) {
-    const colors = teamColorMap[partialMatch];
-    return `bg-gradient-${direction} ${colors.primary} ${colors.secondary}`;
+    return teamColorMap[partialMatch];
   }
   
-  // Default fallback - check the team name for common colors
-  if (teamName.toLowerCase().includes('green')) {
-    return `bg-gradient-${direction} from-green-700 to-green-500`;
-  } else if (teamName.toLowerCase().includes('blue')) {
-    return `bg-gradient-${direction} from-blue-700 to-blue-500`;
-  } else if (teamName.toLowerCase().includes('red')) {
-    return `bg-gradient-${direction} from-red-700 to-red-500`;
+  // For teams not in our map, generate a color based on the team name
+  let hash = 0;
+  for (let i = 0; i < teamName.length; i++) {
+    hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
   }
   
-  // Fallback to default colors - vibrant blue or red
-  return `bg-gradient-${direction} from-blue-700 to-blue-500`;
+  // Get a hue between 0-360 based on the name
+  const hue = Math.abs(hash) % 360;
+  
+  // Map the hue to a tailwind color family
+  if (hue < 30) return 'bg-red-700';
+  if (hue < 60) return 'bg-orange-600';
+  if (hue < 90) return 'bg-amber-600';
+  if (hue < 120) return 'bg-yellow-500';
+  if (hue < 150) return 'bg-lime-600';
+  if (hue < 180) return 'bg-green-700';
+  if (hue < 210) return 'bg-cyan-700';
+  if (hue < 240) return 'bg-blue-700';
+  if (hue < 270) return 'bg-indigo-800';
+  if (hue < 300) return 'bg-purple-700';
+  if (hue < 330) return 'bg-pink-700';
+  
+  // Default fallback
+  return 'bg-blue-700';
 }
 
-// Get team accent colors for background elements
-export function getTeamBackgroundColor(teamName: string): string {
-  // Special team-specific colors
-  if (teamName && teamName.toLowerCase().includes('juventus')) {
-    return 'bg-gray-100';
+/**
+ * Get an opposing team color that contrasts with the home team color
+ * @param homeTeamName The name of the home team
+ * @param awayTeamName The name of the away team
+ * @returns A Tailwind background color class (e.g., 'bg-blue-700')
+ */
+export function getOpposingTeamColor(homeTeamName: string, awayTeamName: string): string {
+  const homeTeamColor = getTeamColor(homeTeamName);
+  let awayTeamColor = getTeamColor(awayTeamName);
+  
+  // If the colors are the same, choose a contrasting color
+  if (homeTeamColor === awayTeamColor) {
+    // Extract the color family and intensity from the format "bg-{color}-{intensity}"
+    const match = homeTeamColor.match(/bg-([a-z]+)-(\d+)/);
+    if (match) {
+      const [, color, intensity] = match;
+      
+      // Choose a contrasting color family
+      const contrastColors: Record<string, string> = {
+        'red': 'blue',
+        'orange': 'indigo',
+        'amber': 'purple',
+        'yellow': 'blue',
+        'lime': 'pink',
+        'green': 'red',
+        'emerald': 'rose',
+        'teal': 'amber',
+        'cyan': 'orange',
+        'sky': 'red',
+        'blue': 'yellow',
+        'indigo': 'orange',
+        'violet': 'lime',
+        'purple': 'green',
+        'fuchsia': 'emerald',
+        'pink': 'teal',
+        'rose': 'cyan',
+        'black': 'white',
+        'white': 'black',
+        'gray': 'red'
+      };
+      
+      const contrastColor = contrastColors[color] || 'blue';
+      awayTeamColor = `bg-${contrastColor}-${intensity}`;
+    }
   }
   
-  if (teamName && teamName.toLowerCase().includes('real madrid')) {
-    return 'bg-blue-50';
-  }
-  
-  // Color themes based on team kits
-  if (
-    teamName && (
-    teamName.toLowerCase().includes('chelsea') ||
-    teamName.toLowerCase().includes('everton') ||
-    teamName.toLowerCase().includes('leicester') ||
-    teamName.toLowerCase().includes('brighton') ||
-    teamName.toLowerCase().includes('napoli') ||
-    teamName.toLowerCase().includes('lazio') ||
-    teamName.toLowerCase().includes('marseille')
-    )
-  ) {
-    return 'bg-blue-50';
-  }
-  
-  if (
-    teamName && (
-    teamName.toLowerCase().includes('manchester united') ||
-    teamName.toLowerCase().includes('liverpool') ||
-    teamName.toLowerCase().includes('arsenal') ||
-    teamName.toLowerCase().includes('atletico') ||
-    teamName.toLowerCase().includes('milan') ||
-    teamName.toLowerCase().includes('bayern')
-    )
-  ) {
-    return 'bg-red-50';
-  }
-  
-  if (
-    teamName && (
-    teamName.toLowerCase().includes('celtic') ||
-    teamName.toLowerCase().includes('betis') ||
-    teamName.toLowerCase().includes('wolfsburg') ||
-    teamName.toLowerCase().includes('sporting')
-    )
-  ) {
-    return 'bg-green-50';
-  }
-  
-  // Default light background
-  return 'bg-gray-50';
+  return awayTeamColor;
 }
 
-// Get team primary color for text and borders
-export function getTeamColor(teamName: string): string {
-  if (!teamName) return 'text-gray-800';
+/**
+ * Get a gradient for a team using their colors
+ * @param teamName The name of the team
+ * @param direction Direction of the gradient ('to-r' or 'to-l')
+ * @returns A Tailwind gradient class string
+ */
+export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
+  const baseColor = getTeamColor(teamName).replace('bg-', '');
   
-  // Special team-specific colors
-  if (teamName.toLowerCase().includes('juventus')) {
-    return 'text-gray-800';
+  // Extract color and intensity
+  const match = baseColor.match(/([a-z]+)-(\d+)/);
+  if (!match) return `bg-gradient-${direction} from-blue-700 to-blue-500`;
+  
+  const [, color, intensity] = match;
+  const intensityNum = parseInt(intensity);
+  
+  // Create a gradient with a lighter shade of the same color
+  const lighterIntensity = Math.max(300, intensityNum - 200);
+  
+  if (direction === 'to-r') {
+    return `bg-gradient-to-r from-${color}-${intensityNum} to-${color}-${lighterIntensity}`;
+  } else {
+    return `bg-gradient-to-l from-${color}-${lighterIntensity} to-${color}-${intensityNum}`;
   }
-  
-  if (teamName.toLowerCase().includes('real madrid')) {
-    return 'text-blue-600';
-  }
-  
-  // Color themes based on team kits
-  if (
-    teamName.toLowerCase().includes('chelsea') ||
-    teamName.toLowerCase().includes('everton') ||
-    teamName.toLowerCase().includes('leicester') ||
-    teamName.toLowerCase().includes('brighton') ||
-    teamName.toLowerCase().includes('napoli') ||
-    teamName.toLowerCase().includes('lazio') ||
-    teamName.toLowerCase().includes('marseille')
-  ) {
-    return 'text-blue-600';
-  }
-  
-  if (
-    teamName.toLowerCase().includes('manchester united') ||
-    teamName.toLowerCase().includes('liverpool') ||
-    teamName.toLowerCase().includes('arsenal') ||
-    teamName.toLowerCase().includes('atletico') ||
-    teamName.toLowerCase().includes('milan') ||
-    teamName.toLowerCase().includes('bayern')
-  ) {
-    return 'text-red-600';
-  }
-  
-  if (
-    teamName.toLowerCase().includes('celtic') ||
-    teamName.toLowerCase().includes('betis') ||
-    teamName.toLowerCase().includes('wolfsburg') ||
-    teamName.toLowerCase().includes('sporting')
-  ) {
-    return 'text-green-600';
-  }
-  
-  // Default text color
-  return 'text-gray-800';
-}
-
-// Get opposing team color for visual contrast
-export function getOpposingTeamColor(teamName: string): string {
-  if (!teamName) return 'from-gray-800 to-gray-600';
-  
-  // For red teams, use blue
-  if (
-    teamName.toLowerCase().includes('manchester united') ||
-    teamName.toLowerCase().includes('liverpool') ||
-    teamName.toLowerCase().includes('arsenal') ||
-    teamName.toLowerCase().includes('atletico') ||
-    teamName.toLowerCase().includes('milan') ||
-    teamName.toLowerCase().includes('bayern')
-  ) {
-    return 'from-blue-700 to-blue-500';
-  }
-  
-  // For blue teams, use red
-  if (
-    teamName.toLowerCase().includes('chelsea') ||
-    teamName.toLowerCase().includes('everton') ||
-    teamName.toLowerCase().includes('leicester') ||
-    teamName.toLowerCase().includes('brighton') ||
-    teamName.toLowerCase().includes('napoli') ||
-    teamName.toLowerCase().includes('lazio') ||
-    teamName.toLowerCase().includes('marseille')
-  ) {
-    return 'from-red-700 to-red-500';
-  }
-  
-  // For green teams, use purple
-  if (
-    teamName.toLowerCase().includes('celtic') ||
-    teamName.toLowerCase().includes('betis') ||
-    teamName.toLowerCase().includes('wolfsburg') ||
-    teamName.toLowerCase().includes('sporting')
-  ) {
-    return 'from-purple-700 to-purple-500';
-  }
-  
-  // Default opposing gradient
-  return 'from-gray-800 to-gray-600';
 }

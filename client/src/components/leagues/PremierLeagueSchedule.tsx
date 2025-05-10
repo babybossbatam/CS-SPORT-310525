@@ -5,7 +5,7 @@ import { Trophy, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
-import { getTeamColor } from '@/lib/utils';
+import { getTeamColor } from '@/lib/colorUtils';
 import { useLocation } from 'wouter';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
