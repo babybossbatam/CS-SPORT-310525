@@ -188,10 +188,39 @@ const MatchFilters = () => {
     // When matches is empty, show a loading indicator or message in the UI
     // But always return a valid array even if empty to prevent rendering errors
     
+    console.log(`Before filtering: ${matches.length} matches, popular leagues: ${popularLeagueIds}`);
+    
     // Filter matches to only include popular leagues - IF we have enough matches
     // If we don't have many matches, show all available regardless of league
     if (matches.length > 15) {
-      matches = matches.filter(match => popularLeagueIds.includes(match.league.id));
+      // Convert league IDs to strings for comparison since some APIs might return them as strings
+      const popularLeagueIdsSet = new Set(popularLeagueIds.map(id => id.toString()));
+      
+      // Create a more flexible filter to catch variations in league IDs
+      const filteredMatches = matches.filter(match => {
+        if (!match || !match.league) return false;
+        
+        // Check if league ID directly matches
+        const leagueIdStr = match.league.id.toString();
+        if (popularLeagueIdsSet.has(leagueIdStr)) return true;
+        
+        // Check if league name contains common popular league names
+        const leagueName = match.league.name ? match.league.name.toLowerCase() : '';
+        const popularNames = [
+          'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
+          'europa', 'uefa', 'world cup', 'euro'
+        ];
+        
+        return popularNames.some(name => leagueName.includes(name));
+      });
+      
+      // Only use filtered matches if we have enough, otherwise keep all
+      if (filteredMatches.length > 5) {
+        console.log(`After filtering: ${filteredMatches.length} matches in popular leagues`);
+        matches = filteredMatches;
+      } else {
+        console.log(`Few matches in popular leagues (${filteredMatches.length}), showing all ${matches.length} matches`);
+      }
     }
     
     // Sort by status first (live matches first), then by time

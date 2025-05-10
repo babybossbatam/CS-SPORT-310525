@@ -259,9 +259,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   date: date
                 });
               }
-            } catch (individualError) {
+            } catch (error) {
               // Log but continue with other fixtures
-              console.error(`Error caching individual fixture ${fixture.fixture.id}:`, individualError.message);
+              const individualError = error as Error;
+              console.error(`Error caching individual fixture ${fixture.fixture.id}:`, individualError.message || 'Unknown error');
             }
           }
         } catch (cacheError) {
@@ -340,10 +341,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.get("/leagues", async (_req: Request, res: Response) => {
     try {
+      // Check for cached leagues first
+      const cachedLeagues = await storage.getAllCachedLeagues();
+      
+      if (cachedLeagues && cachedLeagues.length > 0) {
+        // Transform to the expected format
+        const leagues = cachedLeagues.map(league => league.data);
+        return res.json(leagues);
+      }
+      
       // Try the new Livescore API first
       try {
         const leagues = await livescoreApiService.getLeagues();
         if (leagues && leagues.length > 0) {
+          // Cache each league
+          try {
+            for (const league of leagues) {
+              try {
+                // Convert to string to ensure we can compare
+                const leagueId = league.league.id.toString();
+                const existingLeague = await storage.getCachedLeague(leagueId);
+                
+                if (existingLeague) {
+                  await storage.updateCachedLeague(leagueId, league);
+                } else {
+                  await storage.createCachedLeague({
+                    leagueId: leagueId,
+                    data: league
+                  });
+                }
+              } catch (individualError) {
+                // Log and continue with other leagues
+                console.error(`Error caching league ${league.league.id}:`, individualError);
+              }
+            }
+          } catch (cacheError) {
+            console.error('Error caching leagues:', cacheError);
+          }
+          
           return res.json(leagues);
         }
       } catch (livescoreError) {
@@ -351,11 +386,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Fall back to RapidAPI if needed
-      const leagues = await rapidApiService.getLeagues();
-      res.json(leagues);
+      try {
+        const leagues = await rapidApiService.getLeagues();
+        
+        // Cache each league from RapidAPI
+        try {
+          for (const league of leagues) {
+            try {
+              const leagueId = league.league.id.toString();
+              const existingLeague = await storage.getCachedLeague(leagueId);
+              
+              if (existingLeague) {
+                await storage.updateCachedLeague(leagueId, league);
+              } else {
+                await storage.createCachedLeague({
+                  leagueId: leagueId,
+                  data: league
+                });
+              }
+            } catch (individualError) {
+              // Log and continue with other leagues
+              console.error(`Error caching league ${league.league.id}:`, individualError);
+            }
+          }
+        } catch (cacheError) {
+          console.error('Error caching leagues from RapidAPI:', cacheError);
+        }
+        
+        return res.json(leagues);
+      } catch (rapidApiError) {
+        console.error('RapidAPI error for leagues:', rapidApiError);
+        
+        // If we reached here, try to use any cached leagues we have
+        if (cachedLeagues && cachedLeagues.length > 0) {
+          const leagues = cachedLeagues.map(league => league.data);
+          return res.json(leagues);
+        }
+        
+        // If all fails, return a minimal default set of popular leagues
+        return res.json([
+          {
+            league: {
+              id: 39,
+              name: "Premier League",
+              type: "League",
+              logo: "https://media.api-sports.io/football/leagues/39.png",
+              country: "England"
+            },
+            country: {
+              name: "England",
+              code: "GB",
+              flag: "https://media.api-sports.io/flags/gb.svg"
+            }
+          },
+          {
+            league: {
+              id: 78,
+              name: "Bundesliga",
+              type: "League",
+              logo: "https://media.api-sports.io/football/leagues/78.png",
+              country: "Germany"
+            },
+            country: {
+              name: "Germany",
+              code: "DE",
+              flag: "https://media.api-sports.io/flags/de.svg"
+            }
+          },
+          {
+            league: {
+              id: 2,
+              name: "UEFA Champions League",
+              type: "Cup",
+              logo: "https://media.api-sports.io/football/leagues/2.png",
+              country: "World"
+            },
+            country: {
+              name: "World",
+              code: "WO",
+              flag: "https://media.api-sports.io/flags/wo.svg"
+            }
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching leagues:', error);
-      res.status(500).json({ message: "Failed to fetch leagues" });
+      // Return cached data if available as a fallback
+      const cachedLeagues = await storage.getAllCachedLeagues();
+      
+      if (cachedLeagues && cachedLeagues.length > 0) {
+        const leagues = cachedLeagues.map(league => league.data);
+        return res.json(leagues);
+      }
+      
+      // If all else fails, return empty array instead of error
+      res.json([]);
     }
   });
 
