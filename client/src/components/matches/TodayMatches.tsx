@@ -158,10 +158,30 @@ const TodayMatches = () => {
       
       // Expanded list to explicitly exclude these terms from match results
       const exclusionTerms = [
+        // Youth and development leagues
         'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-        'regional', 'division 3', 'division 4', 'women', 'kosice', 'girls', 'boys',
-        'development', 'friendly', 'test', 'academy', 'club friendlies', 'reserves', 
-        'primavera', 'exhibition', 'futsal', 'indoor', 'national cup 3', 'cup qualifying'
+        'development', 'academy', 'primavera', 'reserves',
+        
+        // Women's competitions
+        'women', 'girls', 
+        
+        // Lower divisions and regional competitions
+        'regional', 'division 3', 'division 4', 'kosice', 'boys', 
+        
+        // Non-competitive matches
+        'friendly', 'test', 'club friendlies', 'exhibition',
+        
+        // Indoor/alternative formats
+        'futsal', 'indoor',
+        
+        // Minor competitions
+        'national cup 3', 'cup qualifying',
+        
+        // South American leagues we want to exclude
+        'brazilian serie b', 'brazilian serie c', 'chilean primera b', 'copa chile', 
+        'copa do brasil', 'copa argentina', 'copa colombia', 'copa ecuador',
+        'paraguay division profesional', 'peruvian primera division',
+        'uruguayan primera division', 'venezuelan primera division'
       ];
       
       // Return false if any exclusion term is found in league name or team names

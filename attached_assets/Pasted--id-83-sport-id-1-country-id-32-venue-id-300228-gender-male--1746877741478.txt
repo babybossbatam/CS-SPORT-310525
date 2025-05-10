@@ -1,0 +1,364 @@
+{
+  "id": 83,
+  "sport_id": 1,
+  "country_id": 32,
+  "venue_id": 300228,
+  "gender": "male",
+  "name": "FC Barcelona",
+  "short_code": "BAR",
+  "image_path": "https://cdn.sportmonks.com/images/soccer/teams/19/83.png",
+  "founded": 1899,
+  "type": "domestic",
+  "placeholder": false,
+  "last_played_at": "2025-05-06 19:00:00",
+  "upcoming": [
+    {
+      "id": 19135634,
+      "sport_id": 1,
+      "league_id": 564,
+      "season_id": 23621,
+      "stage_id": 77471332,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 339329,
+      "state_id": 1,
+      "venue_id": 300228,
+      "name": "FC Barcelona vs Real Madrid",
+      "starting_at": "2025-05-11 14:15:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": true,
+      "has_premium_odds": true,
+      "starting_at_timestamp": 1746972900,
+      "meta": {
+        "location": "home"
+      },
+      "participants": [
+        {
+          "id": 83,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 300228,
+          "gender": "male",
+          "name": "FC Barcelona",
+          "short_code": "BAR",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/19/83.png",
+          "founded": 1899,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-06 19:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 3468,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 2020,
+          "gender": "male",
+          "name": "Real Madrid",
+          "short_code": "RMA",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/12/3468.png",
+          "founded": 1902,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-04 12:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ],
+      "scores": [],
+      "state": {
+        "id": 1,
+        "state": "NS",
+        "name": "Not Started",
+        "short_name": "NS",
+        "developer_name": "NS"
+      },
+      "league": {
+        "id": 564,
+        "sport_id": 1,
+        "country_id": 32,
+        "name": "La Liga",
+        "active": true,
+        "short_code": "ESP PL",
+        "image_path": "https://cdn.sportmonks.com/images/soccer/leagues/20/564.png",
+        "type": "league",
+        "sub_type": "domestic",
+        "last_played_at": "2025-05-09 19:00:00",
+        "category": 1,
+        "has_jerseys": false
+      }
+    },
+    {
+      "id": 19135644,
+      "sport_id": 1,
+      "league_id": 564,
+      "season_id": 23621,
+      "stage_id": 77471332,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 339330,
+      "state_id": 1,
+      "venue_id": 89,
+      "name": "Espanyol vs FC Barcelona",
+      "starting_at": "2025-05-15 19:30:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": true,
+      "has_premium_odds": true,
+      "starting_at_timestamp": 1747337400,
+      "meta": {
+        "location": "away"
+      },
+      "participants": [
+        {
+          "id": 83,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 300228,
+          "gender": "male",
+          "name": "FC Barcelona",
+          "short_code": "BAR",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/19/83.png",
+          "founded": 1899,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-06 19:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 528,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 89,
+          "gender": "male",
+          "name": "Espanyol",
+          "short_code": "ESY",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/16/528.png",
+          "founded": 1900,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-04 16:30:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 14
+          }
+        }
+      ],
+      "scores": [],
+      "state": {
+        "id": 1,
+        "state": "NS",
+        "name": "Not Started",
+        "short_name": "NS",
+        "developer_name": "NS"
+      },
+      "league": {
+        "id": 564,
+        "sport_id": 1,
+        "country_id": 32,
+        "name": "La Liga",
+        "active": true,
+        "short_code": "ESP PL",
+        "image_path": "https://cdn.sportmonks.com/images/soccer/leagues/20/564.png",
+        "type": "league",
+        "sub_type": "domestic",
+        "last_played_at": "2025-05-09 19:00:00",
+        "category": 1,
+        "has_jerseys": false
+      }
+    },
+    {
+      "id": 19135654,
+      "sport_id": 1,
+      "league_id": 564,
+      "season_id": 23621,
+      "stage_id": 77471332,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 339331,
+      "state_id": 1,
+      "venue_id": 300228,
+      "name": "FC Barcelona vs Villarreal",
+      "starting_at": "2025-05-18 17:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": true,
+      "starting_at_timestamp": 1747587600,
+      "meta": {
+        "location": "home"
+      },
+      "participants": [
+        {
+          "id": 83,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 300228,
+          "gender": "male",
+          "name": "FC Barcelona",
+          "short_code": "BAR",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/19/83.png",
+          "founded": 1899,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-06 19:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": null
+          }
+        },
+        {
+          "id": 3477,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 2028,
+          "gender": "male",
+          "name": "Villarreal",
+          "short_code": "VIL",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/21/3477.png",
+          "founded": 1923,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-03 14:15:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": null
+          }
+        }
+      ],
+      "scores": [],
+      "state": {
+        "id": 1,
+        "state": "NS",
+        "name": "Not Started",
+        "short_name": "NS",
+        "developer_name": "NS"
+      },
+      "league": {
+        "id": 564,
+        "sport_id": 1,
+        "country_id": 32,
+        "name": "La Liga",
+        "active": true,
+        "short_code": "ESP PL",
+        "image_path": "https://cdn.sportmonks.com/images/soccer/leagues/20/564.png",
+        "type": "league",
+        "sub_type": "domestic",
+        "last_played_at": "2025-05-09 19:00:00",
+        "category": 1,
+        "has_jerseys": false
+      }
+    },
+    {
+      "id": 19135663,
+      "sport_id": 1,
+      "league_id": 564,
+      "season_id": 23621,
+      "stage_id": 77471332,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 339332,
+      "state_id": 13,
+      "venue_id": 9162,
+      "name": "Athletic Club vs FC Barcelona",
+      "starting_at": "2025-05-25 00:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1748131200,
+      "meta": {
+        "location": "away"
+      },
+      "participants": [
+        {
+          "id": 13258,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 9162,
+          "gender": "male",
+          "name": "Athletic Club",
+          "short_code": "ATH",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/10/13258.png",
+          "founded": 1898,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-08 19:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": null
+          }
+        },
+        {
+          "id": 83,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 300228,
+          "gender": "male",
+          "name": "FC Barcelona",
+          "short_code": "BAR",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/19/83.png",
+          "founded": 1899,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-05-06 19:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": null
+          }
+        }
+      ],
+      "scores": [],
+      "state": {
+        "id": 13,
+        "state": "TBA",
+        "name": "To Be Announced",
+        "short_name": "TBA",
+        "developer_name": "TBA"
+      },
+      "league": {
+        "id": 564,
+        "sport_id": 1,
+        "country_id": 32,
+        "name": "La Liga",
+        "active": true,
+        "short_code": "ESP PL",
+        "image_path": "https://cdn.sportmonks.com/images/soccer/leagues/20/564.png",
+        "type": "league",
+        "sub_type": "domestic",
+        "last_played_at": "2025-05-09 19:00:00",
+        "category": 1,
+        "has_jerseys": false
+      }
+    }
+  ]
+}
