@@ -415,23 +415,25 @@ export const livescoreApiService = {
    */
   async getTopScorers(leagueId: number, season: number): Promise<any[]> {
     try {
-      const response = await axios.get(`${BASE_URL}/statistics/v2/player/goalscorers`, {
+      // Using the players/topscorers endpoint to match RapidAPI
+      const response = await axios.get(`${BASE_URL}/players/topscorers`, {
         headers: HEADERS,
         params: {
           Category: 'soccer',
-          Cid: leagueId.toString()
+          Cid: leagueId.toString(),
+          Scd: season.toString() // Add season code
         }
       });
       
-      if (!response.data?.Statistics) {
+      if (!response.data?.response) {
+        console.log(`No top scorers data from Livescore API for league ${leagueId}`);
         return [];
       }
       
-      // Process and map the data to our application format
-      // This would require more complex mapping as the data structure is different
-      return response.data.Statistics;
+      console.log(`Received top scorers data from Livescore API for league ${leagueId}`);
+      return response.data.response;
     } catch (error) {
-      console.error('Error fetching top scorers:', error);
+      console.error('Error fetching top scorers from Livescore API:', error);
       return [];
     }
   },
