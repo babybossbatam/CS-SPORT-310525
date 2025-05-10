@@ -354,7 +354,7 @@ const MatchFilters = () => {
         </Button>
       </div>
       
-      {/* Match list in vertical compact format exactly like 365scores */}
+      {/* Match list with Popular Leagues card at the top */}
       <div className="overflow-y-auto max-h-[700px]">
         {loading ? (
           // Loading state
@@ -374,8 +374,72 @@ const MatchFilters = () => {
             ))}
           </div>
         ) : matchesToDisplay.length > 0 ? (
-          // New simplified 365scores style popular leagues list
+          // New layout with Popular Leagues card at the top
           <div className="w-full">
+            {/* Popular Leagues Card - added based on user's image */}
+            <div className="bg-white rounded-lg mb-4 shadow-sm">
+              <div className="px-3 py-2 border-b border-gray-100">
+                <span className="text-sm font-bold">Popular Leagues</span>
+              </div>
+              <div className="p-2">
+                <ul className="space-y-2">
+                  {/* Popular Leagues items with click handlers */}
+                  {[
+                    { id: 2, name: 'UEFA Champions League', country: 'Europe' },
+                    { id: 3, name: 'UEFA Europa League', country: 'Europe' },
+                    { id: 39, name: 'Premier League', country: 'England' },
+                    { id: 45, name: 'FA Cup', country: 'England' },
+                    { id: 140, name: 'La Liga', country: 'Spain' },
+                    { id: 135, name: 'Serie A', country: 'Italy' },
+                    { id: 78, name: 'Bundesliga', country: 'Germany' },
+                    { id: 207, name: 'EFL Cup', country: 'England' },
+                    { id: 219, name: 'Community Shield', country: 'England' },
+                    { id: 203, name: 'Championship', country: 'England' }
+                  ].map((league) => (
+                    <li 
+                      key={league.id}
+                      className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded cursor-pointer"
+                      onClick={() => {
+                        // Dispatch action to set selected league
+                        dispatch(uiActions.setSelectedLeague(league.id));
+                        
+                        // Navigate to league page
+                        setLocation(`/leagues/${league.id}`);
+                        
+                        // Announce the change for screen readers
+                        toast({
+                          title: `Navigating to ${league.name}`,
+                          description: "Loading league information...",
+                          duration: 2000
+                        });
+                      }}
+                    >
+                      <div className="w-6 h-6 mr-2 flex items-center justify-center">
+                        <img 
+                          src={`https://media.api-sports.io/football/leagues/${league.id}.png`} 
+                          alt={league.name} 
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://static.livescore.com/i/competition/default.png';
+                          }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium">{league.name}</span>
+                        <span className="text-xs text-gray-400">{league.country}</span>
+                      </div>
+                      <div className="ml-auto text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            
             {/* Popular Football Leagues Header */}
             <div className="px-3 py-2 flex items-center border-b border-gray-100">
               <div className="flex items-center">
@@ -386,7 +450,7 @@ const MatchFilters = () => {
                     <path d="M2 12h20"></path>
                   </svg>
                 </div>
-                <span className="text-sm font-medium">Popular Football Leagues</span>
+                <span className="text-sm font-medium">Today's Matches</span>
               </div>
             </div>
             

@@ -86,22 +86,18 @@ const initialFixturesState: FixturesState = {
 const initialLeaguesState: LeaguesState = {
   list: [],
   current: null,
-  // Expanded list of popular leagues to match 365scores.com
+  // Aligned with the Popular Leagues card
   popularLeagues: [
-    2,   // Champions League (Europe)
-    3,   // Europa League (Europe)
-    39,  // Premier League (England)
+    2,   // UEFA Champions League
+    3,   // UEFA Europa League
+    39,  // Premier League (England) 
+    45,  // FA Cup (England)
     140, // La Liga (Spain)
     135, // Serie A (Italy)
     78,  // Bundesliga (Germany)
-    61,  // Ligue 1 (France)
-    48,  // Eredivisie (Netherlands)
-    94,  // Primeira Liga (Portugal)
-    88,  // Belgian Pro League (Belgium)
-    144, // Saudi Pro League (Saudi Arabia)
-    203, // English Championship (England)
-    207, // Super League (Switzerland)
-    179  // MLS (USA)
+    207, // EFL Cup (England)
+    219, // Community Shield (England)
+    203, // Championship (England)
   ], 
   loading: false,
   error: null,
