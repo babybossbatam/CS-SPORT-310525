@@ -544,7 +544,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagueData = await rapidApiService.getLeagueById(leagueId);
       if (!leagueData) {
         console.error("Champions League data not found in API");
-        return res.status(404).json({ message: "Champions League not found in API" });
+        // Return empty array instead of 404 error to avoid breaking frontend
+        return res.json([]);
       }
       
       console.log(`Champions League found: ${leagueData.league.name}, attempting to fetch fixtures...`);
@@ -561,16 +562,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
         console.warn("No Champions League fixtures found in API response");
-        
-        // Provide mock data for testing if in development environment
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Sending empty array in response");
-        }
-        
-        return res.status(404).json({ 
-          message: "No Champions League fixtures found",
-          leagueInfo: leagueData
-        });
+        // Return empty array instead of 404 error to avoid breaking frontend
+        return res.json([]);
       }
       
       // Sort fixtures by date (newest first)
@@ -582,10 +575,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json(sortedFixtures);
     } catch (error) {
       console.error("Error fetching Champions League fixtures:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch Champions League data",
-        error: error instanceof Error ? error.message : String(error)
-      });
+      // Return empty array instead of error to avoid breaking frontend
+      return res.json([]);
     }
   });
 
@@ -605,7 +596,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagueData = await rapidApiService.getLeagueById(leagueId);
       if (!leagueData) {
         console.error("Bundesliga data not found in API");
-        return res.status(404).json({ message: "Bundesliga not found in API" });
+        // Return empty array instead of 404 error to avoid breaking frontend
+        return res.json([]);
       }
       
       console.log(`Bundesliga found: ${leagueData.league.name}, attempting to fetch fixtures...`);
@@ -622,16 +614,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
         console.warn("No Bundesliga fixtures found in API response");
-        
-        // Provide mock data for testing if in development environment
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Sending empty array in response");
-        }
-        
-        return res.status(404).json({ 
-          message: "No Bundesliga fixtures found",
-          leagueInfo: leagueData
-        });
+        // Return empty array instead of 404 error to avoid breaking frontend
+        return res.json([]);
       }
       
       // Sort fixtures by date (newest first)
@@ -643,10 +627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json(sortedFixtures);
     } catch (error) {
       console.error("Error fetching Bundesliga fixtures:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch Bundesliga data",
-        error: error instanceof Error ? error.message : String(error)
-      });
+      // Return empty array instead of error to avoid breaking frontend
+      return res.json([]);
     }
   });
 
