@@ -240,17 +240,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If we got fixtures, cache them
       if (fixtures && fixtures.length > 0) {
         try {
-          // Clear old cached fixtures for this date
-          // This would need a new method in storage.ts, but we'll use what we have for now
-          
-          // Cache new fixtures
+          // Cache new fixtures - but use updateCachedFixture to handle potential duplicates
+          // We'll update if exists or create if not exists
           for (const fixture of fixtures) {
-            await storage.createCachedFixture({
-              fixtureId: `date:${date}:${fixture.fixture.id}`,
-              data: fixture,
-              league: "date:" + date,
-              date: date
-            });
+            try {
+              const fixtureId = `date:${date}:${fixture.fixture.id}`;
+              const existingFixture = await storage.getCachedFixture(fixtureId);
+              
+              if (existingFixture) {
+                // Update existing fixture
+                await storage.updateCachedFixture(fixtureId, fixture);
+              } else {
+                // Create new fixture
+                await storage.createCachedFixture({
+                  fixtureId: fixtureId,
+                  data: fixture,
+                  league: "date:" + date,
+                  date: date
+                });
+              }
+            } catch (individualError) {
+              // Log but continue with other fixtures
+              console.error(`Error caching individual fixture ${fixture.fixture.id}:`, individualError.message);
+            }
           }
         } catch (cacheError) {
           console.error(`Error caching fixtures for date ${date}:`, cacheError);
