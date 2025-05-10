@@ -376,152 +376,309 @@ const MatchFilters = () => {
         ) : matchesToDisplay.length > 0 ? (
           // New layout with Popular Leagues card at the top
           <div className="w-full">
-            {/* Popular Leagues Card - added based on user's image */}
-            <div className="bg-white rounded-lg mb-4 shadow-sm">
-              <div className="px-3 py-2 border-b border-gray-100">
-                <span className="text-sm font-bold">Popular Leagues</span>
+            {/* Popular Football Leagues Header */}
+            <div className="px-3 py-2 flex items-center border-b border-gray-100">
+              <span className="text-sm font-bold">Popular Football Leagues</span>
+            </div>
+
+            {/* Premier League Section */}
+            <div className="border-b border-gray-100">
+              <div 
+                className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
+                onClick={() => {
+                  dispatch(uiActions.setSelectedLeague(39));
+                  setLocation(`/leagues/39`);
+                }}
+              >
+                <img 
+                  src="https://media.api-sports.io/football/leagues/39.png" 
+                  alt="Premier League" 
+                  className="w-5 h-5 mr-2"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://static.livescore.com/i/competition/default.png';
+                  }}
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium">Premier League</span>
+                  <span className="text-xs text-gray-400">England</span>
+                </div>
               </div>
-              <div className="p-2">
-                <ul className="space-y-2">
-                  {/* Popular Leagues items with click handlers */}
-                  {[
-                    { id: 2, name: 'UEFA Champions League', country: 'Europe' },
-                    { id: 3, name: 'UEFA Europa League', country: 'Europe' },
-                    { id: 39, name: 'Premier League', country: 'England' },
-                    { id: 45, name: 'FA Cup', country: 'England' },
-                    { id: 140, name: 'La Liga', country: 'Spain' },
-                    { id: 135, name: 'Serie A', country: 'Italy' },
-                    { id: 78, name: 'Bundesliga', country: 'Germany' },
-                    { id: 207, name: 'EFL Cup', country: 'England' },
-                    { id: 219, name: 'Community Shield', country: 'England' },
-                    { id: 203, name: 'Championship', country: 'England' }
-                  ].map((league) => (
-                    <li 
-                      key={league.id}
-                      className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded cursor-pointer"
-                      onClick={() => {
-                        // Dispatch action to set selected league
-                        dispatch(uiActions.setSelectedLeague(league.id));
+
+              {/* Premier League Matches */}
+              {matchesToDisplay
+                .filter(match => match.league && match.league.id === 39)
+                .slice(0, 6)
+                .map((match) => (
+                  <div 
+                    key={match.fixture.id} 
+                    className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-3 py-2"
+                    onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                  >
+                    <div className="flex items-center justify-between">
+                      {/* Teams */}
+                      <div className="flex items-center w-10/12">
+                        <div className="flex-1 flex items-center">
+                          <img 
+                            src={match.teams.home.logo} 
+                            alt={match.teams.home.name} 
+                            className="h-5 w-5 object-contain mr-2"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://static.livescore.com/i/team/default.png';
+                            }}
+                          />
+                          <span className="text-sm truncate">{match.teams.home.name}</span>
+                        </div>
                         
-                        // Navigate to league page
-                        setLocation(`/leagues/${league.id}`);
+                        {/* Score */}
+                        <div className="mx-2 flex items-center justify-center min-w-[40px]">
+                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                            <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-medium`}>
+                              {match.goals.home} - {match.goals.away}
+                            </div>
+                          ) : (
+                            <div className="text-sm">
+                              {format(new Date(match.fixture.date), 'HH:mm')}
+                            </div>
+                          )}
+                        </div>
                         
-                        // Announce the change for screen readers
-                        toast({
-                          title: `Navigating to ${league.name}`,
-                          description: "Loading league information...",
-                          duration: 2000
-                        });
-                      }}
-                    >
-                      <div className="w-6 h-6 mr-2 flex items-center justify-center">
-                        <img 
-                          src={`https://media.api-sports.io/football/leagues/${league.id}.png`} 
-                          alt={league.name} 
-                          className="w-5 h-5"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = 'https://static.livescore.com/i/competition/default.png';
-                          }}
-                        />
+                        <div className="flex-1 flex items-center">
+                          <img 
+                            src={match.teams.away.logo} 
+                            alt={match.teams.away.name} 
+                            className="h-5 w-5 object-contain mr-2"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://static.livescore.com/i/team/default.png';
+                            }}
+                          />
+                          <span className="text-sm truncate">{match.teams.away.name}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium">{league.name}</span>
-                        <span className="text-xs text-gray-400">{league.country}</span>
-                      </div>
-                      <div className="ml-auto text-blue-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                    </div>
+                  </div>
+                ))}
+              
+              {/* Premier League Standings Link */}
+              <div className="px-3 py-2 text-right border-t border-gray-100">
+                <a 
+                  href="#" 
+                  className="text-xs text-blue-600 hover:underline inline-flex items-center"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setLocation('/leagues/39/standings');
+                  }}
+                >
+                  Premier League Standings <span className="ml-1">›</span>
+                </a>
               </div>
             </div>
 
-            {/* Display matches section */}
-            <div className="border-t border-gray-100">
-              {matchesToDisplay.map((match) => (
-                <div 
-                  key={match.fixture.id} 
-                  className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
-                >
-                  {/* Match row with simplified design like 365scores */}
-                  <div className="px-3 py-2 flex items-center">
-                    {/* Time/Status */}
-                    <div className="w-[10%] mr-2">
-                      {['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? (
-                        <div className="w-10 text-center">
-                          <span className="text-xs font-semibold px-1.5 py-0.5 bg-red-100 text-red-600 rounded">
-                            {match.fixture.status.short === 'HT' ? 'HT' : 
-                             match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
-                          </span>
+            {/* Ligue 1 Section */}
+            <div className="border-b border-gray-100">
+              <div 
+                className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
+                onClick={() => {
+                  dispatch(uiActions.setSelectedLeague(61));
+                  setLocation(`/leagues/61`);
+                }}
+              >
+                <img 
+                  src="https://media.api-sports.io/football/leagues/61.png" 
+                  alt="Ligue 1" 
+                  className="w-5 h-5 mr-2"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://static.livescore.com/i/competition/default.png';
+                  }}
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium">Ligue 1</span>
+                  <span className="text-xs text-gray-400">France</span>
+                </div>
+              </div>
+
+              {/* Ligue 1 Matches */}
+              {matchesToDisplay
+                .filter(match => match.league && match.league.id === 61)
+                .slice(0, 2)
+                .map((match) => (
+                  <div 
+                    key={match.fixture.id} 
+                    className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-3 py-2"
+                    onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                  >
+                    <div className="flex items-center justify-between">
+                      {/* Teams */}
+                      <div className="flex items-center w-10/12">
+                        <div className="flex-1 flex items-center">
+                          <img 
+                            src={match.teams.home.logo} 
+                            alt={match.teams.home.name} 
+                            className="h-5 w-5 object-contain mr-2"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://static.livescore.com/i/team/default.png';
+                            }}
+                          />
+                          <span className="text-sm truncate">{match.teams.home.name}</span>
                         </div>
-                      ) : (
-                        <div className="w-10 text-center text-xs text-gray-500">
-                          {format(new Date(match.fixture.date), 'HH:mm')}
+                        
+                        {/* Score */}
+                        <div className="mx-2 flex items-center justify-center min-w-[40px]">
+                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                            <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-medium`}>
+                              {match.goals.home} - {match.goals.away}
+                            </div>
+                          ) : (
+                            <div className="text-sm">
+                              {format(new Date(match.fixture.date), 'HH:mm')}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    
-                    {/* Left team */}
-                    <div className="flex items-center justify-end w-[35%]">
-                      <span className="text-sm font-medium truncate text-right max-w-[130px] mr-2">
-                        {match.teams.home.name}
-                      </span>
-                      <img 
-                        src={match.teams.home.logo} 
-                        alt={match.teams.home.name} 
-                        className="h-5 w-5 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = `https://media.api-sports.io/football/teams/${match.teams.home.id}.png`;
-                          target.onerror = () => {
-                            target.src = 'https://static.livescore.com/i/team/default.png';
-                            target.onerror = null;
-                          };
-                        }}
-                      />
-                    </div>
-                    
-                    {/* Score in the middle */}
-                    <div className="flex items-center justify-center min-w-[40px] px-2 text-center">
-                      {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
-                        <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-bold`}>
-                          {match.goals.home} - {match.goals.away}
+                        
+                        <div className="flex-1 flex items-center">
+                          <img 
+                            src={match.teams.away.logo} 
+                            alt={match.teams.away.name} 
+                            className="h-5 w-5 object-contain mr-2"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://static.livescore.com/i/team/default.png';
+                            }}
+                          />
+                          <span className="text-sm truncate">{match.teams.away.name}</span>
                         </div>
-                      ) : (
-                        <div className="text-gray-400 text-sm">
-                          vs
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Right team */}
-                    <div className="flex items-center w-[35%]">
-                      <img 
-                        src={match.teams.away.logo} 
-                        alt={match.teams.away.name} 
-                        className="h-5 w-5 object-contain mr-2"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = `https://media.api-sports.io/football/teams/${match.teams.away.id}.png`;
-                          target.onerror = () => {
-                            target.src = 'https://static.livescore.com/i/team/default.png';
-                            target.onerror = null;
-                          };
-                        }}
-                      />
-                      <span className="text-sm font-medium truncate max-w-[130px]">
-                        {match.teams.away.name}
-                      </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
+
+            {/* Other Popular Leagues */}
+            <div className="py-2 px-3">
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: 2, name: 'Champions League', country: 'Europe' },
+                  { id: 3, name: 'Europa League', country: 'Europe' },
+                  { id: 140, name: 'La Liga', country: 'Spain' },
+                  { id: 135, name: 'Serie A', country: 'Italy' },
+                  { id: 78, name: 'Bundesliga', country: 'Germany' },
+                  { id: 203, name: 'Championship', country: 'England' }
+                ].map((league) => (
+                  <div 
+                    key={league.id}
+                    className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded cursor-pointer"
+                    onClick={() => {
+                      dispatch(uiActions.setSelectedLeague(league.id));
+                      setLocation(`/leagues/${league.id}`);
+                    }}
+                  >
+                    <img 
+                      src={`https://media.api-sports.io/football/leagues/${league.id}.png`} 
+                      alt={league.name} 
+                      className="w-5 h-5 mr-2"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://static.livescore.com/i/competition/default.png';
+                      }}
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium truncate">{league.name}</span>
+                      <span className="text-xs text-gray-400">{league.country}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Today's Matches section - showing only if there are other matches not in popular leagues */}
+            {matchesToDisplay.filter(match => 
+              ![39, 61, 2, 3, 140, 135, 78, 203].includes(match.league?.id || 0)
+            ).length > 0 && (
+              <div className="border-t border-gray-100 mt-2">
+                <div className="px-3 py-2 flex items-center border-b border-gray-100">
+                  <span className="text-sm font-medium">Today's Matches</span>
+                </div>
+                
+                {/* Other Matches */}
+                {matchesToDisplay
+                  .filter(match => ![39, 61, 2, 3, 140, 135, 78, 203].includes(match.league?.id || 0))
+                  .slice(0, 10)
+                  .map((match) => (
+                    <div 
+                      key={match.fixture.id} 
+                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                    >
+                      <div className="px-3 py-2 flex items-center">
+                        {/* Time/Status */}
+                        <div className="w-[10%] mr-2">
+                          {['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? (
+                            <div className="w-10 text-center">
+                              <span className="text-xs font-semibold px-1.5 py-0.5 bg-red-100 text-red-600 rounded">
+                                {match.fixture.status.short === 'HT' ? 'HT' : 
+                                match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="w-10 text-center text-xs text-gray-500">
+                              {format(new Date(match.fixture.date), 'HH:mm')}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Left team */}
+                        <div className="flex items-center justify-end w-[35%]">
+                          <span className="text-sm font-medium truncate text-right max-w-[130px] mr-2">
+                            {match.teams.home.name}
+                          </span>
+                          <img 
+                            src={match.teams.home.logo} 
+                            alt={match.teams.home.name} 
+                            className="h-5 w-5 object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://static.livescore.com/i/team/default.png';
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Score in the middle */}
+                        <div className="flex items-center justify-center min-w-[40px] px-2 text-center">
+                          {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                            <div className={`${['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short) ? 'text-red-600' : ''} text-sm font-bold`}>
+                              {match.goals.home} - {match.goals.away}
+                            </div>
+                          ) : (
+                            <div className="text-gray-400 text-sm">
+                              vs
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Right team */}
+                        <div className="flex items-center w-[35%]">
+                          <img 
+                            src={match.teams.away.logo} 
+                            alt={match.teams.away.name} 
+                            className="h-5 w-5 object-contain mr-2"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://static.livescore.com/i/team/default.png';
+                            }}
+                          />
+                          <span className="text-sm font-medium truncate max-w-[130px]">
+                            {match.teams.away.name}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         ) : (
           // Empty state with helpful message
