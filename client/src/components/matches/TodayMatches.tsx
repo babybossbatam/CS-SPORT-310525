@@ -48,107 +48,12 @@ const TodayMatches = () => {
     }
   });
   
-  // Mock data for live matches (for testing as requested)
-  const mockLiveFixtures = [
-    {
-      fixture: {
-        id: 1000001,
-        referee: "Mike Dean",
-        timezone: "UTC",
-        date: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'+00:00'"),
-        timestamp: Math.floor(Date.now() / 1000),
-        periods: { first: 1746750000, second: 1746753600 },
-        venue: { id: 5555, name: "Santiago Bernabéu", city: "Madrid" },
-        status: { long: "First Half", short: "1H", elapsed: 32 }
-      },
-      league: {
-        id: 2, // Champions League
-        name: "UEFA Champions League",
-        country: "World",
-        logo: "https://media.api-sports.io/football/leagues/2.png",
-        flag: null,
-        season: 2024,
-        round: "Quarter-finals"
-      },
-      teams: {
-        home: {
-          id: 541,
-          name: "Real Madrid",
-          logo: "https://media.api-sports.io/football/teams/541.png",
-          winner: null
-        },
-        away: {
-          id: 489,
-          name: "AC Milan",
-          logo: "https://media.api-sports.io/football/teams/489.png",
-          winner: null
-        }
-      },
-      goals: { home: 2, away: 1 },
-      score: {
-        halftime: { home: 1, away: 1 },
-        fulltime: { home: null, away: null },
-        extratime: { home: null, away: null },
-        penalty: { home: null, away: null }
-      }
-    },
-    {
-      fixture: {
-        id: 1000002,
-        referee: "Anthony Taylor",
-        timezone: "UTC",
-        date: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'+00:00'"),
-        timestamp: Math.floor(Date.now() / 1000),
-        periods: { first: 1746750000, second: 1746753600 },
-        venue: { id: 550, name: "Anfield", city: "Liverpool" },
-        status: { long: "Second Half", short: "2H", elapsed: 67 }
-      },
-      league: {
-        id: 2, // Champions League
-        name: "UEFA Champions League",
-        country: "World",
-        logo: "https://media.api-sports.io/football/leagues/2.png",
-        flag: null,
-        season: 2024,
-        round: "Quarter-finals"
-      },
-      teams: {
-        home: {
-          id: 40,
-          name: "Liverpool",
-          logo: "https://media.api-sports.io/football/teams/40.png",
-          winner: null
-        },
-        away: {
-          id: 212,
-          name: "FC Porto",
-          logo: "https://media.api-sports.io/football/teams/212.png",
-          winner: null
-        }
-      },
-      goals: { home: 1, away: 0 },
-      score: {
-        halftime: { home: 0, away: 0 },
-        fulltime: { home: null, away: null },
-        extratime: { home: null, away: null },
-        penalty: { home: null, away: null }
-      }
-    }
-  ];
+  // We're now using real live data from the API
 
   // Get live matches from the API
   const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
     queryKey: ['/api/fixtures/live'],
     queryFn: async () => {
-      // Using real API data for production
-      const useMockData = false; // Use real data from API
-      
-      if (useMockData) {
-        // For testing live match functionality without real live matches
-        return mockLiveFixtures;
-      }
-      
-      // For real data:
       const response = await fetch('/api/fixtures/live');
       return response.json();
     }
@@ -407,7 +312,7 @@ const TodayMatches = () => {
               alt="Popular Football Leagues"
               className="h-5 w-5 mr-2"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                (e.target as HTMLImageElement).src = 'https://media.api-sports.io/football/leagues/2.png';
               }}
             />
             <div className="flex flex-col">
@@ -446,9 +351,9 @@ const TodayMatches = () => {
                   <img 
                     src={match.teams.home.logo} 
                     alt={match.teams.home.name}
-                    className="h-5 w-5 mr-2 object-contain"
+                    className="h-5 w-5 mr-2 object-contain drop-shadow-md"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                      (e.target as HTMLImageElement).src = `https://media.api-sports.io/football/teams/${match.teams.home.id}.png`;
                     }}
                   />
                   <span className="text-sm font-medium text-left truncate">{match.teams.home.name}</span>
@@ -463,19 +368,23 @@ const TodayMatches = () => {
                   <img 
                     src={match.teams.away.logo} 
                     alt={match.teams.away.name}
-                    className="h-5 w-5 ml-2 object-contain"
+                    className="h-5 w-5 ml-2 object-contain drop-shadow-md"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                      (e.target as HTMLImageElement).src = `https://media.api-sports.io/football/teams/${match.teams.away.id}.png`;
                     }}
                   />
                 </div>
               </div>
               
-              {/* Aggregate Score */}
-              <div className="text-xs text-gray-500 text-center mt-0.5">
-                {/* Add aggregate score if available (mocked for demo) */}
-                Aggregate {match.fixture.id % 2 === 0 ? "7 - 1" : "1 - 5"}
-              </div>
+              {/* Aggregate Score - only show for tournament matches with aggregate scoring */}
+              {match.league.id === 2 || match.league.id === 3 ? (
+                <div className="text-xs text-gray-500 text-center mt-0.5">
+                  {match.fixture.status.short === 'FT' ? 
+                    `${match.teams.home.winner ? 'Home' : match.teams.away.winner ? 'Away' : 'Draw'} on aggregate` : 
+                    `${match.league.round}`
+                  }
+                </div>
+              ) : null}
             </div>
           ))}
           
