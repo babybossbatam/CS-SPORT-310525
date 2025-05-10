@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { format } from 'date-fns';
 import { 
   LivescoreLeagueResponse, LivescoreFixtureResponse, 
@@ -14,6 +14,45 @@ const HEADERS = {
   'x-rapidapi-key': process.env.RAPID_API_KEY || '',
   'x-rapidapi-host': 'livescore6.p.rapidapi.com'
 };
+
+/**
+ * Helper function to make API requests with rate limiting and retry logic
+ * @param config Axios request configuration
+ * @param maxRetries Maximum number of retry attempts
+ * @returns The response data or throws an error
+ */
+async function makeResilientRequest(
+  config: AxiosRequestConfig, 
+  maxRetries: number = 3
+): Promise<any> {
+  let retries = 0;
+  let lastError: any;
+  
+  // Implement exponential backoff strategy
+  while (retries < maxRetries) {
+    try {
+      // Make the request
+      const response = await axios(config);
+      return response.data;
+    } catch (error: any) {
+      lastError = error;
+      
+      // Check if it's a rate limit error (429)
+      if (error.response && error.response.status === 429) {
+        const delayMs = Math.pow(2, retries) * 1000; // Exponential backoff
+        console.log(`Rate limited. Retrying in ${delayMs}ms (attempt ${retries + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        retries++;
+      } else {
+        // For other errors, don't retry
+        break;
+      }
+    }
+  }
+  
+  // If we've exhausted our retries or hit an error that's not 429, throw the error
+  throw lastError;
+}
 
 /**
  * Converts Livescore API fixture format to our application fixture format
@@ -187,8 +226,13 @@ export const livescoreApiService = {
    */
   async getFixturesByDate(date: string): Promise<FixtureResponse[]> {
     try {
+      // Format date to "YYYYMMDD" for Livescore API
       const formattedDate = format(new Date(date), 'yyyyMMdd');
-      const response = await axios.get(`${BASE_URL}/matches/v2/list-by-date`, {
+      
+      // Use our resilient request method with exponential backoff and retries
+      const data = await makeResilientRequest({
+        method: 'get',
+        url: `${BASE_URL}/matches/v2/list-by-date`,
         headers: HEADERS,
         params: {
           Category: 'soccer',
@@ -197,14 +241,14 @@ export const livescoreApiService = {
         }
       });
       
-      if (!response.data?.Stages) {
+      if (!data?.Stages) {
         return [];
       }
       
       // Process and map the data to our application format
       const fixtures: FixtureResponse[] = [];
       
-      response.data.Stages.forEach((stage: any) => {
+      data.Stages.forEach((stage: any) => {
         stage.Events?.forEach((event: LivescoreFixtureResponse) => {
           fixtures.push(mapFixtureResponse(event));
         });
@@ -222,7 +266,10 @@ export const livescoreApiService = {
    */
   async getLiveFixtures(): Promise<FixtureResponse[]> {
     try {
-      const response = await axios.get(`${BASE_URL}/matches/v2/list-live`, {
+      // Use our resilient request method with exponential backoff and retries
+      const data = await makeResilientRequest({
+        method: 'get',
+        url: `${BASE_URL}/matches/v2/list-live`,
         headers: HEADERS,
         params: {
           Category: 'soccer',
@@ -230,14 +277,14 @@ export const livescoreApiService = {
         }
       });
       
-      if (!response.data?.Stages) {
+      if (!data?.Stages) {
         return [];
       }
       
       // Process and map the data to our application format
       const fixtures: FixtureResponse[] = [];
       
-      response.data.Stages.forEach((stage: any) => {
+      data.Stages.forEach((stage: any) => {
         stage.Events?.forEach((event: LivescoreFixtureResponse) => {
           fixtures.push(mapFixtureResponse(event));
         });
@@ -279,7 +326,10 @@ export const livescoreApiService = {
    */
   async getFixturesByLeague(leagueId: number, season: number): Promise<FixtureResponse[]> {
     try {
-      const response = await axios.get(`${BASE_URL}/matches/v2/list-by-league`, {
+      // Use our resilient request method with exponential backoff and retries
+      const data = await makeResilientRequest({
+        method: 'get',
+        url: `${BASE_URL}/matches/v2/list-by-league`,
         headers: HEADERS,
         params: {
           Category: 'soccer',
@@ -287,18 +337,21 @@ export const livescoreApiService = {
         }
       });
       
-      if (!response.data?.Stages) {
+      if (!data?.Stages) {
         return [];
       }
       
       // Process and map the data to our application format
       const fixtures: FixtureResponse[] = [];
       
-      response.data.Stages.forEach((stage: any) => {
+      data.Stages.forEach((stage: any) => {
         stage.Events?.forEach((event: LivescoreFixtureResponse) => {
           fixtures.push(mapFixtureResponse(event));
         });
       });
+      
+      // Log successful retrieval for monitoring
+      console.log(`Received ${fixtures.length} fixtures for league ${leagueId} from RapidAPI`);
       
       return fixtures;
     } catch (error) {

@@ -130,8 +130,19 @@ const MatchFilters = () => {
     // If no matches for the selected date, show a loading state but keep any previously loaded
     // fixtures visible during the transition (prevents flickering)
     else if (matches.length === 0 && loading) {
-      // Return any previously loaded fixtures until new ones arrive
-      const previousDateFixtures = Object.values(byDate).flat();
+      // Create an array from all fixtures we have in different dates
+      let previousDateFixtures: any[] = [];
+      
+      // Safely collect fixtures from other dates
+      if (byDate && typeof byDate === 'object') {
+        Object.values(byDate).forEach(fixtures => {
+          if (Array.isArray(fixtures)) {
+            previousDateFixtures = [...previousDateFixtures, ...fixtures];
+          }
+        });
+      }
+      
+      // Use previous fixtures to prevent flickering
       if (previousDateFixtures.length > 0) {
         matches = [...previousDateFixtures.slice(0, 20)];
       }
