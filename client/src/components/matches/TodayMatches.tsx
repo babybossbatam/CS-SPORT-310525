@@ -148,7 +148,26 @@ const TodayMatches = () => {
       // No filters - show all matches
       return true;
     })
-    // Always filter to popular leagues - with a more comprehensive approach
+    // First filter out youth leagues and other unwanted categories
+    .filter(fixture => {
+      const leagueName = fixture.league.name ? fixture.league.name.toLowerCase() : '';
+      const teamNames = [
+        (fixture.teams.home.name || '').toLowerCase(),
+        (fixture.teams.away.name || '').toLowerCase()
+      ];
+      
+      // Explicitly exclude these terms from match results
+      const exclusionTerms = ['u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur', 
+                            'regional', 'division 3', 'division 4', 'women', 'kosice'];
+      
+      // Return false if any exclusion term is found in league name or team names
+      return !exclusionTerms.some(term => 
+        leagueName.includes(term) || 
+        teamNames.some(teamName => teamName.includes(term))
+      );
+    })
+    
+    // Then filter for popular leagues
     .filter(fixture => {
       // Check if it's in our priority league list by ID
       if (POPULAR_LEAGUES.includes(fixture.league.id)) return true;
@@ -168,8 +187,9 @@ const TodayMatches = () => {
         'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
       ];
       
-      return popularNames.some(name => leagueName.includes(name)) ||
-             (popularCountries.includes(country) && leagueName.includes('league'));
+      // More strict filtering - must have both a popular league name AND be from a popular country
+      return (popularNames.some(name => leagueName.includes(name)) && 
+             popularCountries.some(name => country.includes(name)));
     })
     // Sort by timestamp (nearest first)
     .sort((a, b) => {

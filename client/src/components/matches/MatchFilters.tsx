@@ -194,11 +194,31 @@ const MatchFilters = () => {
     // Convert league IDs to strings for comparison since some APIs might return them as strings
     const popularLeagueIdsSet = new Set(popularLeagueIds.map(id => id.toString()));
     
-    // Create a more flexible filter to catch variations in league IDs
-    const filteredMatches = matches.filter(match => {
+    // Explicitly exclude youth leagues and lower divisions
+    const excludedMatches = matches.filter(match => {
       if (!match || !match.league) return false;
       
-      // Check if league ID directly matches
+      const leagueName = match.league.name ? match.league.name.toLowerCase() : '';
+      const teamNames = [
+        (match.teams.home.name || '').toLowerCase(),
+        (match.teams.away.name || '').toLowerCase()
+      ];
+      
+      // Exclude youth teams, reserves, amateur leagues
+      const exclusionTerms = ['u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur', 
+                            'regional', 'division 3', 'division 4', 'women'];
+      
+      // Check if any exclusion term is found in league name or team names
+      const hasExclusionTerm = exclusionTerms.some(term => 
+        leagueName.includes(term) || 
+        teamNames.some(teamName => teamName.includes(term))
+      );
+      
+      return !hasExclusionTerm;
+    });
+    
+    // From the non-excluded matches, filter for popular leagues
+    const filteredMatches = excludedMatches.filter(match => {
       const leagueIdStr = match.league.id.toString();
       if (popularLeagueIdsSet.has(leagueIdStr)) return true;
       
@@ -217,8 +237,10 @@ const MatchFilters = () => {
         'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
       ];
       
-      return popularNames.some(name => leagueName.includes(name)) ||
-             (popularCountries.includes(country) && leagueName.includes('league'));
+      // Extra check: popular leagues must be from popular countries
+      return (popularNames.some(name => leagueName.includes(name)) && 
+             popularCountries.some(name => country.includes(name))) ||
+             (popularCountries.includes(country) && leagueName.includes('league 1'));
     });
     
     // Use filtered matches if we have enough, otherwise prioritize them but include some others
