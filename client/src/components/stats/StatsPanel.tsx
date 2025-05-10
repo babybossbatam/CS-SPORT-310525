@@ -76,7 +76,7 @@ const StatsPanel = () => {
       <CardHeader className="p-4 border-b border-neutral-200">
         <h3 className="text-center font-medium">Goals</h3>
       </CardHeader>
-      <CardContent className="p-4 space-y-4">
+      <div className="p-4 space-y-4">
         {/* Stats Tabs */}
         <div className="flex overflow-x-auto py-2 space-x-4 border-b border-neutral-200">
           {POPULAR_LEAGUES.map((league) => (
@@ -159,7 +159,7 @@ const StatsPanel = () => {
             <ChevronRight className="ml-1 h-4 w-4" />
           </button>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };
