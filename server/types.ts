@@ -1,4 +1,4 @@
-// RapidAPI Football API response types
+// API response types (Common to both API-Football and Livescore API after transformation)
 
 export interface Team {
   id: number;
@@ -172,4 +172,64 @@ export interface NewsItem {
   publishedAt: string;
   source: string;
   url: string;
+}
+
+// Livescore API specific types - these will be transformed to match our app's common types
+
+export interface LivescoreTeam {
+  Tid?: string;  // Team ID
+  Nm?: string;   // Team Name
+  Img?: string;  // Team Image/Logo ID
+  Gd?: string;   // Goal Difference
+  Pld?: string;  // Played
+  Pts?: string;  // Points
+  Lst?: string;  // Last 5 Results sequence (W,L,D)
+}
+
+export interface LivescoreFixtureResponse {
+  Eid?: string;          // Event ID
+  Esd?: string;          // Event Start Date
+  Eps?: string;          // Event Play Status (e.g., "Finished", "In Play")
+  Esid?: number;         // Event Status ID
+  Tr1?: string;          // Team 1 Result/Score
+  Tr2?: string;          // Team 2 Result/Score
+  Trh1?: string;         // Team 1 Half-Time Result
+  Trh2?: string;         // Team 2 Half-Time Result
+  T1?: LivescoreTeam[];  // Team 1 Details
+  T2?: LivescoreTeam[];  // Team 2 Details
+  Cid?: string;          // Competition ID
+  Cnm?: string;          // Competition Name
+  Ccd?: string;          // Country Code
+  Scd?: string;          // Season Code
+  ComX?: string;         // Commentary Availability
+  Min?: string;          // Current Match Minute
+  Vnm?: string;          // Venue Name
+  Cards?: {              // Card events
+    Nm: string;          // Player Name
+    Min: number;         // Minute
+    Card: number;        // Card Type (1=Yellow, 2=Red)
+  }[];
+}
+
+export interface LivescoreLeagueResponse {
+  Id?: string;       // League ID
+  CompN?: string;    // Competition Name
+  CompD?: string;    // Competition Description
+  CompT?: string;    // Competition Type
+  Sids?: string[];   // Season IDs
+  Cid?: string;      // Country ID
+  Ccd?: string;      // Country Code
+  CountryName?: string; // Country Name (added in transformation)
+}
+
+export interface LivescoreStandingsResponse {
+  LeagueTable?: {
+    Tables?: {
+      Table: {
+        team: LivescoreTeam;
+        pos: string;    // Position
+        form: string;   // Form
+      }[];
+    }[];
+  };
 }
