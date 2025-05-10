@@ -101,6 +101,9 @@ const MatchFilters = () => {
   // Check if there are live matches
   const hasLiveMatches = liveFixtures.length > 0;
   
+  // Popular leagues IDs
+  const popularLeagueIds = [2, 39, 135, 3, 78]; // Champions League, Premier League, Serie A, Europa League, Bundesliga
+  
   // Function to get matches to display in the list
   const getMatchesToDisplay = () => {
     // Use fixtures for today by default
@@ -114,6 +117,9 @@ const MatchFilters = () => {
     else if (fixturesByDate.length < 5 && upcomingFixtures.length > 0) {
       matches = [...fixturesByDate, ...upcomingFixtures.slice(0, 14 - fixturesByDate.length)];
     }
+    
+    // Filter matches to only include popular leagues
+    matches = matches.filter(match => popularLeagueIds.includes(match.league.id));
     
     // Sort by time
     return matches.sort((a, b) => {
@@ -195,25 +201,46 @@ const MatchFilters = () => {
           ) : matchesToDisplay.length > 0 ? (
             // Match list
             matchesToDisplay.map((match) => (
-              <div key={match.fixture.id} className="flex justify-between items-center py-1.5">
-                <div className="flex-1 text-right pr-2">
-                  <span className="text-sm font-medium truncate max-w-[120px] inline-block">{match.teams.home.name}</span>
+              <div 
+                key={match.fixture.id} 
+                className={`relative py-1.5 ${
+                  // Highlight today's matches
+                  format(new Date(match.fixture.date), 'yyyy-MM-dd') === selectedDate 
+                    ? 'bg-gray-50 -mx-3 px-3 rounded-md' 
+                    : ''
+                }`}
+              >
+                {/* League indicator */}
+                <div className="absolute -left-1 top-0 bottom-0 flex items-center">
+                  <img src={match.league.logo} alt={match.league.name} className="h-3.5 w-3.5 object-contain" />
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-5 w-5 object-contain" />
-                  <div className="text-sm font-medium">
-                    {match.fixture.status.short === 'LIVE' ? (
-                      <span className="text-[#48BB78]">{match.fixture.status.elapsed}'</span>
-                    ) : (
-                      format(new Date(match.fixture.date), 'HH:mm')
-                    )}
+                <div className="flex justify-between items-center pl-4">
+                  <div className="flex-1 text-right pr-2">
+                    <span className="text-sm font-medium truncate max-w-[120px] inline-block">{match.teams.home.name}</span>
                   </div>
-                  <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-5 w-5 object-contain" />
-                </div>
-                
-                <div className="flex-1 text-left pl-2">
-                  <span className="text-sm font-medium truncate max-w-[120px] inline-block">{match.teams.away.name}</span>
+                  
+                  <div className="flex items-center space-x-2">
+                    <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-5 w-5 object-contain" />
+                    <div className="text-sm font-medium">
+                      {match.fixture.status.short === 'LIVE' ? (
+                        <span className="text-[#48BB78]">{match.fixture.status.elapsed}'</span>
+                      ) : match.fixture.status.short === 'FT' || match.fixture.status.short === 'AET' || match.fixture.status.short === 'PEN' ? (
+                        <span className="font-bold">
+                          {match.goals.home}-{match.goals.away}
+                          {match.fixture.status.short === 'AET' && <span className="text-xs ml-1 font-normal">AET</span>}
+                          {match.fixture.status.short === 'PEN' && <span className="text-xs ml-1 font-normal">PEN</span>}
+                        </span>
+                      ) : (
+                        format(new Date(match.fixture.date), 'HH:mm')
+                      )}
+                    </div>
+                    <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-5 w-5 object-contain" />
+                  </div>
+                  
+                  <div className="flex-1 text-left pl-2">
+                    <span className="text-sm font-medium truncate max-w-[120px] inline-block">{match.teams.away.name}</span>
+                  </div>
                 </div>
               </div>
             ))
