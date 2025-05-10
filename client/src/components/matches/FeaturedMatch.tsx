@@ -5,8 +5,7 @@ import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatDateTime, isLiveMatch } from '@/lib/utils';
-import { getTeamColor, getOpposingTeamColor } from '@/lib/colorExtractor';
+import { formatDateTime, isLiveMatch, getTeamColor, getOpposingTeamColor } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
 

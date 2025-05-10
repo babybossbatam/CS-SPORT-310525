@@ -23,13 +23,11 @@ import {
   formatMatchDateFn, 
   formatExactDateTime,
   getCountdownTimer,
-  isLiveMatch
-} from '@/lib/utils';
-import { 
+  isLiveMatch,
   getTeamGradient, 
   getOpposingTeamColor,
   getTeamColor
-} from '@/lib/colorExtractor';
+} from '@/lib/utils';
 
 // Define types locally
 interface Team {
