@@ -287,18 +287,11 @@ function LiveScoreboardPage() {
           return;
         }
         
-        // Use timestamp if available, otherwise use date string
-        // Make sure we have a valid date
-        let matchTime;
-        if (featuredFixture.fixture.timestamp) {
-          // If timestamp is available (in seconds), convert to milliseconds
-          matchTime = new Date(featuredFixture.fixture.timestamp * 1000);
-        } else {
-          // Pass the date string directly to getCountdownTimer which handles type checking
-          matchTime = featuredFixture.fixture.date;
-        }
+        // Pass the timestamp directly if available (getCountdownTimer now handles UNIX timestamps correctly)
+        const time = featuredFixture.fixture.timestamp 
+          ? getCountdownTimer(featuredFixture.fixture.timestamp) 
+          : getCountdownTimer(featuredFixture.fixture.date);
           
-        const time = getCountdownTimer(matchTime);
         setCountdown(time);
       } catch (error) {
         console.error('Error updating countdown:', error);

@@ -113,7 +113,19 @@ const initialStatsState: StatsState = {
 };
 
 const initialUIState: UIState = {
-  selectedDate: new Date().toISOString().split('T')[0],
+  selectedDate: (() => {
+    try {
+      return new Date().toISOString().split('T')[0]; 
+    } catch (e) {
+      console.error("Error formatting date in initialUIState:", e);
+      // Fallback to a hardcoded date format YYYY-MM-DD if toISOString fails
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+  })(),
   selectedFilter: 'all',
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League

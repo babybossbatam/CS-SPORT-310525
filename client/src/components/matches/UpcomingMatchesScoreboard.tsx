@@ -146,13 +146,25 @@ const UpcomingMatchesScoreboard = () => {
     console.log(`Total unique fixtures: ${uniqueFixtures.length}`);
     
     // Log some example timestamp data for debugging
-    const currentUnixTime = new Date().getTime() / 1000;
+    const currentUnixTime = Math.floor(new Date().getTime() / 1000);
     if (uniqueFixtures.length > 0) {
       const sample = uniqueFixtures[0];
-      const timeUntilMatch = sample.fixture.timestamp - currentUnixTime;
+      
+      // Sanitize timestamp - ensure it's a proper Unix timestamp (10 digits for seconds)
+      let sanitizedTimestamp = sample.fixture.timestamp;
+      if (typeof sanitizedTimestamp === 'number') {
+        // If timestamp is too large (more than 10 digits), probably contains additional time data
+        // Convert it to proper Unix format by taking only first 10 digits
+        if (String(sanitizedTimestamp).length > 10) {
+          sanitizedTimestamp = parseInt(String(sanitizedTimestamp).substring(0, 10));
+        }
+        sample.fixture.timestamp = sanitizedTimestamp;
+      }
+      
+      const timeUntilMatch = sanitizedTimestamp - currentUnixTime;
       console.log(`Current time (unix): ${currentUnixTime}`);
       console.log(`Example match: ${sample.teams.home.name} vs ${sample.teams.away.name}`);
-      console.log(`Match timestamp: ${sample.fixture.timestamp}`);
+      console.log(`Match timestamp: ${sanitizedTimestamp}`);
       console.log(`Time until match: ${timeUntilMatch} seconds (${(timeUntilMatch / 3600).toFixed(2)} hours)`);
     }
     
@@ -161,8 +173,19 @@ const UpcomingMatchesScoreboard = () => {
     // 2. Upcoming matches (not yet started)
     // 3. Limit to maximum 5 pages (5 matches)
     
-    const currentTime = new Date().getTime() / 1000; // Current time in seconds
+    const currentTime = Math.floor(new Date().getTime() / 1000); // Current time in seconds
     const eightHoursInSeconds = 8 * 60 * 60; // 8 hours in seconds
+    
+    // Sanitize timestamps in all fixtures
+    uniqueFixtures.forEach(fixture => {
+      if (typeof fixture.fixture.timestamp === 'number') {
+        // If timestamp is too large (more than 10 digits), probably contains additional time data
+        // Convert it to proper Unix format by taking only first 10 digits
+        if (String(fixture.fixture.timestamp).length > 10) {
+          fixture.fixture.timestamp = parseInt(String(fixture.fixture.timestamp).substring(0, 10));
+        }
+      }
+    });
     
     const scoreBoardMatches = uniqueFixtures.filter(match => {
       // Only include matches from our featured leagues

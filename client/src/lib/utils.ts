@@ -122,7 +122,7 @@ export function formatMatchDateFn(dateString: string | Date | number | null | un
 // Function to calculate countdown timer
 export function getCountdownTimer(dateString: string | Date | number | null | undefined): string {
   // Handle missing or invalid input
-  if (!dateString) {
+  if (dateString === null || dateString === undefined) {
     return "TBD";
   }
   
@@ -131,17 +131,30 @@ export function getCountdownTimer(dateString: string | Date | number | null | un
   try {
     // Handle different input types
     if (typeof dateString === 'string') {
-      matchDate = parseISO(dateString);
+      try {
+        matchDate = parseISO(dateString);
+      } catch (err) {
+        console.error("Error parsing date string:", err);
+        return "TBD";
+      }
     } else if (dateString instanceof Date) {
       matchDate = dateString;
     } else if (typeof dateString === 'number') {
-      matchDate = new Date(dateString);
+      // If it's a UNIX timestamp in seconds (10 digits), convert to milliseconds
+      if (dateString.toString().length <= 10) {
+        matchDate = new Date(dateString * 1000);
+      } else {
+        // Already in milliseconds
+        matchDate = new Date(dateString);
+      }
     } else {
+      console.error("Unsupported date format:", typeof dateString);
       return "TBD";
     }
     
     // Check for invalid date
     if (isNaN(matchDate.getTime())) {
+      console.error("Invalid date:", matchDate);
       return "TBD";
     }
     
