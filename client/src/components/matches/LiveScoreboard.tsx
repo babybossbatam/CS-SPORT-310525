@@ -285,7 +285,14 @@ export function LiveScoreboard({
                   alt={featuredMatch.league.name}
                   className="w-6 h-6"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=League';
+                    // Try the livescore URL
+                    (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${featuredMatch.league.id}.png`;
+                    
+                    // Add a second error handler for complete fallback
+                    (e.target as HTMLImageElement).onerror = () => {
+                      (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
+                      (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                    };
                   }}
                 />
                 <span className="font-medium text-sm">{featuredMatch.league.name}</span>
@@ -315,7 +322,14 @@ export function LiveScoreboard({
                 alt={featuredMatch.league.name}
                 className="h-10 w-10 object-contain"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=League';
+                  // Try the livescore URL
+                  (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${featuredMatch.league.id}.png`;
+                  
+                  // Add a second error handler for complete fallback
+                  (e.target as HTMLImageElement).onerror = () => {
+                    (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
+                    (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                  };
                 }}
               />
               
@@ -343,7 +357,14 @@ export function LiveScoreboard({
                   alt={featuredMatch.league.name}
                   className="h-8 w-8 object-contain mb-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=League';
+                    // Try the livescore URL
+                    (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${featuredMatch.league.id}.png`;
+                    
+                    // Add a second error handler for complete fallback
+                    (e.target as HTMLImageElement).onerror = () => {
+                      (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
+                      (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                    };
                   }}
                 />
                 <div className="text-3xl font-bold text-center mb-3">
