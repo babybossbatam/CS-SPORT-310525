@@ -106,13 +106,13 @@ function mapFixtureResponse(fixture: LivescoreFixtureResponse): FixtureResponse 
       home: {
         id: parseInt(homeTeamId),
         name: homeTeamName,
-        logo: `https://media.api-sports.io/football/teams/${parseInt(homeTeamId)}.png`,
+        logo: homeTeam?.Img ? `https://lsm-static-prod.livescore.com/medium/${homeTeam.Img}.jpg` : `https://media.api-sports.io/football/teams/${parseInt(homeTeamId)}.png`,
         winner: parseInt(fixture.Tr1 || '0') > parseInt(fixture.Tr2 || '0')
       },
       away: {
         id: parseInt(awayTeamId),
         name: awayTeamName,
-        logo: `https://media.api-sports.io/football/teams/${parseInt(awayTeamId)}.png`,
+        logo: awayTeam?.Img ? `https://lsm-static-prod.livescore.com/medium/${awayTeam.Img}.jpg` : `https://media.api-sports.io/football/teams/${parseInt(awayTeamId)}.png`,
         winner: parseInt(fixture.Tr2 || '0') > parseInt(fixture.Tr1 || '0')
       }
     },
