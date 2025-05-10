@@ -156,9 +156,13 @@ const TodayMatches = () => {
         (fixture.teams.away.name || '').toLowerCase()
       ];
       
-      // Explicitly exclude these terms from match results
-      const exclusionTerms = ['u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur', 
-                            'regional', 'division 3', 'division 4', 'women', 'kosice'];
+      // Expanded list to explicitly exclude these terms from match results
+      const exclusionTerms = [
+        'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
+        'regional', 'division 3', 'division 4', 'women', 'kosice', 'girls', 'boys',
+        'development', 'friendly', 'test', 'academy', 'club friendlies', 'reserves', 
+        'primavera', 'exhibition', 'futsal', 'indoor', 'national cup 3', 'cup qualifying'
+      ];
       
       // Return false if any exclusion term is found in league name or team names
       return !exclusionTerms.some(term => 

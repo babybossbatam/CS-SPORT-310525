@@ -216,11 +216,12 @@ const fixturesSlice = createSlice({
           const homeTeamName = (fixture.teams.home.name || '').toLowerCase();
           const awayTeamName = (fixture.teams.away.name || '').toLowerCase();
           
-          // List of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
+          // Expanded list of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
           const exclusionTerms = [
-            'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-            'regional', 'division 3', 'division 4', 'women', 'kosice', 
-            'development', 'friendly', 'test', 'academy'
+            'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
+            'regional', 'division 3', 'division 4', 'women', 'kosice', 'girls', 'boys',
+            'development', 'friendly', 'test', 'academy', 'club friendlies', 'reserves', 
+            'primavera', 'exhibition', 'futsal', 'indoor', 'national cup 3', 'cup qualifying'
           ];
           
           // Check if any exclusion term exists in league or team names
@@ -260,11 +261,12 @@ const fixturesSlice = createSlice({
           const homeTeamName = (fixture.teams.home.name || '').toLowerCase();
           const awayTeamName = (fixture.teams.away.name || '').toLowerCase();
           
-          // List of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
+          // Expanded list of terms that indicate unwanted matches (youth teams, lower divisions, etc.)
           const exclusionTerms = [
-            'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-            'regional', 'division 3', 'division 4', 'women', 'kosice', 
-            'development', 'friendly', 'test', 'academy'
+            'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
+            'regional', 'division 3', 'division 4', 'women', 'kosice', 'girls', 'boys',
+            'development', 'friendly', 'test', 'academy', 'club friendlies', 'reserves', 
+            'primavera', 'exhibition', 'futsal', 'indoor', 'national cup 3', 'cup qualifying'
           ];
           
           // Check if any exclusion term exists in league or team names
