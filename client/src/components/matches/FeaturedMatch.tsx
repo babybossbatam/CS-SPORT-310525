@@ -249,7 +249,14 @@ const FeaturedMatch = () => {
                 alt={featuredMatch.teams.home.name} 
                 className="h-full w-full object-contain relative z-10 drop-shadow-lg transform transition-transform duration-300 hover:scale-110"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                  // Try the livescore URL
+                  (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${featuredMatch.teams.home.id}.png`;
+                  
+                  // Add a second error handler for complete fallback
+                  (e.target as HTMLImageElement).onerror = () => {
+                    (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                    (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                  };
                 }}
               />
             </div>
@@ -308,7 +315,14 @@ const FeaturedMatch = () => {
                 alt={featuredMatch.teams.away.name} 
                 className="h-full w-full object-contain relative z-10 drop-shadow-lg transform transition-transform duration-300 hover:scale-110"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
+                  // Try the livescore URL
+                  (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${featuredMatch.teams.away.id}.png`;
+                  
+                  // Add a second error handler for complete fallback
+                  (e.target as HTMLImageElement).onerror = () => {
+                    (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                    (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                  };
                 }}
               />
             </div>
