@@ -225,8 +225,8 @@ const TodayMatches = () => {
   if (todayMatches.length === 0) {
     return (
       <div className="p-4 text-center">
-        <div className="flex flex-col items-center justify-center space-y-2 text-gray-500">
-          <CalendarIcon className="h-10 w-10 text-gray-300" />
+        <div className="text-center py-4">
+          <CalendarIcon className="h-10 w-10 text-gray-300 mx-auto mb-2" />
           <h3 className="text-sm font-medium">No matches found</h3>
           <p className="text-xs text-gray-400">
             There are no matches available from the selected leagues today.
@@ -336,37 +336,7 @@ const TodayMatches = () => {
       
       {/* Main content */}
       <div className="space-y-1">
-        {/* Popular Leagues Header */}
-        <div className="px-3 py-2 font-medium">
-          Popular Football Leagues
-        </div>
-
-        {/* League header with star icon */}
-        <div className="px-3 py-1 flex items-center space-x-2">
-          <span className="text-blue-400">
-            <Star className="h-4 w-4" />
-          </span>
-          <div className="flex items-center">
-            <img 
-              src="https://static.livescore.com/i/competition/2.png"
-              alt="Popular Football Leagues"
-              className="h-5 w-5 mr-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/2.png';
-                
-                // Add a second error handler for complete fallback
-                (e.target as HTMLImageElement).onerror = () => {
-                  (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
-                  (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                };
-              }}
-            />
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">Popular Football Leagues</span>
-              <span className="text-xs text-gray-500">Champions, Europa, Serie A</span>
-            </div>
-          </div>
-        </div>
+        {/* Matches display */}
 
         {/* Display the fixtures in the new format */}
         {todayMatches
@@ -449,19 +419,7 @@ const TodayMatches = () => {
           ))}
           
 
-        {/* Link to Europa League Bracket */}
-        <div className="px-3 py-2 text-right">
-          <a 
-            href="#" 
-            className="text-xs text-blue-600 hover:underline inline-flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/leagues/3');
-            }}
-          >
-            UEFA Europa League Bracket <ChevronRight className="h-3 w-3 ml-1" />
-          </a>
-        </div>
+
       </div>
     </div>
   );
