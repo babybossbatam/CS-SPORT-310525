@@ -122,7 +122,7 @@ function LiveScoreboardPage() {
   // Fetch live fixtures
   const liveFixturesQuery = useQuery<FixtureResponse[]>({
     queryKey: ['/api/fixtures/live'],
-    staleTime: 30000, // 30 seconds
+    staleTime: 1800000, // 30 minutes
   });
   
   // Fetch upcoming fixtures for tomorrow
