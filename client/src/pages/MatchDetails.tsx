@@ -292,8 +292,8 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - exactly matching the component's height (20px) */}
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 h-full flex items-center">
+                    {/* Home team logo - 10% smaller than the component's height */}
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 h-[90%] flex items-center">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
@@ -339,8 +339,8 @@ const MatchDetails = () => {
                       )}
                     </div>
                     
-                    {/* Away team logo - exactly matching the component's height (20px) */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 h-full flex items-center">
+                    {/* Away team logo - 10% smaller than the component's height */}
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 h-[90%] flex items-center">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
