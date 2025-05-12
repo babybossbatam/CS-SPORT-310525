@@ -91,7 +91,7 @@ export function MatchScoreboard({
   
   return (
     <div 
-      className={`${compact ? 'mb-4' : 'mb-8'} relative transition-transform duration-200 ${onClick ? 'hover:scale-[1.02]' : ''}`}
+      className={`${compact ? 'mb-4' : 'mb-8'} relative`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
@@ -173,7 +173,7 @@ export function MatchScoreboard({
       
       {/* Match details footer */}
       {!compact && (
-        <div className="p-2 text-center text-sm border-t border-gray-100">
+        <div className="p-2 text-center text-sm border-t border-gray-100 mt-10">
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
             <span>{formatDateTime(fixture.date)}</span>
