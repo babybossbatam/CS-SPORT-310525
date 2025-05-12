@@ -23,6 +23,7 @@ import StatHighlight from '@/components/matches/StatHighlight';
 import HistoricalStats from '@/components/matches/HistoricalStats';
 import PredictionMeter from '@/components/matches/PredictionMeter';
 import MatchScoreboard from '@/components/matches/MatchScoreboard';
+import { useQuery } from '@tanstack/react-query';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -32,8 +33,44 @@ const MatchDetails = () => {
   
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture, loading, error } = useSelector((state: RootState) => state.fixtures);
+  const { list: leaguesList } = useSelector((state: RootState) => state.leagues);
   
   const [activeTab, setActiveTab] = useState(tab);
+  
+  // Get fixtures for the same league to enable navigation
+  const { data: leagueFixtures } = useQuery<any[]>({
+    queryKey: ['/api/leagues', currentFixture?.league?.id, 'fixtures'],
+    enabled: !!currentFixture?.league?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  });
+  
+  // Handle match navigation (next/previous)
+  useEffect(() => {
+    if (tab && id && leagueFixtures && leagueFixtures.length > 0) {
+      // Only proceed if we're on a navigation tab (next/prev)
+      if (tab !== 'next' && tab !== 'prev') return;
+      
+      // Find the current match index
+      const currentIndex = leagueFixtures.findIndex(match => match.fixture.id === Number(id));
+      if (currentIndex === -1) return;
+      
+      // Calculate next or previous index based on tab value
+      let targetIndex;
+      if (tab === 'next') {
+        targetIndex = currentIndex < leagueFixtures.length - 1 ? currentIndex + 1 : 0;
+      } else if (tab === 'prev') {
+        targetIndex = currentIndex > 0 ? currentIndex - 1 : leagueFixtures.length - 1;
+      } else {
+        return;
+      }
+      
+      // Navigate to the target match
+      const targetMatch = leagueFixtures[targetIndex];
+      if (targetMatch) {
+        navigate(`/match/${targetMatch.fixture.id}`);
+      }
+    }
+  }, [id, tab, leagueFixtures, navigate]);
   
   // Check if match is favorited
   const isFavorite = user.preferences.favoriteMatches.includes(id || '');

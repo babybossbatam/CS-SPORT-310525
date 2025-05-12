@@ -20,8 +20,10 @@ function Router() {
       <Route path="/football" component={Football} />
       <Route path="/login" component={() => <Authentication mode="login" />} />
       <Route path="/register" component={() => <Authentication mode="register" />} />
-      <Route path="/match/:id" component={MatchDetails} />
+      <Route path="/match/:id/next" component={MatchDetails} />
+      <Route path="/match/:id/prev" component={MatchDetails} />
       <Route path="/match/:id/:tab" component={MatchDetails} />
+      <Route path="/match/:id" component={MatchDetails} />
       <Route path="/league/:id" component={LeagueDetails} />
       <Route path="/league/:id/:tab" component={LeagueDetails} />
       <Route path="/my-scores" component={MyScores} />
