@@ -9,6 +9,7 @@ import { formatDateTime, isLiveMatch } from '@/lib/utils';
 import { getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
+import MatchScoreboard from '@/components/matches/MatchScoreboard';
 
 // Exact same IDs as UpcomingMatchesScoreboard
 const FEATURED_LEAGUE_IDS = [
@@ -237,98 +238,14 @@ const FeaturedMatch = () => {
           {formatMatchDate(featuredMatch.fixture.date)}
         </div>
         
-        {/* Teams with improved match bar in the middle */}
-        <div className="flex justify-center items-center space-x-4 mb-6 relative">
-          {/* Home Team */}
-          <div className="flex flex-col items-center w-1/3">
-            <div className="h-20 w-20 mb-2 flex items-center justify-center relative group">
-              {/* Enhanced shadow effect at 50% size with better visual depth */}
-              <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-              <img 
-                src={featuredMatch.teams.home.logo} 
-                alt={featuredMatch.teams.home.name} 
-                className="h-full w-full object-contain relative z-10 drop-shadow-lg transform transition-transform duration-300 hover:scale-110"
-                onError={(e) => {
-                  // Try the livescore URL
-                  (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${featuredMatch.teams.home.id}.png`;
-                  
-                  // Add a second error handler for complete fallback
-                  (e.target as HTMLImageElement).onerror = () => {
-                    (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
-                    (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                  };
-                }}
-              />
-            </div>
-            <span className="font-bold text-lg text-center text-white uppercase tracking-wider truncate max-w-[130px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">{featuredMatch.teams.home.name}</span>
-          </div>
-          
-          {/* Match Bar - Full gradient from HOME logo through VS to AWAY logo */}
-          <div className="absolute left-0 right-0 h-12 -z-10 top-1/2 transform -translate-y-1/2 overflow-hidden rounded-md shadow-lg">
-            {/* Single gradient background from home team color to away team color */}
-            <div className="w-full h-full flex">
-              <div 
-                className={`w-1/2 h-full ${getTeamColor(featuredMatch.teams.home.name)}`} 
-                style={{ boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)' }}
-              ></div>
-              <div 
-                className={`w-1/2 h-full ${getTeamColor(featuredMatch.teams.away.name)}`} 
-                style={{ boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)' }}
-              ></div>
-            </div>
-          </div>
-          
-          {/* VS or Score section */}
-          <div className="flex flex-col items-center w-1/3 z-10">
-            {/* Show score if match is in progress or finished */}
-            {(featuredMatch.fixture.status.short === 'FT' || 
-              featuredMatch.fixture.status.short === 'AET' || 
-              featuredMatch.fixture.status.short === 'PEN' || 
-              featuredMatch.fixture.status.short === 'IN_PLAY' || 
-              featuredMatch.fixture.status.short === 'HT') ? (
-              <div className="text-3xl font-bold bg-white py-1 px-4 rounded-full shadow-sm mb-2">
-                {featuredMatch.goals.home} - {featuredMatch.goals.away}
-                {featuredMatch.fixture.status.short === 'AET' && 
-                  <span className="text-xs ml-2 text-blue-600">AET</span>}
-                {featuredMatch.fixture.status.short === 'PEN' && 
-                  <span className="text-xs ml-2 text-blue-600">PEN</span>}
-                {featuredMatch.fixture.status.short === 'IN_PLAY' && 
-                  <span className="text-xs ml-2 text-red-600">LIVE</span>}
-                {featuredMatch.fixture.status.short === 'HT' && 
-                  <span className="text-xs ml-2 text-orange-600">HT</span>}
-              </div>
-            ) : (
-              <div className="text-5xl font-bold text-white py-1 px-5 mb-2 z-20 drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">VS</div>
-            )}
-            <div className="text-sm text-white bg-gray-800/70 px-2 py-1 rounded-full">
-              {formatDateTime(featuredMatch.fixture.date)}
-            </div>
-          </div>
-          
-          {/* Away Team */}
-          <div className="flex flex-col items-center w-1/3">
-            <div className="h-20 w-20 mb-2 flex items-center justify-center relative group">
-              {/* Enhanced shadow effect at 50% size with better visual depth */}
-              <div className="absolute inset-0 scale-75 origin-center bg-black/20 rounded-full filter blur-[3px] transform translate-y-0.5"></div>
-              <img 
-                src={featuredMatch.teams.away.logo} 
-                alt={featuredMatch.teams.away.name} 
-                className="h-full w-full object-contain relative z-10 drop-shadow-lg transform transition-transform duration-300 hover:scale-110"
-                onError={(e) => {
-                  // Try the livescore URL
-                  (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${featuredMatch.teams.away.id}.png`;
-                  
-                  // Add a second error handler for complete fallback
-                  (e.target as HTMLImageElement).onerror = () => {
-                    (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
-                    (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                  };
-                }}
-              />
-            </div>
-            <span className="font-bold text-lg text-center text-white uppercase tracking-wider truncate max-w-[130px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">{featuredMatch.teams.away.name}</span>
-          </div>
-        </div>
+        {/* Using MatchScoreboard component for consistent UI */}
+        <MatchScoreboard 
+          match={featuredMatch}
+          featured={true}
+          homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
+          awayTeamColor="#8b0000" // Default AS Roma dark red color
+          onClick={() => navigate(`/match/${featuredMatch.fixture.id}`)}
+        />
         
         <div className="grid grid-cols-3 gap-4 mt-4 text-center">
           <div 
