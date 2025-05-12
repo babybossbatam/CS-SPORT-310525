@@ -7,6 +7,7 @@ import { getTeamColor } from '@/lib/colorUtils';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MatchScoreboard from './MatchScoreboard';
 
 // Define types
@@ -78,10 +79,11 @@ interface EnhancedLiveScoreboardProps {
 
 export function EnhancedLiveScoreboard({ 
   showFeaturedMatch = true,
-  showFilters = false, // Default false since we removed filters
+  showFilters = true,
   maxMatches = 10
 }: EnhancedLiveScoreboardProps) {
   const [, navigate] = useLocation();
+  const [selectedLeague, setSelectedLeague] = useState<string>("all");
   const [filteredMatches, setFilteredMatches] = useState<FixtureResponse[]>([]);
   
   // Fetch live matches
@@ -98,7 +100,19 @@ export function EnhancedLiveScoreboard({
     enabled: !liveMatches || liveMatches.length === 0,
   });
   
-  // Process and sort matches
+  // Popular leagues
+  // Ordered according to user request: Europe, England, Spain, Italy, Brazil, Germany
+  const popularLeagues = [
+    { id: "all", name: "All Leagues" },
+    { id: "europe", name: "Europe" },
+    { id: "39", name: "England" },
+    { id: "140", name: "Spain" },
+    { id: "135", name: "Italy" },
+    { id: "71", name: "Brazil" },
+    { id: "78", name: "Germany" },
+  ];
+  
+  // Filter matches by league
   useEffect(() => {
     if (!liveMatches && !todayMatches) {
       setFilteredMatches([]);
@@ -132,9 +146,21 @@ export function EnhancedLiveScoreboard({
       return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
     });
     
-    // Limit to max matches without any filtering
-    setFilteredMatches(sortedMatches.slice(0, maxMatches));
-  }, [liveMatches, todayMatches, maxMatches]);
+    // Apply league filter
+    let filtered = sortedMatches;
+    if (selectedLeague !== "all") {
+      if (selectedLeague === "europe") {
+        // European leagues include England (39), Spain (140), Italy (135), Germany (78), France (61), etc.
+        const europeanLeagueIds = [2, 39, 140, 135, 78, 61, 144, 88, 94];
+        filtered = sortedMatches.filter(match => europeanLeagueIds.includes(match.league.id));
+      } else {
+        filtered = sortedMatches.filter(match => match.league.id.toString() === selectedLeague);
+      }
+    }
+    
+    // Limit to max matches
+    setFilteredMatches(filtered.slice(0, maxMatches));
+  }, [liveMatches, todayMatches, selectedLeague, maxMatches]);
   
   // Popular teams for featuring - Top 3 teams from popular leagues
   const popularTeams = {
@@ -209,7 +235,24 @@ export function EnhancedLiveScoreboard({
   
   return (
     <>
-      
+      {/* League filter tabs */}
+      {showFilters && (
+        <div className="overflow-x-auto pb-2">
+          <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedLeague}>
+            <TabsList className="inline-flex w-auto bg-white border rounded-md shadow-sm p-1">
+              {popularLeagues.map((league) => (
+                <TabsTrigger
+                  key={league.id}
+                  value={league.id}
+                  className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 transition-all"
+                >
+                  {league.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
       
       {/* Featured match */}
       {showFeaturedMatch && featuredMatch && (

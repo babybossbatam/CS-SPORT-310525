@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Clock, X, Play } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { getMatchHighlights, HighlightsResponse } from '@/lib/highlightsApi';
 
 // Define types
@@ -92,29 +91,26 @@ export function MatchScoreboard({
 }: MatchScoreboardProps) {
   // Get match data
   const { fixture, league, teams, goals, score } = match;
-  
-  // State for video highlights
+  // State to track if highlight video is showing
   const [showHighlights, setShowHighlights] = useState(false);
   const [highlightsData, setHighlightsData] = useState<HighlightsResponse | null>(null);
-  const [loadingHighlights, setLoadingHighlights] = useState(false);
-  const [highlightsError, setHighlightsError] = useState<string | null>(null);
-
-  // Function to fetch highlights
-  const fetchHighlights = async () => {
-    if (fixture.id) {
+  const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
+  
+  // Load highlights data when the highlights button is clicked
+  const loadHighlights = async () => {
+    if (!showHighlights && !highlightsData) {
       try {
-        setLoadingHighlights(true);
-        setHighlightsError(null);
-        const data = await getMatchHighlights(fixture.id.toString());
+        setIsLoadingHighlights(true);
+        const data = await getMatchHighlights(fixture.id);
         setHighlightsData(data);
-        setShowHighlights(true);
+        setIsLoadingHighlights(false);
       } catch (error) {
-        console.error("Error fetching highlights:", error);
-        setHighlightsError("Unable to load highlights for this match");
-      } finally {
-        setLoadingHighlights(false);
+        console.error('Failed to load highlights:', error);
+        setIsLoadingHighlights(false);
       }
     }
+    // Toggle highlights display
+    setShowHighlights(!showHighlights);
   };
   
   return (
@@ -123,55 +119,9 @@ export function MatchScoreboard({
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      {/* League info and match status */}
-      <div className="flex justify-between items-center mb-2 px-1">
-        {/* League info */}
-        <div className="flex items-center">
-          <img 
-            src={league.logo} 
-            alt={league.name} 
-            className="h-4 w-auto mr-2"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=League';
-            }}
-          />
-          <span className="text-xs text-gray-700 font-medium">{league.name}</span>
-          {league.round && (
-            <span className="text-xs text-gray-500 ml-1">• {league.round}</span>
-          )}
-        </div>
-        
-        {/* Match status */}
-        <div className="flex items-center text-xs">
-          {isLiveMatch(fixture.status.short) ? (
-            <span className="bg-red-600 text-white px-1.5 py-0.5 rounded-sm font-semibold flex items-center">
-              <span className="animate-pulse inline-block h-2 w-2 rounded-full bg-white mr-1"></span>
-              {fixture.status.short === 'HT' ? 'HALF-TIME' : `${fixture.status.elapsed}'`}
-            </span>
-          ) : (
-            <span 
-              className={`${
-                fixture.status.short === 'FT' || fixture.status.short === 'AET' || fixture.status.short === 'PEN' 
-                  ? 'bg-gray-700 text-white' 
-                  : 'bg-gray-100 text-gray-800'
-              } px-1.5 py-0.5 rounded-sm font-medium`}
-            >
-              {fixture.status.short === 'NS' ? 'UPCOMING' : fixture.status.short}
-            </span>
-          )}
-        </div>
-      </div>
+      {/* League and status info removed as requested */}
       
-      {/* Score section for FT/Live matches */}
-      {(fixture.status.short !== 'NS' && goals.home !== null && goals.away !== null) && (
-        <div className="flex justify-center mb-2">
-          <div className="bg-gray-800 text-white px-4 py-1 rounded-md flex items-center space-x-3">
-            <span className="text-lg font-bold">{goals.home}</span>
-            <span className="text-sm text-gray-400">-</span>
-            <span className="text-lg font-bold">{goals.away}</span>
-          </div>
-        </div>
-      )}
+      {/* Score section removed as requested */}
       
       {/* Match bar styled with height set to exactly 30px */}
       <div className="flex relative h-[30px] rounded-md">
@@ -211,18 +161,16 @@ export function MatchScoreboard({
           </div>
           
           {/* VS SECTION - fixed size */}
-          {goals.home === null && goals.away === null && (
-            <div 
-              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
-                textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-                boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
-              }}
-            >
-              VS
-            </div>
-          )}
+          <div 
+            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
+              textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
+              boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
+            }}
+          >
+            VS
+          </div>
           
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
           <div className="h-full w-[calc(50%-55px)] mr-[55px]" 
@@ -259,83 +207,95 @@ export function MatchScoreboard({
         </div>
       </div>
       
-      {/* Match details footer (date/time, venue, and halftime score) */}
-      <div className="mt-9 px-3 grid grid-cols-3 text-xs text-gray-600">
-        {/* Date and time with clock icon */}
-        <div className="flex items-center">
-          <Clock className="h-3 w-3 mr-1" />
-          <span>{formatDateTime(fixture.date)}</span>
-        </div>
-        
-        {/* Stadium/Venue info if available */}
-        <div className="text-center">
-          {fixture.venue.name && (
-            <span>{fixture.venue.name}, {fixture.venue.city}</span>
-          )}
-        </div>
-        
-        {/* Halftime score if available */}
-        <div className="text-right">
-          {score.halftime.home !== null && score.halftime.away !== null && (
-            <span>HT: {score.halftime.home} - {score.halftime.away}</span>
-          )}
-        </div>
-      </div>
-      
-      {/* Match Highlights button */}
-      {(fixture.status.short === 'FT' || fixture.status.short === 'AET' || fixture.status.short === 'PEN') && (
-        <div className="mt-3 px-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full flex items-center justify-center text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
-            onClick={(e) => {
-              e.stopPropagation();
-              fetchHighlights();
-            }}
-            disabled={loadingHighlights}
-          >
-            <Play className="h-4 w-4 mr-1" />
-            {loadingHighlights ? 'Loading Highlights...' : 'Match Highlights'}
-          </Button>
-        </div>
-      )}
-      
-      {/* Video highlights card */}
-      {showHighlights && highlightsData && (
-        <Card className="mt-4 overflow-hidden">
-          <div className="relative">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="absolute top-2 right-2 z-10 bg-black/30 text-white hover:bg-black/50 hover:text-white"
+      {/* Match details footer */}
+      {!compact && (
+        <div className="p-2 text-center text-sm border-t border-gray-100 mt-5">
+          <div className="flex items-center justify-center mb-2">
+            <button 
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
               onClick={(e) => {
-                e.stopPropagation();
-                setShowHighlights(false);
+                e.stopPropagation(); // Prevent triggering the parent onClick
+                loadHighlights(); // Load and toggle highlights display
               }}
             >
-              <X className="h-4 w-4" />
-            </Button>
-            
-            <CardContent className="p-0">
-              {highlightsData.response[0]?.embed ? (
-                <div 
-                  className="aspect-video" 
-                  dangerouslySetInnerHTML={{ __html: highlightsData.response[0].embed }}
-                />
-              ) : (
-                <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                  <p className="text-gray-500">No highlights available for this match</p>
-                </div>
-              )}
-            </CardContent>
+              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              Match Highlights
+            </button>
           </div>
-        </Card>
+          
+          <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
+            <Clock className="h-3 w-3" />
+            <span>{formatDateTime(fixture.date)}</span>
+            {fixture.venue.name && (
+              <span> | {fixture.venue.name}, {fixture.venue.city || ''}</span>
+            )}
+          </div>
+          
+          {/* HT score if available */}
+          {score.halftime.home !== null && score.halftime.away !== null && (
+            <div className="text-xs text-gray-700 mt-1">
+              HT: {score.halftime.home} - {score.halftime.away}
+            </div>
+          )}
+        </div>
       )}
       
-      {/* Error message for highlights */}
-      {highlightsError && (
-        <div className="mt-2 text-red-500 text-sm text-center">{highlightsError}</div>
+      {/* Featured badge removed as it's now handled in the FeaturedMatch component */}
+      
+      {/* Video highlights card that appears below when button is clicked */}
+      {showHighlights && !compact && (
+        <Card className="mt-4 overflow-hidden relative">
+          <CardContent className="p-0">
+            <div className="aspect-video bg-black relative">
+              {isLoadingHighlights ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-white">
+                  <div className="flex flex-col items-center">
+                    <div className="animate-spin h-8 w-8 border-4 border-white/20 border-t-white rounded-full mb-2"></div>
+                    <p>Loading highlights...</p>
+                  </div>
+                </div>
+              ) : (
+                <iframe 
+                  className="w-full h-full"
+                  src={highlightsData && highlightsData.highlights ? highlightsData.highlights.embedUrl : `https://www.youtube.com/embed/SpmLIIlcCFs?autoplay=1`} 
+                  title={highlightsData && highlightsData.highlights ? highlightsData.highlights.title : "Match Highlights"}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              )}
+              
+              {/* Close button for the video */}
+              <button 
+                className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white rounded-full p-1 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowHighlights(false);
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-3 bg-gray-50">
+              <h3 className="text-sm font-medium">{teams.home.name} vs {teams.away.name} - Match Highlights</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                League: {league.name} | {formatDateTime(fixture.date)}
+              </p>
+              <div className="flex justify-end mt-2">
+                <button 
+                  className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowHighlights(false);
+                  }}
+                >
+                  Close Highlights
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
