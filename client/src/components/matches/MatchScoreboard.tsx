@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { isLiveMatch } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Define types
 interface Team {
@@ -88,6 +90,8 @@ export function MatchScoreboard({
 }: MatchScoreboardProps) {
   // Get match data
   const { fixture, league, teams, goals, score } = match;
+  // State to track if highlight video is showing
+  const [showHighlights, setShowHighlights] = useState(false);
   
   return (
     <div 
@@ -179,8 +183,7 @@ export function MatchScoreboard({
               className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
               onClick={(e) => {
                 e.stopPropagation(); // Prevent triggering the parent onClick
-                // This would play match highlights in a real application
-                alert('Match highlights would play here');
+                setShowHighlights(!showHighlights); // Toggle highlights display
               }}
             >
               <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -208,6 +211,29 @@ export function MatchScoreboard({
       )}
       
       {/* Featured badge removed as it's now handled in the FeaturedMatch component */}
+      
+      {/* Video highlights card that appears below when button is clicked */}
+      {showHighlights && !compact && (
+        <Card className="mt-4 overflow-hidden">
+          <CardContent className="p-0">
+            <div className="aspect-video bg-black">
+              <iframe 
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                title="Match Highlights"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              ></iframe>
+            </div>
+            <div className="p-3 bg-gray-50">
+              <h3 className="text-sm font-medium">{teams.home.name} vs {teams.away.name} - Match Highlights</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                League: {league.name} | {formatDateTime(fixture.date)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

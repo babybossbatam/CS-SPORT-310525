@@ -234,7 +234,7 @@ export function EnhancedLiveScoreboard({
   }
   
   return (
-    <div className="space-y-6">
+    <>
       {/* League filter tabs */}
       {showFilters && (
         <div className="overflow-x-auto pb-2">
@@ -278,7 +278,7 @@ export function EnhancedLiveScoreboard({
           />
         ))}
       </div>
-    </div>
+    </>
   );
 }
 
