@@ -608,28 +608,14 @@ const MatchDetails = () => {
                         </div>
                       ) : (
                         <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
-                          <a 
-                            href={`https://www.youtube.com/watch?v=${highlightsData?.highlights.videoId || 'SpmLIIlcCFs'}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="block w-full h-full"
-                          >
-                            <img 
-                              src={`https://img.youtube.com/vi/${highlightsData?.highlights.videoId || 'SpmLIIlcCFs'}/maxresdefault.jpg`} 
-                              alt="Highlight Thumbnail" 
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
-                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[16px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
-                              </div>
-                            </div>
-                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2">
-                              <p className="text-sm font-medium">
-                                {highlightsData ? highlightsData.highlights.title : `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
-                              </p>
-                            </div>
-                          </a>
+                          <iframe 
+                            className="w-full h-full"
+                            src={`https://www.youtube.com/embed/${highlightsData?.highlights.videoId || 'SpmLIIlcCFs'}?rel=0`}
+                            title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
+                            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                            loading="lazy"
+                          ></iframe>
                         </div>
                       )}
                       <div className="mt-2 flex justify-between items-center">
