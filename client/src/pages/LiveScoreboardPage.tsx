@@ -351,7 +351,7 @@ function LiveScoreboardPage() {
       {/* Enhanced Live Scoreboard */}
       <EnhancedLiveScoreboard 
         showFeaturedMatch={true}
-        showFilters={true}
+        showFilters={false}
         maxMatches={20}
       />
       
