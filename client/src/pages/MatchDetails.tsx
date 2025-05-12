@@ -307,7 +307,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-                  <div className="h-full w-[calc(50%-34px)] ml-[34px]" 
+                  <div className="h-full w-[calc(50%-39px)] ml-[39px]" 
                     style={{ 
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
