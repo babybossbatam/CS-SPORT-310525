@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getTeamColor } from "@/lib/colorUtils";
 import { isLiveMatch } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchScoreboard from "./MatchScoreboard";
