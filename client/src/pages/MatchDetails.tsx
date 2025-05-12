@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles, PlayCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles, AlertTriangle, Loader2 } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
@@ -509,10 +509,6 @@ const MatchDetails = () => {
                   <Sparkles className="h-4 w-4 mr-2" />
                   <span>Highlights</span>
                 </TabsTrigger>
-                <TabsTrigger value="events" className="flex items-center">
-                  <PlayCircle className="h-4 w-4 mr-2" />
-                  <span>Events</span>
-                </TabsTrigger>
               </TabsList>
               
               {/* Summary Tab */}
@@ -626,113 +622,6 @@ const MatchDetails = () => {
                         <h3 className="text-sm font-medium">{currentFixture.teams.home.name} vs {currentFixture.teams.away.name} - Match Highlights</h3>
                         <div className="text-xs text-gray-500">
                           {currentFixture.league.name} | {new Date(currentFixture.fixture.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Events Tab - NEW */}
-              <TabsContent value="events" className="mt-2">
-                <Card>
-                  <CardHeader className="p-4 border-b flex items-center justify-between">
-                    <div className="flex items-center">
-                      <PlayCircle className="h-5 w-5 mr-2 text-blue-600" />
-                      <h3 className="font-semibold">Match Timeline</h3>
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {currentFixture.fixture.status.long}
-                      {currentFixture.fixture.status.elapsed && ` • ${currentFixture.fixture.status.elapsed}'`}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="mb-6">
-                      <h3 className="text-sm font-semibold mb-2 text-gray-700">Interactive Timeline of Key Match Moments</h3>
-                      <MatchTimeline 
-                        homeTeam={currentFixture.teams.home}
-                        awayTeam={currentFixture.teams.away}
-                        events={matchEvents}
-                        matchStatus={currentFixture.fixture.status.long}
-                        currentMinute={currentFixture.fixture.status.elapsed || 0}
-                      />
-                    </div>
-                    
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="bg-gray-50 rounded-lg p-3 border">
-                        <div className="flex items-center mb-2">
-                          <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
-                          <span className="text-sm font-medium">Goals</span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {matchEvents.filter(e => e.type === 'goal').length === 0 ? (
-                            <p>No goals scored in this match yet</p>
-                          ) : (
-                            <ul className="space-y-1">
-                              {matchEvents
-                                .filter(e => e.type === 'goal')
-                                .map(event => (
-                                  <li key={event.id} className="flex items-center">
-                                    <span className="text-xs font-medium mr-2">{event.minute}'</span>
-                                    <span>{event.player} {event.assistedBy ? `(assist: ${event.assistedBy})` : ''}</span>
-                                  </li>
-                                ))
-                              }
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded-lg p-3 border">
-                        <div className="flex items-center mb-2">
-                          <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-                          <span className="text-sm font-medium">Cards</span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {matchEvents.filter(e => e.type === 'yellow_card' || e.type === 'red_card').length === 0 ? (
-                            <p>No cards shown in this match yet</p>
-                          ) : (
-                            <ul className="space-y-1">
-                              {matchEvents
-                                .filter(e => e.type === 'yellow_card' || e.type === 'red_card')
-                                .map(event => (
-                                  <li key={event.id} className="flex items-center">
-                                    <span className="text-xs font-medium mr-2">{event.minute}'</span>
-                                    <div className={`w-2 h-3 mr-1 ${event.type === 'yellow_card' ? 'bg-yellow-400' : 'bg-red-600'}`}></div>
-                                    <span>{event.player}</span>
-                                  </li>
-                                ))
-                              }
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded-lg p-3 border">
-                        <div className="flex items-center mb-2">
-                          <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                          <span className="text-sm font-medium">Substitutions</span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {matchEvents.filter(e => e.type === 'substitution').length === 0 ? (
-                            <p>No substitutions made in this match yet</p>
-                          ) : (
-                            <ul className="space-y-1">
-                              {matchEvents
-                                .filter(e => e.type === 'substitution')
-                                .map(event => (
-                                  <li key={event.id} className="flex items-center">
-                                    <span className="text-xs font-medium mr-2">{event.minute}'</span>
-                                    <span className="text-green-600 mr-1">↑</span>
-                                    <span>{event.player}</span>
-                                    <span className="mx-1">•</span>
-                                    <span className="text-red-600 mr-1">↓</span>
-                                    <span>{event.detail}</span>
-                                  </li>
-                                ))
-                              }
-                            </ul>
-                          )}
                         </div>
                       </div>
                     </div>
