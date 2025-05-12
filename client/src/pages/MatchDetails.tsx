@@ -606,36 +606,30 @@ const MatchDetails = () => {
                             <p className="text-xs text-slate-500 mt-1">Unable to load highlights for this match</p>
                           </div>
                         </div>
-                      ) : highlightsData ? (
-                        <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-                          <iframe 
-                            className="w-full h-full"
-                            src={highlightsData.highlights.embedUrl}
-                            title={highlightsData.highlights.title}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                          ></iframe>
-                        </div>
                       ) : (
-                        <div className="w-full aspect-video bg-slate-100 flex items-center justify-center rounded-lg">
-                          <div className="text-center p-4">
-                            <video 
-                              className="w-full h-full rounded-lg bg-black" 
-                              src={
-                                currentFixture.teams.home.name.includes("Juventus") || currentFixture.teams.away.name.includes("Juventus") 
-                                ? "https://www.youtube.com/embed/dPJ-rC2bPxc" // Juventus highlights
-                                : currentFixture.teams.home.name.includes("Milan") || currentFixture.teams.away.name.includes("Milan")
-                                ? "https://www.youtube.com/embed/YNLNHBVKAwI" // AC Milan highlights
-                                : "https://www.youtube.com/embed/RsIYKdzxYoo" // General football highlights
-                              }
-                              poster="https://img.youtube.com/vi/RsIYKdzxYoo/maxresdefault.jpg"
-                              controls
+                        <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
+                          <a 
+                            href={`https://www.youtube.com/watch?v=${highlightsData?.highlights.videoId || 'SpmLIIlcCFs'}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="block w-full h-full"
+                          >
+                            <img 
+                              src={`https://img.youtube.com/vi/${highlightsData?.highlights.videoId || 'SpmLIIlcCFs'}/maxresdefault.jpg`} 
+                              alt="Highlight Thumbnail" 
+                              className="w-full h-full object-cover"
                             />
-                            <p className="mt-2 text-sm text-slate-700 font-medium">Match Highlights</p>
-                            <p className="text-xs text-slate-500 mt-1">
-                              {currentFixture.teams.home.name} vs {currentFixture.teams.away.name}
-                            </p>
-                          </div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
+                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[16px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
+                              </div>
+                            </div>
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2">
+                              <p className="text-sm font-medium">
+                                {highlightsData ? highlightsData.highlights.title : `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
+                              </p>
+                            </div>
+                          </a>
                         </div>
                       )}
                       <div className="mt-2 flex justify-between items-center">
@@ -667,13 +661,18 @@ const MatchDetails = () => {
                       Interactive timeline showing key moments from {currentFixture.teams.home.name} vs {currentFixture.teams.away.name}
                     </div>
                     
-                    <MatchTimeline 
-                      homeTeam={currentFixture.teams.home}
-                      awayTeam={currentFixture.teams.away}
-                      events={matchEvents}
-                      matchStatus={currentFixture.fixture.status.long}
-                      currentMinute={currentFixture.fixture.status.elapsed || 0}
-                    />
+                    <div className="mb-6">
+                      <h3 className="text-sm font-semibold mb-2 text-gray-700">Interactive Timeline of Key Match Moments</h3>
+                      <div className="bg-slate-50 p-4 rounded-lg border">
+                        <MatchTimeline 
+                          homeTeam={currentFixture.teams.home}
+                          awayTeam={currentFixture.teams.away}
+                          events={matchEvents}
+                          matchStatus={currentFixture.fixture.status.long}
+                          currentMinute={currentFixture.fixture.status.elapsed || 0}
+                        />
+                      </div>
+                    </div>
                     
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="bg-gray-50 rounded-lg p-3 border">
