@@ -292,23 +292,23 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - left edge, reduced 75% from 10.5 */}
+                    {/* Home team logo - left edge, 25% bigger than match bar (5px) with 10% overflow */}
                     <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-2.5 w-2.5 object-contain"
+                        className="h-[6.25px] w-[6.25px] object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/10?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/26?text=Team';
                         }}
                       />
                     </div>
                     
                     {/* Team name display */}
-                    <div className="ml-14 text-white font-bold text-sm uppercase">
+                    <div className="ml-10 text-white font-bold text-[7px] uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
-                        <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+                        <span className="text-[5px] uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                   </div>
@@ -332,21 +332,21 @@ const MatchDetails = () => {
                     }}>
                     
                     {/* Team name display */}
-                    <div className="mr-14 text-white font-bold text-sm uppercase text-right">
+                    <div className="mr-10 text-white font-bold text-[7px] uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
-                        <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+                        <span className="text-[5px] uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                     
-                    {/* Away team logo - right edge, reduced 75% from 10.5 */}
+                    {/* Away team logo - right edge, 25% bigger than match bar (5px) with 10% overflow */}
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-2.5 w-2.5 object-contain"
+                        className="h-[6.25px] w-[6.25px] object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/10?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/26?text=Team';
                         }}
                       />
                     </div>
