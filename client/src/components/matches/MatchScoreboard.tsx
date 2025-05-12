@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getMatchHighlights, HighlightsResponse } from '@/lib/highlightsApi';
 import AnimatedTeamLogo from './AnimatedTeamLogo';
 import TeamLogoModal from '@/components/ui/team-logo-modal';
+import HighlightsPlayer from './HighlightsPlayer';
 
 // Define types
 interface Team {
@@ -95,6 +96,7 @@ export function MatchScoreboard({
   const { fixture, league, teams, goals, score } = match;
   // State to track if highlight video is showing
   const [showHighlights, setShowHighlights] = useState(false);
+  const [showLiveStream, setShowLiveStream] = useState(false);
   const [highlightsData, setHighlightsData] = useState<HighlightsResponse | null>(null);
   const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
   // State for team logo evolution modal
@@ -119,6 +121,11 @@ export function MatchScoreboard({
     }
     // Toggle highlights display
     setShowHighlights(!showHighlights);
+  };
+  
+  // Handle live stream button click
+  const watchLiveStream = () => {
+    setShowLiveStream(true);
   };
   
   // Function to open team logo evolution modal
@@ -267,20 +274,39 @@ export function MatchScoreboard({
       {!compact && (
         <div className="p-2 text-center text-sm border-t border-gray-100 mt-5">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <button 
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering the parent onClick
-                loadHighlights(); // Load and toggle highlights display
-              }}
-            >
-              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              Match Highlights
-            </button>
+            {/* Only show highlights button for finished matches */}
+            {(fixture.status.short === 'FT' || 
+              fixture.status.short === 'AET' || 
+              fixture.status.short === 'PEN') && (
+              <button 
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the parent onClick
+                  loadHighlights(); // Load and toggle highlights display
+                }}
+              >
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                Match Highlights
+              </button>
+            )}
             
-
+            {/* Show Live button for in-progress matches */}
+            {isLiveMatch(fixture.status.short) && (
+              <button 
+                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the parent onClick
+                  loadHighlights(); // Reusing the same function but will display a live stream
+                }}
+              >
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="8" fill="currentColor" />
+                </svg>
+                Watch Live
+              </button>
+            )}
           </div>
           
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
