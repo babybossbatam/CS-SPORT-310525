@@ -396,14 +396,16 @@ export function LiveScoreboard({
                     />
                   </div>
                   
-                  <div 
-                    className="text-3xl font-bold text-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 rounded-full w-12 h-12 flex items-center justify-center"
-                    style={{
-                      background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name)} 50%, rgba(0, 0, 0, 0.5) 50%)`,
-                      color: 'white',
-                      textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)'
-                    }}
-                  >VS</div>
+                  {featuredMatch.goals.home === null && featuredMatch.goals.away === null && (
+                    <div 
+                      className="text-3xl font-bold text-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 rounded-full w-12 h-12 flex items-center justify-center"
+                      style={{
+                        background: `linear-gradient(90deg, ${getTeamColor(featuredMatch.teams.home.name)} 50%, rgba(0, 0, 0, 0.5) 50%)`,
+                        color: 'white',
+                        textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)'
+                      }}
+                    >VS</div>
+                  )}
                   
                   <div className="flex flex-col items-center">
                     <img 

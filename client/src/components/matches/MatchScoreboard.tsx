@@ -161,16 +161,18 @@ export function MatchScoreboard({
           </div>
           
           {/* VS SECTION - fixed size */}
-          <div 
-            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
-              textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-              boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
-            }}
-          >
-            VS
-          </div>
+          {goals.home === null && goals.away === null && (
+            <div 
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
+                textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
+              }}
+            >
+              VS
+            </div>
+          )}
           
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
           <div className="h-full w-[calc(50%-55px)] mr-[55px]" 

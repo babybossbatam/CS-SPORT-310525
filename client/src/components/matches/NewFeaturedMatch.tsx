@@ -283,7 +283,9 @@ const NewFeaturedMatch = () => {
                   <span className="text-xs ml-2 text-orange-600">HT</span>}
               </div>
             ) : (
-              <div className="text-3xl font-bold text-neutral-500 mb-2">VS</div>
+              <div className="text-3xl font-bold text-neutral-500 mb-2">
+                {(!featuredMatch.goals.home && !featuredMatch.goals.away) && "VS"}
+              </div>
             )}
             <div className="text-sm text-neutral-500">
               {formatDateTime(featuredMatch.fixture.date)}
