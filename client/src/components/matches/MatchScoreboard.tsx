@@ -95,37 +95,36 @@ export function MatchScoreboard({
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      {/* League and status info - now positioned at top-left */}
-      <div className="p-2 flex items-center gap-2 absolute top-0 left-0 z-20">
-        <img 
-          src={league.logo}
-          alt={league.name}
-          className="w-4 h-4"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
-          }}
-        />
-        <span className="text-sm">{league.name} - {league.round}</span>
-      </div>
-      
-      {/* Status badge - moved to top right */}
-      <div className="absolute top-2 right-2 text-xs text-gray-500 z-20">
-        {isLiveMatch(fixture.status.short) ? (
-          <div className="flex items-center">
-            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-            LIVE {fixture.status.elapsed && `• ${fixture.status.elapsed}'`}
-          </div>
-        ) : fixture.status.short === "FT" ? (
-          <span>FULL TIME</span>
-        ) : (
-          <span>{formatDateTime(fixture.date)}</span>
-        )}
+      {/* League and status info in top section */}
+      <div className="flex justify-between items-center p-2 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <img 
+            src={league.logo}
+            alt={league.name}
+            className="w-4 h-4"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
+            }}
+          />
+          <span className="text-sm">{league.name} - {league.round}</span>
+        </div>
+        
+        {/* Status badge */}
+        <div className="text-xs text-gray-500">
+          {isLiveMatch(fixture.status.short) ? (
+            <div className="flex items-center">
+              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
+              LIVE {fixture.status.elapsed && `• ${fixture.status.elapsed}'`}
+            </div>
+          ) : fixture.status.short === "FT" ? (
+            <span>FULL TIME</span>
+          ) : (
+            <span>{formatDateTime(fixture.date)}</span>
+          )}
+        </div>
       </div>
       
       {/* Score section removed as requested */}
-      
-      {/* Add padding at the top to make room for the absolutely positioned elements */}
-      <div className="pt-10"></div>
       
       {/* Match bar styled with height set to exactly 30px */}
       <div className="flex relative h-[30px] rounded-md">
@@ -219,9 +218,9 @@ export function MatchScoreboard({
         </div>
       )}
       
-      {/* Featured badge if needed - moved below the status badge */}
+      {/* Featured badge if needed - placed on top of match bar */}
       {featured && (
-        <div className="absolute top-8 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
+        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
           FEATURED MATCH
         </div>
       )}
