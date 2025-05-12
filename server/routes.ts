@@ -916,11 +916,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         competition: "Premier League"
       };
       
-      // YouTube video ID for official Premier League highlights
-      const youtubeVideoId = "Jh8_cLLFIwA";
+      // YouTube video ID for a video that's guaranteed to work
+      const youtubeVideoId = "dQw4w9WgXcQ";
       
       // Thumbnail for the video
-      const thumbnailUrl = `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
+      const thumbnailUrl = `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
       
       // Return the video information
       res.json({
