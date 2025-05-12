@@ -282,8 +282,8 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Match bar styled like the reference image */}
-              <div className="flex overflow-hidden relative h-16 rounded-md">
+              {/* Match bar styled like the reference image with reduced height */}
+              <div className="flex overflow-hidden relative h-9 rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex items-center">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
@@ -297,25 +297,31 @@ const MatchDetails = () => {
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-12 w-12 object-contain"
+                        className="h-7 w-7 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/28?text=Team';
                         }}
                       />
                     </div>
                     
                     {/* Team name display */}
-                    <div className="ml-16 text-white font-bold text-lg uppercase">
+                    <div className="ml-10 text-white font-bold text-xs uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
-                        <span className="text-xs uppercase text-white ml-2 bg-green-600 inline-block px-2 rounded">Winner</span>
+                        <span className="text-[8px] uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                   </div>
                   
-                  {/* VS SECTION - positioned in the center with exact red color from reference */}
-                  <div className="absolute left-1/2 top-0 bottom-0 transform -translate-x-1/2 w-16 flex items-center justify-center z-10 text-white font-bold text-xl"
-                      style={{ background: '#a00000' }}>
+                  {/* VS SECTION - rounded version with shadow effects */}
+                  <div 
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-sm rounded-full h-8 w-8 flex items-center justify-center z-30 border-[2px] border-white shadow-xl overflow-hidden animate-pulse"
+                    style={{
+                      background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
+                      textShadow: '0px 0px 3px rgba(255, 255, 255, 0.5)',
+                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 10px rgba(0, 0, 0, 0.7)'
+                    }}
+                  >
                     VS
                   </div>
                   
@@ -326,10 +332,10 @@ const MatchDetails = () => {
                     }}>
                     
                     {/* Team name display */}
-                    <div className="mr-16 text-white font-bold text-lg uppercase text-right">
+                    <div className="mr-10 text-white font-bold text-xs uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
-                        <span className="text-xs uppercase text-white mr-2 bg-green-600 inline-block px-2 rounded">Winner</span>
+                        <span className="text-[8px] uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                     
@@ -338,9 +344,9 @@ const MatchDetails = () => {
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-12 w-12 object-contain"
+                        className="h-7 w-7 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/28?text=Team';
                         }}
                       />
                     </div>
