@@ -286,10 +286,10 @@ const MatchDetails = () => {
               <div className="flex overflow-hidden relative h-16 rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex items-center">
-                  {/* HOME TEAM SECTION - 50% width with solid team color */}
+                  {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
                   <div className="h-full w-[50%] relative flex items-center" 
                     style={{ 
-                      background: getTailwindToHex(getTeamColor(currentFixture.teams.home.name))
+                      background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
                     {/* Home team logo - left edge */}
@@ -313,15 +313,16 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS SECTION - positioned in the center with red background */}
-                  <div className="absolute left-1/2 top-0 bottom-0 transform -translate-x-1/2 w-16 bg-red-700 flex items-center justify-center z-10 text-white font-bold text-xl">
+                  {/* VS SECTION - positioned in the center with exact red color from reference */}
+                  <div className="absolute left-1/2 top-0 bottom-0 transform -translate-x-1/2 w-16 flex items-center justify-center z-10 text-white font-bold text-xl"
+                      style={{ background: '#a00000' }}>
                     VS
                   </div>
                   
-                  {/* AWAY TEAM SECTION - 50% width with solid team color */}
+                  {/* AWAY TEAM SECTION - 50% width with specific color from reference image */}
                   <div className="h-full w-[50%] relative flex items-center justify-end" 
                     style={{ 
-                      background: getTailwindToHex(getTeamColor(currentFixture.teams.away.name)) 
+                      background: '#8b0000' // Exact match to AS Roma dark red color in reference
                     }}>
                     
                     {/* Team name display */}
