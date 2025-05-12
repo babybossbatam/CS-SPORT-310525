@@ -282,8 +282,8 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Match bar styled like the reference image with height set to exactly 10px */}
-              <div className="flex relative h-[10px] rounded-md">
+              {/* Match bar styled like the reference image with height set to exactly 15px */}
+              <div className="flex relative h-[15px] rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
