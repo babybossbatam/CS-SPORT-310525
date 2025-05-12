@@ -313,13 +313,13 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS SECTION - rounded version with shadow effects, reduced 75% */}
+                  {/* VS SECTION - 25% bigger than match bar height (5px + 25% = 6.25px) */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[4px] rounded-full h-2 w-2 flex items-center justify-center z-30 border-[0.5px] border-white shadow-sm overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[5px] rounded-full h-6 w-6 flex items-center justify-center z-30 border-[1px] border-white shadow-md overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
                       textShadow: '0px 0px 1px rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 0 0 0.5px rgba(255, 255, 255, 0.8), 0 0 3px rgba(0, 0, 0, 0.7)'
+                      boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.8), 0 0 4px rgba(0, 0, 0, 0.7)'
                     }}
                   >
                     VS
