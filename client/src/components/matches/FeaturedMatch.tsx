@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { format, parseISO } from 'date-fns';
-import { BarChart2, LineChart, Trophy, Film } from 'lucide-react';
+import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,7 +22,7 @@ const FEATURED_LEAGUE_IDS = [
 const FeaturedMatch = () => {
   const [, navigate] = useLocation();
   const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
-  const [highlightsOpen, setHighlightsOpen] = useState(false);
+  // Removed highlights state
   
   // Get fixture data using React Query
   const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
@@ -233,13 +233,6 @@ const FeaturedMatch = () => {
   
   return (
     <>
-      <HighlightsPlayer 
-        isOpen={highlightsOpen}
-        onClose={() => setHighlightsOpen(false)}
-        matchId={featuredMatch?.fixture.id || 0}
-        homeTeam={featuredMatch?.teams.home.name || ""}
-        awayTeam={featuredMatch?.teams.away.name || ""}
-      />
       
       <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
         <Badge 
@@ -297,13 +290,7 @@ const FeaturedMatch = () => {
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>
           </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => setHighlightsOpen(true)}
-          >
-            <Film className="text-neutral-500 mb-1 h-5 w-5" />
-            <span className="text-xs text-neutral-500">Highlights</span>
-          </div>
+          {/* Removed highlights button */}
         </div>
       </CardContent>
     </Card>
