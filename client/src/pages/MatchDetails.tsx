@@ -11,7 +11,6 @@ import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
-import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
 import { apiRequest } from '@/lib/queryClient';
@@ -133,23 +132,7 @@ const MatchDetails = () => {
       }
     };
     
-    // Function to fetch match highlights from API
-    const fetchHighlights = async (fixtureId: string) => {
-      try {
-        setHighlightsLoading(true);
-        setHighlightsError(null);
-        
-        const response = await apiRequest('GET', `/api/fixtures/${fixtureId}/highlights`);
-        const data = await response.json();
-        
-        setHighlightsData(data);
-      } catch (error) {
-        console.error(`Error fetching highlights for fixture ${fixtureId}:`, error);
-        setHighlightsError('Unable to load match highlights');
-      } finally {
-        setHighlightsLoading(false);
-      }
-    };
+
     
     // Function to generate realistic match events based on the fixture data
     const generateMatchEvents = (fixture: any) => {
