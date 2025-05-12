@@ -282,8 +282,8 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Match bar styled like the reference image with height increased to 20px */}
-              <div className="flex overflow-hidden relative h-20 rounded-md">
+              {/* Match bar styled like the reference image with height reduced to 10px (half of 20px) */}
+              <div className="flex overflow-hidden relative h-10 rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex items-center">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
@@ -292,8 +292,8 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - 10% smaller than the component's height */}
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 h-[90%] flex items-center">
+                    {/* Home team logo - maintaining the original size (18px, 90% of 20px) */}
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 h-[18px] flex items-center">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
@@ -313,13 +313,13 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS SECTION - match the new match bar height (20px) */}
+                  {/* VS SECTION - scaled down for the 10px height match bar */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[10px] rounded-full h-24 w-24 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[8px] rounded-full h-16 w-16 flex items-center justify-center z-30 border-[1px] border-white shadow-md overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
                       textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
+                      boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.8), 0 0 5px rgba(0, 0, 0, 0.7)'
                     }}
                   >
                     VS
@@ -339,8 +339,8 @@ const MatchDetails = () => {
                       )}
                     </div>
                     
-                    {/* Away team logo - 10% smaller than the component's height */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 h-[90%] flex items-center">
+                    {/* Away team logo - maintaining the original size (18px, 90% of 20px) */}
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 h-[18px] flex items-center">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
