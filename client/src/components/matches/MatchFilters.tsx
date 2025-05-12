@@ -405,69 +405,69 @@ const MatchFilters = () => {
                 </div>
               </div>
 
-              {/* Premier League Matches */}
+              {/* Premier League Matches - Static Data */}
               {[
                 { 
-                  teams: { 
-                    home: { name: "Bournemouth", logo: "https://media.api-sports.io/football/teams/1.png" }, 
-                    away: { name: "Aston Villa", logo: "https://media.api-sports.io/football/teams/66.png" }
-                  },
-                  goals: { home: 0, away: 0 },
-                  fixture: { id: 1, status: { short: "FT" } }
+                  id: 1,
+                  homeTeam: { name: "Bournemouth", logo: "https://media.api-sports.io/football/teams/1.png" }, 
+                  awayTeam: { name: "Aston Villa", logo: "https://media.api-sports.io/football/teams/66.png" },
+                  score: "0-0",
+                  status: "FT",
+                  time: ""
                 },
                 { 
-                  teams: { 
-                    home: { name: "Newcastle Utd", logo: "https://media.api-sports.io/football/teams/34.png" }, 
-                    away: { name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" } 
-                  },
-                  goals: { home: null, away: null },
-                  fixture: { id: 2, status: { short: "" }, date: "2025-05-10T19:00:00+00:00" }
+                  id: 2,
+                  homeTeam: { name: "Newcastle Utd", logo: "https://media.api-sports.io/football/teams/34.png" }, 
+                  awayTeam: { name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
+                  score: "",
+                  status: "",
+                  time: "19:00" 
                 },
                 { 
-                  teams: { 
-                    home: { name: "Man Utd", logo: "https://media.api-sports.io/football/teams/33.png" }, 
-                    away: { name: "West Ham Utd", logo: "https://media.api-sports.io/football/teams/48.png" } 
-                  },
-                  goals: { home: null, away: null },
-                  fixture: { id: 3, status: { short: "" }, date: "2025-05-10T21:15:00+00:00" }
+                  id: 3,
+                  homeTeam: { name: "Man Utd", logo: "https://media.api-sports.io/football/teams/33.png" }, 
+                  awayTeam: { name: "West Ham Utd", logo: "https://media.api-sports.io/football/teams/48.png" },
+                  score: "",
+                  status: "",
+                  time: "21:15"
                 },
                 { 
-                  teams: { 
-                    home: { name: "Forest", logo: "https://media.api-sports.io/football/teams/65.png" }, 
-                    away: { name: "Leicester City", logo: "https://media.api-sports.io/football/teams/46.png" } 
-                  },
-                  goals: { home: null, away: null },
-                  fixture: { id: 4, status: { short: "" }, date: "2025-05-10T21:15:00+00:00" }
+                  id: 4,
+                  homeTeam: { name: "Forest", logo: "https://media.api-sports.io/football/teams/65.png" }, 
+                  awayTeam: { name: "Leicester City", logo: "https://media.api-sports.io/football/teams/46.png" },
+                  score: "",
+                  status: "",
+                  time: "21:15"
                 },
                 { 
-                  teams: { 
-                    home: { name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" }, 
-                    away: { name: "Palace", logo: "https://media.api-sports.io/football/teams/52.png" } 
-                  },
-                  goals: { home: null, away: null },
-                  fixture: { id: 5, status: { short: "" }, date: "2025-05-10T21:15:00+00:00" }
+                  id: 5,
+                  homeTeam: { name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" }, 
+                  awayTeam: { name: "Palace", logo: "https://media.api-sports.io/football/teams/52.png" },
+                  score: "",
+                  status: "",
+                  time: "21:15"
                 },
                 { 
-                  teams: { 
-                    home: { name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" }, 
-                    away: { name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" } 
-                  },
-                  goals: { home: null, away: null },
-                  fixture: { id: 6, status: { short: "" }, date: "2025-05-10T23:30:00+00:00" }
+                  id: 6,
+                  homeTeam: { name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" }, 
+                  awayTeam: { name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
+                  score: "",
+                  status: "",
+                  time: "23:30"
                 }
               ].map((match) => (
                 <div 
-                  key={match.fixture.id} 
+                  key={match.id} 
                   className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-4 py-1.5"
-                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                  onClick={() => setLocation(`/fixtures/${match.id}`)}
                 >
                   <div className="flex justify-between items-center">
                     {/* Home Team */}
                     <div className="flex-1 flex items-center justify-end mr-2">
-                      <span className="text-sm truncate text-right mr-2">{match.teams.home.name}</span>
+                      <span className="text-sm truncate text-right mr-2">{match.homeTeam.name}</span>
                       <img 
-                        src={match.teams.home.logo} 
-                        alt={match.teams.home.name} 
+                        src={match.homeTeam.logo} 
+                        alt={match.homeTeam.name} 
                         className="h-5 w-5 object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -478,13 +478,13 @@ const MatchFilters = () => {
                     
                     {/* Score */}
                     <div className="flex items-center justify-center min-w-[50px] text-center">
-                      {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                      {match.status ? (
                         <div className="text-sm font-medium">
-                          {match.goals.home} - {match.goals.away}
+                          {match.score}
                         </div>
                       ) : (
                         <div className="text-sm font-medium">
-                          {match.fixture.date ? format(new Date(match.fixture.date), 'HH:mm') : "TBD"}
+                          {match.time}
                         </div>
                       )}
                     </div>
@@ -492,15 +492,15 @@ const MatchFilters = () => {
                     {/* Away Team */}
                     <div className="flex-1 flex items-center ml-2">
                       <img 
-                        src={match.teams.away.logo} 
-                        alt={match.teams.away.name} 
+                        src={match.awayTeam.logo} 
+                        alt={match.awayTeam.name} 
                         className="h-5 w-5 object-contain mr-2"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = 'https://static.livescore.com/i/team/default.png';
                         }}
                       />
-                      <span className="text-sm truncate">{match.teams.away.name}</span>
+                      <span className="text-sm truncate">{match.awayTeam.name}</span>
                     </div>
                   </div>
                 </div>
@@ -545,29 +545,29 @@ const MatchFilters = () => {
                 </div>
               </div>
 
-              {/* Ligue 1 Matches */}
+              {/* Ligue 1 Matches - Static Data */}
               {[
                 { 
-                  teams: { 
-                    home: { name: "Reims", logo: "https://media.api-sports.io/football/teams/93.png" }, 
-                    away: { name: "St-Etienne", logo: "https://media.api-sports.io/football/teams/1063.png" } 
-                  },
-                  goals: { home: null, away: null },
-                  fixture: { id: 7, status: { short: "" }, date: "2025-05-11T03:00:00+00:00" }
+                  id: 7,
+                  homeTeam: { name: "Reims", logo: "https://media.api-sports.io/football/teams/93.png" }, 
+                  awayTeam: { name: "St-Etienne", logo: "https://media.api-sports.io/football/teams/1063.png" },
+                  score: "",
+                  status: "",
+                  time: "03:00"
                 }
               ].map((match) => (
                 <div 
-                  key={match.fixture.id} 
+                  key={match.id} 
                   className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-4 py-1.5"
-                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
+                  onClick={() => setLocation(`/fixtures/${match.id}`)}
                 >
                   <div className="flex justify-between items-center">
                     {/* Home Team */}
                     <div className="flex-1 flex items-center justify-end mr-2">
-                      <span className="text-sm truncate text-right mr-2">{match.teams.home.name}</span>
+                      <span className="text-sm truncate text-right mr-2">{match.homeTeam.name}</span>
                       <img 
-                        src={match.teams.home.logo} 
-                        alt={match.teams.home.name} 
+                        src={match.homeTeam.logo} 
+                        alt={match.homeTeam.name} 
                         className="h-5 w-5 object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -578,13 +578,13 @@ const MatchFilters = () => {
                     
                     {/* Score */}
                     <div className="flex items-center justify-center min-w-[50px] text-center">
-                      {['FT', 'AET', 'PEN', 'LIVE', 'HT', '1H', '2H'].includes(match.fixture.status.short) ? (
+                      {match.status ? (
                         <div className="text-sm font-medium">
-                          {match.goals.home} - {match.goals.away}
+                          {match.score}
                         </div>
                       ) : (
                         <div className="text-sm font-medium">
-                          {match.fixture.date ? format(new Date(match.fixture.date), 'HH:mm') : "TBD"}
+                          {match.time}
                         </div>
                       )}
                     </div>
@@ -592,15 +592,15 @@ const MatchFilters = () => {
                     {/* Away Team */}
                     <div className="flex-1 flex items-center ml-2">
                       <img 
-                        src={match.teams.away.logo} 
-                        alt={match.teams.away.name} 
+                        src={match.awayTeam.logo} 
+                        alt={match.awayTeam.name} 
                         className="h-5 w-5 object-contain mr-2"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = 'https://static.livescore.com/i/team/default.png';
                         }}
                       />
-                      <span className="text-sm truncate">{match.teams.away.name}</span>
+                      <span className="text-sm truncate">{match.awayTeam.name}</span>
                     </div>
                   </div>
                 </div>
