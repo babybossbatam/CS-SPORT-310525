@@ -898,6 +898,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json([]);
     }
   });
+  
+  // Match highlights API endpoint
+  apiRouter.get("/fixtures/:id/highlights", async (req: Request, res: Response) => {
+    try {
+      const fixtureId = req.params.id;
+      
+      // In a real implementation, this would make an API call to get highlight videos
+      // For now, we'll return a structure with YouTube video IDs based on fixture ID
+      // These are popular soccer highlight videos
+      const highlightVideos: Record<string, string> = {
+        // Map of highlight video sources keyed by fixture ID
+        default: "SpmLIIlcCFs", // Default highlights video (Champions League Final)
+        "1208484": "R4yHuyNR72E", // Popular Premier League highlights
+        "1208485": "OXDJkPRmPbA", // Champions League highlights
+        "1208486": "8Z-4wUzPQZc", // La Liga highlights
+        "1208487": "YDYHPRoAZEo", // Serie A highlights
+        "1208488": "0VKyQpSCD2o"  // Bundesliga highlights
+      };
+      
+      const videoId = highlightVideos[fixtureId] || highlightVideos.default;
+      
+      res.json({
+        fixtureId,
+        highlights: {
+          title: `Match Highlights for fixture ${fixtureId}`,
+          provider: "YouTube",
+          videoId: videoId,
+          embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1`
+        }
+      });
+    } catch (error) {
+      console.error(`Error fetching highlights for fixture ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch match highlights" });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);

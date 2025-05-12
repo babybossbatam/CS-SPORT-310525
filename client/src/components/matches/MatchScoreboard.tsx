@@ -108,7 +108,13 @@ export function MatchScoreboard({
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo - fixed size */}
-          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer">
+          <div 
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering parent onClick
+              if (onClick) onClick(); // Use the same navigation function as the parent
+            }}
+          >
             <img 
               src={teams.home.logo} 
               alt={teams.home.name}
@@ -162,7 +168,13 @@ export function MatchScoreboard({
           </div>
           
           {/* Away team logo - fixed size */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer">
+          <div 
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering parent onClick
+              if (onClick) onClick(); // Use the same navigation function as the parent
+            }}
+          >
             <img 
               src={teams.away.logo} 
               alt={teams.away.name}
