@@ -282,16 +282,16 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Teams with dynamic gradients based on team names - with V and S boundaries */}
-              <div className="flex rounded-md overflow-hidden relative h-16">
+              {/* Teams with dynamic gradients based on team names - with V and S boundaries - INCREASED HEIGHT */}
+              <div className="flex rounded-md overflow-hidden relative h-24">
                 {/* Container for both gradients that meet in the middle with same width */}
-                <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '40px' }}>
+                <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '100%' }}>
                   {/* Home team logo - positioned at the leftmost */}
                   <div className="absolute bottom-0 left-0 z-10">
                     <img 
                       src={currentFixture.teams.home.logo} 
                       alt={currentFixture.teams.home.name}
-                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 shadow-lg"
+                      className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 shadow-lg"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                       }}
@@ -310,8 +310,8 @@ const MatchDetails = () => {
                       }}
                     ></div>
                     
-                    {/* Team name display with improved readability */}
-                    <div className="ml-20 text-white font-bold text-lg uppercase relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    {/* Team name display with improved readability and positioning */}
+                    <div className="ml-24 text-white font-bold text-xl uppercase relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
                         <span className="text-xs uppercase text-white ml-2 bg-green-600 inline-block px-2 rounded">Winner</span>
@@ -319,13 +319,13 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label - improved with better visibility and contrast */}
+                  {/* VS label - increased size for better visibility and contrast */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl rounded-full h-12 w-12 flex items-center justify-center z-30 border-2 border-white shadow-md overflow-hidden"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl rounded-full h-16 w-16 flex items-center justify-center z-30 border-2 border-white shadow-lg overflow-hidden"
                     style={{
                       background: 'rgba(0, 0, 0, 0.8)',
                       textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)',
-                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.5), 0 0 10px rgba(0, 0, 0, 0.5)'
+                      boxShadow: '0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 15px rgba(0, 0, 0, 0.6)'
                     }}
                   >
                     VS
@@ -342,8 +342,8 @@ const MatchDetails = () => {
                       }}
                     ></div>
                     
-                    {/* Away team name display with improved readability */}
-                    <div className="mr-20 text-white font-bold text-lg uppercase text-right relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    {/* Away team name display with improved readability and positioning */}
+                    <div className="mr-24 text-white font-bold text-xl uppercase text-right relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
                         <span className="text-xs uppercase text-white mr-2 bg-green-600 inline-block px-2 rounded">Winner</span>
@@ -356,7 +356,7 @@ const MatchDetails = () => {
                     <img 
                       src={currentFixture.teams.away.logo} 
                       alt={currentFixture.teams.away.name}
-                      className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 shadow-lg"
+                      className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 shadow-lg"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
                       }}
