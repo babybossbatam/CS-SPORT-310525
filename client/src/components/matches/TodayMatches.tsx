@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import LiveMatchPlayer from './LiveMatchPlayer';
+// Removed LiveMatchPlayer import
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 // Expanded list of popular leagues
