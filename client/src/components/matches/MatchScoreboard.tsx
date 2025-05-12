@@ -114,17 +114,13 @@ export function MatchScoreboard({
   };
   
   return (
-    <div 
-      className={`${compact ? 'mb-4' : 'mb-8'} relative`}
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
-    >
-      {/* League and status info removed as requested */}
-      
-      {/* Score section removed as requested */}
-      
+    <>
       {/* Match bar styled with height set to exactly 30px */}
-      <div className="flex relative h-[30px] rounded-md">
+      <div 
+        className={`flex relative h-[30px] rounded-md ${compact ? 'mb-4' : 'mb-8'}`}
+        onClick={onClick}
+        style={{ cursor: onClick ? 'pointer' : 'default' }}
+      >
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo - fixed size */}
@@ -297,7 +293,7 @@ export function MatchScoreboard({
           </CardContent>
         </Card>
       )}
-    </div>
+    </>
   );
 }
 
