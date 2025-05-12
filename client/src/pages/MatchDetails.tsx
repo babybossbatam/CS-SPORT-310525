@@ -726,9 +726,9 @@ const MatchDetails = () => {
                           </div>
                           <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
                             <div className="flex h-full">
-                              <div className="bg-blue-600 h-full" style={{ width: '45%' }}></div>
-                              <div className="bg-gray-400 h-full" style={{ width: '20%' }}></div>
-                              <div className="bg-red-600 h-full" style={{ width: '35%' }}></div>
+                              <div className="bg-gradient-to-r from-blue-500 to-blue-700 h-full" style={{ width: '45%' }}></div>
+                              <div className="bg-gradient-to-r from-gray-400 to-gray-600 h-full" style={{ width: '20%' }}></div>
+                              <div className="bg-gradient-to-r from-red-500 to-red-700 h-full" style={{ width: '35%' }}></div>
                             </div>
                           </div>
                           <div className="flex justify-between text-xs mt-1">
