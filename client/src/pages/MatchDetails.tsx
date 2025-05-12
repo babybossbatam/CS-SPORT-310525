@@ -41,8 +41,9 @@ const MatchDetails = () => {
     highlights: {
       title: string;
       provider: string;
-      videoId: string;
-      embedUrl: string;
+      videoType: string;
+      videoUrl: string;
+      thumbnailUrl: string;
     }
   } | null>(null);
   const [highlightsLoading, setHighlightsLoading] = useState(false);
