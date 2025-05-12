@@ -43,6 +43,19 @@ export const cachedLeagues = pgTable("cached_leagues", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+// News articles table
+export const newsArticles = pgTable("news_articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  imageUrl: text("image_url").notNull(),
+  source: text("source").notNull(),
+  url: text("url"),
+  publishedAt: timestamp("published_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Schema validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -64,6 +77,13 @@ export const insertCachedLeaguesSchema = createInsertSchema(cachedLeagues).omit(
   timestamp: true,
 });
 
+export const insertNewsArticleSchema = createInsertSchema(newsArticles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -76,3 +96,6 @@ export type CachedFixture = typeof cachedFixtures.$inferSelect;
 
 export type InsertCachedLeague = z.infer<typeof insertCachedLeaguesSchema>;
 export type CachedLeague = typeof cachedLeagues.$inferSelect;
+
+export type InsertNewsArticle = z.infer<typeof insertNewsArticleSchema>;
+export type NewsArticle = typeof newsArticles.$inferSelect;

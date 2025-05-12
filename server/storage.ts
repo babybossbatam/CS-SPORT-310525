@@ -3,7 +3,8 @@ import {
   UserPreferences, InsertUserPreferences,
   CachedFixture, InsertCachedFixture,
   CachedLeague, InsertCachedLeague,
-  users, userPreferences, cachedFixtures, cachedLeagues
+  NewsArticle, InsertNewsArticle,
+  users, userPreferences, cachedFixtures, cachedLeagues, newsArticles
 } from "@shared/schema";
 import { FixtureResponse, LeagueResponse, NewsItem } from "./types";
 import { db } from "./db";
@@ -34,6 +35,13 @@ export interface IStorage {
   getAllCachedLeagues(): Promise<CachedLeague[]>;
   createCachedLeague(league: InsertCachedLeague): Promise<CachedLeague>;
   updateCachedLeague(leagueId: string, data: any): Promise<CachedLeague | undefined>;
+  
+  // News Articles
+  getNewsArticle(id: number): Promise<NewsArticle | undefined>;
+  getAllNewsArticles(): Promise<NewsArticle[]>;
+  createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle>;
+  updateNewsArticle(id: number, article: Partial<InsertNewsArticle>): Promise<NewsArticle | undefined>;
+  deleteNewsArticle(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -41,10 +49,12 @@ export class MemStorage implements IStorage {
   private preferences: Map<number, UserPreferences>;
   private fixtures: Map<string, CachedFixture>;
   private leagues: Map<string, CachedLeague>;
+  private newsArticles: Map<number, NewsArticle>;
   private userIdCounter: number;
   private prefIdCounter: number;
   private fixtureIdCounter: number;
   private leagueIdCounter: number;
+  private newsArticleIdCounter: number;
 
   constructor() {
     this.users = new Map();
