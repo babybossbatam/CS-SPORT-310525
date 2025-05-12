@@ -145,6 +145,22 @@ export function MatchScoreboard({
         onClick={onClick}
         style={{ cursor: onClick ? 'pointer' : 'default' }}
       >
+        {/* Previous match navigation button with team logo evolution functionality */}
+        {!compact && (
+          <button 
+            className="absolute -left-8 top-1/2 transform -translate-y-1/2 bg-gray-200/80 hover:bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center z-30 transition-all"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering parent onClick
+              openTeamEvolution(teams.home, e);
+            }}
+            title="View Home Team Logo Evolution"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+        )}
+        
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo with animation and evolution capability */}
@@ -229,6 +245,22 @@ export function MatchScoreboard({
             />
           </div>
         </div>
+        
+        {/* Next match navigation button with team logo evolution functionality */}
+        {!compact && (
+          <button 
+            className="absolute -right-8 top-1/2 transform -translate-y-1/2 bg-gray-200/80 hover:bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center z-30 transition-all"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering parent onClick
+              openTeamEvolution(teams.away, e);
+            }}
+            title="View Away Team Logo Evolution"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+        )}
       </div>
       
       {/* Match details footer */}
@@ -248,19 +280,7 @@ export function MatchScoreboard({
               Match Highlights
             </button>
             
-            <button 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering the parent onClick
-                // Open the home team logo evolution by default
-                openTeamEvolution(teams.home, e);
-              }}
-            >
-              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
-              </svg>
-              Team Evolution
-            </button>
+
           </div>
           
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
