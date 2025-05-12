@@ -287,7 +287,7 @@ const MatchDetails = () => {
                 {/* Full bar with logos and team names, with colored sections in between logos and VS */}
                 <div className="w-full h-full flex justify-between relative">
                   {/* Home team logo - fixed 72px size */}
-                  <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
+                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20">
                     <img 
                       src={currentFixture.teams.home.logo} 
                       alt={currentFixture.teams.home.name}
@@ -299,7 +299,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* Home team name display */}
-                  <div className="absolute left-[calc(2px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
+                  <div className="absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
                     {currentFixture.teams.home.name}
                     {currentFixture.teams.home.winner && (
                       <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
@@ -307,7 +307,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-                  <div className="h-full w-[calc(50%-38px)] ml-[38px]" 
+                  <div className="h-full w-[calc(50%-36px)] ml-[36px]" 
                     style={{ 
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
