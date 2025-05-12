@@ -7,15 +7,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Add middleware to set headers for YouTube embedding
+// Add middleware to set headers for video embedding
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy', 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; " +
-    "frame-src https://www.youtube.com https://youtube.com; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vimeo.com https://*.vimeocdn.com https://www.youtube.com https://s.ytimg.com; " +
+    "frame-src https://*.vimeo.com https://player.vimeo.com https://www.youtube.com https://youtube.com; " +
     "img-src 'self' data: https: http:; " +
     "style-src 'self' 'unsafe-inline'; " +
-    "connect-src 'self' https://www.youtube.com;"
+    "media-src 'self' https://*.vimeo.com https://*.vimeocdn.com https://media.w3.org; " +
+    "connect-src 'self' https://*.vimeo.com https://www.youtube.com;"
   );
   next();
 });
