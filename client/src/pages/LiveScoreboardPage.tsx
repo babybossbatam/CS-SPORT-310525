@@ -347,7 +347,7 @@ function LiveScoreboardPage() {
   // We already have featuredFixture defined above, no need to redefine it
   
   return (
-    <div className="container mx-auto my-4 px-2">
+    <>
       {/* Enhanced Live Scoreboard */}
       <EnhancedLiveScoreboard 
         showFeaturedMatch={true}
@@ -355,12 +355,9 @@ function LiveScoreboardPage() {
         maxMatches={20}
       />
       
-      {/* Add space between the components */}
-      <div className="mt-6"></div>
-      
       {/* Upcoming matches below the live matches */}
       <UpcomingMatchesScoreboard />
-    </div>
+    </>
   );
 }
 
