@@ -108,11 +108,11 @@ export function MatchScoreboard({
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo - fixed size */}
-          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
+          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer">
             <img 
               src={teams.home.logo} 
               alt={teams.home.name}
-              className="h-[69px] w-auto object-contain"
+              className="h-[69px] w-auto object-contain drop-shadow-md hover:drop-shadow-xl"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
               }}
@@ -162,11 +162,11 @@ export function MatchScoreboard({
           </div>
           
           {/* Away team logo - fixed size */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer">
             <img 
               src={teams.away.logo} 
               alt={teams.away.name}
-              className="h-[72px] w-auto object-contain"
+              className="h-[72px] w-auto object-contain drop-shadow-md hover:drop-shadow-xl"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
               }}
