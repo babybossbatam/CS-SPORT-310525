@@ -9,7 +9,9 @@ import {
   insertUserPreferencesSchema,
   insertCachedFixturesSchema,
   insertCachedLeaguesSchema,
-  CachedFixture
+  insertNewsArticleSchema,
+  CachedFixture,
+  NewsArticle
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -899,7 +901,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-
+  // News Article Routes
+  apiRouter.get("/news", async (_req: Request, res: Response) => {
+    try {
+      const articles = await storage.getAllNewsArticles();
+      res.json(articles);
+    } catch (error) {
+      console.error("Error fetching news articles:", error);
+      res.status(500).json({ message: "Failed to fetch news articles" });
+    }
+  });
+  
+  apiRouter.get("/news/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+      
+      const article = await storage.getNewsArticle(id);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.json(article);
+    } catch (error) {
+      console.error("Error fetching news article:", error);
+      res.status(500).json({ message: "Failed to fetch news article" });
+    }
+  });
+  
+  apiRouter.post("/news", async (req: Request, res: Response) => {
+    try {
+      const articleData = insertNewsArticleSchema.parse(req.body);
+      const article = await storage.createNewsArticle(articleData);
+      res.status(201).json(article);
+    } catch (error) {
+      console.error("Error creating news article:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid article data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create news article" });
+    }
+  });
+  
+  apiRouter.patch("/news/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+      
+      const existingArticle = await storage.getNewsArticle(id);
+      if (!existingArticle) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      const updates = req.body;
+      const updatedArticle = await storage.updateNewsArticle(id, updates);
+      
+      res.json(updatedArticle);
+    } catch (error) {
+      console.error("Error updating news article:", error);
+      res.status(500).json({ message: "Failed to update news article" });
+    }
+  });
+  
+  apiRouter.delete("/news/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+      
+      const success = await storage.deleteNewsArticle(id);
+      if (!success) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      console.error("Error deleting news article:", error);
+      res.status(500).json({ message: "Failed to delete news article" });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);
