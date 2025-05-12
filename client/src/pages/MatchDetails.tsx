@@ -298,16 +298,16 @@ const MatchDetails = () => {
                     />
                   </div>
                   
-                  {/* UPDATED HOME TEAM SECTION - 10% more to the left */}
+                  {/* UPDATED HOME TEAM SECTION - precisely adjusted to reach halfway to VS */}
                   <div className="h-full w-[60%] relative flex items-center justify-start">
-                    {/* Home team gradient - resized to reach only halfway to VS */}
+                    {/* Home team gradient bar with exact positioning to meet VS in the middle */}
                     <div 
                       className={`absolute inset-0 z-5`} 
                       style={{ 
-                        clipPath: 'polygon(0 0, 100% 0, 45% 100%, 0 100%)',
-                        right: '0', // Adjust to stop at about halfway to VS
-                        background: `linear-gradient(to right, #1a202c, ${getTeamColor(currentFixture.teams.home.name)})`,
-                        width: '85%' // Limit width to not overlap with VS
+                        clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                        right: '0', 
+                        background: 'linear-gradient(to right, #0f0f0f, #3b82f6)',
+                        width: '75%' // Exact width to reach halfway to VS
                       }}
                     ></div>
                     
@@ -334,17 +334,17 @@ const MatchDetails = () => {
                   
 
                   
-                  {/* UPDATED AWAY TEAM SECTION - reduced to 40% width */}
+                  {/* UPDATED AWAY TEAM SECTION - precisely adjusted to reach halfway to VS */}
                   <div className="h-full w-[40%] relative flex items-center justify-end">
-                    {/* Away team gradient - resized to reach only halfway to VS with distinct color */}
+                    {/* Away team gradient bar with exact positioning to meet VS in the middle */}
                     <div 
                       className={`absolute inset-0 z-5`} 
                       style={{ 
-                        clipPath: 'polygon(55% 0, 100% 0, 100% 100%, 45% 100%)',
-                        left: '0', // Adjust to stop at about halfway to VS
-                        background: `linear-gradient(to left, #1a202c, ${getTeamColor(currentFixture.teams.away.name)})`,
-                        width: '85%', // Limit width to not overlap with VS
-                        marginLeft: '15%' // Push from left to align with VS
+                        clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
+                        left: '0', 
+                        background: 'linear-gradient(to left, #e11d48, #0f0f0f)',
+                        width: '75%', // Exact width to reach halfway to VS
+                        marginLeft: '25%' // Precise positioning to align with VS
                       }}
                     ></div>
                     
