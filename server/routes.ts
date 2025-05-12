@@ -903,46 +903,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/:id/highlights", async (req: Request, res: Response) => {
     try {
       const fixtureId = req.params.id;
+      const sportType = req.query.sport as string || 'football';
       
-      // For fixtures that haven't started yet, we'll return a past match highlight
-      // This is simulating retrieving a previous match from H2H history
+      // Import our video mapping system
+      const { getVideoHighlight } = await import("@shared/videoMapping");
       
-      // Match information for the previous encounter
-      const previousMatchInfo = {
-        date: "2022-10-22",
-        home: "Manchester United",
-        away: "Liverpool", 
-        score: "2-1",
-        competition: "Premier League"
-      };
+      // Get highlight data from our mapping system
+      const sportMapping = sportType === 'football' ? 'football' : 
+                           sportType === 'basketball' ? 'basketball' :
+                           sportType === 'tennis' ? 'tennis' :
+                           sportType === 'baseball' ? 'baseball' :
+                           sportType === 'horseracing' ? 'horseracing' :
+                           sportType === 'esports' ? 'esports' : 'football';
+                           
+      const highlightData = getVideoHighlight(fixtureId, sportMapping as any);
       
-      // Provide video ID from the database or API if available
-      // For now, we send a specific video ID when requested by the match/fixture ID
-      // This could be mapped to specific matches in a production environment
-      
-      // Using fixtureId as a simple way to determine which video to show
-      // This logic would be replaced with actual video mappings in production
-      const videoMap: Record<string, string> = {
-        // Map known fixture IDs to specific video IDs - these can be updated later
-        "1208384": "",  // Default to no video for now - easier to add specific IDs later
-      };
-      
-      const youtubeVideoId = videoMap[fixtureId] || "";
-      const thumbnailUrl = youtubeVideoId ? 
-        `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg` : 
-        "https://via.placeholder.com/640x360?text=Highlights+coming+soon";
-      
-      // Return the video information
-      res.json({
-        fixtureId,
-        highlights: {
-          title: `${previousMatchInfo.home} vs ${previousMatchInfo.away} - Previous Meeting (${previousMatchInfo.score})`,
-          provider: "YouTube",
-          videoId: youtubeVideoId,
-          thumbnailUrl: thumbnailUrl,
-          previousMatch: previousMatchInfo
-        }
-      });
+      // If we found mapped highlight data
+      if (highlightData) {
+        res.json({
+          fixtureId,
+          highlights: {
+            title: highlightData.title,
+            provider: highlightData.source,
+            videoId: highlightData.videoId,
+            thumbnailUrl: highlightData.thumbnailUrl,
+            source: highlightData.source,
+            available: true
+          }
+        });
+      } else {
+        // For fixtures that don't have specific highlights, return fallback data
+        // This keeps the response format consistent while indicating no video is available
+        
+        // Get fixture data if available (in a real implementation, you would fetch this from your database)
+        // This is a fallback to maintain backward compatibility
+        const previousMatchInfo = {
+          date: "2022-10-22",
+          home: "Home Team",
+          away: "Away Team", 
+          score: "0-0",
+          competition: "League"
+        };
+        
+        res.json({
+          fixtureId,
+          highlights: {
+            title: `${previousMatchInfo.home} vs ${previousMatchInfo.away}`,
+            provider: "YouTube",
+            videoId: "", // Empty video ID indicates no video available
+            thumbnailUrl: "https://via.placeholder.com/640x360?text=Highlights+coming+soon",
+            previousMatch: previousMatchInfo,
+            available: false
+          }
+        });
+      }
     } catch (error) {
       console.error(`Error fetching highlights for fixture ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch match highlights" });
