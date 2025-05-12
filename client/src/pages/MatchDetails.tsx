@@ -282,8 +282,8 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Match bar styled like the reference image with height set to exactly 30px */}
-              <div className="flex relative h-[30px] rounded-md">
+              {/* Match bar styled like the reference image with height set to exactly 60px */}
+              <div className="flex relative h-[60px] rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
@@ -292,12 +292,12 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - fixed 36px size */}
+                    {/* Home team logo - fixed 72px size */}
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-[36px] w-auto object-contain"
+                        className="h-[72px] w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
@@ -305,7 +305,7 @@ const MatchDetails = () => {
                     </div>
                     
                     {/* Team name display */}
-                    <div className="ml-32 text-white font-bold text-sm leading-tight flex items-center h-full uppercase">
+                    <div className="ml-80 text-white font-bold text-sm leading-tight flex items-center h-full uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
                         <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
@@ -315,7 +315,7 @@ const MatchDetails = () => {
                   
                   {/* VS SECTION - fixed size */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-20 w-20 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[14px] rounded-full h-24 w-24 flex items-center justify-center z-30 border-[3px] border-white shadow-md overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
                       textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
@@ -332,19 +332,19 @@ const MatchDetails = () => {
                     }}>
                     
                     {/* Team name display */}
-                    <div className="mr-32 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right">
+                    <div className="mr-80 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
                         <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                     
-                    {/* Away team logo - fixed 24px size */}
+                    {/* Away team logo - fixed 72px size */}
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-[24px] w-auto object-contain"
+                        className="h-[72px] w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
