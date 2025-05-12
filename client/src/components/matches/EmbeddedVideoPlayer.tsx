@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 interface EmbeddedVideoPlayerProps {
   videoId: string;
@@ -12,55 +12,58 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
   className = ''
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setHasError(false);
-  }, [videoId]);
-
-  const handleLoad = () => {
-    setIsLoading(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  
+  // Generate thumbnail URL from video ID
+  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  
+  // Function to play video
+  const handlePlay = () => {
+    setIsPlaying(true);
   };
-
-  const handleError = () => {
-    setIsLoading(false);
-    setHasError(true);
-  };
-
-  // YouTube embed URL with parameters for better video player appearance
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&fs=1`;
-
+  
   return (
-    <div className={`relative aspect-video ${className}`}>
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-          <div className="w-12 h-12 border-4 border-slate-600 border-t-slate-300 rounded-full animate-spin"></div>
+    <div className={`relative bg-black rounded-lg overflow-hidden aspect-video ${className}`}>
+      {!isPlaying ? (
+        // Show thumbnail with play button when not playing
+        <div className="w-full h-full relative">
+          {/* Thumbnail image */}
+          <img 
+            src={thumbnailUrl} 
+            alt={title}
+            className="w-full h-full object-cover"
+            onLoad={() => setIsLoading(false)}
+          />
+          
+          {/* Loading state */}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+              <div className="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin"></div>
+            </div>
+          )}
+          
+          {/* Play button overlay */}
+          <div 
+            className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-black/40 hover:bg-black/60 transition-colors"
+            onClick={handlePlay}
+          >
+            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
+              <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent ml-1"></div>
+            </div>
+            <p className="mt-3 text-white font-medium px-4 text-center">{title}</p>
+          </div>
         </div>
+      ) : (
+        // Show embedded player when playing
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+          title={title}
+          className="absolute top-0 left-0 w-full h-full"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
       )}
-      
-      {hasError && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p className="text-center">Video unavailable</p>
-          <p className="text-sm text-slate-400 mt-1">Try refreshing or check back later</p>
-        </div>
-      )}
-      
-      <iframe
-        ref={iframeRef}
-        className={`absolute top-0 left-0 w-full h-full ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        src={embedUrl}
-        title={title}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        allowFullScreen
-        onLoad={handleLoad}
-        onError={handleError}
-      />
     </div>
   );
 };
