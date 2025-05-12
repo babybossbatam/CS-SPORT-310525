@@ -286,8 +286,8 @@ const MatchDetails = () => {
               <div className="flex relative h-[30px] rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex">
-                  {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
-                  <div className="h-full w-[50%] relative" 
+                  {/* HOME TEAM SECTION - Starts from halfway of home logo and extends to the VS */}
+                  <div className="h-full w-[calc(50%-40px)] ml-[40px] relative" 
                     style={{ 
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
@@ -325,8 +325,8 @@ const MatchDetails = () => {
                     VS
                   </div>
                   
-                  {/* AWAY TEAM SECTION - 50% width with specific color from reference image */}
-                  <div className="h-full w-[50%] relative flex items-center justify-end" 
+                  {/* AWAY TEAM SECTION - Starts from VS and extends to halfway of away logo */}
+                  <div className="h-full w-[calc(50%-40px)] mr-[40px] relative flex items-center justify-end" 
                     style={{ 
                       background: '#8b0000' // Exact match to AS Roma dark red color in reference
                     }}>
