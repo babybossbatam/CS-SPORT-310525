@@ -624,6 +624,25 @@ const MatchDetails = () => {
                     <h3 className="font-semibold">Real-Time Performance Analysis</h3>
                   </CardHeader>
                   <CardContent className="p-4">
+                    {/* Highlights Video Player - Embedded at the top */}
+                    <div className="mb-6 w-full">
+                      <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                        <iframe 
+                          className="w-full h-full"
+                          src={`https://www.youtube.com/embed/SpmLIIlcCFs?autoplay=0`} 
+                          title="Match Highlights"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                      <div className="mt-2 flex justify-between items-center">
+                        <h3 className="text-sm font-medium">{currentFixture.teams.home.name} vs {currentFixture.teams.away.name} - Match Highlights</h3>
+                        <div className="text-xs text-gray-500">
+                          {currentFixture.league.name} | {new Date(currentFixture.fixture.date).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div className="space-y-4">
                         <h4 className="text-sm font-semibold">Match Momentum Chart</h4>

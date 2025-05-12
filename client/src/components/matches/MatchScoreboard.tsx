@@ -292,21 +292,19 @@ export function MatchScoreboard({
               </button>
             )}
             
-            {/* Show Live button for in-progress matches */}
-            {isLiveMatch(fixture.status.short) && (
-              <button 
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering the parent onClick
-                  watchLiveStream(); // Use the live stream function
-                }}
-              >
-                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="8" fill="currentColor" />
-                </svg>
-                Watch Live
-              </button>
-            )}
+            {/* Always show Live button for testing (all matches) */}
+            <button 
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the parent onClick
+                watchLiveStream(); // Use the live stream function
+              }}
+            >
+              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="8" fill="currentColor" />
+              </svg>
+              Watch Live
+            </button>
           </div>
           
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
