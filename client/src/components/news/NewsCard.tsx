@@ -23,7 +23,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   
   return (
     <Card 
-      className="w-full overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.02] shadow-sm hover:shadow-md"
+      className="w-full overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.02] border-0 shadow-none"
       onClick={handleClick}
     >
       <div className="aspect-[16/9] overflow-hidden">
@@ -33,7 +33,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
-      <CardContent className="p-3">
+      <CardContent className="p-3 px-0">
         <h3 className="text-sm font-medium line-clamp-2 mb-2 h-10">{news.title}</h3>
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>{news.source}</span>

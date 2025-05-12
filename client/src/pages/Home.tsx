@@ -167,6 +167,14 @@ const Home = () => {
               </div>
             </div>
             
+            {/* News Section - Below Top Scorers */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
+              <h3 className="font-semibold text-gray-700 p-3">Live TV News</h3>
+              <div className="px-3 pb-3">
+                <NewsSection />
+              </div>
+            </div>
+            
             <LiveScoreboardPage />
             
             {/* Popular Teams Section */}
@@ -215,12 +223,9 @@ const Home = () => {
           </div>
         </div>
         
-        {/* Stats and News Section */}
+        {/* Stats Section */}
         <div className="mt-8 grid grid-cols-1 gap-6">
           <StatsPanel />
-          <div className="bg-white rounded-lg shadow p-4">
-            <NewsSection />
-          </div>
         </div>
       </main>
       

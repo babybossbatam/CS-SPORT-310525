@@ -32,12 +32,7 @@ const sampleNewsData: NewsItem[] = [
 
 const NewsSection: React.FC = () => {
   return (
-    <div className="mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <Newspaper className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-bold">Live TV News</h2>
-      </div>
-      
+    <div>      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {sampleNewsData.map((news) => (
           <NewsCard key={news.id} news={news} />
