@@ -300,18 +300,18 @@ const MatchDetails = () => {
                   
                   {/* UPDATED HOME TEAM SECTION - 10% more to the left */}
                   <div className="h-full w-[60%] relative flex items-center justify-start">
-                    {/* Home team gradient - extends from 'V' to home team logo with 10% enhanced intensity and more to the left */}
+                    {/* Home team gradient - with improved contrast for better text visibility */}
                     <div 
-                      className={`absolute inset-0 z-5 bg-gradient-to-br from-blue-700 to-blue-500`} 
+                      className={`absolute inset-0 z-5`} 
                       style={{ 
                         clipPath: 'polygon(0 0, 100% 0, 70% 100%, 0 100%)',
                         right: '-10%', // Push gradient out further to ensure it covers the area
-                        background: getTeamGradient(currentFixture.teams.home.name, 'to-r').replace('bg-', '')
+                        background: `linear-gradient(to right, rgba(0,0,0,0.75), ${getTeamColor(currentFixture.teams.home.name)})`
                       }}
                     ></div>
                     
-                    {/* Team name display */}
-                    <div className="ml-20 text-white font-bold text-lg uppercase relative z-10">
+                    {/* Team name display with improved readability */}
+                    <div className="ml-20 text-white font-bold text-lg uppercase relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
                         <span className="text-xs uppercase text-white ml-2 bg-green-600 inline-block px-2 rounded">Winner</span>
@@ -319,12 +319,13 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label - large, visible divider between the teams with HOME team color on the left half */}
+                  {/* VS label - improved with better visibility and contrast */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white shadow-md overflow-hidden"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl rounded-full h-12 w-12 flex items-center justify-center z-30 border-2 border-white shadow-md overflow-hidden"
                     style={{
-                      background: `linear-gradient(90deg, ${getTeamColor(currentFixture.teams.home.name)} 50%, rgba(0, 0, 0, 0.6) 50%)`,
-                      textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)'
+                      background: 'rgba(0, 0, 0, 0.8)',
+                      textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)',
+                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.5), 0 0 10px rgba(0, 0, 0, 0.5)'
                     }}
                   >
                     VS
@@ -332,17 +333,17 @@ const MatchDetails = () => {
                   
                   {/* UPDATED AWAY TEAM SECTION - reduced to 40% width */}
                   <div className="h-full w-[40%] relative flex items-center justify-end">
-                    {/* Away team gradient - simplified rectangular gradient */}
+                    {/* Away team gradient - with improved contrast for better text visibility */}
                     <div 
-                      className={`absolute inset-0 z-5 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')}`} 
+                      className={`absolute inset-0 z-5`} 
                       style={{ 
                         borderRadius: '0.5rem',
-                        opacity: 0.9
+                        background: `linear-gradient(to left, rgba(0,0,0,0.75), ${getTeamColor(currentFixture.teams.away.name)})`
                       }}
                     ></div>
                     
-                    {/* Team name display */}
-                    <div className="mr-20 text-white font-bold text-lg uppercase text-right relative z-10">
+                    {/* Away team name display with improved readability */}
+                    <div className="mr-20 text-white font-bold text-lg uppercase text-right relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
                         <span className="text-xs uppercase text-white mr-2 bg-green-600 inline-block px-2 rounded">Winner</span>
