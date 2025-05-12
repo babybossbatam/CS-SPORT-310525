@@ -15,6 +15,7 @@ import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import UpcomingMatchesScoreboard from '@/components/matches/UpcomingMatchesScoreboard';
+import { EnhancedLiveScoreboard } from '@/components/matches/EnhancedLiveScoreboard';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

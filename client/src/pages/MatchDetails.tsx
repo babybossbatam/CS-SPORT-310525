@@ -22,6 +22,7 @@ import TeamPerformanceTimeline from '@/components/matches/TeamPerformanceTimelin
 import StatHighlight from '@/components/matches/StatHighlight';
 import HistoricalStats from '@/components/matches/HistoricalStats';
 import PredictionMeter from '@/components/matches/PredictionMeter';
+import MatchScoreboard from '@/components/matches/MatchScoreboard';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -246,132 +247,12 @@ const MatchDetails = () => {
             </Button>
           </CardHeader>
           <CardContent className="p-6">
-            {/* Modern scoreboard with gradients - matching the main page style */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8 relative">
-              {/* League and status info */}
-              <div className="text-center p-2 flex justify-center items-center gap-2">
-                <img 
-                  src={currentFixture.league.logo}
-                  alt={currentFixture.league.name}
-                  className="w-4 h-4"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
-                  }}
-                />
-                <span className="text-sm">{currentFixture.league.name} - {currentFixture.league.round}</span>
-              </div>
-              
-              {/* Status badge */}
-              <div className="text-xs text-center text-gray-500 -mt-1 mb-1">
-                {isLiveMatch(currentFixture.fixture.status.short) ? (
-                  <div className="flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-                    LIVE {currentFixture.fixture.status.elapsed && `• ${currentFixture.fixture.status.elapsed}'`}
-                  </div>
-                ) : currentFixture.fixture.status.short === "FT" ? (
-                  <span>FULL TIME</span>
-                ) : (
-                  <span>{formatDateTime(currentFixture.fixture.date)}</span>
-                )}
-              </div>
-              
-              {/* Score */}
-              <div className="text-center px-4 py-1">
-                <div className="text-3xl font-bold">
-                  {currentFixture.goals.home !== null ? currentFixture.goals.home : '0'} - {currentFixture.goals.away !== null ? currentFixture.goals.away : '0'}
-                </div>
-              </div>
-              
-              {/* Match bar styled like the reference image with height set to exactly 30px */}
-              <div className="flex relative h-[30px] rounded-md">
-                {/* Full bar with logos and team names, with colored sections in between logos and VS */}
-                <div className="w-full h-full flex justify-between relative">
-                  {/* Home team logo - fixed 72px size */}
-                  <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
-                    <img 
-                      src={currentFixture.teams.home.logo} 
-                      alt={currentFixture.teams.home.name}
-                      className="h-[69px] w-auto object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                      }}
-                    />
-                  </div>
-                  
-                  {/* Home team name display */}
-                  <div className="absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
-                    {currentFixture.teams.home.name}
-                    {currentFixture.teams.home.winner && (
-                      <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
-                    )}
-                  </div>
-                  
-                  {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-                  <div className="h-full w-[calc(50%-47px)] ml-[47px]" 
-                    style={{ 
-                      background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
-                    }}>
-                  </div>
-                  
-                  {/* VS SECTION - fixed size */}
-                  <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden animate-pulse"
-                    style={{
-                      background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
-                      textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
-                    }}
-                  >
-                    VS
-                  </div>
-                  
-                  {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-                  <div className="h-full w-[calc(50%-55px)] mr-[55px]" 
-                    style={{ 
-                      background: '#8b0000' // Exact match to AS Roma dark red color in reference
-                    }}>
-                  </div>
-                  
-                  {/* Away team name display */}
-                  <div className="absolute right-[calc(4px+72px)] mr-8 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right z-20">
-                    {currentFixture.teams.away.name}
-                    {currentFixture.teams.away.winner && (
-                      <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
-                    )}
-                  </div>
-                  
-                  {/* Away team logo - fixed 72px size */}
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
-                    <img 
-                      src={currentFixture.teams.away.logo} 
-                      alt={currentFixture.teams.away.name}
-                      className="h-[72px] w-auto object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              {/* Match details footer */}
-              <div className="p-2 text-center text-sm border-t border-gray-100">
-                <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
-                  <Clock className="h-3 w-3" />
-                  <span>{formatDateTime(currentFixture.fixture.date)}</span>
-                  {currentFixture.fixture.venue.name && (
-                    <span> | {currentFixture.fixture.venue.name}, {currentFixture.fixture.venue.city || ''}</span>
-                  )}
-                </div>
-                
-                {/* HT score if available */}
-                {currentFixture.score.halftime.home !== null && currentFixture.score.halftime.away !== null && (
-                  <div className="text-xs text-gray-700 mt-1">
-                    HT: {currentFixture.score.halftime.home} - {currentFixture.score.halftime.away}
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Modern scoreboard using the MatchScoreboard component */}
+            <MatchScoreboard 
+              match={currentFixture}
+              homeTeamColor="#6f7c93" // Exact match to Atalanta blue-gray color in reference
+              awayTeamColor="#8b0000" // Exact match to AS Roma dark red color in reference
+            />
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-6 mb-4">
