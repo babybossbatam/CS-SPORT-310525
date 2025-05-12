@@ -336,14 +336,6 @@ const UpcomingMatchesScoreboard = () => {
   if (isLiveLoading || isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading) {
     return (
       <Card>
-        <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Activity className="h-5 w-5 mr-2" />
-              <span className="font-semibold">Upcoming Matches</span>
-            </div>
-          </div>
-        </CardHeader>
         <CardContent className="p-0">
           <div className="p-4">
             <Skeleton className="h-16 w-full mb-3" />
@@ -360,14 +352,6 @@ const UpcomingMatchesScoreboard = () => {
   if (!upcomingMatches || upcomingMatches.length === 0) {
     return (
       <Card>
-        <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Activity className="h-5 w-5 mr-2" />
-              <span className="font-semibold">Upcoming Matches</span>
-            </div>
-          </div>
-        </CardHeader>
         <CardContent className="p-4">
           <div className="text-center space-y-3">
             <div className="bg-gray-50 text-gray-800 p-3 rounded-md border border-gray-200 text-sm">
@@ -498,30 +482,7 @@ const UpcomingMatchesScoreboard = () => {
             </div>
           ))}
         </div>
-        {/* Pagination controls */}
-        {allMatches.length > matchesPerPage && (
-          <div className="flex justify-between items-center px-4 py-3 border-t border-gray-100">
-            <button
-              onClick={prevPage}
-              className="flex items-center text-xs px-2 py-1 rounded transition-colors bg-gray-200 hover:bg-gray-300 text-gray-700"
-            >
-              <ChevronLeft className="h-3 w-3 mr-1" />
-              {currentPage === 0 ? 'Last Page' : 'Previous'}
-            </button>
-            
-            <div className="text-xs text-gray-500">
-              Page {currentPage + 1} of {Math.ceil(allMatches.length / matchesPerPage)}
-            </div>
-            
-            <button
-              onClick={nextPage}
-              className="flex items-center text-xs px-2 py-1 rounded transition-colors bg-gray-200 hover:bg-gray-300 text-gray-700"
-            >
-              {currentPage >= Math.ceil(allMatches.length / matchesPerPage) - 1 ? 'Back to First' : 'Next'}
-              <ChevronRight className="h-3 w-3 ml-1" />
-            </button>
-          </div>
-        )}
+        {/* Pagination controls removed as requested */}
       </CardContent>
     </Card>
   );
