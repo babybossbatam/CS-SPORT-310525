@@ -300,13 +300,14 @@ const MatchDetails = () => {
                   
                   {/* UPDATED HOME TEAM SECTION - 10% more to the left */}
                   <div className="h-full w-[60%] relative flex items-center justify-start">
-                    {/* Home team gradient - with improved contrast for better text visibility */}
+                    {/* Home team gradient - resized to reach only halfway to VS */}
                     <div 
                       className={`absolute inset-0 z-5`} 
                       style={{ 
-                        clipPath: 'polygon(0 0, 100% 0, 70% 100%, 0 100%)',
-                        right: '-10%', // Push gradient out further to ensure it covers the area
-                        background: `linear-gradient(to right, rgba(0,0,0,0.75), ${getTeamColor(currentFixture.teams.home.name)})`
+                        clipPath: 'polygon(0 0, 100% 0, 45% 100%, 0 100%)',
+                        right: '0', // Adjust to stop at about halfway to VS
+                        background: `linear-gradient(to right, #1a202c, ${getTeamColor(currentFixture.teams.home.name)})`,
+                        width: '85%' // Limit width to not overlap with VS
                       }}
                     ></div>
                     
@@ -319,26 +320,31 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label - increased size for better visibility and contrast */}
+                  {/* VS label - enhanced with gradient and stronger visibility */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl rounded-full h-16 w-16 flex items-center justify-center z-30 border-2 border-white shadow-lg overflow-hidden"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl rounded-full h-16 w-16 flex items-center justify-center z-30 border-[3px] border-white shadow-xl overflow-hidden animate-pulse"
                     style={{
-                      background: 'rgba(0, 0, 0, 0.8)',
-                      textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)',
-                      boxShadow: '0 0 0 3px rgba(255, 255, 255, 0.7), 0 0 15px rgba(0, 0, 0, 0.6)'
+                      background: 'linear-gradient(135deg, #2f2f2f 0%, #0f0f0f 100%)',
+                      textShadow: '0px 0px 4px rgba(255, 255, 255, 0.5)',
+                      boxShadow: '0 0 0 3px rgba(255, 255, 255, 0.8), 0 0 20px rgba(0, 0, 0, 0.7)'
                     }}
                   >
                     VS
                   </div>
                   
+
+                  
                   {/* UPDATED AWAY TEAM SECTION - reduced to 40% width */}
                   <div className="h-full w-[40%] relative flex items-center justify-end">
-                    {/* Away team gradient - with improved contrast for better text visibility */}
+                    {/* Away team gradient - resized to reach only halfway to VS with distinct color */}
                     <div 
                       className={`absolute inset-0 z-5`} 
                       style={{ 
-                        borderRadius: '0.5rem',
-                        background: `linear-gradient(to left, rgba(0,0,0,0.75), ${getTeamColor(currentFixture.teams.away.name)})`
+                        clipPath: 'polygon(55% 0, 100% 0, 100% 100%, 45% 100%)',
+                        left: '0', // Adjust to stop at about halfway to VS
+                        background: `linear-gradient(to left, #1a202c, ${getTeamColor(currentFixture.teams.away.name)})`,
+                        width: '85%', // Limit width to not overlap with VS
+                        marginLeft: '15%' // Push from left to align with VS
                       }}
                     ></div>
                     
