@@ -332,12 +332,12 @@ const MatchDetails = () => {
                   
                   {/* UPDATED AWAY TEAM SECTION - reduced to 40% width */}
                   <div className="h-full w-[40%] relative flex items-center justify-end">
-                    {/* Away team gradient - extends from 'S' to away team logo */}
+                    {/* Away team gradient - simplified rectangular gradient */}
                     <div 
                       className={`absolute inset-0 z-5 ${getTeamGradient(currentFixture.teams.away.name, 'to-l')}`} 
                       style={{ 
-                        clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)',
-                        left: '-10%' // Push gradient out further to ensure it covers the area
+                        borderRadius: '0.5rem',
+                        opacity: 0.9
                       }}
                     ></div>
                     
