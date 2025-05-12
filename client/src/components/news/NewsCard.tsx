@@ -1,13 +1,17 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { formatDistance } from 'date-fns';
 
 export interface NewsItem {
-  id: string;
+  id: number;
   title: string;
+  content: string;
   imageUrl: string;
   source: string;
-  timeAgo: string;
-  url: string;
+  url: string | null;
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface NewsCardProps {
@@ -17,8 +21,21 @@ interface NewsCardProps {
 const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   
   const handleClick = () => {
-    // Open in a new tab if it's an external link
-    window.open(news.url, '_blank');
+    // Open in a new tab if it's an external link with a valid URL
+    if (news.url && typeof news.url === 'string') {
+      window.open(news.url, '_blank');
+    }
+  };
+  
+  // Calculate time ago text from publishedAt
+  const getTimeAgo = () => {
+    try {
+      const publishedDate = new Date(news.publishedAt);
+      const now = new Date();
+      return formatDistance(publishedDate, now, { addSuffix: true });
+    } catch (error) {
+      return 'Recently';
+    }
   };
   
   return (
@@ -37,7 +54,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
         <h3 className="text-sm font-medium line-clamp-2 mb-2 h-10">{news.title}</h3>
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>{news.source}</span>
-          <span>{news.timeAgo} Ago</span>
+          <span>{getTimeAgo()}</span>
         </div>
       </CardContent>
     </Card>

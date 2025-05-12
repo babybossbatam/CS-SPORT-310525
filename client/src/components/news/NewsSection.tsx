@@ -1,40 +1,64 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import NewsCard, { NewsItem } from './NewsCard';
 import { Newspaper } from 'lucide-react';
-
-// Current football news data sourced from 365scores.com
-const sampleNewsData: NewsItem[] = [
-  {
-    id: '1',
-    title: 'Real Madrid to arrive at Club World Cup with three signings for Xabi',
-    imageUrl: 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
-    source: 'Football Espana',
-    timeAgo: '11 Hours',
-    url: 'https://www.365scores.com/news/real-madrid-to-arrive-at-club-world-cup-with-three-signings-for-xabi',
-  },
-  {
-    id: '2',
-    title: "Kylian Mbappe: The Unquestionable Leader of Real Madrid's Future",
-    imageUrl: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
-    source: 'Midseason Magazine',
-    timeAgo: '13 Hours',
-    url: 'https://www.365scores.com/news/kylian-mbappe-the-unquestionable-leader-of-real-madrids-future',
-  },
-  {
-    id: '3',
-    title: 'No More Castore - Umbro Replaces 25-26 Home Kit Leaked',
-    imageUrl: 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg',
-    source: 'Footy Headlines',
-    timeAgo: '15 Hours',
-    url: 'https://www.365scores.com/news/no-more-castore-umbro-replaces-25-26-home-kit-leaked',
-  },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, newsActions } from '@/lib/store';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 const NewsSection: React.FC = () => {
+  const dispatch = useDispatch();
+  const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
+  
+  // Fetch news articles from API
+  const { data: newsData, isLoading, isError } = useQuery({
+    queryKey: ['/api/news'],
+    staleTime: 60 * 1000, // 1 minute
+  });
+  
+  // Update Redux store when data is fetched
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(newsActions.setLoadingNews(true));
+    } else if (isError) {
+      dispatch(newsActions.setNewsError('Failed to fetch news articles'));
+    } else if (newsData) {
+      dispatch(newsActions.setNewsItems(newsData));
+      dispatch(newsActions.setLoadingNews(false));
+    }
+  }, [newsData, isLoading, isError, dispatch]);
+  
+  // Show loading state
+  if (loading || isLoading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error || isError) {
+    return (
+      <div className="flex justify-center items-center py-10 text-red-500">
+        <p>Failed to load news articles</p>
+      </div>
+    );
+  }
+  
+  // If no news items, show empty state
+  if (!newsItems || newsItems.length === 0) {
+    return (
+      <div className="flex justify-center items-center py-10 text-gray-500">
+        <p>No news articles available</p>
+      </div>
+    );
+  }
+  
   return (
     <div>      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {sampleNewsData.map((news) => (
+        {newsItems.map((news: NewsItem) => (
           <NewsCard key={news.id} news={news} />
         ))}
       </div>
