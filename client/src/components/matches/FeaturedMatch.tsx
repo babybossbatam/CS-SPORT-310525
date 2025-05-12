@@ -171,20 +171,10 @@ const FeaturedMatch = () => {
     }
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
-  // Format date for match display (Today, Tomorrow, or date)
+  // Format date for match display (simple date format)
   const formatMatchDate = (dateString: string): string => {
     const date = parseISO(dateString);
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    if (date.toDateString() === today.toDateString()) {
-      return 'Today';
-    } else if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow';
-    } else {
-      return format(date, 'E, MMM d');
-    }
+    return format(date, 'EEEE, MMMM d, yyyy');
   };
   
   if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isPremierLeagueLoading) {

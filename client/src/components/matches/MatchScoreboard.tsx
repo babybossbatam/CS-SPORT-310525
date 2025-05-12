@@ -91,38 +91,11 @@ export function MatchScoreboard({
   
   return (
     <div 
-      className={`bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 ${compact ? 'mb-4' : 'mb-8'} relative transition-transform duration-200 ${onClick ? 'hover:scale-[1.02] hover:shadow-xl' : ''}`}
+      className={`${compact ? 'mb-4' : 'mb-8'} relative transition-transform duration-200 ${onClick ? 'hover:scale-[1.02]' : ''}`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      {/* League and status info in top section */}
-      <div className="flex justify-between items-center p-2 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <img 
-            src={league.logo}
-            alt={league.name}
-            className="w-4 h-4"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
-            }}
-          />
-          <span className="text-sm">{league.name} - {league.round}</span>
-        </div>
-        
-        {/* Status badge */}
-        <div className="text-xs text-gray-500">
-          {isLiveMatch(fixture.status.short) ? (
-            <div className="flex items-center">
-              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
-              LIVE {fixture.status.elapsed && `• ${fixture.status.elapsed}'`}
-            </div>
-          ) : fixture.status.short === "FT" ? (
-            <span>FULL TIME</span>
-          ) : (
-            <span>{formatDateTime(fixture.date)}</span>
-          )}
-        </div>
-      </div>
+      {/* League and status info removed as requested */}
       
       {/* Score section removed as requested */}
       
