@@ -1,6 +1,9 @@
-import { Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Clock, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { isLiveMatch } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { getMatchHighlights, HighlightsResponse } from '@/lib/highlightsApi';
 
 // Define types
 interface Team {
@@ -88,6 +91,27 @@ export function MatchScoreboard({
 }: MatchScoreboardProps) {
   // Get match data
   const { fixture, league, teams, goals, score } = match;
+  // State to track if highlight video is showing
+  const [showHighlights, setShowHighlights] = useState(false);
+  const [highlightsData, setHighlightsData] = useState<HighlightsResponse | null>(null);
+  const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
+  
+  // Load highlights data when the highlights button is clicked
+  const loadHighlights = async () => {
+    if (!showHighlights && !highlightsData) {
+      try {
+        setIsLoadingHighlights(true);
+        const data = await getMatchHighlights(fixture.id);
+        setHighlightsData(data);
+        setIsLoadingHighlights(false);
+      } catch (error) {
+        console.error('Failed to load highlights:', error);
+        setIsLoadingHighlights(false);
+      }
+    }
+    // Toggle highlights display
+    setShowHighlights(!showHighlights);
+  };
   
   return (
     <div 
@@ -186,6 +210,21 @@ export function MatchScoreboard({
       {/* Match details footer */}
       {!compact && (
         <div className="p-2 text-center text-sm border-t border-gray-100 mt-5">
+          <div className="flex items-center justify-center mb-2">
+            <button 
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the parent onClick
+                loadHighlights(); // Load and toggle highlights display
+              }}
+            >
+              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              Match Highlights
+            </button>
+          </div>
+          
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
             <span>{formatDateTime(fixture.date)}</span>
@@ -204,6 +243,60 @@ export function MatchScoreboard({
       )}
       
       {/* Featured badge removed as it's now handled in the FeaturedMatch component */}
+      
+      {/* Video highlights card that appears below when button is clicked */}
+      {showHighlights && !compact && (
+        <Card className="mt-4 overflow-hidden relative">
+          <CardContent className="p-0">
+            <div className="aspect-video bg-black relative">
+              {isLoadingHighlights ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-white">
+                  <div className="flex flex-col items-center">
+                    <div className="animate-spin h-8 w-8 border-4 border-white/20 border-t-white rounded-full mb-2"></div>
+                    <p>Loading highlights...</p>
+                  </div>
+                </div>
+              ) : (
+                <iframe 
+                  className="w-full h-full"
+                  src={highlightsData && highlightsData.highlights ? highlightsData.highlights.embedUrl : `https://www.youtube.com/embed/SpmLIIlcCFs?autoplay=1`} 
+                  title={highlightsData && highlightsData.highlights ? highlightsData.highlights.title : "Match Highlights"}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              )}
+              
+              {/* Close button for the video */}
+              <button 
+                className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white rounded-full p-1 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowHighlights(false);
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-3 bg-gray-50">
+              <h3 className="text-sm font-medium">{teams.home.name} vs {teams.away.name} - Match Highlights</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                League: {league.name} | {formatDateTime(fixture.date)}
+              </p>
+              <div className="flex justify-end mt-2">
+                <button 
+                  className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowHighlights(false);
+                  }}
+                >
+                  Close Highlights
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
