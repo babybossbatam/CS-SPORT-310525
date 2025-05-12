@@ -442,14 +442,14 @@ const MatchDetails = () => {
                           className="w-full h-full"
                           src={
                             currentFixture.teams.home.name.includes("Juventus") || currentFixture.teams.away.name.includes("Juventus") 
-                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1bFULL-VSiWZH-aL_IvfyHP&autoplay=0" // Roma vs Juventus
+                              ? "https://www.youtube.com/embed/dPJ-rC2bPxc" // Juventus highlights
                               : currentFixture.teams.home.name.includes("Milan") || currentFixture.teams.away.name.includes("Milan")
-                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1atxwHjTdRzZDya6T0go8xf&autoplay=0" // AC Milan highlights
+                              ? "https://www.youtube.com/embed/YNLNHBVKAwI" // AC Milan highlights
                               : currentFixture.teams.home.name.includes("Arsenal") || currentFixture.teams.away.name.includes("Arsenal")
-                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1ZQXpFDM7BwqUu__RzXS7MO&autoplay=0" // Arsenal highlights
+                              ? "https://www.youtube.com/embed/m7tPG-LbR8c" // Arsenal highlights
                               : currentFixture.teams.home.name.includes("Manchester") || currentFixture.teams.away.name.includes("Manchester")
-                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1YZnDSU_2k3_LuMvDFPk9M5&autoplay=0" // Man City highlights
-                              : "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1ZYRPJcJZNxK9nIToZnq-Uj&autoplay=0" // General highlights
+                              ? "https://www.youtube.com/embed/qc5Pm0V7-d0" // Man City highlights
+                              : "https://www.youtube.com/embed/RsIYKdzxYoo" // General football highlights
                           }
                           title={`${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
