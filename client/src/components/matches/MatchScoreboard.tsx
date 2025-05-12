@@ -259,8 +259,8 @@ export function MatchScoreboard({
               ) : (
                 <iframe 
                   className="w-full h-full"
-                  src={highlightsData?.highlights.embedUrl || `https://www.youtube.com/embed/SpmLIIlcCFs?autoplay=1`} 
-                  title={highlightsData?.highlights.title || "Match Highlights"}
+                  src={highlightsData && highlightsData.highlights ? highlightsData.highlights.embedUrl : `https://www.youtube.com/embed/SpmLIIlcCFs?autoplay=1`} 
+                  title={highlightsData && highlightsData.highlights ? highlightsData.highlights.title : "Match Highlights"}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen
                 ></iframe>

@@ -348,18 +348,18 @@ function LiveScoreboardPage() {
   
   return (
     <div className="container mx-auto my-4 px-2">
-      <div className="grid grid-cols-1 gap-4">
-        {/* Main column with Enhanced Live Scoreboard */}
-        {/* Using the new EnhancedLiveScoreboard component with the MatchScoreboard design */}
-        <EnhancedLiveScoreboard 
-          showFeaturedMatch={true}
-          showFilters={true}
-          maxMatches={20}
-        />
-        
-        {/* Upcoming matches below the live matches */}
-        <UpcomingMatchesScoreboard />
-      </div>
+      {/* Enhanced Live Scoreboard */}
+      <EnhancedLiveScoreboard 
+        showFeaturedMatch={true}
+        showFilters={true}
+        maxMatches={20}
+      />
+      
+      {/* Add space between the components */}
+      <div className="mt-6"></div>
+      
+      {/* Upcoming matches below the live matches */}
+      <UpcomingMatchesScoreboard />
     </div>
   );
 }
