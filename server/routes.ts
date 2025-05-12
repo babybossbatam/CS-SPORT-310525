@@ -904,22 +904,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const fixtureId = req.params.id;
       
-      // Using local MP4 file served from our own server
-      // We downloaded these files to the public directory
-      const videoUrl = "/highlights_sample.mp4";
+      // For fixtures that haven't started yet, we'll return a past match highlight
+      // This is simulating retrieving a previous match from H2H history
       
-      // Local thumbnail image
-      const thumbnailUrl = "/highlights_thumbnail.jpg";
+      // Match information for the previous encounter
+      const previousMatchInfo = {
+        date: "2022-10-22",
+        home: "Manchester United",
+        away: "Liverpool", 
+        score: "2-1",
+        competition: "Premier League"
+      };
+      
+      // YouTube video ID for official Premier League highlights
+      const youtubeVideoId = "Jh8_cLLFIwA";
+      
+      // Thumbnail for the video
+      const thumbnailUrl = `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
       
       // Return the video information
       res.json({
         fixtureId,
         highlights: {
-          title: `${fixtureId} Match Highlights`,
-          provider: "Direct",
-          videoType: "mp4",
-          videoUrl: videoUrl,
-          thumbnailUrl: thumbnailUrl
+          title: `${previousMatchInfo.home} vs ${previousMatchInfo.away} - Previous Meeting (${previousMatchInfo.score})`,
+          provider: "YouTube",
+          videoId: youtubeVideoId,
+          thumbnailUrl: thumbnailUrl,
+          previousMatch: previousMatchInfo
         }
       });
     } catch (error) {

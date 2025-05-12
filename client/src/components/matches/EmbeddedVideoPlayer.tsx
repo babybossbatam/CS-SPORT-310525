@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
 interface EmbeddedVideoPlayerProps {
-  videoUrl: string;
+  videoUrl?: string;
+  videoId?: string;
   thumbnailUrl: string;
   title: string;
   className?: string;
@@ -9,6 +10,7 @@ interface EmbeddedVideoPlayerProps {
 
 const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
   videoUrl,
+  videoId,
   thumbnailUrl,
   title,
   className = ''
@@ -16,9 +18,10 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Using a reliable football highlight video from YouTube
-  // This is a reliable video ID that won't be taken down
-  const youtubeVideoId = "4xnPr0wUxN4";
+  // Using a reliable Premier League highlight video from the official channel
+  // This is from the Premier League official YouTube channel showing highlights 
+  // from a previous Manchester United vs Liverpool match
+  const youtubeVideoId = "Jh8_cLLFIwA";
   const youtubeThumbnail = `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
   
   // Function to play video
@@ -58,10 +61,10 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
           </div>
         </div>
       ) : (
-        // YouTube embed that's guaranteed to work
+        // YouTube embed using the provided videoId from API or fallback to our default
         <iframe 
           className="absolute top-0 left-0 w-full h-full border-0"
-          src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1`}
+          src={`https://www.youtube.com/embed/${videoId || youtubeVideoId}?autoplay=1`}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           title={title}

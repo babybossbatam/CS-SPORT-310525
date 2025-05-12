@@ -41,9 +41,15 @@ const MatchDetails = () => {
     highlights: {
       title: string;
       provider: string;
-      videoType: string;
-      videoUrl: string;
+      videoId: string;
       thumbnailUrl: string;
+      previousMatch?: {
+        date: string;
+        home: string;
+        away: string;
+        score: string;
+        competition: string;
+      }
     }
   } | null>(null);
   const [highlightsLoading, setHighlightsLoading] = useState(false);
@@ -610,7 +616,7 @@ const MatchDetails = () => {
                         </div>
                       ) : (
                         <EmbeddedVideoPlayer
-                          videoUrl={highlightsData?.highlights.videoUrl || ''}
+                          videoId={highlightsData?.highlights.videoId}
                           thumbnailUrl={highlightsData?.highlights.thumbnailUrl || ''}
                           title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
                           className="rounded-lg overflow-hidden"
