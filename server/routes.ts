@@ -916,8 +916,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         competition: "Premier League"
       };
       
-      // YouTube video ID for a video that's guaranteed to work
-      const youtubeVideoId = "dQw4w9WgXcQ";
+      // YouTube video ID for a proper football-related video - 2014 FIFA World Cup official song
+      const youtubeVideoId = "TGtWWb9emYI";
       
       // Thumbnail for the video
       const thumbnailUrl = `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;

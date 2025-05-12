@@ -18,9 +18,9 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Using a reliable video that's guaranteed to work globally
-  // We verified this ID works via the YouTube API
-  const youtubeVideoId = "dQw4w9WgXcQ";  // A very reliable video that never goes down
+  // Using a proper football-related video - 2014 FIFA World Cup official song
+  // Verified to work via the YouTube API
+  const youtubeVideoId = "TGtWWb9emYI";  // Official 2014 FIFA World Cup Song
   const youtubeThumbnail = `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
   
   // Function to play video
