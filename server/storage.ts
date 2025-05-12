@@ -61,10 +61,12 @@ export class MemStorage implements IStorage {
     this.preferences = new Map();
     this.fixtures = new Map();
     this.leagues = new Map();
+    this.newsArticles = new Map();
     this.userIdCounter = 1;
     this.prefIdCounter = 1;
     this.fixtureIdCounter = 1;
     this.leagueIdCounter = 1;
+    this.newsArticleIdCounter = 1;
   }
 
   // User management
@@ -221,6 +223,47 @@ export class MemStorage implements IStorage {
     
     this.leagues.set(leagueId, updatedLeague);
     return updatedLeague;
+  }
+  
+  // News Articles
+  async getNewsArticle(id: number): Promise<NewsArticle | undefined> {
+    return this.newsArticles.get(id);
+  }
+  
+  async getAllNewsArticles(): Promise<NewsArticle[]> {
+    return Array.from(this.newsArticles.values());
+  }
+  
+  async createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle> {
+    const now = new Date();
+    const newsArticle: NewsArticle = {
+      id: this.newsArticleIdCounter++,
+      ...article,
+      publishedAt: now,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.newsArticles.set(newsArticle.id, newsArticle);
+    return newsArticle;
+  }
+  
+  async updateNewsArticle(id: number, articleUpdates: Partial<InsertNewsArticle>): Promise<NewsArticle | undefined> {
+    const article = await this.getNewsArticle(id);
+    if (!article) return undefined;
+    
+    const updatedArticle: NewsArticle = {
+      ...article,
+      ...articleUpdates,
+      updatedAt: new Date()
+    };
+    
+    this.newsArticles.set(id, updatedArticle);
+    return updatedArticle;
+  }
+  
+  async deleteNewsArticle(id: number): Promise<boolean> {
+    return this.newsArticles.delete(id);
   }
 }
 
@@ -485,6 +528,70 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error updating cached league:', error);
       return undefined;
+    }
+  }
+  
+  // News Articles
+  async getNewsArticle(id: number): Promise<NewsArticle | undefined> {
+    try {
+      const result = await db.select().from(newsArticles).where(eq(newsArticles.id, id));
+      return result[0];
+    } catch (error) {
+      console.error('Error getting news article by ID:', error);
+      return undefined;
+    }
+  }
+  
+  async getAllNewsArticles(): Promise<NewsArticle[]> {
+    try {
+      return await db.select().from(newsArticles).orderBy(newsArticles.publishedAt);
+    } catch (error) {
+      console.error('Error getting all news articles:', error);
+      return [];
+    }
+  }
+  
+  async createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle> {
+    try {
+      const [newArticle] = await db.insert(newsArticles).values(article).returning();
+      return newArticle;
+    } catch (error) {
+      console.error('Error creating news article:', error);
+      throw error;
+    }
+  }
+  
+  async updateNewsArticle(id: number, articleUpdates: Partial<InsertNewsArticle>): Promise<NewsArticle | undefined> {
+    try {
+      const existingArticle = await this.getNewsArticle(id);
+      if (!existingArticle) {
+        return undefined;
+      }
+      
+      const [updatedArticle] = await db
+        .update(newsArticles)
+        .set({ ...articleUpdates, updatedAt: new Date() })
+        .where(eq(newsArticles.id, id))
+        .returning();
+      
+      return updatedArticle;
+    } catch (error) {
+      console.error('Error updating news article:', error);
+      return undefined;
+    }
+  }
+  
+  async deleteNewsArticle(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(newsArticles)
+        .where(eq(newsArticles.id, id))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error deleting news article:', error);
+      return false;
     }
   }
 }
