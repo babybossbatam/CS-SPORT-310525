@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
-import { isLiveMatch } from '@/lib/utils';
+import { Clock, X, Play } from 'lucide-react';
 import { format } from 'date-fns';
+import { isLiveMatch } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { getMatchHighlights, HighlightsResponse } from '@/lib/highlightsApi';
 
 // Define types
 interface Team {
@@ -89,15 +93,85 @@ export function MatchScoreboard({
   // Get match data
   const { fixture, league, teams, goals, score } = match;
   
+  // State for video highlights
+  const [showHighlights, setShowHighlights] = useState(false);
+  const [highlightsData, setHighlightsData] = useState<HighlightsResponse | null>(null);
+  const [loadingHighlights, setLoadingHighlights] = useState(false);
+  const [highlightsError, setHighlightsError] = useState<string | null>(null);
+
+  // Function to fetch highlights
+  const fetchHighlights = async () => {
+    if (fixture.id) {
+      try {
+        setLoadingHighlights(true);
+        setHighlightsError(null);
+        const data = await getMatchHighlights(fixture.id.toString());
+        setHighlightsData(data);
+        setShowHighlights(true);
+      } catch (error) {
+        console.error("Error fetching highlights:", error);
+        setHighlightsError("Unable to load highlights for this match");
+      } finally {
+        setLoadingHighlights(false);
+      }
+    }
+  };
+  
   return (
     <div 
       className={`${compact ? 'mb-4' : 'mb-8'} relative`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      {/* League and status info removed as requested */}
+      {/* League info and match status */}
+      <div className="flex justify-between items-center mb-2 px-1">
+        {/* League info */}
+        <div className="flex items-center">
+          <img 
+            src={league.logo} 
+            alt={league.name} 
+            className="h-4 w-auto mr-2"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=League';
+            }}
+          />
+          <span className="text-xs text-gray-700 font-medium">{league.name}</span>
+          {league.round && (
+            <span className="text-xs text-gray-500 ml-1">• {league.round}</span>
+          )}
+        </div>
+        
+        {/* Match status */}
+        <div className="flex items-center text-xs">
+          {isLiveMatch(fixture.status.short) ? (
+            <span className="bg-red-600 text-white px-1.5 py-0.5 rounded-sm font-semibold flex items-center">
+              <span className="animate-pulse inline-block h-2 w-2 rounded-full bg-white mr-1"></span>
+              {fixture.status.short === 'HT' ? 'HALF-TIME' : `${fixture.status.elapsed}'`}
+            </span>
+          ) : (
+            <span 
+              className={`${
+                fixture.status.short === 'FT' || fixture.status.short === 'AET' || fixture.status.short === 'PEN' 
+                  ? 'bg-gray-700 text-white' 
+                  : 'bg-gray-100 text-gray-800'
+              } px-1.5 py-0.5 rounded-sm font-medium`}
+            >
+              {fixture.status.short === 'NS' ? 'UPCOMING' : fixture.status.short}
+            </span>
+          )}
+        </div>
+      </div>
       
-      {/* Score section removed as requested */}
+      {/* Score section for FT/Live matches */}
+      {(fixture.status.short !== 'NS' && goals.home !== null && goals.away !== null) && (
+        <div className="flex justify-center mb-2">
+          <div className="bg-gray-800 text-white px-4 py-1 rounded-md flex items-center space-x-3">
+            <span className="text-lg font-bold">{goals.home}</span>
+            <span className="text-sm text-gray-400">-</span>
+            <span className="text-lg font-bold">{goals.away}</span>
+          </div>
+        </div>
+      )}
       
       {/* Match bar styled with height set to exactly 30px */}
       <div className="flex relative h-[30px] rounded-md">
@@ -185,9 +259,84 @@ export function MatchScoreboard({
         </div>
       </div>
       
-      {/* Match details footer removed as requested */}
-      {/* Match Highlights button removed as requested */}
-      {/* Video highlights card removed as requested */}
+      {/* Match details footer (date/time, venue, and halftime score) */}
+      <div className="mt-9 px-3 grid grid-cols-3 text-xs text-gray-600">
+        {/* Date and time with clock icon */}
+        <div className="flex items-center">
+          <Clock className="h-3 w-3 mr-1" />
+          <span>{formatDateTime(fixture.date)}</span>
+        </div>
+        
+        {/* Stadium/Venue info if available */}
+        <div className="text-center">
+          {fixture.venue.name && (
+            <span>{fixture.venue.name}, {fixture.venue.city}</span>
+          )}
+        </div>
+        
+        {/* Halftime score if available */}
+        <div className="text-right">
+          {score.halftime.home !== null && score.halftime.away !== null && (
+            <span>HT: {score.halftime.home} - {score.halftime.away}</span>
+          )}
+        </div>
+      </div>
+      
+      {/* Match Highlights button */}
+      {(fixture.status.short === 'FT' || fixture.status.short === 'AET' || fixture.status.short === 'PEN') && (
+        <div className="mt-3 px-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full flex items-center justify-center text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchHighlights();
+            }}
+            disabled={loadingHighlights}
+          >
+            <Play className="h-4 w-4 mr-1" />
+            {loadingHighlights ? 'Loading Highlights...' : 'Match Highlights'}
+          </Button>
+        </div>
+      )}
+      
+      {/* Video highlights card */}
+      {showHighlights && highlightsData && (
+        <Card className="mt-4 overflow-hidden">
+          <div className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute top-2 right-2 z-10 bg-black/30 text-white hover:bg-black/50 hover:text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowHighlights(false);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            
+            <CardContent className="p-0">
+              {highlightsData.response[0]?.embed ? (
+                <div 
+                  className="aspect-video" 
+                  dangerouslySetInnerHTML={{ __html: highlightsData.response[0].embed }}
+                />
+              ) : (
+                <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                  <p className="text-gray-500">No highlights available for this match</p>
+                </div>
+              )}
+            </CardContent>
+          </div>
+        </Card>
+      )}
+      
+      {/* Error message for highlights */}
+      {highlightsError && (
+        <div className="mt-2 text-red-500 text-sm text-center">{highlightsError}</div>
+      )}
     </div>
   );
 }
