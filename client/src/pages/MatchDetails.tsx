@@ -292,7 +292,7 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - same size as match bar height */}
+                    {/* Home team logo - match the team logo height (7.5px) to match bar height */}
                     <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
