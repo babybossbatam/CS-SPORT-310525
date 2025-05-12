@@ -6,6 +6,19 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Add middleware to set headers for YouTube embedding
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; " +
+    "frame-src https://www.youtube.com https://youtube.com; " +
+    "img-src 'self' data: https: http:; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "connect-src 'self' https://www.youtube.com;"
+  );
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

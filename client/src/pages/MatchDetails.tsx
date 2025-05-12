@@ -610,9 +610,9 @@ const MatchDetails = () => {
                         <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
                           <iframe 
                             className="w-full h-full"
-                            src={`https://www.youtube.com/embed/${highlightsData?.highlights.videoId || 'SpmLIIlcCFs'}?rel=0`}
+                            src={`https://www.youtube.com/embed/${highlightsData?.highlights.videoId || 'nKfRR-L4buc'}?rel=0&autoplay=0&modestbranding=1&fs=1`}
                             title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
-                            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" 
+                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
                             allowFullScreen
                             loading="lazy"
                           ></iframe>
@@ -643,21 +643,15 @@ const MatchDetails = () => {
                     </Badge>
                   </CardHeader>
                   <CardContent className="p-4">
-                    <div className="text-center text-sm text-gray-600 mb-3">
-                      Interactive timeline showing key moments from {currentFixture.teams.home.name} vs {currentFixture.teams.away.name}
-                    </div>
-                    
                     <div className="mb-6">
                       <h3 className="text-sm font-semibold mb-2 text-gray-700">Interactive Timeline of Key Match Moments</h3>
-                      <div className="bg-slate-50 p-4 rounded-lg border">
-                        <MatchTimeline 
-                          homeTeam={currentFixture.teams.home}
-                          awayTeam={currentFixture.teams.away}
-                          events={matchEvents}
-                          matchStatus={currentFixture.fixture.status.long}
-                          currentMinute={currentFixture.fixture.status.elapsed || 0}
-                        />
-                      </div>
+                      <MatchTimeline 
+                        homeTeam={currentFixture.teams.home}
+                        awayTeam={currentFixture.teams.away}
+                        events={matchEvents}
+                        matchStatus={currentFixture.fixture.status.long}
+                        currentMinute={currentFixture.fixture.status.elapsed || 0}
+                      />
                     </div>
                     
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">

@@ -906,15 +906,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // In a real implementation, this would make an API call to get highlight videos
       // For now, we'll return a structure with YouTube video IDs based on fixture ID
-      // These are popular soccer highlight videos
+      // Using newer verified working videos from AISCORE or similar providers
       const highlightVideos: Record<string, string> = {
         // Map of highlight video sources keyed by fixture ID
-        default: "SpmLIIlcCFs", // Default highlights video (Champions League Final)
-        "1208484": "R4yHuyNR72E", // Popular Premier League highlights
-        "1208485": "OXDJkPRmPbA", // Champions League highlights
-        "1208486": "8Z-4wUzPQZc", // La Liga highlights
-        "1208487": "YDYHPRoAZEo", // Serie A highlights
-        "1208488": "0VKyQpSCD2o"  // Bundesliga highlights
+        default: "nKfRR-L4buc", // Top 10 Goals of the Month (working verified video)
+        "1223954": "gpZzXaghJiw", // Premier League highlights
+        "1223955": "JDTaQrCOUTY", // Champions League highlights
+        "1223956": "4VN27rigKQo", // La Liga highlights
+        "1223957": "2pDk3CUCzyw", // Serie A highlights
+        "1223958": "V-KU56jmDrw"  // Bundesliga highlights
       };
       
       const videoId = highlightVideos[fixtureId] || highlightVideos.default;
