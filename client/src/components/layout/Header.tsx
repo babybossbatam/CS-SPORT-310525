@@ -49,18 +49,16 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/" className="text-2xl font-bold flex items-center">
-            <svg 
-              className="h-8 mr-2" 
-              viewBox="0 0 50 50"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="25" cy="25" r="23" fill="#1A202C" stroke="white" strokeWidth="2" />
-              <text x="10" y="35" fill="white" fontSize="24" fontWeight="bold">365</text>
-            </svg>
-            <span>365<span className="text-gray-400">scores</span></span>
+            <img 
+              src="/cs-sport-logo.png" 
+              alt="CS SPORT Logo" 
+              className="h-12 mr-2" 
+            />
+            <span className="flex flex-col">
+              <span className="text-amber-400 font-bold">CSSPORT</span>
+              <span className="text-sm text-amber-300 font-medium">潮勝體育</span>
+            </span>
           </Link>
-          <div className="text-sm text-gray-400">Scores</div>
         </div>
         
         <div className="flex items-center space-x-4">
