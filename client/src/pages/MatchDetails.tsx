@@ -284,33 +284,33 @@ const MatchDetails = () => {
               
               {/* Match bar styled like the reference image with height set to exactly 30px */}
               <div className="flex relative h-[30px] rounded-md">
-                {/* Match bar with solid team colors and centered VS */}
-                <div className="w-full h-full flex">
-                  {/* HOME TEAM SECTION - Starts from halfway of home logo and extends to the VS */}
-                  <div className="h-full w-[calc(50%-40px)] ml-[40px] relative" 
+                {/* Full bar with logos and team names, with colored sections in between logos and VS */}
+                <div className="w-full h-full flex justify-between relative">
+                  {/* Home team logo - fixed 72px size */}
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20">
+                    <img 
+                      src={currentFixture.teams.home.logo} 
+                      alt={currentFixture.teams.home.name}
+                      className="h-[72px] w-auto object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Home team name display */}
+                  <div className="absolute left-[calc(4px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
+                    {currentFixture.teams.home.name}
+                    {currentFixture.teams.home.winner && (
+                      <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+                    )}
+                  </div>
+                  
+                  {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
+                  <div className="h-full w-[calc(50%-40px)] ml-[40px]" 
                     style={{ 
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
-                    
-                    {/* Home team logo - fixed 72px size */}
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                      <img 
-                        src={currentFixture.teams.home.logo} 
-                        alt={currentFixture.teams.home.name}
-                        className="h-[72px] w-auto object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                        }}
-                      />
-                    </div>
-                    
-                    {/* Team name display */}
-                    <div className="ml-32 text-white font-bold text-sm leading-tight flex items-center h-full uppercase">
-                      {currentFixture.teams.home.name}
-                      {currentFixture.teams.home.winner && (
-                        <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
-                      )}
-                    </div>
                   </div>
                   
                   {/* VS SECTION - fixed size */}
@@ -325,31 +325,31 @@ const MatchDetails = () => {
                     VS
                   </div>
                   
-                  {/* AWAY TEAM SECTION - Starts from VS and extends to halfway of away logo */}
-                  <div className="h-full w-[calc(50%-40px)] mr-[40px] relative flex items-center justify-end" 
+                  {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
+                  <div className="h-full w-[calc(50%-40px)] mr-[40px]" 
                     style={{ 
                       background: '#8b0000' // Exact match to AS Roma dark red color in reference
                     }}>
-                    
-                    {/* Team name display */}
-                    <div className="mr-32 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right">
-                      {currentFixture.teams.away.name}
-                      {currentFixture.teams.away.winner && (
-                        <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
-                      )}
-                    </div>
-                    
-                    {/* Away team logo - fixed 72px size */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <img 
-                        src={currentFixture.teams.away.logo} 
-                        alt={currentFixture.teams.away.name}
-                        className="h-[72px] w-auto object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-                        }}
-                      />
-                    </div>
+                  </div>
+                  
+                  {/* Away team name display */}
+                  <div className="absolute right-[calc(4px+72px)] mr-8 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right z-20">
+                    {currentFixture.teams.away.name}
+                    {currentFixture.teams.away.winner && (
+                      <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+                    )}
+                  </div>
+                  
+                  {/* Away team logo - fixed 72px size */}
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+                    <img 
+                      src={currentFixture.teams.away.logo} 
+                      alt={currentFixture.teams.away.name}
+                      className="h-[72px] w-auto object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+                      }}
+                    />
                   </div>
                 </div>
               </div>
