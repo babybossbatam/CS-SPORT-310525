@@ -24,6 +24,7 @@ import HistoricalStats from '@/components/matches/HistoricalStats';
 import PredictionMeter from '@/components/matches/PredictionMeter';
 import MatchScoreboard from '@/components/matches/MatchScoreboard';
 import MatchTimeline, { MatchEvent } from '@/components/matches/MatchTimeline';
+import EmbeddedVideoPlayer from '@/components/matches/EmbeddedVideoPlayer';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -607,16 +608,11 @@ const MatchDetails = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
-                          <iframe 
-                            className="w-full h-full"
-                            src={`https://www.youtube.com/embed/${highlightsData?.highlights.videoId || 'nKfRR-L4buc'}?rel=0&autoplay=0&modestbranding=1&fs=1`}
-                            title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
-                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
-                            allowFullScreen
-                            loading="lazy"
-                          ></iframe>
-                        </div>
+                        <EmbeddedVideoPlayer
+                          videoId={highlightsData?.highlights.videoId || 'nKfRR-L4buc'}
+                          title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
+                          className="rounded-lg overflow-hidden"
+                        />
                       )}
                       <div className="mt-2 flex justify-between items-center">
                         <h3 className="text-sm font-medium">{currentFixture.teams.home.name} vs {currentFixture.teams.away.name} - Match Highlights</h3>
