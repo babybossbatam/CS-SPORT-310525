@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Calendar, Activity } from "lucide-react";
+import { Activity } from "lucide-react";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getTeamColor } from "@/lib/colorUtils";
@@ -222,31 +222,11 @@ export function EnhancedLiveScoreboard({
   }
 
   if (error) {
-    return (
-      <Card>
-        <div className="p-6">
-          <div className="text-center text-red-500">
-            <p>Unable to load match data. Please try again later.</p>
-          </div>
-        </div>
-      </Card>
-    );
+    return null;
   }
 
   if (!filteredMatches.length) {
-    return (
-      <Card>
-        <div className="p-6">
-          <div className="text-center">
-            <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium">No matches available</h3>
-            <p className="text-gray-500">
-              There are no live or upcoming matches at the moment.
-            </p>
-          </div>
-        </div>
-      </Card>
-    );
+    return null;
   }
 
   return (
