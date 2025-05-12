@@ -609,7 +609,8 @@ const MatchDetails = () => {
                         </div>
                       ) : (
                         <EmbeddedVideoPlayer
-                          videoId={highlightsData?.highlights.videoId || 'nKfRR-L4buc'}
+                          videoUrl={highlightsData?.highlights.videoUrl || ''}
+                          thumbnailUrl={highlightsData?.highlights.thumbnailUrl || ''}
                           title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
                           className="rounded-lg overflow-hidden"
                         />

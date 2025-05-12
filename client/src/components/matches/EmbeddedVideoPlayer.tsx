@@ -1,25 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface EmbeddedVideoPlayerProps {
-  videoId: string;
+  videoUrl: string;
+  thumbnailUrl: string;
   title: string;
   className?: string;
 }
 
 const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
-  videoId,
+  videoUrl,
+  thumbnailUrl,
   title,
   className = ''
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  
-  // Generate thumbnail URL from video ID
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   // Function to play video
   const handlePlay = () => {
     setIsPlaying(true);
+    // Use setTimeout to ensure DOM is updated before trying to play
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(err => {
+          console.error("Video playback error:", err);
+        });
+      }
+    }, 0);
   };
   
   return (
@@ -54,15 +62,20 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
           </div>
         </div>
       ) : (
-        // Show embedded player when playing
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-          title={title}
+        // Show direct MP4 player when playing
+        <video
+          ref={videoRef}
           className="absolute top-0 left-0 w-full h-full"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+          controls
+          autoPlay
+          playsInline
+          preload="auto"
+          poster={thumbnailUrl}
+          onLoadedData={() => setIsLoading(false)}
+        >
+          <source src={videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       )}
     </div>
   );
