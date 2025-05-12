@@ -918,6 +918,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
                            
       const highlightData = getVideoHighlight(fixtureId, sportMapping as any);
       
+      // Get the actual fixture data if available - useful for building title/description
+      let fixtureData = null;
+      try {
+        const cachedFixture = await storage.getCachedFixture(fixtureId);
+        if (cachedFixture) {
+          fixtureData = cachedFixture.data;
+        }
+      } catch (err) {
+        // If we can't get fixture data, that's ok - just continue
+        console.error(`Error fetching fixture data for highlights: ${err}`);
+      }
+      
       // If we found mapped highlight data
       if (highlightData) {
         res.json({
@@ -928,17 +940,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             videoId: highlightData.videoId,
             thumbnailUrl: highlightData.thumbnailUrl,
             source: highlightData.source,
-            available: true
+            available: true,
+            embedAllowed: highlightData.embedAllowed,
+            regionRestricted: highlightData.regionRestricted,
+            alternateVideoId: highlightData.alternateVideoId
           }
         });
       } else {
         // For fixtures that don't have specific highlights, return fallback data
         // This keeps the response format consistent while indicating no video is available
         
-        // Get fixture data if available (in a real implementation, you would fetch this from your database)
-        // This is a fallback to maintain backward compatibility
-        const previousMatchInfo = {
-          date: "2022-10-22",
+        // Construct match info from fixture data if available, otherwise use placeholder
+        const matchInfo = fixtureData ? {
+          date: fixtureData.fixture?.date || new Date().toISOString().split('T')[0],
+          home: fixtureData.teams?.home?.name || "Home Team",
+          away: fixtureData.teams?.away?.name || "Away Team",
+          score: `${fixtureData.goals?.home || 0}-${fixtureData.goals?.away || 0}`,
+          competition: fixtureData.league?.name || "League"
+        } : {
+          date: new Date().toISOString().split('T')[0],
           home: "Home Team",
           away: "Away Team", 
           score: "0-0",
@@ -948,12 +968,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           fixtureId,
           highlights: {
-            title: `${previousMatchInfo.home} vs ${previousMatchInfo.away}`,
+            title: `${matchInfo.home} vs ${matchInfo.away} - ${matchInfo.competition}`,
             provider: "YouTube",
             videoId: "", // Empty video ID indicates no video available
             thumbnailUrl: "https://via.placeholder.com/640x360?text=Highlights+coming+soon",
-            previousMatch: previousMatchInfo,
-            available: false
+            previousMatch: matchInfo,
+            available: false,
+            embedAllowed: true,
+            regionRestricted: false
           }
         });
       }
