@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles } from 'lucide-react';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles, PlayCircle } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
@@ -23,6 +23,7 @@ import StatHighlight from '@/components/matches/StatHighlight';
 import HistoricalStats from '@/components/matches/HistoricalStats';
 import PredictionMeter from '@/components/matches/PredictionMeter';
 import MatchScoreboard from '@/components/matches/MatchScoreboard';
+import MatchTimeline, { MatchEvent } from '@/components/matches/MatchTimeline';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -34,6 +35,72 @@ const MatchDetails = () => {
   const { currentFixture, loading, error } = useSelector((state: RootState) => state.fixtures);
   
   const [activeTab, setActiveTab] = useState(tab);
+  
+  // Sample match events data for the interactive timeline
+  const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
+    {
+      id: 1,
+      minute: 12,
+      type: 'goal',
+      team: 'home',
+      player: 'Player Name',
+      assistedBy: 'Teammate'
+    },
+    {
+      id: 2,
+      minute: 24,
+      type: 'yellow_card',
+      team: 'away',
+      player: 'Opponent Player'
+    },
+    {
+      id: 3,
+      minute: 36,
+      type: 'goal',
+      team: 'away',
+      player: 'Striker Name',
+      assistedBy: 'Midfielder'
+    },
+    {
+      id: 4,
+      minute: 42,
+      type: 'substitution',
+      team: 'home',
+      player: 'Substitute Player',
+      detail: 'Injured Player'
+    },
+    {
+      id: 5,
+      minute: 58,
+      type: 'var',
+      team: 'home',
+      player: 'Team Captain',
+      detail: 'Goal disallowed for offside'
+    },
+    {
+      id: 6,
+      minute: 67,
+      type: 'goal',
+      team: 'home',
+      player: 'Midfielder',
+      assistedBy: 'Winger'
+    },
+    {
+      id: 7,
+      minute: 73,
+      type: 'red_card',
+      team: 'away',
+      player: 'Defender'
+    },
+    {
+      id: 8,
+      minute: 85,
+      type: 'penalty',
+      team: 'home',
+      player: 'Penalty Taker',
+      detail: 'Scored'
+    }
+  ]);
   
   // Check if match is favorited
   const isFavorite = user.preferences.favoriteMatches.includes(id || '');
@@ -255,7 +322,7 @@ const MatchDetails = () => {
             />
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-6 mb-4">
+              <TabsList className="grid grid-cols-7 mb-4">
                 <TabsTrigger value="summary" className="flex items-center">
                   <BarChart2 className="h-4 w-4 mr-2" />
                   <span>Summary</span>
@@ -279,6 +346,10 @@ const MatchDetails = () => {
                 <TabsTrigger value="highlights" className="flex items-center">
                   <Sparkles className="h-4 w-4 mr-2" />
                   <span>Highlights</span>
+                </TabsTrigger>
+                <TabsTrigger value="events" className="flex items-center">
+                  <PlayCircle className="h-4 w-4 mr-2" />
+                  <span>Events</span>
                 </TabsTrigger>
               </TabsList>
               
