@@ -95,8 +95,8 @@ export function MatchScoreboard({
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      {/* League and status info */}
-      <div className="text-center p-2 flex justify-center items-center gap-2">
+      {/* League and status info - now positioned at top-left */}
+      <div className="p-2 flex items-center gap-2 absolute top-0 left-0 z-20">
         <img 
           src={league.logo}
           alt={league.name}
@@ -108,10 +108,10 @@ export function MatchScoreboard({
         <span className="text-sm">{league.name} - {league.round}</span>
       </div>
       
-      {/* Status badge */}
-      <div className="text-xs text-center text-gray-500 -mt-1 mb-1">
+      {/* Status badge - moved to top right */}
+      <div className="absolute top-2 right-2 text-xs text-gray-500 z-20">
         {isLiveMatch(fixture.status.short) ? (
-          <div className="flex items-center justify-center">
+          <div className="flex items-center">
             <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse mr-2"></div>
             LIVE {fixture.status.elapsed && `• ${fixture.status.elapsed}'`}
           </div>
@@ -123,6 +123,9 @@ export function MatchScoreboard({
       </div>
       
       {/* Score section removed as requested */}
+      
+      {/* Add padding at the top to make room for the absolutely positioned elements */}
+      <div className="pt-10"></div>
       
       {/* Match bar styled with height set to exactly 30px */}
       <div className="flex relative h-[30px] rounded-md">
@@ -216,9 +219,9 @@ export function MatchScoreboard({
         </div>
       )}
       
-      {/* Featured badge if needed */}
+      {/* Featured badge if needed - moved below the status badge */}
       {featured && (
-        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
+        <div className="absolute top-8 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
           FEATURED MATCH
         </div>
       )}
