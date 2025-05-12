@@ -122,12 +122,7 @@ export function MatchScoreboard({
         )}
       </div>
       
-      {/* Score */}
-      <div className="text-center px-4 py-1">
-        <div className="text-3xl font-bold">
-          {goals.home !== null ? goals.home : '0'} - {goals.away !== null ? goals.away : '0'}
-        </div>
-      </div>
+      {/* Score section removed as requested */}
       
       {/* Match bar styled with height set to exactly 30px */}
       <div className="flex relative h-[30px] rounded-md">
