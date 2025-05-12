@@ -292,14 +292,14 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - left edge */}
+                    {/* Home team logo - left edge, 50% smaller */}
                     <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-7 w-7 object-contain"
+                        className="h-3.5 w-3.5 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/28?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/14?text=Team';
                         }}
                       />
                     </div>
@@ -313,13 +313,13 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS SECTION - rounded version with shadow effects */}
+                  {/* VS SECTION - rounded version with shadow effects, width reduced to half logo width */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-sm rounded-full h-8 w-8 flex items-center justify-center z-30 border-[2px] border-white shadow-xl overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[8px] rounded-full h-4 w-4 flex items-center justify-center z-30 border-[1px] border-white shadow-xl overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
-                      textShadow: '0px 0px 3px rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 10px rgba(0, 0, 0, 0.7)'
+                      textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
+                      boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.8), 0 0 5px rgba(0, 0, 0, 0.7)'
                     }}
                   >
                     VS
@@ -339,14 +339,14 @@ const MatchDetails = () => {
                       )}
                     </div>
                     
-                    {/* Away team logo - right edge */}
+                    {/* Away team logo - right edge, 50% smaller */}
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-7 w-7 object-contain"
+                        className="h-3.5 w-3.5 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/28?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/14?text=Team';
                         }}
                       />
                     </div>
