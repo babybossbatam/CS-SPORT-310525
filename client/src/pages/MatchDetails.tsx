@@ -292,12 +292,12 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - match the team logo height (20px) to match bar height */}
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                    {/* Home team logo - exactly matching the component's height (20px) */}
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 h-full flex items-center">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-[20px] w-[20px] object-contain"
+                        className="h-full w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
@@ -339,12 +339,12 @@ const MatchDetails = () => {
                       )}
                     </div>
                     
-                    {/* Away team logo - right edge, same size as match bar height (20px) */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    {/* Away team logo - exactly matching the component's height (20px) */}
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 h-full flex items-center">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-[20px] w-[20px] object-contain"
+                        className="h-full w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
