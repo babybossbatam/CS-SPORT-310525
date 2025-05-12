@@ -292,12 +292,12 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - maintaining the original size (18px, 90% of 20px) */}
+                    {/* Home team logo - original size (90% of 20px = 18px) */}
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 h-[18px] flex items-center">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-full w-auto object-contain"
+                        className="h-[18px] w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
@@ -339,12 +339,12 @@ const MatchDetails = () => {
                       )}
                     </div>
                     
-                    {/* Away team logo - maintaining the original size (18px, 90% of 20px) */}
+                    {/* Away team logo - original size (90% of 20px = 18px) */}
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2 h-[18px] flex items-center">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-full w-auto object-contain"
+                        className="h-[18px] w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
