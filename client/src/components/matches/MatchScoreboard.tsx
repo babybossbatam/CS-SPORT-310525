@@ -91,7 +91,7 @@ export function MatchScoreboard({
   
   return (
     <div 
-      className={`bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 ${compact ? 'mb-4' : 'mb-8'} relative`}
+      className={`bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 ${compact ? 'mb-4' : 'mb-8'} relative transition-transform duration-200 ${onClick ? 'hover:scale-[1.02] hover:shadow-xl' : ''}`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
@@ -218,12 +218,7 @@ export function MatchScoreboard({
         </div>
       )}
       
-      {/* Featured badge if needed - placed on top of match bar */}
-      {featured && (
-        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
-          FEATURED MATCH
-        </div>
-      )}
+      {/* Featured badge removed as it's now handled in the FeaturedMatch component */}
     </div>
   );
 }

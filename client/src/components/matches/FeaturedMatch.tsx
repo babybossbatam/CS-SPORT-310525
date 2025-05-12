@@ -225,8 +225,25 @@ const FeaturedMatch = () => {
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
       <CardContent className="p-4">
-        {/* Header section removed as requested */}
-        <div className="text-xl font-semibold text-center mb-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <img 
+              src={featuredMatch.league.logo}
+              alt={featuredMatch.league.name}
+              className="w-5 h-5"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+              }}
+            />
+            <span className="text-sm font-medium">{featuredMatch.league.name}</span>
+          </div>
+          
+          <Badge variant="secondary" className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded">
+            Featured Match
+          </Badge>
+        </div>
+        
+        <div className="text-lg font-semibold text-center mb-4">
           {formatMatchDate(featuredMatch.fixture.date)}
         </div>
         
