@@ -50,7 +50,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <Link href="/" className="text-2xl font-bold flex items-center">
             <img 
-              src="/cs-sport-logo.png" 
+              src={csSportLogo} 
               alt="CS SPORT Logo" 
               className="h-12 mr-2" 
             />
