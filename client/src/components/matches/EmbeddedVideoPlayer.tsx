@@ -18,14 +18,22 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Using a proper football-related video - 2014 FIFA World Cup official song
-  // Verified to work via the YouTube API
-  const youtubeVideoId = "TGtWWb9emYI";  // Official 2014 FIFA World Cup Song
-  const youtubeThumbnail = `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
+  // Default fallback - this can be customized with an actual match highlight video ID
+  // Many official match highlights are region-restricted or content-protected, making them hard to embed
+  // This component accepts a videoId prop that will override this default
+  const youtubeVideoId = ""; // Empty by default - will show "No video available" text if no ID is provided
+  const youtubeThumbnail = videoId ? 
+    `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : 
+    "https://via.placeholder.com/640x360?text=No+video+available";
   
-  // Function to play video
+  // Function to play video - only if we have a videoId
   const handlePlay = () => {
-    setIsPlaying(true);
+    if (videoId || youtubeVideoId) {
+      setIsPlaying(true);
+    } else {
+      // If no video available, show a message instead of playing
+      alert("No highlights available for this match yet.");
+    }
   };
   
   return (
@@ -56,18 +64,27 @@ const EmbeddedVideoPlayer: React.FC<EmbeddedVideoPlayerProps> = ({
             <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
               <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent ml-1"></div>
             </div>
-            <p className="mt-3 text-white font-medium px-4 text-center">{title}</p>
+            <p className="mt-3 text-white font-medium px-4 text-center">
+              {videoId ? title : "No highlights available yet"}
+            </p>
           </div>
         </div>
       ) : (
-        // YouTube embed using the provided videoId from API or fallback to our default
-        <iframe 
-          className="absolute top-0 left-0 w-full h-full border-0"
-          src={`https://www.youtube.com/embed/${videoId || youtubeVideoId}?autoplay=1`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          title={title}
-        ></iframe>
+        // Only show YouTube embed if we have a videoId
+        videoId || youtubeVideoId ? (
+          <iframe 
+            className="absolute top-0 left-0 w-full h-full border-0"
+            src={`https://www.youtube.com/embed/${videoId || youtubeVideoId}?autoplay=1`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={title}
+          ></iframe>
+        ) : (
+          // Show message if no video available
+          <div className="absolute top-0 left-0 w-full h-full bg-gray-900 flex items-center justify-center text-white">
+            <p className="text-xl text-center px-4">No highlights available for this match yet.</p>
+          </div>
+        )
       )}
     </div>
   );

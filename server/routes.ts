@@ -916,11 +916,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         competition: "Premier League"
       };
       
-      // YouTube video ID for a proper football-related video - 2014 FIFA World Cup official song
-      const youtubeVideoId = "TGtWWb9emYI";
+      // Provide video ID from the database or API if available
+      // For now, we send a specific video ID when requested by the match/fixture ID
+      // This could be mapped to specific matches in a production environment
       
-      // Thumbnail for the video
-      const thumbnailUrl = `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
+      // Using fixtureId as a simple way to determine which video to show
+      // This logic would be replaced with actual video mappings in production
+      const videoMap: Record<string, string> = {
+        // Map known fixture IDs to specific video IDs - these can be updated later
+        "1208384": "",  // Default to no video for now - easier to add specific IDs later
+      };
+      
+      const youtubeVideoId = videoMap[fixtureId] || "";
+      const thumbnailUrl = youtubeVideoId ? 
+        `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg` : 
+        "https://via.placeholder.com/640x360?text=Highlights+coming+soon";
       
       // Return the video information
       res.json({
