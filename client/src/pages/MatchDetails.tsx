@@ -13,7 +13,7 @@ import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
-import { getTeamGradient, getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
+import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import MatchPrediction from '@/components/matches/MatchPrediction';
@@ -289,7 +289,7 @@ const MatchDetails = () => {
                   {/* HOME TEAM SECTION - 50% width with solid team color */}
                   <div className="h-full w-[50%] relative flex items-center" 
                     style={{ 
-                      background: `${getTeamColor(currentFixture.teams.home.name).replace('bg-', '#').replace('-', '-')}` 
+                      background: getTailwindToHex(getTeamColor(currentFixture.teams.home.name))
                     }}>
                     
                     {/* Home team logo - left edge */}
@@ -321,7 +321,7 @@ const MatchDetails = () => {
                   {/* AWAY TEAM SECTION - 50% width with solid team color */}
                   <div className="h-full w-[50%] relative flex items-center justify-end" 
                     style={{ 
-                      background: `${getTeamColor(currentFixture.teams.away.name).replace('bg-', '#').replace('-', '-')}` 
+                      background: getTailwindToHex(getTeamColor(currentFixture.teams.away.name)) 
                     }}>
                     
                     {/* Team name display */}

@@ -4,6 +4,95 @@
  */
 
 /**
+ * Map Tailwind color classes to hex values
+ */
+const tailwindColors: Record<string, Record<string | number, string>> = {
+  red: {
+    500: '#ef4444',
+    600: '#dc2626',
+    700: '#b91c1c',
+    800: '#991b1b',
+    900: '#7f1d1d',
+  },
+  blue: {
+    500: '#3b82f6',
+    600: '#2563eb',
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+  },
+  sky: {
+    500: '#0ea5e9',
+    600: '#0284c7',
+    700: '#0369a1',
+    800: '#075985',
+    900: '#0c4a6e',
+  },
+  indigo: {
+    600: '#4f46e5',
+    700: '#4338ca',
+    800: '#3730a3',
+    900: '#312e81',
+  },
+  amber: {
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+  },
+  yellow: {
+    500: '#eab308',
+    600: '#ca8a04',
+  },
+  orange: {
+    500: '#f97316',
+    600: '#ea580c',
+  },
+  green: {
+    700: '#15803d',
+    800: '#166534',
+  },
+  purple: {
+    800: '#6b21a8',
+  },
+  black: { 500: '#000000' },
+};
+
+/**
+ * Convert a Tailwind color class to a hex color
+ * @param tailwindClass - Tailwind color class (e.g., 'bg-red-700')
+ * @returns Hex color code (e.g., '#b91c1c')
+ */
+export function getTailwindToHex(tailwindClass: string): string {
+  if (!tailwindClass || typeof tailwindClass !== 'string') {
+    return '#3b82f6'; // Default blue
+  }
+  
+  // Strip the 'bg-' prefix
+  const colorName = tailwindClass.replace('bg-', '');
+  
+  // Handle 'black' specially
+  if (colorName === 'black') {
+    return '#000000';
+  }
+  
+  // Split by hyphen to get color and intensity
+  const parts = colorName.split('-');
+  if (parts.length !== 2) {
+    return '#3b82f6'; // Default blue
+  }
+  
+  const [color, intensity] = parts;
+  
+  // Check if color exists in our map
+  if (!tailwindColors[color]) {
+    return '#3b82f6'; // Default blue
+  }
+  
+  // Return the hex value or default
+  return tailwindColors[color][intensity] || '#3b82f6';
+}
+
+/**
  * Get team color as a Tailwind class
  * @param teamName The name of the team
  * @returns A Tailwind background color class (e.g., 'bg-blue-700')
