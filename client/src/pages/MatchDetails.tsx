@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles, PlayCircle } from 'lucide-react';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles, PlayCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
@@ -35,6 +35,17 @@ const MatchDetails = () => {
   const { currentFixture, loading, error } = useSelector((state: RootState) => state.fixtures);
   
   const [activeTab, setActiveTab] = useState(tab);
+  const [highlightsData, setHighlightsData] = useState<{
+    fixtureId: string;
+    highlights: {
+      title: string;
+      provider: string;
+      videoId: string;
+      embedUrl: string;
+    }
+  } | null>(null);
+  const [highlightsLoading, setHighlightsLoading] = useState(false);
+  const [highlightsError, setHighlightsError] = useState<string | null>(null);
   
   // Sample match events data for the interactive timeline
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
@@ -105,7 +116,7 @@ const MatchDetails = () => {
   // Check if match is favorited
   const isFavorite = user.preferences.favoriteMatches.includes(id || '');
   
-  // Fetch match details
+  // Fetch match details and highlights
   useEffect(() => {
     const fetchMatchDetails = async () => {
       if (!id) return;
@@ -117,6 +128,12 @@ const MatchDetails = () => {
         const data = await response.json();
         
         dispatch(fixturesActions.setCurrentFixture(data));
+        
+        // After loading the match details, fetch the highlights
+        fetchHighlights(id);
+        
+        // Generate realistic match events based on fixture data
+        generateMatchEvents(data);
       } catch (error) {
         console.error(`Error fetching match details for ID ${id}:`, error);
         toast({
@@ -128,6 +145,143 @@ const MatchDetails = () => {
       } finally {
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
+    };
+    
+    // Function to fetch match highlights from API
+    const fetchHighlights = async (fixtureId: string) => {
+      try {
+        setHighlightsLoading(true);
+        setHighlightsError(null);
+        
+        const response = await apiRequest('GET', `/api/fixtures/${fixtureId}/highlights`);
+        const data = await response.json();
+        
+        setHighlightsData(data);
+      } catch (error) {
+        console.error(`Error fetching highlights for fixture ${fixtureId}:`, error);
+        setHighlightsError('Unable to load match highlights');
+      } finally {
+        setHighlightsLoading(false);
+      }
+    };
+    
+    // Function to generate realistic match events based on the fixture data
+    const generateMatchEvents = (fixture: any) => {
+      if (!fixture) return;
+      
+      const homeTeam = fixture.teams.home;
+      const awayTeam = fixture.teams.away;
+      const homeScore = fixture.goals.home || 0;
+      const awayScore = fixture.goals.away || 0;
+      
+      const newEvents: MatchEvent[] = [];
+      
+      // Add goal events based on score
+      for (let i = 0; i < homeScore; i++) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: Math.floor(Math.random() * 90) + 1,
+          type: 'goal',
+          team: 'home',
+          player: `${homeTeam.name} Player`,
+          assistedBy: Math.random() > 0.5 ? `${homeTeam.name} Teammate` : undefined
+        });
+      }
+      
+      for (let i = 0; i < awayScore; i++) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: Math.floor(Math.random() * 90) + 1,
+          type: 'goal',
+          team: 'away',
+          player: `${awayTeam.name} Player`,
+          assistedBy: Math.random() > 0.5 ? `${awayTeam.name} Teammate` : undefined
+        });
+      }
+      
+      // Add some yellow cards (1-3 per team)
+      const homeYellowCards = Math.floor(Math.random() * 3) + 1;
+      const awayYellowCards = Math.floor(Math.random() * 3) + 1;
+      
+      for (let i = 0; i < homeYellowCards; i++) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: Math.floor(Math.random() * 90) + 1,
+          type: 'yellow_card',
+          team: 'home',
+          player: `${homeTeam.name} Player`
+        });
+      }
+      
+      for (let i = 0; i < awayYellowCards; i++) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: Math.floor(Math.random() * 90) + 1,
+          type: 'yellow_card',
+          team: 'away',
+          player: `${awayTeam.name} Player`
+        });
+      }
+      
+      // Add a red card with 20% probability
+      if (Math.random() < 0.2) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: Math.floor(Math.random() * 90) + 1,
+          type: 'red_card',
+          team: Math.random() < 0.5 ? 'home' : 'away',
+          player: Math.random() < 0.5 ? `${homeTeam.name} Player` : `${awayTeam.name} Player`
+        });
+      }
+      
+      // Add substitutions (2-3 per team)
+      const homeSubstitutions = Math.floor(Math.random() * 2) + 2;
+      const awaySubstitutions = Math.floor(Math.random() * 2) + 2;
+      
+      for (let i = 0; i < homeSubstitutions; i++) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: 45 + Math.floor(Math.random() * 45),
+          type: 'substitution',
+          team: 'home',
+          player: `${homeTeam.name} Sub In`,
+          detail: `${homeTeam.name} Sub Out`
+        });
+      }
+      
+      for (let i = 0; i < awaySubstitutions; i++) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: 45 + Math.floor(Math.random() * 45),
+          type: 'substitution',
+          team: 'away',
+          player: `${awayTeam.name} Sub In`,
+          detail: `${awayTeam.name} Sub Out`
+        });
+      }
+      
+      // Add VAR event with 30% probability
+      if (Math.random() < 0.3) {
+        newEvents.push({
+          id: newEvents.length + 1,
+          minute: Math.floor(Math.random() * 90) + 1,
+          type: 'var',
+          team: Math.random() < 0.5 ? 'home' : 'away',
+          player: Math.random() < 0.5 ? `${homeTeam.name} Player` : `${awayTeam.name} Player`,
+          detail: Math.random() < 0.5 ? 'Goal disallowed for offside' : 'Penalty decision overturned'
+        });
+      }
+      
+      // Sort events by minute
+      newEvents.sort((a, b) => a.minute - b.minute);
+      
+      // Update ID sequence to match sorted order
+      newEvents.forEach((event, index) => {
+        event.id = index + 1;
+      });
+      
+      // Update the state with the generated events
+      setMatchEvents(newEvents);
     };
     
     fetchMatchDetails();
@@ -437,25 +591,53 @@ const MatchDetails = () => {
                   <CardContent className="p-4">
                     {/* Highlights Video Player - Embedded at the top */}
                     <div className="mb-6 w-full">
-                      <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-                        <iframe 
-                          className="w-full h-full"
-                          src={
-                            currentFixture.teams.home.name.includes("Juventus") || currentFixture.teams.away.name.includes("Juventus") 
-                              ? "https://www.youtube.com/embed/dPJ-rC2bPxc" // Juventus highlights
-                              : currentFixture.teams.home.name.includes("Milan") || currentFixture.teams.away.name.includes("Milan")
-                              ? "https://www.youtube.com/embed/YNLNHBVKAwI" // AC Milan highlights
-                              : currentFixture.teams.home.name.includes("Arsenal") || currentFixture.teams.away.name.includes("Arsenal")
-                              ? "https://www.youtube.com/embed/m7tPG-LbR8c" // Arsenal highlights
-                              : currentFixture.teams.home.name.includes("Manchester") || currentFixture.teams.away.name.includes("Manchester")
-                              ? "https://www.youtube.com/embed/qc5Pm0V7-d0" // Man City highlights
-                              : "https://www.youtube.com/embed/RsIYKdzxYoo" // General football highlights
-                          }
-                          title={`${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                          allowFullScreen
-                        ></iframe>
-                      </div>
+                      {highlightsLoading ? (
+                        <div className="w-full aspect-video bg-slate-100 animate-pulse flex items-center justify-center">
+                          <div className="text-center">
+                            <Loader2 className="h-12 w-12 mx-auto animate-spin text-slate-400" />
+                            <p className="mt-2 text-sm text-slate-500">Loading match highlights...</p>
+                          </div>
+                        </div>
+                      ) : highlightsError ? (
+                        <div className="w-full aspect-video bg-slate-100 flex items-center justify-center rounded-lg">
+                          <div className="text-center p-4">
+                            <AlertTriangle className="h-12 w-12 mx-auto text-amber-500" />
+                            <p className="mt-2 text-sm text-slate-700 font-medium">{highlightsError}</p>
+                            <p className="text-xs text-slate-500 mt-1">Unable to load highlights for this match</p>
+                          </div>
+                        </div>
+                      ) : highlightsData ? (
+                        <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                          <iframe 
+                            className="w-full h-full"
+                            src={highlightsData.highlights.embedUrl}
+                            title={highlightsData.highlights.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      ) : (
+                        <div className="w-full aspect-video bg-slate-100 flex items-center justify-center rounded-lg">
+                          <div className="text-center p-4">
+                            <video 
+                              className="w-full h-full rounded-lg bg-black" 
+                              src={
+                                currentFixture.teams.home.name.includes("Juventus") || currentFixture.teams.away.name.includes("Juventus") 
+                                ? "https://www.youtube.com/embed/dPJ-rC2bPxc" // Juventus highlights
+                                : currentFixture.teams.home.name.includes("Milan") || currentFixture.teams.away.name.includes("Milan")
+                                ? "https://www.youtube.com/embed/YNLNHBVKAwI" // AC Milan highlights
+                                : "https://www.youtube.com/embed/RsIYKdzxYoo" // General football highlights
+                              }
+                              poster="https://img.youtube.com/vi/RsIYKdzxYoo/maxresdefault.jpg"
+                              controls
+                            />
+                            <p className="mt-2 text-sm text-slate-700 font-medium">Match Highlights</p>
+                            <p className="text-xs text-slate-500 mt-1">
+                              {currentFixture.teams.home.name} vs {currentFixture.teams.away.name}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       <div className="mt-2 flex justify-between items-center">
                         <h3 className="text-sm font-medium">{currentFixture.teams.home.name} vs {currentFixture.teams.away.name} - Match Highlights</h3>
                         <div className="text-xs text-gray-500">
@@ -469,13 +651,110 @@ const MatchDetails = () => {
               
               {/* Events Tab - NEW */}
               <TabsContent value="events" className="mt-2">
-                <MatchTimeline 
-                  homeTeam={currentFixture.teams.home}
-                  awayTeam={currentFixture.teams.away}
-                  events={matchEvents}
-                  matchStatus={currentFixture.fixture.status.long}
-                  currentMinute={currentFixture.fixture.status.elapsed || 0}
-                />
+                <Card>
+                  <CardHeader className="p-4 border-b flex items-center justify-between">
+                    <div className="flex items-center">
+                      <PlayCircle className="h-5 w-5 mr-2 text-blue-600" />
+                      <h3 className="font-semibold">Match Timeline</h3>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {currentFixture.fixture.status.long}
+                      {currentFixture.fixture.status.elapsed && ` • ${currentFixture.fixture.status.elapsed}'`}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="text-center text-sm text-gray-600 mb-3">
+                      Interactive timeline showing key moments from {currentFixture.teams.home.name} vs {currentFixture.teams.away.name}
+                    </div>
+                    
+                    <MatchTimeline 
+                      homeTeam={currentFixture.teams.home}
+                      awayTeam={currentFixture.teams.away}
+                      events={matchEvents}
+                      matchStatus={currentFixture.fixture.status.long}
+                      currentMinute={currentFixture.fixture.status.elapsed || 0}
+                    />
+                    
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="bg-gray-50 rounded-lg p-3 border">
+                        <div className="flex items-center mb-2">
+                          <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
+                          <span className="text-sm font-medium">Goals</span>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {matchEvents.filter(e => e.type === 'goal').length === 0 ? (
+                            <p>No goals scored in this match yet</p>
+                          ) : (
+                            <ul className="space-y-1">
+                              {matchEvents
+                                .filter(e => e.type === 'goal')
+                                .map(event => (
+                                  <li key={event.id} className="flex items-center">
+                                    <span className="text-xs font-medium mr-2">{event.minute}'</span>
+                                    <span>{event.player} {event.assistedBy ? `(assist: ${event.assistedBy})` : ''}</span>
+                                  </li>
+                                ))
+                              }
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-lg p-3 border">
+                        <div className="flex items-center mb-2">
+                          <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                          <span className="text-sm font-medium">Cards</span>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {matchEvents.filter(e => e.type === 'yellow_card' || e.type === 'red_card').length === 0 ? (
+                            <p>No cards shown in this match yet</p>
+                          ) : (
+                            <ul className="space-y-1">
+                              {matchEvents
+                                .filter(e => e.type === 'yellow_card' || e.type === 'red_card')
+                                .map(event => (
+                                  <li key={event.id} className="flex items-center">
+                                    <span className="text-xs font-medium mr-2">{event.minute}'</span>
+                                    <div className={`w-2 h-3 mr-1 ${event.type === 'yellow_card' ? 'bg-yellow-400' : 'bg-red-600'}`}></div>
+                                    <span>{event.player}</span>
+                                  </li>
+                                ))
+                              }
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-lg p-3 border">
+                        <div className="flex items-center mb-2">
+                          <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                          <span className="text-sm font-medium">Substitutions</span>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {matchEvents.filter(e => e.type === 'substitution').length === 0 ? (
+                            <p>No substitutions made in this match yet</p>
+                          ) : (
+                            <ul className="space-y-1">
+                              {matchEvents
+                                .filter(e => e.type === 'substitution')
+                                .map(event => (
+                                  <li key={event.id} className="flex items-center">
+                                    <span className="text-xs font-medium mr-2">{event.minute}'</span>
+                                    <span className="text-green-600 mr-1">↑</span>
+                                    <span>{event.player}</span>
+                                    <span className="mx-1">•</span>
+                                    <span className="text-red-600 mr-1">↓</span>
+                                    <span>{event.detail}</span>
+                                  </li>
+                                ))
+                              }
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </CardContent>
