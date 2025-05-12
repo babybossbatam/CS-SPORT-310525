@@ -315,7 +315,7 @@ const MatchDetails = () => {
                   
                   {/* VS SECTION - fixed size */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[14px] rounded-full h-24 w-24 flex items-center justify-center z-30 border-[3px] border-white shadow-md overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
                       textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
@@ -332,7 +332,7 @@ const MatchDetails = () => {
                     }}>
                     
                     {/* Team name display */}
-                    <div className="mr-80 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right">
+                    <div className="mr-32 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
                         <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
