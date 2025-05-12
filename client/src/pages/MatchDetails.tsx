@@ -282,37 +282,30 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Teams with dynamic gradients based on team names - with V and S boundaries - INCREASED HEIGHT */}
-              <div className="flex rounded-md overflow-hidden relative h-24">
-                {/* Container for both gradients that meet in the middle with same width */}
-                <div className="absolute bottom-0 left-0 right-0 flex items-center" style={{ height: '100%' }}>
-                  {/* Home team logo - positioned at the leftmost */}
-                  <div className="absolute bottom-0 left-0 z-10">
-                    <img 
-                      src={currentFixture.teams.home.logo} 
-                      alt={currentFixture.teams.home.name}
-                      className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 shadow-lg"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                      }}
-                    />
-                  </div>
-                  
-                  {/* UPDATED HOME TEAM SECTION - precisely adjusted to reach halfway to VS */}
-                  <div className="h-full w-[60%] relative flex items-center justify-start">
-                    {/* Home team gradient bar with exact positioning to meet VS in the middle */}
-                    <div 
-                      className={`absolute inset-0 z-5`} 
-                      style={{ 
-                        clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                        right: '0', 
-                        background: 'linear-gradient(to right, #0f0f0f, #3b82f6)',
-                        width: '75%' // Exact width to reach halfway to VS
-                      }}
-                    ></div>
+              {/* Match bar styled like the reference image */}
+              <div className="flex overflow-hidden relative h-16 rounded-md">
+                {/* Match bar with solid team colors and centered VS */}
+                <div className="w-full h-full flex items-center">
+                  {/* HOME TEAM SECTION - 50% width with solid team color */}
+                  <div className="h-full w-[50%] relative flex items-center" 
+                    style={{ 
+                      background: `${getTeamColor(currentFixture.teams.home.name).replace('bg-', '#').replace('-', '-')}` 
+                    }}>
                     
-                    {/* Team name display with improved readability and positioning */}
-                    <div className="ml-24 text-white font-bold text-xl uppercase relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    {/* Home team logo - left edge */}
+                    <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
+                      <img 
+                        src={currentFixture.teams.home.logo} 
+                        alt={currentFixture.teams.home.name}
+                        className="h-12 w-12 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Team name display */}
+                    <div className="ml-16 text-white font-bold text-lg uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
                         <span className="text-xs uppercase text-white ml-2 bg-green-600 inline-block px-2 rounded">Winner</span>
@@ -320,53 +313,36 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS label - enhanced with gradient and stronger visibility */}
-                  <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-2xl rounded-full h-16 w-16 flex items-center justify-center z-30 border-[3px] border-white shadow-xl overflow-hidden animate-pulse"
-                    style={{
-                      background: 'linear-gradient(135deg, #2f2f2f 0%, #0f0f0f 100%)',
-                      textShadow: '0px 0px 4px rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 0 0 3px rgba(255, 255, 255, 0.8), 0 0 20px rgba(0, 0, 0, 0.7)'
-                    }}
-                  >
+                  {/* VS SECTION - positioned in the center with red background */}
+                  <div className="absolute left-1/2 top-0 bottom-0 transform -translate-x-1/2 w-16 bg-red-700 flex items-center justify-center z-10 text-white font-bold text-xl">
                     VS
                   </div>
                   
-
-                  
-                  {/* UPDATED AWAY TEAM SECTION - precisely adjusted to reach halfway to VS */}
-                  <div className="h-full w-[40%] relative flex items-center justify-end">
-                    {/* Away team gradient bar with exact positioning to meet VS in the middle */}
-                    <div 
-                      className={`absolute inset-0 z-5`} 
-                      style={{ 
-                        clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                        left: '0', 
-                        background: 'linear-gradient(to left, #e11d48, #0f0f0f)',
-                        width: '75%', // Exact width to reach halfway to VS
-                        marginLeft: '25%' // Precise positioning to align with VS
-                      }}
-                    ></div>
+                  {/* AWAY TEAM SECTION - 50% width with solid team color */}
+                  <div className="h-full w-[50%] relative flex items-center justify-end" 
+                    style={{ 
+                      background: `${getTeamColor(currentFixture.teams.away.name).replace('bg-', '#').replace('-', '-')}` 
+                    }}>
                     
-                    {/* Away team name display with improved readability and positioning */}
-                    <div className="mr-24 text-white font-bold text-xl uppercase text-right relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    {/* Team name display */}
+                    <div className="mr-16 text-white font-bold text-lg uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
                         <span className="text-xs uppercase text-white mr-2 bg-green-600 inline-block px-2 rounded">Winner</span>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Away team logo - positioned at the rightmost */}
-                  <div className="absolute bottom-0 right-0 z-10">
-                    <img 
-                      src={currentFixture.teams.away.logo} 
-                      alt={currentFixture.teams.away.name}
-                      className="h-20 w-20 transform transition-transform duration-300 hover:scale-110 shadow-lg"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=Team';
-                      }}
-                    />
+                    
+                    {/* Away team logo - right edge */}
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                      <img 
+                        src={currentFixture.teams.away.logo} 
+                        alt={currentFixture.teams.away.name}
+                        className="h-12 w-12 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=Team';
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
