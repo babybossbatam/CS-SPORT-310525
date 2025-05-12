@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* YouTube embed loading animation */
+iframe + .iframe-loading {
+  animation: fadeOut 2s forwards;
+  animation-delay: 1s;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
 /* Day Picker calendar styling */
 .rdp {
   --rdp-cell-size: 32px;
