@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Clock, X, HistoryIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, X, HistoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { getMatchHighlights, HighlightsResponse } from '@/lib/highlightsApi';
 import AnimatedTeamLogo from './AnimatedTeamLogo';
 import TeamLogoModal from '@/components/ui/team-logo-modal';
-import { useLocation } from 'wouter';
 
 // Define types
 interface Team {
@@ -92,7 +91,6 @@ export function MatchScoreboard({
   awayTeamColor = '#8b0000', // Default AS Roma dark red color
   compact = false 
 }: MatchScoreboardProps) {
-  const [, navigate] = useLocation();
   // Get match data
   const { fixture, league, teams, goals, score } = match;
   // State to track if highlight video is showing
@@ -147,18 +145,19 @@ export function MatchScoreboard({
         onClick={onClick}
         style={{ cursor: onClick ? 'pointer' : 'default' }}
       >
-        {/* Previous match navigation button - navigates to previous match */}
+        {/* Previous match navigation button with team logo evolution functionality */}
         {!compact && (
           <button 
             className="absolute -left-8 top-1/2 transform -translate-y-1/2 bg-gray-200/80 hover:bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center z-30 transition-all"
             onClick={(e) => {
               e.stopPropagation(); // Prevent triggering parent onClick
-              // Navigate to previous match through our URL system
-              navigate(`/match/${fixture.id}/prev`);
+              openTeamEvolution(teams.home, e);
             }}
-            title="Previous Match"
+            title="View Home Team Logo Evolution"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
           </button>
         )}
         
@@ -247,18 +246,19 @@ export function MatchScoreboard({
           </div>
         </div>
         
-        {/* Next match navigation button - navigates to next match */}
+        {/* Next match navigation button with team logo evolution functionality */}
         {!compact && (
           <button 
             className="absolute -right-8 top-1/2 transform -translate-y-1/2 bg-gray-200/80 hover:bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center z-30 transition-all"
             onClick={(e) => {
               e.stopPropagation(); // Prevent triggering parent onClick
-              // Navigate to next match through our URL system
-              navigate(`/match/${fixture.id}/next`);
+              openTeamEvolution(teams.away, e);
             }}
-            title="Next Match"
+            title="View Away Team Logo Evolution"
           >
-            <ChevronRight className="h-4 w-4" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
           </button>
         )}
       </div>
