@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { format, parseISO } from 'date-fns';
 import { BarChart2, LineChart, Trophy, Film } from 'lucide-react';
-import HighlightsPlayer from './HighlightsPlayer';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
