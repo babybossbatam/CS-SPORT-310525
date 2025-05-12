@@ -282,8 +282,8 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Match bar styled like the reference image with reduced height */}
-              <div className="flex overflow-hidden relative h-5 rounded-md">
+              {/* Match bar styled like the reference image with 50% increased height */}
+              <div className="flex overflow-hidden relative h-7.5 rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex items-center">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
@@ -292,14 +292,14 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - left edge, 25% bigger than match bar (5px) with 10% overflow */}
+                    {/* Home team logo - same size as match bar height */}
                     <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-[6.25px] w-[6.25px] object-contain"
+                        className="h-[7.5px] w-[7.5px] object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/26?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/30?text=Team';
                         }}
                       />
                     </div>
@@ -313,9 +313,9 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   
-                  {/* VS SECTION - 25% bigger than match bar height (5px + 25% = 6.25px) */}
+                  {/* VS SECTION - match the new match bar height (7.5px) */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[5px] rounded-full h-6 w-6 flex items-center justify-center z-30 border-[1px] border-white shadow-md overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[6px] rounded-full h-9 w-9 flex items-center justify-center z-30 border-[1px] border-white shadow-md overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
                       textShadow: '0px 0px 1px rgba(255, 255, 255, 0.5)',
@@ -339,14 +339,14 @@ const MatchDetails = () => {
                       )}
                     </div>
                     
-                    {/* Away team logo - right edge, 25% bigger than match bar (5px) with 10% overflow */}
+                    {/* Away team logo - right edge, same size as match bar height */}
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-[6.25px] w-[6.25px] object-contain"
+                        className="h-[7.5px] w-[7.5px] object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/26?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/30?text=Team';
                         }}
                       />
                     </div>
