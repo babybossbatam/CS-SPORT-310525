@@ -904,12 +904,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const fixtureId = req.params.id;
       
-      // Using reliable direct video assets instead of YouTube links
-      // These videos from Mixkit are royalty-free and guaranteed to work
-      const videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-soccer-player-dribbling-a-ball-on-a-soccer-field-41276-large.mp4";
+      // Using local MP4 file served from our own server
+      // We downloaded these files to the public directory
+      const videoUrl = "/highlights_sample.mp4";
       
-      // Create a thumbnail URL based on our video
-      const thumbnailUrl = "https://assets.mixkit.co/videos/preview/mixkit-soccer-player-dribbling-a-ball-on-a-soccer-field-41276-large.jpg";
+      // Local thumbnail image
+      const thumbnailUrl = "/highlights_thumbnail.jpg";
       
       // Return the video information
       res.json({
