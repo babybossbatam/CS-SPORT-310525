@@ -298,7 +298,7 @@ export function MatchScoreboard({
                 className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent triggering the parent onClick
-                  loadHighlights(); // Reusing the same function but will display a live stream
+                  watchLiveStream(); // Use the live stream function
                 }}
               >
                 <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -381,6 +381,26 @@ export function MatchScoreboard({
           </CardContent>
         </Card>
       )}
+      
+      {/* Highlights Player components */}
+      <HighlightsPlayer 
+        isOpen={showHighlights}
+        onClose={() => setShowHighlights(false)}
+        matchId={fixture.id}
+        homeTeam={teams.home.name}
+        awayTeam={teams.away.name}
+        isLiveStream={false}
+      />
+      
+      {/* Live Stream Player */}
+      <HighlightsPlayer 
+        isOpen={showLiveStream}
+        onClose={() => setShowLiveStream(false)}
+        matchId={fixture.id}
+        homeTeam={teams.home.name}
+        awayTeam={teams.away.name}
+        isLiveStream={true}
+      />
       
       {/* Team Logo Evolution Modal */}
       {evolutionModalTeam && (
