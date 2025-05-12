@@ -326,7 +326,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-                  <div className="h-full w-[calc(50%-42px)] mr-[42px]" 
+                  <div className="h-full w-[calc(50%-55px)] mr-[55px]" 
                     style={{ 
                       background: '#8b0000' // Exact match to AS Roma dark red color in reference
                     }}>
