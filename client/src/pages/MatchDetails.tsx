@@ -283,7 +283,7 @@ const MatchDetails = () => {
               </div>
               
               {/* Match bar styled like the reference image with reduced height */}
-              <div className="flex overflow-hidden relative h-9 rounded-md">
+              <div className="flex overflow-hidden relative h-5 rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex items-center">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
@@ -292,34 +292,34 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - left edge, 50% smaller */}
+                    {/* Home team logo - left edge, reduced 75% from 10.5 */}
                     <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-3.5 w-3.5 object-contain"
+                        className="h-2.5 w-2.5 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/14?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/10?text=Team';
                         }}
                       />
                     </div>
                     
                     {/* Team name display */}
-                    <div className="ml-10 text-white font-bold text-xs uppercase">
+                    <div className="ml-14 text-white font-bold text-sm uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
-                        <span className="text-[8px] uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+                        <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                   </div>
                   
-                  {/* VS SECTION - rounded version with shadow effects, width reduced to half logo width */}
+                  {/* VS SECTION - rounded version with shadow effects, reduced 75% */}
                   <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[8px] rounded-full h-4 w-4 flex items-center justify-center z-30 border-[1px] border-white shadow-xl overflow-hidden animate-pulse"
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[4px] rounded-full h-2 w-2 flex items-center justify-center z-30 border-[0.5px] border-white shadow-sm overflow-hidden animate-pulse"
                     style={{
                       background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
-                      textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.8), 0 0 5px rgba(0, 0, 0, 0.7)'
+                      textShadow: '0px 0px 1px rgba(255, 255, 255, 0.5)',
+                      boxShadow: '0 0 0 0.5px rgba(255, 255, 255, 0.8), 0 0 3px rgba(0, 0, 0, 0.7)'
                     }}
                   >
                     VS
@@ -332,21 +332,21 @@ const MatchDetails = () => {
                     }}>
                     
                     {/* Team name display */}
-                    <div className="mr-10 text-white font-bold text-xs uppercase text-right">
+                    <div className="mr-14 text-white font-bold text-sm uppercase text-right">
                       {currentFixture.teams.away.name}
                       {currentFixture.teams.away.winner && (
-                        <span className="text-[8px] uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+                        <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
                       )}
                     </div>
                     
-                    {/* Away team logo - right edge, 50% smaller */}
+                    {/* Away team logo - right edge, reduced 75% from 10.5 */}
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.away.logo} 
                         alt={currentFixture.teams.away.name}
-                        className="h-3.5 w-3.5 object-contain"
+                        className="h-2.5 w-2.5 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/14?text=Team';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/10?text=Team';
                         }}
                       />
                     </div>
