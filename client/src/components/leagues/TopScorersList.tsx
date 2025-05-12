@@ -144,13 +144,7 @@ const TopScorersList = () => {
         );
       })}
       
-      {/* See more button */}
-      <div className="text-center pt-2">
-        <button className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto">
-          <TrendingUp className="h-3 w-3 mr-1" />
-          See full rankings
-        </button>
-      </div>
+      {/* See more button removed as requested */}
     </div>
   );
 };
