@@ -171,10 +171,28 @@ const FeaturedMatch = () => {
     }
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
-  // Format date for match display (simple date format)
+  // Format date for match display showing Tomorrow, 2 More Days, etc.
   const formatMatchDate = (dateString: string): string => {
     const date = parseISO(dateString);
-    return format(date, 'EEEE, MMMM d, yyyy');
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Reset hours to compare just the dates
+    today.setHours(0, 0, 0, 0);
+    tomorrow.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    
+    if (date.getTime() === today.getTime()) {
+      return 'Today';
+    } else if (date.getTime() === tomorrow.getTime()) {
+      return 'Tomorrow';
+    } else {
+      // Calculate days difference
+      const diffTime = Math.abs(date.getTime() - today.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return `${diffDays} More Days`;
+    }
   };
   
   if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isPremierLeagueLoading) {
@@ -213,24 +231,25 @@ const FeaturedMatch = () => {
   }
   
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
+      <Badge 
+        variant="secondary" 
+        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20"
+      >
+        Featured Match
+      </Badge>
+      
       <CardContent className="p-4">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <img 
-              src={featuredMatch.league.logo}
-              alt={featuredMatch.league.name}
-              className="w-5 h-5"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-              }}
-            />
-            <span className="text-sm font-medium">{featuredMatch.league.name}</span>
-          </div>
-          
-          <Badge variant="secondary" className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded">
-            Featured Match
-          </Badge>
+        <div className="flex items-center gap-2 mb-4">
+          <img 
+            src={featuredMatch.league.logo}
+            alt={featuredMatch.league.name}
+            className="w-5 h-5"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+            }}
+          />
+          <span className="text-sm font-medium">{featuredMatch.league.name}</span>
         </div>
         
         <div className="text-lg font-semibold text-center mb-4">
