@@ -173,7 +173,7 @@ export function MatchScoreboard({
       
       {/* Match details footer */}
       {!compact && (
-        <div className="p-2 text-center text-sm border-t border-gray-100 mt-10">
+        <div className="p-2 text-center text-sm border-t border-gray-100 mt-5">
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
             <span>{formatDateTime(fixture.date)}</span>
