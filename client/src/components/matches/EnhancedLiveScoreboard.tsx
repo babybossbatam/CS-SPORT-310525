@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getTeamColor } from "@/lib/colorUtils";
 import { isLiveMatch } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchScoreboard from "./MatchScoreboard";
@@ -224,11 +224,11 @@ export function EnhancedLiveScoreboard({
   if (error) {
     return (
       <Card>
-        <CardContent className="p-6">
+        <div className="p-6">
           <div className="text-center text-red-500">
             <p>Unable to load match data. Please try again later.</p>
           </div>
-        </CardContent>
+        </div>
       </Card>
     );
   }
@@ -236,7 +236,7 @@ export function EnhancedLiveScoreboard({
   if (!filteredMatches.length) {
     return (
       <Card>
-        <CardContent className="p-6">
+        <div className="p-6">
           <div className="text-center">
             <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-medium">No matches available</h3>
@@ -244,7 +244,7 @@ export function EnhancedLiveScoreboard({
               There are no live or upcoming matches at the moment.
             </p>
           </div>
-        </CardContent>
+        </div>
       </Card>
     );
   }
