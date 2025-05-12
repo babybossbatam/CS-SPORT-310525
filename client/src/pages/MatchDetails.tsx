@@ -278,7 +278,7 @@ const MatchDetails = () => {
                 </TabsTrigger>
                 <TabsTrigger value="highlights" className="flex items-center">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  <span>Analysis</span>
+                  <span>Highlights</span>
                 </TabsTrigger>
               </TabsList>
               
@@ -621,7 +621,7 @@ const MatchDetails = () => {
                 <Card>
                   <CardHeader className="p-4 border-b flex items-center">
                     <Sparkles className="h-5 w-5 mr-2 text-blue-600" />
-                    <h3 className="font-semibold">Real-Time Performance Analysis</h3>
+                    <h3 className="font-semibold">Match Highlights</h3>
                   </CardHeader>
                   <CardContent className="p-4">
                     {/* Highlights Video Player - Embedded at the top */}
@@ -629,8 +629,18 @@ const MatchDetails = () => {
                       <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
                         <iframe 
                           className="w-full h-full"
-                          src={`https://www.youtube.com/embed/SpmLIIlcCFs?autoplay=0`} 
-                          title="Match Highlights"
+                          src={
+                            currentFixture.teams.home.name.includes("Juventus") || currentFixture.teams.away.name.includes("Juventus") 
+                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1bFULL-VSiWZH-aL_IvfyHP&autoplay=0" // Roma vs Juventus
+                              : currentFixture.teams.home.name.includes("Milan") || currentFixture.teams.away.name.includes("Milan")
+                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1atxwHjTdRzZDya6T0go8xf&autoplay=0" // AC Milan highlights
+                              : currentFixture.teams.home.name.includes("Arsenal") || currentFixture.teams.away.name.includes("Arsenal")
+                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1ZQXpFDM7BwqUu__RzXS7MO&autoplay=0" // Arsenal highlights
+                              : currentFixture.teams.home.name.includes("Manchester") || currentFixture.teams.away.name.includes("Manchester")
+                              ? "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1YZnDSU_2k3_LuMvDFPk9M5&autoplay=0" // Man City highlights
+                              : "https://www.youtube.com/embed/videoseries?list=PLW5qT4HIAd1ZYRPJcJZNxK9nIToZnq-Uj&autoplay=0" // General highlights
+                          }
+                          title={`${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                           allowFullScreen
                         ></iframe>
