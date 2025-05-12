@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Clock, X } from 'lucide-react';
+import { Clock, X, HistoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { getMatchHighlights, HighlightsResponse } from '@/lib/highlightsApi';
+import AnimatedTeamLogo from './AnimatedTeamLogo';
+import TeamLogoModal from '@/components/ui/team-logo-modal';
 
 // Define types
 interface Team {
@@ -95,6 +97,12 @@ export function MatchScoreboard({
   const [showHighlights, setShowHighlights] = useState(false);
   const [highlightsData, setHighlightsData] = useState<HighlightsResponse | null>(null);
   const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
+  // State for team logo evolution modal
+  const [evolutionModalTeam, setEvolutionModalTeam] = useState<null | {
+    id: string;
+    name: string;
+    logo: string;
+  }>(null);
   
   // Load highlights data when the highlights button is clicked
   const loadHighlights = async () => {
@@ -113,6 +121,22 @@ export function MatchScoreboard({
     setShowHighlights(!showHighlights);
   };
   
+  // Function to open team logo evolution modal
+  const openTeamEvolution = (team: typeof teams.home | typeof teams.away, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering parent onClick
+    
+    setEvolutionModalTeam({
+      id: team.id.toString(),
+      name: team.name,
+      logo: team.logo
+    });
+  };
+  
+  // Function to close team logo evolution modal
+  const closeEvolutionModal = () => {
+    setEvolutionModalTeam(null);
+  };
+  
   return (
     <>
       {/* Match bar styled with height set to exactly 30px */}
@@ -123,20 +147,22 @@ export function MatchScoreboard({
       >
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team logo - fixed size */}
-          <div 
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent triggering parent onClick
-              if (onClick) onClick(); // Use the same navigation function as the parent
-            }}
-          >
-            <img 
-              src={teams.home.logo} 
-              alt={teams.home.name}
-              className="h-[69px] w-auto object-contain drop-shadow-md hover:drop-shadow-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+          {/* Home team logo with animation and evolution capability */}
+          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
+            <AnimatedTeamLogo
+              logoUrl={teams.home.logo}
+              teamName={teams.home.name}
+              size="md"
+              isHome={true}
+              winner={teams.home.winner}
+              onClick={(e) => {
+                if (e && e.detail === 2) {
+                  // Double click opens evolution modal
+                  openTeamEvolution(teams.home, e);
+                } else if (onClick) {
+                  // Regular click navigates to match details
+                  onClick();
+                }
               }}
             />
           </div>
@@ -183,20 +209,22 @@ export function MatchScoreboard({
             )}
           </div>
           
-          {/* Away team logo - fixed size */}
-          <div 
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 transition-transform duration-300 hover:scale-110 hover:-translate-y-[55%] cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent triggering parent onClick
-              if (onClick) onClick(); // Use the same navigation function as the parent
-            }}
-          >
-            <img 
-              src={teams.away.logo} 
-              alt={teams.away.name}
-              className="h-[72px] w-auto object-contain drop-shadow-md hover:drop-shadow-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+          {/* Away team logo with animation and evolution capability */}
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+            <AnimatedTeamLogo
+              logoUrl={teams.away.logo}
+              teamName={teams.away.name}
+              size="md"
+              isHome={false}
+              winner={teams.away.winner}
+              onClick={(e) => {
+                if (e && e.detail === 2) {
+                  // Double click opens evolution modal
+                  openTeamEvolution(teams.away, e);
+                } else if (onClick) {
+                  // Regular click navigates to match details
+                  onClick();
+                }
               }}
             />
           </div>
