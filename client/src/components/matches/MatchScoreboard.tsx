@@ -212,21 +212,6 @@ export function MatchScoreboard({
       {/* Match details footer */}
       {!compact && (
         <div className="p-2 text-center text-sm border-t border-gray-100 mt-5">
-          <div className="flex items-center justify-center mb-2">
-            <button 
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering the parent onClick
-                loadHighlights(); // Load and toggle highlights display
-              }}
-            >
-              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              Match Highlights
-            </button>
-          </div>
-          
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
             <span>{formatDateTime(fixture.date)}</span>
