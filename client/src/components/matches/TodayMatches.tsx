@@ -44,7 +44,7 @@ const TodayMatches = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [filterByTime, setFilterByTime] = useState(true); // Default to showing today's ended matches
   const [showLiveOnly, setShowLiveOnly] = useState(false);
-  const [selectedLiveMatch, setSelectedLiveMatch] = useState<FixtureResponse | null>(null);
+  // Removed selectedLiveMatch state
   
   // Format date for API request
   const formattedSelectedDate = selectedDate ? 
@@ -238,16 +238,7 @@ const TodayMatches = () => {
   
   return (
     <div>
-      {/* Show LiveMatchPlayer when a live match is selected */}
-      {selectedLiveMatch && (
-        <LiveMatchPlayer 
-          fixture={selectedLiveMatch} 
-          onClose={() => {
-            setSelectedLiveMatch(null);
-            setShowLiveOnly(false);
-          }}
-        />
-      )}
+      {/* Removed LiveMatchPlayer component */}
 
       {/* Filter controls based on the provided image */}
       <div className="flex flex-col mb-3 mx-1 border-b pb-3">
@@ -266,17 +257,10 @@ const TodayMatches = () => {
                 if (!showLiveOnly) {
                   // Don't turn off time filter - keep them independent
                   
-                  // Select the first live match if available (for the video player)
-                  const liveMatches = filteredFixtures.filter(fixture => 
-                    ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(fixture.fixture.status.short)
-                  );
-                  
-                  if (liveMatches.length > 0) {
-                    setSelectedLiveMatch(liveMatches[0]);
-                  }
+                  // Removed live match player selection
                 } else {
-                  // If turning off live filter, clear selected match
-                  setSelectedLiveMatch(null);
+                  // If turning off live filter
+                  // Removed live match clearing
                 }
               }}
             >
@@ -346,14 +330,8 @@ const TodayMatches = () => {
               key={match.fixture.id}
               className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
               onClick={(e) => {
-                // If it's a live match and live filter is on, show the video player
-                if (showLiveOnly && ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'INT'].includes(match.fixture.status.short)) {
-                  e.stopPropagation();
-                  setSelectedLiveMatch(match);
-                } else {
-                  // Otherwise navigate to match details
-                  navigate(`/match/${match.fixture.id}`);
-                }
+                // Always navigate to match details (removed live player feature)
+                navigate(`/match/${match.fixture.id}`);
               }}
             >
               {/* Match Status */}
