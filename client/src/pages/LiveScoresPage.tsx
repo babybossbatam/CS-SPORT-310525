@@ -1,4 +1,4 @@
-import { LiveScoreboard } from "@/components/matches/LiveScoreboard";
+import { EnhancedLiveScoreboard } from "@/components/matches/EnhancedLiveScoreboard";
 import { Calendar, Timer } from "lucide-react";
 import { format } from "date-fns";
 
@@ -19,7 +19,7 @@ export default function LiveScoresPage() {
       <main className="grid grid-cols-12 gap-6">
         {/* Main content - 9 columns */}
         <div className="col-span-12 lg:col-span-9">
-          <LiveScoreboard 
+          <EnhancedLiveScoreboard 
             showFeaturedMatch={true}
             showFilters={true}
             maxMatches={20}

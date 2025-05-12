@@ -349,15 +349,18 @@ function LiveScoreboardPage() {
   return (
     <div className="container mx-auto my-4 px-2">
       <div className="grid grid-cols-1 gap-4">
-        {/* Main column - Upcoming Matches Scoreboard */}
+        {/* Main column with Enhanced Live Scoreboard */}
         <div className="space-y-4">
-          {/* New component for the upcoming matches scoreboard */}
-          <UpcomingMatchesScoreboard />
+          {/* Using the new EnhancedLiveScoreboard component with the MatchScoreboard design */}
+          <EnhancedLiveScoreboard 
+            showFeaturedMatch={true}
+            showFilters={true}
+            maxMatches={20}
+          />
           
-          {/* Featured match card removed - now using the FeaturedMatch component in Home.tsx */}
+          {/* Upcoming matches below the live matches */}
+          <UpcomingMatchesScoreboard />
         </div>
-        
-        {/* League schedules moved to Home.tsx below Today's Matches */}
       </div>
     </div>
   );
