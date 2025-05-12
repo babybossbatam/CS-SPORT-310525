@@ -225,15 +225,7 @@ const FeaturedMatch = () => {
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
       <CardContent className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <Trophy className="h-4 w-4 text-neutral-500 mr-2" />
-            <span className="text-sm font-medium">{featuredMatch.league.name} - {featuredMatch.league.round}</span>
-          </div>
-          <Badge variant="secondary" className="bg-neutral-300 text-xs font-medium py-1 px-2 rounded">
-            Featured Match
-          </Badge>
-        </div>
+        {/* Header section removed as requested */}
         <div className="text-xl font-semibold text-center mb-6">
           {formatMatchDate(featuredMatch.fixture.date)}
         </div>
