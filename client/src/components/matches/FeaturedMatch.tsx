@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { format, parseISO } from 'date-fns';
-import { BarChart2, LineChart, Trophy } from 'lucide-react';
+import { BarChart2, LineChart, Trophy, Film } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -265,7 +265,7 @@ const FeaturedMatch = () => {
           onClick={() => navigate(`/match/${featuredMatch.fixture.id}`)}
         />
         
-        <div className="grid grid-cols-3 gap-4 mt-4 text-center">
+        <div className="grid grid-cols-4 gap-4 mt-4 text-center">
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
             onClick={() => navigate(`/match/${featuredMatch.fixture.id}/h2h`)}
@@ -286,6 +286,13 @@ const FeaturedMatch = () => {
           >
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>
+          </div>
+          <div 
+            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/highlights`)}
+          >
+            <Film className="text-neutral-500 mb-1 h-5 w-5" />
+            <span className="text-xs text-neutral-500">Highlights</span>
           </div>
         </div>
       </CardContent>
