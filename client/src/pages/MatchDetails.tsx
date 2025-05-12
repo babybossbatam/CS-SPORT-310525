@@ -282,8 +282,8 @@ const MatchDetails = () => {
                 </div>
               </div>
               
-              {/* Match bar styled like the reference image with height set to exactly 60px */}
-              <div className="flex relative h-[60px] rounded-md">
+              {/* Match bar styled like the reference image with height set to exactly 30px */}
+              <div className="flex relative h-[30px] rounded-md">
                 {/* Match bar with solid team colors and centered VS */}
                 <div className="w-full h-full flex">
                   {/* HOME TEAM SECTION - 50% width with specific color from reference image */}
@@ -305,7 +305,7 @@ const MatchDetails = () => {
                     </div>
                     
                     {/* Team name display */}
-                    <div className="ml-80 text-white font-bold text-sm leading-tight flex items-center h-full uppercase">
+                    <div className="ml-32 text-white font-bold text-sm leading-tight flex items-center h-full uppercase">
                       {currentFixture.teams.home.name}
                       {currentFixture.teams.home.winner && (
                         <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
