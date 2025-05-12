@@ -291,7 +291,7 @@ const MatchDetails = () => {
                     <img 
                       src={currentFixture.teams.home.logo} 
                       alt={currentFixture.teams.home.name}
-                      className="h-[72px] w-auto object-contain"
+                      className="h-[69px] w-auto object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                       }}
@@ -299,7 +299,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* Home team name display */}
-                  <div className="absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
+                  <div className="absolute left-[calc(0px+69px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
                     {currentFixture.teams.home.name}
                     {currentFixture.teams.home.winner && (
                       <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
@@ -307,7 +307,7 @@ const MatchDetails = () => {
                   </div>
                   
                   {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-                  <div className="h-full w-[calc(50%-36px)] ml-[36px]" 
+                  <div className="h-full w-[calc(50%-34.5px)] ml-[34.5px]" 
                     style={{ 
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
