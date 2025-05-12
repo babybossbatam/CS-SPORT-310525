@@ -292,12 +292,12 @@ const MatchDetails = () => {
                       background: '#6f7c93' // Exact match to Atalanta blue-gray color in reference
                     }}>
                     
-                    {/* Home team logo - fixed 24px size */}
+                    {/* Home team logo - fixed 36px size */}
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                       <img 
                         src={currentFixture.teams.home.logo} 
                         alt={currentFixture.teams.home.name}
-                        className="h-[24px] w-auto object-contain"
+                        className="h-[36px] w-auto object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
                         }}
