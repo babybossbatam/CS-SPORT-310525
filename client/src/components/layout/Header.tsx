@@ -49,11 +49,11 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/" className="text-2xl font-bold flex items-center">
-            <img 
-              src={csSportLogo} 
-              alt="CS SPORT Logo" 
-              className="h-12 mr-2" 
-            />
+            <div 
+              className="h-10 w-10 bg-amber-400 rounded-full flex items-center justify-center mr-2 text-black font-bold"
+            >
+              CS
+            </div>
             <span className="flex flex-col">
               <span className="text-amber-400 font-bold">CSSPORT</span>
               <span className="text-sm text-amber-300 font-medium">潮勝體育</span>
