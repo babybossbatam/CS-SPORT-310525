@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock, Sparkles, AlertTriangle, Loader2 } from 'lucide-react';
+import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
 import { HighlightGenerator } from '@/components/highlights/HighlightGenerator';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
@@ -24,7 +24,6 @@ import HistoricalStats from '@/components/matches/HistoricalStats';
 import PredictionMeter from '@/components/matches/PredictionMeter';
 import MatchScoreboard from '@/components/matches/MatchScoreboard';
 import MatchTimeline, { MatchEvent } from '@/components/matches/MatchTimeline';
-import EmbeddedVideoPlayer from '@/components/matches/EmbeddedVideoPlayer';
 
 const MatchDetails = () => {
   const { id, tab = 'summary' } = useParams();
@@ -36,24 +35,6 @@ const MatchDetails = () => {
   const { currentFixture, loading, error } = useSelector((state: RootState) => state.fixtures);
   
   const [activeTab, setActiveTab] = useState(tab);
-  const [highlightsData, setHighlightsData] = useState<{
-    fixtureId: string;
-    highlights: {
-      title: string;
-      provider: string;
-      videoId: string;
-      thumbnailUrl: string;
-      previousMatch?: {
-        date: string;
-        home: string;
-        away: string;
-        score: string;
-        competition: string;
-      }
-    }
-  } | null>(null);
-  const [highlightsLoading, setHighlightsLoading] = useState(false);
-  const [highlightsError, setHighlightsError] = useState<string | null>(null);
   
   // Sample match events data for the interactive timeline
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
@@ -136,9 +117,6 @@ const MatchDetails = () => {
         const data = await response.json();
         
         dispatch(fixturesActions.setCurrentFixture(data));
-        
-        // After loading the match details, fetch the highlights
-        fetchHighlights(id);
         
         // Generate realistic match events based on fixture data
         generateMatchEvents(data);
@@ -505,10 +483,6 @@ const MatchDetails = () => {
                   <Info className="h-4 w-4 mr-2" />
                   <span>History</span>
                 </TabsTrigger>
-                <TabsTrigger value="highlights" className="flex items-center">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  <span>Highlights</span>
-                </TabsTrigger>
               </TabsList>
               
               {/* Summary Tab */}
@@ -581,50 +555,6 @@ const MatchDetails = () => {
                 <Card>
                   <CardContent className="p-4">
                     <h3>History content here</h3>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Highlights Tab */}
-              <TabsContent value="highlights" className="mt-2">
-                <Card>
-                  <CardHeader className="p-4 border-b flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-blue-600" />
-                    <h3 className="font-semibold">Match Highlights</h3>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    {/* Highlights Video Player - Embedded at the top */}
-                    <div className="mb-6 w-full">
-                      {highlightsLoading ? (
-                        <div className="w-full aspect-video bg-slate-100 animate-pulse flex items-center justify-center">
-                          <div className="text-center">
-                            <Loader2 className="h-12 w-12 mx-auto animate-spin text-slate-400" />
-                            <p className="mt-2 text-sm text-slate-500">Loading match highlights...</p>
-                          </div>
-                        </div>
-                      ) : highlightsError ? (
-                        <div className="w-full aspect-video bg-slate-100 flex items-center justify-center rounded-lg">
-                          <div className="text-center p-4">
-                            <AlertTriangle className="h-12 w-12 mx-auto text-amber-500" />
-                            <p className="mt-2 text-sm text-slate-700 font-medium">{highlightsError}</p>
-                            <p className="text-xs text-slate-500 mt-1">Unable to load highlights for this match</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <EmbeddedVideoPlayer
-                          videoId={highlightsData?.highlights.videoId}
-                          thumbnailUrl={highlightsData?.highlights.thumbnailUrl || ''}
-                          title={highlightsData?.highlights.title || `${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name} Highlights`}
-                          className="rounded-lg overflow-hidden"
-                        />
-                      )}
-                      <div className="mt-2 flex justify-between items-center">
-                        <h3 className="text-sm font-medium">{currentFixture.teams.home.name} vs {currentFixture.teams.away.name} - Match Highlights</h3>
-                        <div className="text-xs text-gray-500">
-                          {currentFixture.league.name} | {new Date(currentFixture.fixture.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
