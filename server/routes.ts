@@ -2,7 +2,6 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
-import { livescoreApiService } from "./services/livescoreApi";
 import { supabaseService } from "./services/supabase";
 import { 
   insertUserSchema, 
