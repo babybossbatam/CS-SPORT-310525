@@ -94,50 +94,45 @@ const TopScorersList = () => {
     );
   }
   
-  // Take only top 5 scorers
-  const top5Scorers = topScorers.slice(0, 5);
+  // Take only top 3 scorers
+  const top3Scorers = topScorers.slice(0, 3);
   
   return (
     <div className="space-y-3">
       <LeagueFilter />
       
-      {top5Scorers.map((scorer, index) => {
+      {top3Scorers.map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
-        const teamColor = getTeamColor(playerStats.team.name);
         
         return (
           <div key={scorer.player.id} className="group">
             {/* Player row with hover effect */}
-            <div className="flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-gray-50">
-              {/* Rank circle */}
-              <div 
-                className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold text-white shadow-sm"
-                style={{ backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : teamColor || '#3b82f6' }}
-              >
-                {index + 1}
-              </div>
-              
-              {/* Player photo */}
-              <Avatar className="h-10 w-10 border-2" style={{ borderColor: teamColor || '#e5e7eb' }}>
-                <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
-                <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
-              </Avatar>
-              
-              {/* Player details */}
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold text-sm">{scorer.player.name}</div>
-                  <div className="text-sm font-bold">{goals} {goals === 1 ? 'goal' : 'goals'}</div>
-                </div>
+            <div className="flex items-center gap-3 p-2 transition-colors hover:bg-gray-50">
+              {/* Player photo and info */}
+              <div className="flex items-center gap-2 flex-1">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
+                  <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
+                </Avatar>
                 
-                {/* Team name */}
-                <div className="mt-1">
-                  <div className="text-xs text-gray-500 mb-1 flex items-center">
+                {/* Player details */}
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium text-sm">{scorer.player.name}</span>
+                    <span className="text-xs text-gray-500">{scorer.player.position}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 flex items-center">
                     <img src={playerStats.team.logo} alt={playerStats.team.name} className="h-3.5 w-3.5 mr-1" />
                     {playerStats.team.name}
                   </div>
                 </div>
+              </div>
+              
+              {/* Goals count */}
+              <div className="text-right">
+                <div className="font-bold text-lg">{goals}</div>
+                <div className="text-xs text-gray-500">Goals</div>
               </div>
             </div>
           </div>
