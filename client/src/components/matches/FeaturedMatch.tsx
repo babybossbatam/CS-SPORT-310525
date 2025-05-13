@@ -24,37 +24,21 @@ const FeaturedMatch = () => {
   const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
   // Removed highlights state
   
-  // Get fixture data using React Query
+  // Get fixture data using React Query with default queryFn
   const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
-    queryKey: ['/api/champions-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/champions-league/fixtures');
-      return response.json();
-    }
+    queryKey: ['/api/champions-league/fixtures']
   });
   
   const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
-    queryKey: ['/api/europa-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/europa-league/fixtures');
-      return response.json();
-    }
+    queryKey: ['/api/europa-league/fixtures']
   });
   
   const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
-    queryKey: ['/api/leagues/135/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/135/fixtures');
-      return response.json();
-    }
+    queryKey: ['/api/leagues/135/fixtures']
   });
   
   const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading } = useQuery({
-    queryKey: ['/api/leagues/39/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/39/fixtures');
-      return response.json();
-    }
+    queryKey: ['/api/leagues/39/fixtures']
   });
   
   useEffect(() => {
