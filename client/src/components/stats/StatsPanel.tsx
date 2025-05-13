@@ -2,11 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, statsActions } from '@/lib/store';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useLocation } from 'wouter';
-import { ChevronRight } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +16,6 @@ const POPULAR_LEAGUES = [
 ];
 
 const StatsPanel = () => {
-  const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   
@@ -43,6 +39,10 @@ const StatsPanel = () => {
         );
         const data = await response.json();
         
+        if (!data) {
+          throw new Error('No data received from API');
+        }
+
         dispatch(statsActions.setTopScorers({ 
           leagueId: selectedLeague.toString(),
           players: data 
@@ -102,29 +102,31 @@ const StatsPanel = () => {
       {!loading && !error && selectedLeagueTopScorers.length > 0 && (
         <div className="space-y-4">
           {selectedLeagueTopScorers.slice(0, 3).map((player: any) => (
-            <Card key={player.id} className="overflow-hidden">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <img 
-                        src={player.photo} 
-                        alt={player.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://via.placeholder.com/48?text=P';
-                        }}
-                      />
+            player && (
+              <Card key={player.id} className="overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <img 
+                          src={player?.photo} 
+                          alt={player?.name || 'Player'}
+                          className="w-12 h-12 rounded-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://via.placeholder.com/48?text=P';
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <div className="font-semibold">{player?.name || 'Unknown Player'}</div>
+                        <div className="text-sm text-gray-500">{player?.team?.name || 'Unknown Team'}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-semibold">{player.name}</div>
-                      <div className="text-sm text-gray-500">{player.team.name}</div>
-                    </div>
+                    <div className="text-2xl font-bold">{player?.goals || 0}</div>
                   </div>
-                  <div className="text-2xl font-bold">{player.goals || 0}</div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )
           ))}
         </div>
       )}
