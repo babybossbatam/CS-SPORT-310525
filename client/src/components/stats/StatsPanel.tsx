@@ -13,9 +13,9 @@ import { useToast } from '@/hooks/use-toast';
 
 const POPULAR_LEAGUES = [
   { id: 135, name: 'Serie A', logo: 'https://media-4.api-sports.io/football/leagues/135.png' },
-  { id: 140, name: 'LaLiga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
+  { id: 140, name: 'La Liga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
   { id: 61, name: 'Coppa Italia', logo: 'https://media-4.api-sports.io/football/leagues/61.png' },
-  { id: 2, name: 'UCL', logo: 'https://media-4.api-sports.io/football/leagues/2.png' }
+  { id: 2, name: 'Champions League', logo: 'https://media-4.api-sports.io/football/leagues/2.png' }
 ];
 
 const StatsPanel = () => {
