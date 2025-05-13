@@ -38,14 +38,12 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
                 alt={leagueName}
                 className="h-16 w-16 object-contain"
               />
-              <div className="flex flex-col">
+              <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Button variant="outline" size="sm">
-                    Follow
-                  </Button>
-                  <span className="text-sm text-gray-500">{followers} followers</span>
-                </div>
+                <Button variant="outline" size="sm">
+                  Follow
+                </Button>
+                <span className="text-sm text-gray-500">{followers} followers</span>
               </div>
             </div>
           </div>
