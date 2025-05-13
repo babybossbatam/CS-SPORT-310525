@@ -1,5 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FixtureResponse, LeagueResponse, PlayerStatistics, NewsItem } from '../../../server/types';
+import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../../../server/types';
+import { NewsItem } from '@/components/news/NewsCard';
 import { exclusionTerms, shouldExcludeFixture } from './exclusionFilters';
 
 // Type definitions

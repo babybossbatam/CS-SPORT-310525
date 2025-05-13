@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistance } from 'date-fns';
 
+// Define NewsItem interface that matches the server structure
 export interface NewsItem {
   id: number;
   title: string;
   content: string;
   imageUrl: string;
   source: string;
-  url: string | null;
+  url: string;
   publishedAt: string;
   createdAt?: string;
   updatedAt?: string;
@@ -25,8 +26,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   const fallbackImage = 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg';
   
   const handleClick = () => {
-    // Open in a new tab if it's an external link with a valid URL
-    if (news.url && typeof news.url === 'string') {
+    // Open in a new tab with the article URL
+    if (news.url) {
       let safeUrl = news.url;
       // Make sure URL starts with http or https
       if (!safeUrl.startsWith('http')) {

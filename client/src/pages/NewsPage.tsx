@@ -12,11 +12,11 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
-// Make NewsItem interface match the one from NewsCard component
-import type { NewsItem as NewsCardItem } from '@/components/news/NewsCard';
+// Import the NewsItem type from our NewsCard component
+import { NewsItem } from '@/components/news/NewsCard';
 
-// Required for type compatibility with the news API
-type NewsApiArticle = NewsCardItem;
+// Use the same type for our API response for simplicity
+type NewsApiResponse = NewsItem;
 
 const NewsPage = () => {
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ const NewsPage = () => {
   const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
   
   // Fetch news articles from API with the selected category
-  const { data: newsData, isLoading, isError } = useQuery<NewsApiArticle[]>({
+  const { data: newsData, isLoading, isError } = useQuery<NewsApiResponse[]>({
     queryKey: ['/api/news', category],
     queryFn: async () => {
       const response = await fetch(`/api/news?category=${category}&source=gnews`);
