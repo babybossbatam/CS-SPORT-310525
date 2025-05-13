@@ -195,6 +195,7 @@ const LeagueDetails = () => {
         <Card className="mb-6">
           <CardHeader className="p-4 border-b border-neutral-200">
             {/* League header moved to SportsCategoryTabs */}
+          </CardHeader>
           <CardContent className="p-6">
             <div className="flex items-center justify-center mb-6">
               <div className="text-center">
