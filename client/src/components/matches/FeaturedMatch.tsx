@@ -63,11 +63,11 @@ const FeaturedMatch = () => {
       });
     };
     
-    // Process sources
-    processSource(championsLeagueFixtures, "Champions League");
-    processSource(europaLeagueFixtures, "Europa League");
-    processSource(serieAFixtures, "Serie A");
-    processSource(premierLeagueFixtures, "Premier League");
+    // Process sources with type safety - casting to proper types
+    processSource(championsLeagueFixtures as any as FixtureResponse[], "Champions League");
+    processSource(europaLeagueFixtures as any as FixtureResponse[], "Europa League");
+    processSource(serieAFixtures as any as FixtureResponse[], "Serie A");
+    processSource(premierLeagueFixtures as any as FixtureResponse[], "Premier League");
     
     // Convert map back to array
     const uniqueFixtures = Array.from(fixtureIdMap.values());
@@ -259,22 +259,17 @@ const FeaturedMatch = () => {
           }}
         />
         
+        {/* Display icons without click handlers to avoid navigation errors */}
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
-          <div 
-            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-          >
+          <div className="flex flex-col items-center">
             <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">H2H</span>
           </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-          >
+          <div className="flex flex-col items-center">
             <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Stats</span>
           </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-          >
+          <div className="flex flex-col items-center">
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>
           </div>
