@@ -15,6 +15,7 @@ import { Star, ArrowLeft, BarChart2, CalendarDays, Trophy, Table } from 'lucide-
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateTime } from '@/lib/utils';
+import LeagueTabs from '@/components/layout/LeagueTabs';
 
 const LeagueDetails = () => {
   const { id, tab = 'fixtures' } = useParams();
@@ -189,7 +190,11 @@ const LeagueDetails = () => {
     <>
       <Header />
       <TournamentHeader title={league.league.name} />
-
+      <LeagueTabs 
+        leagueId={league?.league?.id}
+        leagueName={league?.league?.name}
+        leagueLogo={league?.league?.logo}
+      />
       <div className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (8 columns) */}
@@ -343,7 +348,6 @@ const LeagueDetails = () => {
           </Card>
         </div>
       </div>
-    </div>
     </>
   );
 };
