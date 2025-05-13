@@ -121,34 +121,21 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
         <div className="bg-white border-b">
           <div className="container mx-auto px-4">
             <div className="flex flex-col">
-              {/* League Header */}
-              <div className="flex items-center justify-between py-4 px-4">
-                <div className="flex items-center gap-2">
-                  {isMatchDetailsPage && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="flex items-center mr-2" 
-                      onClick={() => navigate('/')}
-                    >
-                      <ArrowLeft className="h-4 w-4 mr-1" />
-                      <span>Back</span>
-                    </Button>
-                  )}
-                  <img 
-                    src={match?.league?.logo || 'https://via.placeholder.com/40'} 
-                    alt={match?.league?.name || 'League'} 
-                    className="h-8 w-8 object-contain"
-                  />
-                  <h2 className="text-lg font-semibold">{match?.league?.name}</h2>
-                </div>
+              {/* Navigation Tabs with League Header */}
+              <div className="flex items-center gap-2 py-2 px-4 border-b">
+                <img 
+                  src={match?.league?.logo || 'https://via.placeholder.com/40'} 
+                  alt={match?.league?.name || 'League'} 
+                  className="h-6 w-6 object-contain"
+                />
+                <span className="text-sm font-medium">{match?.league?.name}</span>
                 <Button 
                   variant="ghost" 
-                  size="icon"
+                  size="sm"
                   onClick={toggleFavorite}
-                  className={isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}
+                  className={`ml-1 ${isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
                 >
-                  <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
+                  <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400' : ''}`} />
                 </Button>
               </div>
 
