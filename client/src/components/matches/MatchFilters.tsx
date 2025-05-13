@@ -385,42 +385,7 @@ const MatchFilters = () => {
 
             
 
-            {/* Other Popular Leagues */}
-            <div className="py-2 px-3">
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: 2, name: 'Champions League', country: 'Europe' },
-                  { id: 3, name: 'Europa League', country: 'Europe' },
-                  { id: 140, name: 'La Liga', country: 'Spain' },
-                  { id: 135, name: 'Serie A', country: 'Italy' },
-                  { id: 78, name: 'Bundesliga', country: 'Germany' },
-                  { id: 203, name: 'Championship', country: 'England' }
-                ].map((league) => (
-                  <div 
-                    key={league.id}
-                    className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded cursor-pointer"
-                    onClick={() => {
-                      dispatch(uiActions.setSelectedLeague(league.id));
-                      setLocation(`/leagues/${league.id}`);
-                    }}
-                  >
-                    <img 
-                      src={`https://media.api-sports.io/football/leagues/${league.id}.png`} 
-                      alt={league.name} 
-                      className="w-5 h-5 mr-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://static.livescore.com/i/competition/default.png';
-                      }}
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium truncate">{league.name}</span>
-                      <span className="text-xs text-gray-400">{league.country}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            
           </div>
         ) : (
           // Empty state
