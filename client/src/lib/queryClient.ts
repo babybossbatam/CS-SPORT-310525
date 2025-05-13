@@ -1,131 +1,13 @@
 import { QueryClient, QueryFunction } from '@tanstack/react-query';
 import { CACHE_STALE_TIMES } from './constants';
 
+// Helper to throw error for non-ok responses
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
     throw new Error(`${res.status}: ${text}`);
   }
 }
-
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-  timeout: number = 15000 // Default 15 second timeout
-): Promise<Response> {
-  try {
-    const controller = new AbortController();
-    const { signal } = controller;
-
-    let timeoutId: number | undefined;
-
-    const fetchPromise = fetch(url, {
-      method,
-      headers: data ? { "Content-Type": "application/json" } : {},
-      body: data ? JSON.stringify(data) : undefined,
-      credentials: "include",
-      signal
-    });
-
-    if (timeout > 0) {
-      timeoutId = window.setTimeout(() => controller.abort(), timeout);
-    }
-
-    const response = await fetchPromise;
-
-    if (timeoutId !== undefined) {
-      window.clearTimeout(timeoutId);
-    }
-
-    await throwIfResNotOk(response);
-    return response;
-  } catch (error) {
-    console.error(`API request error for ${method} ${url}:`, error);
-
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        throw new Error('Request timed out. Please try again.');
-      }
-      if (error instanceof TypeError) {
-        throw new Error('Network error. Please check your connection.');
-      }
-    }
-
-    throw new Error('An unexpected error occurred. Please try again.');
-  }
-}
-
-type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
-  on401: UnauthorizedBehavior;
-  timeout?: number;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior, timeout = 15000 }) =>
-  async ({ queryKey }) => {
-    // Create an AbortController to handle request timeouts
-    const controller = new AbortController();
-    const { signal } = controller;
-
-    let timeoutId: number | undefined;
-
-    // Only set up timeout if timeout value is valid
-    if (timeout > 0) {
-      timeoutId = window.setTimeout(() => {
-        try {
-          controller.abort("Request timeout");
-        } catch (e) {
-          console.warn('Error aborting request:', e);
-        }
-      }, timeout);
-    }
-
-    try {
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include",
-        signal
-      });
-
-      // Clear the timeout since the request completed
-      if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId);
-      }
-
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-        return null;
-      }
-
-      await throwIfResNotOk(res);
-      return await res.json();
-    } catch (error) {
-      // Clear the timeout to prevent memory leaks
-      if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId);
-      }
-
-      // Log error and handle specific error types
-      console.error(`Query error for ${queryKey[0]}:`, error);
-
-      if (error instanceof Error) {
-        // Handle abort errors
-        if (error.name === 'AbortError') {
-          throw new Error(`Request timeout: The query to ${queryKey[0]} took too long to complete. Please try again later.`);
-        }
-
-        // Handle network errors
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-          throw new Error(`Network error: Could not connect to the server. Please check your internet connection and try again.`);
-        }
-
-        if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-          throw new Error(`Network error: The server is unreachable. Please check your connection and try again.`);
-        }
-      }
-
-      // Rethrow the original error if not handled above
-      throw error;
-    }
-  };
 
 // Create rate limiting map
 const requestTimestamps = new Map<string, number>();
@@ -135,37 +17,87 @@ const MIN_REQUEST_INTERVAL = 1000; // 1 second minimum between same requests
 const checkRateLimit = (key: string) => {
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
-
+  
   if (lastRequest && now - lastRequest < MIN_REQUEST_INTERVAL) {
     return false;
   }
-
+  
   requestTimestamps.set(key, now);
   return true;
 };
 
+// API request helper
+export async function apiRequest(
+  method: string,
+  url: string,
+  data?: unknown | undefined
+): Promise<Response> {
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include"
+    });
+    
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    console.error(`API request error for ${method} ${url}:`, error);
+    throw error;
+  }
+}
+
+// Query function type
+type UnauthorizedBehavior = "returnNull" | "throw";
+export const getQueryFn: <T>(options: {
+  on401: UnauthorizedBehavior;
+}) => QueryFunction<T> =
+  ({ on401: unauthorizedBehavior }) =>
+  async ({ queryKey }) => {
+    const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
+    
+    if (!checkRateLimit(keyString)) {
+      console.warn('Rate limiting request to:', keyString);
+      return null as any;
+    }
+    
+    try {
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include"
+      });
+      
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+      
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      console.error(`Query error for ${queryKey[0]}:`, error);
+      throw error;
+    }
+  };
+
+// Query client with configurations
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ 
-        on401: "throw",
-        timeout: 60000 // 60 second timeout for all queries
+        on401: "throw"
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES,
-      gcTime: 30 * 60 * 1000, // 30 minutes
-      retry: 3, // Increase retries
-      retryDelay: attempt => Math.min(1000 * 2 ** attempt, 60000), // Longer backoff
+      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES, 
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1, // Allow one retry for transient network issues
+      retryDelay: 2000,
       refetchOnMount: false,
-      refetchOnReconnect: false,
-      suspense: false,
-      networkMode: 'always', // Continue trying even if offline
-      errorBoundary: false // Handle errors gracefully
+      refetchOnReconnect: true, // Re-fetch when reconnected to handle connection issues
     },
     mutations: {
-      retry: 1, // Allow one retry for transient network issues
-      retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff capped at 30 seconds
+      retry: 1,
+      retryDelay: 2000
     },
   },
 });
