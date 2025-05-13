@@ -1,18 +1,33 @@
 import React, { useEffect } from 'react';
 import NewsCard, { NewsItem } from './NewsCard';
-import { Newspaper } from 'lucide-react';
+import { Newspaper, ArrowRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, newsActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { Link } from 'wouter';
 
-const NewsSection: React.FC = () => {
+interface NewsSectionProps {
+  maxItems?: number;
+}
+
+const NewsSection: React.FC<NewsSectionProps> = ({ maxItems = 3 }) => {
   const dispatch = useDispatch();
   const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
+  const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   
-  // Fetch news articles from API
-  const { data: newsData, isLoading, isError } = useQuery({
-    queryKey: ['/api/news'],
+  // Fetch news articles from API with the selected sport as a parameter
+  const { data: newsData, isLoading, isError } = useQuery<NewsItem[]>({
+    queryKey: ['/api/news', selectedSport],
+    queryFn: async () => {
+      // Only pass sport if it's not 'tv' (which is not a real sport category)
+      const sportParam = selectedSport !== 'tv' ? `&sport=${selectedSport}` : '';
+      const response = await fetch(`/api/news?category=sports${sportParam}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch news');
+      }
+      return response.json();
+    },
     staleTime: 60 * 1000, // 1 minute
   });
   
@@ -56,9 +71,18 @@ const NewsSection: React.FC = () => {
   }
   
   return (
-    <div>      
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold flex items-center">
+          <Newspaper className="mr-2 h-5 w-5" />
+          Latest News
+        </h2>
+        <Link href="/news" className="text-blue-600 hover:text-blue-800 flex items-center text-sm">
+          View All News <ArrowRight className="ml-1 h-4 w-4" />
+        </Link>
+      </div>      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {newsItems.map((news: NewsItem) => (
+        {newsItems.slice(0, maxItems).map((news: NewsItem) => (
           <NewsCard key={news.id} news={news} />
         ))}
       </div>

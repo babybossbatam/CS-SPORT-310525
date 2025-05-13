@@ -176,7 +176,7 @@ const NewsPage = () => {
         {/* If no news items, show empty state */}
         {(!newsItems || newsItems.length === 0) ? (
           <div className="flex justify-center items-center py-10 text-gray-500">
-            <p>No news articles available in this category</p>
+            <p>No news articles available for {sport.charAt(0).toUpperCase() + sport.slice(1)} in this category</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
