@@ -150,9 +150,9 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, scale: 0.8, rotateY: direction === 'forward' ? -90 : 90 }}
-            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-            exit={{ opacity: 0, scale: 0.8, rotateY: direction === 'forward' ? 90 : -90 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center"
           >

@@ -18,8 +18,18 @@ export async function apiRequest(
     const controller = new AbortController();
     const { signal } = controller;
     
-    // Set up timeout to abort the request if it takes too long
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    // Only set up timeout if timeout value is valid
+    if (timeout > 0) {
+      timeoutId = setTimeout(() => {
+        try {
+          controller.abort();
+        } catch (e) {
+          console.warn('Error aborting request:', e);
+        }
+      }, timeout);
+    }
     
     try {
       const res = await fetch(url, {
@@ -31,13 +41,17 @@ export async function apiRequest(
       });
       
       // Clear the timeout since the request completed
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       
       await throwIfResNotOk(res);
       return res;
     } catch (error) {
       // Clear the timeout to prevent memory leaks
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       
       // Check for abort/timeout errors
       if (error instanceof Error && error.name === 'AbortError') {
@@ -79,8 +93,18 @@ export const getQueryFn: <T>(options: {
       const controller = new AbortController();
       const { signal } = controller;
       
-      // Set up timeout to abort the request if it takes too long
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      let timeoutId: NodeJS.Timeout | null = null;
+      
+      // Only set up timeout if timeout value is valid
+      if (timeout > 0) {
+        timeoutId = setTimeout(() => {
+          try {
+            controller.abort();
+          } catch (e) {
+            console.warn('Error aborting request:', e);
+          }
+        }, timeout);
+      }
       
       try {
         const res = await fetch(queryKey[0] as string, {
@@ -89,7 +113,9 @@ export const getQueryFn: <T>(options: {
         });
         
         // Clear the timeout since the request completed
-        clearTimeout(timeoutId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
         
         if (unauthorizedBehavior === "returnNull" && res.status === 401) {
           return null;
