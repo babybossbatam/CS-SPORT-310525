@@ -152,11 +152,11 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
           </TabsList>
 
           <div className="w-full max-w-full">
-            <Table className="w-full">
+            <Table className="w-full -ml-6">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[60px] text-center">Pos</TableHead>
-                  <TableHead>Team</TableHead>
+                  <TableHead className="pl-8">Team</TableHead>
                   <TableHead className="text-center">P</TableHead>
                   <TableHead className="text-center">F/A</TableHead>
                   <TableHead className="text-center">+/-</TableHead>
