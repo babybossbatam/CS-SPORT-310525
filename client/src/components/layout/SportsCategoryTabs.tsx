@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +7,7 @@ import { RootState, uiActions } from '@/lib/store';
 interface SportsCategoryTabsProps {
   onSportClick?: (sportId: string) => void;
 }
+
 import { cn } from '@/lib/utils';
 import { 
   Tv, 
@@ -38,6 +40,17 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
     { id: 'rugby', name: 'Rugby', icon: Award },
     { id: 'volleyball', name: 'Volleyball', icon: Volleyball },
     { id: 'cricket', name: 'Cricket', icon: Bug },
+  ];
+
+  // Define league navigation items
+  const leagueNavItems = [
+    { name: 'Details', href: '#details' },
+    { name: 'Matches', href: '#matches' },
+    { name: 'Standings', href: '#standings' },
+    { name: 'News', href: '#news' },
+    { name: 'Highlights', href: '#highlights' },
+    { name: 'Transfers', href: '#transfers' },
+    { name: 'History', href: '#history' },
   ];
 
   // Scroll to selected tab
@@ -93,6 +106,21 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
               </Link>
             );
           })}
+        </div>
+        
+        {/* League Navigation Tabs */}
+        <div className="border-t border-gray-200">
+          <div className="flex overflow-x-auto py-2 space-x-8 scrollbar-hide">
+            {leagueNavItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
