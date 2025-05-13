@@ -221,8 +221,6 @@ const LeagueDetails = () => {
                 </TabsTrigger>
               </TabsList>
 
-
-
               <TabsContent value="fixtures" className="mt-2">
                 {fixtures.length > 0 ? (
                   <EnhancedLeagueFixtures 
@@ -275,7 +273,8 @@ const LeagueDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-            </Tabs>
+              </Tabs>
+              </CardHeader>
           </Card>
         </div>
 
