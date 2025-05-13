@@ -221,19 +221,9 @@ const TodayMatches = () => {
     );
   }
   
-  // Show an empty state instead of disappearing
+  // Return null when there are no matches
   if (todayMatches.length === 0) {
-    return (
-      <div className="p-4 text-center">
-        <div className="text-center py-4">
-          <CalendarIcon className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-          <h3 className="text-sm font-medium">No matches found</h3>
-          <p className="text-xs text-gray-400">
-            There are no matches available from the selected leagues today.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
   
   return (
