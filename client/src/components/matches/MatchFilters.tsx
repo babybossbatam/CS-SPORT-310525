@@ -645,11 +645,8 @@ const MatchFilters = () => {
             </div>
           </div>
         ) : (
-          // Empty state with helpful message
-          <div className="text-center py-8 px-4 text-sm text-gray-500">
-            <p className="mb-2">No matches available for the selected date.</p>
-            <p>Try selecting a different date or check back later.</p>
-          </div>
+          // Empty state
+          <div></div>
         )}
       </div>
     </div>
