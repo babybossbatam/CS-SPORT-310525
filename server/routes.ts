@@ -915,9 +915,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("Using SportMonks API for football news");
           const apiKey = process.env.SPORTMONKS_API_KEY;
           
-          // Try to fetch from the endpoint you provided
-          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}`;
-          console.log(`Fetching football news from SportMonks API (URL redacted for security)`);
+          // Try to fetch from the Serie A news endpoint with updated subscription
+          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}&league_id=135`;
+          console.log(`Fetching Serie A football news from SportMonks API (URL redacted for security)`);
           
           const response = await fetch(sportMonksUrl);
           const data = await response.json();
