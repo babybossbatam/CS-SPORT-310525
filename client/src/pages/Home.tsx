@@ -17,6 +17,7 @@ import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import TopScorersList from '@/components/leagues/TopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
+import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 
 
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
@@ -165,6 +166,10 @@ const Home = () => {
               <div className="px-3 pb-3">
                 <TopScorersList />
               </div>
+            </div>
+
+            <div className="mt-4">
+              <LeagueStandingsFilter />
             </div>
             
             
