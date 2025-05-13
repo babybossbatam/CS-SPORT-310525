@@ -94,7 +94,7 @@ export function EnhancedLiveScoreboard({
   } = useQuery<FixtureResponse[]>({
     queryKey: ["/api/fixtures/live"],
     staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 1800000, // Refresh every 30 minutes
   });
 
   // Fetch today's matches if no live matches are available
