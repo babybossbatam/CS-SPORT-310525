@@ -136,12 +136,8 @@ export function MatchScoreboard({
           <div 
             className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             onClick={onClick}
-            onMouseEnter={() => setHomeTeamHover(true)}
-            onMouseLeave={() => setHomeTeamHover(false)}
             style={{
-              cursor: onClick ? 'pointer' : 'default',
-              transform: homeTeamHover ? 'scale(1.1)' : 'scale(1)',
-              boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+              cursor: onClick ? 'pointer' : 'default'
             }}
           >
             <img 
@@ -183,20 +179,8 @@ export function MatchScoreboard({
               background: '#a00000',
               boxShadow: '0 0 10px rgba(255, 255, 255, 0.4)'
             }}
-            onMouseEnter={() => {
-              const vsElement = document.querySelector('.vs-text');
-              if (vsElement) {
-                vsElement.classList.add('animate-pulse');
-              }
-            }}
-            onMouseLeave={() => {
-              const vsElement = document.querySelector('.vs-text');
-              if (vsElement) {
-                vsElement.classList.remove('animate-pulse');
-              }
-            }}
           >
-            <span className="vs-text font-bold">VS</span>
+            <span className="font-bold">VS</span>
           </div>
           
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
@@ -215,12 +199,8 @@ export function MatchScoreboard({
           <div 
             className={`absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             onClick={onClick}
-            onMouseEnter={() => setAwayTeamHover(true)}
-            onMouseLeave={() => setAwayTeamHover(false)}
             style={{
-              cursor: onClick ? 'pointer' : 'default',
-              transform: awayTeamHover ? 'scale(1.1)' : 'scale(1)',
-              boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+              cursor: onClick ? 'pointer' : 'default'
             }}
           >
             <img 
