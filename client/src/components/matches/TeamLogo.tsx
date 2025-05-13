@@ -61,11 +61,6 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
         setCurrentLogoUrl(sportmonkUrl);
         return;
       }
-    } 
-    else if (livescoreUrl) {
-      // Third option - try Livescore
-      imgElement.src = livescoreUrl;
-      return;
     }
     
     // Final fallback if all else fails

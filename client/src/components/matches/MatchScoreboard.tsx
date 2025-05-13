@@ -115,6 +115,7 @@ export function MatchScoreboard({
             <TeamLogo
               logoUrl={teams?.home?.logo || 'https://via.placeholder.com/80?text=Team'}
               teamName={teams?.home?.name || 'Home Team'}
+              teamId={teams?.home?.id}
               size="md"
               isHome={true}
               winner={teams?.home?.winner || false}
@@ -169,6 +170,7 @@ export function MatchScoreboard({
             <TeamLogo
               logoUrl={teams?.away?.logo || 'https://via.placeholder.com/80?text=Team'}
               teamName={teams?.away?.name || 'Away Team'}
+              teamId={teams?.away?.id}
               size="md"
               isHome={false}
               winner={teams?.away?.winner || false}
