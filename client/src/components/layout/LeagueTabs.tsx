@@ -27,7 +27,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
   if (!leagueId) return null;
 
   return (
-    <div className="bg-white border-b">
+    <div className="bg-white border-b sticky top-0 z-10">
       <div className="mx-auto">
         <div className="flex flex-col">
           {/* League Header */}

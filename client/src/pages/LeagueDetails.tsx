@@ -10,7 +10,6 @@ import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtu
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
-import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Star, ArrowLeft, BarChart2, CalendarDays, Trophy, Table } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
@@ -190,7 +189,6 @@ const LeagueDetails = () => {
   return (
     <>
       <Header />
-      <SportsCategoryTabs />
       <TournamentHeader title={league.league.name} />
 
       <div className="container mx-auto px-4 py-4">
