@@ -268,8 +268,8 @@ const FeaturedMatch = () => {
           Featured Match
         </Badge>
       
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-4">
+        {/* Content directly in Card without the wrapping div */}
+        <div className="flex items-center gap-2 mb-4 p-4 pt-4">
           {featuredMatch?.league?.logo ? (
             <img 
               src={featuredMatch.league.logo}
@@ -285,24 +285,26 @@ const FeaturedMatch = () => {
           <span className="text-sm font-medium">{featuredMatch?.league?.name || 'Unknown League'}</span>
         </div>
         
-        <div className="text-lg font-semibold text-center mb-4">
+        <div className="text-lg font-semibold text-center mb-4 px-4">
           {formatMatchDate(featuredMatch?.fixture?.date)}
         </div>
         
         {/* Using MatchScoreboard component for consistent UI */}
-        <MatchScoreboard 
-          match={featuredMatch}
-          featured={true}
-          homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
-          awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={() => {
-            if (featuredMatch?.fixture?.id) {
-              navigate(`/match/${featuredMatch.fixture.id}`);
-            }
-          }}
-        />
+        <div className="px-4">
+          <MatchScoreboard 
+            match={featuredMatch}
+            featured={true}
+            homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
+            awayTeamColor="#8b0000" // Default AS Roma dark red color
+            onClick={() => {
+              if (featuredMatch?.fixture?.id) {
+                navigate(`/match/${featuredMatch.fixture.id}`);
+              }
+            }}
+          />
+        </div>
         
-        <div className="grid grid-cols-4 gap-4 mt-4 text-center">
+        <div className="grid grid-cols-4 gap-4 mt-4 text-center px-4 pb-4">
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
             onClick={() => {
@@ -338,7 +340,6 @@ const FeaturedMatch = () => {
           </div>
           {/* Removed highlights button */}
         </div>
-      </div>
     </Card>
     </>
   );
