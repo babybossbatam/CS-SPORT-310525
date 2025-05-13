@@ -571,6 +571,8 @@ const MatchDetails = () => {
                 </button>
               </div>
             </div>
+            <MatchScoreboard
+              match={currentFixture}
               homeTeamColor="#6f7c93"
               awayTeamColor="#8b0000"
             />
