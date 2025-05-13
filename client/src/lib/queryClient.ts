@@ -17,11 +17,11 @@ const MIN_REQUEST_INTERVAL = 1000; // 1 second minimum between same requests
 const checkRateLimit = (key: string) => {
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
-  
+
   if (lastRequest && now - lastRequest < MIN_REQUEST_INTERVAL) {
     return false;
   }
-  
+
   requestTimestamps.set(key, now);
   return true;
 };
@@ -39,7 +39,7 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include"
     });
-    
+
     await throwIfResNotOk(res);
     return res;
   } catch (error) {
@@ -48,7 +48,9 @@ export async function apiRequest(
   }
 }
 
-// Query function type
+import { STATIC_LEAGUE_LOGOS } from './constants';
+
+// Query function type with caching
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
@@ -56,30 +58,57 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
-    
-    if (!checkRateLimit(keyString)) {
-      console.warn('Rate limiting request to:', keyString);
-      return null as any;
+
+    // Return cached data for league requests
+    if (keyString.includes('/api/leagues')) {
+      const cached = queryClient.getQueryData(queryKey);
+      if (cached) return cached;
+
+      // Fetch once and inject static logos
+      const res = await fetch(queryKey[0] as string, { credentials: "include" });
+      await throwIfResNotOk(res);
+      const data = await res.json();
+
+      // Replace dynamic logos with static ones
+      if (Array.isArray(data)) {
+        data.forEach((item: any) => {
+          if (item.league?.id && STATIC_LEAGUE_LOGOS[item.league.id]) {
+            item.league.logo = STATIC_LEAGUE_LOGOS[item.league.id];
+          }
+        });
+      } else if (data?.league?.id && STATIC_LEAGUE_LOGOS[data.league.id]) {
+        data.league.logo = STATIC_LEAGUE_LOGOS[data.league.id];
+      }
+
+      queryClient.setQueryData(queryKey, data);
+      return data;
     }
-    
+
     try {
       const res = await fetch(queryKey[0] as string, {
         credentials: "include"
       });
-      
+
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
       }
-      
+
       await throwIfResNotOk(res);
-      return await res.json();
+      const data = await res.json();
+
+      // Cache leagues data more aggressively
+      if (keyString.includes('/api/leagues')) {
+        queryClient.setQueryData(queryKey, data);
+      }
+
+      return data;
     } catch (error) {
       console.error(`Query error for ${queryKey[0]}:`, error);
       throw error;
     }
   };
 
-// Query client with configurations
+// Query client with optimized configurations
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -88,12 +117,13 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES, 
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 1, // Allow one retry for transient network issues
+      staleTime: 30 * 60 * 1000, // 30 minutes
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours
+      retry: 1,
       retryDelay: 2000,
       refetchOnMount: false,
-      refetchOnReconnect: true, // Re-fetch when reconnected to handle connection issues
+      refetchOnReconnect: false,
+      cacheTime: 24 * 60 * 60 * 1000, // 24 hours
     },
     mutations: {
       retry: 1,
