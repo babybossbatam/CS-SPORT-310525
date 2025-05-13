@@ -51,17 +51,32 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
           {/* Navigation Tabs */}
           <div className="flex overflow-x-auto no-scrollbar border-t px-6">
             {leagueNavItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${
-                  location === item.href 
-                    ? 'text-blue-600 border-blue-600' 
-                    : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
-                }`}
-              >
-                {item.name}
-              </Link>
+              <div key={item.name} className="relative">
+                <Link
+                  href={item.href}
+                  className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${
+                    location === item.href 
+                      ? 'text-blue-600 border-blue-600' 
+                      : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+                {item.name === 'Matches' && location === item.href && (
+                  <div className="absolute top-full left-0 mt-2 z-50 w-96">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex flex-col gap-2">
+                          <h3 className="font-semibold">Recent Matches</h3>
+                          <div className="text-sm text-gray-600">
+                            Click to view match details
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
