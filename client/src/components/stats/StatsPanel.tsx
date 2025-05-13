@@ -68,7 +68,37 @@ const StatsPanel = () => {
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6">
       <CardHeader className="p-4 border-b border-neutral-200">
-        <h3 className="text-center font-medium">Goals</h3>
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="h-6 w-6 p-0" 
+            onClick={() => {
+              const newIndex = selectedLeague === POPULAR_LEAGUES[0].id 
+                ? POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1].id 
+                : POPULAR_LEAGUES[POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague) - 1].id;
+              dispatch(uiActions.setSelectedLeague(newIndex));
+            }}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          
+          <h3 className="font-medium flex-1 text-center">Goals</h3>
+          
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="h-6 w-6 p-0" 
+            onClick={() => {
+              const newIndex = selectedLeague === POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1].id
+                ? POPULAR_LEAGUES[0].id
+                : POPULAR_LEAGUES[POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague) + 1].id;
+              dispatch(uiActions.setSelectedLeague(newIndex));
+            }}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
 
       <div className="p-4 pb-2 border-b border-neutral-200">
