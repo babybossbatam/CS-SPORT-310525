@@ -29,28 +29,36 @@ const FeaturedMatch = () => {
     queryKey: ['/api/champions-league/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
+    refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
   
   const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading, error: europaLeagueError } = useQuery({
     queryKey: ['/api/europa-league/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
+    refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
   
   const { data: serieAFixtures = [], isLoading: isSerieALoading, error: serieAError } = useQuery({
     queryKey: ['/api/leagues/135/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
+    refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
   
   const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading, error: premierLeagueError } = useQuery({
     queryKey: ['/api/leagues/39/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
+    refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
   
   // Log any API errors
@@ -262,10 +270,10 @@ const FeaturedMatch = () => {
       
       <div className="p-4">
         <div className="flex items-center gap-2 mb-4">
-          {featuredMatch.league && featuredMatch.league.logo ? (
+          {featuredMatch?.league?.logo ? (
             <img 
               src={featuredMatch.league.logo}
-              alt={featuredMatch.league.name || 'League'}
+              alt={featuredMatch.league?.name || 'League'}
               className="w-5 h-5"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
@@ -274,7 +282,7 @@ const FeaturedMatch = () => {
           ) : (
             <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
           )}
-          <span className="text-sm font-medium">{featuredMatch.league ? featuredMatch.league.name : 'Unknown League'}</span>
+          <span className="text-sm font-medium">{featuredMatch?.league?.name || 'Unknown League'}</span>
         </div>
         
         <div className="text-lg font-semibold text-center mb-4">
@@ -297,21 +305,33 @@ const FeaturedMatch = () => {
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => featuredMatch.fixture && featuredMatch.fixture.id && navigate(`/match/${featuredMatch.fixture.id}/h2h`)}
+            onClick={() => {
+              if (featuredMatch?.fixture?.id) {
+                navigate(`/match/${featuredMatch.fixture.id}/h2h`);
+              }
+            }}
           >
             <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">H2H</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => featuredMatch.fixture && featuredMatch.fixture.id && navigate(`/match/${featuredMatch.fixture.id}/stats`)}
+            onClick={() => {
+              if (featuredMatch?.fixture?.id) {
+                navigate(`/match/${featuredMatch.fixture.id}/stats`);
+              }
+            }}
           >
             <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Stats</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => featuredMatch.league && featuredMatch.league.id && navigate(`/league/${featuredMatch.league.id}/bracket`)}
+            onClick={() => {
+              if (featuredMatch?.league?.id) {
+                navigate(`/league/${featuredMatch.league.id}/bracket`);
+              }
+            }}
           >
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>

@@ -77,9 +77,17 @@ interface MatchScoreboardProps {
 }
 
 // Helper function to format date/time
-const formatDateTime = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return format(date, 'EEE, dd MMM yyyy • HH:mm');
+const formatDateTime = (dateStr: string | undefined) => {
+  if (!dateStr) return 'Date TBD';
+  
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Date TBD';
+    return format(date, 'EEE, dd MMM yyyy • HH:mm');
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Date TBD';
+  }
 };
 
 export function MatchScoreboard({ 
@@ -103,11 +111,14 @@ export function MatchScoreboard({
   const openTeamEvolution = (team: typeof teams.home | typeof teams.away, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering parent onClick
     
-    setEvolutionModalTeam({
-      id: team.id.toString(),
-      name: team.name,
-      logo: team.logo
-    });
+    // Check if team data exists and has required properties
+    if (team && team.id !== undefined && team.name && team.logo) {
+      setEvolutionModalTeam({
+        id: team.id.toString(),
+        name: team.name,
+        logo: team.logo
+      });
+    }
   };
   
   // Function to close team logo evolution modal
@@ -144,13 +155,13 @@ export function MatchScoreboard({
           {/* Home team logo with animation and evolution capability */}
           <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
             <AnimatedTeamLogo
-              logoUrl={teams.home.logo}
-              teamName={teams.home.name}
+              logoUrl={teams?.home?.logo || 'https://via.placeholder.com/80?text=Team'}
+              teamName={teams?.home?.name || 'Home Team'}
               size="md"
               isHome={true}
-              winner={teams.home.winner}
+              winner={teams?.home?.winner || false}
               onClick={(e?: React.MouseEvent) => {
-                if (e && e.detail === 2) {
+                if (e && e.detail === 2 && teams?.home) {
                   // Double click opens evolution modal
                   openTeamEvolution(teams.home, e);
                 } else if (onClick) {
@@ -163,8 +174,8 @@ export function MatchScoreboard({
           
           {/* Home team name display */}
           <div className="absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
-            {teams.home.name}
-            {teams.home.winner && (
+            {teams?.home?.name || 'Home Team'}
+            {teams?.home?.winner && (
               <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
             )}
           </div>
@@ -197,8 +208,8 @@ export function MatchScoreboard({
           
           {/* Away team name display */}
           <div className="absolute right-[calc(4px+72px)] mr-8 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right z-20">
-            {teams.away.name}
-            {teams.away.winner && (
+            {teams?.away?.name || 'Away Team'}
+            {teams?.away?.winner && (
               <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
             )}
           </div>
@@ -206,13 +217,13 @@ export function MatchScoreboard({
           {/* Away team logo with animation and evolution capability */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
             <AnimatedTeamLogo
-              logoUrl={teams.away.logo}
-              teamName={teams.away.name}
+              logoUrl={teams?.away?.logo || 'https://via.placeholder.com/80?text=Team'}
+              teamName={teams?.away?.name || 'Away Team'}
               size="md"
               isHome={false}
-              winner={teams.away.winner}
+              winner={teams?.away?.winner || false}
               onClick={(e?: React.MouseEvent) => {
-                if (e && e.detail === 2) {
+                if (e && e.detail === 2 && teams?.away) {
                   // Double click opens evolution modal
                   openTeamEvolution(teams.away, e);
                 } else if (onClick) {
@@ -251,14 +262,17 @@ export function MatchScoreboard({
           
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
-            <span>{formatDateTime(fixture.date)}</span>
-            {fixture.venue.name && (
-              <span> | {fixture.venue.name}, {fixture.venue.city || ''}</span>
+            <span>{formatDateTime(fixture?.date)}</span>
+            {fixture?.venue?.name && (
+              <span> | {fixture.venue.name}, {fixture.venue?.city || ''}</span>
             )}
           </div>
           
           {/* HT score if available */}
-          {score.halftime.home !== null && score.halftime.away !== null && (
+          {score?.halftime?.home !== null && 
+           score?.halftime?.home !== undefined && 
+           score?.halftime?.away !== null && 
+           score?.halftime?.away !== undefined && (
             <div className="text-xs text-gray-700 mt-1">
               HT: {score.halftime.home} - {score.halftime.away}
             </div>
