@@ -6,14 +6,14 @@ import {
   Tv,
   Trophy,
   CircleDashed,
-  BadgeAlert,
-  ShieldAlert,
+  Target,
+  Dumbbell,
   CircleDot,
   Snowflake,
   Bike,
   Hand,
-  Gauge,
-  Activity
+  Disc,
+  Feather
 } from 'lucide-react';
 
 const SportsCategoryTabs = () => {
@@ -29,32 +29,39 @@ const SportsCategoryTabs = () => {
   return (
     <div className="bg-white border-b border-neutral-200">
       <div className="container mx-auto px-4">
-        <div className="flex items-center space-x-6 overflow-x-auto pb-1">
+        <div className="flex items-center justify-center space-x-5 overflow-x-auto py-2.5">
           {[
             { id: 'tv', icon: Tv, label: 'TV' },
             { id: 'football', icon: Trophy, label: 'Football' },
             { id: 'basketball', icon: CircleDashed, label: 'Basketball' },
-            { id: 'cricket', icon: BadgeAlert, label: 'Cricket' },
-            { id: 'american-football', icon: ShieldAlert, label: 'A.Football' },
+            { id: 'cricket', icon: Target, label: 'Cricket' },
+            { id: 'american-football', icon: Dumbbell, label: 'A.Football' },
             { id: 'baseball', icon: CircleDot, label: 'Baseball' },
             { id: 'hockey', icon: Snowflake, label: 'Hockey' },
             { id: 'tennis', icon: Bike, label: 'Tennis' },
             { id: 'handball', icon: Hand, label: 'Handball' },
-            { id: 'volleyball', icon: Gauge, label: 'Volleyball' },
-            { id: 'rugby', icon: Activity, label: 'Rugby' }
+            { id: 'volleyball', icon: Disc, label: 'Volleyball' },
+            { id: 'rugby', icon: Feather, label: 'Rugby' }
           ].map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => handleSportSelect(id)}
               className={cn(
-                'px-3 py-4 text-sm font-medium flex items-center space-x-2 whitespace-nowrap',
+                'px-3 flex flex-col items-center justify-center whitespace-nowrap',
                 selectedSport === id
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'text-blue-600'
+                  : 'text-gray-500 hover:text-gray-800'
               )}
             >
-              <Icon className="h-4 w-4" />
-              <span>{label}</span>
+              <div className={cn(
+                'rounded-full w-8 h-8 mb-1 flex items-center justify-center',
+                selectedSport === id
+                  ? 'bg-blue-50 border border-blue-100'
+                  : 'bg-gray-50 border border-gray-100'
+              )}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <span className="text-xs font-medium">{label}</span>
             </button>
           ))}
         </div>
