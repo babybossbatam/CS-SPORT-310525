@@ -216,7 +216,7 @@ export function MatchScoreboard({
             </div>
             
             {/* Team name */}
-            <div className={`mr-3 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+            <div className={`mr-3 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
               {teams?.away?.name || 'Away Team'}
             </div>
           </div>
@@ -227,7 +227,7 @@ export function MatchScoreboard({
       
       {/* Match details footer */}
       {!compact && (
-        <div className={`p-2 text-center text-sm border-t border-gray-100 mt-5 transition-all duration-700 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        <div className={`p-2 text-center text-sm border-t border-gray-100 mt-5 transition-all duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{
             transition: 'all 0.3s ease'
           }}

@@ -303,7 +303,7 @@ const FeaturedMatch = () => {
       
       <div className="grid grid-cols-4 gap-4 mt-4 text-center px-4 pb-4">
         <div 
-          className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+          className="flex flex-col items-center cursor-pointer"
           onClick={() => {
             if (featuredMatch?.fixture?.id) {
               navigate(`/match/${featuredMatch.fixture.id}/h2h`);
@@ -314,7 +314,7 @@ const FeaturedMatch = () => {
           <span className="text-xs text-neutral-500">H2H</span>
         </div>
         <div 
-          className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+          className="flex flex-col items-center cursor-pointer"
           onClick={() => {
             if (featuredMatch?.fixture?.id) {
               navigate(`/match/${featuredMatch.fixture.id}/stats`);
