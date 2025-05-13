@@ -23,7 +23,7 @@ export async function apiRequest(
   if (timeout > 0) {
     timeoutId = window.setTimeout(() => {
       try {
-        controller.abort();
+        controller.abort("Request timeout");
       } catch (e) {
         console.warn('Error aborting request:', e);
       }
@@ -93,7 +93,7 @@ export const getQueryFn: <T>(options: {
     if (timeout > 0) {
       timeoutId = window.setTimeout(() => {
         try {
-          controller.abort();
+          controller.abort("Request timeout");
         } catch (e) {
           console.warn('Error aborting request:', e);
         }
