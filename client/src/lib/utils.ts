@@ -528,3 +528,23 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
 }
 export const apiRequest = async (method: string, endpoint: string, body?: any) => {
   const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
+  
+  try {
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API request error for ${method} ${endpoint}:`, error);
+    throw error;
+  }
+};
