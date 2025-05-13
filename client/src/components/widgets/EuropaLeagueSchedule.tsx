@@ -9,18 +9,33 @@ export const EuropaLeagueSchedule: React.FC = () => {
 
   useEffect(() => {
     if (containerRef.current) {
-      // Create the iframe element
-      const iframe = document.createElement('iframe');
-      iframe.src = 'https://www.aiscore.com/tournament-uefa-europa-league/2jr7owi6es1q0em/schedule?isplugin=true';
-      iframe.height = '226';
-      iframe.width = '100%';
-      iframe.scrolling = 'auto';
-      iframe.frameBorder = '0';
-      iframe.style.border = '0';
-      
-      // Clear previous content and append the iframe
-      containerRef.current.innerHTML = '';
-      containerRef.current.appendChild(iframe);
+      try {
+        // Create the iframe element
+        const iframe = document.createElement('iframe');
+        if (iframe) {
+          iframe.src = 'https://www.aiscore.com/tournament-uefa-europa-league/2jr7owi6es1q0em/schedule?isplugin=true';
+          iframe.height = '226';
+          iframe.width = '100%';
+          iframe.scrolling = 'auto';
+          
+          // Use optional chaining to safely set frameBorder
+          if (iframe.frameBorder !== undefined) {
+            iframe.frameBorder = '0';
+          }
+          
+          if (iframe.style) {
+            iframe.style.border = '0';
+          }
+          
+          // Clear previous content and append the iframe
+          if (containerRef.current) {
+            containerRef.current.innerHTML = '';
+            containerRef.current.appendChild(iframe);
+          }
+        }
+      } catch (error) {
+        console.error("Error creating iframe:", error);
+      }
     }
   }, []);
 
