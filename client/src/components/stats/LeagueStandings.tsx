@@ -125,29 +125,25 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
   const standings = data.league.standings[0];
 
   return (
-    <Card className="w-full h-full bg-white shadow-md">
-      <CardHeader className="pb-2 pt-4">
-        <div className="flex items-center justify-between border-b pb-2">
-          <div className="flex items-center gap-3">
+    <Card className="w-full h-full">
+      <LeagueStatsPanel leagueId={leagueId} season={season} className="border-b rounded-t-lg rounded-b-none" />
+      <CardHeader className="pb-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <img 
               src={data.league.logo} 
               alt={data.league.name}
-              className="h-6 w-6 object-contain"
+              className="h-8 w-8 object-contain"
             />
-            <CardTitle className="text-lg font-bold">{data.league.name}</CardTitle>
+            <CardTitle>{data.league.name}</CardTitle>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate(`/league/${leagueId}/standings`)}
-            className="text-xs text-blue-600 hover:text-blue-800"
-          >
-            Full Table
-            <ChevronRight className="h-3 w-3 ml-1" />
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/league/${leagueId}/standings`)}>
+            View Full
+            <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-3">
+      <CardContent>
         <Tabs defaultValue="overall" className="w-full" onValueChange={(v) => setView(v as any)}>
           <TabsList className="w-full mb-4">
             <TabsTrigger value="overall" className="flex-1">Overall</TabsTrigger>
@@ -156,14 +152,18 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
           </TabsList>
 
           <div className="w-full">
-            <Table className="w-full text-sm">
+            <Table>
               <TableHeader>
-                <TableRow className="border-b text-gray-500 text-xs">
-                  <TableHead className="w-8 px-1 py-2 text-center font-medium">#</TableHead>
-                  <TableHead className="px-2 py-2 text-left font-medium">Team</TableHead>
-                  <TableHead className="w-8 px-1 py-2 text-center font-medium">P</TableHead>
-                  <TableHead className="w-12 px-1 py-2 text-center font-medium">GD</TableHead>
-                  <TableHead className="w-10 px-1 py-2 text-center font-medium">PTS</TableHead>
+                <TableRow>
+                  <TableHead className="w-[60px] text-center">Pos</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead className="text-center">P</TableHead>
+                  <TableHead className="text-center">F/A</TableHead>
+                  <TableHead className="text-center">+/-</TableHead>
+                  <TableHead className="text-center">PTS</TableHead>
+                  <TableHead className="text-center">W</TableHead>
+                  <TableHead className="text-center">D</TableHead>
+                  <TableHead className="text-center">L</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -175,30 +175,34 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                   return (
                     <TableRow 
                       key={standing.team.id}
-                      className="cursor-pointer hover:bg-gray-50 border-b last:border-0"
+                      className="cursor-pointer hover:bg-gray-50"
                       onClick={() => navigate(`/team/${standing.team.id}`)}
                     >
-                      <TableCell className="px-1 py-2 text-center text-sm">
-                        <span className={`
-                          ${standing.rank <= 4 ? 'text-green-600' : ''}
-                          ${standing.rank >= 18 ? 'text-red-600' : ''}
-                        `}>
+                      <TableCell className="text-center font-medium">
+                        <div className="flex items-center justify-center gap-1">
                           {standing.rank}
-                        </span>
+                          {standing.rank <= 3 && <Trophy className="h-4 w-4 text-amber-500" />}
+                          {standing.description?.toLowerCase().includes('champions') && 
+                            <Star className="h-4 w-4 text-blue-500" />}
+                        </div>
                       </TableCell>
-                      <TableCell className="px-2 py-2">
+                      <TableCell>
                         <div className="flex items-center gap-2">
                           <img 
                             src={standing.team.logo} 
                             alt={standing.team.name}
-                            className="h-4 w-4 object-contain"
+                            className="h-5 w-5 object-contain"
                           />
-                          <span className="text-sm truncate">{standing.team.name}</span>
+                          <span className="font-medium">{standing.team.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-1 py-2 text-center text-sm">{stats.played}</TableCell>
-                      <TableCell className="px-1 py-2 text-center text-sm">{standing.goalsDiff}</TableCell>
-                      <TableCell className="px-1 py-2 text-center text-sm font-bold">{standing.points}</TableCell>
+                      <TableCell className="text-center">{stats.played}</TableCell>
+                      <TableCell className="text-center">{stats.goals.for}/{stats.goals.against}</TableCell>
+                      <TableCell className="text-center">{standing.goalsDiff}</TableCell>
+                      <TableCell className="text-center font-bold">{standing.points}</TableCell>
+                      <TableCell className="text-center">{stats.win}</TableCell>
+                      <TableCell className="text-center">{stats.draw}</TableCell>
+                      <TableCell className="text-center">{stats.lose}</TableCell>
                     </TableRow>
                   );
                 })}
