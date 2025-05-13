@@ -10,11 +10,15 @@ import { Button } from '@/components/ui/button';
 // League order as specified by user requirement:
 // 1.Europa League, 2.Champions League, 3.Premier League, 4.La Liga, 5.Serie A, 6.Bundesliga
 const POPULAR_LEAGUES = [
-  { id: 3, name: 'Europa League', country: 'Europe' },
+  { id: 135, name: 'Coppa Italia', country: 'Italy' },
   { id: 2, name: 'Champions League', country: 'Europe' },
+  { id: 3, name: 'Europa League', country: 'Europe' },
   { id: 39, name: 'Premier League', country: 'England' },
+  { id: 45, name: 'FA Cup', country: 'England' },
   { id: 140, name: 'La Liga', country: 'Spain' },
   { id: 135, name: 'Serie A', country: 'Italy' },
+  { id: 528, name: 'Community Shield', country: 'England' },
+  { id: 48, name: 'EFL Cup', country: 'England' },
   { id: 78, name: 'Bundesliga', country: 'Germany' },
 ];
 
