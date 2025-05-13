@@ -15,6 +15,6 @@ export const API_REFRESH_INTERVALS = {
 export const CACHE_STALE_TIMES = {
   LIVE_FIXTURES: 1800000,   // 30 minutes
   STANDINGS: 3600000,       // 60 minutes
-  LEAGUES: 3600000,         // 60 minutes
+  LEAGUES: 7200000,         // 120 minutes
   MATCH_DETAILS: 1800000,   // 30 minutes
 };

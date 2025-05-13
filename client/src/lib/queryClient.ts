@@ -88,12 +88,12 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES, 
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: CACHE_STALE_TIMES.LEAGUES, // Use longer stale time for leagues
+      gcTime: 60 * 60 * 1000, // 1 hour
       retry: 1, // Allow one retry for transient network issues
       retryDelay: 2000,
       refetchOnMount: false,
-      refetchOnReconnect: true, // Re-fetch when reconnected to handle connection issues
+      refetchOnReconnect: false, // Disable refetch on reconnect for better caching
     },
     mutations: {
       retry: 1,
