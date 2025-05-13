@@ -183,7 +183,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                         style={{
                           backgroundColor: 
                             standing.rank <= 3 ? '#4CAF50' :
-                            standing.rank <= 7 ? '#2196F3' :
+                            standing.rank <= 7 ? '#9C27B0' :
                             '#9E9E9E'
                         }}
                       />
@@ -191,7 +191,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                         className="text-center font-medium w-8"
                         style={{
                           color: standing.rank <= 3 ? '#4CAF50' :
-                                standing.rank <= 7 ? '#2196F3' :
+                                standing.rank <= 7 ? '#9C27B0' :
                                 '#9E9E9E'
                         }}
                       >
@@ -210,7 +210,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                             <span 
                               className="text-xs"
                               style={{
-                                color: standing.rank <= 3 ? '#4CAF50' : '#2196F3'
+                                color: standing.rank <= 3 ? '#4CAF50' : '#9C27B0'
                               }}
                             >
                               {standing.description}
