@@ -516,36 +516,7 @@ const MatchDetails = () => {
           <CardContent className="p-6">
             {/* Modern scoreboard using the MatchScoreboard component */}
             <div className="flex flex-col items-center w-full">
-              <div className="text-sm text-gray-600 mb-2">
-                {currentFixture.league.name} - {currentFixture.league.round}
-              </div>
-              <div className="text-gray-500 text-sm mb-4">
-                {currentFixture.fixture.status.long}
-              </div>
-
-              <div className="text-4xl font-bold mb-6 flex items-center justify-center gap-4">
-                {currentFixture.goals.home} - {currentFixture.goals.away}
-              </div>
-
-
-              <div className="text-sm text-gray-500">
-                {format(new Date(currentFixture.fixture.date), "EEEE, do MMM | HH:mm")} | {currentFixture.fixture.venue.name}
-              </div>
-
-              <div className="flex items-center justify-center gap-12 w-full border-t pt-4">
-                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
-                  <span className="text-sm">Match Page</span>
-                </button>
-                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
-                  <span className="text-sm">Lineups</span>
-                </button>
-                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
-                  <span className="text-sm">Stats</span>
-                </button>
-                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
-                  <span className="text-sm">Bracket</span>
-                </button>
-              </div>
+              
             </div>
             <MatchScoreboard
               match={currentFixture}
