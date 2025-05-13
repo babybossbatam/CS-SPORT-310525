@@ -150,16 +150,17 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ 
         on401: "throw",
-        timeout: 15000 // 15 second timeout for all queries by default
+        timeout: 30000 // 30 second timeout for all queries by default
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES, 
+      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES,
       gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 1, // Allow one retry for transient network issues
+      retry: 2, // Allow two retries for transient network issues
       retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff capped at 30 seconds
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnReconnect: true, // Re-fetch when reconnected to handle connection issues
+      suspense: false, // Disable suspense to prevent frame access issues
     },
     mutations: {
       retry: 1, // Allow one retry for transient network issues
