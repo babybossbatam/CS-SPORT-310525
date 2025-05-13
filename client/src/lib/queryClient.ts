@@ -48,7 +48,7 @@ export async function apiRequest(
   }
 }
 
-// Query function type
+// Query function type with caching
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
@@ -57,9 +57,10 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
     
-    if (!checkRateLimit(keyString)) {
-      console.warn('Rate limiting request to:', keyString);
-      return null as any;
+    // More aggressive rate limiting for league requests
+    if (keyString.includes('/api/leagues') && !checkRateLimit(keyString)) {
+      const cached = queryClient.getQueryData(queryKey);
+      if (cached) return cached;
     }
     
     try {
@@ -72,14 +73,21 @@ export const getQueryFn: <T>(options: {
       }
       
       await throwIfResNotOk(res);
-      return await res.json();
+      const data = await res.json();
+      
+      // Cache leagues data more aggressively
+      if (keyString.includes('/api/leagues')) {
+        queryClient.setQueryData(queryKey, data);
+      }
+      
+      return data;
     } catch (error) {
       console.error(`Query error for ${queryKey[0]}:`, error);
       throw error;
     }
   };
 
-// Query client with configurations
+// Query client with optimized configurations
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -88,12 +96,13 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_STALE_TIMES.LEAGUES, // Use longer stale time for leagues
-      gcTime: 60 * 60 * 1000, // 1 hour
-      retry: 1, // Allow one retry for transient network issues
+      staleTime: CACHE_STALE_TIMES.LEAGUES,
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours
+      retry: 1,
       retryDelay: 2000,
       refetchOnMount: false,
-      refetchOnReconnect: false, // Disable refetch on reconnect for better caching
+      refetchOnReconnect: false,
+      cacheTime: 24 * 60 * 60 * 1000, // 24 hours
     },
     mutations: {
       retry: 1,
