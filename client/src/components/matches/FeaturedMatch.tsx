@@ -289,19 +289,17 @@ const FeaturedMatch = () => {
       </div>
       
       {/* Using MatchScoreboard component for consistent UI */}
-      <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
-        <MatchScoreboard 
-          match={featuredMatch}
-          featured={true}
-          homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
-          awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={() => {
-            if (featuredMatch?.fixture?.id) {
-              navigate(`/match/${featuredMatch.fixture.id}`);
-            }
-          }}
-        />
-      </div>
+      <MatchScoreboard 
+        match={featuredMatch}
+        featured={true}
+        homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
+        awayTeamColor="#8b0000" // Default AS Roma dark red color
+        onClick={() => {
+          if (featuredMatch?.fixture?.id) {
+            navigate(`/match/${featuredMatch.fixture.id}`);
+          }
+        }}
+      />
       
       <div className="grid grid-cols-4 gap-4 mt-4 text-center px-4 pb-4">
         <div 
