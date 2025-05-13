@@ -153,6 +153,10 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
 
   return (
     <Card className="w-full h-full">
+      {/* Top Scorers Section */}
+      <div className="p-4 border-b border-neutral-200">
+        <StatsPanel />
+      </div>
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

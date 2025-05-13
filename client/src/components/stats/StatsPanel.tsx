@@ -66,12 +66,9 @@ const StatsPanel = () => {
   const selectedLeagueTopScorers = topScorers[selectedLeague.toString()] || [];
   
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6">
-      <CardHeader className="p-4 border-b border-neutral-200">
-        <h3 className="text-center font-medium">Goals</h3>
-      </CardHeader>
-
-      <div className="p-4 pb-2 border-b border-neutral-200">
+    <div>
+      <h3 className="text-center font-medium mb-4">Goals</h3>
+      <div className="pb-2">
         <Tabs 
           value={selectedLeague.toString()} 
           onValueChange={(value) => setSelectedLeague(parseInt(value))}
@@ -157,7 +154,7 @@ const StatsPanel = () => {
           </button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 
