@@ -144,15 +144,8 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="overall" className="w-full" onValueChange={(v) => setView(v as any)}>
-          <TabsList className="w-full mb-4">
-            <TabsTrigger value="overall" className="flex-1">Overall</TabsTrigger>
-            <TabsTrigger value="home" className="flex-1">Home</TabsTrigger>
-            <TabsTrigger value="away" className="flex-1">Away</TabsTrigger>
-          </TabsList>
-
-          <div className="w-full max-w-full">
-            <Table className="w-full">
+        <div className="w-full max-w-full">
+          <Table className="w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[60px] text-center">Pos</TableHead>
@@ -168,9 +161,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
               </TableHeader>
               <TableBody>
                 {standings.map((standing) => {
-                  const stats = view === 'overall' ? standing.all : 
-                              view === 'home' ? standing.home : 
-                              view === 'away' ? standing.away : null;
+                  const stats = standing.all;
 
                   return (
                     <TableRow 
