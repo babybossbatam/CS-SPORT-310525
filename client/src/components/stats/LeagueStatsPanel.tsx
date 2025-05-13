@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface LeagueStatsPanelProps {
@@ -26,7 +25,7 @@ const LeagueStatsPanel: React.FC<LeagueStatsPanelProps> = ({ leagueId, season = 
   }
 
   return (
-    <Card className={`bg-white shadow-sm p-4 ${className}`}>
+    <div className={`bg-white p-4 ${className}`}>
       <div className="grid grid-cols-4 gap-4">
         <div className="text-center">
           <div className="font-bold text-lg text-blue-600">{stats?.totalMatches || 0}</div>
@@ -45,7 +44,7 @@ const LeagueStatsPanel: React.FC<LeagueStatsPanelProps> = ({ leagueId, season = 
           <div className="text-xs text-gray-600">Teams</div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 
