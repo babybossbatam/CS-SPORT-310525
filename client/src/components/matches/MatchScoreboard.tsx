@@ -166,8 +166,6 @@ export function MatchScoreboard({
             </div>
           </div>
           
-          {/* Home team name display is now part of the pill-shaped component */}
-          
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
           <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
@@ -215,8 +213,8 @@ export function MatchScoreboard({
             }}>
           </div>
           
-          {/* Away team logo container - simple design */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+          {/* Away team logo and name */}
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center flex-row-reverse">
             <div 
               className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               onClick={onClick}
@@ -241,6 +239,11 @@ export function MatchScoreboard({
                   <span className="text-xs">W</span>
                 </div>
               )}
+            </div>
+            
+            {/* Team name */}
+            <div className={`mr-3 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+              {teams?.away?.name || 'Away Team'}
             </div>
           </div>
         </div>
