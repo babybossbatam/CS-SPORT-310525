@@ -289,7 +289,7 @@ const FeaturedMatch = () => {
       </div>
       
       {/* Using MatchScoreboard component for consistent UI */}
-      <div className="px-4">
+      <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
         <MatchScoreboard 
           match={featuredMatch}
           featured={true}
