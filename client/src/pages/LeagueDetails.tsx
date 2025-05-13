@@ -187,12 +187,51 @@ const LeagueDetails = () => {
 
                   <TabsContent value="fixtures" className="mt-2">
                     {fixtures.length > 0 ? (
-                      <EnhancedLeagueFixtures 
-                        fixtures={[...fixtures].sort((a, b) => 
-                          new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-                        )}
-                        onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                      />
+                      <>
+                        <EnhancedLeagueFixtures 
+                          fixtures={[...fixtures].sort((a, b) => 
+                            new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
+                          )}
+                          onMatchClick={(matchId) => {
+                            const selectedFixture = fixtures.find(f => f.fixture.id === matchId);
+                            if (selectedFixture) {
+                              return (
+                                <Card>
+                                  <CardContent className="p-6">
+                                    <div className="flex flex-col items-center w-full">
+                                      <div className="text-sm text-gray-600 mb-2">
+                                        {selectedFixture.league.name} - {selectedFixture.league.round}
+                                      </div>
+                                      <div className="text-gray-500 text-sm mb-4">
+                                        {selectedFixture.fixture.status.long}
+                                      </div>
+                                      <div className="text-4xl font-bold mb-6 flex items-center justify-center gap-4">
+                                        {selectedFixture.goals.home} - {selectedFixture.goals.away}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {format(new Date(selectedFixture.fixture.date), "EEEE, do MMM | HH:mm")} | {selectedFixture.fixture.venue.name}
+                                      </div>
+                                      <Tabs defaultValue="summary" className="w-full mt-4">
+                                        <TabsList>
+                                          <TabsTrigger value="summary">Summary</TabsTrigger>
+                                          <TabsTrigger value="stats">Stats</TabsTrigger>
+                                          <TabsTrigger value="h2h">H2H</TabsTrigger>
+                                          <TabsTrigger value="lineups">Lineups</TabsTrigger>
+                                          <TabsTrigger value="history">History</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="stats">
+                                          <h3>Statistics content here</h3>
+                                        </TabsContent>
+                                      </Tabs>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            }
+                            navigate(`/match/${matchId}`);
+                          }}
+                        />
+                      </>
                     ) : (
                       <Card>
                         <CardContent className="p-4 text-center">
