@@ -62,14 +62,7 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            className="text-sm flex items-center space-x-1 text-white"
-            onClick={() => navigate('/news')}
-          >
-            <Newspaper className="h-4 w-4 mr-1" />
-            <span>News</span>
-          </Button>
+          
           
           <Button 
             variant="ghost" 
