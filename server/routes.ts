@@ -171,43 +171,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Football API routes - Using LivescoreAPI
+  // Football API routes - Using API-Football
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
     try {
-      // Try the new Livescore API first
-      try {
-        const fixtures = await livescoreApiService.getLiveFixtures();
-        if (fixtures && fixtures.length > 0) {
-          console.log(`Retrieved ${fixtures.length} live fixtures from Livescore API`);
-          
-          // Cache the live fixtures for later use
-          for (const fixture of fixtures) {
-            try {
-              const fixtureId = fixture.fixture.id.toString();
-              const existingFixture = await storage.getCachedFixture(fixtureId);
-              
-              if (existingFixture) {
-                await storage.updateCachedFixture(fixtureId, fixture);
-              } else {
-                await storage.createCachedFixture({
-                  fixtureId: fixtureId,
-                  date: new Date().toISOString().split('T')[0],
-                  league: fixture.league.id.toString(),
-                  data: fixture
-                });
-              }
-            } catch (cacheError) {
-              console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
-            }
-          }
-          
-          return res.json(fixtures);
-        }
-      } catch (livescoreError) {
-        console.error('Livescore API error, falling back to RapidAPI:', livescoreError);
-      }
-      
-      // Fall back to RapidAPI if needed
+      // Use API-Football (RapidAPI) only
       try {
         const fixtures = await rapidApiService.getLiveFixtures();
         console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
@@ -372,18 +339,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Try to fetch from Livescore API first
+      // Fetch fixture from API-Football only
       let fixture;
       try {
-        fixture = await livescoreApiService.getFixtureById(id);
-        if (!fixture) {
-          // If not found in Livescore API, try RapidAPI
-          fixture = await rapidApiService.getFixtureById(id);
-        }
-      } catch (livescoreError) {
-        console.error(`Livescore API error for fixture ${id}, falling back to RapidAPI:`, livescoreError);
-        // Fall back to RapidAPI if needed
         fixture = await rapidApiService.getFixtureById(id);
+      } catch (error) {
+        console.error(`API-Football error for fixture ${id}:`, error);
       }
       
       if (!fixture) {
@@ -420,42 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(leagues);
       }
       
-      // Try the new Livescore API first
-      try {
-        const leagues = await livescoreApiService.getLeagues();
-        if (leagues && leagues.length > 0) {
-          // Cache each league
-          try {
-            for (const league of leagues) {
-              try {
-                // Convert to string to ensure we can compare
-                const leagueId = league.league.id.toString();
-                const existingLeague = await storage.getCachedLeague(leagueId);
-                
-                if (existingLeague) {
-                  await storage.updateCachedLeague(leagueId, league);
-                } else {
-                  await storage.createCachedLeague({
-                    leagueId: leagueId,
-                    data: league
-                  });
-                }
-              } catch (individualError) {
-                // Log and continue with other leagues
-                console.error(`Error caching league ${league.league.id}:`, individualError);
-              }
-            }
-          } catch (cacheError) {
-            console.error('Error caching leagues:', cacheError);
-          }
-          
-          return res.json(leagues);
-        }
-      } catch (livescoreError) {
-        console.error('Livescore API error for leagues, falling back to RapidAPI:', livescoreError);
-      }
-      
-      // Fall back to RapidAPI if needed
+      // Use API-Football (RapidAPI) only
       try {
         const leagues = await rapidApiService.getLeagues();
         
@@ -579,15 +505,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try to fetch from Livescore API first
       let league;
       try {
-        league = await livescoreApiService.getLeagueById(id);
-        if (!league) {
-          // If not found in Livescore API, try RapidAPI
-          league = await rapidApiService.getLeagueById(id);
-        }
-      } catch (livescoreError) {
-        console.error(`Livescore API error for league ${id}, falling back to RapidAPI:`, livescoreError);
-        // Fall back to RapidAPI if needed
+        // Use API-Football (RapidAPI) only
         league = await rapidApiService.getLeagueById(id);
+      } catch (error) {
+        console.error(`API-Football error for league ${id}:`, error);
       }
       
       if (!league) {
@@ -623,18 +544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Fetching fixtures for league ${id} with fixed season ${season} as requested`);
       
-      // Try the Livescore API first
-      try {
-        const fixtures = await livescoreApiService.getFixturesByLeague(id, season);
-        if (fixtures && fixtures.length > 0) {
-          console.log(`Received ${fixtures.length} fixtures for league ${id} from Livescore API`);
-          return res.json(fixtures);
-        }
-      } catch (livescoreError) {
-        console.error(`Livescore API error for league fixtures ${id}, falling back to RapidAPI:`, livescoreError);
-      }
-      
-      // Fall back to RapidAPI
+      // Use API-Football (RapidAPI) only
       const fixtures = await rapidApiService.getFixturesByLeague(id, season);
       console.log(`Received ${fixtures ? fixtures.length : 0} fixtures for league ${id} from RapidAPI`);
       
