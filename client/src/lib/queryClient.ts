@@ -15,66 +15,45 @@ export async function apiRequest(
   data?: unknown | undefined,
   timeout: number = 15000 // Default 15 second timeout
 ): Promise<Response> {
-  // Create an AbortController to handle request timeouts
-  const controller = new AbortController();
-  const { signal } = controller;
-  
-  let timeoutId: number | undefined;
-  
-  // Only set up timeout if timeout value is valid
-  if (timeout > 0) {
-    timeoutId = window.setTimeout(() => {
-      try {
-        controller.abort("Request timeout");
-      } catch (e) {
-        console.warn('Error aborting request:', e);
-      }
-    }, timeout);
-  }
-  
   try {
-    const res = await fetch(url, {
+    const controller = new AbortController();
+    const { signal } = controller;
+    
+    let timeoutId: number | undefined;
+    
+    const fetchPromise = fetch(url, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       signal
     });
-    
-    // Clear the timeout since the request completed
+
+    if (timeout > 0) {
+      timeoutId = window.setTimeout(() => controller.abort(), timeout);
+    }
+
+    const response = await fetchPromise;
+
     if (timeoutId !== undefined) {
       window.clearTimeout(timeoutId);
     }
-    
-    await throwIfResNotOk(res);
-    return res;
+
+    await throwIfResNotOk(response);
+    return response;
   } catch (error) {
-    // Clear the timeout to prevent memory leaks
-    if (timeoutId !== undefined) {
-      window.clearTimeout(timeoutId);
-    }
-    
-    // Log error and handle specific error types
     console.error(`API request error for ${method} ${url}:`, error);
     
     if (error instanceof Error) {
-      // Handle abort errors
       if (error.name === 'AbortError') {
-        throw new Error(`Request timeout: The ${method} request to ${url} took too long to complete. Please try again later.`);
+        throw new Error('Request timed out. Please try again.');
       }
-      
-      // Handle network errors
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error(`Network error: Could not connect to the server. Please check your internet connection and try again.`);
-      }
-      
-      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-        throw new Error(`Network error: The server is unreachable. Please check your connection and try again.`);
+      if (error instanceof TypeError) {
+        throw new Error('Network error. Please check your connection.');
       }
     }
     
-    // Rethrow the original error if not handled above
-    throw error;
+    throw new Error('An unexpected error occurred. Please try again.');
   }
 }
 
