@@ -193,9 +193,12 @@ const LeagueDetails = () => {
       <TournamentHeader title={league.league.name} />
 
       <div className="container mx-auto px-4 py-4">
-        <Card className="mb-6">
-          <CardHeader className="p-4 border-b border-neutral-200">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Left column (8 columns) */}
+          <div className="lg:col-span-8">
+            <Card className="mb-6">
+              <CardHeader className="p-4 border-b border-neutral-200">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-4 mb-4">
                 <TabsTrigger value="fixtures" className="flex items-center">
                   <CalendarDays className="h-4 w-4 mr-2" />
@@ -269,11 +272,33 @@ const LeagueDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-            
-          </Tabs>
-          </CardHeader>
-        </Card>
+            </Tabs>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* Right column (4 columns) */}
+        <div className="lg:col-span-4 space-y-4">
+          <Card>
+            <CardHeader className="p-4 border-b border-neutral-200">
+              <h3 className="font-semibold text-gray-700">League Information</h3>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-neutral-600" />
+                  <span className="text-sm">Season {league.league.season}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 text-neutral-600" />
+                  <span className="text-sm">Current Round: {league.league.round}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+    </div>
     </>
   );
 };
