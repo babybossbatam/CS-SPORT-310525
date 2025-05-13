@@ -396,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 await storage.updateCachedLeague(leagueId, league);
               } else {
                 await storage.createCachedLeague({
-                  league: leagueId,
+                  leagueId: leagueId,
                   data: league
                 });
               }
@@ -519,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateCachedLeague(id.toString(), league);
       } else {
         await storage.createCachedLeague({
-          league: id.toString(),
+          leagueId: id.toString(),
           data: league
         });
       }
