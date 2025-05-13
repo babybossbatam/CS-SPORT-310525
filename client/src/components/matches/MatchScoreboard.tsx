@@ -121,12 +121,10 @@ export function MatchScoreboard({
           cursor: onClick ? 'pointer' : 'default'
         }}
       >
-        {/* Previous navigation buttons removed */}
-        
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo and name */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center">
+          <div className="absolute left-4 z-20 flex items-center" style={{top: "calc(50% - 24px)"}}>
             <div 
               className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
@@ -170,9 +168,11 @@ export function MatchScoreboard({
           
           {/* VS SECTION - fixed size */}
           <div 
-            className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute text-white font-bold text-xs rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{
-              background: '#a00000'
+              background: '#a00000',
+              left: 'calc(50% - 20px)',
+              top: 'calc(50% - 20px)'
             }}
           >
             <span className="vs-text font-bold">VS</span>
@@ -187,7 +187,7 @@ export function MatchScoreboard({
           </div>
           
           {/* Away team logo and name */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center flex-row-reverse">
+          <div className="absolute right-4 z-20 flex items-center flex-row-reverse" style={{top: "calc(50% - 24px)"}}>
             <div 
               className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
@@ -221,8 +221,6 @@ export function MatchScoreboard({
             </div>
           </div>
         </div>
-        
-        {/* Next navigation button removed */}
       </div>
       
       {/* Match details footer */}
@@ -257,12 +255,6 @@ export function MatchScoreboard({
           )}
         </div>
       )}
-      
-      {/* Featured badge removed as it's now handled in the FeaturedMatch component */}
-      
-      {/* Removed video highlights and live stream components */}
-      
-      {/* Team Logo Evolution Modal removed */}
     </>
   );
 }
