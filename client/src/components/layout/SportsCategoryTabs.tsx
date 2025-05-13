@@ -1,12 +1,8 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions } from '@/lib/store';
-
-interface SportsCategoryTabsProps {
-  onSportClick?: (sportId: string) => void;
-}
-
 import { cn } from '@/lib/utils';
 import { 
   Tv, 
@@ -20,6 +16,11 @@ import {
   Volleyball, 
   Bug 
 } from 'lucide-react';
+import FeaturedMatch from '../matches/FeaturedMatch';
+
+interface SportsCategoryTabsProps {
+  onSportClick?: (sportId: string) => void;
+}
 
 const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   const [location] = useLocation();
@@ -27,9 +28,6 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   const tabsRef = useRef<HTMLDivElement>(null);
   const isMatchDetailsPage = location.startsWith('/match/');
-
-  // Add selectedLeague state
-  const [selectedLeague, setSelectedLeague] = useState({ name: 'League', logo: 'https://via.placeholder.com/40' });
 
   // Define sports categories
   const categories = [
@@ -45,17 +43,6 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
     { id: 'cricket', name: 'Cricket', icon: Bug },
   ];
 
-  // Define league navigation items
-  const leagueNavItems = [
-    { name: 'Details', href: '#details' },
-    { name: 'Matches', href: '#matches' },
-    { name: 'Standings', href: '#standings' },
-    { name: 'News', href: '#news' },
-    { name: 'Highlights', href: '#highlights' },
-    { name: 'Transfers', href: '#transfers' },
-    { name: 'History', href: '#history' },
-  ];
-
   // Scroll to selected tab
   useEffect(() => {
     const selectedTabElement = document.getElementById(`sport-tab-${selectedSport}`);
@@ -69,8 +56,6 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   // Handle sport selection
   const handleSportSelect = (sportId: string) => {
     dispatch(uiActions.setSelectedSport(sportId));
-
-    // Call the onSportClick callback if provided
     if (onSportClick) {
       onSportClick(sportId);
     }
@@ -89,34 +74,39 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
                 msOverflowStyle: 'none'
               }}
             >
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const isActive = category.id === selectedSport;
+              {categories.map((category) => {
+                const Icon = category.icon;
+                const isActive = category.id === selectedSport;
 
-              return (
-                <Link 
-                  key={`${category.id}-${category.name}`}
-                  href={`/${category.id}`}
-                  id={`sport-tab-${category.id}`}
-                  className={cn(
-                    "flex items-center px-1 py-1 text-sm whitespace-nowrap",
-                    isActive 
-                      ? "font-medium border-b-2 border-[#3182CE] text-[#3182CE]" 
-                      : "text-gray-700 hover:text-gray-900"
-                  )}
-                  onClick={() => handleSportSelect(category.id)}
-                >
-                  <Icon className="mr-2 h-4 w-4" />
-                  <span>{category.name}</span>
-                </Link>
-              );
-            })}
-          </div>
+                return (
+                  <Link 
+                    key={`${category.id}-${category.name}`}
+                    href={`/${category.id}`}
+                    id={`sport-tab-${category.id}`}
+                    className={cn(
+                      "flex items-center px-1 py-1 text-sm whitespace-nowrap",
+                      isActive 
+                        ? "font-medium border-b-2 border-[#3182CE] text-[#3182CE]" 
+                        : "text-gray-700 hover:text-gray-900"
+                    )}
+                    onClick={() => handleSportSelect(category.id)}
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
+                    <span>{category.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
 
-      
+      {/* Show FeaturedMatch only on main page */}
+      {location === '/' && (
+        <div className="container mx-auto px-4 py-4">
+          <FeaturedMatch />
+        </div>
+      )}
     </>
   );
 };
