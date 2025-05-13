@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
@@ -259,66 +260,20 @@ const LeagueDetails = () => {
               </TabsList>
 
               <TabsContent value="fixtures" className="mt-2">
-                <Card>
-                  <CardContent className="p-4">
-                    {fixtures.length > 0 ? (
-                      <div className="space-y-4">
-                        {[...fixtures].sort((a, b) => 
-                        new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-                      ).map((fixture) => (
-                          <div 
-                            key={fixture.fixture.id}
-                            className="p-3 border-b border-neutral-200 cursor-pointer hover:bg-gray-50"
-                            onClick={() => navigate(`/match/${fixture.fixture.id}`)}
-                          >
-                            <div className="flex items-center text-sm mb-1">
-                              <span className="text-xs text-neutral-500 mr-2">
-                                {formatDateTime(fixture.fixture.date)}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3 w-5/12">
-                                <div className="text-right w-full">
-                                  <span className="font-medium">{fixture.teams.home.name}</span>
-                                </div>
-                                <img 
-                                  src={fixture.teams.home.logo} 
-                                  alt={fixture.teams.home.name} 
-                                  className="h-8 w-8"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=Team';
-                                  }}
-                                />
-                              </div>
-                              <div className="flex items-center justify-center w-2/12">
-                                <span className="font-bold text-lg">
-                                  {fixture.goals.home !== null ? fixture.goals.home : '-'} - {fixture.goals.away !== null ? fixture.goals.away : '-'}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-3 w-5/12">
-                                <img 
-                                  src={fixture.teams.away.logo} 
-                                  alt={fixture.teams.away.name} 
-                                  className="h-8 w-8"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32?text=Team';
-                                  }}
-                                />
-                                <div className="w-full">
-                                  <span className="font-medium">{fixture.teams.away.name}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-sm text-gray-500">No fixtures available for this league.</p>
-                      </div>
+                {fixtures.length > 0 ? (
+                  <EnhancedLeagueFixtures 
+                    fixtures={[...fixtures].sort((a, b) => 
+                      new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
                     )}
-                  </CardContent>
-                </Card>
+                    onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                  />
+                ) : (
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <p className="text-sm text-gray-500">No fixtures available for this league.</p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               <TabsContent value="standings" className="mt-2">
