@@ -124,16 +124,20 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
             <div className="flex flex-col">
               {/* League Header */}
               <div className="flex items-center gap-3 py-4">
-                <img 
-                  src={selectedLeague?.logo || 'https://via.placeholder.com/40'} 
-                  alt={selectedLeague?.name || 'League'} 
-                  className="w-10 h-10 object-contain"
-                />
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-bold text-neutral-900">{selectedLeague?.name || 'League'}</h1>
-                  <button className="text-blue-500 text-sm font-medium px-3 py-1 rounded-full border border-blue-500 hover:bg-blue-50">
-                    Follow
-                  </button>
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={selectedLeague?.logo || 'https://via.placeholder.com/40'} 
+                    alt={selectedLeague?.name || 'League'} 
+                    className="w-10 h-10 object-contain bg-white rounded-md"
+                  />
+                  <div className="flex flex-col">
+                    <h1 className="text-xl font-bold text-neutral-900">{selectedLeague?.name || 'League'}</h1>
+                    <div className="flex items-center gap-2 mt-1">
+                      <button className="text-blue-500 text-sm font-medium px-3 py-1 rounded-full border border-blue-500 hover:bg-blue-50">
+                        Follow
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
               
