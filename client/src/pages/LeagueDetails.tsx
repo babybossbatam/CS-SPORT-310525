@@ -272,7 +272,14 @@ const LeagueDetails = () => {
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-center py-8">
-                      <p className="text-sm text-gray-500">Tournament bracket will be displayed here.</p>
+                      {loading ? (
+                        <div className="space-y-4">
+                          <Skeleton className="h-8 w-48 mx-auto" />
+                          <Skeleton className="h-64 w-full" />
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">Tournament bracket will be displayed here.</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
