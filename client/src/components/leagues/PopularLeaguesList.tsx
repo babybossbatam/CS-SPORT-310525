@@ -10,7 +10,7 @@ import { apiRequest } from '@/lib/queryClient';
 
 // Define our popular leagues data
 const leagueData = [
-  { id: 4, name: 'Coppa Italia', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/4.png' },
+  { id: 137, name: 'Coppa Italia', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/137.png' },
   { id: 2, name: 'UEFA Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
   { id: 3, name: 'UEFA Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' },
   { id: 39, name: 'Premier League', country: 'England', logo: 'https://media.api-sports.io/football/leagues/39.png' },
