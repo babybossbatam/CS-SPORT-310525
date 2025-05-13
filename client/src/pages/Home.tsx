@@ -171,6 +171,14 @@ const Home = () => {
             
             <LiveScoreboardPage />
             
+            {/* Popular Leagues section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
+              <h3 className="font-semibold text-gray-700 p-3">Popular Leagues</h3>
+              <div>
+                <PopularLeaguesList />
+              </div>
+            </div>
+
             {/* Popular Teams Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
               <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
@@ -205,14 +213,7 @@ const Home = () => {
               <EuropaLeagueSchedule />
             </div>
             
-            {/* Popular Leagues section - New Design */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <h3 className="font-semibold text-gray-700 p-3">Popular Leagues</h3>
-              <div>
-                <PopularLeaguesList />
-              </div>
             </div>
-          </div>
         </div>
         
         {/* Stats Section */}
