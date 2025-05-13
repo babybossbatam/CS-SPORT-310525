@@ -160,19 +160,9 @@ const Home = () => {
             {/* Featured Match - Added at the top */}
             <FeaturedMatch />
             
-            {/* Top Scorers Section - Moved below Featured Match */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <h3 className="font-semibold text-gray-700 p-3">Top Scorers</h3>
-              <div className="px-3 pb-3">
-                <TopScorersList />
-              </div>
-            </div>
-
             <div className="mt-4">
               <LeagueStandingsFilter />
             </div>
-            
-            
             
             <LiveScoreboardPage />
             
@@ -189,6 +179,14 @@ const Home = () => {
               <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
               <div>
                 <PopularTeamsList />
+              </div>
+            </div>
+
+            {/* Top Scorers Section */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
+              <h3 className="font-semibold text-gray-700 p-3">Top Scorers</h3>
+              <div className="px-3 pb-3">
+                <TopScorersList />
               </div>
             </div>
           </div>
