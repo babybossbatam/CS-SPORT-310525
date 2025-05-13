@@ -121,22 +121,14 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
         <div className="bg-white border-b">
           <div className="container mx-auto px-4">
             <div className="flex flex-col">
-              {/* Navigation Tabs with League Header */}
+              {/* League Header */}
               <div className="flex items-center gap-2 py-2 px-4 border-b">
                 <img 
-                  src={match?.league?.logo || 'https://via.placeholder.com/40'} 
-                  alt={match?.league?.name || 'League'} 
+                  src={selectedLeague?.logo || 'https://via.placeholder.com/40'} 
+                  alt={selectedLeague?.name || 'League'} 
                   className="h-6 w-6 object-contain"
                 />
-                <span className="text-sm font-medium">{match?.league?.name}</span>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={toggleFavorite}
-                  className={`ml-1 ${isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
-                >
-                  <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400' : ''}`} />
-                </Button>
+                <span className="text-sm font-medium">{selectedLeague?.name}</span>
               </div>
 
               {/* Navigation Tabs */}
