@@ -30,26 +30,28 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
   return (
     <div className="bg-white border-b sticky top-0 z-10">
       <div className="mx-auto">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <img 
-              src={leagueLogo} 
-              alt={leagueName}
-              className="h-16 w-16 object-contain"
-            />
-            <div className="flex flex-col">
-              <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <Button variant="outline" size="sm">
-                  Follow
-                </Button>
-                <span className="text-sm text-gray-500">{followers} followers</span>
+        <div className="flex flex-col">
+          <div className="px-6 py-4">
+            <div className="flex items-center gap-4">
+              <img 
+                src={leagueLogo} 
+                alt={leagueName}
+                className="h-16 w-16 object-contain"
+              />
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <Button variant="outline" size="sm">
+                    Follow
+                  </Button>
+                  <span className="text-sm text-gray-500">{followers} followers</span>
+                </div>
               </div>
             </div>
           </div>
           
           {/* Navigation Tabs */}
-          <div className="flex overflow-x-auto no-scrollbar">
+          <div className="flex overflow-x-auto no-scrollbar border-t px-6">
             {leagueNavItems.map((item) => (
               <Link
                 key={item.name}
