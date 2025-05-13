@@ -24,21 +24,37 @@ const FeaturedMatch = () => {
   const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
   // Removed highlights state
   
-  // Get fixture data using React Query with default queryFn
+  // Get fixture data using React Query
   const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
-    queryKey: ['/api/champions-league/fixtures']
+    queryKey: ['/api/champions-league/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/champions-league/fixtures');
+      return response.json();
+    }
   });
   
   const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
-    queryKey: ['/api/europa-league/fixtures']
+    queryKey: ['/api/europa-league/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/europa-league/fixtures');
+      return response.json();
+    }
   });
   
   const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
-    queryKey: ['/api/leagues/135/fixtures']
+    queryKey: ['/api/leagues/135/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/leagues/135/fixtures');
+      return response.json();
+    }
   });
   
   const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading } = useQuery({
-    queryKey: ['/api/leagues/39/fixtures']
+    queryKey: ['/api/leagues/39/fixtures'],
+    queryFn: async () => {
+      const response = await fetch('/api/leagues/39/fixtures');
+      return response.json();
+    }
   });
   
   useEffect(() => {
@@ -63,11 +79,11 @@ const FeaturedMatch = () => {
       });
     };
     
-    // Process sources with type safety - casting to proper types
-    processSource(championsLeagueFixtures as any as FixtureResponse[], "Champions League");
-    processSource(europaLeagueFixtures as any as FixtureResponse[], "Europa League");
-    processSource(serieAFixtures as any as FixtureResponse[], "Serie A");
-    processSource(premierLeagueFixtures as any as FixtureResponse[], "Premier League");
+    // Process sources
+    processSource(championsLeagueFixtures, "Champions League");
+    processSource(europaLeagueFixtures, "Europa League");
+    processSource(serieAFixtures, "Serie A");
+    processSource(premierLeagueFixtures, "Premier League");
     
     // Convert map back to array
     const uniqueFixtures = Array.from(fixtureIdMap.values());
@@ -157,7 +173,7 @@ const FeaturedMatch = () => {
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
   // Format date for match display showing Tomorrow, 2 More Days, etc.
-  const formatFeaturedMatchDate = (dateString: string): string => {
+  const formatMatchDate = (dateString: string): string => {
     const date = parseISO(dateString);
     const today = new Date();
     const tomorrow = new Date(today);
@@ -240,7 +256,7 @@ const FeaturedMatch = () => {
         </div>
         
         <div className="text-lg font-semibold text-center mb-4">
-          {formatFeaturedMatchDate(featuredMatch.fixture.date)}
+          {formatMatchDate(featuredMatch.fixture.date)}
         </div>
         
         {/* Using MatchScoreboard component for consistent UI */}
@@ -249,36 +265,28 @@ const FeaturedMatch = () => {
           featured={true}
           homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
           awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={(e) => {
-            // Prevent default behavior to avoid navigation errors
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Log click attempt for debugging
-            console.log("Attempting to navigate to match details", featuredMatch.fixture.id);
-            
-            // Use try-catch to prevent potential errors
-            try {
-              // For now, don't navigate - we'll implement this later
-              // navigate(`/match/${featuredMatch.fixture.id}`);
-              console.log("Navigation to match details is currently disabled");
-            } catch (error) {
-              console.error("Navigation error:", error);
-            }
-          }}
+          onClick={() => navigate(`/match/${featuredMatch.fixture.id}`)}
         />
         
-        {/* Display icons without click handlers to avoid navigation errors */}
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
-          <div className="flex flex-col items-center">
+          <div 
+            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/h2h`)}
+          >
             <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">H2H</span>
           </div>
-          <div className="flex flex-col items-center">
+          <div 
+            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/stats`)}
+          >
             <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Stats</span>
           </div>
-          <div className="flex flex-col items-center">
+          <div 
+            className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+            onClick={() => navigate(`/league/${featuredMatch.league.id}/bracket`)}
+          >
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>
           </div>
