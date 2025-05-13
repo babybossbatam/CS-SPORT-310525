@@ -151,7 +151,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
             <TabsTrigger value="away" className="flex-1">Away</TabsTrigger>
           </TabsList>
 
-          <div className="overflow-x-auto">
+          <div className="w-full">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -167,7 +167,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {standings.map((standing) => {
+                {standings.slice(0, 24).map((standing) => {
                   const stats = view === 'overall' ? standing.all : 
                               view === 'home' ? standing.home : 
                               view === 'away' ? standing.away : null;
