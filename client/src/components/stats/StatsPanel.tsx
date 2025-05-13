@@ -1,19 +1,21 @@
+
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, statsActions } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
 import { ChevronRight } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 const POPULAR_LEAGUES = [
-  { id: 2, name: 'UCL', logo: 'https://media-4.api-sports.io/football/leagues/2.png' },
-  { id: 39, name: 'EPL', logo: 'https://media-4.api-sports.io/football/leagues/39.png' },
+  { id: 39, name: 'Premier League', logo: 'https://media-4.api-sports.io/football/leagues/39.png' },
   { id: 140, name: 'LaLiga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
-  { id: 135, name: 'Serie A', logo: 'https://media-4.api-sports.io/football/leagues/135.png' }
+  { id: 135, name: 'Serie A', logo: 'https://media-4.api-sports.io/football/leagues/135.png' },
+  { id: 78, name: 'Bundesliga', logo: 'https://media-4.api-sports.io/football/leagues/78.png' }
 ];
 
 const StatsPanel = () => {
@@ -25,18 +27,14 @@ const StatsPanel = () => {
   
   const { topScorers, loading, error } = useSelector((state: RootState) => state.stats);
   
-  // Fetch top scorers for the selected league
   useEffect(() => {
     const fetchTopScorers = async () => {
-      // If already in state, don't fetch again
       if (topScorers[selectedLeague.toString()] && topScorers[selectedLeague.toString()].length > 0) {
         return;
       }
       
       try {
         dispatch(statsActions.setLoadingStats(true));
-        
-        // Get current season
         const currentYear = new Date().getFullYear();
         
         const response = await apiRequest(
@@ -65,10 +63,6 @@ const StatsPanel = () => {
     fetchTopScorers();
   }, [selectedLeague, dispatch, toast, topScorers]);
   
-  const handleLeagueSelect = (leagueId: number) => {
-    setSelectedLeague(leagueId);
-  };
-  
   const selectedLeagueTopScorers = topScorers[selectedLeague.toString()] || [];
   
   return (
@@ -76,32 +70,35 @@ const StatsPanel = () => {
       <CardHeader className="p-4 border-b border-neutral-200">
         <h3 className="text-center font-medium">Goals</h3>
       </CardHeader>
-      {/* Stats Tabs */}
-      <div className="flex overflow-x-auto p-4 pb-2 space-x-4 border-b border-neutral-200">
-        {POPULAR_LEAGUES.map((league) => (
-          <button
-            key={league.id}
-            className={`flex items-center px-3 py-2 text-xs whitespace-nowrap rounded-full ${
-              selectedLeague === league.id 
-                ? 'bg-gray-200 font-medium' 
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => handleLeagueSelect(league.id)}
-          >
-            <img 
-              src={league.logo} 
-              alt={league.name} 
-              className="h-5 w-5 mr-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=League';
-              }}
-            />
-            <span>{league.name}</span>
-          </button>
-        ))}
+
+      <div className="p-4 pb-2 border-b border-neutral-200">
+        <Tabs 
+          value={selectedLeague.toString()} 
+          onValueChange={(value) => setSelectedLeague(parseInt(value))}
+          className="w-full"
+        >
+          <TabsList className="grid grid-cols-4 gap-2">
+            {POPULAR_LEAGUES.map((league) => (
+              <TabsTrigger
+                key={league.id}
+                value={league.id.toString()}
+                className="flex items-center gap-2 px-2 py-1"
+              >
+                <img 
+                  src={league.logo} 
+                  alt={league.name} 
+                  className="h-4 w-4"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
+                  }}
+                />
+                <span className="text-xs truncate">{league.name}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
-      {/* Player Stats */}
       <div className="p-4 space-y-4">
         {loading && !selectedLeagueTopScorers.length ? (
           Array(3).fill(0).map((_, index) => (
@@ -110,14 +107,10 @@ const StatsPanel = () => {
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div>
                   <Skeleton className="h-4 w-32 mb-1" />
-                  <Skeleton className="h-3 w-24 mb-1" />
-                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-24" />
                 </div>
               </div>
-              <div className="text-center">
-                <Skeleton className="h-5 w-5 mx-auto mb-1" />
-                <Skeleton className="h-3 w-10 mx-auto" />
-              </div>
+              <Skeleton className="h-8 w-8" />
             </div>
           ))
         ) : (
@@ -138,12 +131,14 @@ const StatsPanel = () => {
                 />
                 <div>
                   <div className="font-medium text-sm">{playerStat.player.name}</div>
-                  <div className="text-xs text-neutral-500">{playerStat.statistics[0].games.position}</div>
-                  <div className="text-xs text-neutral-500">{playerStat.statistics[0].team.name}</div>
+                  <div className="text-xs text-neutral-500 flex flex-col">
+                    <span>{playerStat.statistics[0].games.position}</span>
+                    <span>{playerStat.statistics[0].team.name}</span>
+                  </div>
                 </div>
               </div>
-              <div className="font-bold text-center">
-                <div>{playerStat.statistics[0].goals.total}</div>
+              <div className="text-center">
+                <div className="font-bold text-lg">{playerStat.statistics[0].goals.total}</div>
                 <div className="text-xs text-neutral-500">Goals</div>
               </div>
             </div>
@@ -152,7 +147,7 @@ const StatsPanel = () => {
 
         <div className="text-center">
           <button 
-            className="text-sm text-[#3182CE] flex items-center justify-center hover:underline"
+            className="text-sm text-[#3182CE] flex items-center justify-center mx-auto hover:underline"
             onClick={() => navigate(`/league/${selectedLeague}/stats`)}
           >
             <span>{POPULAR_LEAGUES.find(l => l.id === selectedLeague)?.name || 'League'} Stats</span>
