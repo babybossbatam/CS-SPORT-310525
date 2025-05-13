@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface TeamLogoProps {
   logoUrl: string;
   teamName: string;
+  teamId?: number | string;
   size?: 'sm' | 'md' | 'lg';
   isHome?: boolean;
   onClick?: (e?: React.MouseEvent) => void;
@@ -11,13 +12,20 @@ interface TeamLogoProps {
 
 const TeamLogo: React.FC<TeamLogoProps> = ({ 
   logoUrl, 
-  teamName, 
+  teamName,
+  teamId,
   size = 'md',
   isHome = true,
   onClick,
   winner = false
 }) => {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [currentLogoUrl, setCurrentLogoUrl] = useState<string>(logoUrl);
+  const [primaryImageFailed, setPrimaryImageFailed] = useState(false);
+  const [secondaryImageFailed, setSecondaryImageFailed] = useState(false);
+
+  // Alternative logo URLs from different API sources
+  const apiFootballUrl = teamId ? `https://media.api-sports.io/football/teams/${teamId}.png` : '';
+  const sportmonkUrl = teamId ? `https://cdn.sportmonks.com/images/soccer/teams/${teamId}.png` : '';
 
   // Determine logo size based on the size prop
   const logoSize = {
@@ -25,6 +33,44 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
     md: "h-[69px]",
     lg: "h-[90px]"
   }[size];
+  
+  useEffect(() => {
+    // Reset failure status if logoUrl changes
+    if (logoUrl !== currentLogoUrl && !primaryImageFailed) {
+      setCurrentLogoUrl(logoUrl);
+      setPrimaryImageFailed(false);
+      setSecondaryImageFailed(false);
+    }
+  }, [logoUrl]);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const imgElement = e.target as HTMLImageElement;
+    
+    if (!primaryImageFailed) {
+      // First failure - try API-Football
+      setPrimaryImageFailed(true);
+      if (apiFootballUrl) {
+        setCurrentLogoUrl(apiFootballUrl);
+        return;
+      }
+    } 
+    else if (!secondaryImageFailed) {
+      // Second failure - try SportMonk
+      setSecondaryImageFailed(true);
+      if (sportmonkUrl) {
+        setCurrentLogoUrl(sportmonkUrl);
+        return;
+      }
+    } 
+    else if (livescoreUrl) {
+      // Third option - try Livescore
+      imgElement.src = livescoreUrl;
+      return;
+    }
+    
+    // Final fallback if all else fails
+    imgElement.src = 'https://via.placeholder.com/80?text=Team';
+  };
   
   return (
     <div 
@@ -40,15 +86,10 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
         }}
       >
         <img 
-          src={logoUrl} 
+          src={currentLogoUrl} 
           alt={teamName}
           className={`${logoSize} w-auto object-contain ${winner ? 'drop-shadow-lg' : ''}`}
-          onError={(e) => {
-            if (!imageFailed) {
-              setImageFailed(true);
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
-            }
-          }}
+          onError={handleImageError}
         />
         
         {/* Winner badge */}
