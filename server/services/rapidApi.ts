@@ -275,12 +275,12 @@ export const rapidApiService = {
         return [];
       }
 
-      // Always use fixed season 2025 as requested
-      const fixedSeason = 2025;
-      console.log(`Using fixed season ${fixedSeason} for league ${leagueId} (${leagueInfo.league.name})`);
+      // Use current year
+      const currentYear = new Date().getFullYear();
+      console.log(`Using current year ${currentYear} for league ${leagueId} (${leagueInfo.league.name})`);
 
       const response = await apiClient.get('/players/topscorers', {
-        params: { league: leagueId, season: fixedSeason }
+        params: { league: leagueId, season: currentYear }
       });
 
       console.log(`Top scorers API response status: ${response.status}, results count: ${response.data?.results || 0}`);
@@ -330,9 +330,9 @@ export const rapidApiService = {
         return null;
       }
 
-      // Always use fixed season 2025 as requested
-      const fixedSeason = 2025;
-      console.log(`Using fixed season ${fixedSeason} for league ${leagueId} (${leagueInfo.league.name})`);
+      // Use current year
+      const currentYear = new Date().getFullYear();
+      console.log(`Using current year ${currentYear} for league ${leagueId} (${leagueInfo.league.name})`);
 
       const response = await apiClient.get('/standings', {
         params: { league: leagueId, season: fixedSeason }
