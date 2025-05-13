@@ -150,7 +150,7 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ 
         on401: "throw",
-        timeout: 30000 // 30 second timeout for all queries by default
+        timeout: 60000 // 60 second timeout for all queries by default
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
