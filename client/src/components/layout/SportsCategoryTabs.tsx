@@ -121,6 +121,19 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
         <div className="bg-white border-b">
           <div className="container mx-auto px-4">
             <div className="flex flex-col">
+              {/* League Header */}
+              <div className="flex items-center gap-2 py-3 px-4 border-b">
+                <img 
+                  src="https://media.api-sports.io/football/leagues/40.png"
+                  alt="ENGLAND CHAMPIONSHIP"
+                  className="h-6 w-6 object-contain"
+                />
+                <span className="text-sm font-medium">ENGLAND CHAMPIONSHIP</span>
+                <button className="ml-2 px-2 py-1 text-xs text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
+                  Follow
+                </button>
+              </div>
+
               {/* Navigation Tabs */}
               <div className="flex overflow-x-auto scrollbar-hide border-b">
                 {leagueNavItems.map((item) => (
