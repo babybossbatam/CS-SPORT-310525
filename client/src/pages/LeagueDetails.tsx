@@ -154,7 +154,6 @@ const LeagueDetails = () => {
     return (
       <>
         <Header />
-        <SportsCategoryTabs />
         <TournamentHeader title="Loading league details..." />
 
         <div className="container mx-auto px-4 py-4">
