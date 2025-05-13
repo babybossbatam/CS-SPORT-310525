@@ -5,7 +5,7 @@ import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatDateTime, formatMatchDate, isLiveMatch } from '@/lib/utils';
+import { formatDateTime, isLiveMatch } from '@/lib/utils';
 import { getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
@@ -256,7 +256,7 @@ const FeaturedMatch = () => {
         </div>
         
         <div className="text-lg font-semibold text-center mb-4">
-          {formatMatchDate(featuredMatch.fixture.date)}
+          {formatFeaturedMatchDate(featuredMatch.fixture.date)}
         </div>
         
         {/* Using MatchScoreboard component for consistent UI */}
