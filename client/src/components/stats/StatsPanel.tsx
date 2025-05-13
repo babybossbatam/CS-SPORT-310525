@@ -66,7 +66,69 @@ const StatsPanel = () => {
   const selectedLeagueTopScorers = topScorers[selectedLeague.toString()] || [];
   
   return (
-    </>
+    <div className="space-y-4">
+      <Tabs defaultValue={selectedLeague.toString()} onValueChange={(value) => setSelectedLeague(Number(value))}>
+        <TabsList className="mb-4">
+          {POPULAR_LEAGUES.map((league) => (
+            <TabsTrigger key={league.id} value={league.id.toString()} className="flex items-center gap-2">
+              <img 
+                src={league.logo} 
+                alt={league.name} 
+                className="w-4 h-4"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/16?text=L';
+                }}
+              />
+              {league.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      {loading && (
+        <div className="space-y-3">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      )}
+
+      {error && (
+        <div className="text-center text-red-500">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && selectedLeagueTopScorers.length > 0 && (
+        <div className="space-y-4">
+          {selectedLeagueTopScorers.slice(0, 3).map((player: any) => (
+            <Card key={player.id} className="overflow-hidden">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <img 
+                        src={player.photo} 
+                        alt={player.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://via.placeholder.com/48?text=P';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <div className="font-semibold">{player.name}</div>
+                      <div className="text-sm text-gray-500">{player.team.name}</div>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold">{player.goals || 0}</div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
