@@ -922,22 +922,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const response = await fetch(sportMonksUrl);
           const data = await response.json();
           
+          // Print the data structure for debugging
+          console.log("SportMonks API response:", JSON.stringify(data).substring(0, 500));
+          
           // Check if response is valid
           if (response.ok && data.data && Array.isArray(data.data)) {
             console.log(`Successfully fetched ${data.data.length} football news articles from SportMonks`);
+            console.log("First article sample:", JSON.stringify(data.data[0]).substring(0, 300));
             
-            // Transform the data to match our news article format
-            const articles = data.data.slice(0, count).map((article: any, index: number) => ({
-              id: index + 1,
-              title: article.title || 'Football News Update',
-              content: article.description || article.content || 'Latest football news and updates.',
-              imageUrl: article.image_url || 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
-              source: "SportMonks",
-              url: article.url || "https://www.sportmonks.com/",
-              publishedAt: article.published_at || new Date().toISOString(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            }));
+            // Transform the SportMonks news data format to match our news article format
+            const articles = data.data.slice(0, count).map((article: any, index: number) => {
+              // Create a URL for the news based on the fixture_id or a default
+              const newsUrl = article.fixture_id ? 
+                `https://www.sportmonks.com/football/match/${article.fixture_id}` : 
+                "https://www.sportmonks.com/";
+              
+              return {
+                id: index + 1,
+                title: article.title || 'Serie A News Update',
+                // Use a generic content since the API doesn't provide detailed content
+                content: `Serie A ${article.type || 'match'} news: ${article.title}`,
+                // Use a default football image
+                imageUrl: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
+                source: "SportMonks Serie A",
+                url: newsUrl,
+                publishedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              };
+            });
             
             return res.json(articles);
           } else {
