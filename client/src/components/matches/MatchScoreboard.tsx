@@ -206,7 +206,7 @@ export function MatchScoreboard({
             <img 
               src={teams?.away?.logo} 
               alt={teams?.away?.name || 'Away Team'} 
-              className="w-8 h-8 object-contain"
+              className="w-10 h-10 object-contain"
               onError={(e) => {
                 e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
               }}
