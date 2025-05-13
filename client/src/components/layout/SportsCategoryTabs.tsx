@@ -121,16 +121,6 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
         <div className="bg-white border-b">
           <div className="container mx-auto px-4">
             <div className="flex flex-col">
-              {/* League Header */}
-              <div className="flex items-center gap-2 py-2 px-4 border-b">
-                <img 
-                  src={selectedLeague?.logo || 'https://via.placeholder.com/40'} 
-                  alt={selectedLeague?.name || 'League'} 
-                  className="h-6 w-6 object-contain"
-                />
-                <span className="text-sm font-medium">{selectedLeague?.name}</span>
-              </div>
-
               {/* Navigation Tabs */}
               <div className="flex overflow-x-auto scrollbar-hide border-b">
                 {leagueNavItems.map((item) => (
