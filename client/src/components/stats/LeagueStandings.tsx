@@ -220,7 +220,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{stats.played}</TableCell>
-                      <TableCell className="text-center">{stats.goals.for}-{stats.goals.against}</TableCell>
+                      <TableCell className="text-center">{stats.goals.for}/{stats.goals.against}</TableCell>
                       <TableCell className="text-center">{standing.goalsDiff}</TableCell>
                       <TableCell className="text-center font-bold">{standing.points}</TableCell>
                       <TableCell className="text-center">{stats.win}</TableCell>
