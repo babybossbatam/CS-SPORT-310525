@@ -20,6 +20,7 @@ import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 // Removed LiveMatchPlayer import
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { MatchScoreboard } from './MatchScoreboard';
 
 // Expanded list of popular leagues
 const POPULAR_LEAGUES = [
@@ -199,12 +200,12 @@ const TodayMatches = () => {
 
   // Take the first 5 fixtures for the today matches display
   const todayMatches = filteredFixtures.slice(0, 5);
-  
+
   // Display loading state or return null if no matches
   if (isSelectedDateFixturesLoading || isLiveLoading || todayMatches.length === 0) {
     return null;
   }
-  
+
   return (
     <div>
       {/* Removed LiveMatchPlayer component */}
@@ -290,10 +291,17 @@ const TodayMatches = () => {
       {/* Main content */}
       <div className="space-y-1">
         {/* Matches display */}
-      <div></div>
-          
-
-
+        {todayMatches.map((match) => (
+          <MatchScoreboard 
+            key={match.fixture.id}
+            match={match}
+            onClick={() => {
+              if (match.fixture.id) {
+                navigate(`/match/${match.fixture.id}`);
+              }
+            }}
+          />
+        ))}
       </div>
     </div>
   );
