@@ -215,20 +215,7 @@ const LeagueDetails = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <img 
-                    src={league.league.logo} 
-                    alt={league.league.name}
-                    className="h-24 w-24 mx-auto mb-2"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=League';
-                    }}
-                  />
-                  <h3 className="text-xl font-semibold">{league.league.name}</h3>
-                  <p className="text-sm text-gray-500">{league.country.name}</p>
-                </div>
-              </div>
+              
 
               <TabsContent value="fixtures" className="mt-2">
                 {fixtures.length > 0 ? (
