@@ -7,9 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import Header from '@/components/layout/Header';
-import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
-import TournamentHeader from '@/components/layout/TournamentHeader';
+import { LeagueDetailsHeader } from '@/components/layout/LeagueDetailsHeader';
 import { Star, ArrowLeft, BarChart2, CalendarDays, Trophy, Table } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -187,9 +185,7 @@ const LeagueDetails = () => {
 
   return (
     <>
-      <Header />
-      <SportsCategoryTabs />
-      <TournamentHeader title={league.league.name} />
+      <LeagueDetailsHeader />
 
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">
