@@ -242,7 +242,7 @@ const FeaturedMatch = () => {
           Featured Match
         </Badge>
       
-      <CardContent className="p-4">
+      <div className="p-4">
         <div className="flex items-center gap-2 mb-4">
           <img 
             src={featuredMatch.league.logo}
@@ -292,7 +292,7 @@ const FeaturedMatch = () => {
           </div>
           {/* Removed highlights button */}
         </div>
-      </CardContent>
+      </div>
     </Card>
     </>
   );
