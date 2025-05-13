@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { format, parseISO } from 'date-fns';
 import { BarChart2, LineChart, Trophy } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime, isLiveMatch } from '@/lib/utils';
@@ -206,7 +206,7 @@ const FeaturedMatch = () => {
           </div>
           <Skeleton className="h-6 w-28" />
         </CardHeader>
-        <CardContent className="p-4">
+        <div className="p-4">
           <Skeleton className="h-6 w-32 mx-auto mb-6" />
           <div className="flex justify-center items-center space-x-4 mb-4">
             <div className="flex flex-col items-center w-1/3">
@@ -222,7 +222,7 @@ const FeaturedMatch = () => {
               <Skeleton className="h-4 w-20" />
             </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     );
   }
