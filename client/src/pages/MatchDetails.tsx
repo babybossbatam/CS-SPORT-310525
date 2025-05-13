@@ -514,8 +514,63 @@ const MatchDetails = () => {
           </CardHeader>
           <CardContent className="p-6">
             {/* Modern scoreboard using the MatchScoreboard component */}
-            <MatchScoreboard 
-              match={currentFixture}
+            <div className="flex flex-col items-center w-full">
+              <div className="text-sm text-gray-600 mb-2">
+                {currentFixture.league.name} - {currentFixture.league.round}
+              </div>
+              <div className="text-gray-500 text-sm mb-4">
+                {currentFixture.fixture.status.long}
+              </div>
+              
+              <div className="text-4xl font-bold mb-6 flex items-center justify-center gap-4">
+                {currentFixture.goals.home} - {currentFixture.goals.away}
+              </div>
+              
+              <div className="w-full flex items-center justify-between mb-8">
+                <div className="flex-1 flex flex-col items-center">
+                  <img 
+                    src={currentFixture.teams.home.logo} 
+                    alt={currentFixture.teams.home.name}
+                    className="w-24 h-24 object-contain mb-2"
+                  />
+                  <div className="text-xl font-bold uppercase text-center">
+                    {currentFixture.teams.home.name}
+                  </div>
+                </div>
+                
+                <div className="text-2xl font-bold px-6">VS</div>
+                
+                <div className="flex-1 flex flex-col items-center">
+                  <img 
+                    src={currentFixture.teams.away.logo} 
+                    alt={currentFixture.teams.away.name}
+                    className="w-24 h-24 object-contain mb-2"
+                  />
+                  <div className="text-xl font-bold uppercase text-center">
+                    {currentFixture.teams.away.name}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-600 mb-4">
+                {format(new Date(currentFixture.fixture.date), "EEEE, do MMM | HH:mm")} | {currentFixture.fixture.venue.name}
+              </div>
+              
+              <div className="flex items-center justify-center gap-12 w-full border-t pt-4">
+                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
+                  <span className="text-sm">Match Page</span>
+                </button>
+                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
+                  <span className="text-sm">Lineups</span>
+                </button>
+                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
+                  <span className="text-sm">Stats</span>
+                </button>
+                <button className="flex flex-col items-center text-gray-600 hover:text-gray-900">
+                  <span className="text-sm">Bracket</span>
+                </button>
+              </div>
+            </div>
               homeTeamColor="#6f7c93" // Exact match to Atalanta blue-gray color in reference
               awayTeamColor="#8b0000" // Exact match to AS Roma dark red color in reference
             />
