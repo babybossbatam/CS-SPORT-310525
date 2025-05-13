@@ -30,32 +30,31 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
   return (
     <div className="bg-white border-b sticky top-0 z-10">
       <div className="mx-auto">
-        {/* League Logo and Name */}
-        <div className="px-6 py-4 flex items-center gap-4">
-          <img 
-            src={leagueLogo} 
-            alt={leagueName}
-            className="h-16 w-16 object-contain"
-          />
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Button variant="outline" size="sm">
-                Follow
-              </Button>
-              <span className="text-sm text-gray-500">{followers} followers</span>
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-4">
+            <img 
+              src={leagueLogo} 
+              alt={leagueName}
+              className="h-16 w-16 object-contain"
+            />
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <Button variant="outline" size="sm">
+                  Follow
+                </Button>
+                <span className="text-sm text-gray-500">{followers} followers</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Navigation Tabs */}
-        <div className="border-t">
+          
+          {/* Navigation Tabs */}
           <div className="flex overflow-x-auto no-scrollbar">
             {leagueNavItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${
+                className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${
                   location === item.href 
                     ? 'text-blue-600 border-blue-600' 
                     : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
