@@ -3,7 +3,7 @@ import { Clock, X, HistoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
-import AnimatedTeamLogo from './AnimatedTeamLogo';
+import TeamLogo from './TeamLogo';
 import TeamLogoModal from '@/components/ui/team-logo-modal';
 
 // Define types

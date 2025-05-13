@@ -28,62 +28,40 @@ const AnimatedTeamLogo: React.FC<AnimatedTeamLogoProps> = ({
     lg: "h-[90px]"
   }[size];
 
-  // Logo animation variants
+  // Simplified logo animation variants
   const logoVariants = {
     initial: { 
       scale: 1, 
-      y: 0, 
-      rotate: 0,
       filter: "drop-shadow(0 4px 3px rgb(0 0 0 / 0.2))" 
     },
     hover: { 
-      scale: 1.1, 
-      y: -5, 
-      rotate: isHome ? -5 : 5,
-      filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.3))" 
+      scale: 1.1,
+      filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.3))"
     },
     tap: { 
-      scale: 0.95, 
-      y: 0,
-      rotate: 0
+      scale: 0.95
     },
     winner: {
-      scale: [1, 1.15, 1.05, 1.15, 1],
-      y: [0, -8, -4, -8, 0],
-      transition: {
-        duration: 1.5,
-        repeat: Infinity,
-        repeatDelay: 5
-      }
+      scale: 1.05,
+      filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.3))"
     }
   };
   
-  // Trophy/star animation for winners
+  // Simplified trophy animation
   const trophyVariants = {
-    hidden: { opacity: 0, scale: 0, y: -10 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0,
-      transition: {
-        delay: 0.2,
-        duration: 0.5,
-        type: "spring",
-        stiffness: 200
-      }
+      opacity: 1
     }
   };
 
-  // Glow effect animation
+  // Simplified glow effect animation without complex transitions
   const glowVariants = {
-    hidden: { opacity: 0, scale: 0.5 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: [0, 0.7, 0],
-      scale: [0.5, 1.2, 1.5],
+      opacity: 0.6,
       transition: {
-        duration: 2,
-        repeat: Infinity,
-        repeatDelay: winner ? 3 : 99999 // Only repeat for winners or on hover
+        duration: 0.3
       }
     }
   };
