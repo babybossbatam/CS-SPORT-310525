@@ -276,7 +276,6 @@ const LeagueDetails = () => {
                 </Card>
               </TabsContent>
             </Tabs>
-            </CardHeader>
           </Card>
         </div>
 
