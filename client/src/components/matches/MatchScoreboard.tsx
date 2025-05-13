@@ -99,11 +99,8 @@ export function MatchScoreboard({
   // Get match data
   const { fixture, league, teams, goals, score } = match;
   
-  // Animation and hover effect states
+  // Animation state
   const [isLoaded, setIsLoaded] = useState(false);
-  const [homeTeamHover, setHomeTeamHover] = useState(false);
-  const [awayTeamHover, setAwayTeamHover] = useState(false);
-  const [scoreboardHover, setScoreboardHover] = useState(false);
   
   // Fade-in animation effect
   useEffect(() => {
@@ -121,12 +118,8 @@ export function MatchScoreboard({
         className={`flex relative h-[30px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClick}
         style={{ 
-          cursor: onClick ? 'pointer' : 'default',
-          transform: scoreboardHover ? 'scale(1.02)' : 'scale(1)',
-          boxShadow: scoreboardHover ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none'
+          cursor: onClick ? 'pointer' : 'default'
         }}
-        onMouseEnter={() => setScoreboardHover(true)}
-        onMouseLeave={() => setScoreboardHover(false)}
       >
         {/* Previous navigation buttons removed */}
         
@@ -164,10 +157,6 @@ export function MatchScoreboard({
           <div className={`h-full w-[calc(50%-18px)] ml-[18px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: homeTeamColor,
-              backgroundImage: homeTeamHover || scoreboardHover ? 
-                'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)' : 
-                'none',
-              boxShadow: homeTeamHover ? 'inset 0 0 10px rgba(255, 255, 255, 0.3)' : 'none',
               transition: 'all 0.3s ease-in-out'
             }}>
           </div>
@@ -187,10 +176,6 @@ export function MatchScoreboard({
           <div className={`h-full w-[calc(50%-18px)] mr-[18px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: awayTeamColor,
-              backgroundImage: awayTeamHover || scoreboardHover ? 
-                'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)' : 
-                'none',
-              boxShadow: awayTeamHover ? 'inset 0 0 10px rgba(255, 255, 255, 0.3)' : 'none',
               transition: 'all 0.3s ease-in-out'
             }}>
           </div>
