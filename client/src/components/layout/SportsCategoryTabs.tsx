@@ -116,18 +116,40 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
 
       {/* League Navigation Section - Hidden on main page */}
       {!location.startsWith('/tv') && location !== '/' && (
-        <div className="bg-white shadow-sm">
+        <div className="bg-white border-b">
           <div className="container mx-auto px-4">
-            <div className="flex overflow-x-auto py-3 space-x-8 scrollbar-hide">
-              {leagueNavItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap transition-colors duration-200"
-                >
-                  {item.name}
-                </Link>
-              ))}
+            <div className="flex flex-col">
+              {/* League Header */}
+              <div className="flex items-center gap-3 py-4">
+                <img 
+                  src={selectedLeague?.logo || 'https://via.placeholder.com/40'} 
+                  alt={selectedLeague?.name || 'League'} 
+                  className="w-10 h-10 object-contain"
+                />
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold text-neutral-900">{selectedLeague?.name || 'League'}</h1>
+                  <button className="text-blue-500 text-sm font-medium px-3 py-1 rounded-full border border-blue-500 hover:bg-blue-50">
+                    Follow
+                  </button>
+                </div>
+              </div>
+              
+              {/* Navigation Tabs */}
+              <div className="flex overflow-x-auto scrollbar-hide border-b">
+                {leagueNavItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors duration-200 border-b-2 ${
+                      location === item.href 
+                        ? 'text-blue-600 border-blue-600' 
+                        : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
