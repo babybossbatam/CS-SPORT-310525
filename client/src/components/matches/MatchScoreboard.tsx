@@ -159,10 +159,18 @@ export function MatchScoreboard({
           </div>
           
           {/* Home team name display */}
-          <div className="absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20">
+          <div className={`absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20 transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+            style={{
+              textShadow: homeTeamHover ? '0 0 8px rgba(255,255,255,0.8)' : 'none',
+              transform: homeTeamHover ? 'translateX(2px) scale(1.05)' : 'translateX(0) scale(1)',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             {teams?.home?.name || 'Home Team'}
             {teams?.home?.winner && (
-              <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+              <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded animate-pulse">
+                Winner
+              </span>
             )}
           </div>
           
@@ -207,10 +215,16 @@ export function MatchScoreboard({
           </div>
           
           {/* Away team name display */}
-          <div className="absolute right-[calc(4px+72px)] mr-8 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right z-20">
+          <div className={`absolute right-[calc(4px+72px)] mr-8 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right z-20 transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
+            style={{
+              textShadow: awayTeamHover ? '0 0 8px rgba(255,255,255,0.8)' : 'none',
+              transform: awayTeamHover ? 'translateX(-2px) scale(1.05)' : 'translateX(0) scale(1)',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             {teams?.away?.name || 'Away Team'}
             {teams?.away?.winner && (
-              <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded">Winner</span>
+              <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded animate-pulse">Winner</span>
             )}
           </div>
           
@@ -246,17 +260,22 @@ export function MatchScoreboard({
       
       {/* Match details footer */}
       {!compact && (
-        <div className="p-2 text-center text-sm border-t border-gray-100 mt-5">
+        <div className={`p-2 text-center text-sm border-t border-gray-100 mt-5 transition-all duration-700 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{
+            boxShadow: scoreboardHover ? 'inset 0 2px 4px rgba(0,0,0,0.1)' : 'none',
+            background: scoreboardHover ? 'rgba(249, 250, 251, 0.5)' : 'transparent',
+            transition: 'all 0.3s ease'
+          }}
+        >
           <div className="flex items-center justify-center gap-2 mb-2">
-            
             {/* Removed live button */}
           </div>
           
-          <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
-            <Clock className="h-3 w-3" />
+          <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200">
+            <Clock className={`h-3 w-3 ${scoreboardHover ? 'text-blue-500' : ''} transition-colors duration-300`} />
             <span>{formatDateTime(fixture?.date)}</span>
             {fixture?.venue?.name && (
-              <span> | {fixture.venue.name}, {fixture.venue?.city || ''}</span>
+              <span className="hover:text-blue-600 transition-colors duration-300"> | {fixture.venue.name}, {fixture.venue?.city || ''}</span>
             )}
           </div>
           
@@ -265,8 +284,10 @@ export function MatchScoreboard({
            score?.halftime?.home !== undefined && 
            score?.halftime?.away !== null && 
            score?.halftime?.away !== undefined && (
-            <div className="text-xs text-gray-700 mt-1">
-              HT: {score.halftime.home} - {score.halftime.away}
+            <div className="text-xs text-gray-700 mt-1 hover:text-blue-700 transition-colors duration-300">
+              <span className={`${scoreboardHover ? 'font-bold' : ''} transition-all duration-300`}>
+                HT: {score.halftime.home} - {score.halftime.away}
+              </span>
             </div>
           )}
         </div>
