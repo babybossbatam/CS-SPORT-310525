@@ -15,36 +15,36 @@ const MatchFilters = () => {
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     // Mark the component as mounted after it's been rendered
     setMounted(true);
-    
+
     // Clear the mounted state when the component unmounts
     return () => setMounted(false);
   }, []);
-  
+
   const selectedFilter = useSelector((state: RootState) => state.ui.selectedFilter);
   const liveFixtures = useSelector((state: RootState) => state.fixtures.live);
   const loading = useSelector((state: RootState) => state.fixtures.loading);
-  
+
   // Get fixtures by date for the selected date
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const fixturesByDate = useSelector((state: RootState) => 
     state.fixtures.byDate[selectedDate] || []
   );
   const byDate = useSelector((state: RootState) => state.fixtures.byDate);
-  
+
   // Get upcoming fixtures for display
   const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
-  
+
   // Fetch fixtures for selected date
   useEffect(() => {
     const fetchFixturesByDate = async () => {
       try {
         // Always set loading state when changing date
         dispatch(fixturesActions.setLoadingFixtures(true));
-        
+
         // Check if we already have data for this date
         const existingFixtures = byDate[selectedDate];
         if (existingFixtures && existingFixtures.length > 0) {
@@ -60,16 +60,16 @@ const MatchFilters = () => {
               })
               .catch(err => console.error('Background refresh error:', err));
           }, 100);
-          
+
           // Keep showing existing data immediately
           dispatch(fixturesActions.setLoadingFixtures(false));
           return;
         }
-        
+
         // Always fetch fresh data when date changes or we don't have data
         const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
         const data = await response.json();
-        
+
         dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
       } catch (error) {
         console.error('Error fetching fixtures by date:', error);
@@ -87,7 +87,7 @@ const MatchFilters = () => {
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
     };
-    
+
     fetchFixturesByDate();
   }, [selectedDate, dispatch, toast, byDate]);
 
@@ -97,10 +97,10 @@ const MatchFilters = () => {
       const fetchLiveFixtures = async () => {
         try {
           dispatch(fixturesActions.setLoadingFixtures(true));
-          
+
           const response = await apiRequest('GET', '/api/fixtures/live');
           const data = await response.json();
-          
+
           dispatch(fixturesActions.setLiveFixtures(data));
         } catch (error) {
           console.error('Error fetching live fixtures:', error);
@@ -113,44 +113,44 @@ const MatchFilters = () => {
           dispatch(fixturesActions.setLoadingFixtures(false));
         }
       };
-      
+
       fetchLiveFixtures();
-      
+
       // Poll for live updates every 30 minutes (1,800,000 ms)
       const intervalId = setInterval(fetchLiveFixtures, 1800000);
-      
+
       return () => clearInterval(intervalId);
     }
   }, [selectedFilter, dispatch, toast]);
-  
+
   // Toggle live filter
   const toggleLiveFilter = () => {
     dispatch(uiActions.setSelectedFilter(
       selectedFilter === 'live' ? 'all' : 'live'
     ));
   };
-  
+
   // Toggle time filter
   const toggleTimeFilter = () => {
     dispatch(uiActions.setSelectedFilter(
       selectedFilter === 'time' ? 'all' : 'time'
     ));
   };
-  
+
   // Check if there are live matches
   const hasLiveMatches = liveFixtures.length > 0;
-  
+
   // Get popular leagues IDs from the store now that we've expanded the list
   const popularLeagueIds = useSelector((state: RootState) => state.leagues.popularLeagues);
-  
+
   // Function to get matches to display in the list
   const getMatchesToDisplay = () => {
     // Initialize with an empty array instead of undefined to prevent flickering
     // Always work with a copy to avoid mutation issues
     let matches = fixturesByDate ? [...fixturesByDate] : [];
-    
+
     console.log(`Getting matches to display: ${matches.length} for date ${selectedDate}`);
-    
+
     // If we're in live mode and have live matches, show only live matches
     if (selectedFilter === 'live' && liveFixtures && liveFixtures.length > 0) {
       console.log(`Using ${liveFixtures.length} live matches`);
@@ -159,10 +159,10 @@ const MatchFilters = () => {
     // If no matches for the selected date but we're loading, use a transition state
     else if ((matches.length === 0 || !matches) && loading) {
       console.log("No matches for selected date but loading, using transition state");
-      
+
       // Create an array from all fixtures we have in different dates
       let previousDateFixtures: any[] = [];
-      
+
       // Safely collect fixtures from other dates
       if (byDate && typeof byDate === 'object') {
         Object.entries(byDate).forEach(([date, fixtures]) => {
@@ -172,7 +172,7 @@ const MatchFilters = () => {
           }
         });
       }
-      
+
       // Use previous fixtures to prevent flickering
       if (previousDateFixtures.length > 0) {
         console.log(`Using ${Math.min(previousDateFixtures.length, 20)} previous fixtures to prevent flickering`);
@@ -185,12 +185,12 @@ const MatchFilters = () => {
       console.log(`Adding ${Math.min(upcomingFixtures.length, 20 - matches.length)} upcoming fixtures`);
       matches = [...matches, ...upcomingFixtures.slice(0, 20 - matches.length)];
     }
-    
+
     // When matches is empty, show a loading indicator or message in the UI
     // But always return a valid array even if empty to prevent rendering errors
-    
+
     console.log(`Before filtering: ${matches.length} matches, popular leagues: ${popularLeagueIds}`);
-    
+
     // DEBUG: Print first few matches to check league IDs
     if (matches.length > 0) {
       console.log("Sample matches with league IDs:");
@@ -200,39 +200,39 @@ const MatchFilters = () => {
         }
       }
     }
-    
+
     // Convert league IDs to strings for comparison since some APIs might return them as strings
     const popularLeagueIdsArray = popularLeagueIds.map(id => id.toString());
-    
+
     // Log popular leagues for debugging
     console.log("Popular league IDs:", popularLeagueIdsArray);
-    
+
     // First, filter out youth and lower division matches using our exclusion filter
     const excludedMatches = matches.filter(match => {
       if (!match || !match.league || !match.teams) return false;
-      
+
       const leagueName = match.league.name || '';
       const homeTeamName = match.teams.home.name || '';
       const awayTeamName = match.teams.away.name || '';
-      
+
       return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
     });
-    
+
     console.log(`After exclusion filter: ${excludedMatches.length} matches remain`);
-    
+
     // Now, be less restrictive in identifying popular leagues by using multiple criteria
     const filteredMatches = excludedMatches.filter(match => {
       if (!match.league) return false;
-      
+
       // Check by ID - most reliable method
       const leagueIdStr = String(match.league.id);
-      
+
       // Debug any potential league ID matches
       if (popularLeagueIdsArray.includes(leagueIdStr)) {
         console.log(`Found popular league match: ${match.league.name} (ID: ${leagueIdStr})`);
         return true;
       }
-      
+
       // Extended check by league name
       const leagueName = (match.league.name || '').toLowerCase();
       const popularNames = [
@@ -240,23 +240,23 @@ const MatchFilters = () => {
         'europa', 'uefa', 'world cup', 'euro', 'copa del rey', 'fa cup', 'copa america',
         'mls', 'eredivisie', 'primeira liga', 'championship', 'super league', 'pro league'
       ];
-      
+
       // Check by country
       const country = (match.league.country || '').toLowerCase();
       const popularCountries = [
         'england', 'spain', 'italy', 'germany', 'france', 'netherlands', 
         'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
       ];
-      
+
       // More lenient check allowing major leagues without strict country restrictions
       if (popularNames.some(name => leagueName.includes(name))) {
         console.log(`Found popular league by name: ${match.league.name} (Country: ${match.league.country})`);
         return true;
       }
-      
+
       return false;
     });
-    
+
     // Use filtered matches if we have enough, otherwise prioritize them but include some others
     if (filteredMatches.length >= 10) {
       console.log(`After filtering: ${filteredMatches.length} matches in popular leagues`);
@@ -273,13 +273,13 @@ const MatchFilters = () => {
       // If no popular matches, just take first 20
       matches = matches.slice(0, 20);
     }
-    
+
     // Sort by status first (live matches first), then by time
     return matches.sort((a, b) => {
       // Live matches first
       if (a.fixture.status.short === 'LIVE' && b.fixture.status.short !== 'LIVE') return -1;
       if (a.fixture.status.short !== 'LIVE' && b.fixture.status.short === 'LIVE') return 1;
-      
+
       // Finished matches next, sorted by most recent
       const aFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
       const bFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
@@ -289,14 +289,14 @@ const MatchFilters = () => {
         // Most recent finished match first
         return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
       }
-      
+
       // Finally sort upcoming matches by time (soonest first)
       const timeA = new Date(a.fixture.date).getTime();
       const timeB = new Date(b.fixture.date).getTime();
       return timeA - timeB;
     }).slice(0, 20); // Show more matches for better coverage
   };
-  
+
   // Get the matches to display in the list, with error handling
   const matchesToDisplay = (() => {
     try {
@@ -306,21 +306,21 @@ const MatchFilters = () => {
       return []; // Return empty array on error instead of breaking the component
     }
   })();
-  
+
   // Determine if we should show the component based on our current location
   // Prevent flickering by checking if we're mounted and not in transition between pages
   const shouldShowComponent = mounted;
-  
+
   // Early return when we're navigating between pages or not yet mounted
   if (!shouldShowComponent) {
     return null;
   }
-  
+
   // Log to help debug what we're actually displaying
   console.log(`Displaying ${matchesToDisplay.length} matches for date ${selectedDate}`);
   console.log(`Filter: ${selectedFilter}, Loading: ${loading}`);
-  
-  
+
+
   return (
     <div className="bg-white shadow-sm rounded-lg">
       <div className="flex justify-between items-center p-4 border-b">
@@ -342,7 +342,7 @@ const MatchFilters = () => {
           )}
           <span>LIVE</span>
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -353,7 +353,7 @@ const MatchFilters = () => {
           <span>by time</span>
         </Button>
       </div>
-      
+
       {/* Match list with Popular Leagues card at the top */}
       <div className="overflow-y-auto max-h-[700px]">
         {loading ? (
@@ -365,6 +365,7 @@ const MatchFilters = () => {
                   <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
                   <div className="h-3 bg-gray-200 rounded w-20"></div>
                 </div>
+```
                 <div className="h-3 bg-gray-200 rounded w-10"></div>
                 <div className="flex items-center gap-2 w-[40%] justify-end">
                   <div className="h-3 bg-gray-200 rounded w-20"></div>
@@ -375,56 +376,8 @@ const MatchFilters = () => {
           </div>
         ) : matchesToDisplay.length > 0 ? (
           <div className="w-full">
-            {/* Display matches directly */}
-            <div className="space-y-1">
-              {matchesToDisplay.map((match) => (
-                <div 
-                  key={match.fixture.id} 
-                  className="hover:bg-gray-50 cursor-pointer px-4 py-2"
-                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex-1 flex items-center justify-end mr-2">
-                      <span className="text-sm truncate text-right mr-2">{match.teams.home.name}</span>
-                      <img 
-                        src={match.teams.home.logo} 
-                        alt={match.teams.home.name} 
-                        className="h-5 w-5 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://static.livescore.com/i/team/default.png';
-                        }}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-center min-w-[50px] text-center">
-                      {match.goals.home !== null && match.goals.away !== null ? (
-                        <div className="text-sm font-medium">
-                          {match.goals.home} - {match.goals.away}
-                        </div>
-                      ) : (
-                        <div className="text-sm font-medium">
-                          {format(new Date(match.fixture.date), 'HH:mm')}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 flex items-center ml-2">
-                      <img 
-                        src={match.teams.away.logo} 
-                        alt={match.teams.away.name} 
-                        className="h-5 w-5 object-contain mr-2"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://static.livescore.com/i/team/default.png';
-                        }}
-                      />
-                      <span className="text-sm truncate">{match.teams.away.name}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Matches will be displayed in TodayMatches component instead */}
+            <div className="space-y-1"></div>
           </div>
         ) : (
           // Empty state
