@@ -184,9 +184,7 @@ const Home = () => {
           <div className="lg:col-span-4 space-y-4">
             {/* Today's Matches Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <h3 className="font-semibold text-gray-700 p-3">Today's Matches</h3>
-              {/* DateNavigator moved to today's matches section */}
-              <div className="border-t border-gray-100">
+              <div className="border-gray-100">
                 <DateNavigator />
               </div>
               {/* MatchFilters moved below DateNavigator */}
