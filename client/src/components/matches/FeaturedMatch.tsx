@@ -249,10 +249,19 @@ const FeaturedMatch = () => {
           featured={true}
           homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
           awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={() => {
+          onClick={(e) => {
+            // Prevent default behavior to avoid navigation errors
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Log click attempt for debugging
+            console.log("Attempting to navigate to match details", featuredMatch.fixture.id);
+            
             // Use try-catch to prevent potential errors
             try {
-              navigate(`/match/${featuredMatch.fixture.id}`);
+              // For now, don't navigate - we'll implement this later
+              // navigate(`/match/${featuredMatch.fixture.id}`);
+              console.log("Navigation to match details is currently disabled");
             } catch (error) {
               console.error("Navigation error:", error);
             }
