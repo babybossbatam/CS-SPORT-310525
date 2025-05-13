@@ -187,7 +187,14 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                             '#9E9E9E'
                         }}
                       />
-                      <TableCell className="text-center font-medium w-8">
+                      <TableCell 
+                        className="text-center font-medium w-8"
+                        style={{
+                          color: standing.rank <= 3 ? '#4CAF50' :
+                                standing.rank <= 7 ? '#2196F3' :
+                                '#9E9E9E'
+                        }}
+                      >
                         {standing.rank}
                       </TableCell>
                       <TableCell>
