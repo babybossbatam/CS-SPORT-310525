@@ -175,20 +175,11 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                   return (
                     <TableRow 
                       key={standing.team.id}
-                      className={`cursor-pointer hover:bg-gray-50 transition-colors duration-500 ${
-                        standing.rank <= 3 ? 'animate-pulse-gold bg-amber-50' :
-                        standing.rank <= 7 ? 'animate-pulse-silver bg-blue-50' :
-                        'animate-pulse-bronze bg-gray-50'
-                      }`}
+                      className="hover:bg-gray-50/50 transition-colors"
                       onClick={() => navigate(`/team/${standing.team.id}`)}
                     >
-                      <TableCell className="text-center font-medium">
-                        <div className="flex items-center justify-center gap-1">
-                          {standing.rank}
-                          {standing.rank <= 3 && <Trophy className="h-4 w-4 text-amber-500" />}
-                          {standing.description?.toLowerCase().includes('champions') && 
-                            <Star className="h-4 w-4 text-blue-500" />}
-                        </div>
+                      <TableCell className="text-center font-medium w-8">
+                        {standing.rank}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -197,11 +188,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                             alt={standing.team.name}
                             className="h-5 w-5 object-contain"
                           />
-                          <span className="font-medium">{standing.team.name}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm">{standing.team.name}</span>
+                            {standing.description && (
+                              <span className="text-xs text-green-600">{standing.description}</span>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{stats.played}</TableCell>
-                      <TableCell className="text-center">{stats.goals.for}/{stats.goals.against}</TableCell>
+                      <TableCell className="text-center">{stats.goals.for}-{stats.goals.against}</TableCell>
                       <TableCell className="text-center">{standing.goalsDiff}</TableCell>
                       <TableCell className="text-center font-bold">{standing.points}</TableCell>
                       <TableCell className="text-center">{stats.win}</TableCell>
