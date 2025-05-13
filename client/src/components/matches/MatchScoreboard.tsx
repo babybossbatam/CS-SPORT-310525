@@ -134,7 +134,7 @@ export function MatchScoreboard({
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo */}
           <div 
-            className={`absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-14 h-14 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`absolute left-2 top-1/2 transform -translate-y-1/2 z-30 w-14 h-14 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             onClick={onClick}
             style={{
               cursor: onClick ? 'pointer' : 'default'
@@ -160,8 +160,8 @@ export function MatchScoreboard({
             {teams?.home?.name || 'Home Team'}
           </div>
           
-          {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-          <div className={`h-full w-[calc(50%-55px)] ml-[55px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          {/* HOME TEAM COLORED BAR - Starts from home logo midpoint and extends to VS */}
+          <div className={`h-full w-[calc(50%-18px)] ml-[18px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: homeTeamColor,
               backgroundImage: homeTeamHover || scoreboardHover ? 
@@ -183,8 +183,8 @@ export function MatchScoreboard({
             <span className="font-bold">VS</span>
           </div>
           
-          {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-          <div className={`h-full w-[calc(50%-63px)] mr-[63px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          {/* AWAY TEAM COLORED BAR - Starts from VS and extends to away logo midpoint */}
+          <div className={`h-full w-[calc(50%-18px)] mr-[18px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: awayTeamColor,
               backgroundImage: awayTeamHover || scoreboardHover ? 
@@ -197,7 +197,7 @@ export function MatchScoreboard({
           
           {/* Away team logo */}
           <div 
-            className={`absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-14 h-14 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`absolute right-2 top-1/2 transform -translate-y-1/2 z-30 w-14 h-14 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             onClick={onClick}
             style={{
               cursor: onClick ? 'pointer' : 'default'
