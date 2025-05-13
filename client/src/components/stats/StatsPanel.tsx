@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, statsActions } from '@/lib/store';
@@ -9,6 +8,7 @@ import { ChevronRight } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { TrendingUp } from 'lucide-react';
 
 const POPULAR_LEAGUES = [
   { id: 135, name: 'Serie A', logo: 'https://media-4.api-sports.io/football/leagues/135.png' },
@@ -21,27 +21,27 @@ const StatsPanel = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  
+
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
-  
+
   const { topScorers, loading, error } = useSelector((state: RootState) => state.stats);
-  
+
   useEffect(() => {
     const fetchTopScorers = async () => {
       if (topScorers[selectedLeague.toString()] && topScorers[selectedLeague.toString()].length > 0) {
         return;
       }
-      
+
       try {
         dispatch(statsActions.setLoadingStats(true));
         const currentYear = new Date().getFullYear();
-        
+
         const response = await apiRequest(
           'GET', 
           `/api/leagues/${selectedLeague}/topscorers?season=${currentYear}`
         );
         const data = await response.json();
-        
+
         dispatch(statsActions.setTopScorers({ 
           leagueId: selectedLeague.toString(),
           players: data 
@@ -58,12 +58,12 @@ const StatsPanel = () => {
         dispatch(statsActions.setLoadingStats(false));
       }
     };
-    
+
     fetchTopScorers();
   }, [selectedLeague, dispatch, toast, topScorers]);
-  
+
   const selectedLeagueTopScorers = topScorers[selectedLeague.toString()] || [];
-  
+
   return (
     <div>
       <h3 className="text-center font-medium mb-4">Goals</h3>
@@ -143,13 +143,13 @@ const StatsPanel = () => {
           ))
         )}
 
-        <div className="text-center">
+        <div className="text-center pt-2">
           <button 
-            className="text-sm text-[#3182CE] flex items-center justify-center mx-auto hover:underline"
+            className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto"
             onClick={() => navigate(`/league/${selectedLeague}/stats`)}
           >
-            <span>{POPULAR_LEAGUES.find(l => l.id === selectedLeague)?.name || 'League'} Stats</span>
-            <ChevronRight className="ml-1 h-4 w-4" />
+            <TrendingUp className="h-3 w-3 mr-1" />
+            See full rankings
           </button>
         </div>
       </div>
