@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Clock, X, HistoryIcon } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { isLiveMatch } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import TeamLogo from './TeamLogo';
-import TeamLogoModal from '@/components/ui/team-logo-modal';
 
 // Define types
 interface Team {
@@ -100,31 +97,6 @@ export function MatchScoreboard({
 }: MatchScoreboardProps) {
   // Get match data
   const { fixture, league, teams, goals, score } = match;
-  // State for team logo evolution modal
-  const [evolutionModalTeam, setEvolutionModalTeam] = useState<null | {
-    id: string;
-    name: string;
-    logo: string;
-  }>(null);
-  
-  // Function to open team logo evolution modal
-  const openTeamEvolution = (team: typeof teams.home | typeof teams.away, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering parent onClick
-    
-    // Check if team data exists and has required properties
-    if (team && team.id !== undefined && team.name && team.logo) {
-      setEvolutionModalTeam({
-        id: team.id.toString(),
-        name: team.name,
-        logo: team.logo
-      });
-    }
-  };
-  
-  // Function to close team logo evolution modal
-  const closeEvolutionModal = () => {
-    setEvolutionModalTeam(null);
-  };
   
   return (
     <>
@@ -134,25 +106,11 @@ export function MatchScoreboard({
         onClick={onClick}
         style={{ cursor: onClick ? 'pointer' : 'default' }}
       >
-        {/* Previous match navigation button with team logo evolution functionality */}
-        {!compact && (
-          <button 
-            className="absolute -left-8 top-1/2 transform -translate-y-1/2 bg-gray-200/80 hover:bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center z-30 transition-all"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent triggering parent onClick
-              openTeamEvolution(teams.home, e);
-            }}
-            title="View Home Team Logo Evolution"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-          </button>
-        )}
+        {/* Previous navigation buttons removed */}
         
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team logo with animation and evolution capability */}
+          {/* Home team logo */}
           <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
             <TeamLogo
               logoUrl={teams?.home?.logo || 'https://via.placeholder.com/80?text=Team'}
@@ -160,15 +118,7 @@ export function MatchScoreboard({
               size="md"
               isHome={true}
               winner={teams?.home?.winner || false}
-              onClick={(e?: React.MouseEvent) => {
-                if (e && e.detail === 2 && teams?.home) {
-                  // Double click opens evolution modal
-                  openTeamEvolution(teams.home, e);
-                } else if (onClick) {
-                  // Regular click navigates to match details
-                  onClick();
-                }
-              }}
+              onClick={onClick ? () => onClick() : undefined}
             />
           </div>
           
@@ -214,7 +164,7 @@ export function MatchScoreboard({
             )}
           </div>
           
-          {/* Away team logo with animation and evolution capability */}
+          {/* Away team logo */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
             <TeamLogo
               logoUrl={teams?.away?.logo || 'https://via.placeholder.com/80?text=Team'}
@@ -222,34 +172,12 @@ export function MatchScoreboard({
               size="md"
               isHome={false}
               winner={teams?.away?.winner || false}
-              onClick={(e?: React.MouseEvent) => {
-                if (e && e.detail === 2 && teams?.away) {
-                  // Double click opens evolution modal
-                  openTeamEvolution(teams.away, e);
-                } else if (onClick) {
-                  // Regular click navigates to match details
-                  onClick();
-                }
-              }}
+              onClick={onClick ? () => onClick() : undefined}
             />
           </div>
         </div>
         
-        {/* Next match navigation button with team logo evolution functionality */}
-        {!compact && (
-          <button 
-            className="absolute -right-8 top-1/2 transform -translate-y-1/2 bg-gray-200/80 hover:bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center z-30 transition-all"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent triggering parent onClick
-              openTeamEvolution(teams.away, e);
-            }}
-            title="View Away Team Logo Evolution"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-            </svg>
-          </button>
-        )}
+        {/* Next navigation button removed */}
       </div>
       
       {/* Match details footer */}
@@ -284,16 +212,7 @@ export function MatchScoreboard({
       
       {/* Removed video highlights and live stream components */}
       
-      {/* Team Logo Evolution Modal */}
-      {evolutionModalTeam && (
-        <TeamLogoModal
-          isOpen={!!evolutionModalTeam}
-          onClose={closeEvolutionModal}
-          teamId={evolutionModalTeam.id}
-          teamName={evolutionModalTeam.name}
-          logoUrl={evolutionModalTeam.logo}
-        />
-      )}
+      {/* Team Logo Evolution Modal removed */}
     </>
   );
 }
