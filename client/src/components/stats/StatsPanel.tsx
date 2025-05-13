@@ -12,10 +12,10 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 const POPULAR_LEAGUES = [
-  { id: 39, name: 'Premier League', logo: 'https://media-4.api-sports.io/football/leagues/39.png' },
-  { id: 140, name: 'LaLiga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
   { id: 135, name: 'Serie A', logo: 'https://media-4.api-sports.io/football/leagues/135.png' },
-  { id: 78, name: 'Bundesliga', logo: 'https://media-4.api-sports.io/football/leagues/78.png' }
+  { id: 140, name: 'LaLiga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
+  { id: 61, name: 'Coppa Italia', logo: 'https://media-4.api-sports.io/football/leagues/61.png' },
+  { id: 2, name: 'UCL', logo: 'https://media-4.api-sports.io/football/leagues/2.png' }
 ];
 
 const StatsPanel = () => {
@@ -131,8 +131,10 @@ const StatsPanel = () => {
                 />
                 <div>
                   <div className="font-medium text-sm">{playerStat.player.name}</div>
-                  <div className="text-xs text-neutral-500 flex flex-col">
+                  <div className="text-xs text-neutral-500">
                     <span>{playerStat.statistics[0].games.position}</span>
+                  </div>
+                  <div className="text-xs text-neutral-500">
                     <span>{playerStat.statistics[0].team.name}</span>
                   </div>
                 </div>
