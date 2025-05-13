@@ -6,7 +6,7 @@ import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
-import SimpleFeaturedMatch from '@/components/matches/SimpleFeaturedMatch';
+import MinimalFeaturedMatch from '@/components/matches/MinimalFeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
 import TodayMatches from '@/components/matches/TodayMatches';
 import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
@@ -156,8 +156,8 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (8 columns) - Live Scoreboard */}
           <div className="lg:col-span-8">
-            {/* Featured Match - Added at the top with error handling */}
-            <SimpleFeaturedMatch />
+            {/* Featured Match - Using minimal version to avoid crashes */}
+            <MinimalFeaturedMatch />
             
             {/* Top Scorers Section - Moved below Featured Match */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
