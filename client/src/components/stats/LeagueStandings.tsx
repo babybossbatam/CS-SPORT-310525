@@ -148,7 +148,6 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
           <Table className="w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[60px] text-center">Pos</TableHead>
                   <TableHead>Team</TableHead>
                   <TableHead className="text-center">P</TableHead>
                   <TableHead className="text-center">F/A</TableHead>
@@ -178,16 +177,6 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                             '#9E9E9E'
                         }}
                       />
-                      <TableCell 
-                        className="text-center font-medium w-8"
-                        style={{
-                          color: standing.rank <= 3 ? '#4CAF50' :
-                                standing.rank <= 7 ? '#9C27B0' :
-                                '#9E9E9E'
-                        }}
-                      >
-                        {standing.rank}
-                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <img 
@@ -222,6 +211,14 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                 })}
               </TableBody>
             </Table>
+          </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default LeagueStandings;
+```</Table>
           </div>
       </CardContent>
     </Card>
