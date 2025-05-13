@@ -104,7 +104,7 @@ const LeagueFilter = () => {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           
-          <TabsList className="flex-1 grid grid-cols-5 h-6 max-w-[410px]">
+          <TabsList className="flex-1 grid grid-cols-5 h-6 max-w-[430px]">
             {visibleLeagues.map((league) => (
               <TabsTrigger 
                 key={league.id} 
