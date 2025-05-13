@@ -25,33 +25,41 @@ const FeaturedMatch = () => {
   // Removed highlights state
   
   // Get fixture data using React Query with our enhanced query client
-  const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
+  const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading, error: championsLeagueError } = useQuery({
     queryKey: ['/api/champions-league/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
-  const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
+  const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading, error: europaLeagueError } = useQuery({
     queryKey: ['/api/europa-league/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
-  const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
+  const { data: serieAFixtures = [], isLoading: isSerieALoading, error: serieAError } = useQuery({
     queryKey: ['/api/leagues/135/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
-  const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading } = useQuery({
+  const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading, error: premierLeagueError } = useQuery({
     queryKey: ['/api/leagues/39/fixtures'],
     retry: 1,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
+  
+  // Log any API errors
+  useEffect(() => {
+    if (championsLeagueError) console.error('Champions League API error:', championsLeagueError);
+    if (europaLeagueError) console.error('Europa League API error:', europaLeagueError);
+    if (serieAError) console.error('Serie A API error:', serieAError);
+    if (premierLeagueError) console.error('Premier League API error:', premierLeagueError);
+  }, [championsLeagueError, europaLeagueError, serieAError, premierLeagueError]);
   
   useEffect(() => {
     // Combine all fixtures - making sure each source is an array
@@ -169,26 +177,35 @@ const FeaturedMatch = () => {
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
   // Format date for match display showing Tomorrow, 2 More Days, etc.
-  const formatMatchDate = (dateString: string): string => {
-    const date = parseISO(dateString);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+  const formatMatchDate = (dateString: string | undefined): string => {
+    if (!dateString) return 'Date TBD';
     
-    // Reset hours to compare just the dates
-    today.setHours(0, 0, 0, 0);
-    tomorrow.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
-    
-    if (date.getTime() === today.getTime()) {
-      return 'Today';
-    } else if (date.getTime() === tomorrow.getTime()) {
-      return 'Tomorrow';
-    } else {
-      // Calculate days difference
-      const diffTime = Math.abs(date.getTime() - today.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return `${diffDays} More Days`;
+    try {
+      const date = parseISO(dateString);
+      if (isNaN(date.getTime())) return 'Date TBD';
+      
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      // Reset hours to compare just the dates
+      today.setHours(0, 0, 0, 0);
+      tomorrow.setHours(0, 0, 0, 0);
+      date.setHours(0, 0, 0, 0);
+      
+      if (date.getTime() === today.getTime()) {
+        return 'Today';
+      } else if (date.getTime() === tomorrow.getTime()) {
+        return 'Tomorrow';
+      } else {
+        // Calculate days difference
+        const diffTime = Math.abs(date.getTime() - today.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return `${diffDays} More Days`;
+      }
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Date TBD';
     }
   };
   
@@ -261,7 +278,7 @@ const FeaturedMatch = () => {
         </div>
         
         <div className="text-lg font-semibold text-center mb-4">
-          {featuredMatch.fixture && featuredMatch.fixture.date ? formatMatchDate(featuredMatch.fixture.date) : 'Date TBD'}
+          {formatMatchDate(featuredMatch?.fixture?.date)}
         </div>
         
         {/* Using MatchScoreboard component for consistent UI */}
@@ -270,7 +287,11 @@ const FeaturedMatch = () => {
           featured={true}
           homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
           awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={() => featuredMatch.fixture && featuredMatch.fixture.id && navigate(`/match/${featuredMatch.fixture.id}`)}
+          onClick={() => {
+            if (featuredMatch?.fixture?.id) {
+              navigate(`/match/${featuredMatch.fixture.id}`);
+            }
+          }}
         />
         
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
