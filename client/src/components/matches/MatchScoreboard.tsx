@@ -137,20 +137,21 @@ export function MatchScoreboard({
             <div 
               className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               onClick={onClick}
-              onMouseEnter={() => setHomeTeamHover(true)}
-              onMouseLeave={() => setHomeTeamHover(false)}
               style={{
-                cursor: onClick ? 'pointer' : 'default',
-                transform: homeTeamHover ? 'scale(1.1)' : 'scale(1)',
-                boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+                cursor: onClick ? 'pointer' : 'default'
               }}
             >
               <img 
-                src={teams?.home?.logo} 
+                src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
                 className="w-8 h-8 object-contain"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
+                  // If SportMonk URL fails, try the original API-Football URL
+                  if (e.currentTarget.src.includes('sportmonks') && teams?.home?.logo) {
+                    e.currentTarget.src = teams.home.logo;
+                  } else {
+                    e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
+                  }
                 }}
               />
               {teams?.home?.winner && (
@@ -170,10 +171,6 @@ export function MatchScoreboard({
           <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: homeTeamColor,
-              backgroundImage: homeTeamHover || scoreboardHover ? 
-                'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)' : 
-                'none',
-              boxShadow: homeTeamHover ? 'inset 0 0 10px rgba(255, 255, 255, 0.3)' : 'none',
               transition: 'all 0.3s ease-in-out'
             }}>
           </div>
@@ -206,20 +203,21 @@ export function MatchScoreboard({
             <div 
               className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               onClick={onClick}
-              onMouseEnter={() => setAwayTeamHover(true)}
-              onMouseLeave={() => setAwayTeamHover(false)}
               style={{
-                cursor: onClick ? 'pointer' : 'default',
-                transform: awayTeamHover ? 'scale(1.1)' : 'scale(1)',
-                boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+                cursor: onClick ? 'pointer' : 'default'
               }}
             >
               <img 
-                src={teams?.away?.logo} 
+                src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
                 alt={teams?.away?.name || 'Away Team'} 
                 className="w-8 h-8 object-contain"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
+                  // If SportMonk URL fails, try the original API-Football URL
+                  if (e.currentTarget.src.includes('sportmonks') && teams?.away?.logo) {
+                    e.currentTarget.src = teams.away.logo;
+                  } else {
+                    e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
+                  }
                 }}
               />
               {teams?.away?.winner && (
