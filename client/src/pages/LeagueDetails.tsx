@@ -194,24 +194,6 @@ const LeagueDetails = () => {
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">
           <CardHeader className="p-4 border-b border-neutral-200">
-            {/* League header moved to SportsCategoryTabs */}
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center mb-6">
-              <div className="text-center">
-                <img 
-                  src={league.league.logo} 
-                  alt={league.league.name}
-                  className="h-24 w-24 mx-auto mb-2"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=League';
-                  }}
-                />
-                <h3 className="text-xl font-semibold">{league.league.name}</h3>
-                <p className="text-sm text-gray-500">{league.country.name}</p>
-              </div>
-            </div>
-
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-4 mb-4">
                 <TabsTrigger value="fixtures" className="flex items-center">
@@ -231,6 +213,23 @@ const LeagueDetails = () => {
                   <span>Bracket</span>
                 </TabsTrigger>
               </TabsList>
+            </Tabs>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center mb-6">
+              <div className="text-center">
+                <img 
+                  src={league.league.logo} 
+                  alt={league.league.name}
+                  className="h-24 w-24 mx-auto mb-2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=League';
+                  }}
+                />
+                <h3 className="text-xl font-semibold">{league.league.name}</h3>
+                <p className="text-sm text-gray-500">{league.country.name}</p>
+              </div>
+            </div>
 
               <TabsContent value="fixtures" className="mt-2">
                 {fixtures.length > 0 ? (
@@ -278,7 +277,7 @@ const LeagueDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-            </Tabs>
+            
           </CardContent>
         </Card>
       </div>
