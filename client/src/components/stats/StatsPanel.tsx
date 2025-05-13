@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, statsActions } from '@/lib/store';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
@@ -96,7 +95,7 @@ const StatsPanel = () => {
         </Tabs>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4">
         {loading && !selectedLeagueTopScorers.length ? (
           Array(3).fill(0).map((_, index) => (
             <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100">
