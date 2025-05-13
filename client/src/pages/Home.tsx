@@ -6,7 +6,7 @@ import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
-import FeaturedMatch from '@/components/matches/FeaturedMatch';
+// Removed FeaturedMatch import due to fetch errors
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
 import TodayMatches from '@/components/matches/TodayMatches';
 import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
@@ -156,10 +156,7 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (8 columns) - Live Scoreboard */}
           <div className="lg:col-span-8">
-            {/* Featured Match - Added at the top */}
-            <FeaturedMatch />
-            
-            {/* Top Scorers Section - Moved below Featured Match */}
+            {/* Top Scorers Section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
               <h3 className="font-semibold text-gray-700 p-3">Top Scorers</h3>
               <div className="px-3 pb-3">
