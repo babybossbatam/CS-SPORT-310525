@@ -200,29 +200,8 @@ const TodayMatches = () => {
   // Take the first 5 fixtures for the today matches display
   const todayMatches = filteredFixtures.slice(0, 5);
   
-  // Display loading state
-  if (isSelectedDateFixturesLoading || isLiveLoading) {
-    return (
-      <div className="animate-pulse">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="flex items-center justify-between p-3 border-b border-gray-100">
-            <div className="flex items-center space-x-2">
-              <Skeleton className="h-5 w-5 rounded-full" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-            <Skeleton className="h-4 w-12" />
-            <div className="flex items-center space-x-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-5 w-5 rounded-full" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  
-  // Return null when there are no matches
-  if (todayMatches.length === 0) {
+  // Display loading state or return null if no matches
+  if (isSelectedDateFixturesLoading || isLiveLoading || todayMatches.length === 0) {
     return null;
   }
   

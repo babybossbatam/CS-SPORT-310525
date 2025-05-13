@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryFunction } from '@tanstack/react-query';
 import { CACHE_STALE_TIMES } from './constants';
 
@@ -18,9 +17,9 @@ export async function apiRequest(
   try {
     const controller = new AbortController();
     const { signal } = controller;
-    
+
     let timeoutId: number | undefined;
-    
+
     const fetchPromise = fetch(url, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
@@ -43,7 +42,7 @@ export async function apiRequest(
     return response;
   } catch (error) {
     console.error(`API request error for ${method} ${url}:`, error);
-    
+
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         throw new Error('Request timed out. Please try again.');
@@ -52,7 +51,7 @@ export async function apiRequest(
         throw new Error('Network error. Please check your connection.');
       }
     }
-    
+
     throw new Error('An unexpected error occurred. Please try again.');
   }
 }
@@ -67,9 +66,9 @@ export const getQueryFn: <T>(options: {
     // Create an AbortController to handle request timeouts
     const controller = new AbortController();
     const { signal } = controller;
-    
+
     let timeoutId: number | undefined;
-    
+
     // Only set up timeout if timeout value is valid
     if (timeout > 0) {
       timeoutId = window.setTimeout(() => {
@@ -80,22 +79,22 @@ export const getQueryFn: <T>(options: {
         }
       }, timeout);
     }
-    
+
     try {
       const res = await fetch(queryKey[0] as string, {
         credentials: "include",
         signal
       });
-      
+
       // Clear the timeout since the request completed
       if (timeoutId !== undefined) {
         window.clearTimeout(timeoutId);
       }
-      
+
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
       }
-      
+
       await throwIfResNotOk(res);
       return await res.json();
     } catch (error) {
@@ -103,26 +102,26 @@ export const getQueryFn: <T>(options: {
       if (timeoutId !== undefined) {
         window.clearTimeout(timeoutId);
       }
-      
+
       // Log error and handle specific error types
       console.error(`Query error for ${queryKey[0]}:`, error);
-      
+
       if (error instanceof Error) {
         // Handle abort errors
         if (error.name === 'AbortError') {
           throw new Error(`Request timeout: The query to ${queryKey[0]} took too long to complete. Please try again later.`);
         }
-        
+
         // Handle network errors
         if (error instanceof TypeError && error.message.includes('fetch')) {
           throw new Error(`Network error: Could not connect to the server. Please check your internet connection and try again.`);
         }
-        
+
         if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
           throw new Error(`Network error: The server is unreachable. Please check your connection and try again.`);
         }
       }
-      
+
       // Rethrow the original error if not handled above
       throw error;
     }
@@ -136,11 +135,11 @@ const MIN_REQUEST_INTERVAL = 1000; // 1 second minimum between same requests
 const checkRateLimit = (key: string) => {
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
-  
+
   if (lastRequest && now - lastRequest < MIN_REQUEST_INTERVAL) {
     return false;
   }
-  
+
   requestTimestamps.set(key, now);
   return true;
 };
@@ -150,17 +149,19 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ 
         on401: "throw",
-        timeout: 60000 // 60 second timeout for all queries by default
+        timeout: 60000 // 60 second timeout for all queries
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES,
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 2, // Allow two retries for transient network issues
-      retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff capped at 30 seconds
-      refetchOnMount: true,
-      refetchOnReconnect: true, // Re-fetch when reconnected to handle connection issues
-      suspense: false, // Disable suspense to prevent frame access issues
+      gcTime: 30 * 60 * 1000, // 30 minutes
+      retry: 3, // Increase retries
+      retryDelay: attempt => Math.min(1000 * 2 ** attempt, 60000), // Longer backoff
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      suspense: false,
+      networkMode: 'always', // Continue trying even if offline
+      errorBoundary: false // Handle errors gracefully
     },
     mutations: {
       retry: 1, // Allow one retry for transient network issues
