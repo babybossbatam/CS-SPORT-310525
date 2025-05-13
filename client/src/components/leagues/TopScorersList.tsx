@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'wouter';
 import { Award, TrendingUp, Rocket, Users } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -55,6 +56,7 @@ interface PlayerStatistics {
 const DEFAULT_LEAGUE_ID = 39; // Premier League
 
 const TopScorersList = () => {
+  const [, navigate] = useLocation();
   // Get selected league from Redux, fallback to default league
   const selectedLeague = useSelector((state: RootState) => state.ui.selectedLeague || DEFAULT_LEAGUE_ID);
   const currentSeason = useSelector((state: any) => state.ui.currentSeason || new Date().getFullYear());
