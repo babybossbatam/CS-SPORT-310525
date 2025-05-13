@@ -74,58 +74,60 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   };
 
   return (
-    <div className="bg-white border-b border-neutral-200 sticky top-0 z-10">
-      <div className="container mx-auto px-4">
-        <div 
-          ref={tabsRef}
-          className="category-tabs flex overflow-x-auto py-2 space-x-6 scrollbar-hide"
-          style={{ 
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
-        >
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const isActive = category.id === selectedSport;
-            
-            return (
-              <Link 
-                key={`${category.id}-${category.name}`}
-                href={`/${category.id}`}
-                id={`sport-tab-${category.id}`}
-                className={cn(
-                  "flex items-center px-1 py-1 text-sm whitespace-nowrap",
-                  isActive 
-                    ? "font-medium border-b-2 border-[#3182CE] text-[#3182CE]" 
-                    : "text-gray-700 hover:text-gray-900"
-                )}
-                onClick={() => handleSportSelect(category.id)}
+    <>
+      <div className="bg-white border-b border-neutral-200 sticky top-0 z-10">
+        <div className="container mx-auto px-4">
+          <div 
+            ref={tabsRef}
+            className="category-tabs flex overflow-x-auto py-2 space-x-6 scrollbar-hide"
+            style={{ 
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
+            {categories.map((category) => {
+              const Icon = category.icon;
+              const isActive = category.id === selectedSport;
+              
+              return (
+                <Link 
+                  key={`${category.id}-${category.name}`}
+                  href={`/${category.id}`}
+                  id={`sport-tab-${category.id}`}
+                  className={cn(
+                    "flex items-center px-1 py-1 text-sm whitespace-nowrap",
+                    isActive 
+                      ? "font-medium border-b-2 border-[#3182CE] text-[#3182CE]" 
+                      : "text-gray-700 hover:text-gray-900"
+                  )}
+                  onClick={() => handleSportSelect(category.id)}
+                >
+                  <Icon className="mr-2 h-4 w-4" />
+                  <span>{category.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* League Navigation Section */}
+      <div className="bg-white shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex overflow-x-auto py-3 space-x-8 scrollbar-hide">
+            {leagueNavItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap transition-colors duration-200"
               >
-                <Icon className="mr-2 h-4 w-4" />
-                <span>{category.name}</span>
+                {item.name}
               </Link>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-    
-    {/* League Navigation Section */}
-    <div className="bg-white shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex overflow-x-auto py-3 space-x-8 scrollbar-hide">
-          {leagueNavItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap transition-colors duration-200"
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
