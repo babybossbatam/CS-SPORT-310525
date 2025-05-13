@@ -18,7 +18,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-// Removed LiveMatchPlayer import
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 // Expanded list of popular leagues
@@ -44,7 +43,6 @@ const TodayMatches = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [filterByTime, setFilterByTime] = useState(true); // Default to showing today's ended matches
   const [showLiveOnly, setShowLiveOnly] = useState(false);
-  // Removed selectedLiveMatch state
   
   // Format date for API request
   const formattedSelectedDate = selectedDate ? 
@@ -60,8 +58,6 @@ const TodayMatches = () => {
     }
   });
   
-  // We're now using real live data from the API
-
   // Get live matches from the API
   const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
     queryKey: ['/api/fixtures/live'],
@@ -204,7 +200,6 @@ const TodayMatches = () => {
   
   return (
     <div className="mb-4">
-
       {/* Filter controls based on the provided image */}
       <div className="flex flex-col mb-3 mx-1 border-b pb-3">
         {/* Top row with filters and date picker centered */}
@@ -217,16 +212,6 @@ const TodayMatches = () => {
               onClick={() => {
                 // Toggle live matches filter
                 setShowLiveOnly(!showLiveOnly);
-                
-                // If turning on live filter
-                if (!showLiveOnly) {
-                  // Don't turn off time filter - keep them independent
-                  
-                  // Removed live match player selection
-                } else {
-                  // If turning off live filter
-                  // Removed live match clearing
-                }
               }}
             >
               LIVE
@@ -273,7 +258,6 @@ const TodayMatches = () => {
               className={`text-xs h-7 gap-1 flex items-center ${filterByTime ? 'text-blue-600' : 'text-gray-500'}`}
               onClick={() => {
                 setFilterByTime(!filterByTime);
-                // No longer turn off live filter when time filter is enabled
               }}
             >
               <Clock className="h-3.5 w-3.5 mr-1" />
@@ -285,55 +269,37 @@ const TodayMatches = () => {
       
       {/* Main content */}
       <div className="space-y-1">
-        {/* Matches display */}
-
-        {/* Display the fixtures in the new format */}
-        {filteredFixtures
-          // Show matches from all popular leagues instead of just Europa League
-          .map((match) => (
-            <div 
-              key={match.fixture.id}
-              className="flex flex-col px-3 py-2 border-b border-gray-100 cursor-pointer"
-              onClick={(e) => {
-                // Always navigate to match details (removed live player feature)
-                navigate(`/match/${match.fixture.id}`);
-              }}
-            >
-              
-              {/* Teams and Score - Simplified version without team logos */}
-              <div className="flex items-center justify-between">
-                <div className="w-[38%] text-left">
-                  <span className="text-sm font-medium truncate">{match.teams.home.name}</span>
-                </div>
-                <div className="flex items-center justify-center space-x-1 w-[24%]">
-                  {match.fixture.status.short === 'NS' ? (
-                    // For upcoming matches, show the time
-                    <span className="text-base text-gray-600">{format(new Date(match.fixture.timestamp * 1000), 'HH:mm')}</span>
-                  ) : (
-                    // For completed or live matches, show the score
-                    <>
-                      <span className="font-bold text-base">{match.goals.home !== null ? match.goals.home : '-'}</span>
-                      <span className="text-gray-400 font-bold">-</span>
-                      <span className="font-bold text-base">{match.goals.away !== null ? match.goals.away : '-'}</span>
-                    </>
-                  )}
-                </div>
-                <div className="w-[38%] text-right">
-                  <span className="text-sm font-medium truncate">{match.teams.away.name}</span>
-                </div>
+        {/* Display the fixtures in the clean, simplified format */}
+        {filteredFixtures.map((match) => (
+          <div 
+            key={match.fixture.id}
+            className="flex flex-col px-3 py-2 border-b border-gray-100 cursor-pointer"
+            onClick={() => navigate(`/match/${match.fixture.id}`)}
+          >
+            {/* Teams and Score - Completely simplified version without images */}
+            <div className="flex items-center justify-between">
+              <div className="w-[40%] text-left">
+                <span className="text-sm font-medium truncate">{match.teams.home.name}</span>
               </div>
-              
-              {/* Aggregate Score - only show for tournament matches with aggregate scoring */}
-              {match.league.id === 2 || match.league.id === 3 ? (
-                <div className="text-xs text-gray-500 text-center mt-0.5">
-                  {match.fixture.status.short === 'FT' ? 
-                    `${match.teams.home.winner ? 'Home' : match.teams.away.winner ? 'Away' : 'Draw'} on aggregate` : 
-                    `${match.league.round}`
-                  }
-                </div>
-              ) : null}
+              <div className="flex items-center justify-center w-[20%]">
+                {match.fixture.status.short === 'NS' ? (
+                  // For upcoming matches, show the time
+                  <span className="text-base text-gray-600">{format(new Date(match.fixture.timestamp * 1000), 'HH:mm')}</span>
+                ) : (
+                  // For completed or live matches, show the score
+                  <div className="flex items-center space-x-1">
+                    <span className="font-bold text-base">{match.goals.home !== null ? match.goals.home : '-'}</span>
+                    <span className="text-gray-400 font-bold">-</span>
+                    <span className="font-bold text-base">{match.goals.away !== null ? match.goals.away : '-'}</span>
+                  </div>
+                )}
+              </div>
+              <div className="w-[40%] text-right">
+                <span className="text-sm font-medium truncate">{match.teams.away.name}</span>
+              </div>
             </div>
-          ))}
+          </div>
+        ))}
       </div>
     </div>
   );
