@@ -197,7 +197,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                       >
                         {standing.rank}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[180px] pl-2">
                         <div className="flex items-center gap-2">
                           <img 
                             src={standing.team.logo} 
