@@ -7,17 +7,16 @@ import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
-// League order as specified by user requirement:
-// 1.Europa League, 2.Champions League, 3.Premier League, 4.La Liga, 5.Serie A, 6.Bundesliga, 7.Coppa Italia
+// Leagues sorted in alphabetical order
 const POPULAR_LEAGUES = [
+  { id: 78, name: 'Bundesliga', country: 'Germany' },
   { id: 2, name: 'Champions League', country: 'Europe' },
+  { id: 61, name: 'Coppa Italia', country: 'Italy' },
   { id: 3, name: 'Europa League', country: 'Europe' },
-  { id: 39, name: 'Premier League', country: 'England' },
   { id: 45, name: 'FA Cup', country: 'England' },
   { id: 140, name: 'La Liga', country: 'Spain' },
+  { id: 39, name: 'Premier League', country: 'England' },
   { id: 135, name: 'Serie A', country: 'Italy' },
-  { id: 78, name: 'Bundesliga', country: 'Germany' },
-  { id: 61, name: 'Coppa Italia', country: 'Italy' },
 ];
 
 const LeagueFilter = () => {
