@@ -12,10 +12,10 @@ export function formatMatchDate(dateString: string | Date | number | null | unde
   if (!dateString) {
     return 'TBD';
   }
-  
+
   try {
     let date: Date;
-    
+
     // Handle different input types
     if (typeof dateString === 'string') {
       date = parseISO(dateString);
@@ -26,12 +26,12 @@ export function formatMatchDate(dateString: string | Date | number | null | unde
     } else {
       return 'TBD';
     }
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
+
     if (isToday(date)) {
       return 'Today';
     } else if (isYesterday(date)) {
@@ -52,10 +52,10 @@ export function formatExactDateTime(dateString: string | Date | number | null | 
   if (!dateString) {
     return 'TBD';
   }
-  
+
   try {
     let date: Date;
-    
+
     // Handle different input types
     if (typeof dateString === 'string') {
       date = parseISO(dateString);
@@ -66,12 +66,12 @@ export function formatExactDateTime(dateString: string | Date | number | null | 
     } else {
       return 'TBD';
     }
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
+
     return format(date, 'EEE, MMM d, yyyy • h:mm a');
   } catch (error) {
     console.error('Error formatting exact date time:', error);
@@ -84,10 +84,10 @@ export function formatMatchDateFn(dateString: string | Date | number | null | un
   if (!dateString) {
     return 'TBD';
   }
-  
+
   try {
     let date: Date;
-    
+
     // Handle different input types
     if (typeof dateString === 'string') {
       date = parseISO(dateString);
@@ -98,12 +98,12 @@ export function formatMatchDateFn(dateString: string | Date | number | null | un
     } else {
       return 'TBD';
     }
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
+
     if (isToday(date)) {
       return `Today • ${format(date, 'h:mm a')}`;
     } else if (isTomorrow(date)) {
@@ -111,7 +111,7 @@ export function formatMatchDateFn(dateString: string | Date | number | null | un
     } else if (isYesterday(date)) {
       return `Yesterday • ${format(date, 'h:mm a')}`;
     }
-    
+
     return format(date, 'EEE, MMM d • h:mm a');
   } catch (error) {
     console.error('Error formatting match date function:', error);
@@ -125,9 +125,9 @@ export function getCountdownTimer(dateString: string | Date | number | null | un
   if (dateString === null || dateString === undefined) {
     return "TBD";
   }
-  
+
   let matchDate: Date;
-  
+
   try {
     // Handle different input types
     if (typeof dateString === 'string') {
@@ -151,28 +151,28 @@ export function getCountdownTimer(dateString: string | Date | number | null | un
       console.error("Unsupported date format:", typeof dateString);
       return "TBD";
     }
-    
+
     // Check for invalid date
     if (isNaN(matchDate.getTime())) {
       console.error("Invalid date:", matchDate);
       return "TBD";
     }
-    
+
     const now = new Date();
-    
+
     // Get difference in milliseconds
     const diffMs = matchDate.getTime() - now.getTime();
-    
+
     if (diffMs <= 0) {
       return "Starting now";
     }
-    
+
     // Convert to days, hours, minutes, seconds
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-    
+
     if (days > 0) {
       return `${days}d ${hours}h`;
     } else if (hours > 0) {
@@ -193,10 +193,10 @@ export function formatMatchTime(dateString: string | Date | number | null | unde
   if (!dateString) {
     return 'TBD';
   }
-  
+
   try {
     let date: Date;
-    
+
     // Handle different input types
     if (typeof dateString === 'string') {
       date = parseISO(dateString);
@@ -207,12 +207,12 @@ export function formatMatchTime(dateString: string | Date | number | null | unde
     } else {
       return 'TBD';
     }
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
+
     return format(date, 'HH:mm');
   } catch (error) {
     console.error('Error formatting match time:', error);
@@ -225,10 +225,10 @@ export function formatDateTime(dateString: string | Date | number | null | undef
   if (!dateString) {
     return 'TBD';
   }
-  
+
   try {
     let date: Date;
-    
+
     // Handle different input types
     if (typeof dateString === 'string') {
       date = parseISO(dateString);
@@ -239,12 +239,12 @@ export function formatDateTime(dateString: string | Date | number | null | undef
     } else {
       return 'TBD';
     }
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
+
     return `${format(date, 'EEE, do MMM')} | ${format(date, 'HH:mm')}`;
   } catch (error) {
     console.error('Error formatting date time:', error);
@@ -319,31 +319,31 @@ export function getRelativeTime(date: string | Date): string {
   const now = new Date();
   const pastDate = typeof date === 'string' ? new Date(date) : date;
   const diffInSeconds = Math.floor((now.getTime() - pastDate.getTime()) / 1000);
-  
+
   if (diffInSeconds < 60) {
     return 'just now';
   }
-  
+
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) {
     return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
   }
-  
+
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
     return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
   }
-  
+
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 30) {
     return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
   }
-  
+
   const diffInMonths = Math.floor(diffInDays / 30);
   if (diffInMonths < 12) {
     return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`;
   }
-  
+
   const diffInYears = Math.floor(diffInMonths / 12);
   return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
 }
@@ -380,7 +380,7 @@ export function getTeamColor(teamName: string): string {
     'Brighton': 'bg-blue-600',
     'Everton': 'bg-blue-800',
     'Leicester': 'bg-blue-700',
-    
+
     // LaLiga teams
     'Real Madrid': 'bg-indigo-900',
     'Barcelona': 'bg-blue-800',
@@ -389,7 +389,7 @@ export function getTeamColor(teamName: string): string {
     'Valencia': 'bg-orange-600',
     'Real Betis': 'bg-green-800',
     'Athletic Bilbao': 'bg-red-700',
-   
+
     // Serie A teams
     'Juventus': 'bg-black',
     'AC Milan': 'bg-red-900',
@@ -397,13 +397,13 @@ export function getTeamColor(teamName: string): string {
     'Napoli': 'bg-blue-700',
     'Roma': 'bg-amber-700',
     'Lazio': 'bg-sky-600',
-    
+
     // Bundesliga teams
     'Bayern Munich': 'bg-red-800',
     'Borussia Dortmund': 'bg-yellow-500',
     'RB Leipzig': 'bg-red-600',
     'Bayer Leverkusen': 'bg-red-700',
-    
+
     // Ligue 1 teams
     'Paris Saint Germain': 'bg-blue-900',
     'PSG': 'bg-blue-900',
@@ -416,25 +416,25 @@ export function getTeamColor(teamName: string): string {
   if (teamColorMap[teamName]) {
     return teamColorMap[teamName];
   }
-  
+
   // Try to find a partial match
   const partialMatch = Object.keys(teamColorMap).find(key => 
     teamName.toLowerCase().includes(key.toLowerCase())
   );
-  
+
   if (partialMatch) {
     return teamColorMap[partialMatch];
   }
-  
+
   // For teams not in our map, generate a color based on the team name
   let hash = 0;
   for (let i = 0; i < teamName.length; i++) {
     hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
   }
-  
+
   // Get a hue between 0-360 based on the name
   const hue = Math.abs(hash) % 360;
-  
+
   // Map the hue to a tailwind color family
   if (hue < 30) return 'bg-red-700';
   if (hue < 60) return 'bg-orange-600';
@@ -447,7 +447,7 @@ export function getTeamColor(teamName: string): string {
   if (hue < 270) return 'bg-indigo-800';
   if (hue < 300) return 'bg-purple-700';
   if (hue < 330) return 'bg-pink-700';
-  
+
   // Default fallback
   return 'bg-blue-700';
 }
@@ -461,14 +461,14 @@ export function getTeamColor(teamName: string): string {
 export function getOpposingTeamColor(homeTeamName: string, awayTeamName: string): string {
   const homeTeamColor = getTeamColor(homeTeamName);
   let awayTeamColor = getTeamColor(awayTeamName);
-  
+
   // If the colors are the same, choose a contrasting color
   if (homeTeamColor === awayTeamColor) {
     // Extract the color family and intensity from the format "bg-{color}-{intensity}"
     const match = homeTeamColor.match(/bg-([a-z]+)-(\d+)/);
     if (match) {
       const [, color, intensity] = match;
-      
+
       // Choose a contrasting color family
       const contrastColors: Record<string, string> = {
         'red': 'blue',
@@ -492,12 +492,12 @@ export function getOpposingTeamColor(homeTeamName: string, awayTeamName: string)
         'white': 'black',
         'gray': 'red'
       };
-      
+
       const contrastColor = contrastColors[color] || 'blue';
       awayTeamColor = `bg-${contrastColor}-${intensity}`;
     }
   }
-  
+
   return awayTeamColor;
 }
 
@@ -509,20 +509,22 @@ export function getOpposingTeamColor(homeTeamName: string, awayTeamName: string)
  */
 export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = 'to-r'): string {
   const baseColor = getTeamColor(teamName).replace('bg-', '');
-  
+
   // Extract color and intensity
   const match = baseColor.match(/([a-z]+)-(\d+)/);
   if (!match) return `bg-gradient-${direction} from-blue-700 to-blue-500`;
-  
+
   const [, color, intensity] = match;
   const intensityNum = parseInt(intensity);
-  
+
   // Create a gradient with a lighter shade of the same color
   const lighterIntensity = Math.max(300, intensityNum - 200);
-  
+
   if (direction === 'to-r') {
     return `bg-gradient-to-r from-${color}-${intensityNum} to-${color}-${lighterIntensity}`;
   } else {
     return `bg-gradient-to-l from-${color}-${lighterIntensity} to-${color}-${intensityNum}`;
   }
 }
+export const apiRequest = async (method: string, endpoint: string, body?: any) => {
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
