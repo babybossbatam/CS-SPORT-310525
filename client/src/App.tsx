@@ -4,6 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Football from "@/pages/Football";
+import Basketball from "@/pages/Basketball";
+import Baseball from "@/pages/Baseball";
+import Tennis from "@/pages/Tennis";
+import Hockey from "@/pages/Hockey";
 import MatchDetails from "@/pages/MatchDetails";
 import Authentication from "@/pages/Authentication";
 import LeagueDetails from "@/pages/LeagueDetails";
@@ -19,6 +23,10 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/football" component={Football} />
+      <Route path="/basketball" component={Basketball} />
+      <Route path="/baseball" component={Baseball} />
+      <Route path="/tennis" component={Tennis} />
+      <Route path="/hockey" component={Hockey} />
       <Route path="/login" component={() => <Authentication mode="login" />} />
       <Route path="/register" component={() => <Authentication mode="register" />} />
       <Route path="/match/:id" component={MatchDetails} />
