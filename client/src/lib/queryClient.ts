@@ -48,9 +48,7 @@ export async function apiRequest(
   }
 }
 
-import { STATIC_LEAGUE_LOGOS } from './constants';
-
-// Query function type with caching
+// Query function type
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
@@ -59,29 +57,9 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
     
-    // Return cached data for league requests
-    if (keyString.includes('/api/leagues')) {
-      const cached = queryClient.getQueryData(queryKey);
-      if (cached) return cached;
-      
-      // Fetch once and inject static logos
-      const res = await fetch(queryKey[0] as string, { credentials: "include" });
-      await throwIfResNotOk(res);
-      const data = await res.json();
-      
-      // Replace dynamic logos with static ones
-      if (Array.isArray(data)) {
-        data.forEach((item: any) => {
-          if (item.league?.id && STATIC_LEAGUE_LOGOS[item.league.id]) {
-            item.league.logo = STATIC_LEAGUE_LOGOS[item.league.id];
-          }
-        });
-      } else if (data?.league?.id && STATIC_LEAGUE_LOGOS[data.league.id]) {
-        data.league.logo = STATIC_LEAGUE_LOGOS[data.league.id];
-      }
-      
-      queryClient.setQueryData(queryKey, data);
-      return data;
+    if (!checkRateLimit(keyString)) {
+      console.warn('Rate limiting request to:', keyString);
+      return null as any;
     }
     
     try {
@@ -94,21 +72,14 @@ export const getQueryFn: <T>(options: {
       }
       
       await throwIfResNotOk(res);
-      const data = await res.json();
-      
-      // Cache leagues data more aggressively
-      if (keyString.includes('/api/leagues')) {
-        queryClient.setQueryData(queryKey, data);
-      }
-      
-      return data;
+      return await res.json();
     } catch (error) {
       console.error(`Query error for ${queryKey[0]}:`, error);
       throw error;
     }
   };
 
-// Query client with optimized configurations
+// Query client with configurations
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -117,13 +88,12 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_STALE_TIMES.LEAGUES,
-      gcTime: 24 * 60 * 60 * 1000, // 24 hours
-      retry: 1,
+      staleTime: CACHE_STALE_TIMES.LEAGUES, // Use longer stale time for leagues
+      gcTime: 60 * 60 * 1000, // 1 hour
+      retry: 1, // Allow one retry for transient network issues
       retryDelay: 2000,
       refetchOnMount: false,
-      refetchOnReconnect: false,
-      cacheTime: 24 * 60 * 60 * 1000, // 24 hours
+      refetchOnReconnect: false, // Disable refetch on reconnect for better caching
     },
     mutations: {
       retry: 1,
