@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
-import { Header } from '@/components/layout/Header';
-import { SportsCategoryTabs } from '@/components/layout/SportsCategoryTabs';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LeagueDetailsHeader } from '@/components/layout/LeagueDetailsHeader';
+import Header from '@/components/layout/Header';
+import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
+import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Star, ArrowLeft, BarChart2, CalendarDays, Trophy, Table } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -154,6 +154,7 @@ const LeagueDetails = () => {
       <>
         <Header />
         <SportsCategoryTabs />
+        <TournamentHeader title="Loading league details..." />
 
         <div className="container mx-auto px-4 py-4">
           <Card className="mb-6">
@@ -186,7 +187,9 @@ const LeagueDetails = () => {
 
   return (
     <>
-      <LeagueDetailsHeader />
+      <Header />
+      <SportsCategoryTabs />
+      <TournamentHeader title={league.league.name} />
 
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">

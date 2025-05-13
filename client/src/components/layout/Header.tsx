@@ -14,23 +14,23 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const dispatch = useDispatch();
-
+  
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
   const username = useSelector((state: RootState) => state.user.username);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!searchQuery.trim()) {
       return;
     }
-
+    
     // Close search dialog
     setSearchOpen(false);
-
+    
     // Navigate to search results
     navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-
+    
     // Reset search query
     setSearchQuery('');
   };
@@ -60,7 +60,7 @@ const Header = () => {
             </span>
           </Link>
         </div>
-
+        
         <div className="flex items-center space-x-4">
           <Button 
             variant="ghost" 
@@ -70,7 +70,7 @@ const Header = () => {
             <Newspaper className="h-4 w-4 mr-1" />
             <span>News</span>
           </Button>
-
+          
           <Button 
             variant="ghost" 
             className="text-sm flex items-center space-x-1 text-white"
@@ -79,7 +79,7 @@ const Header = () => {
             <Star className="h-4 w-4 mr-1" />
             <span>My Scores</span>
           </Button>
-
+          
           <Button 
             variant="ghost" 
             className="text-white" 
@@ -88,7 +88,7 @@ const Header = () => {
           >
             <Search className="h-5 w-5" />
           </Button>
-
+          
           <Button 
             variant="ghost" 
             className="text-white" 
@@ -97,7 +97,7 @@ const Header = () => {
           >
             <Settings className="h-5 w-5" />
           </Button>
-
+          
           {isAuthenticated && (
             <div className="flex items-center ml-2">
               <div className="text-sm mr-2">{username}</div>
@@ -112,7 +112,7 @@ const Header = () => {
           )}
         </div>
       </div>
-
+      
       {/* Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="max-w-md">
@@ -137,5 +137,4 @@ const Header = () => {
   );
 };
 
-export { Header };
-export { Header as default };
+export default Header;

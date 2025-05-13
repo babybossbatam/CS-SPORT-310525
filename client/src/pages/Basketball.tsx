@@ -5,7 +5,7 @@ import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import NewsSection from '@/components/news/NewsSection';
-import { CircleDashed } from 'lucide-react';
+import { Dribbble } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Basketball = () => {
@@ -23,7 +23,7 @@ const Basketball = () => {
       <SportsCategoryTabs />
       <TournamentHeader 
         title="Basketball - Top Leagues" 
-        icon={<CircleDashed className="h-4 w-4 text-neutral-600" />} 
+        icon={<Dribbble className="h-4 w-4 text-neutral-600" />} 
       />
       
       <main className="container mx-auto px-4 py-4">
