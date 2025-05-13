@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '@/components/layout/Header';
-import { SportsCategoryTabs } from '@/components/layout/SportsCategoryTabs';
+import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';

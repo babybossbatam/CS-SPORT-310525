@@ -89,4 +89,4 @@ const SportsCategoryTabs = () => {
   );
 };
 
-export { SportsCategoryTabs };
+export default SportsCategoryTabs;
