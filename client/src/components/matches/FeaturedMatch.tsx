@@ -224,12 +224,17 @@ const FeaturedMatch = () => {
   }
   
   if (!featuredMatch) {
-    return null;
+    return (
+      <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
+        <div className="p-6 text-center">
+          <p className="text-gray-500">No featured matches available at this time.</p>
+        </div>
+      </Card>
+    );
   }
   
   return (
     <>
-      
       <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
         <Badge 
           variant="secondary" 
@@ -240,19 +245,23 @@ const FeaturedMatch = () => {
       
       <div className="p-4">
         <div className="flex items-center gap-2 mb-4">
-          <img 
-            src={featuredMatch.league.logo}
-            alt={featuredMatch.league.name}
-            className="w-5 h-5"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-            }}
-          />
-          <span className="text-sm font-medium">{featuredMatch.league.name}</span>
+          {featuredMatch.league && featuredMatch.league.logo ? (
+            <img 
+              src={featuredMatch.league.logo}
+              alt={featuredMatch.league.name || 'League'}
+              className="w-5 h-5"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+              }}
+            />
+          ) : (
+            <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+          )}
+          <span className="text-sm font-medium">{featuredMatch.league ? featuredMatch.league.name : 'Unknown League'}</span>
         </div>
         
         <div className="text-lg font-semibold text-center mb-4">
-          {formatMatchDate(featuredMatch.fixture.date)}
+          {featuredMatch.fixture && featuredMatch.fixture.date ? formatMatchDate(featuredMatch.fixture.date) : 'Date TBD'}
         </div>
         
         {/* Using MatchScoreboard component for consistent UI */}
@@ -261,27 +270,27 @@ const FeaturedMatch = () => {
           featured={true}
           homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
           awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={() => navigate(`/match/${featuredMatch.fixture.id}`)}
+          onClick={() => featuredMatch.fixture && featuredMatch.fixture.id && navigate(`/match/${featuredMatch.fixture.id}`)}
         />
         
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/h2h`)}
+            onClick={() => featuredMatch.fixture && featuredMatch.fixture.id && navigate(`/match/${featuredMatch.fixture.id}/h2h`)}
           >
             <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">H2H</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/stats`)}
+            onClick={() => featuredMatch.fixture && featuredMatch.fixture.id && navigate(`/match/${featuredMatch.fixture.id}/stats`)}
           >
             <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Stats</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => navigate(`/league/${featuredMatch.league.id}/bracket`)}
+            onClick={() => featuredMatch.league && featuredMatch.league.id && navigate(`/league/${featuredMatch.league.id}/bracket`)}
           >
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>
