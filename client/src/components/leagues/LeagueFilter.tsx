@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 const POPULAR_LEAGUES = [
   { id: 78, name: 'Bundesliga', country: 'Germany' },
   { id: 2, name: 'Champions League', country: 'Europe' },
-  { id: 61, name: 'Coppa Italia', country: 'Italy' },
+  { id: 137, name: 'Coppa Italia', country: 'Italy' },
   { id: 3, name: 'Europa League', country: 'Europe' },
   { id: 45, name: 'FA Cup', country: 'England' },
   { id: 140, name: 'La Liga', country: 'Spain' },
