@@ -197,17 +197,13 @@ const TodayMatches = () => {
       return a.fixture.timestamp - b.fixture.timestamp;
     });
 
-  // Take the first 5 fixtures for the today matches display
-  const todayMatches = filteredFixtures.slice(0, 5);
-  
   // Return null if no matches
-  if (todayMatches.length === 0) {
+  if (filteredFixtures.length === 0) {
     return null;
   }
   
   return (
-    <div>
-      {/* Removed LiveMatchPlayer component */}
+    <div className="mb-4">
 
       {/* Filter controls based on the provided image */}
       <div className="flex flex-col mb-3 mx-1 border-b pb-3">
@@ -368,7 +364,6 @@ const TodayMatches = () => {
 
 
       </div>
-    </div>
   );
 };
 
