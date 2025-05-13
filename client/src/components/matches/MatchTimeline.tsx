@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Clock, AlertTriangle, User, CornerDownRight, Goal, ShieldAlert } from 'lucide-react';
-import AnimatedTeamLogo from './AnimatedTeamLogo';
+import TeamLogo from './TeamLogo';
 
 // Define match event types
 export interface MatchEvent {

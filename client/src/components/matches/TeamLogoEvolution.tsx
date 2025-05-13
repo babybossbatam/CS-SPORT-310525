@@ -156,7 +156,7 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center"
           >
-            <AnimatedTeamLogo
+            <TeamLogo
               logoUrl={logoHistory[currentIndex].logoUrl}
               teamName={teamName}
               size="lg"
