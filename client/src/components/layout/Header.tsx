@@ -138,4 +138,4 @@ const Header = () => {
 };
 
 export { Header };
-export default Header;
+export { Header as default };

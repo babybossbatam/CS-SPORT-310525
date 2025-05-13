@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Football, Basketball, CircleDot, Hockey, Dribbble } from 'lucide-react';
+import { Futbol, CircleDot, CircleDashed, PuckIcon, Tennis } from 'lucide-react';
 
 const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
@@ -28,7 +28,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Football className="h-4 w-4" />
+            <Futbol className="h-4 w-4" />
             <span>Football</span>
           </button>
 
@@ -41,7 +41,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Basketball className="h-4 w-4" />
+            <CircleDashed className="h-4 w-4" />
             <span>Basketball</span>
           </button>
 
@@ -67,7 +67,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Hockey className="h-4 w-4" />
+            <PuckIcon className="h-4 w-4" />
             <span>Hockey</span>
           </button>
 
@@ -80,7 +80,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Dribbble className="h-4 w-4" />
+            <Tennis className="h-4 w-4" />
             <span>Tennis</span>
           </button>
         </div>
@@ -90,4 +90,4 @@ const SportsCategoryTabs = () => {
 };
 
 export { SportsCategoryTabs };
-export default SportsCategoryTabs;
+export { SportsCategoryTabs as default };
