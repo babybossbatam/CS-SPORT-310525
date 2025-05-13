@@ -200,8 +200,8 @@ const TodayMatches = () => {
   // Take the first 5 fixtures for the today matches display
   const todayMatches = filteredFixtures.slice(0, 5);
   
-  // Display loading state or return null if no matches
-  if (isSelectedDateFixturesLoading || isLiveLoading || todayMatches.length === 0) {
+  // Return null if no matches
+  if (todayMatches.length === 0) {
     return null;
   }
   
