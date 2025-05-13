@@ -479,7 +479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 await storage.updateCachedLeague(leagueId, league);
               } else {
                 await storage.createCachedLeague({
-                  league: leagueId,
+                  leagueId: leagueId,
                   data: league
                 });
               }

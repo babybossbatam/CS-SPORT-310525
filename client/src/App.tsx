@@ -15,7 +15,6 @@ import MyScores from "@/pages/MyScores";
 import Settings from "@/pages/Settings";
 import SearchResults from "@/pages/SearchResults";
 import LiveMatches from "@/pages/LiveMatches";
-import LiveScoresPage from "@/pages/LiveScoresPage";
 import NewsPage from "@/pages/NewsPage";
 
 function Router() {
