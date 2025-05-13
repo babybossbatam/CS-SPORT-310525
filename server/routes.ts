@@ -909,31 +909,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sportType = req.query.sport as string || '';
       const count = parseInt(req.query.count as string || '10');
       
-      // For football, we can also try using a sports-specific API if GNews doesn't work well
+      // For football, try using SportMonks API if the API key is available
       if (sportType === 'football' && process.env.SPORTMONKS_API_KEY) {
         try {
           console.log("Using SportMonks API for football news");
+          const apiKey = process.env.SPORTMONKS_API_KEY;
           
-          // Generate football news items based on current season info
-          const dummyArticles = [];
-          for (let i = 0; i < count; i++) {
-            dummyArticles.push({
-              id: i + 1,
-              title: `European Football Highlights: Week ${Math.floor(Math.random() * 38) + 1}`,
-              content: "Latest updates from the Premier League, La Liga, Serie A, and Bundesliga matches this weekend.",
-              imageUrl: 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
+          // Try to fetch from the endpoint you provided
+          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}`;
+          console.log(`Fetching football news from SportMonks API (URL redacted for security)`);
+          
+          const response = await fetch(sportMonksUrl);
+          const data = await response.json();
+          
+          // Check if response is valid
+          if (response.ok && data.data && Array.isArray(data.data)) {
+            console.log(`Successfully fetched ${data.data.length} football news articles from SportMonks`);
+            
+            // Transform the data to match our news article format
+            const articles = data.data.slice(0, count).map((article: any, index: number) => ({
+              id: index + 1,
+              title: article.title || 'Football News Update',
+              content: article.description || article.content || 'Latest football news and updates.',
+              imageUrl: article.image_url || 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
               source: "SportMonks",
-              url: "https://www.sportmonks.com/",
-              publishedAt: new Date().toISOString(),
+              url: article.url || "https://www.sportmonks.com/",
+              publishedAt: article.published_at || new Date().toISOString(),
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
-            });
+            }));
+            
+            return res.json(articles);
+          } else {
+            console.warn("SportMonks API returned an invalid response or access denied:", data.message || "Unknown error");
+            // Log the specific error message if available
+            if (data.message) {
+              console.warn(`SportMonks error message: ${data.message}`);
+            }
+            // Continue to GNews fallback
           }
-          
-          return res.json(dummyArticles);
         } catch (error) {
-          console.error("Error creating football news:", error);
-          // Fall back to GNews if creating news fails
+          console.error("Error fetching from SportMonks API:", error);
+          // Fall back to GNews if the API fails
         }
       }
       
