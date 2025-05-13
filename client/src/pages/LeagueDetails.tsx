@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
+import LeagueStandings from '@/components/stats/LeagueStandings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
@@ -247,13 +248,12 @@ const LeagueDetails = () => {
               </TabsContent>
 
               <TabsContent value="standings" className="mt-2">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="text-center py-8">
-                      <p className="text-sm text-gray-500">League standings will be displayed here.</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                {league && (
+                  <LeagueStandings 
+                    leagueId={league.league.id} 
+                    season={league.league.season} 
+                  />
+                )}
               </TabsContent>
 
               <TabsContent value="stats" className="mt-2">
