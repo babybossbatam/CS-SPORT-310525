@@ -284,15 +284,64 @@ const LeagueDetails = () => {
               <h3 className="font-semibold text-gray-700">League Information</h3>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-neutral-600" />
-                  <span className="text-sm">Season {league.league.season}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="h-4 w-4 text-neutral-600" />
-                  <span className="text-sm">Current Round: {league.league.round}</span>
-                </div>
+              <Tabs defaultValue="fixtures" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="fixtures">Fixtures</TabsTrigger>
+                  <TabsTrigger value="results">Results</TabsTrigger>
+                </TabsList>
+                <TabsContent value="fixtures" className="mt-2">
+                  <div className="space-y-4">
+                    {fixtures
+                      .filter(match => new Date(match.fixture.date) > new Date())
+                      .slice(0, 5)
+                      .map(match => (
+                        <div key={match.fixture.id} 
+                          className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
+                          onClick={() => navigate(`/match/${match.fixture.id}`)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <TeamLogo teamId={match.teams.home.id} size="small" />
+                            <span className="text-sm">{match.teams.home.name}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {format(new Date(match.fixture.date), 'dd MMM HH:mm')}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">{match.teams.away.name}</span>
+                            <TeamLogo teamId={match.teams.away.id} size="small" />
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                </TabsContent>
+                <TabsContent value="results" className="mt-2">
+                  <div className="space-y-4">
+                    {fixtures
+                      .filter(match => new Date(match.fixture.date) <= new Date())
+                      .slice(0, 5)
+                      .map(match => (
+                        <div key={match.fixture.id} 
+                          className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
+                          onClick={() => navigate(`/match/${match.fixture.id}`)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <TeamLogo teamId={match.teams.home.id} size="small" />
+                            <span className="text-sm">{match.teams.home.name}</span>
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {match.goals.home} - {match.goals.away}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">{match.teams.away.name}</span>
+                            <TeamLogo teamId={match.teams.away.id} size="small" />
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+              <div className="mt-4 text-xs text-gray-500 text-center">
+                Powered by CS Sport
               </div>
             </CardContent>
           </Card>
