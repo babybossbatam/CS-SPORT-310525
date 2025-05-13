@@ -902,10 +902,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // News Article Routes
-  apiRouter.get("/news", async (_req: Request, res: Response) => {
+  apiRouter.get("/news", async (req: Request, res: Response) => {
     try {
-      const articles = await storage.getAllNewsArticles();
-      res.json(articles);
+      // Get optional query parameters
+      const category = req.query.category as string || 'sports';
+      const count = parseInt(req.query.count as string || '10');
+      
+      // Check if we should use GNews API or local storage
+      const useGNews = req.query.source === 'gnews' || !req.query.source;
+      
+      if (useGNews) {
+        const apiKey = process.env.GNEWS_API_KEY;
+        if (!apiKey) {
+          throw new Error('GNews API key is not configured');
+        }
+        
+        // Build GNews API URL
+        const gnewsUrl = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=${count}&apikey=${apiKey}`;
+        
+        // Fetch news from GNews API
+        const response = await fetch(gnewsUrl);
+        const data = await response.json();
+        
+        if (data.errors) {
+          throw new Error(`GNews API error: ${data.errors[0]}`);
+        }
+        
+        // Transform GNews response to match our news article format
+        const articles = data.articles.map((article: any, index: number) => ({
+          id: index + 1,
+          title: article.title,
+          content: article.description,
+          imageUrl: article.image || 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
+          source: article.source.name,
+          url: article.url,
+          publishedAt: article.publishedAt,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }));
+        
+        res.json(articles);
+      } else {
+        // Fallback to local storage
+        const articles = await storage.getAllNewsArticles();
+        res.json(articles);
+      }
     } catch (error) {
       console.error("Error fetching news articles:", error);
       res.status(500).json({ message: "Failed to fetch news articles" });

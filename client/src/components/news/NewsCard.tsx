@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistance } from 'date-fns';
 
@@ -10,8 +10,8 @@ export interface NewsItem {
   source: string;
   url: string | null;
   publishedAt: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface NewsCardProps {
@@ -19,11 +19,26 @@ interface NewsCardProps {
 }
 
 const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
+  const [imageError, setImageError] = useState(false);
+  
+  // Fallback image if the provided image URL fails
+  const fallbackImage = 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg';
   
   const handleClick = () => {
     // Open in a new tab if it's an external link with a valid URL
     if (news.url && typeof news.url === 'string') {
-      window.open(news.url, '_blank');
+      let safeUrl = news.url;
+      // Make sure URL starts with http or https
+      if (!safeUrl.startsWith('http')) {
+        safeUrl = `https://${safeUrl}`;
+      }
+      
+      // If it's a relative URL from our domain, convert to absolute
+      if (safeUrl.startsWith('/')) {
+        safeUrl = `${window.location.origin}${safeUrl}`;
+      }
+      
+      window.open(safeUrl, '_blank', 'noopener,noreferrer');
     }
   };
   
@@ -45,9 +60,10 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
     >
       <div className="aspect-[16/9] overflow-hidden">
         <img 
-          src={news.imageUrl} 
+          src={imageError ? fallbackImage : (news.imageUrl || fallbackImage)} 
           alt={news.title} 
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          onError={() => setImageError(true)}
         />
       </div>
       <CardContent className="p-3 px-0">
