@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface StatHighlightProps {
@@ -15,11 +15,36 @@ const StatHighlight: React.FC<StatHighlightProps> = ({
   isPrimary = false 
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [animationsEnabled, setAnimationsEnabled] = useState(true);
   
-  // Calculate the total value and percentages
+  // Safety measure - disable animations if errors occur
+  useEffect(() => {
+    try {
+      setIsMounted(true);
+      
+      // Error handler to disable animations
+      const handleError = () => {
+        console.log("Disabling animations in StatHighlight due to error");
+        setAnimationsEnabled(false);
+      };
+      
+      window.addEventListener('error', handleError);
+      
+      return () => {
+        window.removeEventListener('error', handleError);
+        setIsMounted(false);
+      };
+    } catch (error) {
+      console.error("Error in StatHighlight animation setup:", error);
+      setAnimationsEnabled(false);
+    }
+  }, []);
+  
+  // Calculate the total value and percentages safely
   const total = homeValue + awayValue;
-  const homePercent = total > 0 ? Math.round((homeValue / total) * 100) : 50;
-  const awayPercent = total > 0 ? Math.round((awayValue / total) * 100) : 50;
+  const homePercent = total > 0 ? Math.min(Math.max(Math.round((homeValue / total) * 100), 0), 100) : 50;
+  const awayPercent = total > 0 ? Math.min(Math.max(Math.round((awayValue / total) * 100), 0), 100) : 50;
   
   // Determine winner for the stat
   const homeWins = homeValue > awayValue;
@@ -42,6 +67,49 @@ const StatHighlight: React.FC<StatHighlightProps> = ({
   
   const colors = getGradientColors();
   
+  // Non-animated version for when animations are disabled
+  if (!animationsEnabled) {
+    return (
+      <div className="mb-4">
+        <div className="flex justify-between items-center mb-1">
+          <div className="font-semibold">
+            {homeValue}
+          </div>
+          <div className="text-xs text-gray-500 uppercase">
+            {label}
+          </div>
+          <div className="font-semibold">
+            {awayValue}
+          </div>
+        </div>
+        
+        <div className="h-2 w-full flex rounded-full overflow-hidden">
+          <div 
+            className={`${colors.home} h-full`}
+            style={{ width: `${homePercent}%` }}
+          />
+          <div 
+            className={`${colors.away} h-full`}
+            style={{ width: `${awayPercent}%` }}
+          />
+        </div>
+        
+        {isHovered && (
+          <div className="mt-1 text-xs text-center">
+            <span 
+              className={`inline-block transition-all duration-300 ${
+                homeWins ? 'text-blue-600 font-semibold' : 
+                awayWins ? 'text-red-600' : 'text-gray-500'
+              }`}
+            >
+              {isTied ? 'Equal stats' : homeWins ? 'Home advantage' : 'Away advantage'}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+  
   return (
     <div 
       className="mb-4"
@@ -63,19 +131,17 @@ const StatHighlight: React.FC<StatHighlightProps> = ({
       <div className="h-2 w-full flex rounded-full overflow-hidden">
         <motion.div 
           className={`${colors.home} h-full`}
-          style={{ width: `${homePercent}%` }}
+          style={{ width: 0 }} // Start at 0 width
           initial={{ width: 0 }}
-          animate={{ width: `${homePercent}%` }}
+          animate={isMounted ? { width: `${homePercent}%` } : { width: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          whileHover={{ scale: 1.05 }}
         />
         <motion.div 
           className={`${colors.away} h-full`}
-          style={{ width: `${awayPercent}%` }}
+          style={{ width: 0 }} // Start at 0 width
           initial={{ width: 0 }}
-          animate={{ width: `${awayPercent}%` }}
+          animate={isMounted ? { width: `${awayPercent}%` } : { width: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          whileHover={{ scale: 1.05 }}
         />
       </div>
       
