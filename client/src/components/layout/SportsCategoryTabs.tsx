@@ -27,6 +27,11 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   const tabsRef = useRef<HTMLDivElement>(null);
   const isMatchDetailsPage = location.startsWith('/match/');
+  const isLeagueDetailsPage = location.startsWith('/league/');
+
+  if (isLeagueDetailsPage) {
+    return null;
+  }
 
   // Add selectedLeague state
   const [selectedLeague, setSelectedLeague] = useState({ name: 'League', logo: 'https://via.placeholder.com/40' });
