@@ -3,20 +3,19 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, statsActions } from '@/lib/store';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from 'wouter';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 const POPULAR_LEAGUES = [
   { id: 135, name: 'Serie A', logo: 'https://media-4.api-sports.io/football/leagues/135.png' },
-  { id: 140, name: 'La Liga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
+  { id: 140, name: 'LaLiga', logo: 'https://media-4.api-sports.io/football/leagues/140.png' },
   { id: 61, name: 'Coppa Italia', logo: 'https://media-4.api-sports.io/football/leagues/61.png' },
-  { id: 2, name: 'Champions League', logo: 'https://media-4.api-sports.io/football/leagues/2.png' }
+  { id: 2, name: 'UCL', logo: 'https://media-4.api-sports.io/football/leagues/2.png' }
 ];
 
 const StatsPanel = () => {
@@ -69,37 +68,7 @@ const StatsPanel = () => {
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6">
       <CardHeader className="p-4 border-b border-neutral-200">
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="h-6 w-6 p-0" 
-            onClick={() => {
-              const newIndex = selectedLeague === POPULAR_LEAGUES[0].id 
-                ? POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1].id 
-                : POPULAR_LEAGUES[POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague) - 1].id;
-              dispatch(uiActions.setSelectedLeague(newIndex));
-            }}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          
-          <h3 className="font-medium flex-1 text-center">Goals</h3>
-          
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="h-6 w-6 p-0" 
-            onClick={() => {
-              const newIndex = selectedLeague === POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1].id
-                ? POPULAR_LEAGUES[0].id
-                : POPULAR_LEAGUES[POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague) + 1].id;
-              dispatch(uiActions.setSelectedLeague(newIndex));
-            }}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <h3 className="text-center font-medium">Goals</h3>
       </CardHeader>
 
       <div className="p-4 pb-2 border-b border-neutral-200">
