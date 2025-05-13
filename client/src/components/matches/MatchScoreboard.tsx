@@ -110,17 +110,26 @@ export function MatchScoreboard({
         
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team logo */}
+          {/* Home team logo container - replaced with text-based circle */}
           <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
-            <TeamLogo
-              logoUrl={teams?.home?.logo || 'https://via.placeholder.com/80?text=Team'}
-              teamName={teams?.home?.name || 'Home Team'}
-              teamId={teams?.home?.id}
-              size="md"
-              isHome={true}
-              winner={teams?.home?.winner || false}
-              onClick={onClick ? () => onClick() : undefined}
-            />
+            <div 
+              className={`w-14 h-14 rounded-full flex items-center justify-center bg-blue-100 border-2 ${teams?.home?.winner ? 'border-green-500 shadow-lg' : 'border-white'}`}
+              style={{ 
+                backgroundColor: homeTeamColor,
+                cursor: onClick ? 'pointer' : 'default',
+                transform: teams?.home?.winner ? 'scale(1.05)' : 'scale(1)'
+              }}
+              onClick={onClick}
+            >
+              <span className="text-white font-bold text-xs">
+                {teams?.home?.name?.substring(0, 3)?.toUpperCase() || 'HOM'}
+              </span>
+              {teams?.home?.winner && (
+                <div className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                  <span className="text-xs">W</span>
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Home team name display */}
@@ -165,17 +174,26 @@ export function MatchScoreboard({
             )}
           </div>
           
-          {/* Away team logo */}
+          {/* Away team logo container - replaced with text-based circle */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
-            <TeamLogo
-              logoUrl={teams?.away?.logo || 'https://via.placeholder.com/80?text=Team'}
-              teamName={teams?.away?.name || 'Away Team'}
-              teamId={teams?.away?.id}
-              size="md"
-              isHome={false}
-              winner={teams?.away?.winner || false}
-              onClick={onClick ? () => onClick() : undefined}
-            />
+            <div 
+              className={`w-14 h-14 rounded-full flex items-center justify-center bg-red-700 border-2 ${teams?.away?.winner ? 'border-green-500 shadow-lg' : 'border-white'}`}
+              style={{ 
+                backgroundColor: awayTeamColor,
+                cursor: onClick ? 'pointer' : 'default',
+                transform: teams?.away?.winner ? 'scale(1.05)' : 'scale(1)'
+              }}
+              onClick={onClick}
+            >
+              <span className="text-white font-bold text-xs">
+                {teams?.away?.name?.substring(0, 3)?.toUpperCase() || 'AWY'}
+              </span>
+              {teams?.away?.winner && (
+                <div className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                  <span className="text-xs">W</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         
