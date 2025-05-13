@@ -154,7 +154,7 @@ export function MatchScoreboard({
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo with animation and evolution capability */}
           <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
-            <AnimatedTeamLogo
+            <TeamLogo
               logoUrl={teams?.home?.logo || 'https://via.placeholder.com/80?text=Team'}
               teamName={teams?.home?.name || 'Home Team'}
               size="md"
@@ -216,7 +216,7 @@ export function MatchScoreboard({
           
           {/* Away team logo with animation and evolution capability */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
-            <AnimatedTeamLogo
+            <TeamLogo
               logoUrl={teams?.away?.logo || 'https://via.placeholder.com/80?text=Team'}
               teamName={teams?.away?.name || 'Away Team'}
               size="md"

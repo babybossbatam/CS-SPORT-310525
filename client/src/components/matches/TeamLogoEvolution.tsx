@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import AnimatedTeamLogo from './AnimatedTeamLogo';
+import TeamLogo from './TeamLogo';
 
 // Interface for logo history item
 interface LogoHistoryItem {
