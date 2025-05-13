@@ -374,62 +374,21 @@ const MatchFilters = () => {
             ))}
           </div>
         ) : matchesToDisplay.length > 0 ? (
-          // New layout with Popular Leagues card at the top
           <div className="w-full">
-            {/* Popular Football Leagues Header */}
-            <div className="px-3 py-2 flex items-center border-b border-gray-100">
-              <span className="text-sm font-bold">Popular Football Leagues</span>
-            </div>
-
-            
-
-            {/* Ligue 1 Section */}
-            <div className="border-b border-gray-100">
-              <div 
-                className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  dispatch(uiActions.setSelectedLeague(61));
-                  setLocation(`/leagues/61`);
-                }}
-              >
-                <img 
-                  src="https://media.api-sports.io/football/leagues/61.png" 
-                  alt="Ligue 1" 
-                  className="w-5 h-5 mr-2"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = 'https://static.livescore.com/i/competition/default.png';
-                  }}
-                />
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium">Ligue 1</span>
-                  <span className="text-xs text-gray-400">France</span>
-                </div>
-              </div>
-
-              {/* Ligue 1 Matches - Static Data */}
-              {[
-                { 
-                  id: 7,
-                  homeTeam: { name: "Reims", logo: "https://media.api-sports.io/football/teams/93.png" }, 
-                  awayTeam: { name: "St-Etienne", logo: "https://media.api-sports.io/football/teams/1063.png" },
-                  score: "",
-                  status: "",
-                  time: "03:00"
-                }
-              ].map((match) => (
+            {/* Display matches directly */}
+            <div className="space-y-1">
+              {matchesToDisplay.map((match) => (
                 <div 
-                  key={match.id} 
-                  className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer px-4 py-1.5"
-                  onClick={() => setLocation(`/fixtures/${match.id}`)}
+                  key={match.fixture.id} 
+                  className="hover:bg-gray-50 cursor-pointer px-4 py-2"
+                  onClick={() => setLocation(`/fixtures/${match.fixture.id}`)}
                 >
                   <div className="flex justify-between items-center">
-                    {/* Home Team */}
                     <div className="flex-1 flex items-center justify-end mr-2">
-                      <span className="text-sm truncate text-right mr-2">{match.homeTeam.name}</span>
+                      <span className="text-sm truncate text-right mr-2">{match.teams.home.name}</span>
                       <img 
-                        src={match.homeTeam.logo} 
-                        alt={match.homeTeam.name} 
+                        src={match.teams.home.logo} 
+                        alt={match.teams.home.name} 
                         className="h-5 w-5 object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -438,72 +397,33 @@ const MatchFilters = () => {
                       />
                     </div>
                     
-                    {/* Score */}
                     <div className="flex items-center justify-center min-w-[50px] text-center">
-                      {match.status ? (
+                      {match.goals.home !== null && match.goals.away !== null ? (
                         <div className="text-sm font-medium">
-                          {match.score}
+                          {match.goals.home} - {match.goals.away}
                         </div>
                       ) : (
                         <div className="text-sm font-medium">
-                          {match.time}
+                          {format(new Date(match.fixture.date), 'HH:mm')}
                         </div>
                       )}
                     </div>
                     
-                    {/* Away Team */}
                     <div className="flex-1 flex items-center ml-2">
                       <img 
-                        src={match.awayTeam.logo} 
-                        alt={match.awayTeam.name} 
+                        src={match.teams.away.logo} 
+                        alt={match.teams.away.name} 
                         className="h-5 w-5 object-contain mr-2"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = 'https://static.livescore.com/i/team/default.png';
                         }}
                       />
-                      <span className="text-sm truncate">{match.awayTeam.name}</span>
+                      <span className="text-sm truncate">{match.teams.away.name}</span>
                     </div>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Other Popular Leagues */}
-            <div className="py-2 px-3">
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: 2, name: 'Champions League', country: 'Europe' },
-                  { id: 3, name: 'Europa League', country: 'Europe' },
-                  { id: 140, name: 'La Liga', country: 'Spain' },
-                  { id: 135, name: 'Serie A', country: 'Italy' },
-                  { id: 78, name: 'Bundesliga', country: 'Germany' },
-                  { id: 203, name: 'Championship', country: 'England' }
-                ].map((league) => (
-                  <div 
-                    key={league.id}
-                    className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded cursor-pointer"
-                    onClick={() => {
-                      dispatch(uiActions.setSelectedLeague(league.id));
-                      setLocation(`/leagues/${league.id}`);
-                    }}
-                  >
-                    <img 
-                      src={`https://media.api-sports.io/football/leagues/${league.id}.png`} 
-                      alt={league.name} 
-                      className="w-5 h-5 mr-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://static.livescore.com/i/competition/default.png';
-                      }}
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium truncate">{league.name}</span>
-                      <span className="text-xs text-gray-400">{league.country}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         ) : (
