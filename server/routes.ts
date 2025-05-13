@@ -916,26 +916,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const apiKey = process.env.SPORTMONKS_API_KEY;
           
           // Try to fetch from the Serie A news endpoint with updated subscription
-          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}&league_id=135`;
+          // Note: The API documentation shows league_id=384 for Serie A
+          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}&league_id=384`;
           console.log(`Fetching Serie A football news from SportMonks API (URL redacted for security)`);
           
           const response = await fetch(sportMonksUrl);
           const data = await response.json();
           
           // Print the data structure for debugging
-          console.log("SportMonks API response:", JSON.stringify(data).substring(0, 500));
+          const apiResponse = JSON.stringify(data);
+          console.log("SportMonks API response status:", response.status);
+          console.log("SportMonks API response structure:", apiResponse.substring(0, 500) + "...");
+          
+          // Log API error if present
+          if (data.message) {
+            console.log("SportMonks API error message:", data.message);
+          }
           
           // Check if response is valid
           if (response.ok && data.data && Array.isArray(data.data)) {
             console.log(`Successfully fetched ${data.data.length} football news articles from SportMonks`);
-            console.log("First article sample:", JSON.stringify(data.data[0]).substring(0, 300));
+            console.log("First article sample:", JSON.stringify(data.data[0]));
             
             // Transform the SportMonks news data format to match our news article format
             const articles = data.data.slice(0, count).map((article: any, index: number) => {
-              // Create a URL for the news based on the fixture_id or a default
-              const newsUrl = article.fixture_id ? 
-                `https://www.sportmonks.com/football/match/${article.fixture_id}` : 
-                "https://www.sportmonks.com/";
+              // Don't link directly to SportMonks but keep a reference to the league_id
+              // Set the URL to our own site's path 
+              const newsUrl = "/news/" + (index + 1);
               
               return {
                 id: index + 1,
@@ -944,7 +951,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 content: `Serie A ${article.type || 'match'} news: ${article.title}`,
                 // Use a default football image
                 imageUrl: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
-                source: "SportMonks Serie A",
+                source: "Serie A News",
                 url: newsUrl,
                 publishedAt: new Date().toISOString(),
                 createdAt: new Date().toISOString(),
