@@ -19,34 +19,34 @@ const LeagueDetails = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  
+
   const user = useSelector((state: RootState) => state.user);
   const { list: leagues, loading: leagueLoading } = useSelector((state: RootState) => state.leagues);
   const { byLeague: fixturesByLeague, loading: fixturesLoading } = useSelector((state: RootState) => state.fixtures);
-  
+
   const league = leagues.find(l => l.league.id.toString() === id);
   const fixtures = fixturesByLeague[id || ''] || [];
   const loading = leagueLoading || fixturesLoading;
-  
+
   const [activeTab, setActiveTab] = useState(tab);
-  
+
   // Check if league is favorited
   const isFavorite = user.preferences.favoriteLeagues.includes(id || '');
-  
+
   // Fetch league details
   useEffect(() => {
     const fetchLeagueDetails = async () => {
       if (!id) return;
-      
+
       // If league is already in state, don't fetch again
       if (league) return;
-      
+
       try {
         dispatch(leaguesActions.setLoadingLeagues(true));
-        
+
         const response = await apiRequest('GET', `/api/leagues/${id}`);
         const data = await response.json();
-        
+
         if (data) {
           dispatch(leaguesActions.setLeagues([...leagues, data]));
         }
@@ -61,30 +61,30 @@ const LeagueDetails = () => {
         dispatch(leaguesActions.setLoadingLeagues(false));
       }
     };
-    
+
     fetchLeagueDetails();
   }, [id, league, leagues, dispatch, toast]);
-  
+
   // Fetch league fixtures
   useEffect(() => {
     const fetchLeagueFixtures = async () => {
       if (!id) return;
-      
+
       // If fixtures are already in state, don't fetch again
       if (fixtures.length > 0) return;
-      
+
       try {
         dispatch(fixturesActions.setLoadingFixtures(true));
-        
+
         // Get current season
         const currentYear = new Date().getFullYear();
-        
+
         const response = await apiRequest(
           'GET', 
           `/api/leagues/${id}/fixtures?season=${currentYear}`
         );
         const data = await response.json();
-        
+
         dispatch(fixturesActions.setFixturesByLeague({ 
           leagueId: id,
           fixtures: data 
@@ -100,17 +100,17 @@ const LeagueDetails = () => {
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
     };
-    
+
     fetchLeagueFixtures();
   }, [id, fixtures.length, dispatch, toast]);
-  
+
   // Update tab in URL when changed
   useEffect(() => {
     if (tab !== activeTab && id) {
       navigate(`/league/${id}/${activeTab}`);
     }
   }, [activeTab, id, navigate, tab]);
-  
+
   // Toggle favorite status
   const toggleFavorite = () => {
     if (!user.isAuthenticated) {
@@ -121,10 +121,10 @@ const LeagueDetails = () => {
       navigate('/login');
       return;
     }
-    
+
     if (isFavorite) {
       dispatch(userActions.removeFavoriteLeague(id || ''));
-      
+
       // Update on server
       if (user.id) {
         apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
@@ -135,7 +135,7 @@ const LeagueDetails = () => {
       }
     } else {
       dispatch(userActions.addFavoriteLeague(id || ''));
-      
+
       // Update on server
       if (user.id) {
         apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
@@ -146,7 +146,7 @@ const LeagueDetails = () => {
       }
     }
   };
-  
+
   // Loading state
   if (loading || !league) {
     return (
@@ -154,7 +154,7 @@ const LeagueDetails = () => {
         <Header />
         <SportsCategoryTabs />
         <TournamentHeader title="Loading league details..." />
-        
+
         <div className="container mx-auto px-4 py-4">
           <Card className="mb-6">
             <CardHeader className="p-4 border-b border-neutral-200 flex items-center justify-between">
@@ -174,7 +174,7 @@ const LeagueDetails = () => {
               <div className="flex items-center justify-center mb-6">
                 <Skeleton className="h-24 w-24 rounded mb-2" />
               </div>
-              
+
               <Skeleton className="h-8 w-full mb-4" />
               <Skeleton className="h-40 w-full" />
             </CardContent>
@@ -183,13 +183,13 @@ const LeagueDetails = () => {
       </>
     );
   }
-  
+
   return (
     <>
       <Header />
       <SportsCategoryTabs />
       <TournamentHeader title={league.league.name} />
-      
+
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">
           <CardHeader className="p-4 border-b border-neutral-200 flex items-center justify-between">
@@ -237,7 +237,7 @@ const LeagueDetails = () => {
                 <p className="text-sm text-gray-500">{league.country.name}</p>
               </div>
             </div>
-            
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-4 mb-4">
                 <TabsTrigger value="fixtures" className="flex items-center">
@@ -257,13 +257,15 @@ const LeagueDetails = () => {
                   <span>Bracket</span>
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="fixtures" className="mt-2">
                 <Card>
                   <CardContent className="p-4">
                     {fixtures.length > 0 ? (
                       <div className="space-y-4">
-                        {fixtures.map((fixture) => (
+                        {[...fixtures].sort((a, b) => 
+                        new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
+                      ).map((fixture) => (
                           <div 
                             key={fixture.fixture.id}
                             className="p-3 border-b border-neutral-200 cursor-pointer hover:bg-gray-50"
@@ -318,7 +320,7 @@ const LeagueDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="standings" className="mt-2">
                 <Card>
                   <CardContent className="p-4">
@@ -328,7 +330,7 @@ const LeagueDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="stats" className="mt-2">
                 <Card>
                   <CardContent className="p-4">
@@ -338,7 +340,7 @@ const LeagueDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="bracket" className="mt-2">
                 <Card>
                   <CardContent className="p-4">
