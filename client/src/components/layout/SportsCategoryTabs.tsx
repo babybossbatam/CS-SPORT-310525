@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Football, Basketball, Baseball, Hockey, Dribbble } from 'lucide-react';
+import { Football, Basketball, CircleDot, Hockey, Dribbble } from 'lucide-react';
 
 const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
@@ -54,7 +54,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Baseball className="h-4 w-4" />
+            <CircleDot className="h-4 w-4" />
             <span>Baseball</span>
           </button>
 
@@ -89,4 +89,5 @@ const SportsCategoryTabs = () => {
   );
 };
 
+export { SportsCategoryTabs };
 export default SportsCategoryTabs;
