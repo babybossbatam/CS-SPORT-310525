@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
-import { Search, Star, Settings } from 'lucide-react';
+import { Search, Star, Settings, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -62,6 +62,15 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <Button 
+            variant="ghost" 
+            className="text-sm flex items-center space-x-1 text-white"
+            onClick={() => navigate('/news')}
+          >
+            <Newspaper className="h-4 w-4 mr-1" />
+            <span>News</span>
+          </Button>
+          
           <Button 
             variant="ghost" 
             className="text-sm flex items-center space-x-1 text-white"

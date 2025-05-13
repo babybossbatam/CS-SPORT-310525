@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, newsActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
-import NewsCard, { NewsItem } from '@/components/news/NewsCard';
+import NewsCard from '@/components/news/NewsCard';
 import { Loader2, Newspaper, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,18 +12,11 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
+// Make NewsItem interface match the one from NewsCard component
+import type { NewsItem as NewsCardItem } from '@/components/news/NewsCard';
+
 // Required for type compatibility with the news API
-type NewsApiArticle = {
-  id: number;
-  title: string;
-  content: string;
-  imageUrl: string;
-  source: string;
-  url: string | null;
-  publishedAt: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
+type NewsApiArticle = NewsCardItem;
 
 const NewsPage = () => {
   const dispatch = useDispatch();
