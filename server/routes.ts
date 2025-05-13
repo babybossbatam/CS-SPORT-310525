@@ -502,10 +502,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Try to fetch from Livescore API first
+      // Fetch from API-Football
       let league;
       try {
-        // Use API-Football (RapidAPI) only
         league = await rapidApiService.getLeagueById(id);
       } catch (error) {
         console.error(`API-Football error for league ${id}:`, error);
