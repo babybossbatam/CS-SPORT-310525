@@ -3,18 +3,18 @@ import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { 
-  MonitorPlay,
-  SoccerBall,
-  Basketball,
-  Cricket,
-  AmericanFootball,
-  Baseball,
-  Hockey,
-  Tennis as TennisIcon,
-  Handball,
-  Volleyball,
-  Rugby
-} from '@phosphor-icons/react';
+  Tv,
+  Trophy,
+  CircleDashed,
+  BadgeAlert,
+  ShieldAlert,
+  CircleDot,
+  Snowflake,
+  Bike,
+  Hand,
+  Gauge,
+  Activity
+} from 'lucide-react';
 
 const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
@@ -31,17 +31,17 @@ const SportsCategoryTabs = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center space-x-6 overflow-x-auto pb-1">
           {[
-            { id: 'tv', icon: MonitorPlay, label: 'TV' },
-            { id: 'football', icon: SoccerBall, label: 'Football' },
-            { id: 'basketball', icon: Basketball, label: 'Basketball' },
-            { id: 'cricket', icon: Cricket, label: 'Cricket' },
-            { id: 'american-football', icon: AmericanFootball, label: 'A.Football' },
-            { id: 'baseball', icon: Baseball, label: 'Baseball' },
-            { id: 'hockey', icon: Hockey, label: 'Hockey' },
-            { id: 'tennis', icon: TennisIcon, label: 'Tennis' },
-            { id: 'handball', icon: Handball, label: 'Handball' },
-            { id: 'volleyball', icon: Volleyball, label: 'Volleyball' },
-            { id: 'rugby', icon: Rugby, label: 'Rugby' }
+            { id: 'tv', icon: Tv, label: 'TV' },
+            { id: 'football', icon: Trophy, label: 'Football' },
+            { id: 'basketball', icon: CircleDashed, label: 'Basketball' },
+            { id: 'cricket', icon: BadgeAlert, label: 'Cricket' },
+            { id: 'american-football', icon: ShieldAlert, label: 'A.Football' },
+            { id: 'baseball', icon: CircleDot, label: 'Baseball' },
+            { id: 'hockey', icon: Snowflake, label: 'Hockey' },
+            { id: 'tennis', icon: Bike, label: 'Tennis' },
+            { id: 'handball', icon: Hand, label: 'Handball' },
+            { id: 'volleyball', icon: Gauge, label: 'Volleyball' },
+            { id: 'rugby', icon: Activity, label: 'Rugby' }
           ].map(({ id, icon: Icon, label }) => (
             <button
               key={id}
