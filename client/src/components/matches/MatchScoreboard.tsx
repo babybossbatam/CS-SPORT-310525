@@ -2,6 +2,7 @@ import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import TeamLogo from './TeamLogo';
+import { useState, useEffect } from 'react';
 
 // Define types
 interface Team {
@@ -98,13 +99,34 @@ export function MatchScoreboard({
   // Get match data
   const { fixture, league, teams, goals, score } = match;
   
+  // Animation and hover effect states
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [homeTeamHover, setHomeTeamHover] = useState(false);
+  const [awayTeamHover, setAwayTeamHover] = useState(false);
+  const [scoreboardHover, setScoreboardHover] = useState(false);
+  
+  // Fade-in animation effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 150);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
   return (
     <>
       {/* Match bar styled with height set to exactly 30px */}
       <div 
-        className={`flex relative h-[30px] rounded-md ${compact ? 'mb-4' : 'mb-8'}`}
+        className={`flex relative h-[30px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClick}
-        style={{ cursor: onClick ? 'pointer' : 'default' }}
+        style={{ 
+          cursor: onClick ? 'pointer' : 'default',
+          transform: scoreboardHover ? 'scale(1.02)' : 'scale(1)',
+          boxShadow: scoreboardHover ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none'
+        }}
+        onMouseEnter={() => setScoreboardHover(true)}
+        onMouseLeave={() => setScoreboardHover(false)}
       >
         {/* Previous navigation buttons removed */}
         
@@ -113,13 +135,17 @@ export function MatchScoreboard({
           {/* Home team logo container - replaced with text-based circle */}
           <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
             <div 
-              className={`w-14 h-14 rounded-full flex items-center justify-center bg-blue-100 border-2 ${teams?.home?.winner ? 'border-green-500 shadow-lg' : 'border-white'}`}
+              className={`w-14 h-14 rounded-full flex items-center justify-center bg-blue-100 border-2 ${teams?.home?.winner ? 'border-green-500 shadow-lg' : 'border-white'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               style={{ 
                 backgroundColor: homeTeamColor,
                 cursor: onClick ? 'pointer' : 'default',
-                transform: teams?.home?.winner ? 'scale(1.05)' : 'scale(1)'
+                transform: `${homeTeamHover ? 'scale(1.1)' : teams?.home?.winner ? 'scale(1.05)' : 'scale(1)'}`,
+                boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none',
+                transition: 'all 0.2s ease-in-out'
               }}
               onClick={onClick}
+              onMouseEnter={() => setHomeTeamHover(true)}
+              onMouseLeave={() => setHomeTeamHover(false)}
             >
               <span className="text-white font-bold text-xs">
                 {teams?.home?.name?.substring(0, 3)?.toUpperCase() || 'HOM'}
@@ -141,28 +167,42 @@ export function MatchScoreboard({
           </div>
           
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-          <div className="h-full w-[calc(50%-47px)] ml-[47px]" 
+          <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
-              background: homeTeamColor
+              background: homeTeamColor,
+              backgroundImage: homeTeamHover || scoreboardHover ? 
+                'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)' : 
+                'none',
+              boxShadow: homeTeamHover ? 'inset 0 0 10px rgba(255, 255, 255, 0.3)' : 'none',
+              transition: 'all 0.3s ease-in-out'
             }}>
           </div>
           
           {/* VS SECTION - fixed size */}
           <div 
-            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden"
+            className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
             style={{
               background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
               textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-              boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)'
+              boxShadow: scoreboardHover 
+                ? '0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 0, 0, 0.5)' 
+                : '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)',
+              transform: scoreboardHover ? 'translate(-50%, -50%) rotate(5deg)' : 'translate(-50%, -50%) rotate(0deg)',
+              transition: 'all 0.3s ease-in-out'
             }}
           >
             VS
           </div>
           
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-          <div className="h-full w-[calc(50%-55px)] mr-[55px]" 
+          <div className={`h-full w-[calc(50%-55px)] mr-[55px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
-              background: awayTeamColor
+              background: awayTeamColor,
+              backgroundImage: awayTeamHover || scoreboardHover ? 
+                'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)' : 
+                'none',
+              boxShadow: awayTeamHover ? 'inset 0 0 10px rgba(255, 255, 255, 0.3)' : 'none',
+              transition: 'all 0.3s ease-in-out'
             }}>
           </div>
           
@@ -177,13 +217,17 @@ export function MatchScoreboard({
           {/* Away team logo container - replaced with text-based circle */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
             <div 
-              className={`w-14 h-14 rounded-full flex items-center justify-center bg-red-700 border-2 ${teams?.away?.winner ? 'border-green-500 shadow-lg' : 'border-white'}`}
+              className={`w-14 h-14 rounded-full flex items-center justify-center bg-red-700 border-2 ${teams?.away?.winner ? 'border-green-500 shadow-lg' : 'border-white'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               style={{ 
                 backgroundColor: awayTeamColor,
                 cursor: onClick ? 'pointer' : 'default',
-                transform: teams?.away?.winner ? 'scale(1.05)' : 'scale(1)'
+                transform: `${awayTeamHover ? 'scale(1.1)' : teams?.away?.winner ? 'scale(1.05)' : 'scale(1)'}`,
+                boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none',
+                transition: 'all 0.2s ease-in-out'
               }}
               onClick={onClick}
+              onMouseEnter={() => setAwayTeamHover(true)}
+              onMouseLeave={() => setAwayTeamHover(false)}
             >
               <span className="text-white font-bold text-xs">
                 {teams?.away?.name?.substring(0, 3)?.toUpperCase() || 'AWY'}
