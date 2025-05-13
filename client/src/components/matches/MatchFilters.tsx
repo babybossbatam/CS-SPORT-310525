@@ -376,10 +376,7 @@ const MatchFilters = () => {
         ) : matchesToDisplay.length > 0 ? (
           // New layout with Popular Leagues card at the top
           <div className="w-full">
-            {/* Popular Football Leagues Header */}
-            <div className="px-3 py-2 flex items-center border-b border-gray-100">
-              <span className="text-sm font-bold">Popular Football Leagues</span>
-            </div>
+            
 
             
 
