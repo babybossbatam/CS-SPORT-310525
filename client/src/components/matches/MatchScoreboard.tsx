@@ -132,47 +132,41 @@ export function MatchScoreboard({
         
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team logo container - replaced with text-based circle */}
-          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20">
+          {/* Home team logo and name */}
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center">
             <div 
-              className={`w-14 h-14 rounded-full flex items-center justify-center bg-blue-100 border-2 ${teams?.home?.winner ? 'border-green-500 shadow-lg' : 'border-white'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-              style={{ 
-                backgroundColor: homeTeamColor,
-                cursor: onClick ? 'pointer' : 'default',
-                transform: `${homeTeamHover ? 'scale(1.1)' : teams?.home?.winner ? 'scale(1.05)' : 'scale(1)'}`,
-                boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none',
-                transition: 'all 0.2s ease-in-out'
-              }}
+              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               onClick={onClick}
               onMouseEnter={() => setHomeTeamHover(true)}
               onMouseLeave={() => setHomeTeamHover(false)}
+              style={{
+                cursor: onClick ? 'pointer' : 'default',
+                transform: homeTeamHover ? 'scale(1.1)' : 'scale(1)',
+                boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+              }}
             >
-              <span className="text-white font-bold text-xs">
-                {teams?.home?.name?.substring(0, 3)?.toUpperCase() || 'HOM'}
-              </span>
+              <img 
+                src={teams?.home?.logo} 
+                alt={teams?.home?.name || 'Home Team'} 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
+                }}
+              />
               {teams?.home?.winner && (
-                <div className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
                   <span className="text-xs">W</span>
                 </div>
               )}
             </div>
+            
+            {/* Team name */}
+            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+              {teams?.home?.name || 'Home Team'}
+            </div>
           </div>
           
-          {/* Home team name display */}
-          <div className={`absolute left-[calc(0px+72px)] ml-8 text-white font-bold text-sm leading-tight flex items-center h-full uppercase z-20 transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
-            style={{
-              textShadow: homeTeamHover ? '0 0 8px rgba(255,255,255,0.8)' : 'none',
-              transform: homeTeamHover ? 'translateX(2px) scale(1.05)' : 'translateX(0) scale(1)',
-              transition: 'all 0.2s ease-in-out'
-            }}
-          >
-            {teams?.home?.name || 'Home Team'}
-            {teams?.home?.winner && (
-              <span className="text-xs uppercase text-white ml-1 bg-green-600 inline-block px-1 rounded animate-pulse">
-                Winner
-              </span>
-            )}
-          </div>
+          {/* Home team name display is now part of the pill-shaped component */}
           
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
           <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
@@ -188,18 +182,25 @@ export function MatchScoreboard({
           
           {/* VS SECTION - fixed size */}
           <div 
-            className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-[12px] rounded-full h-12 w-12 flex items-center justify-center z-30 border-[2px] border-white shadow-md overflow-hidden transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+            className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
             style={{
-              background: 'linear-gradient(135deg, #a00000 0%, #7a0000 100%)',
-              textShadow: '0px 0px 2px rgba(255, 255, 255, 0.5)',
-              boxShadow: scoreboardHover 
-                ? '0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 0, 0, 0.5)' 
-                : '0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.7)',
-              transform: scoreboardHover ? 'translate(-50%, -50%) rotate(5deg)' : 'translate(-50%, -50%) rotate(0deg)',
-              transition: 'all 0.3s ease-in-out'
+              background: '#a00000',
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.4)'
+            }}
+            onMouseEnter={() => {
+              const vsElement = document.querySelector('.vs-text');
+              if (vsElement) {
+                vsElement.classList.add('animate-pulse');
+              }
+            }}
+            onMouseLeave={() => {
+              const vsElement = document.querySelector('.vs-text');
+              if (vsElement) {
+                vsElement.classList.remove('animate-pulse');
+              }
             }}
           >
-            VS
+            <span className="vs-text font-bold">VS</span>
           </div>
           
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
@@ -214,40 +215,29 @@ export function MatchScoreboard({
             }}>
           </div>
           
-          {/* Away team name display */}
-          <div className={`absolute right-[calc(4px+72px)] mr-8 text-white font-bold text-sm leading-tight flex items-center justify-end h-full uppercase text-right z-20 transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
-            style={{
-              textShadow: awayTeamHover ? '0 0 8px rgba(255,255,255,0.8)' : 'none',
-              transform: awayTeamHover ? 'translateX(-2px) scale(1.05)' : 'translateX(0) scale(1)',
-              transition: 'all 0.2s ease-in-out'
-            }}
-          >
-            {teams?.away?.name || 'Away Team'}
-            {teams?.away?.winner && (
-              <span className="text-xs uppercase text-white mr-1 bg-green-600 inline-block px-1 rounded animate-pulse">Winner</span>
-            )}
-          </div>
-          
-          {/* Away team logo container - replaced with text-based circle */}
+          {/* Away team logo container - simple design */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
             <div 
-              className={`w-14 h-14 rounded-full flex items-center justify-center bg-red-700 border-2 ${teams?.away?.winner ? 'border-green-500 shadow-lg' : 'border-white'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-              style={{ 
-                backgroundColor: awayTeamColor,
-                cursor: onClick ? 'pointer' : 'default',
-                transform: `${awayTeamHover ? 'scale(1.1)' : teams?.away?.winner ? 'scale(1.05)' : 'scale(1)'}`,
-                boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none',
-                transition: 'all 0.2s ease-in-out'
-              }}
+              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               onClick={onClick}
               onMouseEnter={() => setAwayTeamHover(true)}
               onMouseLeave={() => setAwayTeamHover(false)}
+              style={{
+                cursor: onClick ? 'pointer' : 'default',
+                transform: awayTeamHover ? 'scale(1.1)' : 'scale(1)',
+                boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+              }}
             >
-              <span className="text-white font-bold text-xs">
-                {teams?.away?.name?.substring(0, 3)?.toUpperCase() || 'AWY'}
-              </span>
+              <img 
+                src={teams?.away?.logo} 
+                alt={teams?.away?.name || 'Away Team'} 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
+                }}
+              />
               {teams?.away?.winner && (
-                <div className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
                   <span className="text-xs">W</span>
                 </div>
               )}
