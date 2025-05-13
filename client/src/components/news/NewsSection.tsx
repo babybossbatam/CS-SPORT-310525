@@ -9,19 +9,23 @@ import { Link } from 'wouter';
 
 interface NewsSectionProps {
   maxItems?: number;
+  sport?: string; // Optional sport prop to override selectedSport from Redux
 }
 
-const NewsSection: React.FC<NewsSectionProps> = ({ maxItems = 3 }) => {
+const NewsSection: React.FC<NewsSectionProps> = ({ maxItems = 3, sport }) => {
   const dispatch = useDispatch();
   const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   
+  // Use the sport prop if provided, otherwise use the selectedSport from Redux
+  const sportType = sport || selectedSport;
+  
   // Fetch news articles from API with the selected sport as a parameter
   const { data: newsData, isLoading, isError } = useQuery<NewsItem[]>({
-    queryKey: ['/api/news', selectedSport],
+    queryKey: ['/api/news', sportType],
     queryFn: async () => {
       // Only pass sport if it's not 'tv' (which is not a real sport category)
-      const sportParam = selectedSport !== 'tv' ? `&sport=${selectedSport}` : '';
+      const sportParam = sportType !== 'tv' ? `&sport=${sportType}` : '';
       const response = await fetch(`/api/news?category=sports${sportParam}`);
       if (!response.ok) {
         throw new Error('Failed to fetch news');
