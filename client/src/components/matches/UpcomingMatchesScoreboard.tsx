@@ -113,7 +113,15 @@ const UpcomingMatchesScoreboard = () => {
   
   // Process the fixtures when data is available
   useEffect(() => {
-    if (!liveFixtures && !championsLeagueFixtures && !europaLeagueFixtures && !serieAFixtures) return;
+    // Only proceed if we have at least one data source available
+    const hasData = liveFixtures || championsLeagueFixtures || europaLeagueFixtures || serieAFixtures;
+    if (!hasData) return;
+
+    // Create a safe array from each data source
+    const liveFixturesArray = liveFixtures || [];
+    const championsLeagueFixturesArray = championsLeagueFixtures || [];
+    const europaLeagueFixturesArray = europaLeagueFixtures || [];
+    const serieAFixturesArray = serieAFixtures || [];
     
     console.log("Processing fixtures for upcoming matches scoreboard");
     
@@ -136,10 +144,10 @@ const UpcomingMatchesScoreboard = () => {
     };
     
     // Process sources in order of priority
-    processSource(liveFixtures, "Live");
-    processSource(championsLeagueFixtures, "Champions League");
-    processSource(europaLeagueFixtures, "Europa League");
-    processSource(serieAFixtures, "Serie A");
+    processSource(liveFixturesArray, "Live");
+    processSource(championsLeagueFixturesArray, "Champions League");
+    processSource(europaLeagueFixturesArray, "Europa League");
+    processSource(serieAFixturesArray, "Serie A");
     
     // Convert map back to array
     const uniqueFixtures = Array.from(fixtureIdMap.values());
