@@ -95,7 +95,7 @@ const StatsPanel = () => {
         </Tabs>
       </div>
 
-      <div className="space-y-4">
+      <div className="px-4 space-y-4">
         {loading && !selectedLeagueTopScorers.length ? (
           Array(3).fill(0).map((_, index) => (
             <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100">
