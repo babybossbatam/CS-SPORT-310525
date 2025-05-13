@@ -527,31 +527,6 @@ const MatchDetails = () => {
                 {currentFixture.goals.home} - {currentFixture.goals.away}
               </div>
 
-              <div className="w-full flex items-center justify-between mb-8">
-                <div className="flex-1 flex flex-col items-center">
-                  <img 
-                    src={currentFixture.teams.home.logo} 
-                    alt={currentFixture.teams.home.name}
-                    className="w-24 h-24 object-contain mb-2"
-                  />
-                  <div className="text-xl font-bold uppercase text-center">
-                    {currentFixture.teams.home.name}
-                  </div>
-                </div>
-
-                <div className="text-2xl font-bold px-6">VS</div>
-
-                <div className="flex-1 flex flex-col items-center">
-                  <img 
-                    src={currentFixture.teams.away.logo} 
-                    alt={currentFixture.teams.away.name}
-                    className="w-24 h-24 object-contain mb-2"
-                  />
-                  <div className="text-xl font-bold uppercase text-center">
-                    {currentFixture.teams.away.name}
-                  </div>
-                </div>
-              </div>
 
               <div className="text-sm text-gray-500">
                 {format(new Date(currentFixture.fixture.date), "EEEE, do MMM | HH:mm")} | {currentFixture.fixture.venue.name}
