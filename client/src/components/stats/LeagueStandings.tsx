@@ -223,7 +223,6 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
               </TableBody>
             </Table>
           </div>
-        </Tabs>
       </CardContent>
     </Card>
   );
