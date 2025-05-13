@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
@@ -173,7 +172,7 @@ const LeagueDetails = () => {
                     </TabsTrigger>
                     <TabsTrigger value="standings" className="flex items-center">
                       <Table className="h-4 w-4 mr-2" />
-                      <span>Standings</span>
+                      <span>Details</span>
                     </TabsTrigger>
                     <TabsTrigger value="stats" className="flex items-center">
                       <BarChart2 className="h-4 w-4 mr-2" />
