@@ -150,23 +150,20 @@ const LeagueStandingsFilter = () => {
                         opponent.team.id !== standing.team.id && 
                         opponent.rank > standing.rank
                       ) && (
-                        <>
-                          <span className="text-xs">vs</span>
-                          <img 
-                            src={standings.find(opponent => 
-                              opponent.team.id !== standing.team.id && 
-                              opponent.rank > standing.rank
-                            )?.team.logo} 
-                            alt={`Next opponent: ${standings.find(opponent => 
-                              opponent.team.id !== standing.team.id && 
-                              opponent.rank > standing.rank
-                            )?.team.name}`}
-                            className="w-4 h-4"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
-                            }}
-                          />
-                        </>
+                        <img 
+                          src={standings.find(opponent => 
+                            opponent.team.id !== standing.team.id && 
+                            opponent.rank > standing.rank
+                          )?.team.logo} 
+                          alt={`Next opponent: ${standings.find(opponent => 
+                            opponent.team.id !== standing.team.id && 
+                            opponent.rank > standing.rank
+                          )?.team.name}`}
+                          className="w-4 h-4"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
+                          }}
+                        />
                       )}
                     </div>
                   </td>
