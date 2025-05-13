@@ -1,3 +1,4 @@
+
 import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 
@@ -30,16 +31,16 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
     <div className="bg-white border-b sticky top-0 z-10">
       <div className="mx-auto">
         <div className="flex flex-col">
-          {/* League Header */}
-          <div className="flex items-center gap-2 py-3 px-4 border-b">
-            <div className="flex items-center gap-3 flex-1">
-              <img 
-                src={leagueLogo} 
-                alt={leagueName}
-                className="h-8 w-8 object-contain"
-              />
-              <span className="text-lg font-medium">{leagueName}</span>
-              <div className="flex items-center gap-2">
+          {/* League Header with Logo */}
+          <div className="flex items-center gap-4 py-4 px-6">
+            <img 
+              src={leagueLogo} 
+              alt={leagueName}
+              className="h-12 w-12 object-contain"
+            />
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold">{leagueName?.toUpperCase()}</h1>
+              <div className="flex items-center gap-2 mt-1">
                 <Button variant="outline" size="sm" className="text-xs">
                   Follow
                 </Button>
@@ -49,12 +50,12 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex overflow-x-auto no-scrollbar border-b">
+          <div className="flex overflow-x-auto no-scrollbar border-t">
             {leagueNavItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${
+                className={`px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${
                   location === item.href 
                     ? 'text-blue-600 border-blue-600' 
                     : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
