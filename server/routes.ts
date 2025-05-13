@@ -287,32 +287,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // If not in cache or cache is stale, try APIs
+      // If not in cache or cache is stale, get new data from API-Football
       let fixtures: any[] = [];
       
-      // Try the new Livescore API first
       try {
-        fixtures = await livescoreApiService.getFixturesByDate(date);
-        console.log(`Got ${fixtures.length} fixtures from Livescore API for date ${date}`);
-      } catch (livescoreError) {
-        console.error(`Livescore API error for date ${date}, falling back to RapidAPI:`, livescoreError);
+        // Use only API-Football (RapidAPI)
+        fixtures = await rapidApiService.getFixturesByDate(date);
+        console.log(`Got ${fixtures.length} fixtures from API-Football for date ${date}`);
+      } catch (error) {
+        console.error(`API-Football error for date ${date}:`, error);
         
-        try {
-          // Fall back to RapidAPI
-          fixtures = await rapidApiService.getFixturesByDate(date);
-          console.log(`Got ${fixtures.length} fixtures from RapidAPI for date ${date}`);
-        } catch (rapidApiError) {
-          console.error(`RapidAPI error for date ${date}:`, rapidApiError);
-          
-          // If both APIs fail, return cached fixtures if available, even if stale
-          if (cachedFixtures && cachedFixtures.length > 0) {
-            console.log(`Returning ${cachedFixtures.length} stale cached fixtures for date ${date}`);
-            return res.json(cachedFixtures.map(fixture => fixture.data));
-          }
-          
-          // If no cached fixtures available, return empty array instead of error
-          return res.json([]);
+        // If API fails, return cached fixtures if available, even if stale
+        if (cachedFixtures && cachedFixtures.length > 0) {
+          console.log(`Returning ${cachedFixtures.length} stale cached fixtures for date ${date}`);
+          return res.json(cachedFixtures.map(fixture => fixture.data));
         }
+        
+        // If no cached fixtures available, return empty array instead of error
+        return res.json([]);
       }
       
       // If we got fixtures, cache them

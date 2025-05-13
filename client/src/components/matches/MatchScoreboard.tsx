@@ -185,18 +185,6 @@ export function MatchScoreboard({
               background: '#a00000',
               boxShadow: '0 0 10px rgba(255, 255, 255, 0.4)'
             }}
-            onMouseEnter={() => {
-              const vsElement = document.querySelector('.vs-text');
-              if (vsElement) {
-                vsElement.classList.add('animate-pulse');
-              }
-            }}
-            onMouseLeave={() => {
-              const vsElement = document.querySelector('.vs-text');
-              if (vsElement) {
-                vsElement.classList.remove('animate-pulse');
-              }
-            }}
           >
             <span className="vs-text font-bold">VS</span>
           </div>
