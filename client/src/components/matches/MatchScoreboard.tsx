@@ -133,7 +133,7 @@ export function MatchScoreboard({
               }}
             >
               <img 
-                src={teams?.home?.logo} 
+                src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
                 className="w-8 h-8 object-contain"
                 onError={(e) => {
@@ -196,7 +196,7 @@ export function MatchScoreboard({
               }}
             >
               <img 
-                src={teams?.away?.logo} 
+                src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
                 alt={teams?.away?.name || 'Away Team'} 
                 className="w-8 h-8 object-contain"
                 onError={(e) => {
