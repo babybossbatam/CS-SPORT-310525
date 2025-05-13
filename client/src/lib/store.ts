@@ -114,6 +114,7 @@ import { getTodayFormatted } from './dateUtils';
 
 const initialUIState: UIState = {
   selectedDate: getTodayFormatted(),
+  selectedFilter: 'all',
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League
   showRegionModal: false,
