@@ -288,7 +288,7 @@ const TodayMatches = () => {
         {/* Matches display */}
 
         {/* Display the fixtures in the new format */}
-        {todayMatches
+        {filteredFixtures
           // Show matches from all popular leagues instead of just Europa League
           .map((match) => (
             <div 
@@ -360,10 +360,8 @@ const TodayMatches = () => {
               ) : null}
             </div>
           ))}
-          
-
-
       </div>
+    </div>
   );
 };
 
