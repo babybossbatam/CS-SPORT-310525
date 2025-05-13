@@ -33,7 +33,7 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
     md: "h-[69px]",
     lg: "h-[90px]"
   }[size];
-  
+
   useEffect(() => {
     // Reset failure status if logoUrl changes
     if (logoUrl !== currentLogoUrl && !primaryImageFailed) {
@@ -45,7 +45,7 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const imgElement = e.target as HTMLImageElement;
-    
+
     if (!primaryImageFailed) {
       // First failure - try API-Football
       setPrimaryImageFailed(true);
@@ -62,11 +62,11 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
         return;
       }
     }
-    
+
     // Final fallback if all else fails
-    imgElement.src = 'https://via.placeholder.com/80?text=Team';
+    imgElement.src = '/src/assets/fallback-logo.png';
   };
-  
+
   return (
     <div 
       className="relative"
@@ -85,7 +85,7 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
           className={`${logoSize} w-auto object-contain`}
           onError={handleImageError}
         />
-        
+
         {/* Winner badge */}
         {winner && (
           <div 
