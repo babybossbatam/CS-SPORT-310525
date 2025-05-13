@@ -906,6 +906,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get optional query parameters
       const category = req.query.category as string || 'sports';
+      const sportType = req.query.sport as string || '';
       const count = parseInt(req.query.count as string || '10');
       
       // Check if we should use GNews API or local storage
@@ -917,8 +918,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           throw new Error('GNews API key is not configured');
         }
         
+        // Build search query based on sport type
+        let searchQuery = '';
+        if (sportType) {
+          // If a specific sport is requested, search for that sport
+          searchQuery = `&q=${encodeURIComponent(sportType)}`;
+        }
+        
         // Build GNews API URL
-        const gnewsUrl = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=${count}&apikey=${apiKey}`;
+        const gnewsUrl = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=${count}${searchQuery}&apikey=${apiKey}`;
+        
+        console.log(`Fetching news with URL: ${gnewsUrl.replace(apiKey, '[REDACTED]')}`);
         
         // Fetch news from GNews API
         const response = await fetch(gnewsUrl);

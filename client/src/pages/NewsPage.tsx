@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, newsActions } from '@/lib/store';
+import { RootState, newsActions, uiActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import NewsCard from '@/components/news/NewsCard';
@@ -22,13 +22,22 @@ const NewsPage = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const [category, setCategory] = useState<string>('sports');
+  const [sport, setSport] = useState<string>('football');
   const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
+  const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   
-  // Fetch news articles from API with the selected category
+  // Update the sport based on the selected sport in UI
+  useEffect(() => {
+    if (selectedSport) {
+      setSport(selectedSport);
+    }
+  }, [selectedSport]);
+  
+  // Fetch news articles from API with the selected category and sport
   const { data: newsData, isLoading, isError } = useQuery<NewsApiResponse[]>({
-    queryKey: ['/api/news', category],
+    queryKey: ['/api/news', category, sport],
     queryFn: async () => {
-      const response = await fetch(`/api/news?category=${category}&source=gnews`);
+      const response = await fetch(`/api/news?category=${category}&sport=${sport}&source=gnews`);
       if (!response.ok) {
         throw new Error('Failed to fetch news');
       }
@@ -56,6 +65,13 @@ const NewsPage = () => {
   
   const handleCategoryChange = (newCategory: string) => {
     setCategory(newCategory);
+  };
+  
+  // Handle sport selection from SportsCategoryTabs
+  const handleSportChange = (sportId: string) => {
+    setSport(sportId);
+    // Update the global UI state as well
+    dispatch(uiActions.setSelectedSport(sportId));
   };
   
   // Show loading state
@@ -105,12 +121,14 @@ const NewsPage = () => {
   return (
     <>
       <Header />
-      <SportsCategoryTabs />
+      <SportsCategoryTabs 
+        onSportClick={(sportId) => handleSportChange(sportId)} 
+      />
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Newspaper className="h-6 w-6" />
-            Sports News
+            {sport.charAt(0).toUpperCase() + sport.slice(1)} News
           </h1>
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-muted-foreground" />

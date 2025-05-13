@@ -2,6 +2,10 @@ import { useEffect, useRef } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions } from '@/lib/store';
+
+interface SportsCategoryTabsProps {
+  onSportClick?: (sportId: string) => void;
+}
 import { cn } from '@/lib/utils';
 import { 
   Tv, 
@@ -16,7 +20,7 @@ import {
   Bug 
 } from 'lucide-react';
 
-const SportsCategoryTabs = () => {
+const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   const [location] = useLocation();
   const dispatch = useDispatch();
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
@@ -49,6 +53,11 @@ const SportsCategoryTabs = () => {
   // Handle sport selection
   const handleSportSelect = (sportId: string) => {
     dispatch(uiActions.setSelectedSport(sportId));
+    
+    // Call the onSportClick callback if provided
+    if (onSportClick) {
+      onSportClick(sportId);
+    }
   };
 
   return (
