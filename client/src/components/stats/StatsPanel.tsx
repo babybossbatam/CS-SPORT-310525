@@ -66,12 +66,51 @@ const StatsPanel = () => {
   const selectedLeagueTopScorers = topScorers[selectedLeague.toString()] || [];
   
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6">
-      <CardHeader className="p-4 border-b border-neutral-200">
-        <h3 className="text-center font-medium">Goals</h3>
-      </CardHeader>
+    <>
+      <Card className="bg-white rounded-lg shadow-md mb-6">
+        <CardHeader className="p-4 border-b border-neutral-200">
+          <h3 className="text-center font-medium">Top Scorers</h3>
+        </CardHeader>
+        
+        {selectedLeagueTopScorers.slice(0, 3).map((playerStat, index) => (
+          <div 
+            key={index} 
+            className="flex items-center justify-between py-2 border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+            onClick={() => navigate(`/player/${playerStat.player.id}`)}
+          >
+            <div className="flex items-center space-x-3">
+              <img 
+                src={playerStat.player.photo} 
+                alt={playerStat.player.name} 
+                className="h-10 w-10 rounded-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Player';
+                }}
+              />
+              <div>
+                <div className="font-medium text-sm">{playerStat.player.name}</div>
+                <div className="text-xs text-neutral-500">
+                  <span>{playerStat.statistics[0].games.position}</span>
+                </div>
+                <div className="text-xs text-neutral-500">
+                  <span>{playerStat.statistics[0].team.name}</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="font-bold text-lg">{playerStat.statistics[0].goals.total}</div>
+              <div className="text-xs text-neutral-500">Goals</div>
+            </div>
+          </div>
+        ))}
+      </Card>
 
-      <div className="p-4 pb-2 border-b border-neutral-200">
+      <Card className="bg-white rounded-lg shadow-md mb-6">
+        <CardHeader className="p-4 border-b border-neutral-200">
+          <h3 className="text-center font-medium">Goals</h3>
+        </CardHeader>
+
+        <div className="p-4 pb-2 border-b border-neutral-200">
         <Tabs 
           value={selectedLeague.toString()} 
           onValueChange={(value) => setSelectedLeague(parseInt(value))}
