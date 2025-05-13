@@ -123,18 +123,34 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col">
               {/* League Header */}
-              <div className="flex items-center gap-3 py-4">
+              <div className="flex items-center justify-between py-4 px-4">
                 <div className="flex items-center gap-2">
+                  {isMatchDetailsPage && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center mr-2" 
+                      onClick={() => navigate('/')}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-1" />
+                      <span>Back</span>
+                    </Button>
+                  )}
                   <img 
-                    src={selectedLeague?.logo || 'https://via.placeholder.com/40'} 
-                    alt={selectedLeague?.name || 'League'} 
-                    className="w-6 h-6 object-contain"
+                    src={league?.league?.logo || 'https://via.placeholder.com/40'} 
+                    alt={league?.league?.name || 'League'} 
+                    className="h-8 w-8 object-contain"
                   />
-                  <span className="text-sm font-medium text-neutral-900">{selectedLeague?.name || 'League'}</span>
-                  <button className="text-blue-500 text-xs font-medium px-2 py-0.5 rounded-sm border border-blue-500 hover:bg-blue-50 ml-1">
-                    Follow
-                  </button>
+                  <h2 className="text-lg font-semibold">{league?.league?.name}</h2>
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={toggleFavorite}
+                  className={isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}
+                >
+                  <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
+                </Button>
               </div>
               
               {/* Navigation Tabs */}
