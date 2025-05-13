@@ -132,38 +132,36 @@ export function MatchScoreboard({
         
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team logo and name */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center">
-            <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-              onClick={onClick}
-              onMouseEnter={() => setHomeTeamHover(true)}
-              onMouseLeave={() => setHomeTeamHover(false)}
-              style={{
-                cursor: onClick ? 'pointer' : 'default',
-                transform: homeTeamHover ? 'scale(1.1)' : 'scale(1)',
-                boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+          {/* Home team logo */}
+          <div 
+            className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            onClick={onClick}
+            onMouseEnter={() => setHomeTeamHover(true)}
+            onMouseLeave={() => setHomeTeamHover(false)}
+            style={{
+              cursor: onClick ? 'pointer' : 'default',
+              transform: homeTeamHover ? 'scale(1.1)' : 'scale(1)',
+              boxShadow: homeTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+            }}
+          >
+            <img 
+              src={teams?.home?.logo} 
+              alt={teams?.home?.name || 'Home Team'} 
+              className="w-8 h-8 object-contain"
+              onError={(e) => {
+                e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
               }}
-            >
-              <img 
-                src={teams?.home?.logo} 
-                alt={teams?.home?.name || 'Home Team'} 
-                className="w-8 h-8 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
-                }}
-              />
-              {teams?.home?.winner && (
-                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                  <span className="text-xs">W</span>
-                </div>
-              )}
-            </div>
-            
-            {/* Team name */}
-            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-              {teams?.home?.name || 'Home Team'}
-            </div>
+            />
+            {teams?.home?.winner && (
+              <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="text-xs">W</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Team name */}
+          <div className={`absolute left-20 top-1/2 transform -translate-y-1/2 z-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+            {teams?.home?.name || 'Home Team'}
           </div>
           
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
@@ -213,38 +211,36 @@ export function MatchScoreboard({
             }}>
           </div>
           
-          {/* Away team logo and name */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center flex-row-reverse">
-            <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-              onClick={onClick}
-              onMouseEnter={() => setAwayTeamHover(true)}
-              onMouseLeave={() => setAwayTeamHover(false)}
-              style={{
-                cursor: onClick ? 'pointer' : 'default',
-                transform: awayTeamHover ? 'scale(1.1)' : 'scale(1)',
-                boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+          {/* Away team logo */}
+          <div 
+            className={`absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            onClick={onClick}
+            onMouseEnter={() => setAwayTeamHover(true)}
+            onMouseLeave={() => setAwayTeamHover(false)}
+            style={{
+              cursor: onClick ? 'pointer' : 'default',
+              transform: awayTeamHover ? 'scale(1.1)' : 'scale(1)',
+              boxShadow: awayTeamHover ? '0 0 12px rgba(255, 255, 255, 0.5)' : 'none'
+            }}
+          >
+            <img 
+              src={teams?.away?.logo} 
+              alt={teams?.away?.name || 'Away Team'} 
+              className="w-8 h-8 object-contain"
+              onError={(e) => {
+                e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
               }}
-            >
-              <img 
-                src={teams?.away?.logo} 
-                alt={teams?.away?.name || 'Away Team'} 
-                className="w-8 h-8 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
-                }}
-              />
-              {teams?.away?.winner && (
-                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                  <span className="text-xs">W</span>
-                </div>
-              )}
-            </div>
-            
-            {/* Team name */}
-            <div className={`mr-3 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
-              {teams?.away?.name || 'Away Team'}
-            </div>
+            />
+            {teams?.away?.winner && (
+              <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="text-xs">W</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Team name */}
+          <div className={`absolute right-20 top-1/2 transform -translate-y-1/2 z-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+            {teams?.away?.name || 'Away Team'}
           </div>
         </div>
         
