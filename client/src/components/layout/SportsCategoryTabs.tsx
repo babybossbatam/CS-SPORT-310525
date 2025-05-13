@@ -1,102 +1,92 @@
-import { useEffect, useRef } from 'react';
-import { useLocation, Link } from 'wouter';
-import { useDispatch, useSelector } from 'react-redux';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
-
-interface SportsCategoryTabsProps {
-  onSportClick?: (sportId: string) => void;
-}
 import { cn } from '@/lib/utils';
-import { 
-  Tv, 
-  Trophy, 
-  Cuboid, 
-  Dumbbell, 
-  Beaker, 
-  Tablet, 
-  Flag, 
-  Award, 
-  Volleyball, 
-  Bug 
-} from 'lucide-react';
+import { Football, Basketball, Baseball, Hockey, Dribbble } from 'lucide-react';
 
-const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
-  const [location] = useLocation();
+const SportsCategoryTabs = () => {
+  const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
-  const tabsRef = useRef<HTMLDivElement>(null);
 
-  // Define sports categories
-  const categories = [
-    { id: 'tv', name: 'TV', icon: Tv },
-    { id: 'football', name: 'Football', icon: Trophy },
-    { id: 'basketball', name: 'Basketball', icon: Cuboid },
-    { id: 'hockey', name: 'Hockey', icon: Dumbbell },
-    { id: 'baseball', name: 'Baseball', icon: Beaker },
-    { id: 'tennis', name: 'Tennis', icon: Tablet },
-    { id: 'handball', name: 'Handball', icon: Flag },
-    { id: 'rugby', name: 'Rugby', icon: Award },
-    { id: 'volleyball', name: 'Volleyball', icon: Volleyball },
-    { id: 'cricket', name: 'Cricket', icon: Bug },
-  ];
-
-  // Scroll to selected tab
-  useEffect(() => {
-    const selectedTabElement = document.getElementById(`sport-tab-${selectedSport}`);
-    if (selectedTabElement && tabsRef.current) {
-      const container = tabsRef.current;
-      const scrollLeft = selectedTabElement.offsetLeft - (container.clientWidth / 2) + (selectedTabElement.clientWidth / 2);
-      container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-    }
-  }, [selectedSport]);
-
-  // Handle sport selection
-  const handleSportSelect = (sportId: string) => {
-    dispatch(uiActions.setSelectedSport(sportId));
-    
-    // Call the onSportClick callback if provided
-    if (onSportClick) {
-      onSportClick(sportId);
-    }
+  const handleSportSelect = (sport: string) => {
+    dispatch(uiActions.setSelectedSport(sport));
+    navigate(`/${sport.toLowerCase()}`);
   };
 
   return (
-    <div className="bg-white border-b border-neutral-200 sticky top-0 z-10">
+    <div className="bg-white border-b border-neutral-200">
       <div className="container mx-auto px-4">
-        <div 
-          ref={tabsRef}
-          className="category-tabs flex overflow-x-auto py-2 space-x-6 scrollbar-hide"
-          style={{ 
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
-        >
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const isActive = category.id === selectedSport;
-            
-            return (
-              <Link 
-                key={`${category.id}-${category.name}`}
-                href={`/${category.id}`}
-                id={`sport-tab-${category.id}`}
-                className={cn(
-                  "flex items-center px-1 py-1 text-sm whitespace-nowrap",
-                  isActive 
-                    ? "font-medium border-b-2 border-[#3182CE] text-[#3182CE]" 
-                    : "text-gray-700 hover:text-gray-900"
-                )}
-                onClick={() => handleSportSelect(category.id)}
-              >
-                <Icon className="mr-2 h-4 w-4" />
-                <span>{category.name}</span>
-              </Link>
-            );
-          })}
+        <div className="flex items-center space-x-6">
+          <button
+            onClick={() => handleSportSelect('football')}
+            className={cn(
+              'px-3 py-4 text-sm font-medium flex items-center space-x-2',
+              selectedSport === 'football'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            )}
+          >
+            <Football className="h-4 w-4" />
+            <span>Football</span>
+          </button>
+
+          <button
+            onClick={() => handleSportSelect('basketball')}
+            className={cn(
+              'px-3 py-4 text-sm font-medium flex items-center space-x-2',
+              selectedSport === 'basketball'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            )}
+          >
+            <Basketball className="h-4 w-4" />
+            <span>Basketball</span>
+          </button>
+
+          <button
+            onClick={() => handleSportSelect('baseball')}
+            className={cn(
+              'px-3 py-4 text-sm font-medium flex items-center space-x-2',
+              selectedSport === 'baseball'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            )}
+          >
+            <Baseball className="h-4 w-4" />
+            <span>Baseball</span>
+          </button>
+
+          <button
+            onClick={() => handleSportSelect('hockey')}
+            className={cn(
+              'px-3 py-4 text-sm font-medium flex items-center space-x-2',
+              selectedSport === 'hockey'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            )}
+          >
+            <Hockey className="h-4 w-4" />
+            <span>Hockey</span>
+          </button>
+
+          <button
+            onClick={() => handleSportSelect('tennis')}
+            className={cn(
+              'px-3 py-4 text-sm font-medium flex items-center space-x-2',
+              selectedSport === 'tennis'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            )}
+          >
+            <Dribbble className="h-4 w-4" />
+            <span>Tennis</span>
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default SportsCategoryTabs;
+export { SportsCategoryTabs };
