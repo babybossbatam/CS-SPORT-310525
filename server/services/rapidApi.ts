@@ -156,19 +156,9 @@ export const rapidApiService = {
         return [];
       }
       
-      // Find the current season
-      const currentSeason = leagueInfo.seasons.find(s => s.current) || leagueInfo.seasons[0];
-      if (!currentSeason) {
-        console.log(`No season data found for league ${leagueId}`);
-        return [];
-      }
-      
-      // Use the correct season from the league info
-      const correctSeason = currentSeason.year;
-      console.log(`Using correct season ${correctSeason} for league ${leagueId} (${leagueInfo.league.name})`);
-      
+      // Use the requested season directly
       const response = await apiClient.get('/fixtures', {
-        params: { league: leagueId, season: correctSeason }
+        params: { league: leagueId, season }
       });
       
       console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);
