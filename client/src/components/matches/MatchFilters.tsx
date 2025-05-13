@@ -356,25 +356,7 @@ const MatchFilters = () => {
 
       {/* Match list with Popular Leagues card at the top */}
       <div className="overflow-y-auto max-h-[700px]">
-        {loading ? (
-          // Loading state
-          <div className="space-y-3 p-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse flex items-center justify-between py-2">
-                <div className="flex items-center gap-2 w-[40%]">
-                  <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
-                  <div className="h-3 bg-gray-200 rounded w-20"></div>
-                </div>
-```
-                <div className="h-3 bg-gray-200 rounded w-10"></div>
-                <div className="flex items-center gap-2 w-[40%] justify-end">
-                  <div className="h-3 bg-gray-200 rounded w-20"></div>
-                  <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : matchesToDisplay.length > 0 ? (
+        {matchesToDisplay.length > 0 ? (
           <div className="w-full">
             {/* Matches will be displayed in TodayMatches component instead */}
             <div className="space-y-1"></div>
