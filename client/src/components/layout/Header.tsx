@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
+import LeagueTabs from './LeagueTabs';
 import { Search, Star, Settings, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +63,7 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <LeagueTabs />
           
           
           <Button 
