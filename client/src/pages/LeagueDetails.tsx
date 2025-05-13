@@ -200,6 +200,8 @@ const LeagueDetails = () => {
             <Card className="mb-6">
               <CardHeader className="p-4 border-b border-neutral-200">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                </Tabs>
+              </CardHeader>
               <TabsList className="grid grid-cols-4 mb-4">
                 <TabsTrigger value="fixtures" className="flex items-center">
                   <CalendarDays className="h-4 w-4 mr-2" />
