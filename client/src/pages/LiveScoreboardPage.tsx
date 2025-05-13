@@ -314,6 +314,12 @@ function LiveScoreboardPage() {
   if (liveFixturesQuery.isLoading || upcomingFixturesQuery.isLoading) {
     return (
       <Card className="m-4">
+        <CardHeader className="bg-gray-700 text-white p-3">
+          <div className="flex items-center">
+            <Activity className="h-4 w-4 mr-2" />
+            <span className="font-semibold">Loading Matches...</span>
+          </div>
+        </CardHeader>
         <CardContent className="p-4">
           <Skeleton className="h-10 w-full" />
         </CardContent>

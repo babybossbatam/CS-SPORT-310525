@@ -20,7 +20,6 @@ import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 // Removed LiveMatchPlayer import
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
-import { MatchScoreboard } from './MatchScoreboard';
 
 // Expanded list of popular leagues
 const POPULAR_LEAGUES = [
@@ -200,12 +199,12 @@ const TodayMatches = () => {
 
   // Take the first 5 fixtures for the today matches display
   const todayMatches = filteredFixtures.slice(0, 5);
-
+  
   // Display loading state or return null if no matches
   if (isSelectedDateFixturesLoading || isLiveLoading || todayMatches.length === 0) {
     return null;
   }
-
+  
   return (
     <div>
       {/* Removed LiveMatchPlayer component */}
@@ -291,17 +290,83 @@ const TodayMatches = () => {
       {/* Main content */}
       <div className="space-y-1">
         {/* Matches display */}
-        {todayMatches.map((match) => (
-          <MatchScoreboard 
-            key={match.fixture.id}
-            match={match}
-            onClick={() => {
-              if (match.fixture.id) {
+
+        {/* Display the fixtures in the new format */}
+        {todayMatches
+          // Show matches from all popular leagues instead of just Europa League
+          .map((match) => (
+            <div 
+              key={match.fixture.id}
+              className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+              onClick={(e) => {
+                // Always navigate to match details (removed live player feature)
                 navigate(`/match/${match.fixture.id}`);
-              }
-            }}
-          />
-        ))}
+              }}
+            >
+              {/* Match Status */}
+              <div className="text-xs text-gray-500 text-right mb-0.5">
+                {['FT', 'AET', 'PEN'].includes(match.fixture.status.short) && "Ended"}
+              </div>
+              
+              {/* Teams and Score */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center w-[38%]">
+                  <img 
+                    src={match.teams.home.logo} 
+                    alt={match.teams.home.name}
+                    className="h-5 w-5 mr-2 object-contain drop-shadow-md"
+                    onError={(e) => {
+                      // Try first the livescore URL
+                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
+                      
+                      // Add a second error handler for complete fallback
+                      (e.target as HTMLImageElement).onerror = () => {
+                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                      };
+                    }}
+                  />
+                  <span className="text-sm font-medium text-left truncate">{match.teams.home.name}</span>
+                </div>
+                <div className="flex items-center justify-center space-x-1 w-[24%]">
+                  <span className="font-bold text-base">{match.goals.home}</span>
+                  <span className="text-gray-400 font-bold">-</span>
+                  <span className="font-bold text-base">{match.goals.away}</span>
+                </div>
+                <div className="flex items-center justify-end w-[38%]">
+                  <span className="text-sm font-medium text-right truncate">{match.teams.away.name}</span>
+                  <img 
+                    src={match.teams.away.logo} 
+                    alt={match.teams.away.name}
+                    className="h-5 w-5 ml-2 object-contain drop-shadow-md"
+                    onError={(e) => {
+                      // Try first the livescore URL
+                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
+                      
+                      // Add a second error handler for complete fallback
+                      (e.target as HTMLImageElement).onerror = () => {
+                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                      };
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Aggregate Score - only show for tournament matches with aggregate scoring */}
+              {match.league.id === 2 || match.league.id === 3 ? (
+                <div className="text-xs text-gray-500 text-center mt-0.5">
+                  {match.fixture.status.short === 'FT' ? 
+                    `${match.teams.home.winner ? 'Home' : match.teams.away.winner ? 'Away' : 'Draw'} on aggregate` : 
+                    `${match.league.round}`
+                  }
+                </div>
+              ) : null}
+            </div>
+          ))}
+          
+
+
       </div>
     </div>
   );
