@@ -134,7 +134,7 @@ export function MatchScoreboard({
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo */}
           <div 
-            className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-14 h-14 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             onClick={onClick}
             style={{
               cursor: onClick ? 'pointer' : 'default'
@@ -143,7 +143,7 @@ export function MatchScoreboard({
             <img 
               src={teams?.home?.logo} 
               alt={teams?.home?.name || 'Home Team'} 
-              className="w-8 h-8 object-contain"
+              className="w-10 h-10 object-contain"
               onError={(e) => {
                 e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
               }}
@@ -156,12 +156,12 @@ export function MatchScoreboard({
           </div>
           
           {/* Team name */}
-          <div className={`absolute left-20 top-1/2 transform -translate-y-1/2 z-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+          <div className={`absolute left-[72px] top-1/2 transform -translate-y-1/2 z-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
             {teams?.home?.name || 'Home Team'}
           </div>
           
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-          <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          <div className={`h-full w-[calc(50%-55px)] ml-[55px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: homeTeamColor,
               backgroundImage: homeTeamHover || scoreboardHover ? 
@@ -184,7 +184,7 @@ export function MatchScoreboard({
           </div>
           
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-          <div className={`h-full w-[calc(50%-55px)] mr-[55px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          <div className={`h-full w-[calc(50%-63px)] mr-[63px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: awayTeamColor,
               backgroundImage: awayTeamHover || scoreboardHover ? 
@@ -197,7 +197,7 @@ export function MatchScoreboard({
           
           {/* Away team logo */}
           <div 
-            className={`absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-14 h-14 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             onClick={onClick}
             style={{
               cursor: onClick ? 'pointer' : 'default'
@@ -219,7 +219,7 @@ export function MatchScoreboard({
           </div>
           
           {/* Team name */}
-          <div className={`absolute right-20 top-1/2 transform -translate-y-1/2 z-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+          <div className={`absolute right-[72px] top-1/2 transform -translate-y-1/2 z-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
             {teams?.away?.name || 'Away Team'}
           </div>
         </div>
