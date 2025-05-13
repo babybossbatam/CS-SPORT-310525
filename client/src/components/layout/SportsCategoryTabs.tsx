@@ -27,6 +27,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   const dispatch = useDispatch();
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   const tabsRef = useRef<HTMLDivElement>(null);
+  const isMatchDetailsPage = location.startsWith('/match/');
 
   // Define sports categories
   const categories = [
@@ -77,14 +78,15 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
     <>
       <div className="bg-white border-b border-neutral-200 sticky top-0 z-10">
         <div className="container mx-auto px-4">
-          <div 
-            ref={tabsRef}
-            className="category-tabs flex overflow-x-auto py-2 space-x-6 scrollbar-hide"
-            style={{ 
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-          >
+          {!isMatchDetailsPage && (
+            <div 
+              ref={tabsRef}
+              className="category-tabs flex overflow-x-auto py-2 space-x-6 scrollbar-hide"
+              style={{ 
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
+            >
             {categories.map((category) => {
               const Icon = category.icon;
               const isActive = category.id === selectedSport;
@@ -108,6 +110,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
               );
             })}
           </div>
+          )}
         </div>
       </div>
 
