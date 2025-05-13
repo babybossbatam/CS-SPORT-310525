@@ -145,15 +145,29 @@ const LeagueStandingsFilter = () => {
                     </div>
                   </td>
                   <td className="px-2 py-2">
-                    <div className="flex items-center justify-center">
-                      <img 
-                        src={standing.team.logo} 
-                        alt={`Next opponent: ${standing.team.name}`}
-                        className="w-4 h-4 opacity-50"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
-                        }}
-                      />
+                    <div className="flex items-center justify-center gap-2">
+                      {standings?.find(opponent => 
+                        opponent.team.id !== standing.team.id && 
+                        opponent.rank > standing.rank
+                      ) && (
+                        <>
+                          <span className="text-xs">vs</span>
+                          <img 
+                            src={standings.find(opponent => 
+                              opponent.team.id !== standing.team.id && 
+                              opponent.rank > standing.rank
+                            )?.team.logo} 
+                            alt={`Next opponent: ${standings.find(opponent => 
+                              opponent.team.id !== standing.team.id && 
+                              opponent.rank > standing.rank
+                            )?.team.name}`}
+                            className="w-4 h-4"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
+                            }}
+                          />
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
