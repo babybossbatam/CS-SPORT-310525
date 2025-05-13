@@ -175,9 +175,18 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                   return (
                     <TableRow 
                       key={standing.team.id}
-                      className="hover:bg-gray-50/50 transition-colors"
+                      className="hover:bg-gray-50/50 transition-colors relative"
                       onClick={() => navigate(`/team/${standing.team.id}`)}
                     >
+                      <div 
+                        className="absolute left-0 top-0 bottom-0 w-1.5"
+                        style={{
+                          backgroundColor: 
+                            standing.rank <= 3 ? '#4CAF50' :
+                            standing.rank <= 7 ? '#2196F3' :
+                            '#9E9E9E'
+                        }}
+                      />
                       <TableCell className="text-center font-medium w-8">
                         {standing.rank}
                       </TableCell>
