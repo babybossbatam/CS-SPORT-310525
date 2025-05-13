@@ -5,7 +5,7 @@ import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatDateTime, isLiveMatch } from '@/lib/utils';
+import { formatDateTime, formatMatchDate, isLiveMatch } from '@/lib/utils';
 import { getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
 import { useQuery } from '@tanstack/react-query';
 import { FixtureResponse } from '../../../../server/types';
@@ -173,7 +173,7 @@ const FeaturedMatch = () => {
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
   
   // Format date for match display showing Tomorrow, 2 More Days, etc.
-  const formatMatchDate = (dateString: string): string => {
+  const formatFeaturedMatchDate = (dateString: string): string => {
     const date = parseISO(dateString);
     const today = new Date();
     const tomorrow = new Date(today);
