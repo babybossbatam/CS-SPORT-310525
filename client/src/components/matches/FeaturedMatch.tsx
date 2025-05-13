@@ -249,27 +249,31 @@ const FeaturedMatch = () => {
           featured={true}
           homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
           awayTeamColor="#8b0000" // Default AS Roma dark red color
-          onClick={() => navigate(`/match/${featuredMatch.fixture.id}`)}
+          onClick={() => {
+            // Use try-catch to prevent potential errors
+            try {
+              navigate(`/match/${featuredMatch.fixture.id}`);
+            } catch (error) {
+              console.error("Navigation error:", error);
+            }
+          }}
         />
         
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/h2h`)}
           >
             <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">H2H</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => navigate(`/match/${featuredMatch.fixture.id}/stats`)}
           >
             <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Stats</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
-            onClick={() => navigate(`/league/${featuredMatch.league.id}/bracket`)}
           >
             <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
             <span className="text-xs text-neutral-500">Bracket</span>
