@@ -1,9 +1,14 @@
-
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { GalleryThumbnails, Circle, CircleDot, CircleDashed, Dumbbell } from 'lucide-react';
+import { 
+  CircleDot, 
+  Circle, 
+  CircleDashed, 
+  Trophy, 
+  Activity 
+} from 'lucide-react';
 
 const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
@@ -67,7 +72,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <CircleDashed className="h-4 w-4" />
+            <Trophy className="h-4 w-4" />
             <span>Hockey</span>
           </button>
 
@@ -80,7 +85,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Dumbbell className="h-4 w-4" />
+            <Activity className="h-4 w-4" />
             <span>Tennis</span>
           </button>
         </div>
@@ -90,4 +95,4 @@ const SportsCategoryTabs = () => {
 };
 
 export { SportsCategoryTabs };
-export { SportsCategoryTabs as default };
+export default SportsCategoryTabs;
