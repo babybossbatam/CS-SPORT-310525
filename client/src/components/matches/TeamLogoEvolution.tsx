@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
 import TeamLogo from './TeamLogo';
 
 // Interface for logo history item
@@ -82,56 +81,19 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
   onClose 
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(false);
-  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   
   // Get logo history for this team, or use a default with just the current logo
   const logoHistory = sampleLogoHistory[teamId] || [
     { year: new Date().getFullYear(), logoUrl: currentLogo, description: "Current logo" }
   ];
   
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-    
-    const interval = setInterval(() => {
-      if (direction === 'forward') {
-        setCurrentIndex(prev => 
-          prev === logoHistory.length - 1 ? 0 : prev + 1
-        );
-      } else {
-        setCurrentIndex(prev => 
-          prev === 0 ? logoHistory.length - 1 : prev - 1
-        );
-      }
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, direction, logoHistory.length]);
-  
   // Go to specific logo
   const goToLogo = (index: number) => {
     setCurrentIndex(index);
-    setIsAutoPlaying(false);
-  };
-  
-  // Toggle auto-play
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(prev => !prev);
-  };
-  
-  // Reverse animation direction
-  const toggleDirection = () => {
-    setDirection(prev => prev === 'forward' ? 'backward' : 'forward');
   };
 
   return (
-    <motion.div 
-      className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 shadow-xl max-w-md mx-auto"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-    >
+    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 shadow-xl max-w-md mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">{teamName} Logo Evolution</h2>
         {onClose && (
@@ -146,32 +108,23 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
         )}
       </div>
       
-      <div className="mb-6 relative flex justify-center">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col items-center"
-          >
-            <TeamLogo
-              logoUrl={logoHistory[currentIndex].logoUrl}
-              teamName={teamName}
-              size="lg"
-              isHome={true}
-            />
-            <div className="mt-4 text-center">
-              <span className="inline-block bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                {logoHistory[currentIndex].year}
-              </span>
-              <p className="mt-2 text-gray-600 dark:text-gray-300">
-                {logoHistory[currentIndex].description || "Team logo"}
-              </p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+      <div className="mb-6 flex justify-center">
+        <div className="flex flex-col items-center">
+          <TeamLogo
+            logoUrl={logoHistory[currentIndex].logoUrl}
+            teamName={teamName}
+            size="lg"
+            isHome={true}
+          />
+          <div className="mt-4 text-center">
+            <span className="inline-block bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              {logoHistory[currentIndex].year}
+            </span>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              {logoHistory[currentIndex].description || "Team logo"}
+            </p>
+          </div>
+        </div>
       </div>
       
       {/* Navigation dots */}
@@ -186,12 +139,11 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
         ))}
       </div>
       
-      {/* Controls */}
+      {/* Simple Controls - No animations */}
       <div className="flex justify-center space-x-4">
         <button
           onClick={() => {
             setCurrentIndex(prev => (prev === 0 ? logoHistory.length - 1 : prev - 1));
-            setIsAutoPlaying(false);
           }}
           className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 p-2 rounded-full"
           aria-label="Previous logo"
@@ -202,35 +154,8 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
         </button>
         
         <button
-          onClick={toggleAutoPlay}
-          className={`${isAutoPlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white p-2 rounded-full`}
-          aria-label={isAutoPlaying ? "Pause" : "Play"}
-        >
-          {isAutoPlaying ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-            </svg>
-          )}
-        </button>
-        
-        <button
-          onClick={toggleDirection}
-          className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 p-2 rounded-full"
-          aria-label="Change direction"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
-          </svg>
-        </button>
-        
-        <button
           onClick={() => {
             setCurrentIndex(prev => (prev === logoHistory.length - 1 ? 0 : prev + 1));
-            setIsAutoPlaying(false);
           }}
           className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 p-2 rounded-full"
           aria-label="Next logo"
@@ -240,7 +165,7 @@ const TeamLogoEvolution: React.FC<TeamLogoEvolutionProps> = ({
           </svg>
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -13,65 +13,60 @@ export async function apiRequest(
   data?: unknown | undefined,
   timeout: number = 15000 // Default 15 second timeout
 ): Promise<Response> {
+  // Create an AbortController to handle request timeouts
+  const controller = new AbortController();
+  const { signal } = controller;
+  
+  let timeoutId: number | undefined;
+  
+  // Only set up timeout if timeout value is valid
+  if (timeout > 0) {
+    timeoutId = window.setTimeout(() => {
+      try {
+        controller.abort();
+      } catch (e) {
+        console.warn('Error aborting request:', e);
+      }
+    }, timeout);
+  }
+  
   try {
-    // Create an AbortController to handle request timeouts
-    const controller = new AbortController();
-    const { signal } = controller;
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+      signal
+    });
     
-    let timeoutId: NodeJS.Timeout | null = null;
-    
-    // Only set up timeout if timeout value is valid
-    if (timeout > 0) {
-      timeoutId = setTimeout(() => {
-        try {
-          controller.abort();
-        } catch (e) {
-          console.warn('Error aborting request:', e);
-        }
-      }, timeout);
+    // Clear the timeout since the request completed
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId);
     }
     
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: data ? { "Content-Type": "application/json" } : {},
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: "include",
-        signal
-      });
-      
-      // Clear the timeout since the request completed
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      await throwIfResNotOk(res);
-      return res;
-    } catch (error) {
-      // Clear the timeout to prevent memory leaks
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      // Check for abort/timeout errors
-      if (error instanceof Error && error.name === 'AbortError') {
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    // Clear the timeout to prevent memory leaks
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId);
+    }
+    
+    // Log error and handle specific error types
+    console.error(`API request error for ${method} ${url}:`, error);
+    
+    if (error instanceof Error) {
+      // Handle abort errors
+      if (error.name === 'AbortError') {
         throw new Error(`Request timeout: The ${method} request to ${url} took too long to complete. Please try again later.`);
       }
       
-      throw error;
-    }
-  } catch (error) {
-    // Improve error handling for network failures
-    console.error(`API request error for ${method} ${url}:`, error);
-    
-    // Create a more descriptive error message based on the error type
-    if (error instanceof Error) {
-      if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-        // Already formatted properly above
-        throw error;
-      } else if (error instanceof TypeError && error.message.includes('fetch')) {
+      // Handle network errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error(`Network error: Could not connect to the server. Please check your internet connection and try again.`);
-      } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+      }
+      
+      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
         throw new Error(`Network error: The server is unreachable. Please check your connection and try again.`);
       }
     }
@@ -88,69 +83,66 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior, timeout = 15000 }) =>
   async ({ queryKey }) => {
+    // Create an AbortController to handle request timeouts
+    const controller = new AbortController();
+    const { signal } = controller;
+    
+    let timeoutId: number | undefined;
+    
+    // Only set up timeout if timeout value is valid
+    if (timeout > 0) {
+      timeoutId = window.setTimeout(() => {
+        try {
+          controller.abort();
+        } catch (e) {
+          console.warn('Error aborting request:', e);
+        }
+      }, timeout);
+    }
+    
     try {
-      // Create an AbortController to handle request timeouts
-      const controller = new AbortController();
-      const { signal } = controller;
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include",
+        signal
+      });
       
-      let timeoutId: NodeJS.Timeout | null = null;
-      
-      // Only set up timeout if timeout value is valid
-      if (timeout > 0) {
-        timeoutId = setTimeout(() => {
-          try {
-            controller.abort();
-          } catch (e) {
-            console.warn('Error aborting request:', e);
-          }
-        }, timeout);
+      // Clear the timeout since the request completed
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
       }
       
-      try {
-        const res = await fetch(queryKey[0] as string, {
-          credentials: "include",
-          signal
-        });
-        
-        // Clear the timeout since the request completed
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        
-        if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-          return null;
-        }
-        
-        await throwIfResNotOk(res);
-        return await res.json();
-      } catch (error) {
-        // Clear the timeout to prevent memory leaks
-        clearTimeout(timeoutId);
-        
-        // Check for abort/timeout errors
-        if (error instanceof Error && error.name === 'AbortError') {
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+      
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      // Clear the timeout to prevent memory leaks
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+      
+      // Log error and handle specific error types
+      console.error(`Query error for ${queryKey[0]}:`, error);
+      
+      if (error instanceof Error) {
+        // Handle abort errors
+        if (error.name === 'AbortError') {
           throw new Error(`Request timeout: The query to ${queryKey[0]} took too long to complete. Please try again later.`);
         }
         
-        throw error;
-      }
-    } catch (error) {
-      // Improve error handling for network failures
-      console.error(`Query error for ${queryKey[0]}:`, error);
-      
-      // Create a more descriptive error message based on the error type
-      if (error instanceof Error) {
-        if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-          // Already formatted properly above
-          throw error;
-        } else if (error instanceof TypeError && error.message.includes('fetch')) {
+        // Handle network errors
+        if (error instanceof TypeError && error.message.includes('fetch')) {
           throw new Error(`Network error: Could not connect to the server. Please check your internet connection and try again.`);
-        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+        }
+        
+        if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
           throw new Error(`Network error: The server is unreachable. Please check your connection and try again.`);
         }
       }
       
-      // Rethrow the original error
+      // Rethrow the original error if not handled above
       throw error;
     }
   };
