@@ -24,43 +24,53 @@ const NewFeaturedMatch = () => {
   // Load Champions League fixtures
   const { data: championsLeagueFixtures = [], isLoading: isLoadingCL } = useQuery({
     queryKey: ['/api/champions-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/champions-league/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   // Load Europa League fixtures
   const { data: europaLeagueFixtures = [], isLoading: isLoadingEL } = useQuery({
     queryKey: ['/api/europa-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/europa-league/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   // Load Serie A fixtures
   const { data: serieAFixtures = [], isLoading: isLoadingSA } = useQuery({
     queryKey: ['/api/leagues/135/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/135/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   // Load Premier League fixtures
   const { data: premierLeagueFixtures = [], isLoading: isLoadingPL } = useQuery({
     queryKey: ['/api/leagues/39/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/39/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   // Process fixtures when data is loaded
   useEffect(() => {
-    if (!championsLeagueFixtures.length && !europaLeagueFixtures.length && 
-        !serieAFixtures.length && !premierLeagueFixtures.length) {
+    // Check if we have any data in the arrays
+    const hasChampionsLeagueData = championsLeagueFixtures && 
+                                  Array.isArray(championsLeagueFixtures) && 
+                                  championsLeagueFixtures.length > 0;
+    const hasEuropaLeagueData = europaLeagueFixtures && 
+                               Array.isArray(europaLeagueFixtures) && 
+                               europaLeagueFixtures.length > 0;
+    const hasSerieAData = serieAFixtures && 
+                         Array.isArray(serieAFixtures) && 
+                         serieAFixtures.length > 0;
+    const hasPremierLeagueData = premierLeagueFixtures && 
+                                Array.isArray(premierLeagueFixtures) && 
+                                premierLeagueFixtures.length > 0;
+    
+    if (!hasChampionsLeagueData && !hasEuropaLeagueData && 
+        !hasSerieAData && !hasPremierLeagueData) {
       return; // No data loaded yet
     }
     
@@ -72,9 +82,16 @@ const NewFeaturedMatch = () => {
     // Add fixtures from each league, avoiding duplicates
     const processedIds = new Set<number>();
     
-    const addFixtures = (fixtures: FixtureResponse[], source: string) => {
-      console.log(`Adding fixtures from ${source}: ${fixtures.length}`);
-      fixtures.forEach(fixture => {
+    const addFixtures = (fixtures: unknown, source: string) => {
+      if (!fixtures || !Array.isArray(fixtures)) {
+        console.log(`No data from ${source} or invalid format`);
+        return;
+      }
+      
+      const typedFixtures = fixtures as FixtureResponse[];
+      console.log(`Adding fixtures from ${source}: ${typedFixtures.length}`);
+      
+      typedFixtures.forEach(fixture => {
         if (!processedIds.has(fixture.fixture.id)) {
           processedIds.add(fixture.fixture.id);
           allFixtures.push(fixture);

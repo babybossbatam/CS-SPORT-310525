@@ -24,37 +24,33 @@ const FeaturedMatch = () => {
   const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
   // Removed highlights state
   
-  // Get fixture data using React Query
+  // Get fixture data using React Query with our enhanced query client
   const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading } = useQuery({
     queryKey: ['/api/champions-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/champions-league/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading } = useQuery({
     queryKey: ['/api/europa-league/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/europa-league/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   const { data: serieAFixtures = [], isLoading: isSerieALoading } = useQuery({
     queryKey: ['/api/leagues/135/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/135/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading } = useQuery({
     queryKey: ['/api/leagues/39/fixtures'],
-    queryFn: async () => {
-      const response = await fetch('/api/leagues/39/fixtures');
-      return response.json();
-    }
+    retry: 1,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
   
   useEffect(() => {
@@ -70,9 +66,9 @@ const FeaturedMatch = () => {
     const fixtureIdMap = new Map<number, FixtureResponse>();
     
     // Process each data source, only adding new unique fixtures
-    const processSource = (fixtures: FixtureResponse[] | undefined, sourceName: string) => {
-      if (!fixtures) return;
-      fixtures.forEach(fixture => {
+    const processSource = (fixtures: unknown, sourceName: string) => {
+      if (!fixtures || !Array.isArray(fixtures)) return;
+      (fixtures as FixtureResponse[]).forEach(fixture => {
         if (!fixtureIdMap.has(fixture.fixture.id)) {
           fixtureIdMap.set(fixture.fixture.id, fixture);
         }
