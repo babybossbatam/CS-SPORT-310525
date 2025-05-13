@@ -325,7 +325,7 @@ const FeaturedMatch = () => {
           <span className="text-xs text-neutral-500">Stats</span>
         </div>
         <div 
-          className="flex flex-col items-center cursor-pointer hover:text-[#3182CE]"
+          className="flex flex-col items-center cursor-pointer"
           onClick={() => {
             if (featuredMatch?.league?.id) {
               navigate(`/league/${featuredMatch.league.id}/bracket`);

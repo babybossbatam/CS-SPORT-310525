@@ -76,14 +76,13 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
       <div
         className="relative z-20"
         style={{ 
-          cursor: onClick ? 'pointer' : 'default',
-          transform: winner ? 'scale(1.05)' : 'scale(1)'
+          cursor: onClick ? 'pointer' : 'default'
         }}
       >
         <img 
           src={currentLogoUrl} 
           alt={teamName}
-          className={`${logoSize} w-auto object-contain ${winner ? 'drop-shadow-lg' : ''}`}
+          className={`${logoSize} w-auto object-contain`}
           onError={handleImageError}
         />
         

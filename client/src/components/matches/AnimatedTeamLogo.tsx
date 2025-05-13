@@ -54,22 +54,19 @@ const AnimatedTeamLogo: React.FC<AnimatedTeamLogoProps> = ({
     lg: "h-[90px]"
   }[size];
 
-  // Simplified logo animation variants
+  // Removed animation variants to fix transformation errors
   const logoVariants = {
     initial: { 
-      scale: 1, 
-      filter: "drop-shadow(0 4px 3px rgb(0 0 0 / 0.2))" 
+      scale: 1
     },
     hover: { 
-      scale: 1.1,
-      filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.3))"
+      scale: 1
     },
     tap: { 
-      scale: 0.95
+      scale: 1
     },
     winner: {
-      scale: 1.05,
-      filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.3))"
+      scale: 1
     }
   };
   
@@ -181,21 +178,13 @@ const AnimatedTeamLogo: React.FC<AnimatedTeamLogoProps> = ({
         )}
       </motion.div>
       
-      {/* Team name tooltip on hover */}
-      {isMounted && (
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              className="absolute left-1/2 transform -translate-x-1/2 -bottom-8 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-30"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.2 }}
-            >
-              {teamName}
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* Team name tooltip - removed animation effects */}
+      {isMounted && isHovered && (
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 -bottom-8 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-30"
+        >
+          {teamName}
+        </div>
       )}
     </div>
   );
