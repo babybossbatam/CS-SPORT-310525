@@ -23,7 +23,7 @@ const FeaturedMatch = () => {
   const [, navigate] = useLocation();
   const [featuredMatch, setFeaturedMatch] = useState<FixtureResponse | null>(null);
   // Removed highlights state
-
+  
   // Get fixture data using React Query with our enhanced query client
   const { data: championsLeagueFixtures = [], isLoading: isChampionsLeagueLoading, error: championsLeagueError } = useQuery({
     queryKey: ['/api/champions-league/fixtures'],
@@ -33,7 +33,7 @@ const FeaturedMatch = () => {
     refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
     refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
-
+  
   const { data: europaLeagueFixtures = [], isLoading: isEuropaLeagueLoading, error: europaLeagueError } = useQuery({
     queryKey: ['/api/europa-league/fixtures'],
     retry: 1,
@@ -42,7 +42,7 @@ const FeaturedMatch = () => {
     refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
     refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
-
+  
   const { data: serieAFixtures = [], isLoading: isSerieALoading, error: serieAError } = useQuery({
     queryKey: ['/api/leagues/135/fixtures'],
     retry: 1,
@@ -51,7 +51,7 @@ const FeaturedMatch = () => {
     refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
     refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
-
+  
   const { data: premierLeagueFixtures = [], isLoading: isPremierLeagueLoading, error: premierLeagueError } = useQuery({
     queryKey: ['/api/leagues/39/fixtures'],
     retry: 1,
@@ -60,7 +60,7 @@ const FeaturedMatch = () => {
     refetchOnWindowFocus: false, // Disable refetching on window focus to avoid unnecessary API calls
     refetchOnReconnect: false // Disable refetching on reconnect to avoid unnecessary API calls
   });
-
+  
   // Log any API errors
   useEffect(() => {
     if (championsLeagueError) console.error('Champions League API error:', championsLeagueError);
@@ -68,7 +68,7 @@ const FeaturedMatch = () => {
     if (serieAError) console.error('Serie A API error:', serieAError);
     if (premierLeagueError) console.error('Premier League API error:', premierLeagueError);
   }, [championsLeagueError, europaLeagueError, serieAError, premierLeagueError]);
-
+  
   useEffect(() => {
     // Combine all fixtures - making sure each source is an array
     const allFixtures = [
@@ -77,10 +77,10 @@ const FeaturedMatch = () => {
       ...(Array.isArray(serieAFixtures) ? serieAFixtures : []), 
       ...(Array.isArray(premierLeagueFixtures) ? premierLeagueFixtures : [])
     ];
-
+    
     // Create a map to track unique fixture IDs and detect duplicates
     const fixtureIdMap = new Map<number, FixtureResponse>();
-
+    
     // Process each data source, only adding new unique fixtures
     const processSource = (fixtures: unknown, sourceName: string) => {
       if (!fixtures || !Array.isArray(fixtures)) return;
@@ -90,30 +90,30 @@ const FeaturedMatch = () => {
         }
       });
     };
-
+    
     // Process sources
     processSource(championsLeagueFixtures, "Champions League");
     processSource(europaLeagueFixtures, "Europa League");
     processSource(serieAFixtures, "Serie A");
     processSource(premierLeagueFixtures, "Premier League");
-
+    
     // Convert map back to array
     const uniqueFixtures = Array.from(fixtureIdMap.values());
-
+    
     // Get the current time in seconds (unix timestamp)
     const currentTime = Math.floor(Date.now() / 1000);
     const eightHoursInSeconds = 8 * 60 * 60; // 8 hours in seconds
-
+    
     // Apply the exact same filtering logic as UpcomingMatchesScoreboard
     const scoreBoardMatches = uniqueFixtures.filter(match => {
       // Only include matches from our featured leagues
       if (!FEATURED_LEAGUE_IDS.includes(match.league.id)) {
         return false;
       }
-
+      
       // Get time difference from current time
       const timeDiff = currentTime - match.fixture.timestamp;
-
+      
       // Case 1: Today's finished matches that aren't more than 8 hours old
       if (
         (match.fixture.status.short === 'FT' || 
@@ -124,7 +124,7 @@ const FeaturedMatch = () => {
       ) {
         return true;
       }
-
+      
       // Case 2: Upcoming matches (not yet started)
       if (
         (match.fixture.status.short === 'NS' || 
@@ -133,74 +133,74 @@ const FeaturedMatch = () => {
       ) {
         return true;
       }
-
+      
       // Case 3: Live matches
       if (isLiveMatch(match.fixture.status.short)) {
         return true;
       }
-
+      
       // Exclude all other matches
       return false;
     });
-
+    
     // Apply the same sorting logic as UpcomingMatchesScoreboard
     const sortedFixtures = scoreBoardMatches.sort((a, b) => {
       // First sort by match status: Live > Upcoming > Finished
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
-
+      
       // Check if matches are finished
       const aIsFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
       const bIsFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
-
+      
       // Live matches get highest priority
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
-
+      
       // Then upcoming matches (sort by nearest timestamp)
       if (!aIsFinished && !aIsLive && bIsFinished) return -1;
       if (aIsFinished && !bIsFinished && !bIsLive) return 1;
-
+      
       // For upcoming matches, sort by nearest time first
       const aTimeUntilMatch = a.fixture.timestamp - currentTime;
       const bTimeUntilMatch = b.fixture.timestamp - currentTime;
-
+      
       if (!aIsFinished && !bIsFinished) {
         return aTimeUntilMatch - bTimeUntilMatch; // Nearest match first
       }
-
+      
       // For finished matches, sort by most recent first
       if (aIsFinished && bIsFinished) {
         return b.fixture.timestamp - a.fixture.timestamp; // Most recent first
       }
-
+      
       // Finally sort by timestamp for matches with the same priority
       return a.fixture.timestamp - b.fixture.timestamp;
     });
-
+    
     // Set the first match as featured
     if (sortedFixtures.length > 0) {
       setFeaturedMatch(sortedFixtures[0]);
     }
   }, [championsLeagueFixtures, europaLeagueFixtures, serieAFixtures, premierLeagueFixtures]);
-
+  
   // Format date for match display showing Tomorrow, 2 More Days, etc.
   const formatMatchDate = (dateString: string | undefined): string => {
     if (!dateString) return 'Date TBD';
-
+    
     try {
       const date = parseISO(dateString);
       if (isNaN(date.getTime())) return 'Date TBD';
-
+      
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
-
+      
       // Reset hours to compare just the dates
       today.setHours(0, 0, 0, 0);
       tomorrow.setHours(0, 0, 0, 0);
       date.setHours(0, 0, 0, 0);
-
+      
       if (date.getTime() === today.getTime()) {
         return 'Today';
       } else if (date.getTime() === tomorrow.getTime()) {
@@ -216,7 +216,7 @@ const FeaturedMatch = () => {
       return 'Date TBD';
     }
   };
-
+  
   if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isPremierLeagueLoading) {
     return (
       <Card className="mb-6">
@@ -247,7 +247,7 @@ const FeaturedMatch = () => {
       </Card>
     );
   }
-
+  
   if (!featuredMatch) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
@@ -257,7 +257,7 @@ const FeaturedMatch = () => {
       </Card>
     );
   }
-
+  
   return (
     <>
       <Badge 
@@ -266,7 +266,7 @@ const FeaturedMatch = () => {
       >
         Featured Match
       </Badge>
-
+    
       {/* Content in a div that's styled like Card, but isn't the Card component */}
       <div className="flex items-center gap-2 mb-4 p-4 pt-4">
         {featuredMatch?.league?.logo ? (
@@ -283,11 +283,11 @@ const FeaturedMatch = () => {
         )}
         <span className="text-sm font-medium">{featuredMatch?.league?.name || 'Unknown League'}</span>
       </div>
-
+      
       <div className="text-lg font-semibold text-center mb-4 px-4">
         {formatMatchDate(featuredMatch?.fixture?.date)}
       </div>
-
+      
       {/* Using MatchScoreboard component for consistent UI */}
       <MatchScoreboard 
         match={featuredMatch}
@@ -300,8 +300,7 @@ const FeaturedMatch = () => {
           }
         }}
       />
-
-      {console.log("data", data)}
+      
       <div className="grid grid-cols-4 gap-4 mt-4 text-center px-4 pb-4">
         <div 
           className="flex flex-col items-center cursor-pointer"
