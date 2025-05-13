@@ -567,18 +567,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Fetching top scorers for league ${id} with fixed season ${season} as requested`);
       
-      // Try the Livescore API first
-      try {
-        const topScorers = await livescoreApiService.getTopScorers(id, season);
-        if (topScorers && topScorers.length > 0) {
-          console.log(`Received top scorers data for league ${id} from Livescore API`);
-          return res.json(topScorers);
-        }
-      } catch (livescoreError) {
-        console.error(`Livescore API error for top scorers ${id}, falling back to RapidAPI:`, livescoreError);
-      }
-      
-      // Fall back to RapidAPI
+      // Use API-Football (RapidAPI) only
       const topScorers = await rapidApiService.getTopScorers(id, season);
       console.log(`Received top scorers data for league ${id} from RapidAPI`);
       
@@ -602,18 +591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Fetching standings for league ${id} with fixed season ${season} as requested`);
       
-      // Try the Livescore API first
-      try {
-        const standings = await livescoreApiService.getLeagueStandings(id, season);
-        if (standings) {
-          console.log(`Received standings data for league ${id} from Livescore API`);
-          return res.json(standings);
-        }
-      } catch (livescoreError) {
-        console.error(`Livescore API error for standings ${id}, falling back to RapidAPI:`, livescoreError);
-      }
-      
-      // Fall back to RapidAPI
+      // Use API-Football (RapidAPI) only
       const standings = await rapidApiService.getLeagueStandings(id, season);
       console.log(`Received standings data for league ${id} from RapidAPI`);
       
@@ -636,32 +614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Attempting to fetch Europa League (ID: ${leagueId}) fixtures for season ${seasonToUse}`);
       
-      // Try the Livescore API first
-      try {
-        // Get league info first to confirm
-        const leagueData = await livescoreApiService.getLeagueById(leagueId);
-        
-        if (leagueData) {
-          console.log(`Europa League found in Livescore API: ${leagueData.league.name}, attempting to fetch fixtures...`);
-          const fixtures = await livescoreApiService.getFixturesByLeague(leagueId, seasonToUse);
-          
-          if (fixtures && fixtures.length > 0) {
-            console.log(`Europa League fixtures from Livescore API, count: ${fixtures.length}`);
-            
-            // Sort fixtures by date (newest first)
-            const sortedFixtures = fixtures.sort((a, b) => {
-              return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-            });
-            
-            console.log(`Returning ${sortedFixtures.length} sorted Europa League fixtures from Livescore API`);
-            return res.json(sortedFixtures);
-          }
-        }
-      } catch (livescoreError) {
-        console.error(`Livescore API error for Europa League fixtures, falling back to RapidAPI:`, livescoreError);
-      }
-      
-      // Fall back to RapidAPI
+      // Use API-Football (RapidAPI) only
       // First, let's verify the league exists
       const leagueData = await rapidApiService.getLeagueById(leagueId);
       if (!leagueData) {
