@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions } from '@/lib/store';
@@ -28,6 +28,9 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   const tabsRef = useRef<HTMLDivElement>(null);
   const isMatchDetailsPage = location.startsWith('/match/');
+
+  // Add selectedLeague state
+  const [selectedLeague, setSelectedLeague] = useState({ name: 'League', logo: 'https://via.placeholder.com/40' });
 
   // Define sports categories
   const categories = [
