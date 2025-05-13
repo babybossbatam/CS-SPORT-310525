@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Futbol, CircleDot, CircleDashed, PuckIcon, Tennis } from 'lucide-react';
+import { GalleryThumbnails, Circle, CircleDot, CircleDashed, Dumbbell } from 'lucide-react';
 
 const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
@@ -28,7 +28,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Futbol className="h-4 w-4" />
+            <Circle className="h-4 w-4" />
             <span>Football</span>
           </button>
 
@@ -67,7 +67,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <PuckIcon className="h-4 w-4" />
+            <CircleDashed className="h-4 w-4" />
             <span>Hockey</span>
           </button>
 
@@ -80,7 +80,7 @@ const SportsCategoryTabs = () => {
                 : 'text-gray-600 hover:text-gray-900'
             )}
           >
-            <Tennis className="h-4 w-4" />
+            <Dumbbell className="h-4 w-4" />
             <span>Tennis</span>
           </button>
         </div>
