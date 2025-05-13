@@ -206,9 +206,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                           />
                           <div className="flex flex-col">
                             <span className="font-medium text-sm">{standing.team.name}</span>
-                            {standing.description && (
-                              <span className="text-xs text-green-600">{standing.description}</span>
-                            )}
+                            {standing.rank <= 7 && standing.description && (
+                            <span 
+                              className="text-xs"
+                              style={{
+                                color: standing.rank <= 3 ? '#4CAF50' : '#2196F3'
+                              }}
+                            >
+                              {standing.description}
+                            </span>
+                          )}
                           </div>
                         </div>
                       </TableCell>
