@@ -48,6 +48,8 @@ export async function apiRequest(
   }
 }
 
+import { STATIC_LEAGUE_LOGOS } from './constants';
+
 // Query function type with caching
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
@@ -57,10 +59,29 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
     
-    // More aggressive rate limiting for league requests
-    if (keyString.includes('/api/leagues') && !checkRateLimit(keyString)) {
+    // Return cached data for league requests
+    if (keyString.includes('/api/leagues')) {
       const cached = queryClient.getQueryData(queryKey);
       if (cached) return cached;
+      
+      // Fetch once and inject static logos
+      const res = await fetch(queryKey[0] as string, { credentials: "include" });
+      await throwIfResNotOk(res);
+      const data = await res.json();
+      
+      // Replace dynamic logos with static ones
+      if (Array.isArray(data)) {
+        data.forEach((item: any) => {
+          if (item.league?.id && STATIC_LEAGUE_LOGOS[item.league.id]) {
+            item.league.logo = STATIC_LEAGUE_LOGOS[item.league.id];
+          }
+        });
+      } else if (data?.league?.id && STATIC_LEAGUE_LOGOS[data.league.id]) {
+        data.league.logo = STATIC_LEAGUE_LOGOS[data.league.id];
+      }
+      
+      queryClient.setQueryData(queryKey, data);
+      return data;
     }
     
     try {
