@@ -921,8 +921,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Build search query based on sport type
         let searchQuery = '';
         if (sportType) {
-          // If a specific sport is requested, search for that sport
-          searchQuery = `&q=${encodeURIComponent(sportType)}`;
+          // Map sport types to better search terms
+          let searchTerm = sportType;
+          
+          // Map football to soccer to get proper football/soccer news, not American football
+          if (sportType === 'football') {
+            searchTerm = 'soccer OR football NOT "american football"';
+          } else if (sportType === 'basketball') {
+            searchTerm = 'basketball NOT football';
+          } else if (sportType === 'baseball') {
+            searchTerm = 'baseball NOT football NOT basketball';
+          } else if (sportType === 'tennis') {
+            searchTerm = 'tennis NOT football NOT basketball';
+          } else if (sportType === 'hockey') {
+            searchTerm = 'hockey NOT football NOT basketball';
+          }
+          
+          searchQuery = `&q=${encodeURIComponent(searchTerm)}`;
         }
         
         // Build GNews API URL
