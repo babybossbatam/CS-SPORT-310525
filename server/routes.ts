@@ -933,7 +933,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.post("/news", async (req: Request, res: Response) => {
     try {
-      const articleData = insertNewsArticleSchema.parse(req.body);
+      let articleData = insertNewsArticleSchema.parse(req.body);
+      
+      // Replace example.com URLs with our domain
+      if (articleData.url && articleData.url.includes('example.com')) {
+        // Extract the domain from the request
+        const host = req.get('host') || 'cssport.io';
+        articleData.url = articleData.url.replace(/https?:\/\/example\.com/i, `https://${host}`);
+      }
+      
       const article = await storage.createNewsArticle(articleData);
       res.status(201).json(article);
     } catch (error) {
@@ -957,7 +965,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Article not found" });
       }
       
-      const updates = req.body;
+      let updates = req.body;
+      
+      // Replace example.com URLs with our domain
+      if (updates.url && updates.url.includes('example.com')) {
+        // Extract the domain from the request
+        const host = req.get('host') || 'cssport.io';
+        updates.url = updates.url.replace(/https?:\/\/example\.com/i, `https://${host}`);
+      }
+      
       const updatedArticle = await storage.updateNewsArticle(id, updates);
       
       res.json(updatedArticle);
