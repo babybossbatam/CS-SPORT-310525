@@ -909,6 +909,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sportType = req.query.sport as string || '';
       const count = parseInt(req.query.count as string || '10');
       
+      // For football, we can also try using a sports-specific API if GNews doesn't work well
+      if (sportType === 'football' && process.env.SPORTMONKS_API_KEY) {
+        // Check if we have an API key for SportMonks
+        try {
+          console.log("Using SportMonks API for football news");
+          // Fetch news articles from SportMonks API
+          const response = await fetch(
+            `https://api.sportmonks.com/v3/football/news/articles?api_token=${process.env.SPORTMONKS_API_KEY}`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.data && Array.isArray(data.data)) {
+              // Transform SportMonks response to match our news article format
+              const articles = data.data.slice(0, count).map((article: any, index: number) => ({
+                id: index + 1,
+                title: article.title,
+                content: article.summary || article.description || "No description available",
+                imageUrl: article.image || 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
+                source: article.source || "SportMonks",
+                url: article.url,
+                publishedAt: article.published_at,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }));
+              
+              return res.json(articles);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching from SportMonks API:", error);
+          // Fall back to GNews if SportMonks fails
+        }
+      }
+      
       // Check if we should use GNews API or local storage
       const useGNews = req.query.source === 'gnews' || !req.query.source;
       
@@ -924,17 +960,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Map sport types to better search terms
           let searchTerm = sportType;
           
-          // Map football to soccer to get proper football/soccer news, not American football
+          // Map sport types to more specific search terms
           if (sportType === 'football') {
-            searchTerm = 'soccer OR football NOT "american football"';
+            // Try to get real football/soccer news by using specific European leagues/terms
+            searchTerm = '(premier league OR bundesliga OR la liga OR serie a OR champions league OR uefa OR fifa) AND (soccer OR football) -NFL -bears -chiefs -ravens -bills';
           } else if (sportType === 'basketball') {
-            searchTerm = 'basketball NOT football';
+            searchTerm = 'basketball -NFL -football';
           } else if (sportType === 'baseball') {
-            searchTerm = 'baseball NOT football NOT basketball';
+            searchTerm = 'baseball -NFL -football -basketball';
           } else if (sportType === 'tennis') {
-            searchTerm = 'tennis NOT football NOT basketball';
+            searchTerm = 'tennis -NFL -football -basketball';
           } else if (sportType === 'hockey') {
-            searchTerm = 'hockey NOT football NOT basketball';
+            searchTerm = 'hockey -NFL -football -basketball';
           }
           
           searchQuery = `&q=${encodeURIComponent(searchTerm)}`;
