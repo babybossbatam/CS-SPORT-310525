@@ -5,6 +5,7 @@ import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/s
 import LeagueStandings from '@/components/stats/LeagueStandings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import TeamLogo from "@/components/matches/TeamLogo";
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -218,7 +219,7 @@ const LeagueDetails = () => {
                 </TabsTrigger>
               </TabsList>
 
-              
+
 
               <TabsContent value="fixtures" className="mt-2">
                 {fixtures.length > 0 ? (
@@ -304,7 +305,7 @@ const LeagueDetails = () => {
                             <span className="text-sm">{match.teams.home.name}</span>
                           </div>
                           <div className="text-sm text-gray-600">
-                            {format(new Date(match.fixture.date), 'dd MMM HH:mm')}
+                            {formatDateTime(new Date(match.fixture.date))}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-sm">{match.teams.away.name}</span>
