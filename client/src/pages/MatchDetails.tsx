@@ -571,8 +571,8 @@ const MatchDetails = () => {
                 </button>
               </div>
             </div>
-              homeTeamColor="#6f7c93" // Exact match to Atalanta blue-gray color in reference
-              awayTeamColor="#8b0000" // Exact match to AS Roma dark red color in reference
+              homeTeamColor="#6f7c93"
+              awayTeamColor="#8b0000"
             />
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
