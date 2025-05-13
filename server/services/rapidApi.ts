@@ -26,9 +26,9 @@ const apiClient = axios.create({
   }
 });
 
-// Cache control - 5 minutes for live data, 1 hour for static data
-const LIVE_DATA_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-const STATIC_DATA_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+// Cache control - 30 minutes for live data, 24 hours for static data
+const LIVE_DATA_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const STATIC_DATA_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Cache objects
 const fixturesCache = new Map<string, { data: any, timestamp: number }>();
