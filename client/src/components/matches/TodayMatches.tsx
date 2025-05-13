@@ -293,59 +293,33 @@ const TodayMatches = () => {
           .map((match) => (
             <div 
               key={match.fixture.id}
-              className="flex flex-col px-3 py-2 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
+              className="flex flex-col px-3 py-2 border-b border-gray-100 cursor-pointer"
               onClick={(e) => {
                 // Always navigate to match details (removed live player feature)
                 navigate(`/match/${match.fixture.id}`);
               }}
             >
-              {/* Match Status */}
-              <div className="text-xs text-gray-500 text-right mb-0.5">
-                {['FT', 'AET', 'PEN'].includes(match.fixture.status.short) && "Ended"}
-              </div>
               
-              {/* Teams and Score */}
+              {/* Teams and Score - Simplified version without team logos */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center w-[38%]">
-                  <img 
-                    src={match.teams.home.logo} 
-                    alt={match.teams.home.name}
-                    className="h-5 w-5 mr-2 object-contain drop-shadow-md"
-                    onError={(e) => {
-                      // Try first the livescore URL
-                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
-                      
-                      // Add a second error handler for complete fallback
-                      (e.target as HTMLImageElement).onerror = () => {
-                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
-                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                      };
-                    }}
-                  />
-                  <span className="text-sm font-medium text-left truncate">{match.teams.home.name}</span>
+                <div className="w-[38%] text-left">
+                  <span className="text-sm font-medium truncate">{match.teams.home.name}</span>
                 </div>
                 <div className="flex items-center justify-center space-x-1 w-[24%]">
-                  <span className="font-bold text-base">{match.goals.home}</span>
-                  <span className="text-gray-400 font-bold">-</span>
-                  <span className="font-bold text-base">{match.goals.away}</span>
+                  {match.fixture.status.short === 'NS' ? (
+                    // For upcoming matches, show the time
+                    <span className="text-base text-gray-600">{format(new Date(match.fixture.timestamp * 1000), 'HH:mm')}</span>
+                  ) : (
+                    // For completed or live matches, show the score
+                    <>
+                      <span className="font-bold text-base">{match.goals.home !== null ? match.goals.home : '-'}</span>
+                      <span className="text-gray-400 font-bold">-</span>
+                      <span className="font-bold text-base">{match.goals.away !== null ? match.goals.away : '-'}</span>
+                    </>
+                  )}
                 </div>
-                <div className="flex items-center justify-end w-[38%]">
-                  <span className="text-sm font-medium text-right truncate">{match.teams.away.name}</span>
-                  <img 
-                    src={match.teams.away.logo} 
-                    alt={match.teams.away.name}
-                    className="h-5 w-5 ml-2 object-contain drop-shadow-md"
-                    onError={(e) => {
-                      // Try first the livescore URL
-                      (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
-                      
-                      // Add a second error handler for complete fallback
-                      (e.target as HTMLImageElement).onerror = () => {
-                        (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
-                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                      };
-                    }}
-                  />
+                <div className="w-[38%] text-right">
+                  <span className="text-sm font-medium truncate">{match.teams.away.name}</span>
                 </div>
               </div>
               
