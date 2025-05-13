@@ -107,20 +107,22 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
             );
           })}
         </div>
-        
-        {/* League Navigation Tabs */}
-        <div className="border-t border-gray-200">
-          <div className="flex overflow-x-auto py-2 space-x-8 scrollbar-hide">
-            {leagueNavItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
+      </div>
+    </div>
+    
+    {/* League Navigation Section */}
+    <div className="bg-white shadow-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex overflow-x-auto py-3 space-x-8 scrollbar-hide">
+          {leagueNavItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap transition-colors duration-200"
+            >
+              {item.name}
+            </Link>
+          ))}
         </div>
       </div>
     </div>
