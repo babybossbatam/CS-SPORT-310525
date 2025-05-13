@@ -937,9 +937,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Replace example.com URLs with our domain
       if (articleData.url && articleData.url.includes('example.com')) {
-        // Extract the domain from the request or use our primary domain
-        const host = req.get('host') || 'cssport.vip';
-        articleData.url = articleData.url.replace(/https?:\/\/example\.com/i, `https://${host}`);
+        // Use our primary domain directly
+        articleData.url = articleData.url.replace(/https?:\/\/example\.com/i, 'https://cssport.vip');
       }
       
       const article = await storage.createNewsArticle(articleData);
@@ -969,9 +968,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Replace example.com URLs with our domain
       if (updates.url && updates.url.includes('example.com')) {
-        // Extract the domain from the request or use our primary domain
-        const host = req.get('host') || 'cssport.vip';
-        updates.url = updates.url.replace(/https?:\/\/example\.com/i, `https://${host}`);
+        // Use our primary domain directly
+        updates.url = updates.url.replace(/https?:\/\/example\.com/i, 'https://cssport.vip');
       }
       
       const updatedArticle = await storage.updateNewsArticle(id, updates);
