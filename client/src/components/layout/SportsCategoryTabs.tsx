@@ -3,18 +3,18 @@ import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { 
-  Tv,
-  Circle,
+  MonitorPlay,
+  SoccerBall,
   Basketball,
   Cricket,
-  Shield,
+  AmericanFootball,
   Baseball,
-  Activity,
-  Circle as Tennis,
-  PersonStanding,
+  Hockey,
+  Tennis as TennisIcon,
+  Handball,
   Volleyball,
-  Hammer
-} from 'lucide-react';
+  Rugby
+} from '@phosphor-icons/react';
 
 const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
@@ -31,17 +31,17 @@ const SportsCategoryTabs = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center space-x-6 overflow-x-auto pb-1">
           {[
-            { id: 'tv', icon: Tv, label: 'TV' },
-            { id: 'football', icon: Circle, label: 'Football' },
+            { id: 'tv', icon: MonitorPlay, label: 'TV' },
+            { id: 'football', icon: SoccerBall, label: 'Football' },
             { id: 'basketball', icon: Basketball, label: 'Basketball' },
             { id: 'cricket', icon: Cricket, label: 'Cricket' },
-            { id: 'american-football', icon: Shield, label: 'A.Football' },
+            { id: 'american-football', icon: AmericanFootball, label: 'A.Football' },
             { id: 'baseball', icon: Baseball, label: 'Baseball' },
-            { id: 'hockey', icon: Activity, label: 'Hockey' },
-            { id: 'tennis', icon: Tennis, label: 'Tennis' },
-            { id: 'handball', icon: PersonStanding, label: 'Handball' },
+            { id: 'hockey', icon: Hockey, label: 'Hockey' },
+            { id: 'tennis', icon: TennisIcon, label: 'Tennis' },
+            { id: 'handball', icon: Handball, label: 'Handball' },
             { id: 'volleyball', icon: Volleyball, label: 'Volleyball' },
-            { id: 'rugby', icon: Hammer, label: 'Rugby' }
+            { id: 'rugby', icon: Rugby, label: 'Rugby' }
           ].map(({ id, icon: Icon, label }) => (
             <button
               key={id}
