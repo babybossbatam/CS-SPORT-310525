@@ -1,5 +1,36 @@
 @tailwind base;
 @tailwind components;
+
+@keyframes pulse-gold {
+  0% { background-color: rgb(254 243 199 / 0.1); }
+  50% { background-color: rgb(254 243 199 / 0.3); }
+  100% { background-color: rgb(254 243 199 / 0.1); }
+}
+
+@keyframes pulse-silver {
+  0% { background-color: rgb(219 234 254 / 0.1); }
+  50% { background-color: rgb(219 234 254 / 0.3); }
+  100% { background-color: rgb(219 234 254 / 0.1); }
+}
+
+@keyframes pulse-bronze {
+  0% { background-color: rgb(243 244 246 / 0.1); }
+  50% { background-color: rgb(243 244 246 / 0.2); }
+  100% { background-color: rgb(243 244 246 / 0.1); }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s infinite;
+}
+
+.animate-pulse-silver {
+  animation: pulse-silver 2s infinite;
+}
+
+.animate-pulse-bronze {
+  animation: pulse-bronze 2s infinite;
+}
+
 @tailwind utilities;
 
 /* YouTube embed loading animation */
