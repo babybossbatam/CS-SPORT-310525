@@ -128,7 +128,7 @@ export function MatchScoreboard({
           {/* Home team logo and name */}
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center">
             <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
               style={{
                 cursor: onClick ? 'pointer' : 'default'
@@ -155,7 +155,7 @@ export function MatchScoreboard({
             </div>
             
             {/* Team name */}
-            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
               {teams?.home?.name || 'Home Team'}
             </div>
           </div>
@@ -170,10 +170,9 @@ export function MatchScoreboard({
           
           {/* VS SECTION - fixed size */}
           <div 
-            className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+            className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{
-              background: '#a00000',
-              boxShadow: '0 0 10px rgba(255, 255, 255, 0.4)'
+              background: '#a00000'
             }}
           >
             <span className="vs-text font-bold">VS</span>
@@ -190,7 +189,7 @@ export function MatchScoreboard({
           {/* Away team logo and name */}
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 flex items-center flex-row-reverse">
             <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
               style={{
                 cursor: onClick ? 'pointer' : 'default'
