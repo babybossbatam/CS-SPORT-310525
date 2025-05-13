@@ -111,8 +111,38 @@ const MatchDetails = () => {
       
       try {
         dispatch(fixturesActions.setLoadingFixtures(true));
+        dispatch(fixturesActions.setFixturesError(null));
         
-        const response = await apiRequest('GET', `/api/fixtures/${id}`);
+        // Implement fetch with a timeout to avoid hanging requests
+        const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 15000) => {
+          const controller = new AbortController();
+          const { signal } = controller;
+          
+          const timeoutId = setTimeout(() => controller.abort(), timeout);
+          
+          try {
+            const response = await fetch(url, { ...options, signal });
+            clearTimeout(timeoutId);
+            return response;
+          } catch (error) {
+            clearTimeout(timeoutId);
+            if (error instanceof Error && error.name === 'AbortError') {
+              throw new Error('Network timeout: The request took too long to complete.');
+            }
+            throw error;
+          }
+        };
+        
+        // Use our custom fetch with timeout
+        const response = await fetchWithTimeout(`/api/fixtures/${id}`, { 
+          method: 'GET',
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
         dispatch(fixturesActions.setCurrentFixture(data));
@@ -121,12 +151,26 @@ const MatchDetails = () => {
         generateMatchEvents(data);
       } catch (error) {
         console.error(`Error fetching match details for ID ${id}:`, error);
+        
+        // Create a user-friendly error message based on the type of error
+        let errorMessage = 'Failed to load match details';
+        if (error instanceof Error) {
+          if (error.message.includes('Network timeout')) {
+            errorMessage = 'The request timed out. Please check your connection and try again.';
+          } else if (error.message.includes('Network error') || error.message.includes('fetch')) {
+            errorMessage = 'Network error: Please check your internet connection and try again.';
+          } else if (error.message.includes('Server error')) {
+            errorMessage = `Server error: ${error.message.replace('Server error: ', '')}`;
+          }
+        }
+        
         toast({
           title: 'Error',
-          description: 'Failed to load match details',
+          description: errorMessage,
           variant: 'destructive',
         });
-        dispatch(fixturesActions.setFixturesError('Failed to load match details'));
+        
+        dispatch(fixturesActions.setFixturesError(errorMessage));
       } finally {
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
@@ -381,15 +425,47 @@ const MatchDetails = () => {
                 </svg>
                 <h3 className="text-xl font-bold">Error Loading Match Details</h3>
                 <p className="text-gray-600 mt-2">
-                  {error || "There was a problem loading this match. Please try again later."}
+                  {typeof error === 'string' && error.includes('Network error') 
+                    ? "Network connection issue: Please check your internet connection and try again."
+                    : error || "There was a problem loading this match. Please try again later."}
                 </p>
               </div>
-              <Button 
-                variant="default" 
-                onClick={() => navigate('/')}
-              >
-                Return to Home
-              </Button>
+              <div className="flex justify-center space-x-4">
+                <Button 
+                  variant="default" 
+                  onClick={() => navigate('/')}
+                >
+                  Return to Home
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    // Reload the fixture data
+                    dispatch(fixturesActions.setLoadingFixtures(true));
+                    dispatch(fixturesActions.setFixturesError(null));
+                    
+                    // Attempt to reload the match
+                    apiRequest('GET', `/api/fixtures/${id}`)
+                      .then(res => res.json())
+                      .then(data => {
+                        dispatch(fixturesActions.setCurrentFixture(data));
+                        dispatch(fixturesActions.setLoadingFixtures(false));
+                      })
+                      .catch(err => {
+                        dispatch(fixturesActions.setFixturesError(err.message || 'Failed to load match'));
+                        dispatch(fixturesActions.setLoadingFixtures(false));
+                        
+                        toast({
+                          title: 'Error',
+                          description: 'Could not reload match details. Please try again later.',
+                          variant: 'destructive',
+                        });
+                      });
+                  }}
+                >
+                  Try Again
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
