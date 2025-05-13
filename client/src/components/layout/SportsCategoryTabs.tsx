@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
@@ -70,7 +69,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
   // Handle sport selection
   const handleSportSelect = (sportId: string) => {
     dispatch(uiActions.setSelectedSport(sportId));
-    
+
     // Call the onSportClick callback if provided
     if (onSportClick) {
       onSportClick(sportId);
@@ -93,7 +92,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
             {categories.map((category) => {
               const Icon = category.icon;
               const isActive = category.id === selectedSport;
-              
+
               return (
                 <Link 
                   key={`${category.id}-${category.name}`}
@@ -137,11 +136,11 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
                     </Button>
                   )}
                   <img 
-                    src={league?.league?.logo || 'https://via.placeholder.com/40'} 
-                    alt={league?.league?.name || 'League'} 
+                    src={match?.league?.logo || 'https://via.placeholder.com/40'} 
+                    alt={match?.league?.name || 'League'} 
                     className="h-8 w-8 object-contain"
                   />
-                  <h2 className="text-lg font-semibold">{league?.league?.name}</h2>
+                  <h2 className="text-lg font-semibold">{match?.league?.name}</h2>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -152,7 +151,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
                   <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
                 </Button>
               </div>
-              
+
               {/* Navigation Tabs */}
               <div className="flex overflow-x-auto scrollbar-hide border-b">
                 {leagueNavItems.map((item) => (
