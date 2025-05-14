@@ -101,8 +101,8 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                            <div className="lg:col-span-2">
+                          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                            <div className="lg:col-span-8">
                               {fixtures && fixtures.length > 0 && (
                                 <MatchScoreboard
                                   match={fixtures[0]}
@@ -111,7 +111,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                 />
                               )}
                             </div>
-                            <div className="lg:col-span-1 space-y-4">
+                            <div className="lg:col-span-4 space-y-4">
                               <Card>
                                 <CardContent className="p-4">
                                   <div className="flex justify-between items-center mb-2">
@@ -147,6 +147,30 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                       <span>{fixtures?.[0]?.teams?.away?.name}</span>
                                     </div>
                                     <span className="text-lg font-bold">22:00</span>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              <Card>
+                                <CardContent className="p-4">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Match Stats</h4>
+                                    <span className="text-sm text-gray-500">Live</span>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm">Possession</span>
+                                      <div className="flex gap-2">
+                                        <span className="text-sm font-medium">55%</span>
+                                        <span className="text-sm font-medium">45%</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm">Shots on Target</span>
+                                      <div className="flex gap-2">
+                                        <span className="text-sm font-medium">4</span>
+                                        <span className="text-sm font-medium">2</span>
+                                      </div>
+                                    </div>
                                   </div>
                                 </CardContent>
                               </Card>
