@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, userActions } from '@/lib/store';
-import LeagueStandings from '@/components/stats/LeagueStandings';
+import { LeagueStandings } from '@/components/stats/LeagueStandings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import TeamLogo from "@/components/matches/TeamLogo";
