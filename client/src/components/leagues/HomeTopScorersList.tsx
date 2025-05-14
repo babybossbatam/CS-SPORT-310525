@@ -87,8 +87,8 @@ const HomeTopScorersList = () => {
           <button 
             onClick={() => {
               const currentIndex = POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague);
-              const prevIndex = currentIndex > 0 ? currentIndex - 1 : POPULAR_LEAGUES.length - 1;
-              setSelectedLeague(POPULAR_LEAGUES[prevIndex].id);
+              const prevLeague = currentIndex > 0 ? POPULAR_LEAGUES[currentIndex - 1] : POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1];
+              setSelectedLeague(prevLeague.id);
             }}
             className="p-1 hover:bg-gray-200 rounded"
           >
@@ -109,8 +109,8 @@ const HomeTopScorersList = () => {
           <button 
             onClick={() => {
               const currentIndex = POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague);
-              const nextIndex = currentIndex < POPULAR_LEAGUES.length - 1 ? currentIndex + 1 : 0;
-              setSelectedLeague(POPULAR_LEAGUES[nextIndex].id);
+              const nextLeague = currentIndex < POPULAR_LEAGUES.length - 1 ? POPULAR_LEAGUES[currentIndex + 1] : POPULAR_LEAGUES[0];
+              setSelectedLeague(nextLeague.id);
             }}
             className="p-1 hover:bg-gray-200 rounded"
           >
