@@ -234,12 +234,6 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
     return null;
   }
 
-  const MatchScoreboard = () => {
-    return (
-      <div>MatchScoreboard</div>
-    )
-  }
-
   return (
     <Card className="bg-white rounded-lg shadow-md mb-4">
       <CardHeader className="p-3 border-b border-neutral-200 flex items-center">
