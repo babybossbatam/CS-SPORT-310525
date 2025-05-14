@@ -60,6 +60,9 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                   Follow
                 </Button>
                 <span className="text-sm text-gray-500">{followers} followers</span>
+                <div className="mt-4">
+                  <TopScorersList leagueId={leagueId} />
+                </div>
               </div>
             </div>
           </div>
