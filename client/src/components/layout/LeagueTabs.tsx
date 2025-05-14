@@ -50,7 +50,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
           </div>
 
           <Tabs defaultValue={leagueNavItems[0].name.toLowerCase()} className="w-full">
-            <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6">
+            <div className="flex overflow-x-auto no-scrollbar border-t px-6">
               {leagueNavItems.map((item) => (
                 <TabsTrigger 
                   key={item.name}
@@ -61,7 +61,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
                   {item.name}
                 </TabsTrigger>
               ))}
-            </TabsList>
+            </div>
           </Tabs>
         </div>
       </div>
