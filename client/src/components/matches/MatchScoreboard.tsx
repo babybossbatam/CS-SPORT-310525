@@ -180,38 +180,32 @@ export function MatchScoreboard({
           </div>
 
           {/* Away team logo and name */}
-          <div className="absolute right-4 z-20 flex items-center flex-row-reverse" style={{top: "calc(50% - 24px)"}}>
-            <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onClick={onClick}
-              style={{
-                cursor: onClick ? 'pointer' : 'default'
-              }}
-            >
-              <img 
-                src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
-                alt={teams?.away?.name || 'Away Team'} 
-                className="w-8 h-8 object-contain"
-                onError={(e) => {
-                  // If SportMonk URL fails, try the original API-Football URL
-                  if (e.currentTarget.src.includes('sportmonks') && teams?.away?.logo) {
-                    e.currentTarget.src = teams.away.logo;
-                  } else {
-                    e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
-                  }
-                }}
-              />
-              {teams?.away?.winner && (
-                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                  <span className="text-xs">W</span>
-                </div>
-              )}
+          <img 
+            src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
+            alt={teams?.away?.name || 'Away Team'} 
+            className={`absolute right-4 z-20 w-12 h-12 object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={{
+              cursor: onClick ? 'pointer' : 'default',
+              top: "calc(50% - 24px)"
+            }}
+            onClick={onClick}
+            onError={(e) => {
+              if (e.currentTarget.src.includes('sportmonks') && teams?.away?.logo) {
+                e.currentTarget.src = teams.away.logo;
+              } else {
+                e.currentTarget.src = 'https://via.placeholder.com/32?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
+              }
+            }}
+          />
+          {teams?.away?.winner && (
+            <div className="absolute right-4 top-[calc(50%-28px)] bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center z-30">
+              <span className="text-xs">W</span>
             </div>
+          )}
 
-            {/* Team name */}
-            <div className={`mr-3 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-              {teams?.away?.name || 'Away Team'}
-            </div>
+          {/* Team name */}
+          <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
+            {teams?.away?.name || 'Away Team'}
           </div>
         </div>
       </div>
