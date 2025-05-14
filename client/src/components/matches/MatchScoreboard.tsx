@@ -127,7 +127,7 @@ export function MatchScoreboard({
             <img 
                 src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
-                className={`absolute left-[31px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute left-[1px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   cursor: onClick ? 'pointer' : 'default',
                   top: "calc(50% - 36px)"
