@@ -90,6 +90,16 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                     <h3 className="text-xl font-bold text-gray-900 mb-4">{leagueName} Details</h3>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                      <div className="lg:col-span-4">
+                        <Card>
+                          <CardHeader>
+                            <h4 className="font-semibold">Top Scorers</h4>
+                          </CardHeader>
+                          <CardContent>
+                            <TopScorersList />
+                          </CardContent>
+                        </Card>
+                      </div>
                             <div className="lg:col-span-8">
                               <Card>
                                 <CardContent className="p-4">
