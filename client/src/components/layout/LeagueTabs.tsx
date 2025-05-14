@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Info, Calendar, Trophy, Newspaper, Video, Brackets, BarChart2, Brain, Transfer, History } from 'lucide-react';
 
 interface LeagueTabsProps {
   leagueId?: number;
@@ -14,16 +15,16 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
   const [location, navigate] = useLocation();
 
   const leagueNavItems = [
-    { name: 'Details', href: `/league/${leagueId}` },
-    { name: 'Matches', href: `/league/${leagueId}/fixtures` },
-    { name: 'Standings', href: `/league/${leagueId}/standings` },
-    { name: 'News', href: `/league/${leagueId}/news` },
-    { name: 'Highlights', href: `/league/${leagueId}/highlights` },
-    { name: 'Bracket', href: `/league/${leagueId}/bracket` },
-    { name: 'Stats', href: `/league/${leagueId}/stats` },
-    { name: 'Insights', href: `/league/${leagueId}/insights` },
-    { name: 'Transfers', href: `/league/${leagueId}/transfers` },
-    { name: 'History', href: `/league/${leagueId}/history` }
+    { name: 'Details', href: `/league/${leagueId}`, icon: Info },
+    { name: 'Matches', href: `/league/${leagueId}/fixtures`, icon: Calendar },
+    { name: 'Standings', href: `/league/${leagueId}/standings`, icon: Trophy },
+    { name: 'News', href: `/league/${leagueId}/news`, icon: Newspaper },
+    { name: 'Highlights', href: `/league/${leagueId}/highlights`, icon: Video },
+    { name: 'Bracket', href: `/league/${leagueId}/bracket`, icon: Brackets },
+    { name: 'Stats', href: `/league/${leagueId}/stats`, icon: BarChart2 },
+    { name: 'Insights', href: `/league/${leagueId}/insights`, icon: Brain },
+    { name: 'Transfers', href: `/league/${leagueId}/transfers`, icon: Transfer },
+    { name: 'History', href: `/league/${leagueId}/history`, icon: History }
   ];
 
   if (!leagueId) return null;
@@ -50,14 +51,15 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
           </div>
 
           <Tabs defaultValue={leagueNavItems[0].name.toLowerCase()} className="w-full">
-            <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6">
+            <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6 justify-start">
               {leagueNavItems.map((item) => (
                 <TabsTrigger
                   key={item.name}
                   value={item.name.toLowerCase()}
                   onClick={() => navigate(item.href)}
-                  className="flex-none px-4 py-2 text-sm font-medium transition-colors duration-200 hover:text-primary"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 hover:text-primary"
                 >
+                  <item.icon className="h-4 w-4" />
                   {item.name}
                 </TabsTrigger>
               ))}
