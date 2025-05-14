@@ -92,35 +92,34 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
   const top3Scorers = topScorers.slice(0, 3);
 
   return (
-    <div className="space-y-3">
-      {top3Scorers.map((scorer, index) => {
+    <div className="space-y-2">
+      {topScorers?.map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
 
         return (
           <div key={scorer.player.id} className="group">
-            <div className="flex items-center gap-3 p-2 transition-colors hover:bg-gray-50">
-              <div className="flex items-center gap-2 flex-1">
-                <Avatar className="h-8 w-8">
+            <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
                   <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
                   <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
                 </Avatar>
 
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium text-sm">{scorer.player.name}</span>
-                    <span className="text-xs text-gray-500">{scorer.player.position}</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">{scorer.player.name}</span>
+                    <span className="text-sm text-gray-600">{scorer.player.position}</span>
                   </div>
-                  <div className="text-xs text-gray-500 flex items-center">
-                    <img src={playerStats.team.logo} alt={playerStats.team.name} className="h-3.5 w-3.5 mr-1" />
+                  <div className="text-sm text-gray-500">
                     {playerStats.team.name}
                   </div>
                 </div>
               </div>
 
-              <div className="text-right">
-                <div className="font-bold text-lg">{goals}</div>
-                <div className="text-xs text-gray-500">Goals</div>
+              <div className="flex items-center gap-1">
+                <span className="font-semibold text-xl">{goals}</span>
+                <span className="text-sm text-gray-500">Goals</span>
               </div>
             </div>
           </div>
