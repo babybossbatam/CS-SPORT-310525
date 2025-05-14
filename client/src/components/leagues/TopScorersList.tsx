@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
@@ -10,6 +11,32 @@ import { getTeamColor } from '@/lib/colorUtils';
 import LeagueFilter from '@/components/leagues/LeagueFilter';
 import { RootState } from '@/lib/store';
 import { CardContent } from "@/components/ui/card";
+
+// Popular leagues for top scorers
+const POPULAR_LEAGUES = [
+  2,   // UEFA Champions League
+  3,   // UEFA Europa League
+  39,  // Premier League
+  140, // La Liga
+  135, // Serie A
+  78,  // Bundesliga
+  61,  // Ligue 1
+  88,  // Eredivisie
+  94,  // Primeira Liga
+  203, // Super Lig
+];
+
+// Excluded competitions
+const EXCLUDED_COMPETITIONS = [
+  45,  // FA Cup
+  48,  // Community Shield
+  46,  // EFL Cup
+  49,  // EFL Trophy
+  528, // Copa del Rey
+  137, // Coppa Italia
+  81,  // DFB Pokal
+  66,  // Coupe de France
+];
 
 interface Player {
   id: number;
@@ -64,6 +91,25 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
     queryKey: [`/api/leagues/${leagueId}/topscorers`],
     enabled: !!leagueId,
     staleTime: 30 * 60 * 1000, // 30 minutes cache
+    select: (data: PlayerStatistics[]) => {
+      // Filter out players from excluded competitions
+      const filteredScorers = data.filter(scorer => {
+        const leagueId = scorer.statistics[0]?.league?.id;
+        // If no league ID specified, show only popular leagues
+        if (!leagueId) {
+          return POPULAR_LEAGUES.includes(leagueId);
+        }
+        // Otherwise check if it's not in excluded list
+        return !EXCLUDED_COMPETITIONS.includes(leagueId);
+      });
+
+      // Sort by goals scored
+      return filteredScorers.sort((a, b) => {
+        const goalsA = a.statistics[0]?.goals?.total || 0;
+        const goalsB = b.statistics[0]?.goals?.total || 0;
+        return goalsB - goalsA;
+      });
+    }
   });
 
   if (isLoading) {
@@ -90,11 +136,9 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
     );
   }
 
-  const top3Scorers = topScorers.slice(0, 3);
-
   return (
     <CardContent className="space-y-2">
-      {topScorers?.slice(0, 3).map((scorer, index) => {
+      {topScorers.slice(0, 3).map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
 
