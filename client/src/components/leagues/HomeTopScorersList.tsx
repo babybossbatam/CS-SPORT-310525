@@ -95,7 +95,7 @@ const HomeTopScorersList = () => {
           >
             ←
           </button>
-          <TabsList className="flex-1 grid grid-cols-4 sm:grid-cols-7 h-auto gap-5 bg-gray-100 p-5 [&>*]:mx-2">
+          <TabsList className="grid grid-cols-4 sm:grid-cols-7 h-auto gap-2 bg-gray-100 p-2 [&>*]:mx-1">
             {POPULAR_LEAGUES.map((league) => (
               <TabsTrigger
                 key={league.id}
