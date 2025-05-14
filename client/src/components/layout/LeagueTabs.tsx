@@ -1,5 +1,5 @@
 
-import { useLocation } from 'wouter';
+import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +12,7 @@ interface LeagueTabsProps {
 }
 
 const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: LeagueTabsProps) => {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
 
   const leagueNavItems = [
     { name: 'Details', href: `/league/${leagueId}` },
