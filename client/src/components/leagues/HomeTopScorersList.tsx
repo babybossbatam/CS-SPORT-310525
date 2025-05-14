@@ -95,12 +95,12 @@ const HomeTopScorersList = () => {
           >
             ←
           </button>
-          <TabsList className="grid grid-cols-4 sm:grid-cols-7 h-auto gap-2 bg-gray-100 p-2 [&>*]:mx-1 w-[160%]">
+          <TabsList className="flex items-center gap-2 bg-transparent p-0 w-full overflow-x-auto">
             {POPULAR_LEAGUES.map((league) => (
               <TabsTrigger
                 key={league.id}
                 value={league.id.toString()}
-                className="text-xs py-1.5 px-2 flex items-center gap-1 w-[150%]"
+                className="text-xs py-1 px-2 flex items-center gap-2 bg-transparent hover:bg-gray-100 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
                 {league.name}
