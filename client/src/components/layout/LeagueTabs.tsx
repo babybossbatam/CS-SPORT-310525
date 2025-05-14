@@ -49,20 +49,20 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
             </div>
           </div>
 
-          <nav className="w-full">
-            <div className="flex overflow-x-auto no-scrollbar border-t px-6" role="navigation-menu" aria-label="League navigation">
+          <Tabs defaultValue={leagueNavItems[0].name.toLowerCase()} className="w-full">
+            <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6">
               {leagueNavItems.map((item) => (
-                <Button
+                <TabsTrigger
                   key={item.name}
-                  variant="ghost"
+                  value={item.name.toLowerCase()}
                   onClick={() => navigate(item.href)}
-                  className="flex-none px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 hover:text-primary"
+                  className="flex-none px-4 py-2 text-sm font-medium transition-colors duration-200 hover:text-primary"
                 >
                   {item.name}
-                </Button>
+                </TabsTrigger>
               ))}
-            </div>
-          </nav>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
     </div>
