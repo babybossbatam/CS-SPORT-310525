@@ -41,20 +41,7 @@ export function LeagueScoreboard({
         }}
       >
         <div className="w-full h-full flex justify-between relative">
-          {/* League logo */}
-          <img 
-            src={league?.logo}
-            alt={league?.name || 'League'} 
-            className={`absolute left-[1px] z-20 w-[72px] h-[72px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
-            style={{
-              cursor: onClick ? 'pointer' : 'default',
-              top: "calc(50% - 6px)"
-            }}
-            onClick={onClick}
-            onError={(e) => {
-              e.currentTarget.src = 'https://via.placeholder.com/72?text=' + (league?.name?.substring(0, 1) || 'L');
-            }}
-          />
+          
 
           <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
             {league?.name || 'League Name'}
