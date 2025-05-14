@@ -77,7 +77,7 @@ interface MatchScoreboardProps {
 // Helper function to format date/time
 const formatDateTime = (dateStr: string | undefined) => {
   if (!dateStr) return 'Date TBD';
-  
+
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return 'Date TBD';
@@ -98,19 +98,19 @@ export function MatchScoreboard({
 }: MatchScoreboardProps) {
   // Get match data
   const { fixture, league, teams, goals, score } = match;
-  
+
   // Animation state - removed hover effects
   const [isLoaded, setIsLoaded] = useState(false);
-  
+
   // Fade-in animation effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 150);
-    
+
     return () => clearTimeout(timer);
   }, []);
-  
+
   return (
     <>
       {/* Match bar styled with height set to exactly 30px */}
@@ -126,7 +126,7 @@ export function MatchScoreboard({
           {/* Home team logo and name */}
           <div className="absolute left-4 z-20 flex items-center" style={{top: "calc(50% - 24px)"}}>
             <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
               style={{
                 cursor: onClick ? 'pointer' : 'default'
@@ -151,13 +151,13 @@ export function MatchScoreboard({
                 </div>
               )}
             </div>
-            
+
             {/* Team name */}
             <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
               {teams?.home?.name || 'Home Team'}
             </div>
           </div>
-          
+
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
           <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
@@ -165,7 +165,7 @@ export function MatchScoreboard({
               transition: 'all 0.3s ease-in-out'
             }}>
           </div>
-          
+
           {/* VS SECTION - fixed size */}
           <div 
             className={`absolute text-white font-bold text-xs rounded-full h-10 w-10 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -177,7 +177,7 @@ export function MatchScoreboard({
           >
             <span className="vs-text font-bold">VS</span>
           </div>
-          
+
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
           <div className={`h-full w-[calc(50%-55px)] mr-[55px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
@@ -185,11 +185,11 @@ export function MatchScoreboard({
               transition: 'all 0.3s ease-in-out'
             }}>
           </div>
-          
+
           {/* Away team logo and name */}
           <div className="absolute right-4 z-20 flex items-center flex-row-reverse" style={{top: "calc(50% - 24px)"}}>
             <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
               style={{
                 cursor: onClick ? 'pointer' : 'default'
@@ -214,7 +214,7 @@ export function MatchScoreboard({
                 </div>
               )}
             </div>
-            
+
             {/* Team name */}
             <div className={`mr-3 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
               {teams?.away?.name || 'Away Team'}
@@ -222,7 +222,7 @@ export function MatchScoreboard({
           </div>
         </div>
       </div>
-      
+
       {/* Match details footer */}
       {!compact && (
         <>
@@ -233,7 +233,7 @@ export function MatchScoreboard({
               <span className="hover:text-blue-600 transition-colors duration-300"> | {fixture.venue.name}, {fixture.venue?.city || ''}</span>
             )}
           </div>
-          
+
           {/* HT score if available */}
           {score?.halftime?.home !== null && 
            score?.halftime?.home !== undefined && 
