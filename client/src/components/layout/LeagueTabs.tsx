@@ -21,7 +21,7 @@ interface LeagueTabsProps {
   fixtures?: any[];
 }
 
-const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: LeagueTabsProps) => {
+const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fixtures }: LeagueTabsProps) => {
   const [location, navigate] = useLocation();
 
   const leagueNavItems = [
