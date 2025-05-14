@@ -100,39 +100,45 @@ const HomeTopScorersList = () => {
 
         {POPULAR_LEAGUES.map((league) => (
           <TabsContent key={league.id} value={league.id.toString()}>
-            <CardContent className="space-y-2 p-0">
-              {topScorers?.slice(0, 3).map((scorer) => {
-                const playerStats = scorer.statistics[0];
-                const goals = playerStats?.goals?.total || 0;
+            <CardContent className="p-0">
+              <div className="relative overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs uppercase bg-gray-50">
+                    <tr>
+                      <th className="px-2 py-2">#</th>
+                      <th className="px-2 py-2 text-left">Player</th>
+                      <th className="px-2 py-2">Team</th>
+                      <th className="px-2 py-2 text-center">Goals</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topScorers?.slice(0, 3).map((scorer, index) => {
+                      const playerStats = scorer.statistics[0];
+                      const goals = playerStats?.goals?.total || 0;
 
-                return (
-                  <div key={scorer.player.id} className="group">
-                    <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
-                          <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">{scorer.player.name}</span>
-                            <span className="text-sm text-gray-600">{playerStats.games.position}</span>
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {playerStats.team.name}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <span className="font-semibold text-xl">{goals}</span>
-                        <span className="text-sm text-gray-500">Goals</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                      return (
+                        <tr key={scorer.player.id} className="border-b hover:bg-gray-50">
+                          <td className="px-2 py-2">{index + 1}</td>
+                          <td className="px-2 py-2">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
+                                <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-semibold">{scorer.player.name}</div>
+                                <div className="text-xs text-gray-500">{playerStats.games.position}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-2 py-2">{playerStats.team.name}</td>
+                          <td className="px-2 py-2 text-center font-semibold">{goals}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
               <div className="text-center pt-2">
                 <button 
