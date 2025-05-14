@@ -7,6 +7,7 @@ import { Info, Calendar, Trophy, Newspaper, Video, GitBranch, BarChart2, Brain, 
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { LeagueStandings } from '@/components/stats/LeagueStandings';
 import TeamLogo from '../matches/TeamLogo';
+import TopScorersList from '../leagues/TopScorersList';
 
 interface LeagueTabsProps {
   leagueId?: number;
@@ -178,6 +179,15 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                     </div>
                                     <span className="text-lg font-bold">22:00</span>
                                   </div>
+                                </CardContent>
+                              </Card>
+
+                              <Card className="mt-4">
+                                <CardHeader>
+                                  <h4 className="font-semibold">Top Scorers</h4>
+                                </CardHeader>
+                                <CardContent>
+                                  <TopScorersList />
                                 </CardContent>
                               </Card>
                             </div>
