@@ -53,7 +53,7 @@ const Header = () => {
             <img 
               src="/logo.png" 
               alt="CS SPORT Logo" 
-              className="h-10 mr-2" 
+              className="h-12 mr-2" 
             />
             <span className="flex items-center gap-2">
               <span className="text-amber-400 font-bold text-xl">CSSPORT</span>
