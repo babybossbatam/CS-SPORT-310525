@@ -110,10 +110,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                   />
                                 </CardContent>
                               </Card>
-                            </div>
-                          </div>
-
-                              <Card>
+                              <Card className="mt-4">
                                 <CardContent className="p-4">
                                   <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-semibold">Scores Overview</h4>
