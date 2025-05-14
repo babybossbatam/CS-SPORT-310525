@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart2, LineChart, Trophy } from 'lucide-react';
@@ -30,7 +29,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
       >
         Featured Match
       </Badge>
-      
+
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -48,7 +47,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             )}
             <span className="text-sm font-medium">{leagueName}</span>
           </div>
-          
+
           {/* Bracket Status Indicator */}
           <div className="flex items-center space-x-2">
             <Trophy className="h-4 w-4 text-indigo-600" />
@@ -57,24 +56,11 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             </span>
           </div>
         </div>
-            <img 
-              src={leagueLogo}
-              alt={leagueName}
-              className="w-5 h-5"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-              }}
-            />
-          ) : (
-            <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
-          )}
-          <span className="text-sm font-medium">{leagueName}</span>
-        </div>
-        
+
         <div className="text-lg font-semibold text-center mb-4">
           {matchDate}
         </div>
-        
+
         <MatchScoreboard 
           match={match}
           featured={true}
@@ -82,7 +68,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           awayTeamColor="#8b0000"
           onClick={handleMatchClick}
         />
-        
+
         <div className="grid grid-cols-4 gap-4 mt-4 text-center">
           <div 
             className="flex flex-col items-center cursor-pointer"
