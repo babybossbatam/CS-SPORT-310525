@@ -92,7 +92,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
   const top3Scorers = topScorers.slice(0, 3);
 
   return (
-    <div className="space-y-2">
+    <CardContent className="space-y-2">
       {topScorers?.slice(0, 3).map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
@@ -137,7 +137,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
           </button>
         </div>
       )}
-    </div>
+    </CardContent>
   );
 };
 
