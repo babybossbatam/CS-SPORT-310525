@@ -175,9 +175,9 @@ const LeagueDetails = () => {
                       <CalendarDays className="h-4 w-4 mr-2" />
                       <span>Fixtures</span>
                     </TabsTrigger>
-                    <TabsTrigger value="standings" className="flex items-center" onClick={() => navigate(`/league/${id}/standings`)}>
+                    <TabsTrigger value="standings" className="flex items-center">
                       <Table className="h-4 w-4 mr-2" />
-                      <span>Standings</span>
+                      <span>Details</span>
                     </TabsTrigger>
                     <TabsTrigger value="stats" className="flex items-center">
                       <BarChart2 className="h-4 w-4 mr-2" />
@@ -246,12 +246,16 @@ const LeagueDetails = () => {
                   </TabsContent>
 
                   <TabsContent value="standings" className="mt-2">
-                    {league && (
-                      <LeagueStandings 
-                        leagueId={league.league.id} 
-                        season={league.league.season} 
-                      />
-                    )}
+                    <Card>
+                      <CardContent className="p-4">
+                        {league && (
+                          <LeagueStandings 
+                            leagueId={league.league.id} 
+                            season={league.league.season} 
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
                   </TabsContent>
 
                   <TabsContent value="stats" className="mt-2">
