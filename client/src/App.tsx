@@ -47,7 +47,9 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <Router />
+      <main className="pt-16">
+        <Router />
+      </main>
     </TooltipProvider>
   );
 }
