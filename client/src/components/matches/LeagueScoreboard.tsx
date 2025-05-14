@@ -41,12 +41,6 @@ export function LeagueScoreboard({
         }}
       >
         <div className="w-full h-full flex justify-between relative">
-          
-
-          <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
-            {league?.name || 'League Name'}
-          </div>
-
           {/* Colored bar */}
           <div className={`h-full w-full ml-[57px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
