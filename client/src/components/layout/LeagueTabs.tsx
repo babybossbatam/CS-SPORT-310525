@@ -156,9 +156,10 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                               </Card>
                             </div>
                           </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
             <TabsContent value="matches" className="px-6 py-4">
               <Card>
