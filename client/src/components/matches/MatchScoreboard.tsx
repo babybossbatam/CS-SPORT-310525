@@ -225,16 +225,8 @@ export function MatchScoreboard({
       
       {/* Match details footer */}
       {!compact && (
-        <div className={`p-2 text-center text-sm border-t border-gray-100 mt-5 transition-all duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            transition: 'all 0.3s ease'
-          }}
-        >
-          <div className="flex items-center justify-center gap-2 mb-2">
-            {/* Removed live button */}
-          </div>
-          
-          <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200">
+        <>
+          <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200 mt-2">
             <Clock className="h-3 w-3 transition-colors duration-300" />
             <span>{formatDateTime(fixture?.date)}</span>
             {fixture?.venue?.name && (
@@ -253,7 +245,7 @@ export function MatchScoreboard({
               </span>
             </div>
           )}
-        </div>
+        </>
       )}
     </>
   );
