@@ -31,7 +31,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
       </Badge>
 
       <CardContent className="p-4">
-        <div className="flex flex-col items-center gap-2 mb-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <div className="flex items-center gap-2">
             {leagueLogo ? (
               <img 
@@ -47,9 +47,10 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             )}
             <span className="text-sm font-medium">{leagueName}</span>
           </div>
-
-          {/* Bracket Status Indicator */}
-          <div className="flex items-center space-x-2">
+          
+          <span className="text-gray-400">-</span>
+          
+          <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-indigo-600" />
             <span className="text-sm font-medium text-indigo-800">
               Quarter-finals
