@@ -113,9 +113,9 @@ export function MatchScoreboard({
 
   return (
     <>
-      {/* Match bar styled with height set to exactly 30px */}
+      {/* Match bar styled with height set to exactly 36px */}
       <div 
-        className={`flex relative h-[30px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`flex relative h-[36px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClick}
         style={{ 
           cursor: onClick ? 'pointer' : 'default'
