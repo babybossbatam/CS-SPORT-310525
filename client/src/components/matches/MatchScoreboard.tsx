@@ -123,16 +123,16 @@ export function MatchScoreboard({
       >
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team logo and name */}
-          <div className="absolute left-4 z-20 flex items-center" style={{top: "calc(50% - 24px)"}}>
+          {/* Home team logo */}
             <img 
                 src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
-                className={`w-12 h-12 rounded-full object-contain border-2 border-gray-200 transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onClick={onClick}
+                className={`absolute left-4 z-20 w-12 h-12 object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  cursor: onClick ? 'pointer' : 'default'
+                  cursor: onClick ? 'pointer' : 'default',
+                  top: "calc(50% - 24px)"
                 }}
+                onClick={onClick}
                 onError={(e) => {
                   if (e.currentTarget.src.includes('sportmonks') && teams?.home?.logo) {
                     e.currentTarget.src = teams.home.logo;
@@ -142,16 +142,10 @@ export function MatchScoreboard({
                 }}
               />
               {teams?.home?.winner && (
-                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                <div className="absolute left-[52px] top-[calc(50%-28px)] bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center z-30">
                   <span className="text-xs">W</span>
                 </div>
               )}
-
-            {/* Team name */}
-            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-              {teams?.home?.name || 'Home Team'}
-            </div>
-          </div>
 
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
           <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
