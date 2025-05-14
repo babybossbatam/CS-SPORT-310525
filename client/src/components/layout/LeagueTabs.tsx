@@ -93,14 +93,60 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                         )}
                       </CardContent>
                     </Card>
+                    
+                    <div className="mt-4">
+                      <Card>
+                        <CardHeader>
+                          <h4 className="font-semibold">Top Scorers</h4>
+                        </CardHeader>
+                        <TopScorersList leagueId={leagueId} />
+                      </Card>
+                    </div>
                   </div>
 
-                  <div className="lg:col-span-4">
+                  <div className="lg:col-span-4 space-y-4">
                     <Card>
                       <CardHeader>
-                        <h4 className="font-semibold">Top Scorers</h4>
+                        <h4 className="font-semibold">Latest Fixtures</h4>
                       </CardHeader>
-                      <TopScorersList leagueId={leagueId} />
+                      <CardContent>
+                        {fixtures?.slice(0, 5).map((fixture) => (
+                          <div key={fixture.fixture.id} className="py-2 border-b last:border-0">
+                            <div className="text-sm text-gray-600 mb-1">
+                              {format(new Date(fixture.fixture.date), "EEE, dd MMM yyyy • HH:mm")}
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>{fixture.teams.home.name}</span>
+                              <span className="font-semibold">
+                                {fixture.goals.home ?? '-'} - {fixture.goals.away ?? '-'}
+                              </span>
+                              <span>{fixture.teams.away.name}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <h4 className="font-semibold">League Overview</h4>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Total Matches</span>
+                            <span>{fixtures?.length || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Played</span>
+                            <span>{fixtures?.filter(f => f.fixture.status.short === "FT").length || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Remaining</span>
+                            <span>{fixtures?.filter(f => f.fixture.status.short === "NS").length || 0}</span>
+                          </div>
+                        </div>
+                      </CardContent>
                     </Card>
                   </div>
                 </div>
