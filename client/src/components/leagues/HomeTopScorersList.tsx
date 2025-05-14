@@ -5,16 +5,17 @@ import { useLocation } from 'wouter';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { TrendingUp } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// Popular leagues for top scorers
+// Popular leagues for top scorers excluding cups
 const POPULAR_LEAGUES = [
-  2,   // UEFA Champions League
-  3,   // UEFA Europa League
-  39,  // Premier League
-  140, // La Liga
-  135, // Serie A
-  78,  // Bundesliga
-  61,  // Ligue 1
+  { id: 2, name: 'Champions League' },
+  { id: 3, name: 'Europa League' },
+  { id: 39, name: 'Premier League' },
+  { id: 140, name: 'La Liga' },
+  { id: 135, name: 'Serie A' },
+  { id: 78, name: 'Bundesliga' },
+  { id: 61, name: 'Ligue 1' },
 ];
 
 interface Player {
@@ -51,9 +52,10 @@ interface PlayerStatistics {
 
 const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
+  const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
 
   const { data: topScorers, isLoading } = useQuery({
-    queryKey: [`/api/leagues/${POPULAR_LEAGUES[0]}/topscorers`],
+    queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
     staleTime: 30 * 60 * 1000,
     select: (data: PlayerStatistics[]) => {
       return data.sort((a, b) => {
@@ -80,59 +82,71 @@ const HomeTopScorersList = () => {
     );
   }
 
-  if (!topScorers || topScorers.length === 0) {
-    return (
-      <div className="py-4 text-center text-gray-500">
-        <p>Loading top scorers...</p>
-      </div>
-    );
-  }
-
   return (
-    <CardContent className="space-y-2">
-      {topScorers.slice(0, 3).map((scorer, index) => {
-        const playerStats = scorer.statistics[0];
-        const goals = playerStats.goals.total || 0;
+    <div className="space-y-4">
+      <Tabs value={selectedLeague.toString()} onValueChange={(value) => setSelectedLeague(Number(value))}>
+        <TabsList className="grid grid-cols-4 sm:grid-cols-7 h-auto gap-1 bg-gray-100 p-1">
+          {POPULAR_LEAGUES.map((league) => (
+            <TabsTrigger
+              key={league.id}
+              value={league.id.toString()}
+              className="text-xs py-1.5 px-2"
+            >
+              {league.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-        return (
-          <div key={scorer.player.id} className="group">
-            <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
-                  <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
-                </Avatar>
+        {POPULAR_LEAGUES.map((league) => (
+          <TabsContent key={league.id} value={league.id.toString()}>
+            <CardContent className="space-y-2 p-0">
+              {topScorers?.slice(0, 3).map((scorer) => {
+                const playerStats = scorer.statistics[0];
+                const goals = playerStats?.goals?.total || 0;
 
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">{scorer.player.name}</span>
-                    <span className="text-sm text-gray-600">{playerStats.games.position}</span>
+                return (
+                  <div key={scorer.player.id} className="group">
+                    <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
+                          <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{scorer.player.name}</span>
+                            <span className="text-sm text-gray-600">{playerStats.games.position}</span>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {playerStats.team.name}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <span className="font-semibold text-xl">{goals}</span>
+                        <span className="text-sm text-gray-500">Goals</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {playerStats.team.name}
-                  </div>
-                </div>
-              </div>
+                );
+              })}
 
-              <div className="flex items-center gap-1">
-                <span className="font-semibold text-xl">{goals}</span>
-                <span className="text-sm text-gray-500">Goals</span>
+              <div className="text-center pt-2">
+                <button 
+                  className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto"
+                  onClick={() => navigate(`/league/${selectedLeague}/stats`)}
+                >
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  See full rankings
+                </button>
               </div>
-            </div>
-          </div>
-        );
-      })}
-
-      <div className="text-center pt-2">
-        <button 
-          className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto"
-          onClick={() => navigate(`/league/${POPULAR_LEAGUES[0]}/stats`)}
-        >
-          <TrendingUp className="h-3 w-3 mr-1" />
-          See full rankings
-        </button>
-      </div>
-    </CardContent>
+            </CardContent>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
   );
 };
 
