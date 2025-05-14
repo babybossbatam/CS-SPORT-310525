@@ -139,12 +139,25 @@ const HomeTopScorersList = () => {
                           </Avatar>
                           <div>
                             <div className="font-semibold">{scorer.player.name}</div>
-                            <div className="text-xs text-gray-500">{playerStats.team.name}</div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <img 
+                                src={playerStats.team.logo} 
+                                alt={playerStats.team.name} 
+                                className="w-4 h-4 object-contain"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=T';
+                                }}
+                              />
+                              {playerStats.team.name}
+                            </div>
                             <div className="text-xs text-gray-400">{playerStats.games.position}</div>
                           </div>
                         </div>
                       </div>
-                      <div className="font-semibold">{goals}</div>
+                      <div className="flex flex-col items-center">
+                        <div className="font-semibold text-xl">{goals}</div>
+                        <div className="text-xs text-gray-500">Goals</div>
+                      </div>
                     </div>
                       );
                 })}
