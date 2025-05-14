@@ -118,25 +118,40 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                       </CardHeader>
                     </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <h4 className="font-semibold">Latest Fixtures</h4>
+                    <Card className="bg-[#f7f7f7]">
+                      <CardHeader className="pb-0">
+                        <h4 className="text-sm font-medium">Fixtures</h4>
+                        <div className="text-xs text-gray-500 mt-1">17/05/2025</div>
                       </CardHeader>
                       <CardContent>
                         {fixtures?.slice(0, 5).map((fixture) => (
-                          <div key={fixture.fixture.id} className="py-2 border-b last:border-0">
-                            <div className="text-sm text-gray-600 mb-1">
-                              {format(new Date(fixture.fixture.date), "EEE, dd MMM yyyy • HH:mm")}
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span>{fixture.teams.home.name}</span>
-                              <span className="font-semibold">
-                                {fixture.goals.home ?? '-'} - {fixture.goals.away ?? '-'}
+                          <div key={fixture.fixture.id} className="py-3 border-b last:border-0 bg-white mb-1">
+                            <div className="flex justify-between items-center px-3">
+                              <div className="flex items-center gap-2">
+                                <img 
+                                  src={fixture.teams.home.logo} 
+                                  alt={fixture.teams.home.name}
+                                  className="w-6 h-6 object-contain"
+                                />
+                                <span className="text-sm">{fixture.teams.home.name}</span>
+                              </div>
+                              <span className="text-sm font-medium">
+                                {format(new Date(fixture.fixture.date), "HH:mm")}
                               </span>
-                              <span>{fixture.teams.away.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">{fixture.teams.away.name}</span>
+                                <img 
+                                  src={fixture.teams.away.logo} 
+                                  alt={fixture.teams.away.name}
+                                  className="w-6 h-6 object-contain"
+                                />
+                              </div>
                             </div>
                           </div>
                         ))}
+                        <button className="w-full text-center text-sm text-gray-600 hover:text-gray-800 mt-2">
+                          FA Cup Fixtures →
+                        </button>
                       </CardContent>
                     </Card>
 
