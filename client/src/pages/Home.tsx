@@ -162,8 +162,13 @@ const Home = () => {
             
             {/* Top Scorers Section - Moved below Featured Match */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <h3 className="font-semibold text-gray-700 p-3">Top Scorers</h3>
-              <div className="px-3 pb-3">
+              <div className="border-b border-gray-100">
+                <h3 className="font-semibold text-gray-700 p-4 flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-yellow-500" />
+                  Top Scorers
+                </h3>
+              </div>
+              <div className="p-4">
                 <HomeTopScorersList />
               </div>
             </div>
