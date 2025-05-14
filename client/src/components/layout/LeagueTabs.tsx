@@ -79,6 +79,43 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 );
               })}
             </TabsList>
+            <TabsContent value="details" className="px-6 py-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center text-sm text-gray-500">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{leagueName} Details</h3>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-center gap-4 mb-4">
+                            <img 
+                              src={leagueLogo} 
+                              alt={leagueName}
+                              className="h-24 w-24 object-contain"
+                            />
+                            <div>
+                              <h4 className="font-semibold text-lg">{leagueName}</h4>
+                              <p className="text-gray-600">{followers} followers</p>
+                            </div>
+                          </div>
+                          
+                          <div className="text-left">
+                            <p className="mb-2">
+                              <span className="font-medium">League ID:</span> {leagueId}
+                            </p>
+                            <p className="mb-2">
+                              <span className="font-medium">Total Matches:</span> {fixtures?.length || 0}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
             <TabsContent value="matches" className="px-6 py-4">
               <Card>
                 <CardContent className="p-4">
