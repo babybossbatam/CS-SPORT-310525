@@ -170,24 +170,6 @@ const LeagueDetails = () => {
             <Card className="mb-6">
               <CardHeader className="p-4 border-b border-neutral-200">
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                  <TabsList className="grid grid-cols-4 mb-4">
-                    <TabsTrigger value="fixtures" className="flex items-center">
-                      <CalendarDays className="h-4 w-4 mr-2" />
-                      <span>Fixtures</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="standings" className="flex items-center">
-                      <Table className="h-4 w-4 mr-2" />
-                      <span>Details</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="stats" className="flex items-center">
-                      <BarChart2 className="h-4 w-4 mr-2" />
-                      <span>Stats</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="bracket" className="flex items-center">
-                      <Trophy className="h-4 w-4 mr-2" />
-                      <span>Bracket</span>
-                    </TabsTrigger>
-                  </TabsList>
 
                   <TabsContent value="fixtures" className="mt-2">
                     {fixtures.length > 0 ? (
