@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getTeamColor } from '@/lib/colorUtils';
 import LeagueFilter from '@/components/leagues/LeagueFilter';
 import { RootState } from '@/lib/store';
+import { CardContent } from "@/components/ui/card";
 
 interface Player {
   id: number;
