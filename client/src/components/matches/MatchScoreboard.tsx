@@ -142,10 +142,15 @@ export function MatchScoreboard({
                 }}
               />
               {teams?.home?.winner && (
-                <div className="absolute left-[52px] top-[calc(50%-28px)] bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center z-30">
+                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
                   <span className="text-xs">W</span>
                 </div>
               )}
+
+            {/* Team name */}
+            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+              {teams?.home?.name || 'Home Team'}
+            </div>
 
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
           <div className={`h-full w-[calc(50%-47px)] ml-[47px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
