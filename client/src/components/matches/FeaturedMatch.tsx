@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { format, parseISO } from 'date-fns';
-import { BarChart2, LineChart, Trophy } from 'lucide-react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import FeatureMatchCard from './FeatureMatchCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime, isLiveMatch } from '@/lib/utils';
 import { getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
@@ -259,85 +259,12 @@ const FeaturedMatch = () => {
   }
   
   return (
-    <>
-      <Badge 
-        variant="secondary" 
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20"
-      >
-        Featured Match
-      </Badge>
-    
-      {/* Content in a div that's styled like Card, but isn't the Card component */}
-      <div className="flex items-center gap-2 mb-4 p-4 pt-4">
-        {featuredMatch?.league?.logo ? (
-          <img 
-            src={featuredMatch.league.logo}
-            alt={featuredMatch.league?.name || 'League'}
-            className="w-5 h-5"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-            }}
-          />
-        ) : (
-          <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
-        )}
-        <span className="text-sm font-medium">{featuredMatch?.league?.name || 'Unknown League'}</span>
-      </div>
-      
-      <div className="text-lg font-semibold text-center mb-4 px-4">
-        {formatMatchDate(featuredMatch?.fixture?.date)}
-      </div>
-      
-      {/* Using MatchScoreboard component for consistent UI */}
-      <MatchScoreboard 
-        match={featuredMatch}
-        featured={true}
-        homeTeamColor="#6f7c93" // Default Atalanta blue-gray color
-        awayTeamColor="#8b0000" // Default AS Roma dark red color
-        onClick={() => {
-          if (featuredMatch?.fixture?.id) {
-            navigate(`/match/${featuredMatch.fixture.id}`);
-          }
-        }}
-      />
-      
-      <div className="grid grid-cols-4 gap-4 mt-4 text-center px-4 pb-4">
-        <div 
-          className="flex flex-col items-center cursor-pointer"
-          onClick={() => {
-            if (featuredMatch?.fixture?.id) {
-              navigate(`/match/${featuredMatch.fixture.id}/h2h`);
-            }
-          }}
-        >
-          <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
-          <span className="text-xs text-neutral-500">H2H</span>
-        </div>
-        <div 
-          className="flex flex-col items-center cursor-pointer"
-          onClick={() => {
-            if (featuredMatch?.fixture?.id) {
-              navigate(`/match/${featuredMatch.fixture.id}/stats`);
-            }
-          }}
-        >
-          <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
-          <span className="text-xs text-neutral-500">Stats</span>
-        </div>
-        <div 
-          className="flex flex-col items-center cursor-pointer"
-          onClick={() => {
-            if (featuredMatch?.league?.id) {
-              navigate(`/league/${featuredMatch.league.id}/bracket`);
-            }
-          }}
-        >
-          <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
-          <span className="text-xs text-neutral-500">Bracket</span>
-        </div>
-        {/* Removed highlights button */}
-      </div>
-    </>
+    <FeatureMatchCard
+      match={featuredMatch}
+      leagueName={featuredMatch?.league?.name || 'Unknown League'}
+      leagueLogo={featuredMatch?.league?.logo || null}
+      matchDate={formatMatchDate(featuredMatch?.fixture?.date)}
+    />
   );
 };
 
