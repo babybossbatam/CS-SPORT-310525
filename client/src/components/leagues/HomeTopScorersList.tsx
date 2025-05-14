@@ -100,7 +100,7 @@ const HomeTopScorersList = () => {
               <TabsTrigger
                 key={league.id}
                 value={league.id.toString()}
-                className="text-xs py-1.5 px-2 flex items-center gap-1"
+                className="text-xs py-1.5 px-2 flex items-center gap-1 w-[150%]"
               >
                 <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
                 {league.name}
