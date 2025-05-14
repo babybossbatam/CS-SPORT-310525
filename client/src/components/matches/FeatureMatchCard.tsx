@@ -109,20 +109,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         </div>
 
         <div className="relative">
-          {currentMatch.fixture.status.short === 'FT' && (
-            <>
-              {currentMatch.goals.home > currentMatch.goals.away && (
-                <div className="absolute -top-12 left-[15%] transform -translate-x-1/2 text-3xl">
-                  👑
-                </div>
-              )}
-              {currentMatch.goals.away > currentMatch.goals.home && (
-                <div className="absolute -top-12 right-[15%] transform translate-x-1/2 text-3xl">
-                  👑
-                </div>
-              )}
-            </>
-          )}
+          
           <MatchScoreboard 
             match={currentMatch}
             featured={true}
