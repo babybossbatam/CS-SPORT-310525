@@ -94,10 +94,10 @@ const LeagueDetails = () => {
   }, [id, fixtures.length, dispatch, toast]);
 
   useEffect(() => {
-    if (tab !== activeTab && id) {
+    if (id) {
       navigate(`/league/${id}/${activeTab}`);
     }
-  }, [activeTab, id, navigate, tab]);
+  }, [activeTab, id, navigate]);
 
   const toggleFavorite = () => {
     if (!user.isAuthenticated) {
