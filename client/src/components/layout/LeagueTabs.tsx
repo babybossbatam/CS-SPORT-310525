@@ -101,14 +101,56 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                             </div>
                           </div>
                           
-                          <div className="flex-1">
-                            {fixtures && fixtures.length > 0 && (
-                              <MatchScoreboard
-                                match={fixtures[0]}
-                                homeTeamColor="#6f7c93"
-                                awayTeamColor="#8b0000"
-                              />
-                            )}
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <div className="lg:col-span-2">
+                              {fixtures && fixtures.length > 0 && (
+                                <MatchScoreboard
+                                  match={fixtures[0]}
+                                  homeTeamColor="#6f7c93"
+                                  awayTeamColor="#8b0000"
+                                />
+                              )}
+                            </div>
+                            <div className="lg:col-span-1 space-y-4">
+                              <Card>
+                                <CardContent className="p-4">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Scores Overview</h4>
+                                    <span className="text-sm text-gray-500">24/05/2025</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                      <img 
+                                        src={fixtures?.[0]?.teams?.home?.logo} 
+                                        alt="Team Logo" 
+                                        className="w-8 h-8"
+                                      />
+                                      <span>{fixtures?.[0]?.teams?.home?.name}</span>
+                                    </div>
+                                    <span className="text-lg font-bold">22:00</span>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              <Card>
+                                <CardContent className="p-4">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Results</h4>
+                                    <span className="text-sm text-gray-500">24/05/2025</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                      <img 
+                                        src={fixtures?.[0]?.teams?.away?.logo} 
+                                        alt="Team Logo" 
+                                        className="w-8 h-8"
+                                      />
+                                      <span>{fixtures?.[0]?.teams?.away?.name}</span>
+                                    </div>
+                                    <span className="text-lg font-bold">22:00</span>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
