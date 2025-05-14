@@ -152,7 +152,7 @@ export function MatchScoreboard({
             </div>
 
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-          <div className={`h-full w-[calc(50%-52px)] ml-[52px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          <div className={`h-full w-[calc(50%-57px)] ml-[57px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: homeTeamColor,
               transition: 'all 0.3s ease-in-out'
@@ -161,18 +161,18 @@ export function MatchScoreboard({
 
           {/* VS SECTION - fixed size */}
           <div 
-            className={`absolute text-white font-bold text-sm rounded-full h-12 w-12 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{
               background: '#a00000',
-              left: 'calc(50% - 24px)',
-              top: 'calc(50% - 24px)'
+              left: 'calc(50% - 26px)',
+              top: 'calc(50% - 26px)'
             }}
           >
             <span className="vs-text font-bold">VS</span>
           </div>
 
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-          <div className={`h-full w-[calc(50%-60px)] mr-[60px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          <div className={`h-full w-[calc(50%-66px)] mr-[66px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: awayTeamColor,
               transition: 'all 0.3s ease-in-out'
