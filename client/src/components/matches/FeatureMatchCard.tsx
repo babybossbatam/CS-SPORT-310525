@@ -100,16 +100,34 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         </div>
 
         <div className="text-lg font-semibold text-center mb-4">
-          {matchDate}
+          {currentMatch.fixture.status.short === 'FT' ? (
+            <span className="text-emerald-600">Match Ended</span>
+          ) : matchDate}
         </div>
 
-        <MatchScoreboard 
-          match={currentMatch}
-          featured={true}
-          homeTeamColor="#6f7c93"
-          awayTeamColor="#8b0000"
-          onClick={handleMatchClick}
-        />
+        <div className="relative">
+          {currentMatch.fixture.status.short === 'FT' && (
+            <>
+              {currentMatch.goals.home > currentMatch.goals.away && (
+                <div className="absolute -top-4 left-[15%] transform -translate-x-1/2 text 2xl">
+                  👑
+                </div>
+              )}
+              {currentMatch.goals.away > currentMatch.goals.home && (
+                <div className="absolute -top-4 right-[15%] transform translate-x-1/2 text-2xl">
+                  👑
+                </div>
+              )}
+            </>
+          )}
+          <MatchScoreboard 
+            match={currentMatch}
+            featured={true}
+            homeTeamColor="#6f7c93"
+            awayTeamColor="#8b0000"
+            onClick={handleMatchClick}
+          />
+        </div>
 
         <div className="flex justify-around border-t border-gray-200 mt-4 pt-3">
           <button 
