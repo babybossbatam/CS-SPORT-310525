@@ -93,7 +93,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
 
   return (
     <div className="space-y-2">
-      {topScorers?.map((scorer, index) => {
+      {topScorers?.slice(0, 3).map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
 
