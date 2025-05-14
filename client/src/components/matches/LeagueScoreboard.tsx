@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 
@@ -75,12 +74,6 @@ export function LeagueScoreboard({
           </div>
         </div>
       </div>
-
-      {!compact && (
-        <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200 mt-2">
-          <span>ID: {league?.id}</span>
-        </div>
-      )}
     </>
   );
 }
