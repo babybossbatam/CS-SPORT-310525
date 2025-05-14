@@ -56,13 +56,13 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
               />
               <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
+                <div className="w-64">
+                  <TopScorersList leagueId={leagueId} />
+                </div>
                 <Button variant="outline" size="sm">
                   Follow
                 </Button>
                 <span className="text-sm text-gray-500">{followers} followers</span>
-                <div className="mt-4">
-                  <TopScorersList leagueId={leagueId} />
-                </div>
               </div>
             </div>
           </div>
@@ -195,14 +195,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                 </CardContent>
                               </Card>
 
-                              <Card className="mt-4">
-                                <CardHeader>
-                                  <h4 className="font-semibold">Top Scorers</h4>
-                                </CardHeader>
-                                <CardContent>
-                                  <TopScorersList leagueId={leagueId} />
-                                </CardContent>
-                              </Card>
+                              
                             </div>
                           </div>
                         </div>
