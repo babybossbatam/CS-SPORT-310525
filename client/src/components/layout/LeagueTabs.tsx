@@ -1,4 +1,3 @@
-
 import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -49,8 +48,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
               </div>
             </div>
           </div>
-          
-          {/* Navigation Tabs */}
+
           <Tabs defaultValue={leagueNavItems[0].name.toLowerCase()} className="w-full">
             <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6">
               {leagueNavItems.map((item) => (
@@ -62,20 +60,6 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
                 >
                   {item.name}
                 </TabsTrigger>
-                {item.name === 'Matches' && location === item.href && (
-                  <div className="absolute top-full left-0 mt-2 z-50 w-96">
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col gap-2">
-                          <h3 className="font-semibold">Recent Matches</h3>
-                          <div className="text-sm text-gray-600">
-                            Click to view match details
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
               ))}
             </TabsList>
           </Tabs>
