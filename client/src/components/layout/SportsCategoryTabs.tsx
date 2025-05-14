@@ -83,7 +83,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
 
   return (
     <>
-      <div className="bg-white border-b border-neutral-200 sticky top-0 z-10">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-neutral-200 fixed top-[74px] left-0 right-0 z-40 w-full">
         <div className="container mx-auto px-4">
           {!isMatchDetailsPage && (
             <div 
