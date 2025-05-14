@@ -183,7 +183,7 @@ export function MatchScoreboard({
           <img 
             src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
             alt={teams?.away?.name || 'Away Team'} 
-            className={`absolute right-[11px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-xl ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute right-[11px] z-20 w-[72px] h-[72px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{
               cursor: onClick ? 'pointer' : 'default',
               top: "calc(50% - 36px)"
