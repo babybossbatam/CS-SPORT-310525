@@ -85,26 +85,22 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                   <div className="lg:col-span-8">
                     {fixtures && fixtures.length > 0 && (
-                      <div className="rounded-lg border bg-card text-card-foreground">
-                        <div className="p-4 min-h-[300px]">
-                          <LeagueScoreboard
-                            league={{
-                              id: fixtures[0].league.id,
-                              name: fixtures[0].league.name,
-                              logo: fixtures[0].league.logo,
-                              country: fixtures[0].league.country
-                            }}
-                            homeTeamColor="#6f7c93"
-                            awayTeamColor="#8b0000"
-                          />
-                          <div className="bg-white shadow-md mt-4 rounded-lg">
-                            <MatchScoreboard
-                              match={fixtures[0]}
-                              homeTeamColor="#6f7c93"
-                              awayTeamColor="#8b0000"
-                            />
-                          </div>
-                        </div>
+                      <LeagueScoreboard
+                        league={{
+                          id: fixtures[0].league.id,
+                          name: fixtures[0].league.name,
+                          logo: fixtures[0].league.logo,
+                          country: fixtures[0].league.country
+                        }}
+                        homeTeamColor="#6f7c93"
+                        awayTeamColor="#8b0000"
+                      />
+                      <div className="mt-4">
+                        <MatchScoreboard
+                          match={fixtures[0]}
+                          homeTeamColor="#6f7c93"
+                          awayTeamColor="#8b0000"
+                        />
                       </div>
                     )}
 
