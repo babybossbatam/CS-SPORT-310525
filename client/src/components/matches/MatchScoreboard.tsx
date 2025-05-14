@@ -223,17 +223,7 @@ export function MatchScoreboard({
             </span>
           </div>
 
-          {/* HT score if available */}
-          {score?.halftime?.home !== null && 
-           score?.halftime?.home !== undefined && 
-           score?.halftime?.away !== null && 
-           score?.halftime?.away !== undefined && (
-            <div className="text-xs text-gray-700 mt-1 hover:text-blue-700 transition-colors duration-300">
-              <span className="transition-all duration-300">
-                HT: {score.halftime.home} - {score.halftime.away}
-              </span>
-            </div>
-          )}
+          
         </>
       )}
     </>
