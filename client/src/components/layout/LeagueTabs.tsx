@@ -18,6 +18,7 @@ interface LeagueTabsProps {
   leagueName?: string;
   leagueLogo?: string;
   followers?: string;
+  fixtures?: any[];
 }
 
 const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: LeagueTabsProps) => {

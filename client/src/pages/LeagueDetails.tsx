@@ -163,7 +163,12 @@ const LeagueDetails = () => {
     <>
       <Header />
       <TournamentHeader title={league.league.name} />
-      <LeagueTabs leagueId={league?.league?.id} leagueName={league?.league?.name} leagueLogo={league?.league?.logo} />
+      <LeagueTabs 
+        leagueId={league?.league?.id} 
+        leagueName={league?.league?.name} 
+        leagueLogo={league?.league?.logo}
+        fixtures={fixtures} 
+      />
       <div className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div className="lg:col-span-8">
