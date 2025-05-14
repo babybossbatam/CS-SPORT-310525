@@ -50,7 +50,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
           </div>
 
           <nav className="w-full">
-            <div className="flex overflow-x-auto no-scrollbar border-t px-6" role="navigation" aria-label="League navigation">
+            <div className="flex overflow-x-auto no-scrollbar border-t px-6" role="navigation-menu" aria-label="League navigation">
               {leagueNavItems.map((item) => (
                 <Button
                   key={item.name}
