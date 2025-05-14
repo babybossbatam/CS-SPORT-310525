@@ -18,7 +18,7 @@ import { formatDateTime } from '@/lib/utils';
 import LeagueTabs from '@/components/layout/LeagueTabs';
 
 const LeagueDetails = () => {
-  const { id } = useParams();
+  const { id, tab = 'fixtures' } = useParams();
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -31,10 +31,11 @@ const LeagueDetails = () => {
   const fixtures = fixturesByLeague[id || ''] || [];
   const loading = leagueLoading || fixturesLoading;
 
-  const [activeTab, setActiveTab] = useState('fixtures');
+  const [activeTab, setActiveTab] = useState(tab);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    navigate(`/league/${id}/${value}`);
   };
 
   // Check if league is favorited
