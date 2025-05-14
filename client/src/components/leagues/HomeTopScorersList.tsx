@@ -107,7 +107,7 @@ const HomeTopScorersList = () => {
 
                 return (
                   <div key={scorer.player.id} className="group">
-                    <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                    <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
