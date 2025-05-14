@@ -14,12 +14,35 @@ interface FeatureMatchCardProps {
 
 const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureMatchCardProps) => {
   const [, navigate] = useLocation();
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [matches, setMatches] = useState<FixtureResponse[]>([]);
+
+  useEffect(() => {
+    if (match) {
+      // Fetch 5 matches from the same league
+      fetch(`/api/leagues/${match.league.id}/fixtures`)
+        .then(res => res.json())
+        .then(data => {
+          setMatches(data.slice(0, 5));
+        });
+    }
+  }, [match]);
 
   const handleMatchClick = () => {
-    if (match?.fixture?.id) {
-      navigate(`/match/${match.fixture.id}`);
+    if (matches[currentMatchIndex]?.fixture?.id) {
+      navigate(`/match/${matches[currentMatchIndex].fixture.id}`);
     }
   };
+
+  const handlePrevious = () => {
+    setCurrentMatchIndex(prev => (prev > 0 ? prev - 1 : matches.length - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentMatchIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
+  };
+
+  const currentMatch = matches[currentMatchIndex] || match;
 
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
@@ -29,6 +52,20 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
       >
         Featured Match
       </Badge>
+      
+      <button
+        onClick={(e) => { e.stopPropagation(); handlePrevious(); }}
+        className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-800/50 hover:bg-gray-800/75 text-white p-2 rounded-r z-30"
+      >
+        <ChevronLeft className="h-6 w-6" />
+      </button>
+      
+      <button
+        onClick={(e) => { e.stopPropagation(); handleNext(); }}
+        className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-800/50 hover:bg-gray-800/75 text-white p-2 rounded-l z-30"
+      >
+        <ChevronRight className="h-6 w-6" />
+      </button>
 
       <CardContent className="p-4">
         <div className="flex items-center justify-center gap-2 mb-4">
@@ -66,7 +103,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         </div>
 
         <MatchScoreboard 
-          match={match}
+          match={currentMatch}
           featured={true}
           homeTeamColor="#6f7c93"
           awayTeamColor="#8b0000"
