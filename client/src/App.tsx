@@ -1,27 +1,39 @@
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
-import Football from "@/pages/Football";
-import Basketball from "@/pages/Basketball";
-import Baseball from "@/pages/Baseball";
-import Tennis from "@/pages/Tennis";
-import Hockey from "@/pages/Hockey";
-import MatchDetails from "@/pages/MatchDetails";
-import Authentication from "@/pages/Authentication";
-import LeagueDetails from "@/pages/LeagueDetails";
-import MyScores from "@/pages/MyScores";
-import Settings from "@/pages/Settings";
-import SearchResults from "@/pages/SearchResults";
-import LiveMatches from "@/pages/LiveMatches";
-import LiveScoresPage from "@/pages/LiveScoresPage";
-import NewsPage from "@/pages/NewsPage";
+import { Suspense, lazy } from "react";
+import { Loader2 } from "lucide-react";
+
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/Home"));
+const Football = lazy(() => import("@/pages/Football"));
+const Basketball = lazy(() => import("@/pages/Basketball"));
+const Baseball = lazy(() => import("@/pages/Baseball"));
+const Tennis = lazy(() => import("@/pages/Tennis"));
+const Hockey = lazy(() => import("@/pages/Hockey"));
+const MatchDetails = lazy(() => import("@/pages/MatchDetails"));
+const Authentication = lazy(() => import("@/pages/Authentication"));
+const LeagueDetails = lazy(() => import("@/pages/LeagueDetails"));
+const MyScores = lazy(() => import("@/pages/MyScores"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const SearchResults = lazy(() => import("@/pages/SearchResults"));
+const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
+const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
+const NewsPage = lazy(() => import("@/pages/NewsPage"));
+
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
+    <Suspense fallback={<LoadingSpinner />}>
+      <Switch>
+        <Route path="/" component={Home} />
       <Route path="/football" component={Football} />
       <Route path="/basketball" component={Basketball} />
       <Route path="/baseball" component={Baseball} />
@@ -40,6 +52,7 @@ function Router() {
       <Route path="/news" component={NewsPage} />
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 
