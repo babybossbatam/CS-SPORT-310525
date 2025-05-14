@@ -57,7 +57,6 @@ const Header = () => {
             />
             <span className="flex items-center gap-2">
               <span className="text-amber-400 font-bold text-xl">CSSPORT</span>
-              <span className="text-amber-300">|</span>
               <span className="text-amber-300 font-medium">潮勝體育</span>
             </span>
           </Link>
