@@ -104,6 +104,16 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                           
                           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                             <div className="lg:col-span-8">
+                              <Card>
+                                <CardContent className="p-4">
+                                  <LeagueStandings 
+                                    leagueId={leagueId || 0}
+                                    season={2025}
+                                  />
+                                </CardContent>
+                              </Card>
+                            </div>
+                            <div className="lg:col-span-4 space-y-4">
                               <Tabs defaultValue="overview" className="w-full">
                                 <TabsList className="grid w-full grid-cols-3">
                                   <TabsTrigger value="overview">Scores Overview</TabsTrigger>
@@ -132,8 +142,6 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                   />
                                 </TabsContent>
                               </Tabs>
-                            </div>
-                            <div className="lg:col-span-4 space-y-4 sticky top-4">
                               <Card>
                                 <CardContent className="p-4">
                                   <div className="flex justify-between items-center mb-2">
@@ -215,17 +223,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                   </div>
                                 </CardContent>
                               </Card>
-                              <Card>
-                                <CardHeader className="py-3 px-4 border-b">
-                                  <h3 className="text-sm font-semibold">League Stats</h3>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                  <LeagueStandings 
-                                    leagueId={leagueId || 0}
-                                    season={2025}
-                                  />
-                                </CardContent>
-                              </Card>
+                              
                             </div>
                           </div>
                         </CardContent>
