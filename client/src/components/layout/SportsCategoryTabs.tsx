@@ -1,7 +1,9 @@
+
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   TvIcon,
   FootballIcon,
@@ -16,7 +18,6 @@ import {
   RugbyIcon
 } from '@/components/icons/SportIcons';
 
-// Define a type for our sport items
 type SportItem = {
   id: string;
   icon: React.ComponentType<any>;
@@ -33,7 +34,6 @@ const SportsCategoryTabs = () => {
     navigate(`/${sport.toLowerCase()}`);
   };
 
-  // Define our sports list
   const sportsList: SportItem[] = [
     { id: 'tv', icon: TvIcon, label: 'TV' },
     { id: 'football', icon: FootballIcon, label: 'Football' },
@@ -49,30 +49,31 @@ const SportsCategoryTabs = () => {
   ];
 
   return (
-    <div className="border-b border-gray-100">
-      <div className="overflow-x-auto scrollbar-none">
-        <div className="flex justify-between px-1 py-0 min-w-max">
-          {sportsList.map(({ id, icon: Icon, label }) => (
-            <button
-              key={id}
-              onClick={() => handleSportSelect(id)}
-              className={cn(
-                'flex flex-col items-center px-2 py-1.5 min-w-[50px]',
-                selectedSport === id
-                  ? 'text-[#15222A]'
-                  : 'text-[#6B7173]'
-              )}
-            >
-              <Icon className="h-5 w-5 mb-0.5" />
-              <span className="text-[10px] font-normal">{label}</span>
-            </button>
-          ))}
+    <Card className="rounded-none border-x-0">
+      <CardContent className="p-0">
+        <div className="overflow-x-auto scrollbar-none">
+          <div className="flex justify-between px-1 py-0 min-w-max">
+            {sportsList.map(({ id, icon: Icon, label }) => (
+              <button
+                key={id}
+                onClick={() => handleSportSelect(id)}
+                className={cn(
+                  'flex flex-col items-center px-2 py-1.5 min-w-[50px]',
+                  selectedSport === id
+                    ? 'text-[#15222A]'
+                    : 'text-[#6B7173]'
+                )}
+              >
+                <Icon className="h-5 w-5 mb-0.5" />
+                <span className="text-[10px] font-normal">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
-// Make sure we have both named export and default export
 export { SportsCategoryTabs };
 export default SportsCategoryTabs;
