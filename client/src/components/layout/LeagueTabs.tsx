@@ -99,7 +99,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                       </CardContent>
                     </Card>
 
-                    <div className="mt-4">
+                    <div className="mt-8">
                       <Card>
                         <CardHeader>
                           <h4 className="font-semibold">Top Scorers</h4>
