@@ -102,34 +102,13 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                           </div>
                           
                           <div className="flex-1">
-                            <MatchScoreboard
-                              match={{
-                                fixture: {
-                                  id: leagueId,
-                                  date: new Date().toISOString(),
-                                  status: { short: 'LIVE', long: 'Live', elapsed: 45 },
-                                  venue: { name: '', city: '' }
-                                },
-                                teams: {
-                                  home: { id: 0, name: leagueName || '', logo: leagueLogo || '' },
-                                  away: { id: 1, name: 'vs', logo: '' }
-                                },
-                                goals: { home: fixtures?.length || 0, away: 0 },
-                                score: {
-                                  halftime: { home: null, away: null },
-                                  fulltime: { home: null, away: null },
-                                  extratime: { home: null, away: null },
-                                  penalty: { home: null, away: null }
-                                },
-                                league: {
-                                  id: leagueId || 0,
-                                  name: leagueName || '',
-                                  logo: leagueLogo || ''
-                                }
-                              }}
-                              homeTeamColor="#6f7c93"
-                              awayTeamColor="#8b0000"
-                            />
+                            {fixtures && fixtures.length > 0 && (
+                              <MatchScoreboard
+                                match={fixtures[0]}
+                                homeTeamColor="#6f7c93"
+                                awayTeamColor="#8b0000"
+                              />
+                            )}
                           </div>
                         </CardContent>
                       </Card>
