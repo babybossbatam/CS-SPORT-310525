@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { MatchScoreboard } from '@/components/matches/MatchScoreboard';
+import { LeagueScoreboard } from '@/components/matches/LeagueScoreboard';
 import { Info, Calendar, Trophy, Newspaper, Video, GitBranch, BarChart2, Brain, ArrowLeftRight, History } from 'lucide-react';
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { LeagueStandings } from '@/components/stats/LeagueStandings';
