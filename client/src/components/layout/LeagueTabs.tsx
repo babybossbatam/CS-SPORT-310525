@@ -103,15 +103,36 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                           
                           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                             <div className="lg:col-span-8">
-                              {fixtures && fixtures.length > 0 && (
-                                <MatchScoreboard
-                                  match={fixtures[0]}
-                                  homeTeamColor="#6f7c93"
-                                  awayTeamColor="#8b0000"
-                                />
-                              )}
+                              <Tabs defaultValue="overview" className="w-full">
+                                <TabsList className="grid w-full grid-cols-3">
+                                  <TabsTrigger value="overview">Scores Overview</TabsTrigger>
+                                  <TabsTrigger value="results">Results</TabsTrigger>
+                                  <TabsTrigger value="fixtures">Fixtures</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="overview">
+                                  {fixtures && fixtures.length > 0 && (
+                                    <MatchScoreboard
+                                      match={fixtures[0]}
+                                      homeTeamColor="#6f7c93"
+                                      awayTeamColor="#8b0000"
+                                    />
+                                  )}
+                                </TabsContent>
+                                <TabsContent value="results">
+                                  <EnhancedLeagueFixtures
+                                    fixtures={fixtures?.filter(f => new Date(f.fixture.date) < new Date()) || []}
+                                    onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                                  />
+                                </TabsContent>
+                                <TabsContent value="fixtures">
+                                  <EnhancedLeagueFixtures
+                                    fixtures={fixtures?.filter(f => new Date(f.fixture.date) > new Date()) || []}
+                                    onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                                  />
+                                </TabsContent>
+                              </Tabs>
                             </div>
-                            <div className="lg:col-span-4 space-y-4">
+                            <div className="lg:col-span-4 space-y-4 sticky top-4">
                               <Card>
                                 <CardContent className="p-4">
                                   <div className="flex justify-between items-center mb-2">
@@ -151,27 +172,57 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                                 </CardContent>
                               </Card>
                               <Card>
+                                <CardHeader className="py-3 px-4 border-b">
+                                  <h3 className="text-sm font-semibold">Latest Results</h3>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                  <div className="divide-y">
+                                    {fixtures?.slice(0, 5).map(fixture => (
+                                      <div 
+                                        key={fixture.fixture.id}
+                                        className="p-3 hover:bg-gray-50 cursor-pointer"
+                                        onClick={() => navigate(`/match/${fixture.fixture.id}`)}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-2">
+                                            <img 
+                                              src={fixture.teams.home.logo} 
+                                              alt={fixture.teams.home.name}
+                                              className="w-6 h-6"
+                                            />
+                                            <span className="text-sm">{fixture.teams.home.name}</span>
+                                          </div>
+                                          <span className="text-sm font-medium">
+                                            {fixture.goals.home} - {fixture.goals.away}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center justify-between mt-1">
+                                          <div className="flex items-center gap-2">
+                                            <img 
+                                              src={fixture.teams.away.logo} 
+                                              alt={fixture.teams.away.name}
+                                              className="w-6 h-6"
+                                            />
+                                            <span className="text-sm">{fixture.teams.away.name}</span>
+                                          </div>
+                                          <span className="text-xs text-gray-500">
+                                            {new Date(fixture.fixture.date).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              <Card>
+                                <CardHeader className="py-3 px-4 border-b">
+                                  <h3 className="text-sm font-semibold">League Stats</h3>
+                                </CardHeader>
                                 <CardContent className="p-4">
-                                  <div className="flex justify-between items-center mb-2">
-                                    <h4 className="font-semibold">Match Stats</h4>
-                                    <span className="text-sm text-gray-500">Live</span>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-sm">Possession</span>
-                                      <div className="flex gap-2">
-                                        <span className="text-sm font-medium">55%</span>
-                                        <span className="text-sm font-medium">45%</span>
-                                      </div>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-sm">Shots on Target</span>
-                                      <div className="flex gap-2">
-                                        <span className="text-sm font-medium">4</span>
-                                        <span className="text-sm font-medium">2</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <LeagueStandings 
+                                    leagueId={leagueId || 0}
+                                    season={2025}
+                                  />
                                 </CardContent>
                               </Card>
                             </div>
