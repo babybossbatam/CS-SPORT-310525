@@ -108,20 +108,34 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                   <div className="lg:col-span-4 space-y-4">
                     <Card>
                       <CardHeader>
-                        <Tabs defaultValue="overview" className="w-full">
-                          <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="overview">Score Overview</TabsTrigger>
-                            <TabsTrigger value="result">Result</TabsTrigger>
-                            <TabsTrigger value="fixture">Fixture</TabsTrigger>
-                          </TabsList>
-                        </Tabs>
+                        <div className="space-y-4">
+                          <Tabs defaultValue="overview" className="w-full">
+                            <TabsList className="grid w-full grid-cols-3">
+                              <TabsTrigger value="overview">Score Overview</TabsTrigger>
+                              <TabsTrigger value="result">Result</TabsTrigger>
+                              <TabsTrigger value="fixture">Fixture</TabsTrigger>
+                            </TabsList>
+                          </Tabs>
+                          <div className="flex justify-center">
+                            <span className="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                              Quarter Finals • Leg 2/2
+                            </span>
+                          </div>
+                        </div>
                       </CardHeader>
                     </Card>
 
                     <Card className="bg-[#f7f7f7]">
                       <CardHeader className="pb-0">
-                        <h4 className="text-sm font-medium">Fixtures</h4>
-                        <div className="text-xs text-gray-500 mt-1">17/05/2025</div>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="text-sm font-medium">Fixtures</h4>
+                            <div className="text-xs text-gray-500 mt-1">17/05/2025</div>
+                          </div>
+                          <div className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                            Quarter Finals
+                          </div>
+                        </div>
                       </CardHeader>
                       <CardContent>
                         {fixtures?.slice(0, 5).map((fixture) => (
