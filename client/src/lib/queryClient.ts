@@ -11,7 +11,7 @@ async function throwIfResNotOk(res: Response) {
 
 // Create rate limiting map
 const requestTimestamps = new Map<string, number>();
-const MIN_REQUEST_INTERVAL = 1000; // 1 second minimum between same requests
+const MIN_REQUEST_INTERVAL = 1800000; // 30 minutes minimum between same requests
 
 // Helper to check rate limit
 const checkRateLimit = (key: string) => {
