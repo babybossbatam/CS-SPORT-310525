@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { MatchScoreboard } from '@/components/matches/MatchScoreboard';
 import { Info, Calendar, Trophy, Newspaper, Video, GitBranch, BarChart2, Brain, ArrowLeftRight, History } from 'lucide-react';
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 
