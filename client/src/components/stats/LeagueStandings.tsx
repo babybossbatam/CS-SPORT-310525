@@ -239,3 +239,4 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
 };
 
 export { LeagueStandings };
+export default LeagueStandings;
