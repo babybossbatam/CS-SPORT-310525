@@ -70,28 +70,35 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           onClick={handleMatchClick}
         />
 
-        <div className="grid grid-cols-4 gap-4 mt-4 text-center">
-          <div 
-            className="flex flex-col items-center cursor-pointer"
-            onClick={() => match?.fixture?.id && navigate(`/match/${match.fixture.id}/h2h`)}
+        <div className="flex justify-around border-t border-gray-200 mt-4 pt-3">
+          <button 
+            className="flex flex-col items-center cursor-pointer w-1/4"
+            onClick={() => navigate(`/match/${match?.fixture?.id}`)}
           >
-            <BarChart2 className="text-neutral-500 mb-1 h-5 w-5" />
-            <span className="text-xs text-neutral-500">H2H</span>
-          </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer"
-            onClick={() => match?.fixture?.id && navigate(`/match/${match.fixture.id}/stats`)}
+            <img src="/match-icon.png" alt="Match" className="w-5 h-5 mb-1" />
+            <span className="text-xs text-gray-600">Match Page</span>
+          </button>
+          <button 
+            className="flex flex-col items-center cursor-pointer w-1/4"
+            onClick={() => navigate(`/match/${match?.fixture?.id}/lineups`)}
           >
-            <LineChart className="text-neutral-500 mb-1 h-5 w-5" />
-            <span className="text-xs text-neutral-500">Stats</span>
-          </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer"
-            onClick={() => match?.league?.id && navigate(`/league/${match.league.id}/bracket`)}
+            <img src="/lineup-icon.png" alt="Lineups" className="w-5 h-5 mb-1" />
+            <span className="text-xs text-gray-600">Lineups</span>
+          </button>
+          <button 
+            className="flex flex-col items-center cursor-pointer w-1/4"
+            onClick={() => navigate(`/match/${match?.fixture?.id}/stats`)}
           >
-            <Trophy className="text-neutral-500 mb-1 h-5 w-5" />
-            <span className="text-xs text-neutral-500">Bracket</span>
-          </div>
+            <img src="/stats-icon.png" alt="Stats" className="w-5 h-5 mb-1" />
+            <span className="text-xs text-gray-600">Stats</span>
+          </button>
+          <button 
+            className="flex flex-col items-center cursor-pointer w-1/4"
+            onClick={() => navigate(`/match/${match?.fixture?.id}/standings`)}
+          >
+            <img src="/standings-icon.png" alt="Standings" className="w-5 h-5 mb-1" />
+            <span className="text-xs text-gray-600">Standings</span>
+          </button>
         </div>
       </CardContent>
     </Card>
