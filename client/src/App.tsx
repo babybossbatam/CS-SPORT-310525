@@ -9,6 +9,7 @@ import Baseball from "@/pages/Baseball";
 import Tennis from "@/pages/Tennis";
 import Hockey from "@/pages/Hockey";
 import MatchDetails from "@/pages/MatchDetails";
+import MatchDetailsPage from "@/pages/MatchDetailsPage"; // Import our new page
 import Authentication from "@/pages/Authentication";
 import LeagueDetails from "@/pages/LeagueDetails";
 import MyScores from "@/pages/MyScores";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/register" component={() => <Authentication mode="register" />} />
       <Route path="/match/:id" component={MatchDetails} />
       <Route path="/match/:id/:tab" component={MatchDetails} />
+      <Route path="/match-demo" component={MatchDetailsPage} /> {/* Add our new demo route */}
       <Route path="/league/:id" component={LeagueDetails} />
       <Route path="/league/:id/:tab" component={LeagueDetails} />
       <Route path="/my-scores" component={MyScores} />
