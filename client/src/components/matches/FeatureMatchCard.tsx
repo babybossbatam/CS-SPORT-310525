@@ -31,7 +31,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
       </Badge>
 
       <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col items-center gap-2 mb-4">
           <div className="flex items-center gap-2">
             {leagueLogo ? (
               <img 
