@@ -55,9 +55,10 @@ const Header = () => {
               alt="CS SPORT Logo" 
               className="h-10 mr-2" 
             />
-            <span className="flex flex-col -mt-1">
+            <span className="flex items-center gap-2">
               <span className="text-amber-400 font-bold text-xl">CSSPORT</span>
-              <span className="text-sm text-amber-300 font-medium">潮勝體育</span>
+              <span className="text-amber-300">|</span>
+              <span className="text-amber-300 font-medium">潮勝體育</span>
             </span>
           </Link>
         </div>
