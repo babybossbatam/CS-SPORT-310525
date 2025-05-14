@@ -125,19 +125,15 @@ export function MatchScoreboard({
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo and name */}
           <div className="absolute left-4 z-20 flex items-center" style={{top: "calc(50% - 24px)"}}>
-            <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onClick={onClick}
-              style={{
-                cursor: onClick ? 'pointer' : 'default'
-              }}
-            >
-              <img 
+            <img 
                 src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
-                className="w-8 h-8 object-contain"
+                className={`w-12 h-12 rounded-full object-contain border-2 border-gray-200 transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onClick={onClick}
+                style={{
+                  cursor: onClick ? 'pointer' : 'default'
+                }}
                 onError={(e) => {
-                  // If SportMonk URL fails, try the original API-Football URL
                   if (e.currentTarget.src.includes('sportmonks') && teams?.home?.logo) {
                     e.currentTarget.src = teams.home.logo;
                   } else {
@@ -150,7 +146,6 @@ export function MatchScoreboard({
                   <span className="text-xs">W</span>
                 </div>
               )}
-            </div>
 
             {/* Team name */}
             <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
