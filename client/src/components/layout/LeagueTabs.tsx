@@ -91,49 +91,27 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                             <div className="lg:col-span-8">
                               <Card>
                                 <CardContent className="p-4">
-                                  <LeagueStandings 
-                                    leagueId={leagueId || 0}
-                                    season={2025}
+                                  {fixtures && fixtures.length > 0 && (
+                                    <MatchScoreboard
+                                      match={fixtures[0]}
+                                      homeTeamColor="#6f7c93"
+                                      awayTeamColor="#8b0000"
+                                    />
+                                  )}
+                                </CardContent>
+                              </Card>
+                            </div>
+                            <div className="lg:col-span-4">
+                              <Card>
+                                <CardContent className="p-4">
+                                  <EnhancedLeagueFixtures
+                                    fixtures={fixtures?.filter(f => new Date(f.fixture.date) > new Date()) || []}
+                                    onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
                                   />
                                 </CardContent>
                               </Card>
                             </div>
                           </div>
-
-                          <div className="mt-4">
-                            <div className="grid grid-cols-1 gap-4">
-                              <Card>
-                                <CardContent className="p-4">
-                                  <Tabs defaultValue="overview" className="w-full">
-                                    <TabsList className="grid w-full grid-cols-3">
-                                      <TabsTrigger value="overview">Scores Overview</TabsTrigger>
-                                      <TabsTrigger value="results">Results</TabsTrigger>
-                                      <TabsTrigger value="fixtures">Fixtures</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="overview">
-                                      {fixtures && fixtures.length > 0 && (
-                                        <MatchScoreboard
-                                          match={fixtures[0]}
-                                          homeTeamColor="#6f7c93"
-                                          awayTeamColor="#8b0000"
-                                        />
-                                      )}
-                                    </TabsContent>
-                                    <TabsContent value="results">
-                                      <EnhancedLeagueFixtures
-                                        fixtures={fixtures?.filter(f => new Date(f.fixture.date) < new Date()) || []}
-                                        onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                                      />
-                                    </TabsContent>
-                                    <TabsContent value="fixtures">
-                                      <EnhancedLeagueFixtures
-                                        fixtures={fixtures?.filter(f => new Date(f.fixture.date) > new Date()) || []}
-                                        onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                                      />
-                                    </TabsContent>
-                                  </Tabs>
-                                </CardContent>
-                              </Card>
 
                               <Card>
                                 <CardContent className="p-4">
