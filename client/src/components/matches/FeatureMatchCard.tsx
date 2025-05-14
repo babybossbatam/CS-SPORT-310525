@@ -56,14 +56,14 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
 
       <button
         onClick={(e) => { e.stopPropagation(); handlePrevious(); }}
-        className="absolute left-0 top-1/4 h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+        className="absolute left-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
       >
         <ChevronLeft className="h-3 w-3" />
       </button>
 
       <button
         onClick={(e) => { e.stopPropagation(); handleNext(); }}
-        className="absolute right-0 top-1/4 h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+        className="absolute right-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
       >
         <ChevronRight className="h-3 w-3" />
       </button>
