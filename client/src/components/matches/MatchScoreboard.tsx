@@ -141,13 +141,7 @@ export function MatchScoreboard({
                   }
                 }}
               />
-              {teams?.home?.winner && (
-                <div className="absolute -top-1 -right-1 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                  <span className="text-xs">W</span>
-                </div>
-              )}
-
-            <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
+              <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
               {teams?.home?.name || 'Home Team'}
             </div>
 
@@ -197,11 +191,7 @@ export function MatchScoreboard({
               }
             }}
           />
-          {teams?.away?.winner && (
-            <div className="absolute right-4 top-[calc(50%-28px)] bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center z-30">
-              <span className="text-xs">W</span>
-            </div>
-          )}
+          
 
           {/* Team name */}
           <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
