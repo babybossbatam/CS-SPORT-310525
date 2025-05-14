@@ -14,6 +14,7 @@ const POPULAR_LEAGUES = [
   { id: 2, name: 'UCL', logo: 'https://media.api-sports.io/football/leagues/2.png' },
   { id: 3, name: 'UEL', logo: 'https://media.api-sports.io/football/leagues/3.png' },
   { id: 39, name: 'EPL', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
 ];
 
 interface Player {
