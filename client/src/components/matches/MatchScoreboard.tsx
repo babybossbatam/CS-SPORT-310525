@@ -161,11 +161,11 @@ export function MatchScoreboard({
 
           {/* VS SECTION - fixed size */}
           <div 
-            className={`absolute text-white font-bold text-sm rounded-full h-11 w-11 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute text-white font-bold text-sm rounded-full h-12 w-12 flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{
               background: '#a00000',
-              left: 'calc(50% - 22px)',
-              top: 'calc(50% - 22px)'
+              left: 'calc(50% - 24px)',
+              top: 'calc(50% - 24px)'
             }}
           >
             <span className="vs-text font-bold">VS</span>
