@@ -91,19 +91,13 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 <CardContent className="p-4">
                   <div className="text-center text-sm text-gray-500">
                     <h3 className="text-xl font-bold text-gray-900 mb-4">{leagueName} Details</h3>
+                    
+                    <div className="mb-4">
+                      <TopScorersList leagueId={leagueId} />
+                    </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                      <div className="lg:col-span-4">
-                        <Card>
-                          <CardHeader>
-                            <h4 className="font-semibold">Top Scorers</h4>
-                          </CardHeader>
-                          <CardContent>
-                            <TopScorersList />
-                          </CardContent>
-                        </Card>
-                      </div>
-                            <div className="lg:col-span-8">
+                            <div className="lg:col-span-12">
                               <Card>
                                 <CardContent className="p-4">
                                   {fixtures && fixtures.length > 0 && (
