@@ -47,14 +47,17 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             )}
             <span className="text-sm font-medium">{leagueName}</span>
           </div>
-          
+
           <span className="text-gray-400">-</span>
-          
+
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-indigo-600" />
             <span className="text-sm font-medium text-indigo-800">
-              Quarter-finals
-            </span>
+            {match.fixture.status.short === 'LIVE' ? 'LIVE' : 
+             match.fixture.status.short === 'HT' ? 'Half Time' :
+             match.fixture.status.short === 'FT' ? 'Full Time' :
+             match.league.round || 'Upcoming'}
+          </span>
           </div>
         </div>
 
