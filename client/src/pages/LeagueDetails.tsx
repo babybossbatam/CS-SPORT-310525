@@ -175,9 +175,9 @@ const LeagueDetails = () => {
                       <CalendarDays className="h-4 w-4 mr-2" />
                       <span>Fixtures</span>
                     </TabsTrigger>
-                    <TabsTrigger value="standings" className="flex items-center">
+                    <TabsTrigger value="standings" className="flex items-center" onClick={() => navigate(`/league/${id}/standings`)}>
                       <Table className="h-4 w-4 mr-2" />
-                      <span>Details</span>
+                      <span>Standings</span>
                     </TabsTrigger>
                     <TabsTrigger value="stats" className="flex items-center">
                       <BarChart2 className="h-4 w-4 mr-2" />
