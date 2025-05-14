@@ -85,18 +85,40 @@ const HomeTopScorersList = () => {
   return (
     <div className="space-y-4">
       <Tabs value={selectedLeague.toString()} onValueChange={(value) => setSelectedLeague(Number(value))}>
-        <TabsList className="grid grid-cols-4 sm:grid-cols-7 h-auto gap-1 bg-gray-100 p-1">
-          {POPULAR_LEAGUES.map((league) => (
-            <TabsTrigger
-              key={league.id}
-              value={league.id.toString()}
-              className="text-xs py-1.5 px-2 flex items-center gap-1"
-            >
-              <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
-              {league.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => {
+              const currentIndex = POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague);
+              const prevIndex = currentIndex > 0 ? currentIndex - 1 : POPULAR_LEAGUES.length - 1;
+              setSelectedLeague(POPULAR_LEAGUES[prevIndex].id);
+            }}
+            className="p-1 hover:bg-gray-200 rounded"
+          >
+            ←
+          </button>
+          <TabsList className="flex-1 grid grid-cols-4 sm:grid-cols-7 h-auto gap-1 bg-gray-100 p-1">
+            {POPULAR_LEAGUES.map((league) => (
+              <TabsTrigger
+                key={league.id}
+                value={league.id.toString()}
+                className="text-xs py-1.5 px-2 flex items-center gap-1"
+              >
+                <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
+                {league.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <button 
+            onClick={() => {
+              const currentIndex = POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague);
+              const nextIndex = currentIndex < POPULAR_LEAGUES.length - 1 ? currentIndex + 1 : 0;
+              setSelectedLeague(POPULAR_LEAGUES[nextIndex].id);
+            }}
+            className="p-1 hover:bg-gray-200 rounded"
+          >
+            →
+          </button>
+        </div>
 
         {POPULAR_LEAGUES.map((league) => (
           <TabsContent key={league.id} value={league.id.toString()}>
