@@ -80,8 +80,6 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
 
             <TabsContent value="details" className="px-6 py-4">
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{leagueName} Details</h3>
-
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                   <div className="lg:col-span-8">
                     {fixtures && fixtures.length > 0 && (
