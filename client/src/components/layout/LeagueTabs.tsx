@@ -58,7 +58,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
           </div>
 
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6 justify-start">
+            <TabsList className="flex border-t px-6 justify-start">
               {leagueNavItems.map((item) => {
                 const isActive = location === item.href;
                 return (
