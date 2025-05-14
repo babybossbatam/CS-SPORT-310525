@@ -1,8 +1,17 @@
 import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Info, Calendar, Trophy, Newspaper, Video, GitBranch, BarChart2, Brain, ArrowLeftRight, History } from 'lucide-react';
+import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
+
+interface LeagueTabsProps {
+  leagueId?: number;
+  leagueName?: string;
+  leagueLogo?: string;
+  followers?: string;
+  fixtures?: any[];
+}
 
 interface LeagueTabsProps {
   leagueId?: number;
@@ -69,6 +78,16 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
                 );
               })}
             </TabsList>
+            <TabsContent value="matches" className="px-6 py-4">
+              <Card>
+                <CardContent className="p-4">
+                  <EnhancedLeagueFixtures
+                    fixtures={fixtures}
+                    onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
