@@ -140,25 +140,25 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                       <CardContent>
                         {fixtures?.slice(0, 5).map((fixture) => (
                           <div key={fixture.fixture.id} className="py-3 border-b last:border-0 bg-white mb-1">
-                            <div className="flex justify-between items-center px-3">
-                              <div className="flex items-center gap-2">
+                            <div className="flex justify-between items-center px-4">
+                              <div className="flex items-center gap-3 w-[35%]">
+                                <span className="text-sm truncate">{fixture.teams.home.name}</span>
                                 <img 
                                   src={fixture.teams.home.logo} 
                                   alt={fixture.teams.home.name}
                                   className="w-6 h-6 object-contain"
                                 />
-                                <span className="text-sm">{fixture.teams.home.name}</span>
                               </div>
-                              <span className="text-sm font-medium">
+                              <span className="text-sm font-medium min-w-[60px] text-center">
                                 {format(new Date(fixture.fixture.date), "HH:mm")}
                               </span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm">{fixture.teams.away.name}</span>
+                              <div className="flex items-center gap-3 justify-end w-[35%]">
                                 <img 
                                   src={fixture.teams.away.logo} 
                                   alt={fixture.teams.away.name}
                                   className="w-6 h-6 object-contain"
                                 />
+                                <span className="text-sm truncate">{fixture.teams.away.name}</span>
                               </div>
                             </div>
                           </div>
