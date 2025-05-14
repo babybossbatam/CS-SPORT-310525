@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 const POPULAR_LEAGUES = [
   { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
   { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
-  { id: 534, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/534.png' },
+  { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png' },
   { id: 2, name: 'UCL', logo: 'https://media.api-sports.io/football/leagues/2.png' },
   { id: 3, name: 'UEL', logo: 'https://media.api-sports.io/football/leagues/3.png' },
   { id: 39, name: 'EPL', logo: 'https://media.api-sports.io/football/leagues/39.png' },
