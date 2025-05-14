@@ -113,58 +113,14 @@ export function MatchScoreboard({
   
   return (
     <>
-      <div className="flex flex-col items-center mb-6">
-        <div className="flex justify-between items-center w-full mb-4">
-          <div className="flex items-center space-x-6">
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center p-2">
-                <img 
-                  src={teams?.home?.logo} 
-                  alt={teams?.home?.name} 
-                  className="w-12 h-12 object-contain"
-                  onError={(e) => {
-                    if (e.currentTarget.src.includes('sportmonks') && teams?.home?.logo) {
-                      e.currentTarget.src = teams.home.logo;
-                    } else {
-                      e.currentTarget.src = 'https://via.placeholder.com/48?text=' + (teams?.home?.name?.substring(0, 1) || 'H');
-                    }
-                  }}
-                />
-              </div>
-              <span className="mt-2 text-sm font-medium">{teams?.home?.name}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="text-lg font-semibold mb-1">
-              {fixture?.status?.short === 'FT' || fixture?.status?.short === 'AET' || fixture?.status?.short === '2H' || fixture?.status?.short === '1H' ? 
-                `${goals?.home ?? 0} - ${goals?.away ?? 0}` : 
-                'vs'
-              }
-            </div>
-            <div className="text-sm text-gray-600">{formatDateTime(fixture?.date)}</div>
-          </div>
-
-          <div className="flex items-center space-x-6">
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center p-2">
-                <img 
-                  src={teams?.away?.logo} 
-                  alt={teams?.away?.name} 
-                  className="w-12 h-12 object-contain"
-                  onError={(e) => {
-                    if (e.currentTarget.src.includes('sportmonks') && teams?.away?.logo) {
-                      e.currentTarget.src = teams.away.logo;
-                    } else {
-                      e.currentTarget.src = 'https://via.placeholder.com/48?text=' + (teams?.away?.name?.substring(0, 1) || 'A');
-                    }
-                  }}
-                />
-              </div>
-              <span className="mt-2 text-sm font-medium">{teams?.away?.name}</span>
-            </div>
-          </div>
-        </div>
+      {/* Match bar styled with height set to exactly 30px */}
+      <div 
+        className={`flex relative h-[30px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onClick={onClick}
+        style={{ 
+          cursor: onClick ? 'pointer' : 'default'
+        }}
+      >
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo and name */}
