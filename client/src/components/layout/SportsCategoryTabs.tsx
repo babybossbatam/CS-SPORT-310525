@@ -88,7 +88,7 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
           {!isMatchDetailsPage && (
             <div 
               ref={tabsRef}
-              className="category-tabs flex overflow-x-auto py-3 justify-center space-x-2 scrollbar-hide"
+              className="category-tabs flex overflow-x-auto py-2 space-x-6 scrollbar-hide"
               style={{ 
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none'
@@ -104,14 +104,14 @@ const SportsCategoryTabs = ({ onSportClick }: SportsCategoryTabsProps) => {
                   href={`/${category.id}`}
                   id={`sport-tab-${category.id}`}
                   className={cn(
-                    "flex flex-col items-center gap-1 px-4 py-2 text-xs whitespace-nowrap transition-colors",
+                    "flex items-center px-1 py-1 text-sm whitespace-nowrap",
                     isActive 
-                      ? "text-[#3182CE]" 
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "font-medium border-b-2 border-[#3182CE] text-[#3182CE]" 
+                      : "text-gray-700 hover:text-gray-900"
                   )}
                   onClick={() => handleSportSelect(category.id)}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="mr-2 h-4 w-4" />
                   <span>{category.name}</span>
                 </Link>
               );
