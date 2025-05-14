@@ -9,13 +9,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // Popular leagues for top scorers excluding cups
 const POPULAR_LEAGUES = [
-  { id: 2, name: 'Champions League' },
-  { id: 3, name: 'Europa League' },
-  { id: 39, name: 'Premier League' },
-  { id: 140, name: 'La Liga' },
-  { id: 135, name: 'Serie A' },
-  { id: 78, name: 'Bundesliga' },
-  { id: 61, name: 'Ligue 1' },
+  { id: 2, name: 'UCL', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 3, name: 'UEL', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 39, name: 'EPL', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
+  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
+  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
+  { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
 ];
 
 interface Player {
@@ -90,8 +90,9 @@ const HomeTopScorersList = () => {
             <TabsTrigger
               key={league.id}
               value={league.id.toString()}
-              className="text-xs py-1.5 px-2"
+              className="text-xs py-1.5 px-2 flex items-center gap-1"
             >
+              <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
               {league.name}
             </TabsTrigger>
           ))}
