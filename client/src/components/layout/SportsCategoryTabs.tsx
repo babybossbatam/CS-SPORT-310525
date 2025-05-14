@@ -49,7 +49,7 @@ const SportsCategoryTabs = () => {
   ];
 
   return (
-    <Card className="rounded-lg border shadow-lg fixed left-1/2 transform -translate-x-1/2 z-40 top-[80px] w-[98%] max-w-7xl bg-white/95 backdrop-blur-sm">
+    <Card className="rounded-none border-x-0 shadow-lg fixed left-0 right-0 z-40 top-[72px] w-full bg-white/95 backdrop-blur-sm">
       <CardContent className="p-0">
         <div className="overflow-x-auto scrollbar-none">
           <div className="flex justify-between px-1 py-0 min-w-max">
