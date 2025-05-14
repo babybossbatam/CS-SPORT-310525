@@ -126,7 +126,7 @@ export function MatchScoreboard({
           {/* Home team logo and name */}
           <div className="absolute left-4 z-20 flex items-center" style={{top: "calc(50% - 24px)"}}>
             <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-24 h-24 flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
               style={{
                 cursor: onClick ? 'pointer' : 'default'
@@ -189,7 +189,7 @@ export function MatchScoreboard({
           {/* Away team logo and name */}
           <div className="absolute right-4 z-20 flex items-center flex-row-reverse" style={{top: "calc(50% - 24px)"}}>
             <div 
-              className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-24 h-24 flex items-center justify-center border-2 border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
               onClick={onClick}
               style={{
                 cursor: onClick ? 'pointer' : 'default'
