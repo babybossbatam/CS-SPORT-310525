@@ -56,7 +56,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
 
       <button
         onClick={(e) => { e.stopPropagation(); handlePrevious(); }}
-        className="absolute left-0 top-1/4 h-[14%] -translate-y-1/2 hover:bg-gray-100/10 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200"
+        className="absolute left-0 top-1/4 h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200"
       >
         <ChevronLeft className="h-3 w-3" />
       </button>
