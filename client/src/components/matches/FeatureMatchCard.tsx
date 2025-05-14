@@ -53,19 +53,19 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
       >
         Featured Match
       </Badge>
-      
+
       <button
         onClick={(e) => { e.stopPropagation(); handlePrevious(); }}
         className="absolute left-0 top-1/4 h-1/2 -translate-y-1/2 bg-gray-800/50 hover:bg-gray-800/75 text-white px-1 rounded-r z-30 flex items-center"
       >
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-3 w-3" />
       </button>
-      
+
       <button
         onClick={(e) => { e.stopPropagation(); handleNext(); }}
         className="absolute right-0 top-1/4 h-1/2 -translate-y-1/2 bg-gray-800/50 hover:bg-gray-800/75 text-white px-1 rounded-l z-30 flex items-center"
       >
-        <ChevronRight className="h-6 w-6" />
+        <ChevronRight className="h-3 w-3" />
       </button>
 
       <CardContent className="p-4">
