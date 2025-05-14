@@ -47,7 +47,7 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <main className="pt-16">
+      <main className="pt-[124px]">
         <Router />
       </main>
     </TooltipProvider>

@@ -219,7 +219,7 @@ const FeaturedMatch = () => {
   
   if (isChampionsLeagueLoading || isEuropaLeagueLoading || isSerieALoading || isPremierLeagueLoading) {
     return (
-      <Card className="mb-6">
+      <Card className="mt-2 mb-6">
         <CardHeader className="bg-gray-200 px-4 py-2 flex justify-between items-center">
           <div className="flex items-center">
             <Skeleton className="h-4 w-4 mr-2 rounded-full" />
