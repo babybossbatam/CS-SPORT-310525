@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, Calendar, Trophy, Newspaper, Video, Brackets, BarChart2, Brain, Transfer, History } from 'lucide-react';
+import { Info, Calendar, Trophy, Newspaper, Video, GitBranch, BarChart2, Brain, ArrowLeftRight, History } from 'lucide-react';
 
 interface LeagueTabsProps {
   leagueId?: number;
@@ -20,10 +20,10 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
     { name: 'Standings', href: `/league/${leagueId}/standings`, icon: Trophy },
     { name: 'News', href: `/league/${leagueId}/news`, icon: Newspaper },
     { name: 'Highlights', href: `/league/${leagueId}/highlights`, icon: Video },
-    { name: 'Bracket', href: `/league/${leagueId}/bracket`, icon: Brackets },
+    { name: 'Bracket', href: `/league/${leagueId}/bracket`, icon: GitBranch },
     { name: 'Stats', href: `/league/${leagueId}/stats`, icon: BarChart2 },
     { name: 'Insights', href: `/league/${leagueId}/insights`, icon: Brain },
-    { name: 'Transfers', href: `/league/${leagueId}/transfers`, icon: Transfer },
+    { name: 'Transfers', href: `/league/${leagueId}/transfers`, icon: ArrowLeftRight },
     { name: 'History', href: `/league/${leagueId}/history`, icon: History }
   ];
 
