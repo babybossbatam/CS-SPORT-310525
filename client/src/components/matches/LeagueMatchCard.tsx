@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getMatchStatusText } from '@/lib/utils';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { BarChart2, LineChart, Trophy } from 'lucide-react';
 
 // Type guard to check if an object is a league response
 function isValidLeagueResponse(object: any): boolean {
@@ -31,28 +32,28 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  
+
   const user = useSelector((state: RootState) => state.user);
   const leagues = useSelector((state: RootState) => state.leagues);
   const fixtures = useSelector((state: RootState) => state.fixtures);
-  
+
   const league = leagues.list.find(l => l.league.id === leagueId);
   const fixturesByLeague = fixtures.byLeague[leagueId.toString()] || [];
   const loading = leagues.loading || fixtures.loading;
-  
+
   const isFavorite = user.preferences.favoriteLeagues.includes(leagueId.toString());
-  
+
   // Fetch league data - memoized to prevent unnecessary re-renders
   const fetchLeagueData = useCallback(async () => {
     // If league is already in state, don't fetch again
     if (league) return;
-    
+
     // Check if we're already loading leagues
     if (leagues.loading) return;
-    
+
     try {
       dispatch(leaguesActions.setLoadingLeagues(true));
-      
+
       // Check if the data is in the React Query cache
       const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}`]);
       if (cachedData && isValidLeagueResponse(cachedData)) {
@@ -62,10 +63,10 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
         }
         return;
       }
-      
+
       const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
       const data = await response.json();
-      
+
       if (data) {
         dispatch(leaguesActions.setLeagues([...leagues.list, data]));
         // Store in React Query cache
@@ -82,49 +83,49 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       dispatch(leaguesActions.setLoadingLeagues(false));
     }
   }, [leagueId, league, leagues.loading, leagues.list, dispatch, toast]);
-  
+
   // Fetch league fixtures - memoized to prevent unnecessary re-renders
   const fetchLeagueFixtures = useCallback(async () => {
     // If fixtures for this league are already in state, don't fetch again
     if (fixturesByLeague.length > 0) return;
-    
+
     // Check if we're already loading fixtures
     if (fixtures.loading) return;
-    
+
     try {
       dispatch(fixturesActions.setLoadingFixtures(true));
-      
+
       // Get current season
       const currentYear = new Date().getFullYear();
-      
+
       // Check if the data is in the React Query cache
       const cachedData = queryClient.getQueryData([`/api/leagues/${leagueId}/fixtures`]);
       if (cachedData && Array.isArray(cachedData)) {
         const recentFixtures = [...cachedData]
           .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
           .slice(0, 5);
-        
+
         dispatch(fixturesActions.setFixturesByLeague({ 
           leagueId: leagueId.toString(),
           fixtures: recentFixtures 
         }));
         return;
       }
-      
+
       const response = await apiRequest(
         'GET', 
         `/api/leagues/${leagueId}/fixtures?season=${currentYear}`
       );
       const data = await response.json();
-      
+
       // Store in React Query cache
       queryClient.setQueryData([`/api/leagues/${leagueId}/fixtures`], data);
-      
+
       // Get the most recent fixtures (limit to 5)
       const recentFixtures = [...data]
         .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
         .slice(0, 5);
-      
+
       dispatch(fixturesActions.setFixturesByLeague({ 
         leagueId: leagueId.toString(),
         fixtures: recentFixtures 
@@ -140,7 +141,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       dispatch(fixturesActions.setLoadingFixtures(false));
     }
   }, [leagueId, fixturesByLeague.length, fixtures.loading, dispatch, toast]);
-  
+
   // Run effects
   useEffect(() => {
     // Use a single request to fetch both data and fixtures
@@ -148,10 +149,10 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       await fetchLeagueData();
       await fetchLeagueFixtures();
     };
-    
+
     fetchData();
   }, [fetchLeagueData, fetchLeagueFixtures]);
-  
+
   // Toggle favorite status
   const toggleFavorite = () => {
     if (!user.isAuthenticated) {
@@ -162,10 +163,10 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       navigate('/login');
       return;
     }
-    
+
     if (isFavorite) {
       dispatch(userActions.removeFavoriteLeague(leagueId.toString()));
-      
+
       // Update on server
       if (user.id) {
         apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
@@ -176,7 +177,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       }
     } else {
       dispatch(userActions.addFavoriteLeague(leagueId.toString()));
-      
+
       // Update on server
       if (user.id) {
         apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
@@ -187,7 +188,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       }
     }
   };
-  
+
   if (loading && !league) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-4">
@@ -228,11 +229,17 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
       </Card>
     );
   }
-  
+
   if (!league || fixturesByLeague.length === 0) {
     return null;
   }
-  
+
+  const MatchScoreboard = () => {
+    return (
+      <div>MatchScoreboard</div>
+    )
+  }
+
   return (
     <Card className="bg-white rounded-lg shadow-md mb-4">
       <CardHeader className="p-3 border-b border-neutral-200 flex items-center">
@@ -259,7 +266,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
           </div>
         </div>
       </CardHeader>
-      
+
       {fixturesByLeague.slice(0, 3).map((fixture) => (
         <CardContent 
           key={fixture.fixture.id} 
@@ -270,9 +277,9 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">{league.league.name}</span>
             </div>
-            
+
             <span className="text-gray-400">-</span>
-            
+
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-indigo-600" />
               <span className="text-sm font-medium text-indigo-800">
@@ -280,14 +287,6 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
               </span>
             </div>
           </div>
-
-          <MatchScoreboard 
-            match={fixture}
-            featured={false}
-            homeTeamColor="#6f7c93"
-            awayTeamColor="#8b0000"
-            onClick={() => navigate(`/match/${fixture.fixture.id}`)}
-          />
 
           <div className="grid grid-cols-3 gap-4 mt-4 text-center">
             <div 
@@ -323,7 +322,7 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
           </div>
         </CardContent>
       ))}
-      
+
       <CardFooter className="p-3 text-sm text-neutral-600 flex justify-center">
         <button 
           className="flex items-center hover:text-[#3182CE]"
@@ -338,3 +337,4 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
 };
 
 export default LeagueMatchCard;
+```
