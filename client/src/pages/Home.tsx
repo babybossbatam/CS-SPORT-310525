@@ -14,7 +14,7 @@ import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
 import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
-import TopScorersList from '@/components/leagues/TopScorersList';
+import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
@@ -164,7 +164,7 @@ const Home = () => {
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
               <h3 className="font-semibold text-gray-700 p-3">Top Scorers</h3>
               <div className="px-3 pb-3">
-                <TopScorersList />
+                <HomeTopScorersList />
               </div>
             </div>
 
