@@ -129,11 +129,11 @@ const HomeTopScorersList = () => {
                   const goals = playerStats?.goals?.total || 0;
 
                   return (
-                    <div key={scorer.player.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded border-b">
+                    <div key={scorer.player.id} className="flex items-center justify-between p-2 hover:bg-gray-50/50 rounded-lg transition-all duration-200 group">
                       <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-500">{index + 1}</span>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
+                        <span className="text-sm text-gray-500 font-medium">{index + 1}</span>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-12 w-12 border-2 border-gray-100 group-hover:border-blue-100 transition-all duration-200">
                             <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
                             <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
                           </Avatar>
