@@ -127,7 +127,7 @@ export function MatchScoreboard({
             <img 
                 src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
-                className={`absolute left-[36px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute left-[51px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   cursor: onClick ? 'pointer' : 'default',
                   top: "calc(50% - 36px)"
@@ -183,7 +183,7 @@ export function MatchScoreboard({
           <img 
             src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
             alt={teams?.away?.name || 'Away Team'} 
-            className={`absolute right-[36px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute right-[51px] z-20 w-[72px] h-[72px] object-contain transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{
               cursor: onClick ? 'pointer' : 'default',
               top: "calc(50% - 36px)"
