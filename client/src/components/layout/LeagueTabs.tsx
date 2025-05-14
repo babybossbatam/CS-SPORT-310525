@@ -106,17 +106,23 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                   </div>
 
                   <div className="lg:col-span-4 space-y-4">
-                <Card>
-                  <CardHeader>
-                    <Tabs defaultValue="overview" className="w-full">
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="overview">Score Overview</TabsTrigger>
-                        <TabsTrigger value="result">Result</TabsTrigger>
-                        <TabsTrigger value="fixture">Fixture</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </CardHeader>
-                  <CardContent>
+                    <Card>
+                      <CardHeader>
+                        <Tabs defaultValue="overview" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="overview">Score Overview</TabsTrigger>
+                            <TabsTrigger value="result">Result</TabsTrigger>
+                            <TabsTrigger value="fixture">Fixture</TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                      </CardHeader>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <h4 className="font-semibold">Latest Fixtures</h4>
+                      </CardHeader>
+                      <CardContent>
                         {fixtures?.slice(0, 5).map((fixture) => (
                           <div key={fixture.fixture.id} className="py-2 border-b last:border-0">
                             <div className="text-sm text-gray-600 mb-1">
