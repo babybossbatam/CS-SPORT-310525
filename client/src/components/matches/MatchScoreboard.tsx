@@ -215,10 +215,12 @@ export function MatchScoreboard({
         <>
           <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200 mt-2">
             <Clock className="h-3 w-3 transition-colors duration-300" />
-            <span>{formatDateTime(fixture?.date)}</span>
-            {fixture?.venue?.name && (
-              <span className="hover:text-blue-600 transition-colors duration-300"> | {fixture.venue.name}, {fixture.venue?.city || ''}</span>
-            )}
+            <span>
+              {format(new Date(fixture?.date || ''), "EEEE, do MMM | HH:mm")}
+              {fixture?.venue?.name && (
+                <> | {fixture.venue.name}</>
+              )}
+            </span>
           </div>
 
           {/* HT score if available */}
