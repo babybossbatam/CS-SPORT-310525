@@ -84,7 +84,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                   <div className="lg:col-span-8">
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-4 min-h-[720px]">
                         {fixtures && fixtures.length > 0 && (
                           <MatchScoreboard
                             match={fixtures[0]}
