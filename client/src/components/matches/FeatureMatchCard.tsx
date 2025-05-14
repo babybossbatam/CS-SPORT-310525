@@ -31,6 +31,20 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         Featured Match
       </Badge>
       
+      {/* Bracket Status Indicator */}
+      <div className="p-3 bg-indigo-50 border-b border-indigo-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Trophy className="h-4 w-4 text-indigo-600" />
+            <span className="text-sm font-medium text-indigo-800">
+              Next Round: Quarter-finals
+            </span>
+          </div>
+          <div className="text-xs text-indigo-600">
+            3 days until next matches
+          </div>
+        </div>
+      </div>
       <CardContent className="p-4">
         <div className="flex items-center gap-2 mb-4">
           {leagueLogo ? (
