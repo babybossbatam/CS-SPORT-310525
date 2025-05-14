@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart2, LineChart, Trophy } from 'lucide-react';
+import { BarChart2, LineChart, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { FixtureResponse } from '../../../../server/types';
 import MatchScoreboard from './MatchScoreboard';
