@@ -31,16 +31,32 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         Featured Match
       </Badge>
       
-      {/* Bracket Status Indicator */}
-      <div className="flex items-center space-x-2 p-3 bg-indigo-50 border-b border-indigo-100">
-        <Trophy className="h-4 w-4 text-indigo-600" />
-        <span className="text-sm font-medium text-indigo-800">
-          Next Round: Quarter-finals
-        </span>
-      </div>
       <CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          {leagueLogo ? (
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            {leagueLogo ? (
+              <img 
+                src={leagueLogo}
+                alt={leagueName}
+                className="w-5 h-5"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                }}
+              />
+            ) : (
+              <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+            )}
+            <span className="text-sm font-medium">{leagueName}</span>
+          </div>
+          
+          {/* Bracket Status Indicator */}
+          <div className="flex items-center space-x-2">
+            <Trophy className="h-4 w-4 text-indigo-600" />
+            <span className="text-sm font-medium text-indigo-800">
+              Quarter-finals
+            </span>
+          </div>
+        </div>
             <img 
               src={leagueLogo}
               alt={leagueName}
