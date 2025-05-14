@@ -29,6 +29,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 const Home = () => {
   const dispatch = useDispatch();
