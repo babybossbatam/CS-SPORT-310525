@@ -147,8 +147,7 @@ export function MatchScoreboard({
                 </div>
               )}
 
-            {/* Team name */}
-            <div className={`ml-3 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
               {teams?.home?.name || 'Home Team'}
             </div>
 
