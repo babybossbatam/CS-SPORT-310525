@@ -50,18 +50,18 @@ const SportsCategoryTabs = () => {
   ];
 
   return (
-    <div className="bg-gray-50 border-b border-gray-200">
-      <div className="overflow-x-auto">
-        <div className="flex justify-between px-2 py-1 min-w-max">
+    <div className="bg-white border-b border-gray-100">
+      <div className="overflow-x-auto scrollbar-none">
+        <div className="flex justify-between px-1 py-2 min-w-max">
           {sportsList.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => handleSportSelect(id)}
               className={cn(
-                'flex flex-col items-center px-4 py-1 min-w-[60px]',
+                'flex flex-col items-center px-3 py-1 min-w-[55px]',
                 selectedSport === id
                   ? 'text-blue-600'
-                  : 'text-gray-700'
+                  : 'text-gray-600'
               )}
             >
               <Icon className="h-5 w-5 mb-1" />
