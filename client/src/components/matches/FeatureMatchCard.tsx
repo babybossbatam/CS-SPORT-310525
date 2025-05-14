@@ -141,7 +141,17 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           </button>
           <button 
             className="flex flex-col items-center cursor-pointer w-1/4"
-            onClick={() => navigate(`/match/${match?.fixture?.id}/standings`)}
+            onClick={() => {
+              navigate(`/league/${match?.league?.id}/standings`);
+              // Focus standings tab after a small delay to ensure DOM is ready
+              setTimeout(() => {
+                const standingsTab = document.querySelector('[role="tab"][value="standings"]');
+                if (standingsTab instanceof HTMLElement) {
+                  standingsTab.focus();
+                  standingsTab.click();
+                }
+              }, 100);
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
               <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
