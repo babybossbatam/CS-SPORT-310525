@@ -50,19 +50,24 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
             </div>
           </div>
 
-          <Tabs defaultValue={leagueNavItems[0].name.toLowerCase()} className="w-full">
+          <Tabs defaultValue="fixtures" className="w-full">
             <TabsList className="flex overflow-x-auto no-scrollbar border-t px-6 justify-start">
-              {leagueNavItems.map((item) => (
-                <TabsTrigger
-                  key={item.name}
-                  value={item.name.toLowerCase()}
-                  onClick={() => navigate(item.href)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 hover:text-primary"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </TabsTrigger>
-              ))}
+              {leagueNavItems.map((item) => {
+                const isActive = location === item.href;
+                return (
+                  <TabsTrigger
+                    key={item.name}
+                    value={item.name.toLowerCase()}
+                    onClick={() => navigate(item.href)}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                      isActive ? 'text-primary' : 'hover:text-primary'
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </Tabs>
         </div>
