@@ -81,7 +81,7 @@ const formatDateTime = (dateStr: string | undefined) => {
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return 'Date TBD';
-    return format(date, 'EEE, dd MMM yyyy • HH:mm');
+    return format(date, 'dd/MM/yyyy HH:mm');
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date TBD';
