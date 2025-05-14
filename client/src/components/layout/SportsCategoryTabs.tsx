@@ -67,7 +67,6 @@ const SportsCategoryTabs = () => {
                 <span className="text-[10px] font-normal">{label}</span>
               </button>
             ))}
-          </div>
         </div>
       </CardContent>
     </Card>
