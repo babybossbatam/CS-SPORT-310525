@@ -331,4 +331,3 @@ const LeagueMatchCard = ({ leagueId }: LeagueMatchCardProps) => {
 };
 
 export default LeagueMatchCard;
-```
