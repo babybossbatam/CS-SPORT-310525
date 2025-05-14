@@ -41,14 +41,6 @@ export function LeagueScoreboard({
         }}
       >
         <div className="w-full h-full flex justify-between relative">
-          {/* Colored bar */}
-          <div className={`h-full w-full ml-[57px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
-            style={{ 
-              background: `linear-gradient(90deg, ${homeTeamColor} 0%, ${awayTeamColor} 100%)`,
-              transition: 'all 0.3s ease-in-out'
-            }}>
-          </div>
-
           {/* Country name */}
           <div className={`absolute right-4 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
             {league?.country || 'Country'}
