@@ -53,11 +53,11 @@ const Header = () => {
             <img 
               src="/logo.png" 
               alt="CS SPORT Logo" 
-              className="h-[52px] mr-2" 
+              className="h-[52px] mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
             />
             <span className="flex items-center gap-2">
-              <span className="text-amber-400 font-bold text-xl">CSSPORT</span>
-              <span className="text-amber-300 font-medium">潮勝體育</span>
+              <span className="text-amber-400 font-bold text-xl transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
+              <span className="text-amber-300 font-medium transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]">潮勝體育</span>
             </span>
           </Link>
         </div>
