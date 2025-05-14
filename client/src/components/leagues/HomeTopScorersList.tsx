@@ -150,7 +150,7 @@ const HomeTopScorersList = () => {
                               />
                               {playerStats.team.name}
                             </div>
-                            <div className="text-xs text-gray-400">{playerStats.games.position}</div>
+                            <div className="text-xs text-gray-400 capitalize">{playerStats.games.position.toLowerCase()}</div>
                           </div>
                         </div>
                       </div>
