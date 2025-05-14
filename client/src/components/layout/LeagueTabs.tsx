@@ -15,7 +15,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M" }: L
 
   const leagueNavItems = [
     { name: 'Details', href: `/league/${leagueId}` },
-    { name: 'Matches', href: `/league/${leagueId}/matches` },
+    { name: 'Matches', href: `/league/${leagueId}/fixtures` },
     { name: 'Standings', href: `/league/${leagueId}/standings` },
     { name: 'News', href: `/league/${leagueId}/news` },
     { name: 'Highlights', href: `/league/${leagueId}/highlights` },
