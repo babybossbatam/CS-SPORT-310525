@@ -17,14 +17,6 @@ interface LeagueTabsProps {
   fixtures?: any[];
 }
 
-interface LeagueTabsProps {
-  leagueId?: number;
-  leagueName?: string;
-  leagueLogo?: string;
-  followers?: string;
-  fixtures?: any[];
-}
-
 const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fixtures }: LeagueTabsProps) => {
   const [location, navigate] = useLocation();
 
@@ -83,126 +75,37 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 );
               })}
             </TabsList>
-            <TabsContent value="details" className="px-6 py-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-center text-sm text-gray-500">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">{leagueName} Details</h3>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
-                      <div className="lg:col-span-12">
-                        <Card>
-                          <CardContent className="p-4">
-                            {fixtures && fixtures.length > 0 && (
-                              <MatchScoreboard
-                                match={fixtures[0]}
-                                homeTeamColor="#6f7c93"
-                                awayTeamColor="#8b0000"
-                              />
-                            )}
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
 
+            <TabsContent value="details" className="px-6 py-4">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{leagueName} Details</h3>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                  <div className="lg:col-span-8">
+                    <Card>
+                      <CardContent className="p-4">
+                        {fixtures && fixtures.length > 0 && (
+                          <MatchScoreboard
+                            match={fixtures[0]}
+                            homeTeamColor="#6f7c93"
+                            awayTeamColor="#8b0000"
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="lg:col-span-4">
                     <Card>
                       <CardHeader>
                         <h4 className="font-semibold">Top Scorers</h4>
                       </CardHeader>
                       <TopScorersList leagueId={leagueId} />
                     </Card>
-                                      awayTeamColor="#8b0000"
-                                    />
-                                  )}
-                                </CardContent>
-                              </Card>
-                            </div>
-                            <div className="lg:col-span-4">
-                              <Card>
-                                <CardContent className="p-4">
-                                  
-                  
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Upcoming Fixtures</h4>
-                      {fixtures
-                        .filter(match => new Date(match.fixture.date) > new Date())
-                        .slice(0, 5)
-                        .map(match => (
-                          <div key={match.fixture.id} 
-                            className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
-                            onClick={() => navigate(`/match/${match.fixture.id}`)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <TeamLogo teamId={match.teams.home.id} size="small" />
-                              <span className="text-sm">{match.teams.home.name}</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm">{match.teams.away.name}</span>
-                              <TeamLogo teamId={match.teams.away.id} size="small" />
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="mt-4">
-                  <CardContent className="p-4">
-                    <h4 className="font-semibold mb-4">Recent Results</h4>
-                    <div className="space-y-4">
-                      {fixtures
-                        .filter(match => new Date(match.fixture.date) <= new Date())
-                        .slice(0, 5)
-                        .map(match => (
-                          <div key={match.fixture.id} 
-                            className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
-                            onClick={() => navigate(`/match/${match.fixture.id}`)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <TeamLogo teamId={match.teams.home.id} size="small" />
-                              <span className="text-sm">{match.teams.home.name}</span>
-                            </div>
-                            <div className="text-sm font-medium">
-                              {match.goals.home} - {match.goals.away}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm">{match.teams.away.name}</span>
-                              <TeamLogo teamId={match.teams.away.id} size="small" />
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-                              
-                              <Card className="mt-4">
-                                <CardContent className="p-4">
-                                  <div className="flex justify-between items-center mb-2">
-                                    <h4 className="font-semibold">Scores Overview</h4>
-                                    <span className="text-sm text-gray-500">24/05/2025</span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                      <img 
-                                        src={fixtures?.[0]?.teams?.home?.logo} 
-                                        alt="Team Logo" 
-                                        className="w-8 h-8"
-                                      />
-                                      <span>{fixtures?.[0]?.teams?.home?.name}</span>
-                                    </div>
-                                    <span className="text-lg font-bold">22:00</span>
-                                  </div>
-                                </CardContent>
-                              </Card>
-
-                              
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
 
             <TabsContent value="matches" className="px-6 py-4">
               <Card>
