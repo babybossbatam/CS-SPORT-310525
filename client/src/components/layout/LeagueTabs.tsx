@@ -6,7 +6,7 @@ import { MatchScoreboard } from '@/components/matches/MatchScoreboard';
 import { Info, Calendar, Trophy, Newspaper, Video, GitBranch, BarChart2, Brain, ArrowLeftRight, History } from 'lucide-react';
 import { EnhancedLeagueFixtures } from '@/components/matches/EnhancedLeagueFixtures';
 import { LeagueStandings } from '@/components/stats/LeagueStandings';
-import { TeamLogo } from '@/components/teams/TeamLogo';
+import TeamLogo from '../matches/TeamLogo';
 
 interface LeagueTabsProps {
   leagueId?: number;
