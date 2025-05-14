@@ -103,16 +103,16 @@ const HomeTopScorersList = () => {
             <CardContent className="p-0">
               <div className="relative overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="text-xs uppercase bg-gray-50">
+                  <thead className="text-xs uppercase bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="px-2 py-2">#</th>
-                      <th className="px-2 py-2 text-left">Player</th>
-                      <th className="px-2 py-2">Team</th>
-                      <th className="px-2 py-2 text-center">Goals</th>
+                      <th className="px-2 py-3">#</th>
+                      <th className="px-2 py-3 text-left">Player</th>
+                      <th className="px-2 py-3">Team</th>
+                      <th className="px-2 py-3 text-center">Goals</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {topScorers?.slice(0, 3).map((scorer, index) => {
+                    {topScorers?.slice(0, 5).map((scorer, index) => {
                       const playerStats = scorer.statistics[0];
                       const goals = playerStats?.goals?.total || 0;
 
