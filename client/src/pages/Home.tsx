@@ -198,16 +198,7 @@ const Home = () => {
 
           {/* Right column (4 columns) */}
           <div className="lg:col-span-4 space-y-4">
-            {/* League Schedules */}
-            <div className="space-y-4">
-              <ChampionsLeagueSchedule />
-              <PremierLeagueSchedule />
-              <SerieASchedule />
-              <BundesligaSchedule />
-              <EuropaLeagueSchedule />
-            </div>
-
-            </div>
+          </div>
         </div>
 
         {/* Stats Section */}
