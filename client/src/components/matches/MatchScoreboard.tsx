@@ -127,10 +127,10 @@ export function MatchScoreboard({
             <img 
                 src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
                 alt={teams?.home?.name || 'Home Team'} 
-                className={`absolute left-[1px] z-20 w-[72px] h-[72px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
+                className={`absolute left-[1px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
                 style={{
                   cursor: onClick ? 'pointer' : 'default',
-                  top: "calc(50% - 44px)"
+                  top: "calc(50% - 32px)"
                 }}
                 onClick={onClick}
                 onError={(e) => {
@@ -141,7 +141,7 @@ export function MatchScoreboard({
                   }
                 }}
               />
-              <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 18px)", fontFamily: "Calibri"}}>
+              <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
               {teams?.home?.name || 'Home Team'}
             </div>
 
@@ -159,7 +159,7 @@ export function MatchScoreboard({
             style={{
               background: '#a00000',
               left: 'calc(50% - 26px)',
-              top: 'calc(50% - 34px)'
+              top: 'calc(50% - 26px)'
             }}
           >
             <span className="vs-text font-bold">VS</span>
