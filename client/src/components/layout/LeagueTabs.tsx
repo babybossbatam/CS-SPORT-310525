@@ -38,7 +38,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
   if (!leagueId) return null;
 
   return (
-    <div className="bg-white border-b fixed left-0 right-0 top-[72px] z-40 shadow-md">
+    <div className="bg-white border-b fixed left-0 right-0 top-[48px] z-40 shadow-md">
       <div className="mx-auto pb-[120px]">
         <div className="flex flex-col">
           <div className="px-6 py-4">
