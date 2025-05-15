@@ -147,9 +147,9 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             transition={{ type: "tween", duration: 0.2 }}
           >
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <div className="col-span-1 lg:col-span-3">
-            <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="flex items-center gap-2">
+              <div className="col-span-1 lg:col-span-3">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="flex items-center gap-2">
             {leagueLogo ? (
               <img 
                 src={leagueLogo}
