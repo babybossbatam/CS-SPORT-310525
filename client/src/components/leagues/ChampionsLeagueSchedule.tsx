@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format, parseISO, isSameDay } from 'date-fns';
 import { Star, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import ChampionsLeagueHeader from './ChampionsLeagueHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMatchDateFn, isLiveMatch } from '@/lib/utils';
 import { getTeamColor } from '@/lib/colorUtils';
@@ -288,9 +289,10 @@ const ChampionsLeagueSchedule = () => {
   }
   
   return (
-    <Card className="mb-4">
-      
-      <CardContent className="p-0">
+    <>
+      <ChampionsLeagueHeader />
+      <Card className="mb-4">
+        <CardContent className="p-0">
         {/* Bracket Status Indicator */}
         <div className="p-3 bg-indigo-50 border-b border-indigo-100">
           <div className="flex items-center justify-between">
