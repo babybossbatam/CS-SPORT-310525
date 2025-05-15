@@ -285,4 +285,3 @@ const LeagueDetails = () => {
 };
 
 export default LeagueDetails;
-```
