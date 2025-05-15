@@ -22,10 +22,10 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
   const [matches, setMatches] = useState<FixtureResponse[]>([]);
   
   useEffect(() => {
-    // Auto transition every 10 seconds for smoother experience
+    // Auto transition every 5 minutes for better match following
     const interval = setInterval(() => {
       setCurrentMatchIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
-    }, 10000);
+    }, 300000);
     
     return () => clearInterval(interval);
   }, [matches.length]);
