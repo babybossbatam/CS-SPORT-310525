@@ -118,7 +118,23 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           />
         </div>
 
-        <div className="flex justify-around border-t border-gray-200 mt-4 pt-3">
+        <div className="flex justify-center gap-2 mb-3">
+          {matches.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentMatchIndex(index);
+              }}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                currentMatchIndex === index ? 'bg-indigo-600' : 'bg-gray-300'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
           <button 
             className="flex flex-col items-center cursor-pointer w-1/4"
             onClick={() => navigate(`/match/${match?.fixture?.id}`)}
