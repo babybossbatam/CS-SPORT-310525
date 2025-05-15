@@ -224,10 +224,17 @@ const MatchFilters = () => {
     const filteredMatches = excludedMatches.filter(match => {
       if (!match.league) return false;
 
-      // Check by ID - most reliable method
+      // Main popular league IDs
+      const mainLeagueIds = ['2', '3', '39', '140', '135', '78']; // CL, EL, PL, La Liga, Serie A, Bundesliga
       const leagueIdStr = String(match.league.id);
+      
+      // First check main leagues by ID
+      if (mainLeagueIds.includes(leagueIdStr)) {
+        console.log(`Found main league match: ${match.league.name} (ID: ${leagueIdStr})`);
+        return true;
+      }
 
-      // Debug any potential league ID matches
+      // Then check extended popular leagues
       if (popularLeagueIdsArray.includes(leagueIdStr)) {
         console.log(`Found popular league match: ${match.league.name} (ID: ${leagueIdStr})`);
         return true;
