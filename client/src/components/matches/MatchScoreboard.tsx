@@ -150,7 +150,7 @@ export function MatchScoreboard({
             </div>
 
           {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-          <div className={`h-full w-[calc(50%-57px)] ml-[57px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          <div className={`h-full w-[calc(50%-107px)] ml-[57px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: homeTeamColor,
               transition: 'all 0.3s ease-in-out'
@@ -170,7 +170,7 @@ export function MatchScoreboard({
           </div>
 
           {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
-          <div className={`h-full w-[calc(50%-66px)] mr-[46px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          <div className={`h-full w-[calc(50%-116px)] mr-[46px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
             style={{ 
               background: awayTeamColor,
               transition: 'all 0.3s ease-in-out'
