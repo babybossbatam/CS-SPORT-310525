@@ -163,7 +163,11 @@ const Home = () => {
             
             {/* Live Scoreboard Section */}
             <div className="mt-4">
-              <LiveScoreboardPage />
+              <EnhancedLiveScoreboard 
+                showFeaturedMatch={true}
+                showFilters={true}
+                maxMatches={10}
+              />
             </div>
 
             {/* Top Scorers Section - Moved below Featured Match */}
