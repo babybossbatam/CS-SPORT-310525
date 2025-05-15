@@ -8,7 +8,7 @@ import DateNavigator from '@/components/layout/DateNavigator';
 import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
-import TodayMatches from '@/components/matches/TodayMatches';
+
 import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
@@ -210,12 +210,9 @@ const Home = () => {
               <div className="border-t border-gray-100">
                 <MatchFilters />
               </div>
-              <div>
-                <TodayMatches />
-              </div>
             </div>
             
-            {/* League Schedules below Today's Matches - Moved from LiveScoreboardPage */}
+            {/* League Schedules below - Moved from LiveScoreboardPage */}
             <div className="mt-4 space-y-4">
               <ChampionsLeagueSchedule />
               <PremierLeagueSchedule />
