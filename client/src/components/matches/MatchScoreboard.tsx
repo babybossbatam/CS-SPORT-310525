@@ -163,7 +163,7 @@ export function MatchScoreboard({
           {/* Home team logo */}
             <img 
                 key={`home-${teams?.home?.id}`}
-                src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
+                src={teams?.home?.logo || `/assets/fallback-logo.svg`} 
                 alt={teams?.home?.name || 'Home Team'} 
                 className={`absolute left-[3px] z-20 w-[72px] h-[72px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 bg-white/10 rounded-full p-2 contrast-125 brightness-125 drop-shadow-[0_0_12px_rgba(0,0,0,0.8)]`}
                 style={{
@@ -172,14 +172,7 @@ export function MatchScoreboard({
                 }}
                 onClick={onClick}
                 onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.includes('sportmonks') && teams?.home?.logo) {
-                    target.src = teams.home.logo;
-                  } else if (teams?.home?.name) {
-                    target.src = `/src/assets/fallback-logo.png`;
-                  } else {
-                    target.src = 'https://via.placeholder.com/64?text=H';
-                  }
+                  e.currentTarget.src = `/assets/fallback-logo.svg`;
                 }}
               />
               <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
@@ -217,7 +210,7 @@ export function MatchScoreboard({
           {/* Away team logo and name */}
           <img 
             key={`away-${teams?.away?.id}`}
-                src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo}
+                src={teams?.away?.logo || `/assets/fallback-logo.svg`}
                 alt={teams?.away?.name || 'Away Team'}
                 className="absolute right-[3px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 bg-white/10 rounded-full p-2 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]"
                 style={{
@@ -227,10 +220,7 @@ export function MatchScoreboard({
                 }}
                 onClick={onClick}
                 onError={(e) => {
-                  const target = e.currentTarget;
-                  if (!target.src.includes('placeholder')) {
-                    target.src = teams?.away?.logo || '/src/assets/fallback-logo.png';
-                  }
+                  e.currentTarget.src = `/assets/fallback-logo.svg`;
                 }}
           />
 
