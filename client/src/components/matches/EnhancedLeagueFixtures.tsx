@@ -11,25 +11,16 @@ interface FixtureProps {
 }
 
 export const EnhancedLeagueFixtures = ({ fixtures, onMatchClick }: FixtureProps) => {
-  const sortedFixtures = [...fixtures].sort((a, b) => {
-    const dateA = new Date(a.fixture.date);
-    const dateB = new Date(b.fixture.date);
-    return dateB.getTime() - dateA.getTime(); // Sort newest to oldest
-  }).slice(0, 20); // Limit to 20 matches
-
-  const futureFixtures = sortedFixtures.filter(fixture => 
+  const futureFixtures = fixtures.filter(fixture => 
     fixture.fixture.status.short === "NS" || 
     fixture.fixture.status.short === "TBD"
   );
 
-  const completedFixtures = sortedFixtures
-    .filter(fixture => 
-      fixture.fixture.status.short === "FT" || 
-      fixture.fixture.status.short === "AET" || 
-      fixture.fixture.status.short === "PEN"
-    )
-    .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
-    .slice(0, 20);
+  const completedFixtures = fixtures.filter(fixture => 
+    fixture.fixture.status.short === "FT" || 
+    fixture.fixture.status.short === "AET" || 
+    fixture.fixture.status.short === "PEN"
+  );
 
   const renderFixture = (fixture: any) => (
     <div 

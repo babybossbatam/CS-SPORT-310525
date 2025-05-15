@@ -58,16 +58,25 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
             </div>
           </div>
 
-          <Tabs value={location.includes('/standings') ? 'standings' : 'details'} className="w-full">
+          <Tabs defaultValue="details" className="w-full">
             <TabsList className="flex border-t px-6 justify-start">
               {leagueNavItems.map((item) => {
-                const isActive = location === item.href || (item.name.toLowerCase() === 'standings' && location.includes('/standings'));
+                const isActive = location === item.href;
                 return (
                   <TabsTrigger
                     key={item.name}
                     value={item.name.toLowerCase()}
                     onClick={() => {
                       navigate(item.href);
+                      if (item.name === 'Standings') {
+                        return (
+                          <Card>
+                            <CardContent className="p-4">
+                              <LeagueStandings leagueId={leagueId} season={2024} />
+                            </CardContent>
+                          </Card>
+                        );
+                      }
                     }}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                       isActive ? 'text-primary' : 'hover:text-primary'
@@ -194,14 +203,6 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                     fixtures={fixtures}
                     onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
                   />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="standings" className="px-6 py-4">
-              <Card>
-                <CardContent className="p-4">
-                  <LeagueStandings leagueId={leagueId} season={2024} />
                 </CardContent>
               </Card>
             </TabsContent>
