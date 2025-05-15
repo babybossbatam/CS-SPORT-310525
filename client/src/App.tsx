@@ -12,7 +12,7 @@ const Baseball = lazy(() => import("@/pages/Baseball"));
 const Tennis = lazy(() => import("@/pages/Tennis"));
 const Hockey = lazy(() => import("@/pages/Hockey"));
 const MatchDetails = lazy(() => import("@/pages/MatchDetails"));
-const MatchDetailsPage = lazy(() => import("@/pages/MatchDetailsPage"));
+const MatchDetailsPage = lazy(() => import("./pages/MatchDetailsPage"));
 const Authentication = lazy(() => import("@/pages/Authentication"));
 const LeagueDetails = lazy(() => import("@/pages/LeagueDetails"));
 const MyScores = lazy(() => import("@/pages/MyScores"));
