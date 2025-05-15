@@ -108,7 +108,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           ) : matchDate}
         </div>
 
-        <div className="relative">
+        <div className="relative -mt-1">
           
           <MatchScoreboard 
             match={currentMatch}
