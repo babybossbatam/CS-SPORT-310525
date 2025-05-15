@@ -206,6 +206,14 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="standings" className="px-6 py-4">
+              <Card>
+                <CardContent className="p-4">
+                  <LeagueStandings leagueId={leagueId} season={2024} />
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
