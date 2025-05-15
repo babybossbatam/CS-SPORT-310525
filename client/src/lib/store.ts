@@ -87,7 +87,6 @@ const initialFixturesState: FixturesState = {
 const initialLeaguesState: LeaguesState = {
   list: [],
   current: null,
-  // Aligned with the Popular Leagues card
   popularLeagues: [
     2,   // UEFA Champions League
     3,   // UEFA Europa League
@@ -99,9 +98,11 @@ const initialLeaguesState: LeaguesState = {
     207, // EFL Cup (England)
     219, // Community Shield (England)
     203, // Championship (England)
-  ], 
+  ],
   loading: false,
   error: null,
+  lastFetch: null, // Track last fetch time
+  cacheTimeout: 5 * 60 * 1000, // Cache for 5 minutes
 };
 
 const initialStatsState: StatsState = {
@@ -280,6 +281,7 @@ const leaguesSlice = createSlice({
     },
     setLeagues: (state, action: PayloadAction<LeagueResponse[]>) => {
       state.list = action.payload;
+      state.lastFetch = Date.now();
     },
     setCurrentLeague: (state, action: PayloadAction<LeagueResponse | null>) => {
       state.current = action.payload;

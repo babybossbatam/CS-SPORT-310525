@@ -69,8 +69,18 @@ const Football = () => {
   useEffect(() => {
     const fetchLeagues = async () => {
       try {
+        // Check if we have recent cached data
+        const state = store.getState();
+        const now = Date.now();
+        if (
+          state.leagues.list.length > 0 && 
+          state.leagues.lastFetch && 
+          now - state.leagues.lastFetch < state.leagues.cacheTimeout
+        ) {
+          return; // Use cached data
+        }
+
         dispatch(leaguesActions.setLoadingLeagues(true));
-        
         const response = await apiRequest('GET', '/api/leagues');
         const data = await response.json();
         
