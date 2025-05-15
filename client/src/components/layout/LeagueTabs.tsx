@@ -52,25 +52,26 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
         <span className="text-sm text-gray-500">{followers} followers</span>
       </div>
 
-          <Tabs defaultValue="details" className="w-full px-6">
-            <TabsList className="flex border-t px-6 justify-start">
-              {leagueNavItems.map((item) => {
-                const isActive = location === item.href;
-                return (
-                  <TabsTrigger
-                    key={item.name}
-                    value={item.name.toLowerCase()}
-                    onClick={() => navigate(item.href)}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                      isActive ? 'text-primary' : 'hover:text-primary'
-                    }`}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+          <div>
+            <Tabs defaultValue="details" className="w-full px-6">
+              <TabsList className="flex border-t px-6 justify-start">
+                {leagueNavItems.map((item) => {
+                  const isActive = location === item.href;
+                  return (
+                    <TabsTrigger
+                      key={item.name}
+                      value={item.name.toLowerCase()}
+                      onClick={() => navigate(item.href)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                        isActive ? 'text-primary' : 'hover:text-primary'
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.name}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
 
             <TabsContent value="details" className="px-6 py-4">
               <div className="space-y-4">
@@ -211,9 +212,9 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
               </Card>
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
