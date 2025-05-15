@@ -41,7 +41,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
     <div className="bg-white border-b sticky top-0 z-10">
       <div className="mx-auto">
         <div className="flex flex-col">
-          <div className="px-6 py-2 border-b">
+          <div className="px-6 py-0 border-b">
             <div className="flex items-center gap-4">
               <img 
                 src={leagueLogo} 
