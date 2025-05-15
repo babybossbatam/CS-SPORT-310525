@@ -108,7 +108,10 @@ export const EnhancedLeagueFixtures = ({ fixtures, onMatchClick }: FixtureProps)
           <TabsContent value="results">
             <div className="divide-y divide-gray-100">
               {completedFixtures.length > 0 ? (
-                completedFixtures.map(renderFixture)
+                [...completedFixtures]
+                  .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
+                  .slice(0, 20)
+                  .map(renderFixture)
               ) : (
                 <div className="p-4 text-center text-gray-500">
                   No completed matches
