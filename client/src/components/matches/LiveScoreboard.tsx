@@ -86,21 +86,21 @@ export function LiveScoreboard({
   const [, navigate] = useLocation();
   const [selectedLeague, setSelectedLeague] = useState<string>("all");
   const [filteredMatches, setFilteredMatches] = useState<FixtureResponse[]>([]);
-  
+
   // Fetch live matches
   const { data: liveMatches, isLoading, error } = useQuery<FixtureResponse[]>({
     queryKey: ['/api/fixtures/live'],
     staleTime: 30000, // 30 seconds
     refetchInterval: 1800000, // Refresh every 30 minutes
   });
-  
+
   // Fetch today's matches if no live matches are available
   const { data: todayMatches } = useQuery<FixtureResponse[]>({
     queryKey: ['/api/fixtures/date', format(new Date(), 'yyyy-MM-dd')],
     staleTime: 300000, // 5 minutes
     enabled: !liveMatches || liveMatches.length === 0,
   });
-  
+
   // Popular leagues
   // Ordered according to user request: Europe, England, Spain, Italy, Brazil, Germany
   const popularLeagues = [
@@ -112,7 +112,7 @@ export function LiveScoreboard({
     { id: "71", name: "Brazil" },
     { id: "78", name: "Germany" },
   ];
-  
+
   // Format time
   const formatMatchTime = (fixture: Fixture) => {
     if (isLiveMatch(fixture.status.short)) {
@@ -125,41 +125,41 @@ export function LiveScoreboard({
       return format(new Date(fixture.date), 'HH:mm');
     }
   };
-  
+
   // Filter matches by league
   useEffect(() => {
     if (!liveMatches && !todayMatches) {
       setFilteredMatches([]);
       return;
     }
-    
+
     const allMatches = liveMatches?.length ? liveMatches : todayMatches || [];
-    
+
     // Sort by live status first, then by priority leagues, then by time
     const sortedMatches = [...allMatches].sort((a, b) => {
       // Live matches first
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
-      
+
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
-      
+
       // Then sort by popular leagues (Europe, England, Spain, Italy, Brazil, Germany)
       const aLeagueIsPriority = [39, 140, 135, 71, 78].includes(a.league.id);
       const bLeagueIsPriority = [39, 140, 135, 71, 78].includes(b.league.id);
-      
+
       if (aLeagueIsPriority && !bLeagueIsPriority) return -1;
       if (!aLeagueIsPriority && bLeagueIsPriority) return 1;
-      
+
       // Then sort by time
       if (aIsLive && bIsLive) {
         return (b.fixture.status.elapsed || 0) - (a.fixture.status.elapsed || 0);
       }
-      
+
       // Sort by match time
       return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
     });
-    
+
     // Apply league filter
     let filtered = sortedMatches;
     if (selectedLeague !== "all") {
@@ -171,11 +171,11 @@ export function LiveScoreboard({
         filtered = sortedMatches.filter(match => match.league.id.toString() === selectedLeague);
       }
     }
-    
+
     // Limit to max matches
     setFilteredMatches(filtered.slice(0, maxMatches));
   }, [liveMatches, todayMatches, selectedLeague, maxMatches]);
-  
+
   // Popular teams for featuring - Top 3 teams from popular leagues
   const popularTeams = {
     // Premier League (England)
@@ -189,17 +189,17 @@ export function LiveScoreboard({
     // Ligue 1 (France)
     '61': ['PSG', 'Marseille', 'Lyon']
   };
-  
+
   // Get upcoming matches by date
   const sortedByDate = [...filteredMatches].sort((a, b) => 
     new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
   );
-  
+
   // Find a featured match with top 3 teams from popular leagues and nearest date
   const featuredMatch = sortedByDate.find(match => {
     const homeTeam = match.teams.home.name;
     const awayTeam = match.teams.away.name;
-    
+
     // Check if either team is in the top 3 of their league
     return Object.values(popularTeams).some(leagueTeams => 
       leagueTeams.some(team => 
@@ -207,7 +207,11 @@ export function LiveScoreboard({
       )
     );
   }) || (sortedByDate.length > 0 ? sortedByDate[0] : null);
-  
+
+  const handleLeagueSelect = (leagueId: string) => {
+    setSelectedLeague(leagueId);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -220,7 +224,7 @@ export function LiveScoreboard({
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <Card>
@@ -232,7 +236,7 @@ export function LiveScoreboard({
       </Card>
     );
   }
-  
+
   if (!filteredMatches.length) {
     return (
       <Card>
@@ -246,36 +250,22 @@ export function LiveScoreboard({
       </Card>
     );
   }
-  
+
   return (
-    <div className="space-y-6">
-      {/* League filter tabs */}
+    <div className="space-y-4">
       {showFilters && (
-        <div className="overflow-x-auto pb-2">
-          <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedLeague}>
-            <TabsList className="inline-flex w-auto bg-white border rounded-md shadow-sm p-1">
-              {popularLeagues.map((league) => (
-                <TabsTrigger
-                  key={league.id}
-                  value={league.id}
-                  className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 transition-all"
-                >
-                  {league.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
+        <PopularLeagueFilter
+          selectedLeague={selectedLeague}
+          onSelectLeague={handleLeagueSelect}
+        />
       )}
-      
-      {/* Featured match */}
       {showFeaturedMatch && featuredMatch && (
         <div className="rounded-xl overflow-hidden shadow-lg bg-white border border-gray-100">
           {/* Featured badge - gray background */}
           <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-3 py-1 rounded-bl-md z-20 font-semibold">
             FEATURED MATCH
           </div>
-          
+
           {/* League and status header */}
           <div className="bg-gray-50 p-3 relative">
             <div className="flex items-center justify-between">
@@ -287,7 +277,7 @@ export function LiveScoreboard({
                   onError={(e) => {
                     // Try the livescore URL
                     (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${featuredMatch.league.id}.png`;
-                    
+
                     // Add a second error handler for complete fallback
                     (e.target as HTMLImageElement).onerror = () => {
                       (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
@@ -297,7 +287,7 @@ export function LiveScoreboard({
                 />
                 <span className="font-medium text-sm">{featuredMatch.league.name}</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {isLiveMatch(featuredMatch.fixture.status.short) ? (
                   <Badge variant="destructive" className="animate-pulse flex gap-1">
@@ -312,7 +302,7 @@ export function LiveScoreboard({
               </div>
             </div>
           </div>
-          
+
           {/* Match content - New design based on the image */}
           <div className="p-4">
             {/* League logo and match countdown */}
@@ -324,7 +314,7 @@ export function LiveScoreboard({
                 onError={(e) => {
                   // Try the livescore URL
                   (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${featuredMatch.league.id}.png`;
-                  
+
                   // Add a second error handler for complete fallback
                   (e.target as HTMLImageElement).onerror = () => {
                     (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
@@ -332,7 +322,7 @@ export function LiveScoreboard({
                   };
                 }}
               />
-              
+
               {/* Match countdown */}
               <div className="text-center mx-4">
                 <div className="text-2xl font-bold">
@@ -342,14 +332,14 @@ export function LiveScoreboard({
                 </div>
               </div>
             </div>
-            
+
             {/* Match presentation - Updated design to match 365scores */}
             <div className="relative mb-6">
               {/* Featured tag */}
               <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 z-10">
                 Featured Match
               </div>
-              
+
               {/* League logo and countdown */}
               <div className="flex flex-col items-center justify-center py-2">
                 <img 
@@ -359,7 +349,7 @@ export function LiveScoreboard({
                   onError={(e) => {
                     // Try the livescore URL
                     (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${featuredMatch.league.id}.png`;
-                    
+
                     // Add a second error handler for complete fallback
                     (e.target as HTMLImageElement).onerror = () => {
                       (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
@@ -373,7 +363,7 @@ export function LiveScoreboard({
                     : '3 Days'}
                 </div>
               </div>
-              
+
               {/* Main match container with team bar colors */}
               <div className="w-full overflow-hidden relative">
                 {/* Team logos */}
@@ -386,7 +376,7 @@ export function LiveScoreboard({
                       onError={(e) => {
                         // Try the livescore URL
                         (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${featuredMatch.teams.home.id}.png`;
-                        
+
                         // Add a second error handler for complete fallback
                         (e.target as HTMLImageElement).onerror = () => {
                           (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
@@ -395,7 +385,7 @@ export function LiveScoreboard({
                       }}
                     />
                   </div>
-                  
+
                   <div 
                     className="text-3xl font-bold text-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 rounded-full w-12 h-12 flex items-center justify-center"
                     style={{
@@ -404,7 +394,7 @@ export function LiveScoreboard({
                       textShadow: '0px 0px 3px rgba(0, 0, 0, 0.7)'
                     }}
                   >VS</div>
-                  
+
                   <div className="flex flex-col items-center">
                     <img 
                       src={featuredMatch.teams.away.logo} 
@@ -413,7 +403,7 @@ export function LiveScoreboard({
                       onError={(e) => {
                         // Try the livescore URL
                         (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${featuredMatch.teams.away.id}.png`;
-                        
+
                         // Add a second error handler for complete fallback
                         (e.target as HTMLImageElement).onerror = () => {
                           (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
@@ -423,7 +413,7 @@ export function LiveScoreboard({
                     />
                   </div>
                 </div>
-                
+
                 {/* Team names with colored bars */}
                 <div className="flex h-12 w-full overflow-hidden relative">
                   {/* Home team color bar - extended 10% more to the left with 10% enhanced intensity */}
@@ -437,7 +427,7 @@ export function LiveScoreboard({
                       {featuredMatch.teams.home.name}
                     </span>
                   </div>
-                  
+
                   {/* Away team color bar - reduced to 40% width due to home team extension */}
                   <div 
                     className="w-[40%] flex items-center justify-end px-4 text-white h-full"
@@ -451,12 +441,12 @@ export function LiveScoreboard({
                 </div>
               </div>
             </div>
-            
+
             {/* Match date and venue */}
             <div className="text-center text-sm text-gray-600 mb-4">
               {format(new Date(featuredMatch.fixture.date), 'EEEE, do MMM')} | {format(new Date(featuredMatch.fixture.date), 'HH:mm')} | {featuredMatch.fixture.venue.name || 'Venue TBA'}
             </div>
-            
+
             {/* Match navigation tabs */}
             <div className="grid grid-cols-4 gap-2 mb-2">
               <div className="flex flex-col items-center p-2 text-blue-600 border-b-2 border-blue-600">
@@ -500,7 +490,7 @@ export function LiveScoreboard({
                 <span className="text-xs">Standings</span>
               </div>
             </div>
-            
+
             {/* Navigation dots */}
             <div className="flex justify-center items-center gap-1 mt-2">
               <div className="h-1 w-1 rounded-full bg-blue-600"></div>
@@ -510,11 +500,11 @@ export function LiveScoreboard({
           </div>
         </div>
       )}
-      
+
       {/* Match list - heading removed */}
       <div className="space-y-2">
         {/* Today's Matches heading removed */}
-        
+
         {filteredMatches.slice(showFeaturedMatch ? 1 : 0).map((match) => (
           <div 
             key={match.fixture.id}
@@ -532,7 +522,7 @@ export function LiveScoreboard({
                 <span className="font-semibold text-gray-700">{formatMatchTime(match.fixture)}</span>
               )}
             </div>
-            
+
             {/* Match bar with team details */}
             <div className="flex-1 flex items-center">
               {/* League badge */}
@@ -544,7 +534,7 @@ export function LiveScoreboard({
                   onError={(e) => {
                     // Try the livescore URL
                     (e.target as HTMLImageElement).src = `https://static.livescore.com/i/competition/${match.league.id}.png`;
-                    
+
                     // Add a second error handler for complete fallback
                     (e.target as HTMLImageElement).onerror = () => {
                       (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/competition/default.png';
@@ -553,7 +543,7 @@ export function LiveScoreboard({
                   }}
                 />
               </div>
-              
+
               {/* Teams info row */}
               <div className="flex-1 grid grid-cols-9 gap-1">
                 {/* Home team */}
@@ -566,7 +556,7 @@ export function LiveScoreboard({
                     onError={(e) => {
                       // Try the livescore URL
                       (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.home.id}.png`;
-                      
+
                       // Add a second error handler for complete fallback
                       (e.target as HTMLImageElement).onerror = () => {
                         (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
@@ -575,7 +565,7 @@ export function LiveScoreboard({
                     }}
                   />
                 </div>
-                
+
                 {/* Score */}
                 <div className="flex items-center justify-center">
                   <div className="bg-gray-100 px-2 py-1 rounded-sm text-sm font-bold">
@@ -586,7 +576,7 @@ export function LiveScoreboard({
                     )}
                   </div>
                 </div>
-                
+
                 {/* Away team */}
                 <div className="col-span-4 flex items-center justify-start space-x-2">
                   <img 
@@ -596,7 +586,7 @@ export function LiveScoreboard({
                     onError={(e) => {
                       // Try the livescore URL
                       (e.target as HTMLImageElement).src = `https://static.livescore.com/i/team/${match.teams.away.id}.png`;
-                      
+
                       // Add a second error handler for complete fallback
                       (e.target as HTMLImageElement).onerror = () => {
                         (e.target as HTMLImageElement).src = 'https://static.livescore.com/i/team/default.png';
@@ -611,6 +601,44 @@ export function LiveScoreboard({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+interface PopularLeagueFilterProps {
+  selectedLeague: string;
+  onSelectLeague: (leagueId: string) => void;
+}
+
+function PopularLeagueFilter({
+  selectedLeague,
+  onSelectLeague,
+}: PopularLeagueFilterProps) {
+  const popularLeagues = [
+    { id: "all", name: "All Leagues" },
+    { id: "europe", name: "Europe" },
+    { id: "39", name: "England" },
+    { id: "140", name: "Spain" },
+    { id: "135", name: "Italy" },
+    { id: "71", name: "Brazil" },
+    { id: "78", name: "Germany" },
+  ];
+
+  return (
+    <div className="overflow-x-auto pb-2">
+      <Tabs defaultValue={selectedLeague} className="w-full" onValueChange={onSelectLeague}>
+        <TabsList className="inline-flex w-auto bg-white border rounded-md shadow-sm p-1">
+          {popularLeagues.map((league) => (
+            <TabsTrigger
+              key={league.id}
+              value={league.id}
+              className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 transition-all"
+            >
+              {league.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
     </div>
   );
 }
