@@ -54,7 +54,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="w-full px-6">
+      <Tabs defaultValue="details" className="w-full">
         <TabsList className="flex border-t px-6 justify-start">
           {leagueNavItems.map((item) => {
             const isActive = location === item.href;
@@ -127,7 +127,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                             Quarter Finals • Leg 2/2
                           </span>
                         </div>
-                      </div>
+                      </Tabs>
                     </CardHeader>
                   </Card>
 
