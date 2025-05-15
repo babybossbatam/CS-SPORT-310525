@@ -18,6 +18,15 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
   const [, navigate] = useLocation();
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [matches, setMatches] = useState<FixtureResponse[]>([]);
+  
+  useEffect(() => {
+    // Auto transition every 30 minutes
+    const interval = setInterval(() => {
+      setCurrentMatchIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
+    }, 30 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [matches.length]);
 
   useEffect(() => {
     if (match) {
@@ -73,10 +82,10 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         <AnimatePresence mode="wait">
           <motion.div
             key={currentMatchIndex}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
+            initial={{ x: 300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -300, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
           >
             <div className="flex items-center justify-center gap-2 mb-2">
           <div className="flex items-center gap-2">
