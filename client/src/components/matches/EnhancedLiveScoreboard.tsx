@@ -226,7 +226,14 @@ export function EnhancedLiveScoreboard({
   }
 
   if (!filteredMatches.length) {
-    return null;
+    return (
+      <div className="p-4 text-center text-gray-500">
+        <p>No matches available at this time.</p>
+        <p className="text-sm mt-2">
+          {liveMatches?.length ? 'Matches filtered out by selection.' : 'No live matches in progress.'}
+        </p>
+      </div>
+    );
   }
 
   return (
