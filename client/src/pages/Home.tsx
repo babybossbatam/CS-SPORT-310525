@@ -27,7 +27,7 @@ import SerieASchedule from '@/components/leagues/SerieASchedule';
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
 import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
 import { apiRequest } from '@/lib/queryClient';
-import { Trophy } from 'lucide-react';
+import { Trophy, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
