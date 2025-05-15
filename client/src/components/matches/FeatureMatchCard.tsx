@@ -43,16 +43,18 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
     }
   }, [currentMatchIndex, matches]);
 
+  const { data: leagueMatches } = useQuery({
+    queryKey: [`/api/leagues/${match?.league?.id}/fixtures`],
+    enabled: !!match?.league?.id,
+    staleTime: 30000,
+    select: (data) => data?.slice(0, 5) || []
+  });
+
   useEffect(() => {
-    if (match) {
-      // Fetch 5 matches from the same league
-      fetch(`/api/leagues/${match.league.id}/fixtures`)
-        .then(res => res.json())
-        .then(data => {
-          setMatches(data.slice(0, 5));
-        });
+    if (leagueMatches?.length) {
+      setMatches(leagueMatches);
     }
-  }, [match]);
+  }, [leagueMatches]);
 
   const handleMatchClick = () => {
     if (matches[currentMatchIndex]?.fixture?.id) {
