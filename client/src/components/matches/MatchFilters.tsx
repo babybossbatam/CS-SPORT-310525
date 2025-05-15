@@ -268,7 +268,11 @@ const MatchFilters = () => {
       return false;
     });
 
-      // Extended check by league name
+      return false;
+    }).filter(match => {
+      if (!match.league) return false;
+      
+      // Check major competitions by league name
       const leagueName = (match.league.name || '').toLowerCase();
       const popularNames = [
         'premier', 'bundesliga', 'la liga', 'serie a', 'ligue 1', 'champions league', 
@@ -283,9 +287,14 @@ const MatchFilters = () => {
         'portugal', 'belgium', 'saudi arabia', 'usa', 'brazil', 'argentina'
       ];
 
-      // More lenient check allowing major leagues without strict country restrictions
-      if (popularNames.some(name => leagueName.includes(name))) {
-        console.log(`Found popular league by name: ${match.league.name} (Country: ${match.league.country})`);
+      // First check if it's a major league in a major country
+      if (popularCountries.includes(country) && popularNames.some(name => leagueName.includes(name))) {
+        return true;
+      }
+
+      // Then check for specific major competitions regardless of country
+      const majorCompetitions = ['champions league', 'europa league', 'world cup'];
+      if (majorCompetitions.some(comp => leagueName.includes(comp))) {
         return true;
       }
 
