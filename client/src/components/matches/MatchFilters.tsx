@@ -40,8 +40,14 @@ const MatchFilters = () => {
       }
 
       // Tier 2 - Top 5 Leagues (High priority)
-      const top5Leagues = ['39', '140', '135', '78', '61']; // EPL, La Liga, Serie A, Bundesliga, Ligue 1
-      if (top5Leagues.includes(String(match.league.id))) {
+      // English Premier League has ID 39 and must be from England
+      if (match.league.id === 39 && match.league.country.toLowerCase() === 'england') {
+        return true;
+      }
+      
+      // Other top leagues
+      const otherTopLeagues = ['140', '135', '78', '61']; // La Liga, Serie A, Bundesliga, Ligue 1
+      if (otherTopLeagues.includes(String(match.league.id))) {
         return true;
       }
 
