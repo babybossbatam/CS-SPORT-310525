@@ -62,7 +62,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
             return (
               <TabsTrigger
                 key={item.name}
-                value={item.name.toLowerCase()}
+                value={item.href.split('/').pop() || 'details'}
                 onClick={() => navigate(item.href)}
                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                   isActive ? 'text-primary' : 'hover:text-primary'
@@ -75,7 +75,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
           })}
         </TabsList>
 
-        <TabsContent value="details" className="px-6 py-4">
+        <TabsContent value={`${leagueId}`} className="px-6 py-4">
           <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               <div className="lg:col-span-8">
