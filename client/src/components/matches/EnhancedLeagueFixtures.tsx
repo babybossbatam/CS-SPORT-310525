@@ -29,8 +29,7 @@ export const EnhancedLeagueFixtures = ({ fixtures, onMatchClick }: FixtureProps)
       fixture.fixture.status.short === "PEN"
     )
     .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
-    .slice(0, 20)
-  );
+    .slice(0, 20);
 
   const renderFixture = (fixture: any) => (
     <div 
