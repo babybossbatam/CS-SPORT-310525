@@ -219,23 +219,18 @@ export function MatchScoreboard({
             key={`away-${teams?.away?.id}`}
                 src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo}
                 alt={teams?.away?.name || 'Away Team'}
-                className={`absolute right-[3px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 bg-white/10 rounded-full p-2 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}
+                className="absolute right-[3px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 bg-white/10 rounded-full p-2 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]"
                 style={{
                   cursor: onClick ? 'pointer' : 'default',
-                  top: "calc(50% - 32px)"
+                  top: "calc(50% - 32px)",
+                  opacity: 1
                 }}
                 onClick={onClick}
                 onError={(e) => {
                   const target = e.currentTarget;
-                  // Try team logo if sportmonks fails
-                  if (target.src.includes('sportmonks') && teams?.away?.logo) {
-                    target.src = teams.away.logo;
-                  } else {
-                    // Use placeholder if both sources fail
-                    target.src = 'https://via.placeholder.com/64?text=Team';
+                  if (!target.src.includes('placeholder')) {
+                    target.src = teams?.away?.logo || '/src/assets/fallback-logo.png';
                   }
-                  // Ensure image is loaded
-                  setAwayLogoLoaded(true);
                 }}
           />
 
