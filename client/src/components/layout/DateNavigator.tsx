@@ -14,7 +14,8 @@ const DateNavigator = () => {
   const { toast } = useToast();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  
+  const [league, setLeague] = useState<{ name: string; logo: string } | null>(null);
+
   // Always ensure today's date is set as default on component mount
   useEffect(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
@@ -22,24 +23,24 @@ const DateNavigator = () => {
     dispatch(uiActions.setSelectedDate(today));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   // Format the selected date for display
   const formattedDate = format(parseISO(selectedDate), 'yyyy-MM-dd');
   const today = format(new Date(), 'yyyy-MM-dd');
   const isToday = formattedDate === today;
-  
+
   // Navigate to previous day
   const goToPreviousDay = () => {
     const newDate = format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
     dispatch(uiActions.setSelectedDate(newDate));
   };
-  
+
   // Navigate to next day
   const goToNextDay = () => {
     const newDate = format(addDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
     dispatch(uiActions.setSelectedDate(newDate));
   };
-  
+
   // Handle calendar date selection
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -48,35 +49,35 @@ const DateNavigator = () => {
       setIsCalendarOpen(false);
     }
   };
-  
+
   // Get display text for date
   const getDateDisplayText = () => {
     if (isToday) {
       return "Today's Matches";
     }
-    
+
     const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
     if (formattedDate === yesterday) {
       return "Yesterday's Matches";
     }
-    
+
     const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
     if (formattedDate === tomorrow) {
       return "Tomorrow's Matches";
     }
-    
+
     return format(parseISO(selectedDate), 'MMMM d, yyyy');
   };
-  
+
   // Fetch fixtures for the selected date
   useEffect(() => {
     const fetchFixtures = async () => {
       try {
         dispatch(fixturesActions.setLoadingFixtures(true));
-        
+
         const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
         const data = await response.json();
-        
+
         dispatch(fixturesActions.setFixturesByDate({ 
           date: selectedDate,
           fixtures: data 
@@ -93,10 +94,10 @@ const DateNavigator = () => {
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
     };
-    
+
     fetchFixtures();
   }, [selectedDate, dispatch, toast]);
-  
+
   return (
     <div className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-2">
@@ -109,15 +110,25 @@ const DateNavigator = () => {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          
+
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
               <Button 
                 variant="ghost" 
                 className="relative flex items-center space-x-2"
               >
-                <span className="text-sm font-medium">{getDateDisplayText()}</span>
-                <ChevronRight className="h-4 w-4 rotate-90" />
+                <div className="flex items-center space-x-2">
+                    <img 
+                      src={league?.logo} 
+                      alt={league?.name}
+                      className="h-5 w-5"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                      }}
+                    />
+                    <span className="text-sm font-medium">{league?.name || getDateDisplayText()}</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 rotate-90" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="center">
@@ -129,7 +140,7 @@ const DateNavigator = () => {
               />
             </PopoverContent>
           </Popover>
-          
+
           <Button 
             variant="ghost" 
             size="sm" 
@@ -145,3 +156,4 @@ const DateNavigator = () => {
 };
 
 export default DateNavigator;
+`
