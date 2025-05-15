@@ -68,8 +68,16 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         <ChevronRight className="h-3 w-3" />
       </button>
 
-      <CardContent className="p-4">
-        <div className="flex items-center justify-center gap-2 mb-2">
+      <CardContent className="p-4 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentMatchIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex items-center justify-center gap-2 mb-2">
           <div className="flex items-center gap-2">
             {leagueLogo ? (
               <img 
@@ -185,6 +193,8 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             />
           ))}
         </div>
+          </motion.div>
+        </AnimatePresence>
       </CardContent>
     </Card>
   );
