@@ -69,7 +69,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
       </button>
 
       <CardContent className="p-4">
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <div className="flex items-center gap-2">
             {leagueLogo ? (
               <img 
@@ -99,7 +99,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           </div>
         </div>
 
-        <div className="text-lg font-semibold text-center mb-6">
+        <div className="text-lg font-semibold text-center mb-3">
           {currentMatch.fixture.status.short === 'FT' ? (
             <div className="flex flex-col items-center">
               <span className="text-emerald-600 mb-1">Match Ended</span>
@@ -108,7 +108,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           ) : matchDate}
         </div>
 
-        <div className="relative -mt-1">
+        <div className="relative">
           
           <MatchScoreboard 
             match={currentMatch}
