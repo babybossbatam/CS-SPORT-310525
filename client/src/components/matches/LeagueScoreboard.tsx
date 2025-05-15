@@ -42,7 +42,7 @@ export function LeagueScoreboard({
       >
         <div className="w-full h-full flex justify-between relative">
           {/* Country name */}
-          <div className={`absolute right-4 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
+          <div className={`absolute right-4 text-black dark:text-white font-bold text-sm uppercase text-right bg-white/10 px-2 py-1 rounded transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
             {league?.country || 'Country'}
           </div>
         </div>
