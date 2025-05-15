@@ -80,27 +80,27 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               <div className="lg:col-span-8">
                 {fixtures && fixtures.length > 0 && (
-                  <>
-                    <LeagueScoreboard
-                      league={{
-                        id: fixtures[0].league.id,
-                        name: fixtures[0].league.name,
-                        logo: fixtures[0].league.logo,
-                        country: fixtures[0].league.country
-                      }}
-                      homeTeamColor="#6f7c93"
-                      awayTeamColor="#8b0000"
-                    />
-                    <Card className="mb-4 mt-4">
-                      <CardContent className="p-4">
+                  <Card className="mb-4">
+                    <CardContent className="p-4">
+                      <LeagueScoreboard
+                        league={{
+                          id: fixtures[0].league.id,
+                          name: fixtures[0].league.name,
+                          logo: fixtures[0].league.logo,
+                          country: fixtures[0].league.country
+                        }}
+                        homeTeamColor="#6f7c93"
+                        awayTeamColor="#8b0000"
+                      />
+                      <div className="mt-4">
                         <MatchScoreboard
                           match={fixtures[0]}
                           homeTeamColor="#6f7c93"
                           awayTeamColor="#8b0000"
                         />
-                      </CardContent>
-                    </Card>
-                  </>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
 
                 <div className="mt-4">

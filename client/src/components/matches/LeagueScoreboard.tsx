@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
 
 interface LeagueScoreboardProps {
   league: {
@@ -32,30 +32,22 @@ export function LeagueScoreboard({
   }, []);
 
   return (
-    <div 
-      className={`flex relative rounded-lg bg-gradient-to-r from-[${homeTeamColor}] to-[${awayTeamColor}] ${compact ? 'h-10 mb-4' : 'h-12 mb-6'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
-    >
-      <div className="w-full h-full flex items-center px-4">
-        {/* League logo */}
-        <img 
-          src={league?.logo} 
-          alt={league?.name}
-          className="h-6 w-6 object-contain mr-3"
-        />
-        
-        {/* League name */}
-        <div className="text-white font-semibold text-sm">
-          {league?.name}
-        </div>
-        
-        {/* Country name */}
-        <div className="ml-auto text-white font-medium text-sm uppercase">
-          {league?.country}
+    <>
+      <div 
+        className={`flex relative h-[36px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onClick={onClick}
+        style={{ 
+          cursor: onClick ? 'pointer' : 'default'
+        }}
+      >
+        <div className="w-full h-full flex justify-between relative">
+          {/* Country name */}
+          <div className={`absolute right-4 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
+            {league?.country || 'Country'}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
