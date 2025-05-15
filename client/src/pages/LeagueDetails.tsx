@@ -169,13 +169,12 @@ const LeagueDetails = () => {
         leagueLogo={league?.league?.logo}
         fixtures={fixtures} 
       />
-      <div className="container mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-8">
+      <main className="container mx-auto px-4 py-4">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <article className="lg:col-span-8">
             <Card className="mb-6">
               <CardHeader className="p-4 border-b border-neutral-200">
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-
                   <TabsContent value="fixtures" className="mt-2">
                     {fixtures.length > 0 ? (
                       <EnhancedLeagueFixtures 
@@ -208,39 +207,33 @@ const LeagueDetails = () => {
 
                   <TabsContent value="stats" className="mt-2">
                     <Card>
-                      <CardContent className="p-4">
-                        <div className="text-center py-8">
-                          <p className="text-sm text-gray-500">League statistics will be displayed here.</p>
-                        </div>
+                      <CardContent className="p-4 text-center py-8">
+                        <p className="text-sm text-gray-500">League statistics will be displayed here.</p>
                       </CardContent>
                     </Card>
                   </TabsContent>
 
                   <TabsContent value="bracket" className="mt-2">
                     <Card>
-                      <CardContent className="p-4">
-                        <div className="text-center py-8">
-                          {loading ? (
-                            <div className="space-y-4">
-                              <Skeleton className="h-8 w-48 mx-auto" />
-                              <Skeleton className="h-64 w-full" />
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-500">Tournament bracket will be displayed here.</p>
-                          )}
-                        </div>
+                      <CardContent className="p-4 text-center py-8">
+                        {loading ? (
+                          <section className="space-y-4">
+                            <Skeleton className="h-8 w-48 mx-auto" />
+                            <Skeleton className="h-64 w-full" />
+                          </section>
+                        ) : (
+                          <p className="text-sm text-gray-500">Tournament bracket will be displayed here.</p>
+                        )}
                       </CardContent>
                     </Card>
                   </TabsContent>
                 </Tabs>
               </CardHeader>
             </Card>
-          </div>
-
-          <div className="lg:col-span-4 space-y-4">
-          </div>
-        </div>
-      </div>
+          </article>
+          <aside className="lg:col-span-4 space-y-4" />
+        </section>
+      </main>
     </>
   );
 };
