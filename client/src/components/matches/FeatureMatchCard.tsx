@@ -99,7 +99,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           </div>
         </div>
 
-        <div className="text-lg font-semibold text-center mb-4">
+        <div className="text-lg font-semibold text-center mb-3">
           {currentMatch.fixture.status.short === 'FT' ? (
             <div className="flex flex-col items-center">
               <span className="text-emerald-600 mb-1">Match Ended</span>
