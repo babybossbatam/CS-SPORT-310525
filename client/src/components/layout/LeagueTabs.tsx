@@ -191,28 +191,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                       </CardContent>
                     </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <h4 className="font-semibold">League Overview</h4>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span>Total Matches</span>
-                            <span>{fixtures?.length || 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Played</span>
-                            <span>{fixtures?.filter(f => f.fixture.status.short === "FT").length || 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Remaining</span>
-                            <span>{fixtures?.filter(f => f.fixture.status.short === "NS").length || 0}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                    </div>
                 </div>
               </div>
             </TabsContent>
