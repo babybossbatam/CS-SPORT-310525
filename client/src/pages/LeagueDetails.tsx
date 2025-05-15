@@ -28,6 +28,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/utils";
 import LeagueTabs from "@/components/layout/LeagueTabs";
+import LeagueTabsHeader from "@/components/layout/LeagueTabsHeader";
+import LeagueTabsDetails from "@/components/layout/LeagueTabsDetails";
 
 const LeagueDetails = () => {
   const { id, tab = "fixtures" } = useParams();
