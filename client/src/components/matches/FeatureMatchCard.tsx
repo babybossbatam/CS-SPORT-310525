@@ -20,13 +20,27 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
   const [matches, setMatches] = useState<FixtureResponse[]>([]);
   
   useEffect(() => {
-    // Auto transition every 30 minutes
+    // Auto transition every 10 seconds for smoother experience
     const interval = setInterval(() => {
       setCurrentMatchIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
-    }, 30 * 60 * 1000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [matches.length]);
+
+  // Prefetch next match data
+  useEffect(() => {
+    if (matches.length > currentMatchIndex + 1) {
+      const nextMatch = matches[currentMatchIndex + 1];
+      // Warm up the cache for next match
+      if (nextMatch?.fixture?.id) {
+        queryClient.prefetchQuery({
+          queryKey: [`/api/match/${nextMatch.fixture.id}`],
+          staleTime: 30000
+        });
+      }
+    }
+  }, [currentMatchIndex, matches]);
 
   useEffect(() => {
     if (match) {
@@ -82,10 +96,10 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         <AnimatePresence mode="wait">
           <motion.div
             key={currentMatchIndex}
-            initial={{ x: 300, opacity: 0 }}
+            initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            exit={{ x: -100, opacity: 0 }}
+            transition={{ type: "tween", duration: 0.2 }}
           >
             <div className="flex items-center justify-center gap-2 mb-2">
           <div className="flex items-center gap-2">
