@@ -130,11 +130,6 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                               <TabsTrigger value="fixture">Fixture</TabsTrigger>
                             </TabsList>
                           </Tabs>
-                          <div className="flex justify-center">
-                            <span className="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
-                              Quarter Finals • Leg 2/2
-                            </span>
-                          </div>
                         </div>
                       </CardHeader>
                     </Card>
