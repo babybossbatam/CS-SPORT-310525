@@ -33,6 +33,8 @@ interface LeaguesState {
   popularLeagues: number[];
   loading: boolean;
   error: string | null;
+  lastFetch: null; // Track last fetch time
+  cacheTimeout: 5 * 60 * 1000; // Cache for 5 minutes
 }
 
 interface StatsState {
@@ -87,6 +89,7 @@ const initialFixturesState: FixturesState = {
 const initialLeaguesState: LeaguesState = {
   list: [],
   current: null,
+  // Aligned with the Popular Leagues card
   popularLeagues: [
     2,   // UEFA Champions League
     3,   // UEFA Europa League
@@ -101,8 +104,8 @@ const initialLeaguesState: LeaguesState = {
   ],
   loading: false,
   error: null,
-  lastFetch: null, // Track last fetch time
-  cacheTimeout: 5 * 60 * 1000, // Cache for 5 minutes
+  lastFetch: null,
+  cacheTimeout: 5 * 60 * 1000, // 5 minutes cache timeout
 };
 
 const initialStatsState: StatsState = {
@@ -120,9 +123,9 @@ const initialUIState: UIState = {
   selectedLeague: 39, // Default to Premier League
   showRegionModal: false,
   accessibility: {
-    highContrast: false,
-    largerText: false,
-    reducedAnimations: false,
+    highContrast: boolean;
+    largerText: boolean;
+    reducedAnimations: boolean;
   },
 };
 
