@@ -88,9 +88,8 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES,
       cacheTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
-      staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES, 
       gcTime: 10 * 60 * 1000, // 10 minutes
       retry: 1, // Allow one retry for transient network issues
       retryDelay: 2000,

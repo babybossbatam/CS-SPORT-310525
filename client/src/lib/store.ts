@@ -123,10 +123,10 @@ const initialUIState: UIState = {
   selectedLeague: 39, // Default to Premier League
   showRegionModal: false,
   accessibility: {
-    highContrast: boolean;
-    largerText: boolean;
-    reducedAnimations: boolean;
-  },
+    highContrast: boolean,
+    largerText: boolean,
+    reducedAnimations: boolean
+  }
 };
 
 const initialNewsState: NewsState = {
