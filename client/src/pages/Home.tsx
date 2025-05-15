@@ -201,10 +201,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Stats Section */}
-        <div className="mt-8 grid grid-cols-1 gap-6">
-          <StatsPanel />
-        </div>
+        
       </main>
 
       <RegionModal />
