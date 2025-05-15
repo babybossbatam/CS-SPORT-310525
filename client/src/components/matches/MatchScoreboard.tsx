@@ -101,15 +101,52 @@ export function MatchScoreboard({
 
   // Animation state - removed hover effects
   const [isLoaded, setIsLoaded] = useState(false);
+  const [homeLogoLoaded, setHomeLogoLoaded] = useState(false);
+  const [awayLogoLoaded, setAwayLogoLoaded] = useState(false);
 
-  // Fade-in animation effect
+  // Reset states when teams change
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 150);
+    setHomeLogoLoaded(false);
+    setAwayLogoLoaded(false);
+    setIsLoaded(false);
+    
+    // Preload images
+    const homeImage = new Image();
+    const awayImage = new Image();
+    
+    homeImage.src = teams?.home?.id ? 
+      `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : 
+      teams?.home?.logo || '/src/assets/fallback-logo.png';
+      
+    awayImage.src = teams?.away?.id ? 
+      `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : 
+      teams?.away?.logo || '/src/assets/fallback-logo.png';
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Show content after both logos are loaded or failed
+    const checkAllLoaded = () => {
+      if (homeLogoLoaded && awayLogoLoaded) {
+        setTimeout(() => setIsLoaded(true), 150);
+      }
+    };
+
+    homeImage.onload = () => {
+      setHomeLogoLoaded(true);
+      checkAllLoaded();
+    };
+    homeImage.onerror = () => {
+      setHomeLogoLoaded(true);
+      checkAllLoaded();
+    };
+
+    awayImage.onload = () => {
+      setAwayLogoLoaded(true);
+      checkAllLoaded();
+    };
+    awayImage.onerror = () => {
+      setAwayLogoLoaded(true);
+      checkAllLoaded();
+    };
+  }, [teams?.home?.id, teams?.away?.id, teams?.home?.logo, teams?.away?.logo]);
 
   return (
     <>
