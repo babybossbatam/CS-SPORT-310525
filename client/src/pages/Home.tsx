@@ -10,6 +10,7 @@ import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
 
 import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
+import { EnhancedLiveScoreboard } from '@/components/matches/EnhancedLiveScoreboard';
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
