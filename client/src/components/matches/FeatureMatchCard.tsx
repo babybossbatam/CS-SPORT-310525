@@ -227,14 +227,6 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             className="flex flex-col items-center cursor-pointer w-1/4"
             onClick={() => {
               navigate(`/league/${match?.league?.id}/standings`);
-              // Focus standings tab after a small delay to ensure DOM is ready
-              setTimeout(() => {
-                const standingsTab = document.querySelector('[role="tab"][value="standings"]');
-                if (standingsTab instanceof HTMLElement) {
-                  standingsTab.focus();
-                  standingsTab.click();
-                }
-              }, 100);
             }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
