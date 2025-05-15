@@ -109,15 +109,15 @@ export function MatchScoreboard({
     setHomeLogoLoaded(false);
     setAwayLogoLoaded(false);
     setIsLoaded(false);
-    
+
     // Preload images
     const homeImage = new Image();
     const awayImage = new Image();
-    
+
     homeImage.src = teams?.home?.id ? 
       `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : 
       teams?.home?.logo || '/src/assets/fallback-logo.png';
-      
+
     awayImage.src = teams?.away?.id ? 
       `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : 
       teams?.away?.logo || '/src/assets/fallback-logo.png';
@@ -217,24 +217,26 @@ export function MatchScoreboard({
           {/* Away team logo and name */}
           <img 
             key={`away-${teams?.away?.id}`}
-            src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
-            alt={teams?.away?.name || 'Away Team'} 
-            className={`absolute right-[3px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
-            style={{
-              cursor: onClick ? 'pointer' : 'default',
-              top: "calc(50% - 32px)"
-            }}
-            onClick={onClick}
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (target.src.includes('sportmonks') && teams?.away?.logo) {
-                target.src = teams.away.logo;
-              } else if (teams?.away?.name) {
-                target.src = `/src/assets/fallback-logo.png`;
-              } else {
-                target.src = 'https://via.placeholder.com/64?text=A';
-              }
-            }}
+                src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo}
+                alt={teams?.away?.name || 'Away Team'}
+                className={`absolute right-[3px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
+                style={{
+                  cursor: onClick ? 'pointer' : 'default',
+                  top: "calc(50% - 32px)"
+                }}
+                onClick={onClick}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  // Try team logo if sportmonks fails
+                  if (target.src.includes('sportmonks') && teams?.away?.logo) {
+                    target.src = teams.away.logo;
+                  } else {
+                    // Use placeholder if both sources fail
+                    target.src = 'https://via.placeholder.com/64?text=Team';
+                  }
+                  // Ensure image is loaded
+                  setAwayLogoLoaded(true);
+                }}
           />
 
 
