@@ -220,25 +220,53 @@ const MatchFilters = () => {
 
     console.log(`After exclusion filter: ${excludedMatches.length} matches remain`);
 
-    // Now, be less restrictive in identifying popular leagues by using multiple criteria
+    // Filter and prioritize matches like 365scores
     const filteredMatches = excludedMatches.filter(match => {
       if (!match.league) return false;
-
-      // Main popular league IDs
-      const mainLeagueIds = ['2', '3', '39', '140', '135', '78']; // CL, EL, PL, La Liga, Serie A, Bundesliga
-      const leagueIdStr = String(match.league.id);
       
-      // First check main leagues by ID
-      if (mainLeagueIds.includes(leagueIdStr)) {
-        console.log(`Found main league match: ${match.league.name} (ID: ${leagueIdStr})`);
+      const leagueIdStr = String(match.league.id);
+      const leagueName = (match.league.name || '').toLowerCase();
+      const country = (match.league.country || '').toLowerCase();
+
+      // Tier 1 - Elite Competitions (Always show)
+      const eliteCompetitions = ['2', '3']; // Champions League, Europa League
+      if (eliteCompetitions.includes(leagueIdStr)) {
         return true;
       }
 
-      // Then check extended popular leagues
-      if (popularLeagueIdsArray.includes(leagueIdStr)) {
-        console.log(`Found popular league match: ${match.league.name} (ID: ${leagueIdStr})`);
+      // Tier 2 - Top 5 Leagues (High priority)
+      const topLeagues = ['39', '140', '135', '78', '61']; // EPL, La Liga, Serie A, Bundesliga, Ligue 1
+      if (topLeagues.includes(leagueIdStr)) {
         return true;
       }
+
+      // Tier 3 - Other Major European Leagues
+      const majorEuropeanLeagues = [
+        'eredivisie', 'primeira liga', 'super lig', 'scottish premiership'
+      ];
+      if (country === 'europe' || majorEuropeanLeagues.some(league => leagueName.includes(league))) {
+        return true;
+      }
+
+      // Tier 4 - Major Cups & Important Matches
+      const majorCups = [
+        'fa cup', 'copa del rey', 'dfb pokal', 'coppa italia',
+        'league cup', 'super cup'
+      ];
+      if (majorCups.some(cup => leagueName.includes(cup))) {
+        return true;
+      }
+
+      // Tier 5 - Popular Non-European Leagues
+      const popularCountries = [
+        'brazil', 'argentina', 'mexico', 'usa', 'saudi arabia'
+      ];
+      if (popularCountries.includes(country)) {
+        return true;
+      }
+
+      return false;
+    });
 
       // Extended check by league name
       const leagueName = (match.league.name || '').toLowerCase();
@@ -281,17 +309,29 @@ const MatchFilters = () => {
       matches = matches.slice(0, 20);
     }
 
-    // Sort by status first (live matches first), then by time
+    // Sort matches using 365scores priority system
     return matches.sort((a, b) => {
-      // Live matches first
-      if (a.fixture.status.short === 'LIVE' && b.fixture.status.short !== 'LIVE') return -1;
-      if (a.fixture.status.short !== 'LIVE' && b.fixture.status.short === 'LIVE') return 1;
+      // 1. Live matches first, sorted by minute
+      const aIsLive = ['1H', '2H', 'HT'].includes(a.fixture.status.short);
+      const bIsLive = ['1H', '2H', 'HT'].includes(b.fixture.status.short);
+      if (aIsLive && !bIsLive) return -1;
+      if (!bIsLive && aIsLive) return 1;
+      if (aIsLive && bIsLive) {
+        return (b.fixture.status.elapsed || 0) - (a.fixture.status.elapsed || 0);
+      }
 
-      // Finished matches next, sorted by most recent
-      const aFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
-      const bFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
-      if (aFinished && !bFinished) return -1;
-      if (!aFinished && bFinished) return 1;
+      // 2. Matches about to start (within next 60 minutes)
+      const now = Math.floor(Date.now() / 1000);
+      const aStartingSoon = a.fixture.timestamp - now < 3600 && a.fixture.timestamp > now;
+      const bStartingSoon = b.fixture.timestamp - now < 3600 && b.fixture.timestamp > now;
+      if (aStartingSoon && !bStartingSoon) return -1;
+      if (!aStartingSoon && bStartingSoon) return 1;
+
+      // 3. Recently finished matches (within last 2 hours)
+      const aRecentlyFinished = a.fixture.status.short === 'FT' && now - a.fixture.timestamp < 7200;
+      const bRecentlyFinished = b.fixture.status.short === 'FT' && now - b.fixture.timestamp < 7200;
+      if (aRecentlyFinished && !bRecentlyFinished) return -1;
+      if (!aRecentlyFinished && bRecentlyFinished) return 1;
       if (aFinished && bFinished) {
         // Most recent finished match first
         return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
