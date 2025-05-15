@@ -44,18 +44,59 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
     }
   }, [currentMatchIndex, matches]);
 
-  const { data: leagueMatches } = useQuery({
+  const { data: leagueMatches, isLoading } = useQuery({
     queryKey: [`/api/leagues/${match?.league?.id}/fixtures`],
     enabled: !!match?.league?.id,
     staleTime: 30000,
-    select: (data) => data?.slice(0, 5) || []
+    select: (data) => {
+      if (!data) return [];
+      
+      const currentTime = Math.floor(Date.now() / 1000);
+      const twelveHoursInSeconds = 12 * 60 * 60;
+      
+      // Filter matches based on conditions
+      const filteredMatches = data.filter(match => {
+        const timeDiff = currentTime - match.fixture.timestamp;
+        
+        // Include finished matches not older than 12 hours
+        if (match.fixture.status.short === 'FT' && timeDiff <= twelveHoursInSeconds) {
+          return true;
+        }
+        
+        // Include live matches
+        if (match.fixture.status.short === '1H' || match.fixture.status.short === '2H' || 
+            match.fixture.status.short === 'HT') {
+          return true;
+        }
+        
+        // Include upcoming matches
+        if (match.fixture.status.short === 'NS' && match.fixture.timestamp > currentTime) {
+          return true;
+        }
+        
+        return false;
+      });
+
+      // Sort by timestamp (newest first for finished matches, nearest first for upcoming)
+      return filteredMatches
+        .sort((a, b) => {
+          if (a.fixture.status.short === 'FT' && b.fixture.status.short === 'FT') {
+            return b.fixture.timestamp - a.fixture.timestamp; // Newest finished matches first
+          }
+          if (a.fixture.status.short === 'NS' && b.fixture.status.short === 'NS') {
+            return a.fixture.timestamp - b.fixture.timestamp; // Nearest upcoming matches first
+          }
+          return 0;
+        })
+        .slice(0, 5); // Limit to 5 matches
+    }
   });
 
   useEffect(() => {
-    if (leagueMatches?.length) {
+    if (!isLoading && leagueMatches?.length) {
       setMatches(leagueMatches);
     }
-  }, [leagueMatches]);
+  }, [leagueMatches, isLoading]);
 
   const handleMatchClick = () => {
     if (matches[currentMatchIndex]?.fixture?.id) {
