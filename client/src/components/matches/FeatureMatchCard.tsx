@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart2, LineChart, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { motion, AnimatePresence } from "framer-motion";
 import { FixtureResponse } from '../../../../server/types';
 import MatchScoreboard from './MatchScoreboard';
 
@@ -177,7 +178,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             <span className="text-xs text-gray-600 mt-1">Standings</span>
           </button>
         </div>
-        
+
         <div className="flex justify-center gap-2 mt-4">
           {matches.map((_, index) => (
             <button
