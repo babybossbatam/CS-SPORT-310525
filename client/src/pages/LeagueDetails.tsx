@@ -158,31 +158,6 @@ const LeagueDetails = () => {
     return (
       <>
         <Header />
-        <TournamentHeader title="Loading league details..." />
-        <div className="container mx-auto px-4 py-4">
-          <Card className="mb-6">
-            <CardHeader className="p-4 border-b border-neutral-200 flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center"
-                onClick={() => navigate("/")}
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                <span>Back</span>
-              </Button>
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-6 w-6 rounded-full" />
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center mb-6">
-                <Skeleton className="h-24 w-24 rounded mb-2" />
-              </div>
-              <Skeleton className="h-8 w-full mb-4" />
-              <Skeleton className="h-40 w-full" />
-            </CardContent>
-          </Card>
-        </div>
       </>
     );
   }
