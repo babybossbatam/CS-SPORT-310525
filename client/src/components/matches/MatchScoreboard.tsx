@@ -115,7 +115,7 @@ export function MatchScoreboard({
     <>
       {/* Match bar styled with height set to exactly 36px */}
       <div 
-        className={`flex relative h-[36px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`flex relative h-[36px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} mt-[-8px]`}
         onClick={onClick}
         style={{ 
           cursor: onClick ? 'pointer' : 'default'
@@ -130,7 +130,7 @@ export function MatchScoreboard({
                 className={`absolute left-[1px] z-20 w-[72px] h-[72px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
                 style={{
                   cursor: onClick ? 'pointer' : 'default',
-                  top: "calc(50% - 36px)"
+                  top: "calc(50% - 44px)"
                 }}
                 onClick={onClick}
                 onError={(e) => {
@@ -141,7 +141,7 @@ export function MatchScoreboard({
                   }
                 }}
               />
-              <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)", fontFamily: "Calibri"}}>
+              <div className={`absolute left-20 text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 18px)", fontFamily: "Calibri"}}>
               {teams?.home?.name || 'Home Team'}
             </div>
 
@@ -159,7 +159,7 @@ export function MatchScoreboard({
             style={{
               background: '#a00000',
               left: 'calc(50% - 26px)',
-              top: 'calc(50% - 26px)'
+              top: 'calc(50% - 34px)'
             }}
           >
             <span className="vs-text font-bold">VS</span>
@@ -194,7 +194,7 @@ export function MatchScoreboard({
           
 
           {/* Team name */}
-          <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
+          <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 18px)"}}>
             {teams?.away?.name || 'Away Team'}
           </div>
         </div>
