@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { Star } from 'lucide-react';
@@ -69,7 +68,7 @@ const PopularLeaguesList = () => {
         <div className="space-y-2">
           {leagueData.map((league) => {
             const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
-            
+
             return (
               <div
                 key={league.id}

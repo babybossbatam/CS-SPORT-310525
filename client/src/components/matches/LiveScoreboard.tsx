@@ -101,78 +101,24 @@ export function LiveScoreboard({
     enabled: !liveMatches || liveMatches.length === 0,
   });
 
-  // Popular leagues
-  // Ordered according to user request: Europe, England, Spain, Italy, Brazil, Germany
   const popularLeagues = [
     { id: "all", name: "All Leagues" },
-    { id: "europe", name: "Europe" },
-    { id: "39", name: "England" },
-    { id: "140", name: "Spain" },
-    { id: "135", name: "Italy" },
-    { id: "71", name: "Brazil" },
-    { id: "78", name: "Germany" },
+    { id: "2", name: "Champions League" },
+    { id: "3", name: "Europa League" },
+    { id: "39", name: "Premier League" },
+    { id: "140", name: "La Liga" },
+    { id: "135", name: "Serie A" },
+    { id: "78", name: "Bundesliga" }
   ];
 
-  // Format time
-  const formatMatchTime = (fixture: Fixture) => {
-    if (isLiveMatch(fixture.status.short)) {
-      return `${fixture.status.elapsed}'`;
-    } else if (fixture.status.short === 'FT') {
-      return 'FT';
-    } else if (fixture.status.short === 'HT') {
-      return 'HT';
-    } else {
-      return format(new Date(fixture.date), 'HH:mm');
-    }
-  };
-
-  // Filter matches by league
   useEffect(() => {
-    if (!liveMatches && !todayMatches) {
-      setFilteredMatches([]);
-      return;
-    }
+    if (!liveMatches && !todayMatches) return;
 
-    const allMatches = liveMatches?.length ? liveMatches : todayMatches || [];
+    const matches = liveMatches || todayMatches || [];
+    const filtered = selectedLeague === "all" 
+      ? matches 
+      : matches.filter(match => match.league.id.toString() === selectedLeague);
 
-    // Sort by live status first, then by priority leagues, then by time
-    const sortedMatches = [...allMatches].sort((a, b) => {
-      // Live matches first
-      const aIsLive = isLiveMatch(a.fixture.status.short);
-      const bIsLive = isLiveMatch(b.fixture.status.short);
-
-      if (aIsLive && !bIsLive) return -1;
-      if (!aIsLive && bIsLive) return 1;
-
-      // Then sort by popular leagues (Europe, England, Spain, Italy, Brazil, Germany)
-      const aLeagueIsPriority = [39, 140, 135, 71, 78].includes(a.league.id);
-      const bLeagueIsPriority = [39, 140, 135, 71, 78].includes(b.league.id);
-
-      if (aLeagueIsPriority && !bLeagueIsPriority) return -1;
-      if (!aLeagueIsPriority && bLeagueIsPriority) return 1;
-
-      // Then sort by time
-      if (aIsLive && bIsLive) {
-        return (b.fixture.status.elapsed || 0) - (a.fixture.status.elapsed || 0);
-      }
-
-      // Sort by match time
-      return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
-    });
-
-    // Apply league filter
-    let filtered = sortedMatches;
-    if (selectedLeague !== "all") {
-      if (selectedLeague === "europe") {
-        // European leagues include England (39), Spain (140), Italy (135), Germany (78), France (61), etc.
-        const europeanLeagueIds = [2, 39, 140, 135, 78, 61, 144, 88, 94];
-        filtered = sortedMatches.filter(match => europeanLeagueIds.includes(match.league.id));
-      } else {
-        filtered = sortedMatches.filter(match => match.league.id.toString() === selectedLeague);
-      }
-    }
-
-    // Limit to max matches
     setFilteredMatches(filtered.slice(0, maxMatches));
   }, [liveMatches, todayMatches, selectedLeague, maxMatches]);
 
@@ -616,12 +562,12 @@ function PopularLeagueFilter({
 }: PopularLeagueFilterProps) {
   const popularLeagues = [
     { id: "all", name: "All Leagues" },
-    { id: "europe", name: "Europe" },
-    { id: "39", name: "England" },
-    { id: "140", name: "Spain" },
-    { id: "135", name: "Italy" },
-    { id: "71", name: "Brazil" },
-    { id: "78", name: "Germany" },
+    { id: "2", name: "Champions League" },
+    { id: "3", name: "Europa League" },
+    { id: "39", name: "Premier League" },
+    { id: "140", name: "La Liga" },
+    { id: "135", name: "Serie A" },
+    { id: "78", name: "Bundesliga" }
   ];
 
   return (
