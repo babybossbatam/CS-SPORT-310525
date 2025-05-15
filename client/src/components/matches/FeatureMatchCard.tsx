@@ -20,13 +20,13 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
   const [, navigate] = useLocation();
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [matches, setMatches] = useState<FixtureResponse[]>([]);
-  
+
   useEffect(() => {
     // Auto transition every 5 minutes for better match following
     const interval = setInterval(() => {
       setCurrentMatchIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
     }, 300000);
-    
+
     return () => clearInterval(interval);
   }, [matches.length]);
 
@@ -50,30 +50,30 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
     staleTime: 30000,
     select: (data) => {
       if (!data) return [];
-      
+
       const currentTime = Math.floor(Date.now() / 1000);
       const twelveHoursInSeconds = 12 * 60 * 60;
-      
+
       // Filter matches based on conditions
       const filteredMatches = data.filter(match => {
         const timeDiff = currentTime - match.fixture.timestamp;
-        
+
         // Include finished matches not older than 12 hours
         if (match.fixture.status.short === 'FT' && timeDiff <= twelveHoursInSeconds) {
           return true;
         }
-        
+
         // Include live matches
         if (match.fixture.status.short === '1H' || match.fixture.status.short === '2H' || 
             match.fixture.status.short === 'HT') {
           return true;
         }
-        
+
         // Include upcoming matches
         if (match.fixture.status.short === 'NS' && match.fixture.timestamp > currentTime) {
           return true;
         }
-        
+
         return false;
       });
 
@@ -146,6 +146,8 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             exit={{ x: -100, opacity: 0 }}
             transition={{ type: "tween", duration: 0.2 }}
           >
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="col-span-1 lg:col-span-3">
             <div className="flex items-center justify-center gap-2 mb-2">
           <div className="flex items-center gap-2">
             {leagueLogo ? (
@@ -262,6 +264,12 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             />
           ))}
         </div>
+          </div>
+          <div className="col-span-1 lg:col-span-4">
+            <div className="flex flex-col gap-4">
+              {/* Add right column content here */}
+            </div>
+          </div>
           </motion.div>
         </AnimatePresence>
       </CardContent>
