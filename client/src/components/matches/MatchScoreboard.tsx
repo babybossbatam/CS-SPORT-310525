@@ -177,10 +177,10 @@ export function MatchScoreboard({
           <img 
             src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
             alt={teams?.away?.name || 'Away Team'} 
-            className={`absolute right-[11px] z-20 w-[72px] h-[72px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
+            className={`absolute right-[1px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
             style={{
               cursor: onClick ? 'pointer' : 'default',
-              top: "calc(50% - 36px)"
+              top: "calc(50% - 32px)"
             }}
             onClick={onClick}
             onError={(e) => {
@@ -194,7 +194,7 @@ export function MatchScoreboard({
           
 
           {/* Team name */}
-          <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 18px)"}}>
+          <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
             {teams?.away?.name || 'Away Team'}
           </div>
         </div>
