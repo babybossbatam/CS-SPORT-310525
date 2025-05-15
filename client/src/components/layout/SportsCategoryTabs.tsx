@@ -39,13 +39,10 @@ const SportsCategoryTabs = () => {
     { id: 'football', icon: FootballIcon, label: 'Football' },
     { id: 'basketball', icon: BasketballIcon, label: 'Basketball' },
     { id: 'cricket', icon: CricketIcon, label: 'Cricket' },
-    { id: 'american-football', icon: AmericanFootballIcon, label: 'A.Football' },
     { id: 'baseball', icon: BaseballIcon, label: 'Baseball' },
-    { id: 'hockey', icon: HockeyIcon, label: 'Hockey' },
     { id: 'tennis', icon: TennisIcon, label: 'Tennis' },
     { id: 'handball', icon: HandballIcon, label: 'Handball' },
-    { id: 'volleyball', icon: VolleyballIcon, label: 'Volleyball' },
-    { id: 'rugby', icon: RugbyIcon, label: 'Rugby' }
+    { id: 'volleyball', icon: VolleyballIcon, label: 'Volleyball' }
   ];
 
   return (
