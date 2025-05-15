@@ -314,8 +314,8 @@ export function LiveScoreboard({
               {/* Main match container with team bar colors */}
               <div className="w-full overflow-hidden relative">
                 {/* Team logos */}
-                <div className="flex justify-between items-center px-8 mb-2">
-                  <div className="flex flex-col items-center">
+                <div className="flex justify-between items-center mb-2 relative">
+                  <div className="absolute left-4 z-20">
                     <img 
                       src={featuredMatch.teams.home.logo} 
                       alt={featuredMatch.teams.home.name}
