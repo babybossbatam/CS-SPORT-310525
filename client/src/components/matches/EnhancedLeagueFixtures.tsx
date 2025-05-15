@@ -22,10 +22,14 @@ export const EnhancedLeagueFixtures = ({ fixtures, onMatchClick }: FixtureProps)
     fixture.fixture.status.short === "TBD"
   );
 
-  const completedFixtures = sortedFixtures.filter(fixture => 
-    fixture.fixture.status.short === "FT" || 
-    fixture.fixture.status.short === "AET" || 
-    fixture.fixture.status.short === "PEN"
+  const completedFixtures = sortedFixtures
+    .filter(fixture => 
+      fixture.fixture.status.short === "FT" || 
+      fixture.fixture.status.short === "AET" || 
+      fixture.fixture.status.short === "PEN"
+    )
+    .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
+    .slice(0, 20)
   );
 
   const renderFixture = (fixture: any) => (
