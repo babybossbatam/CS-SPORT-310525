@@ -389,4 +389,4 @@ const ChampionsLeagueSchedule = () => {
   );
 };
 
-export default ChampionsLeagueSchedule;e;
+export default ChampionsLeagueSchedule;
