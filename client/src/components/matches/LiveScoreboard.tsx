@@ -92,7 +92,9 @@ export function LiveScoreboard({
     queryKey: ['/api/fixtures/live'],
     staleTime: 15000, // 15 seconds
     refetchInterval: 30000, // Refresh every 30 seconds for live matches
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false
   });
 
   // Fetch today's matches if no live matches are available
