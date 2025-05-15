@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format, parseISO, isSameDay } from 'date-fns';
-import { Star, Calendar, Clock, ChevronRight } from 'lucide-react';
+import { Star, Calendar, Clock, ChevronRight, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import ChampionsLeagueHeader from './ChampionsLeagueHeader';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,93 +11,27 @@ import { useLocation } from 'wouter';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 
-// Define the types we need
-interface Team {
-  id: number;
-  name: string;
-  logo: string;
-  winner?: boolean;
-}
-
-interface Goals {
-  home: number | null;
-  away: number | null;
-}
-
-interface Fixture {
-  id: number;
-  referee: string | null;
-  timezone: string;
-  date: string;
-  timestamp: number;
-  periods: {
-    first: number | null;
-    second: number | null;
-  };
-  venue: {
-    id: number | null;
-    name: string | null;
-    city: string | null;
-  };
-  status: {
-    long: string;
-    short: string;
-    elapsed: number | null;
-  };
-}
-
-interface League {
-  id: number;
-  name: string;
-  country: string;
-  logo: string;
-  flag: string | null;
-  season: number;
-  round: string;
-}
-
-interface FixtureResponse {
-  fixture: Fixture;
-  league: League;
-  teams: {
-    home: Team;
-    away: Team;
-  };
-  goals: Goals;
-  score: {
-    halftime: Goals;
-    fulltime: Goals;
-    extratime: Goals;
-    penalty: Goals;
-  };
-}
-
 const ChampionsLeagueSchedule = () => {
   const [, navigate] = useLocation();
-  const [visibleFixtures, setVisibleFixtures] = useState<FixtureResponse[]>([]);
+  const [visibleFixtures, setVisibleFixtures] = useState([]);
 
-  // Get selected date from Redux store
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const isToday = isSameDay(parseISO(selectedDate), new Date());
 
-  // Champions League ID is 2
   const leagueId = 2;
   const currentYear = new Date().getFullYear();
 
-  // Get Champions League info
   const { data: leagueInfo } = useQuery({
     queryKey: [`/api/leagues/${leagueId}`],
-    staleTime: 60 * 60 * 1000, // 1 hour
+    staleTime: 60 * 60 * 1000,
   });
 
-  // Get the league fixtures with current season from league info
-  const { data: allFixtures, isLoading, error } = useQuery<FixtureResponse[]>({
+  const { data: allFixtures, isLoading, error } = useQuery({
     queryKey: [`/api/leagues/${leagueId}/fixtures`],
     enabled: !!leagueInfo,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Handle fixtures based on selected date
   useEffect(() => {
     if (!allFixtures) return;
 
@@ -105,12 +39,9 @@ const ChampionsLeagueSchedule = () => {
     const now = new Date();
     const selectedDateObj = parseISO(selectedDate);
 
-    // Filter fixtures by the selected date
-    let filteredFixtures: FixtureResponse[] = [];
+    let filteredFixtures = [];
 
     if (isToday) {
-      // For today, show both completed and upcoming matches
-      // 1. Get finished and live matches from today
       const todayFinishedMatches = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
         return (
@@ -122,7 +53,6 @@ const ChampionsLeagueSchedule = () => {
         );
       });
 
-      // 2. Get upcoming matches for today
       const todayUpcomingMatches = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
         return (
@@ -130,72 +60,21 @@ const ChampionsLeagueSchedule = () => {
           f.fixture.status.short !== 'FT' && 
           f.fixture.status.short !== 'AET' && 
           f.fixture.status.short !== 'PEN' && 
-          !isLiveMatch(f.fixture.status.short) &&
-          fixtureDate > now
+          !isLiveMatch(f.fixture.status.short)
         );
       });
 
-      // 3. Combine finished and upcoming matches for today
       filteredFixtures = [...todayFinishedMatches, ...todayUpcomingMatches];
     } else {
-      // For other dates, show only completed matches for that date
       filteredFixtures = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
-        return (
-          isSameDay(fixtureDate, selectedDateObj) && 
-          (f.fixture.status.short === 'FT' || 
-           f.fixture.status.short === 'AET' || 
-           f.fixture.status.short === 'PEN')
-        );
+        return isSameDay(fixtureDate, selectedDateObj);
       });
     }
 
-    // Fix the Barcelona vs Inter Milan score to 3-4 as requested
-    filteredFixtures.forEach(fixture => {
-      if ((fixture.teams.home.name === "Barcelona" && fixture.teams.away.name === "Inter") || 
-          (fixture.teams.home.name === "Inter" && fixture.teams.away.name === "Barcelona")) {
-        if (fixture.teams.home.name === "Barcelona") {
-          fixture.goals.home = 3;
-          fixture.goals.away = 4;
-        } else {
-          fixture.goals.home = 4;
-          fixture.goals.away = 3;
-        }
-      }
-    });
-
-    // Sort the fixtures
-    filteredFixtures.sort((a, b) => {
-      // First, prioritize live matches
-      const aIsLive = isLiveMatch(a.fixture.status.short);
-      const bIsLive = isLiveMatch(b.fixture.status.short);
-
-      if (aIsLive && !bIsLive) return -1;
-      if (!aIsLive && bIsLive) return 1;
-
-      const aDate = new Date(a.fixture.date);
-      const bDate = new Date(b.fixture.date);
-
-      // Then upcoming matches vs completed matches
-      if (aDate > now && bDate <= now) return -1;
-      if (aDate <= now && bDate > now) return 1;
-
-      // For upcoming matches, sort by time (earliest first)
-      if (aDate > now && bDate > now) {
-        return aDate.getTime() - bDate.getTime();
-      }
-
-      // For completed matches, sort by time (latest first)
-      return bDate.getTime() - aDate.getTime();
-    });
-
-    // Limit to a reasonable number
-    const limitedFixtures = filteredFixtures.slice(0, 4);
-
-    setVisibleFixtures(limitedFixtures);
+    setVisibleFixtures(filteredFixtures);
   }, [allFixtures, selectedDate, isToday]);
 
-  // Loading state
   if (isLoading) {
     return (
       <Card className="mb-4">
@@ -216,7 +95,6 @@ const ChampionsLeagueSchedule = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <Card className="mb-4">
@@ -227,32 +105,14 @@ const ChampionsLeagueSchedule = () => {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="text-center space-y-3">
-            <div className="bg-indigo-50 text-indigo-800 p-3 rounded-md border border-indigo-100 text-sm">
-              <p className="font-medium">We're having trouble connecting to the Champions League API.</p>
-              <p className="mt-1 text-xs text-indigo-600">This data will be available soon.</p>
-            </div>
-
-            {/* Fallback image */}
-            <div className="flex justify-center mt-4">
-              <div className="relative w-32 h-32 opacity-50">
-                <img 
-                  src="https://media.api-sports.io/football/leagues/2.png"
-                  alt="UEFA Champions League" 
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128?text=Champions+League';
-                  }}
-                />
-              </div>
-            </div>
+          <div className="text-center">
+            <p>Error loading Champions League fixtures</p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  // Empty state
   if (!visibleFixtures || visibleFixtures.length === 0) {
     return (
       <Card className="mb-4">
@@ -263,25 +123,8 @@ const ChampionsLeagueSchedule = () => {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="text-center space-y-3">
-            <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-100 text-sm">
-              <p className="font-medium">No Champions League fixtures are currently available.</p>
-              <p className="mt-1 text-xs text-yellow-600">Fixtures will be listed here when matches are scheduled.</p>
-            </div>
-
-            {/* Fallback image */}
-            <div className="flex justify-center mt-4">
-              <div className="relative w-24 h-24 opacity-60">
-                <img 
-                  src="https://media.api-sports.io/football/leagues/2.png"
-                  alt="UEFA Champions League" 
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=Champions+League';
-                  }}
-                />
-              </div>
-            </div>
+          <div className="text-center">
+            <p>No matches scheduled for this date</p>
           </div>
         </CardContent>
       </Card>
@@ -293,99 +136,86 @@ const ChampionsLeagueSchedule = () => {
       <ChampionsLeagueHeader />
       <Card className="mb-4">
         <CardContent className="p-0">
-        {/* Bracket Status Indicator */}
-        <div className="p-3 bg-indigo-50 border-b border-indigo-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Trophy className="h-4 w-4 text-indigo-600" />
-              <span className="text-sm font-medium text-indigo-800">
-                Next Round: Quarter-finals
-              </span>
-            </div>
-            <div className="text-xs text-indigo-600">
-              3 days until next matches
+          <div className="p-3 bg-indigo-50 border-b border-indigo-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Trophy className="h-4 w-4 text-indigo-600" />
+                <span className="text-sm font-medium text-indigo-800">
+                  Next Round: Quarter-finals
+                </span>
+              </div>
+              <div className="text-xs text-indigo-600">
+                3 days until next matches
+              </div>
             </div>
           </div>
-        </div>
-        <div className="divide-y divide-gray-100">
-          {visibleFixtures.map((fixture) => (
-            <div 
-              key={fixture.fixture.id} 
-              className="p-3 hover:bg-gray-50 cursor-pointer"
-              onClick={() => navigate(`/match/${fixture.fixture.id}`)}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <div className="flex items-center text-xs text-gray-500">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  <span>{formatMatchDateFn(fixture.fixture.date)}</span>
-                  <span className="mx-1">•</span>
-                  <Clock className="h-3 w-3 mr-1" />
-                  <span>{format(parseISO(fixture.fixture.date), 'HH:mm')}</span>
-                </div>
-                <div className="text-xs font-medium">
-                  {fixture.league.round}
-                </div>
-              </div>
-
-              {/* Home team */}
-              <div className="flex items-center space-x-2 w-2/5">
-                <img 
-                  src={fixture.teams.home.logo} 
-                  alt={fixture.teams.home.name} 
-                  className="h-6 w-6"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
-                  }}
-                />
-                <span className="font-medium text-sm truncate">{fixture.teams.home.name}</span>
-              </div>
-
-              {/* Score */}
-              <div className="flex items-center justify-center px-3 py-1 rounded min-w-[60px] text-center">
-                {isLiveMatch(fixture.fixture.status.short) ? (
-                  <div className="flex items-center">
-                    <span className="font-bold text-sm mr-1">
-                      {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
-                    </span>
-                    <span className="text-xs text-red-500 animate-pulse font-semibold flex items-center">
-                      <span className="h-1.5 w-1.5 bg-red-500 rounded-full mr-1 animate-pulse"></span>
-                      LIVE
-                    </span>
+          <div className="divide-y divide-gray-100">
+            {visibleFixtures.map((fixture) => (
+              <div 
+                key={fixture.fixture.id} 
+                className="p-3 hover:bg-gray-50 cursor-pointer"
+                onClick={() => navigate(`/match/${fixture.fixture.id}`)}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    <span>{formatMatchDateFn(fixture.fixture.date)}</span>
+                    <span className="mx-1">•</span>
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>{format(parseISO(fixture.fixture.date), 'HH:mm')}</span>
                   </div>
-                ) : (fixture.fixture.status.short === 'FT' || fixture.fixture.status.short === 'AET' || fixture.fixture.status.short === 'PEN') ? (
-                  <div className="flex flex-col items-center">
-                    <span className="font-bold text-sm">
-                      {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
-                    </span>
-                    {fixture.fixture.status.short === 'AET' && (
-                      <span className="text-xs bg-indigo-100 text-indigo-800 px-1 py-0.5 rounded ml-1 font-medium">AET</span>
-                    )}
-                    {fixture.fixture.status.short === 'PEN' && (
-                      <span className="text-xs bg-amber-100 text-amber-800 px-1 py-0.5 rounded ml-1 font-medium">PEN</span>
+                  <div className="text-xs font-medium">
+                    {fixture.league.round}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 w-2/5">
+                    <img 
+                      src={fixture.teams.home.logo} 
+                      alt={fixture.teams.home.name} 
+                      className="h-6 w-6"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
+                      }}
+                    />
+                    <span className="font-medium text-sm truncate">{fixture.teams.home.name}</span>
+                  </div>
+                  <div className="flex items-center justify-center px-3 py-1 rounded min-w-[60px] text-center">
+                    {isLiveMatch(fixture.fixture.status.short) ? (
+                      <div className="flex items-center">
+                        <span className="font-bold text-sm mr-1">
+                          {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                        </span>
+                        <span className="text-xs text-red-500 animate-pulse font-semibold">
+                          LIVE
+                        </span>
+                      </div>
+                    ) : fixture.fixture.status.short === 'FT' || fixture.fixture.status.short === 'AET' || fixture.fixture.status.short === 'PEN' ? (
+                      <span className="font-bold text-sm">
+                        {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-500 font-medium">vs</span>
                     )}
                   </div>
-                ) : (
-                  <span className="text-xs text-gray-500 font-medium">vs</span>
-                )}
+                  <div className="flex items-center justify-end space-x-2 w-2/5">
+                    <span className="font-medium text-sm truncate">{fixture.teams.away.name}</span>
+                    <img 
+                      src={fixture.teams.away.logo} 
+                      alt={fixture.teams.away.name} 
+                      className="h-6 w-6"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-
-              {/* Away team */}
-              <div className="flex items-center justify-end space-x-2 w-2/5">
-                <span className="font-medium text-sm truncate">{fixture.teams.away.name}</span>
-                <img 
-                  src={fixture.teams.away.logo} 
-                  alt={fixture.teams.away.name} 
-                  className="h-6 w-6"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 
