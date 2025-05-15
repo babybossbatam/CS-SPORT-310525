@@ -17,11 +17,11 @@ const MIN_REQUEST_INTERVAL = 1800000; // 30 minutes minimum between same request
 const checkRateLimit = (key: string) => {
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
-  
+
   if (lastRequest && now - lastRequest < MIN_REQUEST_INTERVAL) {
     return false;
   }
-  
+
   requestTimestamps.set(key, now);
   return true;
 };
@@ -39,7 +39,7 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include"
     });
-    
+
     await throwIfResNotOk(res);
     return res;
   } catch (error) {
@@ -56,21 +56,21 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
-    
+
     if (!checkRateLimit(keyString)) {
       console.warn('Rate limiting request to:', keyString);
       return null as any;
     }
-    
+
     try {
       const res = await fetch(queryKey[0] as string, {
         credentials: "include"
       });
-      
+
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
       }
-      
+
       await throwIfResNotOk(res);
       return await res.json();
     } catch (error) {
@@ -88,6 +88,8 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+      cacheTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
       staleTime: CACHE_STALE_TIMES.LIVE_FIXTURES, 
       gcTime: 10 * 60 * 1000, // 10 minutes
       retry: 1, // Allow one retry for transient network issues
