@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { queryClient } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/badge';
 import { BarChart2, LineChart, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
