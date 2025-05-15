@@ -49,15 +49,15 @@ const Header = () => {
     <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[72px]">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link href="/" className="text-2xl font-bold flex items-center">
+          <Link href="/" className="flex-shrink-0 flex items-center h-full">
             <img 
               src="/logo.png" 
               alt="CS SPORT Logo" 
-              className="h-[52px] mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
+              className="h-full max-h-[52px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
             />
-            <span className="flex items-center gap-2">
-              <span className="text-amber-400 font-bold text-xl transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
-              <span className="text-amber-300 font-medium transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]">潮勝體育</span>
+            <span className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-amber-400 font-bold text-[clamp(1rem,2vw,1.25rem)] transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
+              <span className="text-amber-300 font-medium text-[clamp(0.875rem,1.8vw,1.125rem)] transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]">潮勝體育</span>
             </span>
           </Link>
         </div>
