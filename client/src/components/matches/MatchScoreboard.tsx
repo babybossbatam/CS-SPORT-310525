@@ -161,12 +161,34 @@ export function MatchScoreboard({
               {teams?.home?.name || 'Home Team'}
             </div>
 
-          {/* HOME TEAM COLORED BAR - Starts from halfway of logo and extends to VS */}
-          <div className={`h-full w-[calc(50%-77px)] ml-[87px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} relative`} 
+          {/* HOME TEAM COLORED BAR - Starts from left edge and extends to VS */}
+          <div className={`h-full w-[calc(50%-10px)] ml-[10px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} relative`} 
             style={{ 
               background: homeTeamColor,
               transition: 'all 0.3s ease-in-out'
             }}>
+            {/* Home team logo centered on left edge */}
+            <img 
+              key={`home-${teams?.home?.id}`}
+              src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
+              alt={teams?.home?.name || 'Home Team'} 
+              className={`absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
+              style={{
+                cursor: onClick ? 'pointer' : 'default',
+                top: "calc(50% - 32px)"
+              }}
+              onClick={onClick}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src.includes('sportmonks') && teams?.home?.logo) {
+                  target.src = teams.home.logo;
+                } else if (teams?.home?.name) {
+                  target.src = `/src/assets/fallback-logo.png`;
+                } else {
+                  target.src = 'https://via.placeholder.com/64?text=H';
+                }
+              }}
+            />
           </div>
 
           {/* VS SECTION - fixed size */}
