@@ -67,6 +67,7 @@ interface FixtureResponse {
 
 interface MatchScoreboardProps {
   match: FixtureResponse;
+  matches?: FixtureResponse[];
   onClick?: () => void;
   featured?: boolean;
   homeTeamColor?: string;
@@ -90,6 +91,7 @@ const formatDateTime = (dateStr: string | undefined) => {
 
 export function MatchScoreboard({ 
   match, 
+  matches = [],
   onClick, 
   featured = false,
   homeTeamColor = '#6f7c93', // Default Atalanta blue-gray color 
@@ -97,10 +99,20 @@ export function MatchScoreboard({
   compact = false 
 }: MatchScoreboardProps) {
   // Get match data
-  const { fixture, league, teams, goals, score } = match;
+  const allMatches = [match, ...matches].slice(0, 5);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const { fixture, league, teams, goals, score } = allMatches[currentMatchIndex];
 
   // Animation state - removed hover effects
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMatchIndex((prev) => (prev + 1) % allMatches.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [allMatches.length]);
 
   // Fade-in animation effect
   useEffect(() => {
@@ -211,7 +223,18 @@ export function MatchScoreboard({
       {/* Match details footer */}
       {!compact && (
         <>
-          <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200 mt-2">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              {allMatches.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentMatchIndex ? 'bg-blue-500 w-4' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200">
             <Clock className="h-3 w-3 transition-colors duration-300" />
             <span>
               {format(new Date(fixture?.date || ''), "EEEE, do MMM | HH:mm")}

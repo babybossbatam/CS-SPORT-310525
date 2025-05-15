@@ -109,13 +109,12 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         </div>
 
         <div className="relative">
-          
-          <MatchScoreboard 
+
+          <MatchScoreboard
             match={currentMatch}
-            featured={true}
-            homeTeamColor="#6f7c93"
-            awayTeamColor="#8b0000"
+            matches={[]} // You can pass additional matches here
             onClick={handleMatchClick}
+            featured={true}
           />
         </div>
 
