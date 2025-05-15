@@ -61,22 +61,14 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
           <Tabs defaultValue="details" className="w-full">
             <TabsList className="flex border-t px-6 justify-start">
               {leagueNavItems.map((item) => {
-                const isActive = location === item.href;
+                const isActive = location === item.href || 
+                  (item.name === 'Standings' && location.includes('/standings'));
                 return (
                   <TabsTrigger
                     key={item.name}
                     value={item.name.toLowerCase()}
                     onClick={() => {
                       navigate(item.href);
-                      if (item.name === 'Standings') {
-                        return (
-                          <Card>
-                            <CardContent className="p-4">
-                              <LeagueStandings leagueId={leagueId} season={2024} />
-                            </CardContent>
-                          </Card>
-                        );
-                      }
                     }}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                       isActive ? 'text-primary' : 'hover:text-primary'
