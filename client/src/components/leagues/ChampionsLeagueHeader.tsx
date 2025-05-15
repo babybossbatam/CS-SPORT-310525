@@ -25,4 +25,4 @@ const ChampionsLeagueHeader = () => {
   );
 };
 
-export default ChampionsLeagueHeaderr;
+export default ChampionsLeagueHeader;
