@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="128px" height="128px" viewBox="0 0 128 128" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>Team Logo Placeholder</title>
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <circle fill="#F5F5F5" cx="64" cy="64" r="64"></circle>
-        <path d="M64,108 C42.536027,108 25,90.463973 25,69 C25,47.536027 42.536027,30 64,30 C85.463973,30 103,47.536027 103,69 C103,90.463973 85.463973,108 64,108 Z M64,101 C81.6731119,101 96,86.6731119 96,69 C96,51.3268881 81.6731119,37 64,37 C46.3268881,37 32,51.3268881 32,69 C32,86.6731119 46.3268881,101 64,101 Z" fill="#DADADA" fill-rule="nonzero"></path>
-        <path d="M56.5,69.5 L56.5,48.5 L71.5,48.5 L71.5,69.5 L92.5,69.5 L92.5,84.5 L71.5,84.5 L71.5,84.5 L56.5,84.5 L56.5,84.5 L35.5,84.5 L35.5,69.5 L56.5,69.5 Z" stroke="#AAAAAA" stroke-width="3" fill="#E5E5E5"></path>
-    </g>
-</svg>
