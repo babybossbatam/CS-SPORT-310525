@@ -191,7 +191,7 @@ export function MatchScoreboard({
               }
             }}
           />
-          
+
 
           {/* Team name */}
           <div className={`absolute right-20 text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 10px)"}}>
@@ -213,7 +213,7 @@ export function MatchScoreboard({
             </span>
           </div>
 
-          
+
         </>
       )}
     </>
