@@ -1,3 +1,4 @@
+
 import { useLocation, useNavigate } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -116,7 +117,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                 <Card>
                   <CardHeader>
                     <div className="space-y-4">
-                      <Tabs defaultValue="overview" className="w-full">
+                      <Tabs defaultValue="overview">
                         <TabsList className="grid w-full grid-cols-3">
                           <TabsTrigger value="overview">Score Overview</TabsTrigger>
                           <TabsTrigger value="result">Result</TabsTrigger>
@@ -128,75 +129,75 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                           </span>
                         </div>
                       </Tabs>
-                    </CardHeader>
-                  </Card>
+                    </div>
+                  </CardHeader>
+                </Card>
 
-                  <Card className="bg-[#f7f7f7]">
-                    <CardHeader className="pb-0">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="text-sm font-medium">Fixtures</h4>
-                          <div className="text-xs text-gray-500 mt-1">17/05/2025</div>
-                        </div>
-                        <div className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                          Quarter Finals
-                        </div>
+                <Card className="bg-[#f7f7f7]">
+                  <CardHeader className="pb-0">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="text-sm font-medium">Fixtures</h4>
+                        <div className="text-xs text-gray-500 mt-1">17/05/2025</div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      {fixtures?.slice(0, 5).map((fixture) => (
-                        <div key={fixture.fixture.id} className="py-3 border-b last:border-0 bg-white mb-1">
-                          <div className="flex justify-between items-center px-4">
-                            <div className="flex flex-col items-center w-[35%] gap-1">
-                              <img 
-                                src={fixture.teams.home.logo} 
-                                alt={fixture.teams.home.name}
-                                className="w-8 h-8 object-contain"
-                              />
-                              <span className="text-sm text-center truncate">{fixture.teams.home.name}</span>
-                            </div>
-                            <span className="text-sm font-medium min-w-[60px] text-center">
-                              {format(new Date(fixture.fixture.date), "HH:mm")}
-                            </span>
-                            <div className="flex flex-col items-center w-[35%] gap-1">
-                              <img 
-                                src={fixture.teams.away.logo} 
-                                alt={fixture.teams.away.name}
-                                className="w-8 h-8 object-contain"
-                              />
-                              <span className="text-sm text-center truncate">{fixture.teams.away.name}</span>
-                            </div>
+                      <div className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                        Quarter Finals
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {fixtures?.slice(0, 5).map((fixture) => (
+                      <div key={fixture.fixture.id} className="py-3 border-b last:border-0 bg-white mb-1">
+                        <div className="flex justify-between items-center px-4">
+                          <div className="flex flex-col items-center w-[35%] gap-1">
+                            <img 
+                              src={fixture.teams.home.logo} 
+                              alt={fixture.teams.home.name}
+                              className="w-8 h-8 object-contain"
+                            />
+                            <span className="text-sm text-center truncate">{fixture.teams.home.name}</span>
+                          </div>
+                          <span className="text-sm font-medium min-w-[60px] text-center">
+                            {format(new Date(fixture.fixture.date), "HH:mm")}
+                          </span>
+                          <div className="flex flex-col items-center w-[35%] gap-1">
+                            <img 
+                              src={fixture.teams.away.logo} 
+                              alt={fixture.teams.away.name}
+                              className="w-8 h-8 object-contain"
+                            />
+                            <span className="text-sm text-center truncate">{fixture.teams.away.name}</span>
                           </div>
                         </div>
-                      ))}
-                      <button className="w-full text-center text-sm text-gray-600 hover:text-gray-800 mt-2">
-                        FA Cup Fixtures →
-                      </button>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <h4 className="font-semibold">League Overview</h4>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Total Matches</span>
-                          <span>{fixtures?.length || 0}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Played</span>
-                          <span>{fixtures?.filter(f => f.fixture.status.short === "FT").length || 0}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Remaining</span>
-                          <span>{fixtures?.filter(f => f.fixture.status.short === "NS").length || 0}</span>
-                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                    ))}
+                    <button className="w-full text-center text-sm text-gray-600 hover:text-gray-800 mt-2">
+                      FA Cup Fixtures →
+                    </button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <h4 className="font-semibold">League Overview</h4>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Total Matches</span>
+                        <span>{fixtures?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Played</span>
+                        <span>{fixtures?.filter(f => f.fixture.status.short === "FT").length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Remaining</span>
+                        <span>{fixtures?.filter(f => f.fixture.status.short === "NS").length || 0}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
