@@ -201,19 +201,8 @@ const Home = () => {
           
           {/* Right column (4 columns) */}
           <div className="lg:col-span-4 space-y-4">
-            {/* Today's Matches Section */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="border-gray-100">
-                <DateNavigator />
-              </div>
-              {/* MatchFilters moved below DateNavigator */}
-              <div className="border-t border-gray-100">
-                <MatchFilters />
-              </div>
-            </div>
-            
-            {/* League Schedules below - Moved from LiveScoreboardPage */}
-            <div className="mt-4 space-y-4">
+            {/* League Schedules */}
+            <div className="space-y-4">
               <ChampionsLeagueSchedule />
               <PremierLeagueSchedule />
               <SerieASchedule />
