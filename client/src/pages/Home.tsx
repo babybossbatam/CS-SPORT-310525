@@ -10,7 +10,7 @@ import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
 
 import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
-import { EnhancedLiveScoreboard } from '@/components/matches/EnhancedLiveScoreboard';
+
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
@@ -162,22 +162,7 @@ const Home = () => {
             {/* Featured Match - Added at the top */}
             <FeaturedMatch />
             
-            {/* Live Scoreboard Section */}
-            <Card className="mt-4">
-              <CardHeader className="border-b border-gray-100">
-                <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
-                  <Activity className="h-4 w-4 text-red-500" />
-                  Live Matches
-                </h3>
-              </CardHeader>
-              <CardContent className="p-4">
-                <EnhancedLiveScoreboard 
-                  showFeaturedMatch={true}
-                  showFilters={true}
-                  maxMatches={10}
-                />
-              </CardContent>
-            </Card>
+            
 
             {/* Top Scorers Section */}
             <Card className="mt-4">
