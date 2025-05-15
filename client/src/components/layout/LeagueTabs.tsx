@@ -68,15 +68,6 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
                     value={item.name.toLowerCase()}
                     onClick={() => {
                       navigate(item.href);
-                      if (item.name === 'Standings') {
-                        return (
-                          <Card>
-                            <CardContent className="p-4">
-                              <LeagueStandings leagueId={leagueId} season={2024} />
-                            </CardContent>
-                          </Card>
-                        );
-                      }
                     }}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                       isActive ? 'text-primary' : 'hover:text-primary'
