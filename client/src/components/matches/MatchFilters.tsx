@@ -1,127 +1,130 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions, fixturesActions } from '@/lib/store';
-import { Clock } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Clock } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { format, isSameDay } from 'date-fns';
-import { useLocation } from 'wouter';
-import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { isLiveMatch } from '@/lib/utils';
+import { FixtureResponse } from '@/types/fixtures';
 
 const MatchFilters = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
-  const [location, setLocation] = useLocation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Mark the component as mounted after it's been rendered
     setMounted(true);
-
-    // Clear the mounted state when the component unmounts
     return () => setMounted(false);
   }, []);
 
   const selectedFilter = useSelector((state: RootState) => state.ui.selectedFilter);
   const liveFixtures = useSelector((state: RootState) => state.fixtures.live);
   const loading = useSelector((state: RootState) => state.fixtures.loading);
-
-  // Get fixtures by date for the selected date
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
-  const fixturesByDate = useSelector((state: RootState) => 
-    state.fixtures.byDate[selectedDate] || []
-  );
-  const byDate = useSelector((state: RootState) => state.fixtures.byDate);
-
-  // Get upcoming fixtures for display
+  const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate[selectedDate] || []);
   const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
 
-  // Fetch fixtures for selected date
+  // Function to filter and prioritize matches using 365scores-style logic
+  const getPrioritizedMatches = (matches: FixtureResponse[]): FixtureResponse[] => {
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    // Filter out unwanted matches first
+    const filteredMatches = matches.filter(match => {
+      if (!match.league || !match.teams) return false;
+
+      // Tier 1 - Elite European Competitions (Always show)
+      const eliteCompetitions = ['2', '3']; // Champions League, Europa League
+      if (eliteCompetitions.includes(String(match.league.id))) {
+        return true;
+      }
+
+      // Tier 2 - Top 5 Leagues (High priority)
+      const top5Leagues = ['39', '140', '135', '78', '61']; // EPL, La Liga, Serie A, Bundesliga, Ligue 1
+      if (top5Leagues.includes(String(match.league.id))) {
+        return true;
+      }
+
+      // Tier 3 - Other Major European Leagues
+      const majorEuropeanLeagues = [
+        'eredivisie', 'primeira liga', 'super lig', 'scottish premiership'
+      ];
+      if (majorEuropeanLeagues.some(league => match.league.name.toLowerCase().includes(league))) {
+        return true;
+      }
+
+      // Tier 4 - Major Cups & Important Matches
+      const majorCups = [
+        'fa cup', 'copa del rey', 'dfb pokal', 'coppa italia',
+        'league cup', 'super cup'
+      ];
+      if (majorCups.some(cup => match.league.name.toLowerCase().includes(cup))) {
+        return true;
+      }
+
+      // Tier 5 - Popular Non-European Leagues
+      const popularCountries = [
+        'brazil', 'argentina', 'mexico', 'usa', 'saudi arabia'
+      ];
+      if (popularCountries.includes(match.league.country.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // Sort matches by priority
+    return filteredMatches.sort((a, b) => {
+      // First priority: Live matches
+      const aIsLive = isLiveMatch(a.fixture.status.short);
+      const bIsLive = isLiveMatch(b.fixture.status.short);
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+
+      // Second priority: About to start (within next hour)
+      const aStartingSoon = a.fixture.timestamp - currentTime < 3600 && a.fixture.timestamp > currentTime;
+      const bStartingSoon = b.fixture.timestamp - currentTime < 3600 && b.fixture.timestamp > currentTime;
+      if (aStartingSoon && !bStartingSoon) return -1;
+      if (!aStartingSoon && bStartingSoon) return 1;
+
+      // Third priority: Recent finished matches (within last 2 hours)
+      const aRecentlyFinished = a.fixture.status.short === 'FT' && currentTime - a.fixture.timestamp < 7200;
+      const bRecentlyFinished = b.fixture.status.short === 'FT' && currentTime - b.fixture.timestamp < 7200;
+      if (aRecentlyFinished && !bRecentlyFinished) return -1;
+      if (!aRecentlyFinished && bRecentlyFinished) return 1;
+
+      // Finally sort by match time
+      return a.fixture.timestamp - b.fixture.timestamp;
+    });
+  };
+
   useEffect(() => {
     const fetchFixturesByDate = async () => {
       try {
-        // Always set loading state when changing date
         dispatch(fixturesActions.setLoadingFixtures(true));
-
-        // Check if we already have data for this date
-        const existingFixtures = byDate[selectedDate];
-        if (existingFixtures && existingFixtures.length > 0) {
-          console.log(`Using ${existingFixtures.length} cached fixtures for date ${selectedDate}`);
-          // We still make an API call to refresh in the background, but don't wait for it
-          setTimeout(() => {
-            apiRequest('GET', `/api/fixtures/date/${selectedDate}`)
-              .then(response => response.json())
-              .then(data => {
-                if (data && data.length > 0) {
-                  dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
-                }
-              })
-              .catch(err => console.error('Background refresh error:', err));
-          }, 100);
-
-          // Keep showing existing data immediately
-          dispatch(fixturesActions.setLoadingFixtures(false));
-          return;
-        }
-
-        // Always fetch fresh data when date changes or we don't have data
         const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
         const data = await response.json();
 
-        dispatch(fixturesActions.setFixturesByDate({ date: selectedDate, fixtures: data }));
+        // Apply filtering before storing
+        const prioritizedMatches = getPrioritizedMatches(data);
+        dispatch(fixturesActions.setFixturesByDate({ 
+          date: selectedDate, 
+          fixtures: prioritizedMatches 
+        }));
       } catch (error) {
-        console.error('Error fetching fixtures by date:', error);
-        // Don't show toast on every error as it might be rate limiting
-        // Only show toast if we don't have any data at all for this date
-        if (!byDate[selectedDate] || byDate[selectedDate].length === 0) {
-          toast({
-            title: 'Error',
-            description: 'Failed to load matches for selected date',
-            variant: 'destructive',
-          });
-        }
+        console.error('Error fetching fixtures:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load matches',
+          variant: 'destructive',
+        });
       } finally {
-        // Always clear loading state when done
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
     };
 
     fetchFixturesByDate();
-  }, [selectedDate, dispatch, toast, byDate]);
-
-  // Fetch live fixtures
-  useEffect(() => {
-    if (selectedFilter === 'live') {
-      const fetchLiveFixtures = async () => {
-        try {
-          dispatch(fixturesActions.setLoadingFixtures(true));
-
-          const response = await apiRequest('GET', '/api/fixtures/live');
-          const data = await response.json();
-
-          dispatch(fixturesActions.setLiveFixtures(data));
-        } catch (error) {
-          console.error('Error fetching live fixtures:', error);
-          toast({
-            title: 'Error',
-            description: 'Failed to load live matches',
-            variant: 'destructive',
-          });
-        } finally {
-          dispatch(fixturesActions.setLoadingFixtures(false));
-        }
-      };
-
-      fetchLiveFixtures();
-
-      // Poll for live updates every 30 minutes (1,800,000 ms)
-      const intervalId = setInterval(fetchLiveFixtures, 1800000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, [selectedFilter, dispatch, toast]);
+  }, [selectedDate, dispatch, toast]);
 
   // Toggle live filter
   const toggleLiveFilter = () => {
@@ -137,205 +140,7 @@ const MatchFilters = () => {
     ));
   };
 
-  // Check if there are live matches
-  const hasLiveMatches = liveFixtures.length > 0;
-
-  // Get popular leagues IDs from the store now that we've expanded the list
-  const popularLeagueIds = useSelector((state: RootState) => state.leagues.popularLeagues);
-
-  // Function to get matches to display in the list
-  const getMatchesToDisplay = () => {
-    // Initialize with an empty array instead of undefined to prevent flickering
-    // Always work with a copy to avoid mutation issues
-    let matches = fixturesByDate ? [...fixturesByDate] : [];
-
-    console.log(`Getting matches to display: ${matches.length} for date ${selectedDate}`);
-
-    // If we're in live mode and have live matches, show only live matches
-    if (selectedFilter === 'live' && liveFixtures && liveFixtures.length > 0) {
-      console.log(`Using ${liveFixtures.length} live matches`);
-      matches = [...liveFixtures];
-    }
-    // If no matches for the selected date but we're loading, use a transition state
-    else if ((matches.length === 0 || !matches) && loading) {
-      console.log("No matches for selected date but loading, using transition state");
-
-      // Create an array from all fixtures we have in different dates
-      let previousDateFixtures: any[] = [];
-
-      // Safely collect fixtures from other dates
-      if (byDate && typeof byDate === 'object') {
-        Object.entries(byDate).forEach(([date, fixtures]) => {
-          if (Array.isArray(fixtures) && fixtures.length > 0 && date !== selectedDate) {
-            console.log(`Found ${fixtures.length} fixtures for date ${date}`);
-            previousDateFixtures = [...previousDateFixtures, ...fixtures];
-          }
-        });
-      }
-
-      // Use previous fixtures to prevent flickering
-      if (previousDateFixtures.length > 0) {
-        console.log(`Using ${Math.min(previousDateFixtures.length, 20)} previous fixtures to prevent flickering`);
-        matches = [...previousDateFixtures.slice(0, 20)];
-      }
-    }
-    // If no or few matches and we have upcoming fixtures, supplement with those
-    else if (matches.length < 10 && upcomingFixtures && upcomingFixtures.length > 0) {
-      // Add some upcoming fixtures to ensure we have content
-      console.log(`Adding ${Math.min(upcomingFixtures.length, 20 - matches.length)} upcoming fixtures`);
-      matches = [...matches, ...upcomingFixtures.slice(0, 20 - matches.length)];
-    }
-
-    // When matches is empty, show a loading indicator or message in the UI
-    // But always return a valid array even if empty to prevent rendering errors
-
-    console.log(`Before filtering: ${matches.length} matches, popular leagues: ${popularLeagueIds}`);
-
-    // DEBUG: Print first few matches to check league IDs
-    if (matches.length > 0) {
-      console.log("Sample matches with league IDs:");
-      for (let i = 0; i < Math.min(5, matches.length); i++) {
-        if (matches[i] && matches[i].league) {
-          console.log(`Match ${i}: League ID ${matches[i].league.id} (${typeof matches[i].league.id}), Name: ${matches[i].league.name}`);
-        }
-      }
-    }
-
-    // Convert league IDs to strings for comparison since some APIs might return them as strings
-    const popularLeagueIdsArray = popularLeagueIds.map(id => id.toString());
-
-    // Log popular leagues for debugging
-    console.log("Popular league IDs:", popularLeagueIdsArray);
-
-    // First, filter out youth and lower division matches using our exclusion filter
-    const excludedMatches = matches.filter(match => {
-      if (!match || !match.league || !match.teams) return false;
-
-      const leagueName = match.league.name || '';
-      const homeTeamName = match.teams.home.name || '';
-      const awayTeamName = match.teams.away.name || '';
-
-      return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName);
-    });
-
-    console.log(`After exclusion filter: ${excludedMatches.length} matches remain`);
-
-    // Filter and prioritize matches like 365scores
-    const filteredMatches = excludedMatches.filter(match => {
-      if (!match.league) return false;
-
-      const leagueIdStr = String(match.league.id);
-      const leagueName = (match.league.name || '').toLowerCase();
-      const country = (match.league.country || '').toLowerCase();
-
-      // Tier 1 - Elite Competitions (Always show)
-      const eliteCompetitions = ['2', '3']; // Champions League, Europa League
-      if (eliteCompetitions.includes(leagueIdStr)) {
-        return true;
-      }
-
-      // Tier 2 - Top 5 Leagues (High priority)
-      const topLeagues = ['39', '140', '135', '78', '61']; // EPL, La Liga, Serie A, Bundesliga, Ligue 1
-      if (topLeagues.includes(leagueIdStr)) {
-        return true;
-      }
-
-      // Tier 3 - Other Major European Leagues and Cups
-      const majorEuropeanLeagues = [
-        'eredivisie', 'primeira liga', 'super lig', 'scottish premiership',
-        'fa cup', 'copa del rey', 'dfb pokal', 'coppa italia',
-        'league cup', 'super cup'
-      ];
-      if (country === 'europe' || majorEuropeanLeagues.some(league => leagueName.includes(league))) {
-        return true;
-      }
-
-      // Tier 4 - Popular Non-European Leagues
-      const popularCountries = [
-        'brazil', 'argentina', 'mexico', 'usa', 'saudi arabia'
-      ];
-      if (popularCountries.includes(country)) {
-        return true;
-      }
-
-      return false;
-    });
-
-    // Use filtered matches if we have enough, otherwise prioritize them but include some others
-    if (filteredMatches.length >= 10) {
-      console.log(`After filtering: ${filteredMatches.length} matches in popular leagues`);
-      matches = filteredMatches;
-    } else if (filteredMatches.length > 0) {
-      console.log(`Few matches in popular leagues (${filteredMatches.length}), prioritizing them`);
-      // Use all popular matches, then add other matches up to 20 total
-      const otherMatches = matches
-        .filter(match => !filteredMatches.includes(match))
-        .slice(0, 20 - filteredMatches.length);
-      matches = [...filteredMatches, ...otherMatches];
-    } else {
-      console.log(`No matches in popular leagues, showing top 20 matches from ${matches.length} total`);
-      // If no popular matches, just take first 20
-      matches = matches.slice(0, 20);
-    }
-
-    // Sort matches using 365scores priority system
-    return matches.sort((a, b) => {
-      // 1. Live matches first, sorted by minute
-      const aIsLive = ['1H', '2H', 'HT'].includes(a.fixture.status.short);
-      const bIsLive = ['1H', '2H', 'HT'].includes(b.fixture.status.short);
-      if (aIsLive && !bIsLive) return -1;
-      if (!bIsLive && aIsLive) return 1;
-      if (aIsLive && bIsLive) {
-        return (b.fixture.status.elapsed || 0) - (a.fixture.status.elapsed || 0);
-      }
-
-      // 2. Matches about to start (within next 60 minutes)
-      const now = Math.floor(Date.now() / 1000);
-      const aStartingSoon = a.fixture.timestamp - now < 3600 && a.fixture.timestamp > now;
-      const bStartingSoon = b.fixture.timestamp - now < 3600 && b.fixture.timestamp > now;
-      if (aStartingSoon && !bStartingSoon) return -1;
-      if (!aStartingSoon && bStartingSoon) return 1;
-
-      // 3. Recently finished matches (within last 2 hours)
-      const aRecentlyFinished = a.fixture.status.short === 'FT' && now - a.fixture.timestamp < 7200;
-      const bRecentlyFinished = b.fixture.status.short === 'FT' && now - b.fixture.timestamp < 7200;
-      if (aRecentlyFinished && !bRecentlyFinished) return -1;
-      if (!aRecentlyFinished && bRecentlyFinished) return 1;
-      if (aFinished && bFinished) {
-        // Most recent finished match first
-        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-      }
-
-      // Finally sort upcoming matches by time (soonest first)
-      const timeA = new Date(a.fixture.date).getTime();
-      const timeB = new Date(b.fixture.date).getTime();
-      return timeA - timeB;
-    }).slice(0, 20); // Show more matches for better coverage
-  };
-
-  // Get the matches to display in the list, with error handling
-  const matchesToDisplay = (() => {
-    try {
-      return getMatchesToDisplay();
-    } catch (error) {
-      console.error("Error getting matches to display:", error);
-      return []; // Return empty array on error instead of breaking the component
-    }
-  })();
-
-  // Determine if we should show the component based on our current location
-  // Prevent flickering by checking if we're mounted and not in transition between pages
-  const shouldShowComponent = mounted;
-
-  // Early return when we're navigating between pages or not yet mounted
-  if (!shouldShowComponent) {
-    return null;
-  }
-
-  // Log to help debug what we're actually displaying
-  console.log(`Displaying ${matchesToDisplay.length} matches for date ${selectedDate}`);
-  console.log(`Filter: ${selectedFilter}, Loading: ${loading}`);
-
+  if (!mounted) return null;
 
   return (
     <div className="bg-white shadow-sm rounded-lg">
@@ -369,10 +174,9 @@ const MatchFilters = () => {
           <span>by time</span>
         </Button>
       </div>
-
       {/* Match list with Popular Leagues card at the top */}
       <div className="overflow-y-auto max-h-[700px]">
-        {matchesToDisplay.length > 0 ? (
+        {fixturesByDate.length > 0 ? (
           <div className="w-full">
             {/* Matches will be displayed in TodayMatches component instead */}
             <div className="space-y-1"></div>
