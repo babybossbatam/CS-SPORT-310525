@@ -41,7 +41,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
     <div className="bg-white border-b sticky top-0 z-10">
       <div className="mx-auto">
         <div className="flex flex-col">
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 border-b">
             <div className="flex items-center gap-4">
               <img 
                 src={leagueLogo} 
@@ -58,7 +58,7 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
             </div>
           </div>
 
-          <Tabs defaultValue="details" className="w-full">
+          <Tabs defaultValue="details" className="w-full px-6">
             <TabsList className="flex border-t px-6 justify-start">
               {leagueNavItems.map((item) => {
                 const isActive = location === item.href;
