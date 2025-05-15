@@ -66,6 +66,7 @@ const SportsCategoryTabs = () => {
               </button>
             ))}
           </div>
+        </div>
       </CardContent>
     </Card>
   );
