@@ -224,16 +224,6 @@ export function MatchScoreboard({
       {!compact && (
         <>
           <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              {allMatches.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentMatchIndex ? 'bg-blue-500 w-4' : 'bg-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
             <div className="flex items-center justify-center gap-1 text-xs text-gray-600 hover:text-gray-800 transition-colors duration-200">
               <Clock className="h-3 w-3 transition-colors duration-300" />
               <span>
@@ -242,6 +232,16 @@ export function MatchScoreboard({
                   <> | {fixture.venue.name}</>
                 )}
               </span>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              {allMatches.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentMatchIndex ? 'bg-blue-500 w-4' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </>
