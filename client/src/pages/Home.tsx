@@ -161,6 +161,11 @@ const Home = () => {
             {/* Featured Match - Added at the top */}
             <FeaturedMatch />
             
+            {/* Live Scoreboard Section */}
+            <div className="mt-4">
+              <LiveScoreboardPage />
+            </div>
+
             {/* Top Scorers Section - Moved below Featured Match */}
             <Card className="mt-4">
               <CardHeader className="border-b border-gray-100">
@@ -177,10 +182,6 @@ const Home = () => {
             <div className="mt-4">
               <LeagueStandingsFilter />
             </div>
-            
-            
-            
-            <LiveScoreboardPage />
             
             {/* Popular Leagues section */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
