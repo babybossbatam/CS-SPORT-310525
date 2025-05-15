@@ -156,4 +156,3 @@ const DateNavigator = () => {
 };
 
 export default DateNavigator;
-`
