@@ -55,6 +55,34 @@ const LeagueTabs = ({ leagueId, leagueName, leagueLogo, followers = "5.03M", fix
       </div>
 
       <Tabs defaultValue="details" className="w-full">
+        <TabsContent value="details">
+          <div className="p-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="space-y-4">
+                  {fixtures?.map((fixture) => (
+                    <div key={fixture.fixture.id} className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <TeamLogo teamId={fixture.teams.home.id} size="small" />
+                          <span>{fixture.teams.home.name}</span>
+                        </div>
+                        <span>VS</span>
+                        <div className="flex items-center gap-4">
+                          <span>{fixture.teams.away.name}</span>
+                          <TeamLogo teamId={fixture.teams.away.id} size="small" />
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-500 text-center">
+                        {format(new Date(fixture.fixture.date), 'EEEE, do MMM')} | {format(new Date(fixture.fixture.date), 'HH:mm')} | {fixture.fixture.venue.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
         <TabsList className="flex border-t px-6 justify-start">
           {leagueNavItems.map((item) => {
             const isActive = location === item.href;
