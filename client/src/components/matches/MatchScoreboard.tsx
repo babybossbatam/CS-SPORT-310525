@@ -146,9 +146,10 @@ export function MatchScoreboard({
               onClick={onClick}
             />
           </div>
-                    target.src = 'https://via.placeholder.com/64?text=H';
-                  }
-                }}
+
+          <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
+            {teams?.home?.name || 'Home Team'}
+          </div>
               />
               <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)", fontFamily: "Calibri"}}>
               {teams?.home?.name || 'Home Team'}
