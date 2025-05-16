@@ -53,8 +53,8 @@ interface UIState {
     highContrast: boolean;
     largerText: boolean;
     reducedAnimations: boolean;
-  };
-}
+  }
+};
 
 interface NewsState {
   items: NewsItem[];
