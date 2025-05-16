@@ -136,19 +136,16 @@ export function MatchScoreboard({
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo */}
-            <div className="absolute left-[38px] z-20" style={{ top: "calc(50% - 32px)" }}>
-              <TeamLogo
-                logoUrl={teams?.home?.logo || ''}
-                teamName={teams?.home?.name || 'Home Team'}
-                teamId={teams?.home?.id}
-                size="md"
-                isHome={true}
-                onClick={onClick}
-              />
-            </div>
-                  } else if (teams?.home?.name) {
-                    target.src = `/src/assets/fallback-logo.png`;
-                  } else {
+          <div className="absolute left-[38px] z-20" style={{ top: "calc(50% - 32px)" }}>
+            <TeamLogo
+              logoUrl={teams?.home?.logo || ''}
+              teamName={teams?.home?.name || 'Home Team'}
+              teamId={teams?.home?.id}
+              size="md"
+              isHome={true}
+              onClick={onClick}
+            />
+          </div>
                     target.src = 'https://via.placeholder.com/64?text=H';
                   }
                 }}
