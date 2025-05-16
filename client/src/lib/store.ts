@@ -33,8 +33,8 @@ interface LeaguesState {
   popularLeagues: number[];
   loading: boolean;
   error: string | null;
-  lastFetch: null; // Track last fetch time
-  cacheTimeout: 5 * 60 * 1000; // Cache for 5 minutes
+  lastFetch: number | null;
+  cacheTimeout: number;
 }
 
 interface StatsState {
