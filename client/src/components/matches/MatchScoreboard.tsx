@@ -136,20 +136,16 @@ export function MatchScoreboard({
         {/* Full bar with logos and team names, with colored sections in between logos and VS */}
         <div className="w-full h-full flex justify-between relative">
           {/* Home team logo */}
-            <img 
-                key={`home-${teams?.home?.id}`}
-                src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
-                alt={teams?.home?.name || 'Home Team'} 
-                className={`absolute left-[38px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
-                style={{
-                  cursor: onClick ? 'pointer' : 'default',
-                  top: "calc(50% - 32px)"
-                }}
+            <div className="absolute left-[38px] z-20" style={{ top: "calc(50% - 32px)" }}>
+              <TeamLogo
+                logoUrl={teams?.home?.logo || ''}
+                teamName={teams?.home?.name || 'Home Team'}
+                teamId={teams?.home?.id}
+                size="md"
+                isHome={true}
                 onClick={onClick}
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.includes('sportmonks') && teams?.home?.logo) {
-                    target.src = teams.home.logo;
+              />
+            </div>
                   } else if (teams?.home?.name) {
                     target.src = `/src/assets/fallback-logo.png`;
                   } else {
