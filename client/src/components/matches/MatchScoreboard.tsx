@@ -232,10 +232,6 @@ export function MatchScoreboard({
           <div className={`absolute right-[125px] text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
             {teams?.away?.name || 'Away Team'}
           </div>
-
-          <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
-            {teams?.home?.name || 'Home Team'}
-          </div>
         </div>
       </div>
 
