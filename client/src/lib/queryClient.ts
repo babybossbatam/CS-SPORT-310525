@@ -88,13 +88,13 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
-      cacheTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 1, // Allow one retry for transient network issues
+      staleTime: 30 * 60 * 1000, // Data stays fresh for 30 minutes
+      cacheTime: 60 * 60 * 1000, // Keep unused data in cache for 1 hour
+      gcTime: 60 * 60 * 1000, // 1 hour
+      retry: 1,
       retryDelay: 2000,
       refetchOnMount: false,
-      refetchOnReconnect: true, // Re-fetch when reconnected to handle connection issues
+      refetchOnReconnect: false,
     },
     mutations: {
       retry: 1,
