@@ -9,8 +9,8 @@ import {
 } from "@/lib/store";
 
 // Adjustments for header height and league tabs position
-const headerHeight = 'h-[216px]'; // 180px increased by 20%
-const leagueTabsPosition = 'mt-[236px]'; // 180px increased to accommodate new header height
+const headerHeight = "h-[216px]"; // 180px increased by 20%
+const leagueTabsPosition = "mt-[236px]"; // 180px increased to accommodate new header height
 import { LeagueStandings } from "@/components/stats/LeagueStandings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -172,7 +172,9 @@ const LeagueDetails = () => {
     <>
       <Header />
       <TournamentHeader title={league.league.name} />
+      
       <LeagueTabsHeader
+        
         leagueId={league?.league?.id}
         leagueName={league?.league?.name}
         leagueLogo={league?.league?.logo}
@@ -183,6 +185,9 @@ const LeagueDetails = () => {
           <div className="lg:col-span-8">
             <Card className="mb-6">
               <CardHeader className="p-4 border-b border-neutral-200">
+                
+                <LeagueTabsDetails />
+                
                 <Tabs
                   value={activeTab}
                   onValueChange={handleTabChange}

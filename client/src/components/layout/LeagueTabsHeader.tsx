@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 
 interface LeagueTabsHeaderProps {
@@ -27,9 +26,7 @@ const LeagueTabsHeader = ({
               className="h-16 w-16 object-contain"
             />
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                {leagueName}
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900">{leagueName}</h1>
               <Button variant="outline" size="sm">
                 Follow
               </Button>
@@ -41,9 +38,7 @@ const LeagueTabsHeader = ({
         </div>
       </div>
       <div className="fixed left-0 right-0 top-[152px] z-40 bg-white shadow-md">
-        <div className="px-6 border-t">
-          <LeagueTabs />
-        </div>
+        <div className="px-6 border-t"></div>
       </div>
     </>
   );
