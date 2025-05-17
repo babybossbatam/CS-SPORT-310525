@@ -219,7 +219,6 @@ const LeagueDetails = () => {
                           season={league.league.season}
                         />
                       )}
-                      <CardContent className="p-4"></CardContent>
                     </Card>
                   </TabsContent>
 
