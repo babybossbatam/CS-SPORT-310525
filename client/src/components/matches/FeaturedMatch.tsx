@@ -17,6 +17,9 @@ const FEATURED_LEAGUE_IDS = [
   2,   // UEFA Champions League (Europe)
   3,   // UEFA Europa League (Europe)
   39,  // Premier League (England)
+  140, // La Liga (Spain)
+  78,  // Bundesliga (Germany)
+  61,  // Ligue 1 (France)
 ];
 
 const FeaturedMatch = () => {
