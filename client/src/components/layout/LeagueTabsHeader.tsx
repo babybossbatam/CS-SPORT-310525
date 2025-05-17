@@ -17,7 +17,7 @@ const LeagueTabsHeader = ({
   if (!leagueId) return null;
 
   return (
-    <div className="bg-white border-b fixed left-0 right-0 top-[48px] z-40 shadow-md">
+    <div className="bg-white border-b fixed left-0 right-0 top-[64px] z-40 shadow-md">
       <div className="px-6 py-4">
         <div className="flex items-center gap-4">
           <img
