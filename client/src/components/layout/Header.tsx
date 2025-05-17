@@ -48,8 +48,7 @@ const Header = () => {
   return (
     <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[72px]">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link href="/" className="flex-shrink-0 flex items-center h-full">
+        <Link href="/" className="flex-shrink-0 flex items-center h-full">
             <img 
               src="/logo.png" 
               alt="CS SPORT Logo" 
@@ -60,7 +59,6 @@ const Header = () => {
               <span className="text-amber-300 font-medium text-[clamp(0.875rem,1.8vw,1.125rem)] transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]">潮勝體育</span>
             </span>
           </Link>
-        </div>
         
         <div className="flex items-center space-x-4">
           <LeagueTabs />
