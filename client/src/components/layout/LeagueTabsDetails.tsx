@@ -27,18 +27,7 @@ interface LeagueTabsDetailsProps {
 const LeagueTabsDetails = ({ leagueId, fixtures }: LeagueTabsDetailsProps) => {
   const [location, navigate] = useLocation();
 
-  const leagueNavItems = [
-    { name: "Details", href: `/league/${leagueId}`, icon: Info },
-    { name: "Matches", href: `/league/${leagueId}/fixtures`, icon: Calendar },
-    { name: "Standings", href: `/league/${leagueId}/standings`, icon: Trophy },
-    { name: "News", href: `/league/${leagueId}/news`, icon: Newspaper },
-    { name: "Highlights", href: `/league/${leagueId}/highlights`, icon: Video },
-    { name: "Bracket", href: `/league/${leagueId}/bracket`, icon: GitBranch },
-    { name: "Stats", href: `/league/${leagueId}/stats`, icon: BarChart2 },
-    { name: "Insights", href: `/league/${leagueId}/insights`, icon: Brain },
-    { name: "Transfers", href: `/league/${leagueId}/transfers`, icon: ArrowLeftRight },
-    { name: "History", href: `/league/${leagueId}/history`, icon: History },
-  ];
+  const leagueNavItems = [];
 
   if (!leagueId) return null;
 
