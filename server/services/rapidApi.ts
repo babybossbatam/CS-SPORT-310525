@@ -35,6 +35,13 @@ const fixturesCache = new Map<string, { data: any, timestamp: number }>();
 const leaguesCache = new Map<string, { data: any, timestamp: number }>();
 const playersCache = new Map<string, { data: any, timestamp: number }>();
 
+// Mock data for popular leagues and teams
+const popularLeagues: { [leagueId: number]: string[] } = {
+  39: ['Arsenal', 'Chelsea', 'Liverpool', 'Man United', 'Man City', 'Tottenham'], // Premier League
+  135: ['Flamengo', 'Palmeiras', 'Santos', 'São Paulo', 'Corinthians'], // Serie A Brazil
+  // Add more leagues and teams as needed
+};
+
 export const rapidApiService = {
   /**
    * Get fixtures by date
@@ -174,11 +181,23 @@ export const rapidApiService = {
       console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);
 
       if (response.data && response.data.response) {
+        // Filter fixtures to only include matches between popular teams
+        const filteredFixtures = response.data.response.filter(fixture => {
+          const homeTeam = fixture.teams.home.name;
+          const awayTeam = fixture.teams.away.name;
+          const teams = popularLeagues[leagueId];
+
+          return teams.some(team => homeTeam.includes(team)) || 
+                 teams.some(team => awayTeam.includes(team));
+        });
+
+        console.log(`Filtered ${response.data.response.length} fixtures to ${filteredFixtures.length} for league ${leagueId}`);
+
         fixturesCache.set(cacheKey, { 
-          data: response.data.response, 
+          data: filteredFixtures, 
           timestamp: now 
         });
-        return response.data.response;
+        return filteredFixtures;
       }
 
       return [];
