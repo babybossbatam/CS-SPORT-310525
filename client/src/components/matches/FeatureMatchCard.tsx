@@ -185,15 +185,12 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           ) : matchDate}
         </div>
 
-        <div className="relative">
-
-          <MatchScoreboard
-            match={currentMatch}
-            matches={[]} // You can pass additional matches here
-            onClick={handleMatchClick}
-            featured={true}
-          />
-        </div>
+        <MatchScoreboard
+          match={currentMatch}
+          matches={[]} 
+          onClick={handleMatchClick}
+          featured={true}
+        />
 
         <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
           <button 
