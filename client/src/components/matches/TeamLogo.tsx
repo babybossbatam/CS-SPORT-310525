@@ -74,13 +74,6 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
           cursor: onClick ? 'pointer' : 'default'
         }}
       >
-        <img 
-          src={currentLogoUrl} 
-          alt={teamName}
-          className={`${logoSize} w-auto object-contain`}
-          onError={handleImageError}
-        />
-
         {/* Winner badge */}
         {winner && (
           <div 
