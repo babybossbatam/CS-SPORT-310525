@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   RootState,
   leaguesActions,
+  // Adjustments for header height and league tabs position
+  const headerHeight = 'h-[216px]'; // 180px increased by 20%
+  const leagueTabsPosition = 'mt-[236px]'; // 180px increased to accommodate new header height
   fixturesActions,
   userActions,
 } from "@/lib/store";
