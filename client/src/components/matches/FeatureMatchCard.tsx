@@ -20,13 +20,13 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
   const [, navigate] = useLocation();
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [matches, setMatches] = useState<FixtureResponse[]>([]);
-  
+
   useEffect(() => {
     // Auto transition every 5 minutes for better match following
     const interval = setInterval(() => {
       setCurrentMatchIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
     }, 300000);
-    
+
     return () => clearInterval(interval);
   }, [matches.length]);
 
@@ -50,30 +50,30 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
     staleTime: 30000,
     select: (data) => {
       if (!data) return [];
-      
+
       const currentTime = Math.floor(Date.now() / 1000);
       const twelveHoursInSeconds = 12 * 60 * 60;
-      
+
       // Filter matches based on conditions
       const filteredMatches = data.filter(match => {
         const timeDiff = currentTime - match.fixture.timestamp;
-        
+
         // Include finished matches not older than 12 hours
         if (match.fixture.status.short === 'FT' && timeDiff <= twelveHoursInSeconds) {
           return true;
         }
-        
+
         // Include live matches
         if (match.fixture.status.short === '1H' || match.fixture.status.short === '2H' || 
             match.fixture.status.short === 'HT') {
           return true;
         }
-        
+
         // Include upcoming matches
         if (match.fixture.status.short === 'NS' && match.fixture.timestamp > currentTime) {
           return true;
         }
-        
+
         return false;
       });
 
@@ -185,12 +185,14 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           ) : matchDate}
         </div>
 
-        <MatchScoreboard
-          match={currentMatch}
-          matches={[]} 
-          onClick={handleMatchClick}
-          featured={true}
-        />
+        <div className="relative">
+          <MatchScoreboard
+            match={currentMatch}
+            matches={[]}
+            onClick={handleMatchClick}
+            featured={true}
+          />
+        </div>
 
         <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
           <button 
