@@ -46,7 +46,7 @@ const SportsCategoryTabs = () => {
   ];
 
   return (
-    <Card className="rounded-none border-x-0 shadow-lg fixed left-0 right-0 z-50 top-0 w-full bg-white/95 backdrop-blur-sm">
+    <Card className="rounded-none border-x-0 shadow-lg fixed left-0 right-0 z-50 top-[72px] w-full bg-white/95 backdrop-blur-sm">
       <CardContent className="p-0">
         <div className="container mx-auto px-4">
           <div className="flex gap-1 py-0">
