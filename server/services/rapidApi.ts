@@ -37,9 +37,12 @@ const playersCache = new Map<string, { data: any, timestamp: number }>();
 
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
+  2: ['Real Madrid', 'Manchester City', 'Bayern Munich', 'PSG', 'Inter'], // Champions League
+  3: ['Liverpool', 'Atalanta', 'Marseille', 'Roma', 'Leverkusen'], // Europa League
   39: ['Arsenal', 'Chelsea', 'Liverpool', 'Man United', 'Man City', 'Tottenham'], // Premier League
-  135: ['Flamengo', 'Palmeiras', 'Santos', 'São Paulo', 'Corinthians'], // Serie A Brazil
-  // Add more leagues and teams as needed
+  140: ['Real Madrid', 'Barcelona', 'Atletico Madrid', 'Athletic Bilbao', 'Sevilla'], // La Liga
+  135: ['Inter', 'Milan', 'Juventus', 'Roma', 'Napoli'], // Serie A
+  78: ['Bayern Munich', 'Dortmund', 'Leipzig', 'Leverkusen', 'Frankfurt'], // Bundesliga
 };
 
 export const rapidApiService = {
@@ -181,8 +184,14 @@ export const rapidApiService = {
       console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);
 
       if (response.data && response.data.response) {
-        // Return all fixtures for now without filtering by popular teams
-        const filteredFixtures = response.data.response;
+        // Include all fixtures from popular leagues
+        const filteredFixtures = response.data.response.filter(fixture => {
+          // If it's a popular league, include all matches
+          if (Object.keys(popularLeagues).map(Number).includes(leagueId)) {
+            return true;
+          }
+          return false;
+        });
 
         console.log(`Filtered ${response.data.response.length} fixtures to ${filteredFixtures.length} for league ${leagueId}`);
 
