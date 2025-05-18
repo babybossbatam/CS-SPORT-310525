@@ -34,24 +34,32 @@ export function LeagueMatchScoreboard({
     const currentTime = Math.floor(Date.now() / 1000);
     const eightHoursInSeconds = 8 * 60 * 60;
 
-    // First filter matches by time window and status
+    // Define popular leagues IDs (same as in PopularLeagueFilter.tsx)
+    const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78];  // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+
+    // First filter matches by league and time window
     const filteredMatches = matches.filter(match => {
+      // Check if match is from a popular league
+      if (!POPULAR_LEAGUES.includes(match.league.id)) {
+        return false;
+      }
+
       const matchTime = match.fixture.timestamp;
       const timeDiff = currentTime - matchTime;
 
-      // Show all live matches
+      // Show all live matches from popular leagues
       if (match.fixture.status.short === 'LIVE') {
         return true;
       }
 
-      // Show matches starting within next 8 hours
+      // Show upcoming matches from popular leagues (within next 8 hours)
       if (match.fixture.status.short === 'NS' && 
           matchTime > currentTime && 
           matchTime - currentTime <= eightHoursInSeconds) {
         return true;
       }
 
-      // Show recently finished matches (within last 8 hours)
+      // Show recently finished matches from popular leagues (within last 8 hours)
       if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
         return true;
       }
@@ -59,12 +67,22 @@ export function LeagueMatchScoreboard({
       return false;
     });
 
-    // Then sort them by priority
+    // Sort by priority: Live > Upcoming > Recent
     return filteredMatches.sort((a, b) => {
-      // Live matches first
+      // Priority 1: Live matches first
       const aIsLive = a.fixture.status.short === 'LIVE';
       const bIsLive = b.fixture.status.short === 'LIVE';
       if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+
+      // Priority 2: Top competitions 
+      const aIsCL = a.league.id === 2;  // Champions League
+      const bIsCL = b.league.id === 2;
+      if (aIsCL && !bIsCL) return -1;
+      if (!aIsCL && bIsCL) return 1;
+
+      // Priority 3: Sort by match time
+      return a.fixture.timestamp - b.fixture.timestamp;
       if (!aIsLive && bIsLive) return 1;
 
       // For upcoming matches, prioritize popular leagues
