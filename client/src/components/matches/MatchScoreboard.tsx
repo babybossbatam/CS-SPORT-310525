@@ -155,7 +155,7 @@ export function MatchScoreboard({
           />
         </div>
 
-        <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
+        <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} max-w-[120px] truncate md:max-w-[200px]`} style={{top: "calc(50% - 8px)"}}>
           {teams?.home?.name || 'Home Team'}
         </div>
 
@@ -165,7 +165,8 @@ export function MatchScoreboard({
           style={{
             background: '#a00000',
             left: 'calc(50% - 26px)',
-            top: 'calc(50% - 26px)'
+            top: 'calc(50% - 26px)',
+            minWidth: '52px'
           }}
         >
           <span className="vs-text font-bold">VS</span>
@@ -201,7 +202,7 @@ export function MatchScoreboard({
           }}
         />
 
-        <div className={`absolute right-[125px] text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
+        <div className={`absolute right-[125px] text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} max-w-[120px] truncate md:max-w-[200px]`} style={{top: "calc(50% - 8px)"}}>
           {teams?.away?.name || 'Away Team'}
         </div>
       </div>
