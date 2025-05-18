@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MatchScoreboard } from "@/components/matches/MatchScoreboard";
+import { LeagueMatchScoreboard } from "@/components/matches/LeagueMatchScoreboard";
 import { LeagueScoreboard } from "@/components/matches/LeagueScoreboard";
 import {
   Info,
@@ -127,7 +127,7 @@ const LeagueTabsDetails = ({
                       awayTeamColor="#8b0000"
                     />
                     <div className="mt-4">
-                      <MatchScoreboard
+                      <LeagueMatchScoreboard
                         match={fixtures[0]}
                         homeTeamColor="#6f7c93"
                         awayTeamColor="#8b0000"
