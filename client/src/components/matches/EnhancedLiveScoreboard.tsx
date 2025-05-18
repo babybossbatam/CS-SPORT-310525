@@ -154,12 +154,12 @@ export function EnhancedLiveScoreboard({
       );
     });
 
-    // Apply league filter
+    // Filter matches by league
     let filtered = sortedMatches;
     if (selectedLeague !== "all") {
       if (selectedLeague === "europe") {
-        // European leagues include England (39), Spain (140), Italy (135), Germany (78), France (61), etc.
-        const europeanLeagueIds = [2, 39, 140, 135, 78, 61, 144, 88, 94];
+        // European leagues include Champions League (2), Europa League (3), England (39), Spain (140), Italy (135), Germany (78)
+        const europeanLeagueIds = [2, 3, 39, 140, 135, 78];
         filtered = sortedMatches.filter((match) =>
           europeanLeagueIds.includes(match.league.id),
         );
@@ -168,6 +168,12 @@ export function EnhancedLiveScoreboard({
           (match) => match.league.id.toString() === selectedLeague,
         );
       }
+    } else {
+      // For "all" leagues, still filter to only show major leagues
+      const majorLeagueIds = [2, 3, 39, 140, 135, 78];
+      filtered = sortedMatches.filter((match) =>
+        majorLeagueIds.includes(match.league.id),
+      );
     }
 
     // Limit to max matches

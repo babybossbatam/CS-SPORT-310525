@@ -34,15 +34,35 @@ export function LeagueMatchScoreboard({
     const currentTime = Math.floor(Date.now() / 1000);
     const eightHoursInSeconds = 8 * 60 * 60;
 
-    // Include all matches from the input since they're already filtered by league
+    // Popular leagues IDs
+    const popularLeagueIds = [2, 3, 39, 140, 135, 78];
+
     return matches.filter(match => {
+      // Verify league is in popular leagues
+      if (!popularLeagueIds.includes(match.league.id)) {
+        return false;
+      }
+
       const matchTime = match.fixture.timestamp;
       const timeDiff = currentTime - matchTime;
 
-      // Include all matches within time window
-      return (match.fixture.status.short === 'LIVE' ||
-              match.fixture.status.short === 'NS' ||
-              (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds));
+      // Live matches including 8 hours before start
+      if (match.fixture.status.short === 'LIVE' || 
+          (matchTime - currentTime <= eightHoursInSeconds && matchTime > currentTime)) {
+        return true;
+      }
+
+      // Upcoming matches from popular leagues
+      if (match.fixture.status.short === 'NS' && matchTime > currentTime) {
+        return true;
+      }
+
+      // Recently finished matches (within 8 hours)
+      if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
+        return true;
+      }
+
+      return false;
     }).sort((a, b) => {
       // Sort: Live > Upcoming > Finished
       const aIsLive = a.fixture.status.short === 'LIVE';
