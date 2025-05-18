@@ -34,37 +34,34 @@ export function LeagueMatchScoreboard({
     const currentTime = Math.floor(Date.now() / 1000);
     const eightHoursInSeconds = 8 * 60 * 60;
 
-    // Popular leagues IDs
-    const popularLeagueIds = [2, 3, 39, 140, 135, 78];
-
-    return matches.filter(match => {
-      // Verify league is in popular leagues
-      if (!popularLeagueIds.includes(match.league.id)) {
-        return false;
-      }
-
+    // First filter matches by time window and status
+    const filteredMatches = matches.filter(match => {
       const matchTime = match.fixture.timestamp;
       const timeDiff = currentTime - matchTime;
 
-      // Live matches including 8 hours before start
-      if (match.fixture.status.short === 'LIVE' || 
-          (matchTime - currentTime <= eightHoursInSeconds && matchTime > currentTime)) {
+      // Show all live matches
+      if (match.fixture.status.short === 'LIVE') {
         return true;
       }
 
-      // Upcoming matches from popular leagues
-      if (match.fixture.status.short === 'NS' && matchTime > currentTime) {
+      // Show matches starting within next 8 hours
+      if (match.fixture.status.short === 'NS' && 
+          matchTime > currentTime && 
+          matchTime - currentTime <= eightHoursInSeconds) {
         return true;
       }
 
-      // Recently finished matches (within 8 hours)
+      // Show recently finished matches (within last 8 hours)
       if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
         return true;
       }
 
       return false;
-    }).sort((a, b) => {
-      // Sort: Live > Upcoming > Finished
+    });
+
+    // Then sort them by priority
+    return filteredMatches.sort((a, b) => {
+      // Live matches first
       const aIsLive = a.fixture.status.short === 'LIVE';
       const bIsLive = b.fixture.status.short === 'LIVE';
       if (aIsLive && !bIsLive) return -1;
