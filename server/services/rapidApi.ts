@@ -181,15 +181,8 @@ export const rapidApiService = {
       console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);
 
       if (response.data && response.data.response) {
-        // Filter fixtures to only include matches between popular teams
-        const filteredFixtures = response.data.response.filter(fixture => {
-          const homeTeam = fixture.teams.home.name;
-          const awayTeam = fixture.teams.away.name;
-          const teams = popularLeagues[leagueId];
-
-          return teams.some(team => homeTeam.includes(team)) || 
-                 teams.some(team => awayTeam.includes(team));
-        });
+        // Return all fixtures for now without filtering by popular teams
+        const filteredFixtures = response.data.response;
 
         console.log(`Filtered ${response.data.response.length} fixtures to ${filteredFixtures.length} for league ${leagueId}`);
 
