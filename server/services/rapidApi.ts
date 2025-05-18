@@ -184,16 +184,11 @@ export const rapidApiService = {
       console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);
 
       if (response.data && response.data.response) {
-        // Include all fixtures from popular leagues
-        const filteredFixtures = response.data.response.filter(fixture => {
-          // If it's a popular league, include all matches
-          if (Object.keys(popularLeagues).map(Number).includes(leagueId)) {
-            return true;
-          }
-          return false;
-        });
-
-        console.log(`Filtered ${response.data.response.length} fixtures to ${filteredFixtures.length} for league ${leagueId}`);
+        // Include all fixtures from the requested league
+        const filteredFixtures = response.data.response;
+        
+        // Log the fixtures count
+        console.log(`Received ${response.data.response.length} fixtures for league ${leagueId}`);
 
         fixturesCache.set(cacheKey, { 
           data: filteredFixtures, 
