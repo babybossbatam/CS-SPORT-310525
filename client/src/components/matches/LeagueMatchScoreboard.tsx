@@ -38,10 +38,10 @@ export function LeagueMatchScoreboard({
     const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78];  // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
 
     // First filter matches by league and time window
-    const filteredMatches = matches.filter(match => {
-      // Check if match is from a popular league
-      if (!POPULAR_LEAGUES.includes(match.league.id)) {
-        return false;
+    const filteredMatches = matches?.filter(match => {
+      // Show matches from popular leagues
+      if (match && match.league && POPULAR_LEAGUES.includes(match.league.id)) {
+        return true;
       }
 
       const matchTime = match.fixture.timestamp;
