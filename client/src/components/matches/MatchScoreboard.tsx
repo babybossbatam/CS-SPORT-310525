@@ -75,10 +75,8 @@ interface MatchScoreboardProps {
   compact?: boolean;
 }
 
-// Helper function to format date/time
 const formatDateTime = (dateStr: string | undefined) => {
   if (!dateStr) return 'Date TBD';
-
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return 'Date TBD';
@@ -98,23 +96,19 @@ export function MatchScoreboard({
   awayTeamColor = '#8b0000',
   compact = false 
 }: MatchScoreboardProps) {
-  // Get match data
   const allMatches = [match, ...matches].slice(0, 5);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const { fixture, league, teams, goals, score } = allMatches[currentMatchIndex];
-
-  // Animation state - removed hover effects
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMatchIndex((prev) => (prev + 1) % allMatches.length);
-    }, 5000); // Change slide every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [allMatches.length]);
 
-  // Fade-in animation effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
@@ -131,9 +125,8 @@ export function MatchScoreboard({
         cursor: onClick ? 'pointer' : 'default'
       }}
     >
-      {/* Full bar with logos and team names, with colored sections in between logos and VS */}
       <div className="w-full h-full flex justify-between relative">
-        {/* Home team logo and colored bar */}
+        {/* Home team colored bar and logo */}
         <div className={`h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} relative`} 
           style={{ 
             background: homeTeamColor,
@@ -161,36 +154,12 @@ export function MatchScoreboard({
             }}
           />
         </div>
-        
+
         <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
           {teams?.home?.name || 'Home Team'}
         </div>
-          }}>
-          {/* Home team logo centered on left edge */}
-          <img 
-            key={`home-${teams?.home?.id}`}
-            src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
-            alt={teams?.home?.name || 'Home Team'} 
-            className={`absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
-            style={{
-              cursor: onClick ? 'pointer' : 'default',
-              top: "calc(50% - 32px)"
-            }}
-            onClick={onClick}
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (target.src.includes('sportmonks') && teams?.home?.logo) {
-                target.src = teams.home.logo;
-              } else if (teams?.home?.name) {
-                target.src = `/src/assets/fallback-logo.png`;
-              } else {
-                target.src = 'https://via.placeholder.com/64?text=H';
-              }
-            }}
-          />
-        </div>
 
-        {/* VS SECTION - fixed size */}
+        {/* VS section */}
         <div 
           className={`absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{
@@ -202,7 +171,7 @@ export function MatchScoreboard({
           <span className="vs-text font-bold">VS</span>
         </div>
 
-        {/* AWAY TEAM COLORED BAR - Starts from VS and extends to halfway of away logo */}
+        {/* Away team colored bar and logo */}
         <div className={`h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
           style={{ 
             background: awayTeamColor,
@@ -210,16 +179,15 @@ export function MatchScoreboard({
           }}>
         </div>
 
-        {/* Away team logo */}
-          <img 
-              key={`away-${teams?.away?.id}`}
-              src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
-              alt={teams?.away?.name || 'Away Team'} 
-              className={`absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
-              style={{
-                cursor: onClick ? 'pointer' : 'default',
-                top: "calc(50% - 32px)"
-              }}
+        <img 
+          key={`away-${teams?.away?.id}`}
+          src={teams?.away?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.away.id}.png` : teams?.away?.logo} 
+          alt={teams?.away?.name || 'Away Team'} 
+          className={`absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
+          style={{
+            cursor: onClick ? 'pointer' : 'default',
+            top: "calc(50% - 32px)"
+          }}
           onClick={onClick}
           onError={(e) => {
             const target = e.currentTarget;
