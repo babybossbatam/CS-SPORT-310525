@@ -129,8 +129,10 @@ const LeagueTabsDetails = ({
                     <div className="mt-4">
                       <LeagueMatchScoreboard
                         match={fixtures[0]}
+                        matches={fixtures}
                         homeTeamColor="#6f7c93"
                         awayTeamColor="#8b0000"
+                        maxMatches={6}
                       />
                     </div>
                   </CardContent>
