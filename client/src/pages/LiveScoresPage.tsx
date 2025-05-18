@@ -19,9 +19,9 @@ export default function LiveScoresPage() {
       <main className="grid grid-cols-12 gap-6">
         {/* Main content - 9 columns */}
         <div className="col-span-12 lg:col-span-9">
-          <EnhancedLiveScoreboard 
-            showFeaturedMatch={true}
-            showFilters={true}
+          <LeagueMatchScoreboard 
+            match={liveFixturesQuery.data?.[0]}
+            matches={liveFixturesQuery.data}
             maxMatches={20}
           />
         </div>
