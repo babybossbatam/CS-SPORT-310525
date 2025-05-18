@@ -133,27 +133,38 @@ export function MatchScoreboard({
     >
       {/* Full bar with logos and team names, with colored sections in between logos and VS */}
       <div className="w-full h-full flex justify-between relative">
-        {/* Home team logo */}
-        <div className="absolute left-[38px] z-20" style={{ top: "calc(50% - 32px)" }}>
-          <TeamLogo
-            logoUrl={teams?.home?.logo || ''}
-            teamName={teams?.home?.name || 'Home Team'}
-            teamId={teams?.home?.id}
-            size="md"
-            isHome={true}
-            onClick={onClick}
-          />
-        </div>
-
-        <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
-          {teams?.home?.name || 'Home Team'}
-        </div>
-
-        {/* HOME TEAM COLORED BAR - Starts from left edge and extends to VS */}
-        <div className={`h-full w-[calc(50%-10px)] ml-[10px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} relative`} 
+        {/* Home team logo and colored bar */}
+        <div className={`h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} relative`} 
           style={{ 
             background: homeTeamColor,
             transition: 'all 0.3s ease-in-out'
+          }}>
+          <img 
+            key={`home-${teams?.home?.id}`}
+            src={teams?.home?.id ? `https://cdn.sportmonks.com/images/soccer/teams/${teams.home.id}.png` : teams?.home?.logo} 
+            alt={teams?.home?.name || 'Home Team'} 
+            className={`absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'} contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`}
+            style={{
+              cursor: onClick ? 'pointer' : 'default',
+              top: "calc(50% - 32px)"
+            }}
+            onClick={onClick}
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.includes('sportmonks') && teams?.home?.logo) {
+                target.src = teams.home.logo;
+              } else if (teams?.home?.name) {
+                target.src = `/src/assets/fallback-logo.png`;
+              } else {
+                target.src = 'https://via.placeholder.com/64?text=H';
+              }
+            }}
+          />
+        </div>
+        
+        <div className={`absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{top: "calc(50% - 8px)"}}>
+          {teams?.home?.name || 'Home Team'}
+        </div>
           }}>
           {/* Home team logo centered on left edge */}
           <img 
