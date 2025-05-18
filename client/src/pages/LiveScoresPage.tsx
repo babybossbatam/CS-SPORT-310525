@@ -1,8 +1,17 @@
-import { EnhancedLiveScoreboard } from "@/components/matches/EnhancedLiveScoreboard";
+
+import { LeagueMatchScoreboard } from "@/components/matches/LeagueMatchScoreboard";
 import { Calendar, Timer } from "lucide-react";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { FixtureResponse } from "@/types/fixtures";
 
 export default function LiveScoresPage() {
+  const liveFixturesQuery = useQuery<FixtureResponse[]>({
+    queryKey: ['/api/fixtures/live'],
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
+
   return (
     <div className="container max-w-7xl mx-auto py-6 px-4">
       <header className="mb-8">
