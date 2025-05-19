@@ -336,28 +336,9 @@ const FixedScoreboard = () => {
     } 
     // UPCOMING MATCHES
     else {
-      try {
-        const matchDate = parseISO(fixture.date);
-        const now = new Date();
-        const timeDiff = matchDate.getTime() - now.getTime();
-
       if (timeDiff <= 0) {
-        const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
-
-        useEffect(() => {
-          const updateElapsedTime = () => {
-            const elapsedTime = Math.abs(timeDiff) + (Date.now() - new Date().getTime());
-            const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
-            const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-            setElapsed({ hours, minutes, seconds });
-          };
-
-          updateElapsedTime();
-          const timer = setInterval(updateElapsedTime, 1000);
-          return () => clearInterval(timer);
-        }, [timeDiff]);
-
+      // For live matches, show the match minute
+      if (['1H', '2H', 'HT'].includes(fixture.status.short)) {
         return (
           <div className="flex items-center gap-2">
             <div className="flex items-center space-x-2">
@@ -367,21 +348,30 @@ const FixedScoreboard = () => {
               </span>
               <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
             </div>
-            <span>{`${elapsed.hours.toString().padStart(2, '0')}:${elapsed.minutes.toString().padStart(2, '0')}:${elapsed.seconds.toString().padStart(2, '0')}`}</span>
+            <span>{`${fixture.status.elapsed || 0}'`}</span>
           </div>
         );
       }
-      
 
-        // Calculate countdown time
-        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+      // For upcoming matches, calculate relative time
+      try {
+        const matchDate = parseISO(fixture.date);
+        const now = new Date();
+        const hoursDiff = Math.abs(matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (hoursDiff > 8) {
+          const daysDiff = Math.ceil(hoursDiff / 24);
+          if (daysDiff === 1) return 'Tomorrow';
+          if (daysDiff === 2) return '2 more days';
+          if (daysDiff <= 3) return `${daysDiff} more days`;
+          return format(matchDate, 'MMM d');
+        }
+
+        return `${Math.ceil(hoursDiff)} hours`;
       } catch (e) {
         return 'Upcoming';
       }
+    }
     }
   };
 
