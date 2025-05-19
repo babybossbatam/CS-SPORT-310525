@@ -173,33 +173,33 @@ const FixedScoreboard = () => {
 
         // Define popular teams by ID (big teams that should be prioritized)
         const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
-        
+
         // Combine matches with priority
         let finalMatches: Match[] = [];
-        
+
         // Helper function to check if a match includes a popular team
         const isPopularTeamMatch = (match: Match) => {
           return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
         };
-        
+
         // Teams to exclude (like Crystal Palace and Wolves)
         const excludeTeamIds = [52, 76]; // Crystal Palace and Wolves
-        
+
         // Function to check if a match should be excluded
         const shouldExcludeMatch = (match: Match) => {
           return excludeTeamIds.includes(match.teams.home.id) || 
                  excludeTeamIds.includes(match.teams.away.id);
         };
-        
+
         // Filter to only include matches with popular teams AND exclude specific teams
         const livePopularMatches = liveMatches
           .filter(isPopularTeamMatch)
           .filter(match => !shouldExcludeMatch(match));
-          
+
         const finishedPopularMatches = finishedMatches
           .filter(isPopularTeamMatch)
           .filter(match => !shouldExcludeMatch(match));
-          
+
         const upcomingPopularMatches = upcomingMatches
           .filter(isPopularTeamMatch)
           .filter(match => !shouldExcludeMatch(match));
@@ -208,7 +208,7 @@ const FixedScoreboard = () => {
         if (livePopularMatches.length > 0) {
           finalMatches = [...livePopularMatches];
         }
-        
+
         // MODIFIED SELECTION LOGIC: Popular teams always have priority
 
         // 2. Recently finished matches with popular teams if we have space
@@ -216,13 +216,13 @@ const FixedScoreboard = () => {
           const finishedPopularToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...finishedPopularToAdd];
         }
-        
+
         // 3. Upcoming matches with popular teams if we have space - prioritize nearest to now
         if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
           const upcomingPopularToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...upcomingPopularToAdd];
         }
-        
+
         // We're no longer showing non-popular team matches at all
         // REMOVED: finishedOtherMatches
         // REMOVED: upcomingOtherMatches
@@ -289,16 +289,16 @@ const FixedScoreboard = () => {
   }, [toast]);
 
   const currentMatch = matches[currentIndex];
-  
+
   // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
-    
+
     // Find match within 8 hours window
     const now = new Date("2025-05-19T12:00:00Z");
     const upcomingMatchIndex = matches.findIndex(match => {
       if (match.fixture.status.short !== 'NS') return false;
-      
+
       try {
         const matchDate = parseISO(match.fixture.date);
         const hoursToMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -307,14 +307,14 @@ const FixedScoreboard = () => {
         return false;
       }
     });
-    
+
     // If we found a match within 8 hours, display it
     if (upcomingMatchIndex !== -1) {
       setCurrentIndex(upcomingMatchIndex);
       console.log(`Found match with countdown: ${matches[upcomingMatchIndex].teams.home.name} vs ${matches[upcomingMatchIndex].teams.away.name}`);
     }
   }, [matches]);
-  
+
   // Only use effect for fetching match data
   useEffect(() => {
     // Just a placeholder to ensure the component works
@@ -416,11 +416,11 @@ const FixedScoreboard = () => {
       try {
         const matchDate = parseISO(fixture.date);
         const now = new Date("2025-05-19T12:00:00Z"); // Use same hardcoded time as above for consistency
-        
+
         // Get time differences in various units
         const msToMatch = matchDate.getTime() - now.getTime();
         const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
-        
+
         // For matches today, show a simple format
         if (daysToMatch === 0) {
           try {
@@ -444,7 +444,7 @@ const FixedScoreboard = () => {
             return <span className="text-gray-500">Today</span>;
           }
         }
-        
+
         // For matches tomorrow or later, show the regular format
         if (daysToMatch === 1) {
           return <span className="text-gray-500">Tomorrow</span>;
@@ -536,6 +536,9 @@ const FixedScoreboard = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
+              <Card className="bg-white shadow-sm">
+                <CardContent className="p-4"
+              >
               {/* Match header with league info */}
               <div className="flex items-center justify-center mb-3 px-2">
                 <div className="flex-shrink-0 mr-2">
@@ -575,7 +578,7 @@ const FixedScoreboard = () => {
               <div className="font-medium text-center mb-5" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
                 {getMatchStatus(currentMatch)}
               </div>
-                
+
               {/* Score display below status for finished matches */}
               {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
                 <div className="flex items-center justify-center mt-1 mb-1">
@@ -628,7 +631,7 @@ const FixedScoreboard = () => {
                               const matchDate = parseISO(currentMatch.fixture.date);
                               const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
-                              
+
                               // Always show basic match information
                               return (
                                 <div>
@@ -665,7 +668,7 @@ const FixedScoreboard = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* VS circle */}
                     <div 
                       className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
@@ -771,6 +774,8 @@ const FixedScoreboard = () => {
                   ))}
                 </div>
               )}
+            </CardContent>
+            </Card>
           </motion.div>
         </AnimatePresence>
         )}
