@@ -544,7 +544,7 @@ const FixedScoreboard = () => {
             ) : (
               <div className="relative mt-4">
                 <div 
-                  className="flex relative h-[53px] rounded-md mb-8 transition-all duration-300 ease-in-out opacity-100"
+                  className="flex relative h-[53px] rounded-md mb-8"
                   onClick={handleMatchClick}
                   style={{ cursor: 'pointer' }}
                 >
@@ -615,7 +615,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.home.name}
                     </div>
 
@@ -677,7 +677,7 @@ const FixedScoreboard = () => {
                       }}
                     />
 
-                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.away.name}
                     </div>
                   </div>
