@@ -501,20 +501,20 @@ const FixedScoreboard = () => {
         <>
           <button
             onClick={handlePrevious}
-            className="absolute left-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+            className="absolute left-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-md z-40 flex items-center border border-gray-200"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+            className="absolute right-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-md z-40 flex items-center border border-gray-200"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
         </>
       )}
 
-      <CardContent className="px-2 pt-2 pb-2">
+      <CardContent className="px-8 pt-2 pb-2">
         {isLoading ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
