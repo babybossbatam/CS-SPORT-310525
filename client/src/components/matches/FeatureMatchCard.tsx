@@ -147,43 +147,27 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             exit={{ x: -100, opacity: 0 }}
             transition={{ type: "tween", duration: 0.2 }}
           >
+            {/* Empty header with no match data */}
             <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            {leagueLogo ? (
-              <img 
-                src={leagueLogo}
-                alt={leagueName}
-                className="w-5 h-5"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-                }}
-              />
-            ) : (
-              <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
-            )}
-            <span className="text-sm font-medium">{leagueName}</span>
-          </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+                <span className="text-sm font-medium">League Name</span>
+              </div>
 
-          <span className="text-gray-400">-</span>
+              <span className="text-gray-400">-</span>
 
-          <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-indigo-600" />
-            <span className="text-sm font-medium text-indigo-800">
-            {match.fixture.status.short === 'LIVE' ? 'LIVE' : 
-             match.fixture.status.short === 'HT' ? 'Half Time' :
-             match.fixture.status.short === 'FT' ? 'Full Time' :
-             match.league.round || 'Upcoming'}
-          </span>
-          </div>
-        </div>
-
-        <div className="text-lg font-semibold text-center mb-3">
-          {currentMatch.fixture.status.short === 'FT' ? (
-            <div className="flex flex-col items-center mb-[5px]">
-              <span className="text-emerald-600 mb-1">Match Ended</span>
-              <span className="text-lg font-bold -mt-1">{currentMatch.goals.home} - {currentMatch.goals.away}</span>
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-indigo-600" />
+                <span className="text-sm font-medium text-indigo-800">Match Status</span>
+              </div>
             </div>
-          ) : matchDate}
+
+            {/* Empty scoreboard header with no match data */}
+            <div className="text-lg font-semibold text-center mb-3">
+              <div className="flex flex-col items-center mb-[5px]">
+                <span className="text-gray-400">Match Information</span>
+              </div>
+            </div>
         </div>
 
         <div className="relative">
