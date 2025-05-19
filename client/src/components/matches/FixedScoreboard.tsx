@@ -342,8 +342,8 @@ const FixedScoreboard = () => {
         const timeDiff = matchDate.getTime() - now.getTime();
 
         if (timeDiff <= 0) {
-      // For live matches, show the match minute
-      if (['1H', '2H', 'HT'].includes(fixture.status.short)) {
+          // For live matches, show the match minute
+          if (['1H', '2H', 'HT'].includes(fixture.status.short)) {
         return (
           <div className="flex items-center gap-2">
             <div className="flex items-center space-x-2">
@@ -383,7 +383,8 @@ const FixedScoreboard = () => {
       } catch (e) {
         return 'Upcoming';
       }
-    }
+    } catch (e) {
+      return 'Upcoming';
     }
   };
 
