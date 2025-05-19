@@ -182,10 +182,27 @@ const FixedScoreboard = () => {
           return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
         };
         
-        // Filter to only include matches with popular teams
-        const livePopularMatches = liveMatches.filter(isPopularTeamMatch);
-        const finishedPopularMatches = finishedMatches.filter(isPopularTeamMatch);
-        const upcomingPopularMatches = upcomingMatches.filter(isPopularTeamMatch);
+        // Teams to exclude (like Crystal Palace and Wolves)
+        const excludeTeamIds = [52, 76]; // Crystal Palace and Wolves
+        
+        // Function to check if a match should be excluded
+        const shouldExcludeMatch = (match: Match) => {
+          return excludeTeamIds.includes(match.teams.home.id) || 
+                 excludeTeamIds.includes(match.teams.away.id);
+        };
+        
+        // Filter to only include matches with popular teams AND exclude specific teams
+        const livePopularMatches = liveMatches
+          .filter(isPopularTeamMatch)
+          .filter(match => !shouldExcludeMatch(match));
+          
+        const finishedPopularMatches = finishedMatches
+          .filter(isPopularTeamMatch)
+          .filter(match => !shouldExcludeMatch(match));
+          
+        const upcomingPopularMatches = upcomingMatches
+          .filter(isPopularTeamMatch)
+          .filter(match => !shouldExcludeMatch(match));
 
         // 1. Live matches with popular teams have highest priority
         if (livePopularMatches.length > 0) {
