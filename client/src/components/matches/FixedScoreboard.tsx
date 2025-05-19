@@ -322,14 +322,11 @@ const FixedScoreboard = () => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
                               const timeOnly = format(matchDate, 'HH:mm');
-                              return timeOnly;
+                              return `${timeOnly}${currentMatch.fixture.venue?.name ? ` • ${currentMatch.fixture.venue.name}` : ''}`;
                             } catch (e) {
-                              return '';
+                              return currentMatch.fixture.venue?.name || '';
                             }
                           })()}
-                          {currentMatch.fixture.venue?.name && (
-                            <div className="mt-1">{currentMatch.fixture.venue.name}</div>
-                          )}
                         </div>
                       )}
                     </div>
