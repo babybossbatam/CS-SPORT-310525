@@ -572,6 +572,22 @@ const FixedScoreboard = () => {
                           {(() => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
+                              // Show countdown for matches within 8 hours
+                              const now = new Date("2025-05-19T12:00:00Z");
+                              const msToMatch = matchDate.getTime() - now.getTime();
+                              const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+                              
+                              // For matches within 8 hours, display countdown
+                              if (hoursToMatch >= 0 && hoursToMatch <= 8) {
+                                return (
+                                  <div className="flex flex-col items-center">
+                                    <MatchCountdownTimer matchDate={currentMatch.fixture.date} />
+                                    <div className="mt-1">{currentMatch.fixture.venue?.name || ''}</div>
+                                  </div>
+                                );
+                              }
+                              
+                              // Otherwise show regular date/time
                               const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
                               return `${formattedDate} | ${timeOnly}${currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}`;
