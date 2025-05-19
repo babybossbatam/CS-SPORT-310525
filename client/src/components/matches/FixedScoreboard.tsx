@@ -323,7 +323,7 @@ const FixedScoreboard = () => {
     // Set up timers for upcoming matches
     const timers: {[key: number]: NodeJS.Timeout} = {};
     
-    // Filter for upcoming matches within 8 hours
+    // Filter for all upcoming matches from today (within 24 hours)
     const upcomingMatches = matches.filter(match => {
       if (match.fixture.status.short !== 'NS') return false;
       
@@ -332,8 +332,10 @@ const FixedScoreboard = () => {
         const now = new Date("2025-05-19T12:00:00Z"); // Using our demo time
         const msToMatch = matchDate.getTime() - now.getTime();
         const hoursToMatch = msToMatch / (1000 * 60 * 60);
+        const daysToMatch = Math.floor(hoursToMatch / 24);
         
-        return hoursToMatch >= 0 && hoursToMatch <= 8;
+        // Show countdown for all matches today (within next 24 hours)
+        return msToMatch > 0 && daysToMatch === 0;
       } catch {
         return false;
       }
@@ -538,10 +540,29 @@ const FixedScoreboard = () => {
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches within 8 hours, show time in match time format (instead of countdown)
-        if (hoursToMatch < 8 && daysToMatch === 0) {
-          const matchTime = format(matchDate, 'HH:mm');
-          return `Today ${matchTime}`;
+        // For matches today (within 24 hours), show active countdown timer
+        if (daysToMatch === 0) {
+          // Check if this is the current match being viewed and we have a timer
+          if (currentMatch && fixture.id === currentMatch.fixture.id && currentTimer) {
+            // Use the dedicated current match timer that is actively counting down
+            const { hours, minutes, seconds } = currentTimer;
+            
+            // Return countdown timer with consistent formatting
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          }
+          // For other matches, use the countdown from the general state
+          else if (countdowns[fixture.id]) {
+            const { hours, minutes, seconds } = countdowns[fixture.id];
+            
+            // Return countdown timer with consistent formatting
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          }
+          
+          // Fallback if countdown not available yet
+          if (hoursToMatch === 0) {
+            return `In ${minutesToMatch}m`;
+          }
+          return `In ${hoursToMatch}h ${minutesToMatch}m`;
         }
         
         // If match is tomorrow, show "Tomorrow"
