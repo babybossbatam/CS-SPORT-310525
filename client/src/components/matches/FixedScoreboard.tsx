@@ -574,7 +574,7 @@ const FixedScoreboard = () => {
               {/* Match time/status display */}
               <div className="flex flex-col justify-center mb-3">
                 <div className="flex items-center justify-center text-center">
-                  <div className="text-base font-medium" style={{ transform: 'scale(1)', transformOrigin: 'center', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                  <div className="font-medium" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                     {getMatchStatus(currentMatch)}
                   </div>
                 </div>
