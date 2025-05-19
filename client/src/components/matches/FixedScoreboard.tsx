@@ -269,25 +269,14 @@ const FixedScoreboard = () => {
               </div>
             </div>
 
-            {/* Match time/status information - only display for LIVE matches, not for upcoming */}
-            {getMatchStatusLabel(currentMatch) === 'LIVE' && (
-              <div className="text-lg font-semibold text-center mb-3">
-                <div className="flex flex-col items-center mb-[5px]">
-                  <span className="text-red-600 animate-pulse">
-                    {getMatchStatus(currentMatch)}
-                  </span>
-                </div>
+            {/* Match time/status information */}
+            <div className="text-lg font-semibold text-center mb-3">
+              <div className="flex flex-col items-center mb-[5px]">
+                <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
+                  {getMatchStatus(currentMatch)}
+                </span>
               </div>
-            )}
-            
-            {/* For finished matches, show Full Time status */}
-            {currentMatch?.fixture?.status?.short === 'FT' && (
-              <div className="text-lg font-semibold text-center mb-3">
-                <div className="flex flex-col items-center mb-[5px]">
-                  <span className="text-gray-500">Full Time</span>
-                </div>
-              </div>
-            )}
+            </div>
 
             {/* Team scoreboard */}
             <div className="relative">
@@ -328,10 +317,21 @@ const FixedScoreboard = () => {
                         }}
                       />
                       
-                      {/* Venue information in a single line below home team logo */}
-                      {currentMatch.fixture.status.short === 'NS' && currentMatch.fixture.venue?.name && (
+                      {/* Match time & venue information below home team logo */}
+                      {currentMatch.fixture.status.short === 'NS' && (
                         <div className="absolute text-center text-xs text-gray-500 w-[120px] left-[-50px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem' }}>
-                          {currentMatch.fixture.venue.name}
+                          {(() => {
+                            try {
+                              const matchDate = parseISO(currentMatch.fixture.date);
+                              const timeOnly = format(matchDate, 'HH:mm');
+                              return timeOnly;
+                            } catch (e) {
+                              return '';
+                            }
+                          })()}
+                          {currentMatch.fixture.venue?.name && (
+                            <div className="mt-1">{currentMatch.fixture.venue.name}</div>
+                          )}
                         </div>
                       )}
                     </div>
