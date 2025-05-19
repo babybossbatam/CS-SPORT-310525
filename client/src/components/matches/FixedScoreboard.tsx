@@ -572,7 +572,7 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className="font-medium text-center mb-[0.4rem]" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>
+              <div className="font-medium text-center mb-3" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
                 {getMatchStatus(currentMatch)}
               </div>
                 
@@ -588,7 +588,7 @@ const FixedScoreboard = () => {
               )}
 
               {/* Team scoreboard */}
-              <div className="relative mt-2">
+              <div className="relative mt-4">
                 <div 
                   className="flex relative h-[53px] rounded-md mb-8"
                   onClick={handleMatchClick}
