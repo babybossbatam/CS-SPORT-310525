@@ -65,16 +65,13 @@ const Football = () => {
     }
   }, [dispatch, allLeagues, countryLeagueMap]);
 
-  // Fetch all leagues
+  // Fetch all leagues with proper caching
   useEffect(() => {
     const fetchLeagues = async () => {
       try {
-        // Check if we have recent cached data
-        const now = Date.now();
-        const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
-
+        // Skip if we already have data
         if (allLeagues.length > 0) {
-          return; // Use cached data if available
+          return;
         }
 
         dispatch(leaguesActions.setLoadingLeagues(true));
@@ -116,7 +113,7 @@ const Football = () => {
     };
 
     fetchLeagues();
-  }, [dispatch, toast, popularLeagues, allLeagues]);
+  }, [dispatch, toast, popularLeagues]); // Removed allLeagues from dependencies
 
   // Fetch upcoming fixtures for tomorrow to display in the scoreboard when no live matches
   useEffect(() => {
