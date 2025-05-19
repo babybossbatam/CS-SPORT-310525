@@ -520,7 +520,7 @@ const FixedScoreboard = () => {
             {/* Match time/status display */}
             <div className="flex justify-center mb-3">
               <div className="flex items-center justify-center text-center">
-                <div className="text-xs font-medium">
+                <div className="text-sm font-medium">
                   {(() => {
                     if (currentMatch) {
                       return getMatchStatus(currentMatch);
