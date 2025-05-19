@@ -182,15 +182,10 @@ const FixedScoreboard = () => {
           return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
         };
         
-        // Separate matches with popular teams
+        // Filter to only include matches with popular teams
         const livePopularMatches = liveMatches.filter(isPopularTeamMatch);
-        const liveOtherMatches = liveMatches.filter(match => !isPopularTeamMatch(match));
-        
         const finishedPopularMatches = finishedMatches.filter(isPopularTeamMatch);
-        const finishedOtherMatches = finishedMatches.filter(match => !isPopularTeamMatch(match));
-        
         const upcomingPopularMatches = upcomingMatches.filter(isPopularTeamMatch);
-        const upcomingOtherMatches = upcomingMatches.filter(match => !isPopularTeamMatch(match));
 
         // 1. Live matches with popular teams have highest priority
         if (livePopularMatches.length > 0) {
