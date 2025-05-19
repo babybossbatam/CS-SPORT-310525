@@ -6,8 +6,8 @@ import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import FixedMatchTimer from './FixedMatchTimer';
-import ScoreboardCard from './ScoreboardCard';
 
 // Types
 interface Team {
@@ -507,11 +507,17 @@ const FixedScoreboard = () => {
   ) : null;
 
   return (
-    <ScoreboardCard 
-      badgeText="Featured Match"
-      minHeight="340px"
-      controls={navigationControls}
-    >
+    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ minHeight: '340px' }}>
+      <Badge 
+        variant="secondary" 
+        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
+      >
+        Featured Match
+      </Badge>
+      
+      {navigationControls}
+      
+      <CardContent className="px-8 pt-2 pb-2">
         {isLoading ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
@@ -771,7 +777,8 @@ const FixedScoreboard = () => {
           </motion.div>
         </AnimatePresence>
         )}
-    </ScoreboardCard>
+      </CardContent>
+    </Card>
   );
 };
 
