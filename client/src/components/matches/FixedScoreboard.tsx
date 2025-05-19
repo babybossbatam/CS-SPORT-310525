@@ -341,48 +341,47 @@ const FixedScoreboard = () => {
         const now = new Date();
         const timeDiff = matchDate.getTime() - now.getTime();
 
-        if (timeDiff <= 0) {
-          // For live matches, show the match minute
-          if (['1H', '2H', 'HT'].includes(fixture.status.short)) {
-            return (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center space-x-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                  </span>
-                  <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
-                </div>
-                <span>{`${fixture.status.elapsed || 0}'`}</span>
-              </div>
-            );
-          }
-        }
+      if (timeDiff <= 0) {
+        const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
-        // Calculate remaining time for upcoming matches
-        const diffMs = matchDate.getTime() - now.getTime();
-        const hoursDiff = diffMs / (1000 * 60 * 60);
-        const daysDiff = Math.floor(hoursDiff / 24);
-        
-        if (daysDiff > 3) {
-          return format(matchDate, 'MMM d, HH:mm');
-        } else if (daysDiff > 0) {
-          const days = Math.floor(daysDiff);
-          const hours = Math.floor(hoursDiff % 24);
-          return `${days}d ${hours}h`;
-        } else if (hoursDiff > 1) {
-          const hours = Math.floor(hoursDiff);
-          const minutes = Math.floor((hoursDiff % 1) * 60);
-          return `${hours}h ${minutes}m`;
-        } else {
-          const minutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
-          return `${minutes}m`;
-        }
+        useEffect(() => {
+          const updateElapsedTime = () => {
+            const elapsedTime = Math.abs(timeDiff) + (Date.now() - new Date().getTime());
+            const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+            const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+            setElapsed({ hours, minutes, seconds });
+          };
+
+          updateElapsedTime();
+          const timer = setInterval(updateElapsedTime, 1000);
+          return () => clearInterval(timer);
+        }, [timeDiff]);
+
+        return (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+              </span>
+              <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
+            </div>
+            <span>{`${elapsed.hours.toString().padStart(2, '0')}:${elapsed.minutes.toString().padStart(2, '0')}:${elapsed.seconds.toString().padStart(2, '0')}`}</span>
+          </div>
+        );
+      }
+      
+
+        // Calculate countdown time
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
       } catch (e) {
         return 'Upcoming';
       }
-    } catch (e) {
-      return 'Upcoming';
     }
   };
 
