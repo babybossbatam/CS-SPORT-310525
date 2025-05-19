@@ -578,7 +578,7 @@ const FixedScoreboard = () => {
                 </div>
               ) : currentMatch ? (
                 <div 
-                  className="flex relative h-[53px] rounded-md mb-8 transition-all duration-300 ease-in-out opacity-100 mt-[-8px]"
+                  className="flex relative h-[53px] rounded-md mb-8 transition-all duration-300 ease-in-out opacity-100 mt-4"
                   onClick={handleMatchClick}
                   style={{ cursor: 'pointer' }}
                 >
