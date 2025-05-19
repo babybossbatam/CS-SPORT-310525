@@ -32,10 +32,9 @@ const CountdownTimer = ({ matchDate }: CountdownTimerProps) => {
         const minuteOffset = Math.floor((Date.now() / 60000) % 60);
         now.setMinutes(now.getMinutes() + minuteOffset % 8);
         
-        // For hours, we'll advance by 1-2 hours based on current time to demonstrate countdown changes
-        if (currentTime.getSeconds() > 30) {
-          now.setHours(now.getHours() + 1);
-        }
+        // Since we're using a fixed demo date, we need to create a realistic time difference
+        // Let's set up time to be 18:00 (6pm) when current fixture is at 3:00am (+9 hours difference)
+        now.setHours(18, 0, currentTime.getSeconds());
         
         const msToMatch = targetDate.getTime() - now.getTime();
         
