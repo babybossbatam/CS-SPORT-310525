@@ -65,12 +65,12 @@ const FixedScoreboard = () => {
     const fetchMatches = async () => {
       try {
         setIsLoading(true);
-        
+
         // Use API-provided dates for best results in demo environment
         const todayDate = "2025-05-19";
         const tomorrowDate = "2025-05-20";
         const yesterdayDate = "2025-05-18";
-        
+
         // Fetch fixtures for popular leagues for latest season
         const leaguePromises = popularLeagues.map(leagueId => 
           apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
@@ -80,7 +80,7 @@ const FixedScoreboard = () => {
               return [];
             })
         );
-        
+
         // Also fetch today, yesterday, and tomorrow's fixtures for more comprehensive data
         const todayPromise = apiRequest('GET', `/api/fixtures/date/${todayDate}`)
           .then(response => response.json())
@@ -88,21 +88,21 @@ const FixedScoreboard = () => {
             console.error('Error fetching today\'s fixtures:', error);
             return [];
           });
-          
+
         const tomorrowPromise = apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`)
           .then(response => response.json())
           .catch(error => {
             console.error('Error fetching tomorrow\'s fixtures:', error);
             return [];
           });
-          
+
         const yesterdayPromise = apiRequest('GET', `/api/fixtures/date/${yesterdayDate}`)
           .then(response => response.json())
           .catch(error => {
             console.error('Error fetching yesterday\'s fixtures:', error);
             return [];
           });
-          
+
         // Wait for all API calls to complete
         const allResults = await Promise.all([
           ...leaguePromises,
@@ -110,7 +110,7 @@ const FixedScoreboard = () => {
           tomorrowPromise,
           yesterdayPromise
         ]);
-        
+
         // Combine and filter out duplicate matches
         const allMatches = Array.from(
           new Map(
@@ -119,76 +119,76 @@ const FixedScoreboard = () => {
               .map(match => [match.fixture.id, match])
           ).values()
         );
-        
+
         console.log(`Total matches fetched: ${allMatches.length}`);
-        
+
         // Mock current time for the demo (matches the fixture dates in the system)
         const now = new Date("2025-05-19T12:00:00Z");
-        
+
         // Only use matches from the popular leagues list
         const popularLeagueMatches = allMatches.filter(match => 
           popularLeagues.includes(match.league.id)
         );
-        
+
         console.log(`Filtered to ${popularLeagueMatches.length} matches from popular leagues only`);
-        
+
         // Filter matches according to specified criteria - ONLY from popular leagues
-        
+
         // 1. Live matches from popular leagues
         const liveMatches = popularLeagueMatches.filter(match => 
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
-        
+
         // 2. Upcoming matches from popular leagues - show if within 8 hours of start time
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
-          
+
           const matchDate = new Date(match.fixture.date);
           const timeDiff = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60); // hours
-          
+
           // Keep matches within next 8 hours
           return timeDiff >= 0 && timeDiff <= 8;
         }).sort((a, b) => 
           new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
         );
-        
+
         // 3. Recently finished matches from popular leagues - only show within 8 hours after completion
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'FT') return false;
-          
+
           const matchDate = new Date(match.fixture.date);
           // For finished matches, add ~2 hours to match start time to approximate end time
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
           const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
-          
+
           // Only show if completed within last 8 hours
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
         }).sort((a, b) => 
           new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
         );
-        
+
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
-        
+
         // Combine matches with priority
         let finalMatches: Match[] = [];
-        
+
         // 1. Live matches have highest priority
         if (liveMatches.length > 0) {
           finalMatches = [...liveMatches];
         }
-        
+
         // 2. Add some recently finished matches if we have space
         if (finishedMatches.length > 0 && finalMatches.length < 6) {
           const finishedToAdd = finishedMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...finishedToAdd];
         }
-        
+
         // 3. Add upcoming matches within 8 hours if we have space
         if (upcomingMatches.length > 0 && finalMatches.length < 6) {
           const upcomingToAdd = upcomingMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...upcomingToAdd];
         }
-        
+
         // 4. If we still don't have enough, add other matches from popular leagues
         if (finalMatches.length < 6) {
           // Get other matches from popular leagues not already included
@@ -200,28 +200,28 @@ const FixedScoreboard = () => {
               const bDate = new Date(b.fixture.date);
               const aTimeDiff = aDate.getTime() - now.getTime();
               const bTimeDiff = bDate.getTime() - now.getTime();
-              
+
               // Prioritize upcoming over finished matches
               if (aTimeDiff >= 0 && bTimeDiff < 0) return -1;
               if (aTimeDiff < 0 && bTimeDiff >= 0) return 1;
-              
+
               // Otherwise sort by closest to now
               return Math.abs(aTimeDiff) - Math.abs(bTimeDiff);
             })
             .slice(0, 6 - finalMatches.length);
-            
+
           finalMatches = [...finalMatches, ...otherPopularMatches];
         }
-        
+
         // Ensure limit of exactly 6 matches for the carousel
         finalMatches = finalMatches.slice(0, 6);
-        
+
         console.log(`Displaying ${finalMatches.length} matches`);
-        
+
         if (finalMatches.length > 0) {
           console.log(`First match: ${finalMatches[0].teams.home.name} vs ${finalMatches[0].teams.away.name}`);
         }
-        
+
         setMatches(finalMatches);
       } catch (error) {
         console.error('Error fetching matches:', error);
@@ -236,12 +236,12 @@ const FixedScoreboard = () => {
     };
 
     fetchMatches();
-    
+
     // Refresh data every 5 minutes
     const interval = setInterval(() => {
       fetchMatches();
     }, 5 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
   }, [toast]);
 
@@ -263,41 +263,41 @@ const FixedScoreboard = () => {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
   };
-  
+
   // State to track elapsed time for live matches
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
-  
+
   // Update timer for live matches
   useEffect(() => {
     if (!currentMatch) return;
-    
+
     // Only set up timer for live matches
     if (!['1H', '2H'].includes(currentMatch.fixture.status.short)) {
       setLiveElapsed(null);
       return;
     }
-    
+
     // Initialize with current elapsed time from the API
     if (currentMatch.fixture.status.elapsed) {
       setLiveElapsed(currentMatch.fixture.status.elapsed);
     }
-    
+
     // Update timer every minute for live matches
     const timer = setInterval(() => {
       setLiveElapsed(prev => prev !== null ? prev + 1 : prev);
     }, 60000); // Update every minute
-    
+
     return () => clearInterval(timer);
   }, [currentMatch]);
-  
+
   // Format match status to show appropriate information based on match state
   const getMatchStatus = (match: Match | undefined) => {
     if (!match) return 'No Match Data';
-    
+
     const { fixture } = match;
     // Use hardcoded "now" for demo purposes to match the fixture dates in our data
     const now = new Date("2025-05-19T12:00:00Z");
-    
+
     // LIVE MATCHES - show match minute or halftime
     if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
       // For halftime
@@ -322,7 +322,7 @@ const FixedScoreboard = () => {
         // Calculate how long ago match ended (add ~2 hours to start time)
         const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
         const hoursSince = Math.floor((now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60));
-        
+
         if (hoursSince <= 1) {
           return 'Just finished';
         } else if (hoursSince < 8) {
@@ -338,38 +338,31 @@ const FixedScoreboard = () => {
     else {
       try {
         const matchDate = parseISO(fixture.date);
-        const minutesToMatch = Math.floor((matchDate.getTime() - now.getTime()) / (1000 * 60));
-        const hoursToMatch = Math.floor(minutesToMatch / 60);
-        
-        // Format based on how soon
-        if (minutesToMatch < 0) {
-          // Match time passed but status not updated yet
-          return 'Starting soon';
-        } else if (hoursToMatch === 0) {
-          // Less than an hour away
-          return `In ${minutesToMatch % 60}m`;
-        } else if (hoursToMatch < 8) {
-          // Within 8 hours
-          return `In ${hoursToMatch}h ${minutesToMatch % 60}m`;
-        } else if (hoursToMatch < 24) {
-          // Today but more than 8 hours away
-          return format(matchDate, 'Today, HH:mm');
-        } else {
-          // Tomorrow or later
-          return format(matchDate, 'EEE, HH:mm');
+        const now = new Date();
+        const timeDiff = matchDate.getTime() - now.getTime();
+
+        if (timeDiff <= 0) {
+          return format(matchDate, 'HH:mm');
         }
+
+        // Calculate hours, minutes, seconds
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
       } catch (e) {
         return 'Upcoming';
       }
     }
   };
-  
+
   // Get match status label with proper formatting
   const getMatchStatusLabel = (match: Match | undefined) => {
     if (!match) return '';
-    
+
     const { fixture, league } = match;
-    
+
     if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
       return 'LIVE';
     } else if (fixture.status.short === 'FT') {
@@ -379,7 +372,7 @@ const FixedScoreboard = () => {
       return league.round || 'UPCOMING';
     }
   };
-  
+
   // Simple team color based on team ID
   const getTeamColor = (teamId: number) => {
     const colors = [
@@ -389,7 +382,7 @@ const FixedScoreboard = () => {
       '#2a9d8f', // teal
       '#e63946', // red
     ];
-    
+
     return colors[teamId % colors.length];
   };
 
@@ -503,7 +496,7 @@ const FixedScoreboard = () => {
                           }
                         }}
                       />
-                      
+
                       {/* Match time & venue information starting from home logo center */}
                       {currentMatch.fixture.status.short === 'NS' && (
                         <div className="absolute text-center text-xs text-gray-500 w-[300px] left-[32px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible' }}>
@@ -542,7 +535,7 @@ const FixedScoreboard = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* VS circle */}
                     <div 
                       className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
@@ -555,7 +548,7 @@ const FixedScoreboard = () => {
                     >
                       <span className="vs-text font-bold">VS</span>
                     </div>
-                    
+
                     {/* Remove the venue info from under the VS circle since we moved it below the team logo */}
 
                     {/* Away team colored bar and logo */}
