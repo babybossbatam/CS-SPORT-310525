@@ -550,20 +550,18 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
+                    <div className="h-full w-[calc(50%-67px)] ml-[77px] relative" 
                       style={{ 
-                        background: getTeamColor(currentMatch.teams.home.id),
-                        transition: 'all 0.3s ease-in-out'
+                        background: getTeamColor(currentMatch.teams.home.id)
                       }}
                     >
                       <img 
                         src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
                         alt={currentMatch.teams.home.name} 
-                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-90 saturate-150 drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]"
+                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
-                          top: "calc(50% - 32px)",
-                          filter: "contrast(1.2) brightness(0.9) saturate(1.2)"
+                          top: "calc(50% - 32px)"
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -641,7 +639,7 @@ const FixedScoreboard = () => {
                     
                     {/* VS circle */}
                     <div 
-                      className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
+                      className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
                       style={{
                         background: '#a00000',
                         left: 'calc(50% - 26px)',
@@ -653,10 +651,9 @@ const FixedScoreboard = () => {
                     </div>
 
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
+                    <div className="h-full w-[calc(50%-67px)] mr-[77px]" 
                       style={{ 
-                        background: getTeamColor(currentMatch.teams.away.id),
-                        transition: 'all 0.3s ease-in-out'
+                        background: getTeamColor(currentMatch.teams.away.id)
                       }}
                     >
                     </div>
@@ -664,11 +661,10 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-90 saturate-150 drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]"
+                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 32px)",
-                        filter: "contrast(1.2) brightness(0.9) saturate(1.2)"
+                        top: "calc(50% - 32px)"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
