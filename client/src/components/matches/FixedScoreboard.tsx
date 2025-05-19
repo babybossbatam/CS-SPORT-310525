@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import MatchCountdown from './MatchCountdown';
 
 // Types
 interface Team {
@@ -677,17 +678,50 @@ const FixedScoreboard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                {/* Fixed height container with line-height to force vertical centering */}
-                <div style={{ height: '32px', lineHeight: '32px', overflow: 'hidden' }}>
-                  {getMatchStatusLabel(currentMatch) === 'LIVE' ? (
-                    <span className="text-red-600 font-bold">
-                      {getMatchStatus(currentMatch)}
-                    </span>
-                  ) : (
-                    <span className="text-gray-500">
-                      {getMatchStatus(currentMatch)}
-                    </span>
-                  )}
+                {/* Simple static status display */}
+                <div className="h-8 flex justify-center items-center">
+                  {(() => {
+                    if (!currentMatch) return null;
+                    
+                    if (getMatchStatusLabel(currentMatch) === 'LIVE') {
+                      return (
+                        <span className="text-red-600 font-bold">
+                          {currentMatch.fixture.status.short === '1H' 
+                            ? `First half: ${currentMatch.fixture.status.elapsed}'` 
+                            : currentMatch.fixture.status.short === '2H'
+                              ? `Second half: ${currentMatch.fixture.status.elapsed}'`
+                              : 'LIVE'}
+                        </span>
+                      );
+                    }
+                    
+                    if (currentMatch.fixture.status.short === 'NS') {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date("2025-05-19T12:00:00Z");
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+                        
+                        // For matches today, show the countdown timer component
+                        if (daysToMatch === 0) {
+                          return <MatchCountdown matchDate={currentMatch.fixture.date} />;
+                        }
+                        
+                        // For matches tomorrow or later, show the regular format
+                        if (daysToMatch === 1) {
+                          return <span className="text-gray-500">Tomorrow</span>;
+                        } else if (daysToMatch <= 3) {
+                          return <span className="text-gray-500">{daysToMatch} more days</span>;
+                        } else {
+                          return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
+                        }
+                      } catch (e) {
+                        return <span className="text-gray-500">Upcoming</span>;
+                      }
+                    }
+                    
+                    return <span className="text-gray-500">Full Time</span>;
+                  })()}
                 </div>
               </div>
             </div>
