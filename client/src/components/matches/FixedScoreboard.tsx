@@ -527,9 +527,28 @@ const FixedScoreboard = () => {
                         const msToMatch = matchDate.getTime() - now.getTime();
                         const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
                         
-                        // For matches today, show a simple format instead of timer
+                        // For matches today, show a simple format
                         if (daysToMatch === 0) {
-                          return <span className="text-gray-500">Today</span>;
+                          try {
+                            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+                            // For matches less than 8 hours away, show timer below "Today"
+                            if (hoursToMatch >= 0 && hoursToMatch < 8) {
+                              return (
+                                <div>
+                                  <span className="text-gray-500">Today</span>
+                                  <div className="mt-2">
+                                    <span className="font-bold text-red-500">Live start in:</span> 
+                                    <FixedMatchTimer matchDate={matchDate.toISOString()} />
+                                  </div>
+                                </div>
+                              );
+                            } else {
+                              // More than 8 hours away
+                              return <span className="text-gray-500">Today</span>;
+                            }
+                          } catch (e) {
+                            return <span className="text-gray-500">Today</span>;
+                          }
                         }
                         
                         // For matches tomorrow or later, show the regular format
@@ -605,19 +624,13 @@ const FixedScoreboard = () => {
                               const msToMatch = matchDate.getTime() - now.getTime();
                               const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
                               
-                              // For matches less than 8 hours away, show date/time and add timer below
+                              // Show date/time for all matches
                               if (hoursToMatch >= 0 && hoursToMatch < 8) {
                                 return (
-                                  <>
-                                    <div>
-                                      {formattedDate} | {timeOnly}
-                                      {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
-                                    </div>
-                                    <div className="mt-2">
-                                      <span className="font-bold text-red-500">Live start in:</span> 
-                                      <FixedMatchTimer matchDate={currentMatch.fixture.date} />
-                                    </div>
-                                  </>
+                                  <div>
+                                    {formattedDate} | {timeOnly}
+                                    {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
+                                  </div>
                                 );
                               }
                               
