@@ -538,12 +538,10 @@ const FixedScoreboard = () => {
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches within 8 hours, show simplified time display instead of countdown
+        // For matches within 8 hours, show time in match time format (instead of countdown)
         if (hoursToMatch < 8 && daysToMatch === 0) {
-          if (hoursToMatch === 0) {
-            return `In ${minutesToMatch}m`;
-          }
-          return `In ${hoursToMatch}h`;
+          const matchTime = format(matchDate, 'HH:mm');
+          return `Today ${matchTime}`;
         }
         
         // If match is tomorrow, show "Tomorrow"
