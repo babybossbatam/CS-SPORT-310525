@@ -677,9 +677,11 @@ const FixedScoreboard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
-                  {getMatchStatus(currentMatch)}
-                </span>
+                <div className="h-6 flex items-center justify-center">
+                  <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
+                    {getMatchStatus(currentMatch)}
+                  </span>
+                </div>
               </div>
             </div>
 
