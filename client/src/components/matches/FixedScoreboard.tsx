@@ -605,19 +605,13 @@ const FixedScoreboard = () => {
                               const msToMatch = matchDate.getTime() - now.getTime();
                               const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
                               
-                              // Only show countdown for matches less than 8 hours away
+                              // Only show date/time for all matches
                               if (hoursToMatch >= 0 && hoursToMatch < 8) {
                                 return (
-                                  <>
-                                    <div className="mb-1">
-                                      <span className="font-bold text-red-500">Live start in:</span> 
-                                      <FixedMatchTimer matchDate={currentMatch.fixture.date} />
-                                    </div>
-                                    <div>
-                                      {formattedDate} | {timeOnly}
-                                      {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
-                                    </div>
-                                  </>
+                                  <div>
+                                    {formattedDate} | {timeOnly}
+                                    {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
+                                  </div>
                                 );
                               }
                               
@@ -662,26 +656,28 @@ const FixedScoreboard = () => {
                     
 
 
-                    {/* Countdown Timer - placed below status and above VS circle */}
+
+                    
+                    {/* Countdown timer above VS circle */}
                     {(() => {
                       try {
-                        const matchDate = new Date(currentMatch.fixture.date);
-                        const now = new Date();
-                        const diffMs = matchDate.getTime() - now.getTime();
-                        const hoursToMatch = diffMs / (1000 * 60 * 60);
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date("2025-05-19T12:00:00Z");
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
                         
-                        // Only show countdown for matches less than 8 hours away
                         if (hoursToMatch >= 0 && hoursToMatch < 8 && currentMatch.fixture.status.short === 'NS') {
                           return (
                             <div 
                               className="absolute text-white font-bold text-xs z-30 text-center"
                               style={{
                                 left: 'calc(50% - 70px)', 
-                                top: 'calc(50% - 65px)',
+                                top: 'calc(50% - 60px)',
                                 width: '140px'
                               }}
                             >
-                              <span className="text-red-500">Live start in:</span> <FixedMatchTimer matchDate={currentMatch.fixture.date} />
+                              <span className="font-bold text-red-500">Live start in:</span> 
+                              <FixedMatchTimer matchDate={currentMatch.fixture.date} />
                             </div>
                           );
                         }
