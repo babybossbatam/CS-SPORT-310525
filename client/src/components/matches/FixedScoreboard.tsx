@@ -520,86 +520,83 @@ const FixedScoreboard = () => {
       )}
 
       <CardContent className="px-2 pt-2 pb-2">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            {/* Match header with league info */}
-            <div className="flex items-center justify-center mb-3 px-2">
-              <div className="flex-shrink-0 mr-2">
-                {currentMatch?.league?.logo ? (
-                  <img 
-                    src={currentMatch.league.logo} 
-                    alt={currentMatch.league.name} 
-                    className="w-5 h-5 object-contain"
-                    onError={(e) => {
-                      e.currentTarget.src = '/assets/fallback-logo.svg';
-                    }}
-                  />
-                ) : (
-                  <Trophy className="w-5 h-5 text-amber-500" />
-                )}
-              </div>
-              <div className="flex items-center">
-                <p className="text-xs font-medium text-gray-700 mr-2">
-                  {currentMatch?.league?.name || 'League Name'}
-                </p>
-                <Badge 
-                  variant="outline" 
-                  className={`text-[10px] px-1.5 py-0 border ${
-                    getMatchStatusLabel(currentMatch) === 'LIVE' 
-                      ? 'border-red-500 text-red-500 animate-pulse' 
-                      : getMatchStatusLabel(currentMatch) === 'FINISHED'
-                        ? 'border-gray-500 text-gray-500'
-                        : 'border-blue-500 text-blue-500'
-                  }`}
-                >
-                  {getMatchStatusLabel(currentMatch)}
-                </Badge>
-              </div>
-            </div>
-
-            {/* Match time/status display */}
-            <div className="flex flex-col justify-center mb-3">
-              <div className="flex items-center justify-center text-center">
-                <div className="text-sm font-medium">
-                  {(() => {
-                    if (currentMatch) {
-                      return getMatchStatus(currentMatch);
-                    }
-                    
-                    return <span className="text-gray-500">Full Time</span>;
-                  })()}
+        {isLoading ? (
+          // Loading state - clean display with spinner only
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin h-6 w-6 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
+          </div>
+        ) : !currentMatch ? (
+          // Empty state - no matches available
+          <div className="flex justify-center items-center py-14 text-gray-500">
+            <span>No matches available at this moment</span>
+          </div>
+        ) : (
+          // Matches available - show content
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              {/* Match header with league info */}
+              <div className="flex items-center justify-center mb-3 px-2">
+                <div className="flex-shrink-0 mr-2">
+                  {currentMatch?.league?.logo ? (
+                    <img 
+                      src={currentMatch.league.logo} 
+                      alt={currentMatch.league.name} 
+                      className="w-5 h-5 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = '/assets/fallback-logo.svg';
+                      }}
+                    />
+                  ) : (
+                    <Trophy className="w-5 h-5 text-amber-500" />
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <p className="text-xs font-medium text-gray-700 mr-2">
+                    {currentMatch?.league?.name || 'League Name'}
+                  </p>
+                  <Badge 
+                    variant="outline" 
+                    className={`text-[10px] px-1.5 py-0 border ${
+                      getMatchStatusLabel(currentMatch) === 'LIVE' 
+                        ? 'border-red-500 text-red-500 animate-pulse' 
+                        : getMatchStatusLabel(currentMatch) === 'FINISHED'
+                          ? 'border-gray-500 text-gray-500'
+                          : 'border-blue-500 text-blue-500'
+                    }`}
+                  >
+                    {getMatchStatusLabel(currentMatch)}
+                  </Badge>
                 </div>
               </div>
-              
-              {/* Score display below status for finished matches */}
-              {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
-                <div className="flex items-center justify-center mt-1">
-                  <div className="text-xl font-bold flex gap-2 items-center">
-                    <span>{currentMatch.goals.home}</span>
-                    <span className="text-base">-</span>
-                    <span>{currentMatch.goals.away}</span>
+
+              {/* Match time/status display */}
+              <div className="flex flex-col justify-center mb-3">
+                <div className="flex items-center justify-center text-center">
+                  <div className="text-sm font-medium">
+                    {getMatchStatus(currentMatch)}
                   </div>
                 </div>
-              )}
-            </div>
+                
+                {/* Score display below status for finished matches */}
+                {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+                  <div className="flex items-center justify-center mt-1">
+                    <div className="text-xl font-bold flex gap-2 items-center">
+                      <span>{currentMatch.goals.home}</span>
+                      <span className="text-base">-</span>
+                      <span>{currentMatch.goals.away}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Team scoreboard - only show when data is loaded */}
-            {isLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin h-6 w-6 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
-              </div>
-            ) : !currentMatch ? (
-              <div className="flex justify-center items-center py-6 text-gray-500">
-                <span>No matches available at this moment</span>
-              </div>
-            ) : (
+              {/* Team scoreboard */}
               <div className="relative mt-4">
                 <div 
                   className="flex relative h-[53px] rounded-md mb-8"
@@ -741,68 +738,68 @@ const FixedScoreboard = () => {
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Bottom navigation */}
-            <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
-              <button 
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                  <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
-                </svg>
-                <span className="text-xs text-gray-600 mt-1">Match Page</span>
-              </button>
-              <button 
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                  <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
-                </svg>
-                <span className="text-xs text-gray-600 mt-1">Lineups</span>
-              </button>
-              <button 
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/stats`)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor" />
-                </svg>
-                <span className="text-xs text-gray-600 mt-1">Stats</span>
-              </button>
-              <button 
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.league?.id && navigate(`/league/${currentMatch.league.id}/standings`)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                  <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
-                  <path d="M7 7H9V17H7V7Z" fill="currentColor" />
-                  <path d="M11 7H13V17H11V7Z" fill="currentColor" />
-                  <path d="M15 7H17V17H15V7Z" fill="currentColor" />
-                </svg>
-                <span className="text-xs text-gray-600 mt-1">Standings</span>
-              </button>
-            </div>
-
-            {/* Indicator dots for slideshow */}
-            {matches.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
-                {matches.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                      index === currentIndex ? 'bg-indigo-600' : 'bg-gray-300'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
+              {/* Bottom navigation */}
+              <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
+                <button 
+                  className="flex flex-col items-center cursor-pointer w-1/4"
+                  onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                    <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
+                  </svg>
+                  <span className="text-xs text-gray-600 mt-1">Match Page</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center cursor-pointer w-1/4"
+                  onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
+                  </svg>
+                  <span className="text-xs text-gray-600 mt-1">Lineups</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center cursor-pointer w-1/4"
+                  onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/stats`)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor" />
+                  </svg>
+                  <span className="text-xs text-gray-600 mt-1">Stats</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center cursor-pointer w-1/4"
+                  onClick={() => currentMatch?.league?.id && navigate(`/league/${currentMatch.league.id}/standings`)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
+                    <path d="M7 7H9V17H7V7Z" fill="currentColor" />
+                    <path d="M11 7H13V17H11V7Z" fill="currentColor" />
+                    <path d="M15 7H17V17H15V7Z" fill="currentColor" />
+                  </svg>
+                  <span className="text-xs text-gray-600 mt-1">Standings</span>
+                </button>
               </div>
-            )}
+
+              {/* Indicator dots for slideshow */}
+              {matches.length > 1 && (
+                <div className="flex justify-center gap-2 mt-4">
+                  {matches.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                        index === currentIndex ? 'bg-indigo-600' : 'bg-gray-300'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
           </motion.div>
         </AnimatePresence>
+        )}
       </CardContent>
     </Card>
   );
