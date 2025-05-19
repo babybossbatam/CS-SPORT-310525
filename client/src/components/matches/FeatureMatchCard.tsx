@@ -8,6 +8,7 @@ import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
 import { FixtureResponse } from '../../../../server/types';
 import MatchScoreboard from './MatchScoreboard';
+import { EmptyScoreboard } from './EmptyScoreboard';
 
 interface FeatureMatchCardProps {
   match: FixtureResponse;
@@ -186,12 +187,59 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         </div>
 
         <div className="relative">
-          <MatchScoreboard
-            match={currentMatch}
-            matches={[]}
+          <div 
+            className="flex relative h-[53px] rounded-md mb-8 transition-all duration-300 ease-in-out opacity-100 mt-[-8px]"
             onClick={handleMatchClick}
-            featured={true}
-          />
+            style={{ 
+              cursor: onClick ? 'pointer' : 'default'
+            }}
+          >
+            <div className="w-full h-full flex justify-between relative">
+              {/* Home team colored bar and logo */}
+              <div className="h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
+                style={{ 
+                  background: "#6f7c93",
+                  transition: 'all 0.3s ease-in-out'
+                }}
+              >
+                <div 
+                  className="absolute left-[-32px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  style={{
+                    top: "calc(50% - 32px)"
+                  }}
+                />
+              </div>
+
+              {/* VS section */}
+              <div 
+                className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
+                style={{
+                  background: '#a00000',
+                  left: 'calc(50% - 26px)',
+                  top: 'calc(50% - 26px)',
+                  minWidth: '52px'
+                }}
+              >
+                <span className="vs-text font-bold">VS</span>
+              </div>
+
+              {/* Away team colored bar and logo */}
+              <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
+                style={{ 
+                  background: "#8b0000",
+                  transition: 'all 0.3s ease-in-out'
+                }}
+              >
+              </div>
+
+              <div
+                className="absolute right-[41px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                style={{
+                  top: "calc(50% - 32px)"
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">

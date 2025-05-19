@@ -96,12 +96,11 @@ export function MatchScoreboard({
   awayTeamColor = '#8b0000',
   compact = false 
 }: MatchScoreboardProps) {
-  // Use only the primary match, ignore additional matches for slideshow
-  const { fixture, league, teams, goals, score } = match;
+  // For demo/testing purposes, show only the component structure with no data
   const [isLoaded, setIsLoaded] = useState(false);
   
-  // Removed slideshow functionality
-  // console.log("Slideshow disabled - using only primary match");
+  // Remove all data display by using completely empty objects
+  const teams = { home: { id: 0, name: "", logo: "" }, away: { id: 0, name: "", logo: "" } };
 
   useEffect(() => {
     const timer = setTimeout(() => {
