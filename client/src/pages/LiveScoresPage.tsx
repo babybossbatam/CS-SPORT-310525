@@ -11,14 +11,6 @@ export default function LiveScoresPage() {
     refetchInterval: 30000
   });
 
-  // Define popular leagues IDs
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78];  // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
-
-  // Filter matches to show only popular leagues
-  const filteredMatches = liveFixturesQuery.data?.filter(match => 
-    match.league && POPULAR_LEAGUES.includes(match.league.id)
-  ) || [];
-
   return (
     <div className="container max-w-7xl mx-auto py-6 px-4">
       <header className="mb-8">
@@ -34,10 +26,10 @@ export default function LiveScoresPage() {
 
       <main className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-9">
-          {filteredMatches.length > 0 && (
+          {liveFixturesQuery.data && liveFixturesQuery.data.length > 0 && (
             <LeagueMatchScoreboard 
-              match={filteredMatches[0]}
-              matches={filteredMatches}
+              match={liveFixturesQuery.data[0]}
+              matches={liveFixturesQuery.data}
               maxMatches={20}
             />
           )}
