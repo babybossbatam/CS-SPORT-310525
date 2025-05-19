@@ -29,39 +29,10 @@ export function LeagueMatchScoreboard({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Filter and sort matches based on status and time
+  // No filtering, show all matches
   const filterMatches = (matches: FixtureResponse[]) => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const eightHoursInSeconds = 8 * 60 * 60;
-
-    // Define popular leagues IDs (same as in PopularLeagueFilter.tsx)
-    // No filtering - show all matches
-    const filteredMatches = matches.filter(match => {
-      const matchTime = match.fixture.timestamp;
-      const timeDiff = currentTime - matchTime;
-
-      // Show all live matches
-      if (match.fixture.status.short === 'LIVE') {
-        return true;
-      }
-
-      // Show upcoming matches (within next 8 hours)
-      if (match.fixture.status.short === 'NS' && 
-          matchTime > currentTime && 
-          matchTime - currentTime <= eightHoursInSeconds) {
-        return true;
-      }
-
-      // Show recently finished matches (within last 8 hours)
-      if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
-        return true;
-      }
-
-      return false;
-    });
-
-    // Sort by priority: Live > Upcoming > Recent
-    return filteredMatches.sort((a, b) => {
+    if (!matches) return [];
+    return matches;
       // Priority 1: Live matches first
       const aIsLive = a.fixture.status.short === 'LIVE';
       const bIsLive = b.fixture.status.short === 'LIVE';
