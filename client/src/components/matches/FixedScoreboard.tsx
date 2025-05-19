@@ -573,10 +573,8 @@ const FixedScoreboard = () => {
 
               {/* Match time/status display */}
               <div className="flex flex-col justify-center mb-3">
-                <div className="flex items-center justify-center text-center">
-                  <div className="font-medium" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
-                    {getMatchStatus(currentMatch)}
-                  </div>
+                <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                  {getMatchStatus(currentMatch)}
                 </div>
                 
                 {/* Score display below status for finished matches */}
