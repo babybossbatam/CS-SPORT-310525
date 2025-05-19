@@ -336,7 +336,12 @@ const FixedScoreboard = () => {
     } 
     // UPCOMING MATCHES
     else {
-      if (timeDiff <= 0) {
+      try {
+        const matchDate = parseISO(fixture.date);
+        const now = new Date();
+        const timeDiff = matchDate.getTime() - now.getTime();
+
+        if (timeDiff <= 0) {
       // For live matches, show the match minute
       if (['1H', '2H', 'HT'].includes(fixture.status.short)) {
         return (
