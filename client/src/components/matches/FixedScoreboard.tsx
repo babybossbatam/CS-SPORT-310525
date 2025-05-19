@@ -487,10 +487,11 @@ const FixedScoreboard = () => {
                       <img 
                         src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
                         alt={currentMatch.teams.home.name} 
-                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-90 saturate-150 drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]"
                         style={{
                           cursor: 'pointer',
-                          top: "calc(50% - 32px)"
+                          top: "calc(50% - 32px)",
+                          filter: "contrast(1.2) brightness(0.9) saturate(1.2)"
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -569,10 +570,11 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-90 saturate-150 drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 32px)"
+                        top: "calc(50% - 32px)",
+                        filter: "contrast(1.2) brightness(0.9) saturate(1.2)"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
