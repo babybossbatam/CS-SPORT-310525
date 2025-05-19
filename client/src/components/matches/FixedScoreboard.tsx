@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import CountdownTimer from './CountdownTimer';
+import FixedMatchTimer from './FixedMatchTimer';
 
 // Types
 interface Team {
@@ -385,7 +385,7 @@ const FixedScoreboard = () => {
         if (daysToMatch === 0) {
           // For matches within 8 hours, show countdown timer
           if (hoursToMatch <= 8) {
-            return <CountdownTimer matchDate={fixture.date} />;
+            return <FixedMatchTimer matchDate={fixture.date} />;
           }
           // For other matches today, just show the day without time
           return <span>Today</span>;
@@ -611,7 +611,7 @@ const FixedScoreboard = () => {
                                   <>
                                     <div className="mb-1">
                                       <span className="font-bold text-red-500">COUNTDOWN:</span> 
-                                      <CountdownTimer matchDate={currentMatch.fixture.date} />
+                                      <FixedMatchTimer matchDate={currentMatch.fixture.date} />
                                     </div>
                                     <div>
                                       {formattedDate} | {timeOnly}
@@ -620,6 +620,8 @@ const FixedScoreboard = () => {
                                   </>
                                 );
                               }
+                              
+                              // If more than 8 hours away, don't show countdown
                               
                               // For other matches, just show date/time
                               return (
