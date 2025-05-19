@@ -607,7 +607,7 @@ const FixedScoreboard = () => {
                       <img 
                         src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
                         alt={currentMatch.teams.home.name} 
-                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute left-[-77px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
                           top: "calc(50% - 32px)"
@@ -647,7 +647,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute left-[10px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.home.name}
                     </div>
 
@@ -693,7 +693,7 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute right-[13px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
                         top: "calc(50% - 32px)"
@@ -709,7 +709,7 @@ const FixedScoreboard = () => {
                       }}
                     />
 
-                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute right-[87px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.away.name}
                     </div>
                   </div>
