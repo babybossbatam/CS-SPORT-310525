@@ -172,12 +172,7 @@ const FixedScoreboard = () => {
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
 
         // Define popular teams by ID (big teams that should be prioritized)
-        const popularTeamIds = [
-          // Original popular teams
-          33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165,
-          // Adding Crystal Palace (ID: 52) and Wolves (ID: 39)
-          52, 76
-        ]; // Teams include Man United, Real Madrid, Barcelona, Liverpool, Crystal Palace, Wolves, etc.
+        const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
         
         // Combine matches with priority
         let finalMatches: Match[] = [];
