@@ -545,11 +545,8 @@ const FixedScoreboard = () => {
             // Use the dedicated current match timer that is actively counting down
             const { hours, minutes, seconds } = currentTimer;
             
-            // Create a blinking effect with the separator to show that the timer is active
-            const currentTime = new Date();
-            const separator = currentTime.getSeconds() % 2 === 0 ? ':' : ' ';
-            
-            return `${hours.toString().padStart(2, '0')}${separator}${minutes.toString().padStart(2, '0')}${separator}${seconds.toString().padStart(2, '0')}`;
+            // Create fixed-width characters for the timer
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
           }
           // For other matches, use the countdown from the general state
           else if (countdowns[fixture.id]) {
@@ -677,10 +674,13 @@ const FixedScoreboard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                <div className="h-6 flex items-center justify-center">
-                  <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
-                    {getMatchStatus(currentMatch)}
-                  </span>
+                {/* Fixed height and min-width container with monospace font for stability */}
+                <div className="h-8 min-w-[150px] flex items-center justify-center">
+                  <div className="font-mono w-[150px] text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
+                      {getMatchStatus(currentMatch)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
