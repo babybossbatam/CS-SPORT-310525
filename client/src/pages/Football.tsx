@@ -154,33 +154,9 @@ const Football = () => {
       <MatchFilters />
 
       <main className="container mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-          {/* Left column - Featured Match */}
-          <div className="lg:col-span-4">
-            <LiveScoreboardPage />
-          </div>
-
-          {/* Right column - Popular Leagues */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow-sm overflow-hidden">
-            {/* Country filter */}
-            <LeagueCountryFilter onSelectCountry={setFilteredCountry} />
-
-            <div className="space-y-1">
-              {(filteredCountry 
-                ? countryLeagueMap[filteredCountry] || [] 
-                : popularLeagues
-              ).map((leagueId) => (
-                <LeagueMatchCard key={leagueId} leagueId={leagueId} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Stats and News Section */}
-        <div className="mt-8 grid grid-cols-1 gap-6">
-          <StatsPanel />
-          <div className="bg-white rounded-lg shadow p-4">
-            <NewsSection />
+        <div className="grid grid-cols-1 gap-4">
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center">
+            No matches available
           </div>
         </div>
       </main>
