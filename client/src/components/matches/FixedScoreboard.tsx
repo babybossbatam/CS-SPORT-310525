@@ -430,7 +430,7 @@ const FixedScoreboard = () => {
               return (
                 <div className="flex flex-col space-y-0 relative">
                   <span className="text-gray-500">Today</span>
-                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '120%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 50, marginTop: '6px', backgroundColor: 'rgba(255,255,255,0.95)', padding: '4px', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20 }}>
                     <span className="font-bold text-red-500">Live start in:</span> 
                     <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
                   </div>
