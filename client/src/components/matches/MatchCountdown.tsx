@@ -28,7 +28,11 @@ const MatchCountdown = ({ matchDate }: MatchCountdownProps) => {
   
   const calculateTimeRemaining = (targetDate: Date) => {
     // For demo purposes, use a fixed current date
+    // Use a new Date object each time to simulate time passing
     const now = new Date("2025-05-19T12:00:00Z");
+    // Simulate the current timer by adding seconds based on component render time
+    now.setSeconds(now.getSeconds() + Math.floor((Date.now() / 1000) % 60));
+    
     const difference = targetDate.getTime() - now.getTime();
     
     if (difference <= 0) {

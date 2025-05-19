@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import MatchCountdown from './MatchCountdown';
+import CountdownTimer from './CountdownTimer';
 
 // Types
 interface Team {
@@ -280,165 +280,12 @@ const FixedScoreboard = () => {
     }
   }, [currentMatch]);
   
-  // Timer effect to decrement the current timer every second
+  // Only use effect for fetching match data
   useEffect(() => {
-    if (!currentTimer) return;
-    
-    const timerInterval = setInterval(() => {
-      setCurrentTimer(prev => {
-        if (!prev) return null;
-        
-        let { hours, minutes, seconds } = prev;
-        
-        // Decrease seconds
-        seconds--;
-        
-        // Handle time rollover
-        if (seconds < 0) {
-          seconds = 59;
-          minutes--;
-          
-          if (minutes < 0) {
-            minutes = 59;
-            hours--;
-            
-            if (hours < 0) {
-              // Timer reached zero
-              hours = minutes = seconds = 0;
-            }
-          }
-        }
-        
-        return { hours, minutes, seconds };
-      });
-    }, 1000);
-    
-    return () => clearInterval(timerInterval);
-  }, [currentTimer]);
-  
-  // Effect for other matches' countdowns
-  useEffect(() => {
-    // Don't set up timers if no matches are loaded yet
+    // Just a placeholder to ensure the component works
     if (matches.length === 0) return;
-    
-    // Set up timers for upcoming matches
-    const timers: {[key: number]: NodeJS.Timeout} = {};
-    
-    // Filter for all upcoming matches from today (within 24 hours)
-    const upcomingMatches = matches.filter(match => {
-      if (match.fixture.status.short !== 'NS') return false;
-      
-      try {
-        const matchDate = parseISO(match.fixture.date);
-        const now = new Date("2025-05-19T12:00:00Z"); // Using our demo time
-        const msToMatch = matchDate.getTime() - now.getTime();
-        const hoursToMatch = msToMatch / (1000 * 60 * 60);
-        const daysToMatch = Math.floor(hoursToMatch / 24);
-        
-        // Show countdown for all matches today (within next 24 hours)
-        return msToMatch > 0 && daysToMatch === 0;
-      } catch {
-        return false;
-      }
-    });
-    
-    // Set up interval to update countdowns every second
-    const updateCountdowns = () => {
-      // Actual countdown reduction
-      const now = new Date();
-      
-      // If we have a current match with a timer that hasn't been initialized,
-      // initialize it from our countdown data
-      if (currentMatch && 
-          currentMatch.fixture.status.short === 'NS' && 
-          !currentTimer && 
-          upcomingMatches.some(m => m.fixture.id === currentMatch.fixture.id)) {
-        
-        const matchDate = parseISO(currentMatch.fixture.date);
-        const baseTime = new Date("2025-05-19T12:00:00Z");
-        const msToMatch = matchDate.getTime() - baseTime.getTime();
-        
-        if (msToMatch > 0) {
-          const hours = Math.floor(msToMatch / (1000 * 60 * 60));
-          const minutes = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((msToMatch % (1000 * 60)) / 1000);
-          
-          setCurrentTimer({ hours, minutes, seconds });
-        }
-      }
-      
-      // Update the current timer if we have one
-      if (currentTimer) {
-        let { hours, minutes, seconds } = currentTimer;
-        
-        // Decrease seconds
-        seconds--;
-        
-        // Handle time rollover
-        if (seconds < 0) {
-          seconds = 59;
-          minutes--;
-          
-          if (minutes < 0) {
-            minutes = 59;
-            hours--;
-            
-            if (hours < 0) {
-              // Timer reached zero
-              hours = minutes = seconds = 0;
-            }
-          }
-        }
-        
-        setCurrentTimer({ hours, minutes, seconds });
-      }
-      
-      // Also update all other countdowns for matches
-      const newCountdowns: {[key: number]: {hours: number, minutes: number, seconds: number}} = {};
-      
-      upcomingMatches.forEach(match => {
-        try {
-          // Don't calculate for the current match as we're handling it separately
-          if (currentMatch && match.fixture.id === currentMatch.fixture.id) {
-            if (currentTimer) {
-              newCountdowns[match.fixture.id] = currentTimer;
-            }
-            return;
-          }
-          
-          const matchDate = parseISO(match.fixture.date);
-          const baseTime = new Date("2025-05-19T12:00:00Z");
-          // Calculate time using tickCounter for decrementing simulation
-          const msToMatch = matchDate.getTime() - (baseTime.getTime() + (tickCounter * 1000));
-          
-          if (msToMatch > 0) {
-            const hours = Math.floor(msToMatch / (1000 * 60 * 60));
-            const minutes = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((msToMatch % (1000 * 60)) / 1000);
-            
-            newCountdowns[match.fixture.id] = { hours, minutes, seconds };
-          }
-        } catch (e) {
-          console.error(`Error calculating countdown for match ID ${match.fixture.id}:`, e);
-        }
-      });
-      
-      setCountdowns(newCountdowns);
-      
-      // Increment the tick counter to force UI refresh and simulate advancing time
-      setTickCounter(prev => prev + 1);
-    };
-    
-    // Initial update
-    updateCountdowns();
-    
-    // Set up timer to update every second
-    const interval = setInterval(updateCountdowns, 1000);
-    
-    return () => {
-      clearInterval(interval);
-      Object.values(timers).forEach(timer => clearTimeout(timer));
-    };
+
+    // Any additional match data initialization can go here if needed
   }, [matches]);
 
   // Navigation handlers
@@ -704,7 +551,7 @@ const FixedScoreboard = () => {
                         
                         // For matches today, show the countdown timer component
                         if (daysToMatch === 0) {
-                          return <MatchCountdown matchDate={currentMatch.fixture.date} />;
+                          return <CountdownTimer matchDate={currentMatch.fixture.date} />;
                         }
                         
                         // For matches tomorrow or later, show the regular format
