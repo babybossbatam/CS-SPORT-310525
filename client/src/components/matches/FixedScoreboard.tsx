@@ -50,7 +50,7 @@ interface Match {
   };
 }
 
-const SimpleScoreboard = () => {
+const FixedScoreboard = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [matches, setMatches] = useState<Match[]>([]);
@@ -345,11 +345,10 @@ const SimpleScoreboard = () => {
                     
                     {/* Match venue/location information (small text under the VS circle) */}
                     {currentMatch.fixture.status.short === 'NS' && currentMatch.fixture.venue && currentMatch.fixture.venue.name && (
-                      <div className="absolute text-center text-xs text-gray-500 w-[100px] left-[calc(50%-50px)] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem' }}>
+                      <div className="absolute text-center text-xs text-gray-500 w-[120px] left-[calc(50%-60px)] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem' }}>
                         {currentMatch.fixture.venue.name}
                       </div>
                     )}
-                    </div>
 
                     {/* Away team colored bar and logo */}
                     <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
@@ -456,4 +455,4 @@ const SimpleScoreboard = () => {
   );
 };
 
-export default SimpleScoreboard;
+export default FixedScoreboard;

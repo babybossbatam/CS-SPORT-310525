@@ -1,11 +1,11 @@
 import { useLocation } from 'wouter';
-import SimpleScoreboard from './SimpleScoreboard';
+import FixedScoreboard from './FixedScoreboard';
 
 const FeaturedMatch = () => {
   const [, navigate] = useLocation();
   
   return (
-    <SimpleScoreboard />
+    <FixedScoreboard />
   );
 };
 
