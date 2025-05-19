@@ -1,10 +1,17 @@
 import { useState } from 'react';
 
+import { useState, useEffect } from 'react';
+import { FixtureResponse } from '@/types/fixtures';
+
 interface LeagueMatchScoreboardProps {
+  match: FixtureResponse;
+  matches?: FixtureResponse[];
+  onClick?: () => void;
   featured?: boolean;
   homeTeamColor?: string;
   awayTeamColor?: string;
   compact?: boolean;
+  maxMatches?: number;
 }
 
 export function LeagueMatchScoreboard({ 
@@ -14,6 +21,23 @@ export function LeagueMatchScoreboard({
   compact = false,
 }: LeagueMatchScoreboardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % 5);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div 
