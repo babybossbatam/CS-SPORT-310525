@@ -20,6 +20,7 @@ const SearchResults = lazy(() => import("@/pages/SearchResults"));
 const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
 const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
+const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 
 function LoadingSpinner() {
   return (
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/search" component={SearchResults} />
       <Route path="/live" component={LiveMatches} />
       <Route path="/news" component={NewsPage} />
+      <Route path="/scoreboard-demo" component={ScoreboardDemo} />
       <Route component={NotFound} />
     </Switch>
     </Suspense>
