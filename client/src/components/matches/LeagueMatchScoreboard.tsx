@@ -54,33 +54,9 @@ export function LeagueMatchScoreboard({
       onClick={onClick}
     >
       <div className="w-full h-full flex justify-between relative">
-        {match ? (
-          <div className="w-full h-full flex items-center justify-between px-4">
-            <div className="flex items-center space-x-4">
-              <img
-                src={match.teams.home.logo}
-                alt={match.teams.home.name}
-                className="h-8 w-8 object-contain"
-              />
-              <span className="text-white font-medium">{match.teams.home.name}</span>
-            </div>
-            <div className="text-white font-bold">
-              {match.goals.home} - {match.goals.away}
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-white font-medium">{match.teams.away.name}</span>
-              <img
-                src={match.teams.away.logo}
-                alt={match.teams.away.name}
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-white">
-            No matches available
-          </div>
-        )}
+        <div className="w-full h-full flex items-center justify-center text-white">
+          No matches available
+        </div>
       </div>
     </div>
   );
