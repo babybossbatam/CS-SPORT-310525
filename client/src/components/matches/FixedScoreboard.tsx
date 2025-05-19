@@ -166,12 +166,10 @@ const FixedScoreboard = () => {
         } else if (diffDays > 1 && diffDays <= 7) {
           timeText = `${diffDays} more days`;
         } else {
-          timeText = format(matchDate, 'dd MMM yyyy');
+          timeText = `${diffDays} more days`;
         }
         
-        // Add time 
-        const timeOnly = format(matchDate, 'HH:mm');
-        return `${timeText} at ${timeOnly}`;
+        return timeText;
       } catch (e) {
         return 'Upcoming';
       }
