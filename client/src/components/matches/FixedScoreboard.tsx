@@ -56,6 +56,7 @@ const FixedScoreboard = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [countdowns, setCountdowns] = useState<{[key: number]: {hours: number, minutes: number, seconds: number}}>({}); // Store countdown timers for upcoming matches
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
@@ -246,6 +247,68 @@ const FixedScoreboard = () => {
   }, [toast]);
 
   const currentMatch = matches[currentIndex];
+  
+  // Update countdown timers for upcoming matches within 8 hours
+  useEffect(() => {
+    // Don't set up timers if no matches are loaded yet
+    if (matches.length === 0) return;
+    
+    // Set up timers for upcoming matches
+    const timers: {[key: number]: NodeJS.Timeout} = {};
+    
+    // Filter for upcoming matches within 8 hours
+    const upcomingMatches = matches.filter(match => {
+      if (match.fixture.status.short !== 'NS') return false;
+      
+      try {
+        const matchDate = parseISO(match.fixture.date);
+        const now = new Date("2025-05-19T12:00:00Z"); // Using our demo time
+        const msToMatch = matchDate.getTime() - now.getTime();
+        const hoursToMatch = msToMatch / (1000 * 60 * 60);
+        
+        return hoursToMatch >= 0 && hoursToMatch <= 8;
+      } catch {
+        return false;
+      }
+    });
+    
+    // Set up interval to update countdowns every second
+    const updateCountdowns = () => {
+      const now = new Date("2025-05-19T12:00:00Z"); // Using our demo time
+      
+      const newCountdowns: {[key: number]: {hours: number, minutes: number, seconds: number}} = {};
+      
+      upcomingMatches.forEach(match => {
+        try {
+          const matchDate = parseISO(match.fixture.date);
+          const msToMatch = matchDate.getTime() - now.getTime();
+          
+          if (msToMatch > 0) {
+            const hours = Math.floor(msToMatch / (1000 * 60 * 60));
+            const minutes = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((msToMatch % (1000 * 60)) / 1000);
+            
+            newCountdowns[match.fixture.id] = { hours, minutes, seconds };
+          }
+        } catch (e) {
+          console.error(`Error calculating countdown for match ID ${match.fixture.id}:`, e);
+        }
+      });
+      
+      setCountdowns(newCountdowns);
+    };
+    
+    // Initial update
+    updateCountdowns();
+    
+    // Set up timer to update every second
+    const interval = setInterval(updateCountdowns, 1000);
+    
+    return () => {
+      clearInterval(interval);
+      Object.values(timers).forEach(timer => clearTimeout(timer));
+    };
+  }, [matches]);
 
   // Navigation handlers
   const handlePrevious = () => {
@@ -308,7 +371,8 @@ const FixedScoreboard = () => {
       else if (['1H', '2H'].includes(fixture.status.short)) {
         // Use our tracked elapsed time if available, otherwise fall back to API
         const elapsed = liveElapsed || fixture.status.elapsed || 0;
-        return `${elapsed}'`;
+        const halfLabel = fixture.status.short === '1H' ? 'First half' : 'Second half';
+        return `${halfLabel}: ${elapsed}'`;
       }
       // For other live states
       else {
@@ -346,8 +410,14 @@ const FixedScoreboard = () => {
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches within 8 hours, show hours remaining
+        // For matches within 8 hours, show active countdown
         if (hoursToMatch < 8 && daysToMatch === 0) {
+          // If we have an active countdown for this match, use it
+          if (countdowns[fixture.id]) {
+            const { hours, minutes, seconds } = countdowns[fixture.id];
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          }
+          // Fallback if countdown not available yet
           if (hoursToMatch === 0) {
             return `In ${minutesToMatch}m`;
           }
