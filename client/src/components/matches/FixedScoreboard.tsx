@@ -57,6 +57,7 @@ const FixedScoreboard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [countdowns, setCountdowns] = useState<{[key: number]: {hours: number, minutes: number, seconds: number}}>({}); // Store countdown timers for upcoming matches
+  const [tickCounter, setTickCounter] = useState(0); // Used to force re-render for countdown timer
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
@@ -274,14 +275,18 @@ const FixedScoreboard = () => {
     
     // Set up interval to update countdowns every second
     const updateCountdowns = () => {
-      const now = new Date("2025-05-19T12:00:00Z"); // Using our demo time
+      // Use a fixed reference time, but simulate advancing time by using tickCounter
+      const baseTime = new Date("2025-05-19T12:00:00Z"); // Using demo time as base
+      
+      // Add tickCounter seconds to create a "moving" time reference that advances with each tick
+      const simulatedNow = new Date(baseTime.getTime() + (tickCounter * 1000));
       
       const newCountdowns: {[key: number]: {hours: number, minutes: number, seconds: number}} = {};
       
       upcomingMatches.forEach(match => {
         try {
           const matchDate = parseISO(match.fixture.date);
-          const msToMatch = matchDate.getTime() - now.getTime();
+          const msToMatch = matchDate.getTime() - simulatedNow.getTime();
           
           if (msToMatch > 0) {
             const hours = Math.floor(msToMatch / (1000 * 60 * 60));
@@ -296,6 +301,9 @@ const FixedScoreboard = () => {
       });
       
       setCountdowns(newCountdowns);
+      
+      // Increment the tick counter to force UI refresh and simulate advancing time
+      setTickCounter(prev => prev + 1);
     };
     
     // Initial update
@@ -415,7 +423,12 @@ const FixedScoreboard = () => {
           // If we have an active countdown for this match, use it
           if (countdowns[fixture.id]) {
             const { hours, minutes, seconds } = countdowns[fixture.id];
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Create a blinking effect with the separator to show that the timer is active
+            const currentTime = new Date();
+            const separator = currentTime.getSeconds() % 2 === 0 ? ':' : ' ';
+            
+            return `${hours.toString().padStart(2, '0')}${separator}${minutes.toString().padStart(2, '0')}${separator}${seconds.toString().padStart(2, '0')}`;
           }
           // Fallback if countdown not available yet
           if (hoursToMatch === 0) {
