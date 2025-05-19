@@ -1,8 +1,13 @@
 import { useLocation } from 'wouter';
 import FixedScoreboard from './FixedScoreboard';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-// This component is a direct pass-through to FixedScoreboard
-// We're exporting FixedScoreboard directly to avoid nesting components
-const FeaturedMatch = FixedScoreboard;
+// Create a simpler card component specifically for featured matches
+const FeaturedMatch = () => {
+  return (
+    <FixedScoreboard />
+  );
+};
 
 export default FeaturedMatch;
