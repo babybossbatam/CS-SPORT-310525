@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, ReactNode } from 'react';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 import FixedMatchTimer from './FixedMatchTimer';
+import ScoreboardCard from './ScoreboardCard';
 
 // Types
 interface Team {
@@ -488,33 +488,30 @@ const FixedScoreboard = () => {
     return colors[teamId % colors.length];
   };
 
-  return (
+  // Prepare navigation controls as a React node to pass to ScoreboardCard
+  const navigationControls = matches.length > 1 ? (
     <>
-      <Badge 
-        variant="secondary" 
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
+      <button
+        onClick={handlePrevious}
+        className="absolute left-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-md z-40 flex items-center border border-gray-200"
       >
-        Featured Match
-      </Badge>
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        onClick={handleNext}
+        className="absolute right-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-md z-40 flex items-center border border-gray-200"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+    </>
+  ) : null;
 
-      {matches.length > 1 && (
-        <>
-          <button
-            onClick={handlePrevious}
-            className="absolute left-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-md z-40 flex items-center border border-gray-200"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={handleNext}
-            className="absolute right-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-md z-40 flex items-center border border-gray-200"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </>
-      )}
-
-      <div className="px-8 pt-2 pb-2">
+  return (
+    <ScoreboardCard 
+      badgeText="Featured Match"
+      minHeight="340px"
+      controls={navigationControls}
+    >
         {isLoading ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
