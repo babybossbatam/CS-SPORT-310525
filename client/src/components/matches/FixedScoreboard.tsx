@@ -489,7 +489,7 @@ const FixedScoreboard = () => {
   };
 
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
+    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ transform: 'scale(2)', transformOrigin: 'top center', marginBottom: '6rem' }}>
       <Badge 
         variant="secondary" 
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
