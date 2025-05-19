@@ -1,7 +1,4 @@
-import { Clock } from 'lucide-react';
-import { format } from 'date-fns';
-import { Card, CardContent } from '@/components/ui/card';
-import TeamLogo from './TeamLogo';
+
 import { useState, useEffect } from 'react';
 import { FixtureResponse } from '@/types/fixtures';
 
@@ -17,14 +14,10 @@ interface LeagueMatchScoreboardProps {
 }
 
 export function LeagueMatchScoreboard({ 
-  match,
-  matches = [],
-  onClick, 
   featured = false,
   homeTeamColor = '#6f7c93',
   awayTeamColor = '#8b0000',
   compact = false,
-  maxMatches = 5
 }: LeagueMatchScoreboardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -39,13 +32,13 @@ export function LeagueMatchScoreboard({
   return (
     <div 
       className={`flex relative h-[53px] rounded-md ${compact ? 'mb-4' : 'mb-8'} transition-all duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} mt-[-8px]`}
-      onClick={onClick}
-      style={{ 
-        cursor: onClick ? 'pointer' : 'default'
-      }}
+      style={{ background: '#1a1a1a' }}
     >
       <div className="w-full h-full flex justify-between relative">
         {/* Empty scoreboard */}
+        <div className="w-full h-full flex items-center justify-center text-white">
+          No matches available
+        </div>
       </div>
     </div>
   );
