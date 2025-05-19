@@ -504,9 +504,9 @@ const FixedScoreboard = () => {
                         }}
                       />
                       
-                      {/* Match time & venue information centered between home logo and VS */}
+                      {/* Match time & venue information starting from home logo center */}
                       {currentMatch.fixture.status.short === 'NS' && (
-                        <div className="absolute text-center text-xs text-gray-500 w-[200px] left-[15px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="absolute text-center text-xs text-gray-500 w-[300px] left-[32px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible' }}>
                           {(() => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
