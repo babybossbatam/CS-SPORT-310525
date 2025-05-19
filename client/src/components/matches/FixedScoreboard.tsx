@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import MatchCountdownTimer from './MatchCountdownTimer';
+import CountdownTimer from './CountdownTimer';
 
 // Types
 interface Team {
@@ -248,9 +248,6 @@ const FixedScoreboard = () => {
 
   const currentMatch = matches[currentIndex];
   
-  // State for real-time countdown timer
-  const [countdown, setCountdown] = useState<{hours: number, minutes: number, seconds: number} | null>(null);
-  
   // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
@@ -275,47 +272,6 @@ const FixedScoreboard = () => {
       console.log(`Found match with countdown: ${matches[upcomingMatchIndex].teams.home.name} vs ${matches[upcomingMatchIndex].teams.away.name}`);
     }
   }, [matches]);
-  
-  // Update countdown timer every second
-  useEffect(() => {
-    if (!currentMatch || currentMatch.fixture.status.short !== 'NS') {
-      setCountdown(null);
-      return;
-    }
-    
-    const updateCountdown = () => {
-      try {
-        const matchDate = parseISO(currentMatch.fixture.date);
-        // Use hardcoded time for demo
-        const now = new Date("2025-05-19T12:00:00Z");
-        // Add some seconds variation to simulate time passing
-        now.setSeconds(now.getSeconds() + (Date.now() % 60));
-        
-        const msToMatch = matchDate.getTime() - now.getTime();
-        if (msToMatch <= 0) {
-          setCountdown({ hours: 0, minutes: 0, seconds: 0 });
-          return;
-        }
-        
-        const hours = Math.floor(msToMatch / (1000 * 60 * 60));
-        const minutes = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((msToMatch % (1000 * 60)) / 1000);
-        
-        setCountdown({ hours, minutes, seconds });
-      } catch (e) {
-        console.error('Error updating countdown:', e);
-        setCountdown(null);
-      }
-    };
-    
-    // Initial update
-    updateCountdown();
-    
-    // Set up interval to update every second
-    const interval = setInterval(updateCountdown, 1000);
-    
-    return () => clearInterval(interval);
-  }, [currentMatch]);
   
   // Only use effect for fetching match data
   useEffect(() => {
@@ -650,17 +606,12 @@ const FixedScoreboard = () => {
                               const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
                               
                               // Only show countdown for matches within 8 hours
-                              if (hoursToMatch >= 0 && hoursToMatch <= 8 && countdown) {
-                                // Format with leading zeros
-                                const formattedHours = countdown.hours.toString().padStart(2, '0');
-                                const formattedMinutes = countdown.minutes.toString().padStart(2, '0');
-                                const formattedSeconds = countdown.seconds.toString().padStart(2, '0');
-                                
+                              if (hoursToMatch >= 0 && hoursToMatch <= 8) {
                                 return (
                                   <>
                                     <div className="mb-1">
                                       <span className="font-bold text-red-500">COUNTDOWN:</span> 
-                                      <span className="font-mono">{formattedHours}:{formattedMinutes}:{formattedSeconds}</span>
+                                      <CountdownTimer matchDate={currentMatch.fixture.date} />
                                     </div>
                                     <div>
                                       {formattedDate} | {timeOnly}
