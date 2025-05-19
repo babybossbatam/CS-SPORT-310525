@@ -105,9 +105,6 @@ const POPULAR_LEAGUES = [
 
 function LiveScoreboardPage() {
   const [, navigate] = useLocation();
-  const [filteredFixtures, setFilteredFixtures] = useState<FixtureResponse[]>([]);
-  const [currentFixtureIndex, setCurrentFixtureIndex] = useState(0);
-  const [countdown, setCountdown] = useState('');
   
   // Get selected filter from Redux
   const selectedCountry = useSelector((state: any) => state.ui.selectedFilter);
@@ -347,17 +344,11 @@ function LiveScoreboardPage() {
   
   return (
     <div className="container mx-auto my-4 px-2">
-      {/* Enhanced Live Scoreboard */}
-      <EnhancedLiveScoreboard 
-        showFeaturedMatch={true}
-        showFilters={true}
-        maxMatches={20}
-      />
-      
-      {/* Add space between the components */}
-      <div className="mt-6"></div>
-      
-      
+      <div className="rounded-xl overflow-hidden shadow-lg bg-white border border-gray-100">
+        <div className="p-4 text-center">
+          No matches available
+        </div>
+      </div>
     </div>
   );
 }
