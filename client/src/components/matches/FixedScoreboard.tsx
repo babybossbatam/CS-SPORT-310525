@@ -357,17 +357,24 @@ const FixedScoreboard = () => {
       try {
         const matchDate = parseISO(fixture.date);
         const now = new Date();
-        const hoursDiff = Math.abs(matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-        if (hoursDiff > 8) {
-          const daysDiff = Math.ceil(hoursDiff / 24);
-          if (daysDiff === 1) return 'Tomorrow';
-          if (daysDiff === 2) return '2 more days';
-          if (daysDiff <= 3) return `${daysDiff} more days`;
-          return format(matchDate, 'MMM d');
+        const diffMs = matchDate.getTime() - now.getTime();
+        const hoursDiff = diffMs / (1000 * 60 * 60);
+        const daysDiff = Math.floor(hoursDiff / 24);
+        
+        if (daysDiff > 3) {
+          return format(matchDate, 'MMM d, HH:mm');
+        } else if (daysDiff > 0) {
+          const days = Math.floor(daysDiff);
+          const hours = Math.floor(hoursDiff % 24);
+          return `${days}d ${hours}h`;
+        } else if (hoursDiff > 1) {
+          const hours = Math.floor(hoursDiff);
+          const minutes = Math.floor((hoursDiff % 1) * 60);
+          return `${hours}h ${minutes}m`;
+        } else {
+          const minutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+          return `${minutes}m`;
         }
-
-        return `${Math.ceil(hoursDiff)} hours`;
       } catch (e) {
         return 'Upcoming';
       }
