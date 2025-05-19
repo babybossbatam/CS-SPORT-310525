@@ -60,8 +60,8 @@ const CountdownTimer = ({ matchDate }: CountdownTimerProps) => {
   }, [matchDate]);
   
   return (
-    <div className="font-mono tabular-nums text-center w-[80px] inline-block">
-      {timeRemaining}
+    <div className="font-mono tabular-nums text-center w-[80px] inline-block h-[20px] leading-[20px] overflow-hidden">
+      <span className="inline-block min-w-[80px] text-right">{timeRemaining}</span>
     </div>
   );
 };
