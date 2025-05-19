@@ -153,16 +153,16 @@ const FixedScoreboard = () => {
           new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
         );
 
-        // 3. Recently finished matches from popular leagues - only show within 8 hours after completion
+        // 3. Recently finished matches from popular leagues - show ONLY within 8 hours after completion
         const finishedMatches = popularLeagueMatches.filter(match => {
-          if (match.fixture.status.short !== 'FT') return false;
+          if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
 
           const matchDate = new Date(match.fixture.date);
           // For finished matches, add ~2 hours to match start time to approximate end time
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
           const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
 
-          // Only show if completed within last 8 hours
+          // ONLY show if completed within the last 8 hours - strict filter
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
         }).sort((a, b) => 
           new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
