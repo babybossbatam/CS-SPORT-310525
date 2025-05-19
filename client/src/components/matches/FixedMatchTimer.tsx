@@ -19,9 +19,8 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
       try {
         const targetDate = parseISO(matchDate);
         
-        // Set a fixed current time for demo (18:00)
-        const now = new Date("2025-05-19T12:00:00Z");
-        now.setHours(18);
+        // Use current real time instead of fixed time
+        const now = new Date();
         
         // Get real seconds for the ticking effect
         const currentSeconds = new Date().getSeconds();

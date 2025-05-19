@@ -610,7 +610,7 @@ const FixedScoreboard = () => {
                                 return (
                                   <>
                                     <div className="mb-1">
-                                      <span className="font-bold text-red-500">COUNTDOWN:</span> 
+                                      <span className="font-bold text-red-500">Live start in:</span> 
                                       <FixedMatchTimer matchDate={currentMatch.fixture.date} />
                                     </div>
                                     <div>
