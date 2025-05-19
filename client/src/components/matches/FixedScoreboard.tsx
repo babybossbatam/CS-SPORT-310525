@@ -316,6 +316,24 @@ const FixedScoreboard = () => {
                           }
                         }}
                       />
+                      
+                      {/* Match time & venue information below home team logo */}
+                      {currentMatch.fixture.status.short === 'NS' && (
+                        <div className="absolute text-center text-xs text-gray-500 w-[120px] left-[-50px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem' }}>
+                          {(() => {
+                            try {
+                              const matchDate = parseISO(currentMatch.fixture.date);
+                              const timeOnly = format(matchDate, 'HH:mm');
+                              return timeOnly;
+                            } catch (e) {
+                              return '';
+                            }
+                          })()}
+                          {currentMatch.fixture.venue?.name && (
+                            <div className="mt-1">{currentMatch.fixture.venue.name}</div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
@@ -343,12 +361,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
                     
-                    {/* Match venue/location information (small text under the VS circle) */}
-                    {currentMatch.fixture.status.short === 'NS' && currentMatch.fixture.venue && currentMatch.fixture.venue.name && (
-                      <div className="absolute text-center text-xs text-gray-500 w-[120px] left-[calc(50%-60px)] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem' }}>
-                        {currentMatch.fixture.venue.name}
-                      </div>
-                    )}
+                    {/* Remove the venue info from under the VS circle since we moved it below the team logo */}
 
                     {/* Away team colored bar and logo */}
                     <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
