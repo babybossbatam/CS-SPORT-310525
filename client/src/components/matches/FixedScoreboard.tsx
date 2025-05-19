@@ -344,22 +344,22 @@ const FixedScoreboard = () => {
         if (timeDiff <= 0) {
           // For live matches, show the match minute
           if (['1H', '2H', 'HT'].includes(fixture.status.short)) {
-        return (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
-              <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
-            </div>
-            <span>{`${fixture.status.elapsed || 0}'`}</span>
-          </div>
-        );
-      }
+            return (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center space-x-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                  <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
+                </div>
+                <span>{`${fixture.status.elapsed || 0}'`}</span>
+              </div>
+            );
+          }
+        }
 
-      // For upcoming matches, calculate relative time
-      try {
+        // For upcoming matches, calculate relative time
         const matchDate = parseISO(fixture.date);
         const now = new Date();
         const diffMs = matchDate.getTime() - now.getTime();
