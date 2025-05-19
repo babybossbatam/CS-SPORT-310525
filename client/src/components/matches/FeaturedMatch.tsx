@@ -1,11 +1,11 @@
 import { useLocation } from 'wouter';
-import FixedScoreboard from './FixedScoreboard';
+import ScoreboardV2 from './365ScoreboardV2';
 
 const FeaturedMatch = () => {
   const [, navigate] = useLocation();
   
   return (
-    <FixedScoreboard />
+    <ScoreboardV2 />
   );
 };
 

@@ -50,7 +50,7 @@ interface Match {
   };
 }
 
-const FixedScoreboard = () => {
+const ScoreboardV2 = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [matches, setMatches] = useState<Match[]>([]);
@@ -205,71 +205,58 @@ const FixedScoreboard = () => {
     }
   };
   
-  // Format match status or date with relative time for upcoming matches
-  const getMatchStatus = (match: Match | undefined) => {
-    if (!match) return 'No Match Data';
-    
-    const { fixture } = match;
-    
-    if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
-      return fixture.status.short === 'HT' 
+  // Format match time with relative indication (Today, Tomorrow, etc)
+  const getMatchTimeDisplay = (match: Match) => {
+    if (['1H', '2H', 'HT', 'LIVE'].includes(match.fixture.status.short)) {
+      return match.fixture.status.short === 'HT' 
         ? 'Half Time' 
-        : `${fixture.status.elapsed || 0}'`;
-    } else if (fixture.status.short === 'FT') {
+        : `${match.fixture.status.elapsed || 0}'`;
+    } else if (match.fixture.status.short === 'FT') {
       return 'Full Time';
     } else {
       try {
-        const matchDate = parseISO(fixture.date);
-        const today = new Date();
+        const matchDate = parseISO(match.fixture.date);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const matchDateNoTime = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
         
-        // Calculate days difference
-        const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
-        const diffTime = matchDay.getTime() - todayDate.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const timeOnly = format(matchDate, 'HH:mm');
         
-        let timeText;
-        if (diffDays === 0) {
-          timeText = 'Today';
-        } else if (diffDays === 1) {
-          timeText = 'Tomorrow';
-        } else if (diffDays > 1 && diffDays <= 7) {
-          timeText = `${diffDays} more days`;
+        if (matchDateNoTime.getTime() === today.getTime()) {
+          return `Today, ${timeOnly}`;
+        } else if (matchDateNoTime.getTime() === tomorrow.getTime()) {
+          return `Tomorrow, ${timeOnly}`;
         } else {
-          timeText = `${diffDays} more days`;
+          return format(matchDate, 'EEE, d MMM, HH:mm');
         }
-        
-        return timeText;
       } catch (e) {
         return 'Upcoming';
       }
     }
   };
   
-  // Get match status label with bracket information
-  const getMatchStatusLabel = (match: Match | undefined) => {
-    if (!match) return '';
-    
-    const { fixture, league } = match;
-    
-    if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
+  // Get the match status label (LIVE, bracket stage, etc)
+  const getMatchStatusLabel = (match: Match) => {
+    if (['1H', '2H', 'HT', 'LIVE'].includes(match.fixture.status.short)) {
       return 'LIVE';
-    } else if (fixture.status.short === 'FT') {
+    } else if (match.fixture.status.short === 'FT') {
       return 'FINISHED';
     } else {
-      // Show bracket status for upcoming matches instead of just "UPCOMING"
-      return league.round || 'UPCOMING';
+      // Show bracket status for upcoming matches
+      return match.league.round || '';
     }
   };
   
-  // Simple team color based on team ID
+  // Simple team color based on team ID - 365scores style
   const getTeamColor = (teamId: number) => {
     const colors = [
-      '#6f7c93', // blue-gray
-      '#8b0000', // dark red
-      '#1d3557', // dark blue
-      '#2a9d8f', // teal
-      '#e63946', // red
+      '#2b5d87', // dark blue
+      '#a42124', // dark red
+      '#203731', // dark green
+      '#2f2f2f', // dark gray
+      '#5c162e', // purple
     ];
     
     return colors[teamId % colors.length];
@@ -331,17 +318,8 @@ const FixedScoreboard = () => {
 
               <div className="flex items-center gap-2">
                 <Trophy className="h-4 w-4 text-indigo-600" />
-                <span className={`text-sm font-medium ${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600' : 'text-indigo-800'}`}>
-                  {getMatchStatusLabel(currentMatch) || 'UPCOMING'}
-                </span>
-              </div>
-            </div>
-
-            {/* Match time/status information */}
-            <div className="text-lg font-semibold text-center mb-3">
-              <div className="flex flex-col items-center mb-[5px]">
-                <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
-                  {getMatchStatus(currentMatch)}
+                <span className={`text-sm font-medium ${currentMatch && ['1H', '2H', 'HT', 'LIVE'].includes(currentMatch.fixture.status.short) ? 'text-red-600' : 'text-indigo-800'}`}>
+                  {currentMatch && getMatchStatusLabel(currentMatch)}
                 </span>
               </div>
             </div>
@@ -384,22 +362,6 @@ const FixedScoreboard = () => {
                           }
                         }}
                       />
-                      
-                      {/* Match time & venue information centered between home logo and VS */}
-                      {currentMatch.fixture.status.short === 'NS' && (
-                        <div className="absolute text-center text-xs text-gray-500 w-[200px] left-[15px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {(() => {
-                            try {
-                              const matchDate = parseISO(currentMatch.fixture.date);
-                              const formattedDate = format(matchDate, "EEEE, do MMM");
-                              const timeOnly = format(matchDate, 'HH:mm');
-                              return `${formattedDate} | ${timeOnly}${currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}`;
-                            } catch (e) {
-                              return currentMatch.fixture.venue?.name || '';
-                            }
-                          })()}
-                        </div>
-                      )}
                     </div>
 
                     <div className="absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
@@ -410,7 +372,7 @@ const FixedScoreboard = () => {
                     <div 
                       className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
                       style={{
-                        background: '#a00000',
+                        background: '#a42124',
                         left: 'calc(50% - 26px)',
                         top: 'calc(50% - 26px)',
                         minWidth: '52px'
@@ -426,8 +388,6 @@ const FixedScoreboard = () => {
                         </div>
                       )}
                     </div>
-                    
-                    {/* Remove the venue info from under the VS circle since we moved it below the team logo */}
 
                     {/* Away team colored bar and logo */}
                     <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
@@ -469,7 +429,22 @@ const FixedScoreboard = () => {
               )}
             </div>
 
-            {/* Bottom navigation */}
+            {/* Match time and venue display - 365scores style */}
+            {currentMatch && (
+              <div className="text-center text-sm text-gray-700 font-medium mb-4 flex flex-col items-center">
+                <div className={`${['1H', '2H', 'HT', 'LIVE'].includes(currentMatch.fixture.status.short) ? 'text-red-600 animate-pulse' : ''}`}>
+                  {getMatchTimeDisplay(currentMatch)}
+                </div>
+                {currentMatch.fixture.venue?.name && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    {currentMatch.fixture.venue.name}
+                    {currentMatch.fixture.venue.city && `, ${currentMatch.fixture.venue.city}`}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Bottom navigation - 365scores style tabs */}
             <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
               <button 
                 className="flex flex-col items-center cursor-pointer w-1/4"
@@ -534,4 +509,4 @@ const FixedScoreboard = () => {
   );
 };
 
-export default FixedScoreboard;
+export default ScoreboardV2;
