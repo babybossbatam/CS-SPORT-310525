@@ -31,36 +31,36 @@ export function LeagueMatchScoreboard({
 
   // Filter and sort matches based on status and time
   const filterMatches = (matches: FixtureResponse[]) => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const eightHoursInSeconds = 8 * 60 * 60;
+      const currentTime = Math.floor(Date.now() / 1000);
+      const eightHoursInSeconds = 8 * 60 * 60;
 
-    // Define popular leagues IDs (same as in PopularLeagueFilter.tsx)
-    // No filtering - show all matches
-    const filteredMatches = matches || [];
+      // No filtering - show all matches
+      const filteredMatches = matches || [];
+      
+      return filteredMatches.filter(match => {
+        const matchTime = match.fixture.timestamp || 0;
+        const timeDiff = currentTime - matchTime;
 
-    // Keep track of match time for reference
-    const matchTime = filteredMatches[0]?.fixture.timestamp || 0;
-      const timeDiff = currentTime - matchTime;
+        // Show all live matches
+        if (match.fixture.status.short === 'LIVE') {
+          return true;
+        }
 
-      // Show all live matches from popular leagues
-      if (match.fixture.status.short === 'LIVE') {
-        return true;
-      }
+        // Show upcoming matches (within next 8 hours)
+        if (match.fixture.status.short === 'NS' && 
+            matchTime > currentTime && 
+            matchTime - currentTime <= eightHoursInSeconds) {
+          return true;
+        }
 
-      // Show upcoming matches from popular leagues (within next 8 hours)
-      if (match.fixture.status.short === 'NS' && 
-          matchTime > currentTime && 
-          matchTime - currentTime <= eightHoursInSeconds) {
-        return true;
-      }
+        // Show recently finished matches (within last 8 hours)
+        if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
+          return true;
+        }
 
-      // Show recently finished matches from popular leagues (within last 8 hours)
-      if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
-        return true;
-      }
-
-      return false;
-    });
+        return false;
+      });
+    };
 
     // Sort by priority: Live > Upcoming > Recent
     return filteredMatches.sort((a, b) => {
