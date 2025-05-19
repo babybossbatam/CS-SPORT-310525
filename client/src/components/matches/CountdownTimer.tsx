@@ -20,9 +20,22 @@ const CountdownTimer = ({ matchDate }: CountdownTimerProps) => {
         // Fixed reference time for demo purposes
         const now = new Date("2025-05-19T12:00:00Z");
         
-        // Add current seconds to simulate time passing
-        const currentSeconds = Math.floor(Date.now() / 1000) % 60;
-        now.setSeconds(now.getSeconds() + currentSeconds);
+        // Simulate time passing more dynamically based on the current time
+        // This creates a more realistic countdown that changes minutes and hours appropriately
+        const currentTime = new Date();
+        
+        // Update seconds to match actual current time
+        now.setSeconds(currentTime.getSeconds());
+        
+        // For demo purposes, advance the minutes based on the page load time
+        // This will make the timer progress naturally in the demo
+        const minuteOffset = Math.floor((Date.now() / 60000) % 60);
+        now.setMinutes(now.getMinutes() + minuteOffset % 8);
+        
+        // For hours, we'll advance by 1-2 hours based on current time to demonstrate countdown changes
+        if (currentTime.getSeconds() > 30) {
+          now.setHours(now.getHours() + 1);
+        }
         
         const msToMatch = targetDate.getTime() - now.getTime();
         
