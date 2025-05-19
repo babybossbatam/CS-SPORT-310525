@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import CountdownTimer from './CountdownTimer';
 
 // Types
 interface Team {
@@ -57,8 +56,6 @@ const FixedScoreboard = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [countdowns, setCountdowns] = useState<{[key: number]: {hours: number, minutes: number, seconds: number}}>({}); // Store countdown timers for upcoming matches
-  const [tickCounter, setTickCounter] = useState(0); // Used to force re-render for countdown timer
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
@@ -250,36 +247,6 @@ const FixedScoreboard = () => {
 
   const currentMatch = matches[currentIndex];
   
-  // Countdown timer state for the current match
-  const [currentTimer, setCurrentTimer] = useState<{hours: number, minutes: number, seconds: number} | null>(null);
-  
-  // Update countdown timers for upcoming matches within 8 hours
-  // Effect to initialize currentTimer when currentMatch changes
-  useEffect(() => {
-    if (!currentMatch) return;
-    
-    // Check if current match is upcoming and within 8 hours
-    if (currentMatch.fixture.status.short === 'NS') {
-      try {
-        const matchDate = parseISO(currentMatch.fixture.date);
-        const baseTime = new Date("2025-05-19T12:00:00Z");
-        const msToMatch = matchDate.getTime() - baseTime.getTime();
-        const hoursToMatch = msToMatch / (1000 * 60 * 60);
-        
-        if (hoursToMatch >= 0 && hoursToMatch <= 8) {
-          // Initialize the current timer
-          const hours = Math.floor(msToMatch / (1000 * 60 * 60));
-          const minutes = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((msToMatch % (1000 * 60)) / 1000);
-          
-          setCurrentTimer({ hours, minutes, seconds });
-        }
-      } catch (e) {
-        console.error('Error initializing countdown timer:', e);
-      }
-    }
-  }, [currentMatch]);
-  
   // Only use effect for fetching match data
   useEffect(() => {
     // Just a placeholder to ensure the component works
@@ -388,29 +355,9 @@ const FixedScoreboard = () => {
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches today (within 24 hours), show active countdown timer
+        // For matches today (within 24 hours), show the time
         if (daysToMatch === 0) {
-          // Check if this is the current match being viewed and we have a timer
-          if (currentMatch && fixture.id === currentMatch.fixture.id && currentTimer) {
-            // Use the dedicated current match timer that is actively counting down
-            const { hours, minutes, seconds } = currentTimer;
-            
-            // Return countdown timer with consistent formatting
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }
-          // For other matches, use the countdown from the general state
-          else if (countdowns[fixture.id]) {
-            const { hours, minutes, seconds } = countdowns[fixture.id];
-            
-            // Return countdown timer with consistent formatting
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }
-          
-          // Fallback if countdown not available yet
-          if (hoursToMatch === 0) {
-            return `In ${minutesToMatch}m`;
-          }
-          return `In ${hoursToMatch}h ${minutesToMatch}m`;
+          return `Today ${format(matchDate, 'HH:mm')}`;
         }
         
         // If match is tomorrow, show "Tomorrow"
@@ -549,9 +496,9 @@ const FixedScoreboard = () => {
                         const msToMatch = matchDate.getTime() - now.getTime();
                         const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
                         
-                        // For matches today, show the countdown timer component
+                        // For matches today, show a simple format instead of timer
                         if (daysToMatch === 0) {
-                          return <CountdownTimer matchDate={currentMatch.fixture.date} />;
+                          return <span className="text-gray-500">Today {format(matchDate, 'HH:mm')}</span>;
                         }
                         
                         // For matches tomorrow or later, show the regular format
