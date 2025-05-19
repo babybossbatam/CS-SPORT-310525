@@ -125,15 +125,22 @@ const FixedScoreboard = () => {
         // Mock current time for the demo (matches the fixture dates in the system)
         const now = new Date("2025-05-19T12:00:00Z");
         
-        // Filter matches according to specified criteria
+        // Only use matches from the popular leagues list
+        const popularLeagueMatches = allMatches.filter(match => 
+          popularLeagues.includes(match.league.id)
+        );
         
-        // 1. Live matches - show with priority
-        const liveMatches = allMatches.filter(match => 
+        console.log(`Filtered to ${popularLeagueMatches.length} matches from popular leagues only`);
+        
+        // Filter matches according to specified criteria - ONLY from popular leagues
+        
+        // 1. Live matches from popular leagues
+        const liveMatches = popularLeagueMatches.filter(match => 
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
         
-        // 2. Upcoming matches - show if within 8 hours of start time
-        const upcomingMatches = allMatches.filter(match => {
+        // 2. Upcoming matches from popular leagues - show if within 8 hours of start time
+        const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
           
           const matchDate = new Date(match.fixture.date);
@@ -145,8 +152,8 @@ const FixedScoreboard = () => {
           new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
         );
         
-        // 3. Recently finished matches - only show within 8 hours after completion
-        const finishedMatches = allMatches.filter(match => {
+        // 3. Recently finished matches from popular leagues - only show within 8 hours after completion
+        const finishedMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'FT') return false;
           
           const matchDate = new Date(match.fixture.date);
@@ -160,34 +167,54 @@ const FixedScoreboard = () => {
           new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
         );
         
-        // Prioritize and combine matches for display
-        const prioritizedMatches = [
-          ...liveMatches,                    // Live matches first
-          ...upcomingMatches.slice(0, 3),    // Then upcoming within 8 hours
-          ...finishedMatches.slice(0, 2)     // Then recently finished
-        ];
+        console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
         
-        // If we don't have enough, add popular league matches regardless of time
-        if (prioritizedMatches.length < 6) {
-          // Get matches from popular leagues not already included
-          const popularMatches = allMatches
-            .filter(match => 
-              popularLeagues.includes(match.league.id) && 
-              !prioritizedMatches.find(m => m.fixture.id === match.fixture.id)
-            )
-            .sort((a, b) => {
-              // Sort by match date (upcoming before past)
-              const aDate = new Date(a.fixture.date);
-              const bDate = new Date(b.fixture.date);
-              return Math.abs(aDate.getTime() - now.getTime()) - Math.abs(bDate.getTime() - now.getTime());
-            })
-            .slice(0, 6 - prioritizedMatches.length);
-            
-          prioritizedMatches.push(...popularMatches);
+        // Combine matches with priority
+        let finalMatches: Match[] = [];
+        
+        // 1. Live matches have highest priority
+        if (liveMatches.length > 0) {
+          finalMatches = [...liveMatches];
         }
         
-        // Limit to 6 matches for the carousel
-        const finalMatches = prioritizedMatches.slice(0, 6);
+        // 2. Add some recently finished matches if we have space
+        if (finishedMatches.length > 0 && finalMatches.length < 6) {
+          const finishedToAdd = finishedMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...finishedToAdd];
+        }
+        
+        // 3. Add upcoming matches within 8 hours if we have space
+        if (upcomingMatches.length > 0 && finalMatches.length < 6) {
+          const upcomingToAdd = upcomingMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...upcomingToAdd];
+        }
+        
+        // 4. If we still don't have enough, add other matches from popular leagues
+        if (finalMatches.length < 6) {
+          // Get other matches from popular leagues not already included
+          const otherPopularMatches = popularLeagueMatches
+            .filter(match => !finalMatches.find(m => m.fixture.id === match.fixture.id))
+            .sort((a, b) => {
+              // Sort by closest match time to now (upcoming preferred over past)
+              const aDate = new Date(a.fixture.date);
+              const bDate = new Date(b.fixture.date);
+              const aTimeDiff = aDate.getTime() - now.getTime();
+              const bTimeDiff = bDate.getTime() - now.getTime();
+              
+              // Prioritize upcoming over finished matches
+              if (aTimeDiff >= 0 && bTimeDiff < 0) return -1;
+              if (aTimeDiff < 0 && bTimeDiff >= 0) return 1;
+              
+              // Otherwise sort by closest to now
+              return Math.abs(aTimeDiff) - Math.abs(bTimeDiff);
+            })
+            .slice(0, 6 - finalMatches.length);
+            
+          finalMatches = [...finalMatches, ...otherPopularMatches];
+        }
+        
+        // Ensure limit of exactly 6 matches for the carousel
+        finalMatches = finalMatches.slice(0, 6);
         
         console.log(`Displaying ${finalMatches.length} matches`);
         
@@ -238,33 +265,26 @@ const FixedScoreboard = () => {
   };
   
   // State to track elapsed time for live matches
-  const [liveTimers, setLiveTimers] = useState<{[key: number]: number}>({});
+  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   
-  // Update timers for live matches
+  // Update timer for live matches
   useEffect(() => {
     if (!currentMatch) return;
     
     // Only set up timer for live matches
-    if (!['1H', '2H'].includes(currentMatch.fixture.status.short)) return;
+    if (!['1H', '2H'].includes(currentMatch.fixture.status.short)) {
+      setLiveElapsed(null);
+      return;
+    }
     
     // Initialize with current elapsed time from the API
-    if (!liveTimers[currentMatch.fixture.id] && currentMatch.fixture.status.elapsed) {
-      setLiveTimers(prev => ({
-        ...prev,
-        [currentMatch.fixture.id]: currentMatch.fixture.status.elapsed
-      }));
+    if (currentMatch.fixture.status.elapsed) {
+      setLiveElapsed(currentMatch.fixture.status.elapsed);
     }
     
     // Update timer every minute for live matches
     const timer = setInterval(() => {
-      setLiveTimers(prev => {
-        if (!prev[currentMatch.fixture.id]) return prev;
-        
-        return {
-          ...prev,
-          [currentMatch.fixture.id]: prev[currentMatch.fixture.id] + 1
-        };
-      });
+      setLiveElapsed(prev => prev !== null ? prev + 1 : prev);
     }, 60000); // Update every minute
     
     return () => clearInterval(timer);
@@ -287,7 +307,7 @@ const FixedScoreboard = () => {
       // For live match with timer
       else if (['1H', '2H'].includes(fixture.status.short)) {
         // Use our tracked elapsed time if available, otherwise fall back to API
-        const elapsed = liveTimers[fixture.id] || fixture.status.elapsed || 0;
+        const elapsed = liveElapsed || fixture.status.elapsed || 0;
         return `${elapsed}'`;
       }
       // For other live states
@@ -504,7 +524,25 @@ const FixedScoreboard = () => {
                       {currentMatch.teams.home.name}
                     </div>
 
-                    {/* Score or VS section */}
+                    {/* Score display above the VS circle */}
+                    {currentMatch.fixture.status.short !== 'NS' && (
+                      <div 
+                        className="absolute text-white font-bold text-xl z-30 text-center"
+                        style={{
+                          left: 'calc(50% - 35px)', 
+                          top: 'calc(50% - 40px)',
+                          width: '70px'
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <span>{currentMatch.goals.home ?? 0}</span>
+                          <span className="text-sm">-</span>
+                          <span>{currentMatch.goals.away ?? 0}</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* VS circle */}
                     <div 
                       className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
                       style={{
@@ -514,15 +552,7 @@ const FixedScoreboard = () => {
                         minWidth: '52px'
                       }}
                     >
-                      {currentMatch.fixture.status.short === 'NS' ? (
-                        <span className="vs-text font-bold">VS</span>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center">
-                          <span>{currentMatch.goals.home ?? 0}</span>
-                          <span className="text-xs">-</span>
-                          <span>{currentMatch.goals.away ?? 0}</span>
-                        </div>
-                      )}
+                      <span className="vs-text font-bold">VS</span>
                     </div>
                     
                     {/* Remove the venue info from under the VS circle since we moved it below the team logo */}
