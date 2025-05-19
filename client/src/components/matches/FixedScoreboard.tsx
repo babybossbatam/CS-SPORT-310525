@@ -1,12 +1,12 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';  
 import FixedMatchTimer from './FixedMatchTimer';
 
 // Types
@@ -140,30 +140,29 @@ const FixedScoreboard = () => {
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
 
-        // 2. Upcoming matches from popular leagues - prioritized by nearest to current time
+        // 2. Upcoming matches from popular leagues - show if within 8 hours of start time
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
 
           const matchDate = new Date(match.fixture.date);
           const timeDiff = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60); // hours
 
-          // Only keep matches that are in the future
-          return timeDiff >= 0;
+          // Keep matches within next 8 hours
+          return timeDiff >= 0 && timeDiff <= 8;
         }).sort((a, b) => 
-          // Sort by nearest to current time (ascending time difference)
           new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
         );
 
-        // 3. Recently finished matches from popular leagues - show ONLY within 8 hours after completion
+        // 3. Recently finished matches from popular leagues - only show within 8 hours after completion
         const finishedMatches = popularLeagueMatches.filter(match => {
-          if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
+          if (match.fixture.status.short !== 'FT') return false;
 
           const matchDate = new Date(match.fixture.date);
           // For finished matches, add ~2 hours to match start time to approximate end time
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
           const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
 
-          // ONLY show if completed within the last 8 hours - strict filter
+          // Only show if completed within last 8 hours
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
         }).sort((a, b) => 
           new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
@@ -171,89 +170,48 @@ const FixedScoreboard = () => {
 
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
 
-        // Define popular teams by ID (big teams that should be prioritized)
-        const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
-        
         // Combine matches with priority
         let finalMatches: Match[] = [];
-        
-        // Helper function to check if a match includes a popular team
-        const isPopularTeamMatch = (match: Match) => {
-          return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
-        };
-        
-        // Teams to exclude (like Crystal Palace and Wolves)
-        const excludeTeamIds = [52, 76]; // Crystal Palace and Wolves
-        
-        // Function to check if a match should be excluded
-        const shouldExcludeMatch = (match: Match) => {
-          return excludeTeamIds.includes(match.teams.home.id) || 
-                 excludeTeamIds.includes(match.teams.away.id);
-        };
-        
-        // Filter to only include matches with popular teams AND exclude specific teams
-        const livePopularMatches = liveMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
-          
-        const finishedPopularMatches = finishedMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
-          
-        const upcomingPopularMatches = upcomingMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
 
-        // 1. Live matches with popular teams have highest priority
-        if (livePopularMatches.length > 0) {
-          finalMatches = [...livePopularMatches];
+        // 1. Live matches have highest priority
+        if (liveMatches.length > 0) {
+          finalMatches = [...liveMatches];
         }
-        
-        // MODIFIED SELECTION LOGIC: Popular teams always have priority
 
-        // 2. Recently finished matches with popular teams if we have space
-        if (finishedPopularMatches.length > 0 && finalMatches.length < 6) {
-          const finishedPopularToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
-          finalMatches = [...finalMatches, ...finishedPopularToAdd];
+        // 2. Add some recently finished matches if we have space
+        if (finishedMatches.length > 0 && finalMatches.length < 6) {
+          const finishedToAdd = finishedMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...finishedToAdd];
         }
-        
-        // 3. Upcoming matches with popular teams if we have space - prioritize nearest to now
-        if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
-          const upcomingPopularToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
-          finalMatches = [...finalMatches, ...upcomingPopularToAdd];
-        }
-        
-        // We're no longer showing non-popular team matches at all
-        // REMOVED: finishedOtherMatches
-        // REMOVED: upcomingOtherMatches
-        // REMOVED: liveOtherMatches
 
-        // 4. If we still don't have enough, add other matches with popular teams
+        // 3. Add upcoming matches within 8 hours if we have space
+        if (upcomingMatches.length > 0 && finalMatches.length < 6) {
+          const upcomingToAdd = upcomingMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...upcomingToAdd];
+        }
+
+        // 4. If we still don't have enough, add other matches from popular leagues
         if (finalMatches.length < 6) {
-          // Get additional matches involving popular teams not already included
-          const additionalPopularTeamMatches = popularLeagueMatches
-            .filter(match => 
-              // Only include matches with popular teams that we haven't already included
-              isPopularTeamMatch(match) && 
-              !finalMatches.find(m => m.fixture.id === match.fixture.id)
-            )
-            .sort((a, b) => {              
-              // Sort by status - prioritize upcoming matches nearest to now
+          // Get other matches from popular leagues not already included
+          const otherPopularMatches = popularLeagueMatches
+            .filter(match => !finalMatches.find(m => m.fixture.id === match.fixture.id))
+            .sort((a, b) => {
+              // Sort by closest match time to now (upcoming preferred over past)
               const aDate = new Date(a.fixture.date);
               const bDate = new Date(b.fixture.date);
               const aTimeDiff = aDate.getTime() - now.getTime();
               const bTimeDiff = bDate.getTime() - now.getTime();
 
-              // Prioritize matches in the near future
+              // Prioritize upcoming over finished matches
               if (aTimeDiff >= 0 && bTimeDiff < 0) return -1;
               if (aTimeDiff < 0 && bTimeDiff >= 0) return 1;
 
-              // For upcoming matches, sort by closest to now
+              // Otherwise sort by closest to now
               return Math.abs(aTimeDiff) - Math.abs(bTimeDiff);
             })
             .slice(0, 6 - finalMatches.length);
 
-          finalMatches = [...finalMatches, ...additionalPopularTeamMatches];
+          finalMatches = [...finalMatches, ...otherPopularMatches];
         }
 
         // Ensure limit of exactly 6 matches for the carousel
@@ -420,41 +378,33 @@ const FixedScoreboard = () => {
         // Get time differences in various units
         const msToMatch = matchDate.getTime() - now.getTime();
         const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+        const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+        const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches today, show a simple format
+        // For matches today (within 24 hours)
         if (daysToMatch === 0) {
-          try {
-            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-            // For matches less than 8 hours away, show timer below "Today"
-            if (hoursToMatch >= 0 && hoursToMatch < 8) {
-              return (
-                <div className="flex flex-col space-y-0 relative pb-6">
-                  <span className="text-gray-500">Today</span>
-                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '80%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20, marginTop: '-15px' }}>
-                    <span className="font-bold text-red-500">Live start in:</span> 
-                    <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
-                  </div>
-                </div>
-              );
-            } else {
-              // More than 8 hours away
-              return <span className="text-gray-500">Today</span>;
-            }
-          } catch (e) {
-            return <span className="text-gray-500">Today</span>;
+          // For matches within 8 hours, show countdown timer
+          if (hoursToMatch <= 8) {
+            return <FixedMatchTimer matchDate={fixture.date} />;
           }
+          // For other matches today, just show the day without time
+          return <span>Today</span>;
         }
         
-        // For matches tomorrow or later, show the regular format
+        // If match is tomorrow, show "Tomorrow"
         if (daysToMatch === 1) {
-          return <span className="text-gray-500">Tomorrow</span>;
-        } else if (daysToMatch <= 7) {
-          return <span className="text-gray-500">{daysToMatch} more days</span>;
-        } else {
-          return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
+          return 'Tomorrow';
         }
+        
+        // If match is within 3 days, show "X more days"
+        if (daysToMatch > 1 && daysToMatch <= 3) {
+          return `${daysToMatch} more days`;
+        }
+        
+        // For matches further away, show month and date
+        return format(matchDate, 'MMM d');
       } catch (e) {
-        return <span className="text-gray-500">Upcoming</span>;
+        return 'Upcoming';
       }
     }
   };
@@ -488,129 +438,170 @@ const FixedScoreboard = () => {
     return colors[teamId % colors.length];
   };
 
-  // Prepare navigation controls as a React node to pass to ScoreboardCard
-  const navigationControls = matches.length > 1 ? (
-    <>
-      <button
-        onClick={handlePrevious}
-        className="absolute left-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-md z-40 flex items-center border border-gray-200"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <button
-        onClick={handleNext}
-        className="absolute right-0 top-[45%] h-[53px] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-md z-40 flex items-center border border-gray-200"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-    </>
-  ) : null;
-
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ minHeight: '340px' }}>
+    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
       <Badge 
         variant="secondary" 
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
+        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
       >
         Featured Match
       </Badge>
-      
-      {navigationControls}
-      
-      <CardContent className="px-8 pt-2 pb-2">
-        {isLoading ? (
-          // Loading state - clean display with spinner only
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin h-6 w-6 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
-          </div>
-        ) : !currentMatch ? (
-          // Empty state - no matches available
-          <div className="flex justify-center items-center py-14 text-gray-500">
-            <span>No matches available at this moment</span>
-          </div>
-        ) : (
-          // Matches available - show content
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              {/* Match header with league info */}
-              <div className="flex items-center justify-center mb-3 px-2">
-                <div className="flex-shrink-0 mr-2">
-                  {currentMatch?.league?.logo ? (
-                    <img 
-                      src={currentMatch.league.logo} 
-                      alt={currentMatch.league.name} 
-                      className="w-5 h-5 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
-                  ) : (
-                    <Trophy className="w-5 h-5 text-amber-500" />
-                  )}
-                </div>
-                <div className="flex items-center">
-                  <p className="text-xs font-medium text-gray-700 mr-2">
-                    {currentMatch?.league?.name || 'League Name'}
-                  </p>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-[10px] px-1.5 py-0 border ${
-                      getMatchStatusLabel(currentMatch) === 'LIVE' 
-                        ? 'border-red-500 text-red-500 animate-pulse' 
-                        : getMatchStatusLabel(currentMatch) === 'FINISHED'
-                          ? 'border-gray-500 text-gray-500'
-                          : 'border-blue-500 text-blue-500'
-                    }`}
-                  >
-                    {getMatchStatusLabel(currentMatch)}
-                  </Badge>
-                </div>
+
+      {matches.length > 1 && (
+        <>
+          <button
+            onClick={handlePrevious}
+            className="absolute left-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+          >
+            <ChevronLeft className="h-3 w-3" />
+          </button>
+
+          <button
+            onClick={handleNext}
+            className="absolute right-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+          >
+            <ChevronRight className="h-3 w-3" />
+          </button>
+        </>
+      )}
+
+      <CardContent className="p-4 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -100, opacity: 0 }}
+            transition={{ type: "tween", duration: 0.2 }}
+          >
+            {/* League and match status header */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                {currentMatch?.league?.logo && (
+                  <img 
+                    src={currentMatch.league.logo} 
+                    alt={currentMatch.league.name}
+                    className="w-5 h-5 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                    }}
+                  />
+                )}
+                <span className="text-sm font-medium">{currentMatch?.league?.name || 'League Name'}</span>
               </div>
 
-              {/* Match time/status display */}
-              <div className="font-medium text-center mb-5" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
-                {getMatchStatus(currentMatch)}
-              </div>
-                
-              {/* Score display below status for finished matches */}
-              {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
-                <div className="flex items-center justify-center mt-1 mb-1">
-                  <div className="text-xl font-bold flex gap-2 items-center">
-                    <span>{currentMatch.goals.home}</span>
-                    <span className="text-base">-</span>
-                    <span>{currentMatch.goals.away}</span>
-                  </div>
-                </div>
-              )}
+              <span className="text-gray-400">-</span>
 
-              {/* Team scoreboard */}
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-indigo-600" />
+                <span className={`text-sm font-medium ${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600' : 'text-indigo-800'}`}>
+                  {getMatchStatusLabel(currentMatch) || 'UPCOMING'}
+                </span>
+              </div>
+            </div>
+
+            {/* Match time/status information */}
+            <div className="text-lg font-semibold text-center mb-3">
+              <div className="flex flex-col items-center mb-[5px]">
+                {/* Simple static status display */}
+                <div className="h-8 flex justify-center items-center">
+                  {(() => {
+                    if (!currentMatch) return null;
+                    
+                    if (getMatchStatusLabel(currentMatch) === 'LIVE') {
+                      return (
+                        <span className="text-red-600 font-bold">
+                          {currentMatch.fixture.status.short === '1H' 
+                            ? `First half: ${currentMatch.fixture.status.elapsed}'` 
+                            : currentMatch.fixture.status.short === '2H'
+                              ? `Second half: ${currentMatch.fixture.status.elapsed}'`
+                              : 'LIVE'}
+                        </span>
+                      );
+                    }
+                    
+                    if (currentMatch.fixture.status.short === 'NS') {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date("2025-05-19T12:00:00Z");
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+                        
+                        // For matches today, show a simple format
+                        if (daysToMatch === 0) {
+                          try {
+                            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+                            // For matches less than 8 hours away, show timer below "Today"
+                            if (hoursToMatch >= 0 && hoursToMatch < 8) {
+                              return (
+                                <div className="flex flex-col space-y-0">
+                                  <span className="text-gray-500">Today</span>
+                                  <div style={{ fontSize: '0.65rem' }}>
+                                    <span className="font-bold text-red-500">Live start in:</span> 
+                                    <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
+                                  </div>
+                                </div>
+                              );
+                            } else {
+                              // More than 8 hours away
+                              return <span className="text-gray-500">Today</span>;
+                            }
+                          } catch (e) {
+                            return <span className="text-gray-500">Today</span>;
+                          }
+                        }
+                        
+                        // For matches tomorrow or later, show the regular format
+                        if (daysToMatch === 1) {
+                          return <span className="text-gray-500">Tomorrow</span>;
+                        } else if (daysToMatch <= 7) {
+                          return <span className="text-gray-500">{daysToMatch} more days</span>;
+                        } else {
+                          return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
+                        }
+                      } catch (e) {
+                        return <span className="text-gray-500">Upcoming</span>;
+                      }
+                    }
+                    
+                    return <span className="text-gray-500">Full Time</span>;
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Team scoreboard - only show when data is loaded */}
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin h-6 w-6 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
+              </div>
+            ) : !currentMatch ? (
+              <div className="flex justify-center items-center py-6 text-gray-500">
+                <span>No matches available at this moment</span>
+              </div>
+            ) : (
               <div className="relative mt-4">
                 <div 
-                  className="flex relative h-[53px] rounded-md mb-8"
+                  className="flex relative h-[53px] rounded-md mb-8 transition-all duration-300 ease-in-out opacity-100"
                   onClick={handleMatchClick}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-67px)] ml-[77px] relative" 
+                    <div className="h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
                       style={{ 
-                        background: getTeamColor(currentMatch.teams.home.id)
+                        background: getTeamColor(currentMatch.teams.home.id),
+                        transition: 'all 0.3s ease-in-out'
                       }}
                     >
                       <img 
                         src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
                         alt={currentMatch.teams.home.name} 
-                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-90 saturate-150 drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]"
                         style={{
                           cursor: 'pointer',
-                          top: "calc(50% - 32px)"
+                          top: "calc(50% - 32px)",
+                          filter: "contrast(1.2) brightness(0.9) saturate(1.2)"
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -632,7 +623,24 @@ const FixedScoreboard = () => {
                               const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
                               
-                              // Always show basic match information
+                              // Calculate time to match
+                              const now = new Date("2025-05-19T12:00:00Z");
+                              const msToMatch = matchDate.getTime() - now.getTime();
+                              const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+                              
+                              // Show date/time for all matches
+                              if (hoursToMatch >= 0 && hoursToMatch < 8) {
+                                return (
+                                  <div>
+                                    {formattedDate} | {timeOnly}
+                                    {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
+                                  </div>
+                                );
+                              }
+                              
+                              // If more than 8 hours away, don't show countdown
+                              
+                              // For other matches, just show date/time
                               return (
                                 <div>
                                   {formattedDate} | {timeOnly}
@@ -647,7 +655,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.home.name}
                     </div>
 
@@ -669,9 +677,15 @@ const FixedScoreboard = () => {
                       </div>
                     )}
                     
+
+
+
+                    
+
+                    
                     {/* VS circle */}
                     <div 
-                      className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                      className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
                       style={{
                         background: '#a00000',
                         left: 'calc(50% - 26px)',
@@ -682,10 +696,13 @@ const FixedScoreboard = () => {
                       <span className="vs-text font-bold">VS</span>
                     </div>
 
+                    {/* Remove the venue info from under the VS circle since we moved it below the team logo */}
+
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-67px)] mr-[77px]" 
+                    <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
                       style={{ 
-                        background: getTeamColor(currentMatch.teams.away.id)
+                        background: getTeamColor(currentMatch.teams.away.id),
+                        transition: 'all 0.3s ease-in-out'
                       }}
                     >
                     </div>
@@ -693,10 +710,11 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-90 saturate-150 drop-shadow-[0_0_8px_rgba(0,0,0,0.6)]"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 32px)"
+                        top: "calc(50% - 32px)",
+                        filter: "contrast(1.2) brightness(0.9) saturate(1.2)"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
@@ -709,75 +727,80 @@ const FixedScoreboard = () => {
                       }}
                     />
 
-                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.away.name}
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Bottom navigation */}
-              <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
-                <button 
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
-                  </svg>
-                  <span className="text-xs text-gray-600 mt-1">Match Page</span>
-                </button>
-                <button 
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
-                  </svg>
-                  <span className="text-xs text-gray-600 mt-1">Lineups</span>
-                </button>
-                <button 
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/stats`)}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor" />
-                  </svg>
-                  <span className="text-xs text-gray-600 mt-1">Stats</span>
-                </button>
-                <button 
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() => currentMatch?.league?.id && navigate(`/league/${currentMatch.league.id}/standings`)}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
-                    <path d="M7 7H9V17H7V7Z" fill="currentColor" />
-                    <path d="M11 7H13V17H11V7Z" fill="currentColor" />
-                    <path d="M15 7H17V17H15V7Z" fill="currentColor" />
-                  </svg>
-                  <span className="text-xs text-gray-600 mt-1">Standings</span>
-                </button>
-              </div>
-
-              {/* Indicator dots for slideshow */}
-              {matches.length > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {matches.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                        index === currentIndex ? 'bg-indigo-600' : 'bg-gray-300'
-                      }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
-                  ))}
+              ) : (
+                <div className="flex justify-center items-center py-6 text-gray-500">
+                  <span>No matches available at this moment</span>
                 </div>
               )}
+            </div>
+
+            {/* Bottom navigation */}
+            <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
+              <button 
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                  <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
+                </svg>
+                <span className="text-xs text-gray-600 mt-1">Match Page</span>
+              </button>
+              <button 
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                  <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
+                </svg>
+                <span className="text-xs text-gray-600 mt-1">Lineups</span>
+              </button>
+              <button 
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/stats`)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor" />
+                </svg>
+                <span className="text-xs text-gray-600 mt-1">Stats</span>
+              </button>
+              <button 
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() => currentMatch?.league?.id && navigate(`/league/${currentMatch.league.id}/standings`)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
+                  <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
+                  <path d="M7 7H9V17H7V7Z" fill="currentColor" />
+                  <path d="M11 7H13V17H11V7Z" fill="currentColor" />
+                  <path d="M15 7H17V17H15V7Z" fill="currentColor" />
+                </svg>
+                <span className="text-xs text-gray-600 mt-1">Standings</span>
+              </button>
+            </div>
+
+            {/* Indicator dots for slideshow */}
+            {matches.length > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                {matches.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                      index === currentIndex ? 'bg-indigo-600' : 'bg-gray-300'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
-        )}
-    </ScoreboardCard>
+      </CardContent>
+    </Card>
   );
 };
 
