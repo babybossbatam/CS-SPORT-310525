@@ -580,12 +580,15 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Score display below status for finished matches */}
-              {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+              {currentMatch && 
+               currentMatch.fixture && 
+               currentMatch.goals &&
+               ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
                 <div className="flex items-center justify-center mt-1 mb-1">
                   <div className="text-xl font-bold flex gap-2 items-center">
-                    <span>{currentMatch.goals.home}</span>
+                    <span>{currentMatch.goals.home ?? 0}</span>
                     <span className="text-base">-</span>
-                    <span>{currentMatch.goals.away}</span>
+                    <span>{currentMatch.goals.away ?? 0}</span>
                   </div>
                 </div>
               )}
@@ -648,7 +651,7 @@ const FixedScoreboard = () => {
                     </div>
 
                     <div className="absolute left-[-13px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
-                      {currentMatch.teams.home.name}
+                      {currentMatch?.teams?.home?.name || 'TBD'}
                     </div>
 
                     {/* Score display above the VS circle */}
