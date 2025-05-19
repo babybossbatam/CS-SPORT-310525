@@ -30,13 +30,45 @@ export function LeagueMatchScoreboard({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
+  // Filter and sort matches based on status and time
+  const filterMatches = (matches: FixtureResponse[]) => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const eightHoursInSeconds = 8 * 60 * 60;
+
+    return matches.filter(match => {
+      const matchTime = match.fixture.timestamp || 0;
+      const timeDiff = currentTime - matchTime;
+
+      // Show all live matches
+      if (match.fixture.status.short === 'LIVE') {
+        return true;
+      }
+
+      // Show upcoming matches (within next 8 hours)
+      if (match.fixture.status.short === 'NS' && 
+          matchTime > currentTime && 
+          matchTime - currentTime <= eightHoursInSeconds) {
+        return true;
+      }
+
+      // Show recently finished matches (within last 8 hours)
+      if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
+        return true;
+      }
+
+      return false;
+    });
+  };
+
+  const filteredMatches = filterMatches(matches);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % (matches.length || 1));
+      setCurrentSlideIndex((prev) => (prev + 1) % (filteredMatches.length || 1));
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [matches.length]);
+  }, [filteredMatches.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
