@@ -771,8 +771,7 @@ const FixedScoreboard = () => {
           </motion.div>
         </AnimatePresence>
         )}
-      </div>
-    </>
+    </ScoreboardCard>
   );
 };
 
