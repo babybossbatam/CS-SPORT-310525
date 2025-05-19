@@ -341,20 +341,37 @@ const FixedScoreboard = () => {
         const now = new Date();
         const timeDiff = matchDate.getTime() - now.getTime();
 
-        if (timeDiff <= 0) {
-          // Match is live, show elapsed time
-          const elapsedTime = Math.abs(timeDiff);
-          const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
-          const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-          
-          return (
-            <div className="flex items-center gap-2">
-              <span className="animate-pulse bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
-              <span>{`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}</span>
+      if (timeDiff <= 0) {
+        const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+        useEffect(() => {
+          const updateElapsedTime = () => {
+            const elapsedTime = Math.abs(timeDiff) + (Date.now() - new Date().getTime());
+            const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+            const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+            setElapsed({ hours, minutes, seconds });
+          };
+
+          updateElapsedTime();
+          const timer = setInterval(updateElapsedTime, 1000);
+          return () => clearInterval(timer);
+        }, [timeDiff]);
+
+        return (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+              </span>
+              <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
             </div>
-          );
-        }
+            <span>{`${elapsed.hours.toString().padStart(2, '0')}:${elapsed.minutes.toString().padStart(2, '0')}:${elapsed.seconds.toString().padStart(2, '0')}`}</span>
+          </div>
+        );
+      }
+      
 
         // Calculate countdown time
         const hours = Math.floor(timeDiff / (1000 * 60 * 60));
