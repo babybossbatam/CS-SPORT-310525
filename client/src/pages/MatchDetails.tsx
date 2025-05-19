@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
+import MatchEngagementSection from '@/components/heatmap/MatchEngagementSection';
 import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
 import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
 import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
@@ -525,7 +526,7 @@ const MatchDetails = () => {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-7 mb-4">
+              <TabsList className="grid grid-cols-6 mb-4">
                 <TabsTrigger value="summary" className="flex items-center">
                   <BarChart2 className="h-4 w-4 mr-2" />
                   <span>Summary</span>
@@ -545,6 +546,10 @@ const MatchDetails = () => {
                 <TabsTrigger value="history" className="flex items-center">
                   <Info className="h-4 w-4 mr-2" />
                   <span>History</span>
+                </TabsTrigger>
+                <TabsTrigger value="engagement" className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2" />
+                  <span>Fan Engagement</span>
                 </TabsTrigger>
               </TabsList>
 
