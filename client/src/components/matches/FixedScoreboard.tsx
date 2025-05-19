@@ -489,7 +489,7 @@ const FixedScoreboard = () => {
   };
 
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ minHeight: '340px' }}>
+    <>
       <Badge 
         variant="secondary" 
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -514,7 +514,7 @@ const FixedScoreboard = () => {
         </>
       )}
 
-      <CardContent className="px-8 pt-2 pb-2">
+      <div className="px-8 pt-2 pb-2">
         {isLoading ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
@@ -596,7 +596,7 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-65px)] ml-[65px] relative" 
+                    <div className="h-full w-[calc(50%-67px)] ml-[77px] relative" 
                       style={{ 
                         background: getTeamColor(currentMatch.teams.home.id)
                       }}
@@ -644,7 +644,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute left-[110px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.home.name}
                     </div>
 
@@ -680,7 +680,7 @@ const FixedScoreboard = () => {
                     </div>
 
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-65px)] mr-[65px] relative" 
+                    <div className="h-full w-[calc(50%-67px)] mr-[77px]" 
                       style={{ 
                         background: getTeamColor(currentMatch.teams.away.id)
                       }}
@@ -690,11 +690,10 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 32px)",
-                        right: "-32px"
+                        top: "calc(50% - 32px)"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
@@ -707,7 +706,7 @@ const FixedScoreboard = () => {
                       }}
                     />
 
-                    <div className="absolute right-[110px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.away.name}
                     </div>
                   </div>
@@ -775,8 +774,8 @@ const FixedScoreboard = () => {
           </motion.div>
         </AnimatePresence>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 };
 
