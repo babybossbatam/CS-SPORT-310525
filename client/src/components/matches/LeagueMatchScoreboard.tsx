@@ -1,43 +1,20 @@
-import { Clock } from 'lucide-react';
-import { format } from 'date-fns';
-import { Card, CardContent } from '@/components/ui/card';
-import TeamLogo from './TeamLogo';
 import { useState, useEffect } from 'react';
-import { FixtureResponse } from '@/types/fixtures';
+import TeamLogo from './TeamLogo';
 
 interface LeagueMatchScoreboardProps {
-  match?: FixtureResponse;
-  matches?: FixtureResponse[];
-  onClick?: () => void;
-  featured?: boolean;
   homeTeamColor?: string;
   awayTeamColor?: string;
   compact?: boolean;
-  maxMatches?: number;
+  onClick?: () => void;
 }
 
 export function LeagueMatchScoreboard({
-  featured = false,
   homeTeamColor = '#6f7c93',
   awayTeamColor = '#8b0000',
   compact = false,
-  match,
-  matches = [],
-  onClick,
-  maxMatches = 5
+  onClick
 }: LeagueMatchScoreboardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-
-  useEffect(() => {
-    if (matches.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentMatchIndex((prev) => (prev + 1) % matches.length);
-      }, 5000);
-
-      return () => clearInterval(interval);
-    }
-  }, [matches.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
