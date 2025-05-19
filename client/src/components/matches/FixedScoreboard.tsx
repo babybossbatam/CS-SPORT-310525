@@ -656,19 +656,17 @@ const FixedScoreboard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                {/* Using specific timer classes from CSS */}
-                <div className="timer-container">
-                  <div className="timer-text">
-                    {getMatchStatusLabel(currentMatch) === 'LIVE' ? (
-                      <div className="text-red-600 font-bold">
-                        {getMatchStatus(currentMatch)}
-                      </div>
-                    ) : (
-                      <div className="text-gray-500">
-                        {getMatchStatus(currentMatch)}
-                      </div>
-                    )}
-                  </div>
+                {/* Fixed height container with line-height to force vertical centering */}
+                <div style={{ height: '32px', lineHeight: '32px', overflow: 'hidden' }}>
+                  {getMatchStatusLabel(currentMatch) === 'LIVE' ? (
+                    <span className="text-red-600 font-bold">
+                      {getMatchStatus(currentMatch)}
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">
+                      {getMatchStatus(currentMatch)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
