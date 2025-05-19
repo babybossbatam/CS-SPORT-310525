@@ -429,8 +429,8 @@ const FixedScoreboard = () => {
             if (hoursToMatch >= 0 && hoursToMatch < 8) {
               return (
                 <div className="flex flex-col space-y-0">
-                  <span className="text-gray-500 text-lg">Today</span>
-                  <div style={{ fontSize: '0.8rem' }}>
+                  <span className="text-gray-500">Today</span>
+                  <div style={{ fontSize: '0.65rem' }}>
                     <span className="font-bold text-red-500">Live start in:</span> 
                     <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
                   </div>
@@ -572,9 +572,9 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className="flex flex-col justify-center mb-4">
+              <div className="flex flex-col justify-center mb-3">
                 <div className="flex items-center justify-center text-center">
-                  <div className="text-base font-medium">
+                  <div className="text-sm font-medium">
                     {getMatchStatus(currentMatch)}
                   </div>
                 </div>
@@ -582,9 +582,9 @@ const FixedScoreboard = () => {
                 {/* Score display below status for finished matches */}
                 {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
                   <div className="flex items-center justify-center mt-1">
-                    <div className="text-2xl font-bold flex gap-3 items-center">
+                    <div className="text-xl font-bold flex gap-2 items-center">
                       <span>{currentMatch.goals.home}</span>
-                      <span className="text-xl">-</span>
+                      <span className="text-base">-</span>
                       <span>{currentMatch.goals.away}</span>
                     </div>
                   </div>
@@ -594,7 +594,7 @@ const FixedScoreboard = () => {
               {/* Team scoreboard */}
               <div className="relative mt-4">
                 <div 
-                  className="flex relative h-[106px] rounded-md mb-12"
+                  className="flex relative h-[53px] rounded-md mb-8"
                   onClick={handleMatchClick}
                   style={{ cursor: 'pointer' }}
                 >
@@ -608,10 +608,10 @@ const FixedScoreboard = () => {
                       <img 
                         src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
                         alt={currentMatch.teams.home.name} 
-                        className="absolute left-[-64px] z-20 w-[128px] h-[128px] object-contain"
+                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
-                          top: "calc(50% - 64px)"
+                          top: "calc(50% - 32px)"
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -648,23 +648,23 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute left-[154px] text-white font-bold text-lg uppercase max-w-[200px] truncate md:max-w-[300px]" style={{top: "calc(50% - 12px)"}}>
+                    <div className="absolute left-[125px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.home.name}
                     </div>
 
                     {/* Score display above the VS circle */}
                     {currentMatch.fixture.status.short !== 'NS' && (
                       <div 
-                        className="absolute text-white font-bold text-3xl z-30 text-center"
+                        className="absolute text-white font-bold text-xl z-30 text-center"
                         style={{
-                          left: 'calc(50% - 70px)', 
-                          top: 'calc(50% - 80px)',
-                          width: '140px'
+                          left: 'calc(50% - 35px)', 
+                          top: 'calc(50% - 40px)',
+                          width: '70px'
                         }}
                       >
-                        <div className="flex items-center justify-center gap-4">
+                        <div className="flex items-center justify-center gap-2">
                           <span>{currentMatch.goals.home ?? 0}</span>
-                          <span className="text-xl">-</span>
+                          <span className="text-sm">-</span>
                           <span>{currentMatch.goals.away ?? 0}</span>
                         </div>
                       </div>
@@ -672,12 +672,12 @@ const FixedScoreboard = () => {
                     
                     {/* VS circle */}
                     <div 
-                      className="absolute text-white font-bold text-lg rounded-full h-[104px] w-[104px] flex items-center justify-center z-30 border-4 border-white overflow-hidden"
+                      className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
                       style={{
                         background: '#a00000',
-                        left: 'calc(50% - 52px)',
-                        top: 'calc(50% - 52px)',
-                        minWidth: '104px'
+                        left: 'calc(50% - 26px)',
+                        top: 'calc(50% - 26px)',
+                        minWidth: '52px'
                       }}
                     >
                       <span className="vs-text font-bold">VS</span>
@@ -694,10 +694,10 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute right-[82px] z-20 w-[128px] h-[128px] object-contain"
+                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 64px)"
+                        top: "calc(50% - 32px)"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
@@ -710,7 +710,7 @@ const FixedScoreboard = () => {
                       }}
                     />
 
-                    <div className="absolute right-[154px] text-white font-bold text-lg uppercase text-right max-w-[200px] truncate md:max-w-[300px]" style={{top: "calc(50% - 12px)"}}>
+                    <div className="absolute right-[125px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch.teams.away.name}
                     </div>
                   </div>
