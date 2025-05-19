@@ -565,7 +565,7 @@ const FixedScoreboard = () => {
             </div>
 
             {/* Match time/status display */}
-            <div className="flex justify-center mb-3">
+            <div className="flex flex-col justify-center mb-3">
               <div className="flex items-center justify-center text-center">
                 <div className="text-sm font-medium">
                   {(() => {
@@ -577,6 +577,19 @@ const FixedScoreboard = () => {
                   })()}
                 </div>
               </div>
+              
+              {/* Score display below status for finished matches */}
+              {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+                <div className="flex items-center justify-center mt-1">
+                  <div className="text-sm font-bold flex gap-2 items-center">
+                    <span>{currentMatch.teams.home.name.slice(0, 3).toUpperCase()}</span>
+                    <span>{currentMatch.goals.home}</span>
+                    <span className="text-xs">-</span>
+                    <span>{currentMatch.goals.away}</span>
+                    <span>{currentMatch.teams.away.name.slice(0, 3).toUpperCase()}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Team scoreboard - only show when data is loaded */}
