@@ -621,6 +621,15 @@ const MatchDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
+              
+              {/* Fan Engagement Tab */}
+              <TabsContent value="engagement" className="mt-2">
+                <Card>
+                  <CardContent className="p-4">
+                    <MatchEngagementSection matchId={parseInt(id || '0')} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
