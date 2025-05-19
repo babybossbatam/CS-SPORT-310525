@@ -57,12 +57,9 @@ const FixedScoreboard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch matches from popular leagues using 365scores.com popular leagues data
+  // Fetch matches from popular leagues
   useEffect(() => {
-    // 365scores popular leagues IDs
-    const popularLeagues = [2, 3, 39, 140, 135, 78, 61, 88, 94, 4, 848];
-    // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, 
-    // Ligue 1, Eredivisie, Primeira Liga, Copa Libertadores, Conference League
+    const popularLeagues = [2, 3, 39, 140, 135, 78];
     const currentSeason = 2024;
 
     const fetchMatches = async () => {
@@ -84,86 +81,19 @@ const FixedScoreboard = () => {
         
         console.log(`Total matches fetched: ${allMatches.length}`);
         
-        // Filter and categorize matches following 365scores approach
-        const now = new Date();
-        
-        // Validate match data
-        const validMatches = allMatches.filter(match => 
-          match && match.fixture && match.teams && match.league
-        );
-        
-        // 1. Live matches
-        const liveMatches = validMatches.filter(match => 
-          ['1H', '2H', 'HT', 'LIVE'].includes(match.fixture.status.short)
-        );
-        
-        // 2. Today's upcoming matches (ordered by start time)
-        const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const tomorrowDate = new Date(todayDate);
-        tomorrowDate.setDate(todayDate.getDate() + 1);
-        
-        const upcomingTodayMatches = validMatches.filter(match => {
-          if (match.fixture.status.short !== 'NS') return false;
-          const matchDate = new Date(match.fixture.date);
-          return matchDate >= now && matchDate < tomorrowDate;
-        }).sort((a, b) => 
-          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-        );
-        
-        // 3. Today's finished matches (most recent first)
-        const finishedTodayMatches = validMatches.filter(match => {
-          if (match.fixture.status.short !== 'FT') return false;
-          const matchDate = new Date(match.fixture.date);
-          return matchDate >= todayDate && matchDate < tomorrowDate;
-        }).sort((a, b) => 
-          new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-        );
-        
-        // 4. Tomorrow's matches
-        const dayAfterTomorrow = new Date(tomorrowDate);
-        dayAfterTomorrow.setDate(tomorrowDate.getDate() + 1);
-        
-        const tomorrowMatches = validMatches.filter(match => {
-          if (match.fixture.status.short !== 'NS') return false;
-          const matchDate = new Date(match.fixture.date);
-          return matchDate >= tomorrowDate && matchDate < dayAfterTomorrow;
-        }).sort((a, b) => 
-          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-        );
-        
-        // 5. Important upcoming matches in the next week (filter for high-profile matches)
-        const nextWeekDate = new Date(todayDate);
-        nextWeekDate.setDate(todayDate.getDate() + 7);
-        
-        // Consider Champions League, Europa League and top-5 leagues as high-profile
-        const highProfileLeagueIds = [2, 3, 39, 140, 135, 78, 61];
-        
-        const importantUpcomingMatches = validMatches.filter(match => {
-          if (match.fixture.status.short !== 'NS') return false;
-          const matchDate = new Date(match.fixture.date);
-          return matchDate >= dayAfterTomorrow && 
-                 matchDate < nextWeekDate && 
-                 highProfileLeagueIds.includes(match.league.id);
-        }).sort((a, b) => 
-          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-        );
-        
-        // Combine all categories with priority order, limit to 6 matches total
-        const combinedMatches = [
-          ...liveMatches,
-          ...upcomingTodayMatches,
-          ...finishedTodayMatches, 
-          ...tomorrowMatches,
-          ...importantUpcomingMatches
-        ].slice(0, 6);
+        // Take 6 most recent matches for display
+        const filteredMatches = allMatches
+          .filter(match => match && match.fixture && match.teams && match.league)
+          .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
+          .slice(0, 6);
           
-        console.log(`Displaying ${combinedMatches.length} matches`);
+        console.log(`Displaying ${filteredMatches.length} matches`);
         
-        if (combinedMatches.length > 0) {
-          console.log(`First match: ${combinedMatches[0].teams.home.name} vs ${combinedMatches[0].teams.away.name}`);
+        if (filteredMatches.length > 0) {
+          console.log(`First match: ${filteredMatches[0].teams.home.name} vs ${filteredMatches[0].teams.away.name}`);
         }
         
-        setMatches(combinedMatches);
+        setMatches(filteredMatches);
       } catch (error) {
         console.error('Error fetching matches:', error);
         toast({
