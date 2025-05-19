@@ -1,11 +1,11 @@
 import { useLocation } from 'wouter';
-import EnhancedFeatureMatchCard from './EnhancedFeatureMatchCard';
+import SimpleScoreboard from './SimpleScoreboard';
 
 const FeaturedMatch = () => {
   const [, navigate] = useLocation();
   
   return (
-    <EnhancedFeatureMatchCard />
+    <SimpleScoreboard />
   );
 };
 

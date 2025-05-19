@@ -1,41 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
-import { useSelector, useDispatch } from 'react-redux';
-import { format, parseISO, differenceInMinutes, differenceInHours } from 'date-fns';
-import { RootState } from '@/lib/store';
+import { format, parseISO } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-// Enhanced match fixture type
+// Types
 interface Team {
   id: number;
   name: string;
   logo: string;
-  winner?: boolean;
 }
 
 interface Fixture {
   id: number;
-  referee: string | null;
-  timezone: string;
   date: string;
-  timestamp: number;
-  periods: {
-    first: number | null;
-    second: number | null;
-  };
-  venue: {
-    id: number | null;
-    name: string | null;
-    city: string | null;
-  };
   status: {
-    long: string;
     short: string;
+    long: string;
     elapsed: number | null;
   };
 }
@@ -43,21 +28,10 @@ interface Fixture {
 interface League {
   id: number;
   name: string;
-  country: string;
   logo: string;
-  flag: string | null;
-  season: number;
-  round: string;
 }
 
-interface Score {
-  halftime: { home: number | null; away: number | null; };
-  fulltime: { home: number | null; away: number | null; };
-  extratime: { home: number | null; away: number | null; };
-  penalty: { home: number | null; away: number | null; };
-}
-
-interface FixtureResponse {
+interface Match {
   fixture: Fixture;
   league: League;
   teams: {
@@ -68,205 +42,108 @@ interface FixtureResponse {
     home: number | null;
     away: number | null;
   };
-  score: Score;
 }
 
-// Match types for different states
-enum MatchType {
-  UPCOMING = 'UPCOMING',
-  LIVE = 'LIVE',
-  FINISHED = 'FINISHED'
-}
-
-const EnhancedFeatureMatchCard = () => {
+const SimpleScoreboard = () => {
   const [, navigate] = useLocation();
-  const dispatch = useDispatch();
   const { toast } = useToast();
+  const [matches, setMatches] = useState<Match[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [filteredMatches, setFilteredMatches] = useState<FixtureResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [matchType, setMatchType] = useState<MatchType | null>(null);
-  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
-  const [lastFetchTime, setLastFetchTime] = useState<Date>(new Date());
-  
-  // Hard-coded popular leagues to ensure we use the right IDs
-  const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
-  
-  // Get the current date for filtering
-  const today = new Date();
-  const todayFormatted = format(today, 'yyyy-MM-dd');
-  
-  // Function to fetch matches for the featured leagues
-  const fetchMatchesForFeaturedLeagues = useCallback(async () => {
-    if (isLoading) return;
-    
-    try {
-      setIsLoading(true);
-      
-      // Calculate if we should refresh based on 5-minute interval
-      const timeSinceLastFetch = differenceInMinutes(new Date(), lastFetchTime);
-      if (timeSinceLastFetch < 5 && filteredMatches.length > 0) {
-        // Skip fetching if we've fetched recently and have data
-        return;
-      }
-      
-      // Get current season - use 2024 since that's the current football season
-      const currentSeason = 2024;
-      
-      // Get fixtures from all popular leagues
-      const allFixturesPromises = popularLeagues.map(async (leagueId) => {
-        try {
-          console.log(`Fetching fixtures for league ${leagueId} with season ${currentSeason}`);
-          const response = await apiRequest(
-            'GET', 
-            `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`
-          );
-          return response.json();
-        } catch (error) {
-          console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-          return [];
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch matches from popular leagues
+  useEffect(() => {
+    const popularLeagues = [2, 3, 39, 140, 135, 78];
+    const currentSeason = 2024;
+
+    const fetchMatches = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch fixtures for all popular leagues
+        const promises = popularLeagues.map(leagueId => 
+          apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
+            .then(response => response.json())
+            .catch(error => {
+              console.error(`Error fetching league ${leagueId} fixtures:`, error);
+              return [];
+            })
+        );
+        
+        const results = await Promise.all(promises);
+        const allMatches = results.flat();
+        
+        console.log(`Total matches fetched: ${allMatches.length}`);
+        
+        // Take 6 most recent matches for display
+        const filteredMatches = allMatches
+          .filter(match => match && match.fixture && match.teams && match.league)
+          .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
+          .slice(0, 6);
+          
+        console.log(`Displaying ${filteredMatches.length} matches`);
+        
+        if (filteredMatches.length > 0) {
+          console.log(`First match: ${filteredMatches[0].teams.home.name} vs ${filteredMatches[0].teams.away.name}`);
         }
-      });
-      
-      // Wait for all requests to complete
-      const allFixturesResults = await Promise.all(allFixturesPromises);
-      
-      // Flatten the array of fixtures from different leagues
-      const allFixtures = allFixturesResults.flat();
-      
-      // Update the last fetch time
-      setLastFetchTime(new Date());
-      
-      // Inspect what's in the allFixtures array
-      console.log(`Total fixtures loaded: ${allFixtures.length}`);
-      if (allFixtures.length > 0) {
-        // Log the structure of the first fixture
-        console.log("First fixture structure:", JSON.stringify(allFixtures[0], null, 2).substring(0, 500) + "...");
-      }
-      
-      // For demo/testing, make sure we only include valid fixtures
-      const demoMatches = allFixtures
-        .filter(match => {
-          // Check if the match has all required properties
-          const isValid = match && 
-            match.fixture && 
-            match.teams && 
-            match.teams.home && 
-            match.teams.away && 
-            match.league;
-            
-          if (!isValid) {
-            console.log("Found invalid match:", match);
-          }
-          return isValid;
-        })
-        .sort((a, b) => {
-          // Sort by date (newest first)
-          return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+        
+        setMatches(filteredMatches);
+      } catch (error) {
+        console.error('Error fetching matches:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load matches',
+          variant: 'destructive',
         });
-        
-      console.log(`Filtered valid fixtures: ${demoMatches.length}`);
-      
-      // Take the first few fixtures for testing
-      const testFixtures = demoMatches.slice(0, 6);
-      console.log(`Using ${testFixtures.length} test fixtures for display`);
-      if (testFixtures.length > 0) {
-        console.log("First test fixture:", testFixtures[0].teams.home.name, "vs", testFixtures[0].teams.away.name);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // For now, just use the test fixtures directly
-      const matches = testFixtures;
-      setMatchType(MatchType.UPCOMING);
-      
-      console.log(`Setting ${matches.length} matches for display`);
-      
-      // Limit to 5-6 matches maximum for the slideshow
-      const limitedMatches = matches.slice(0, 6);
-      setFilteredMatches(limitedMatches);
-      
-      if (limitedMatches.length > 0) {
-        // Reset current index if it's out of bounds
-        if (currentIndex >= limitedMatches.length) {
-          setCurrentIndex(0);
-        }
-        
-        // If we have live matches, start the elapsed time ticker
-        if (matchType === MatchType.LIVE && limitedMatches[currentIndex]?.fixture?.status?.elapsed) {
-          setLiveElapsed(limitedMatches[currentIndex].fixture.status.elapsed);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching featured matches:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load featured matches',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [popularLeagues, isLoading, lastFetchTime, filteredMatches.length, currentIndex, toast, matchType]);
-  
-  // Initial fetch and 5-minute refresh interval
-  useEffect(() => {
-    fetchMatchesForFeaturedLeagues();
+    };
+
+    fetchMatches();
     
-    // Set up refresh interval (every 5 minutes)
-    const refreshInterval = setInterval(() => {
-      fetchMatchesForFeaturedLeagues();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    // Refresh data every 5 minutes
+    const interval = setInterval(() => {
+      fetchMatches();
+    }, 5 * 60 * 1000);
     
-    return () => clearInterval(refreshInterval);
-  }, [fetchMatchesForFeaturedLeagues]);
-  
-  // For live matches, update the elapsed time every minute
-  useEffect(() => {
-    if (matchType !== MatchType.LIVE || liveElapsed === null) return;
-    
-    const liveTimer = setInterval(() => {
-      setLiveElapsed(prev => prev !== null ? prev + 1 : null);
-    }, 60 * 1000); // Update every minute
-    
-    return () => clearInterval(liveTimer);
-  }, [matchType, liveElapsed]);
-  
-  // Get current match
-  const currentMatch = filteredMatches[currentIndex];
-  
-  // Handle match click to navigate to match details
+    return () => clearInterval(interval);
+  }, [toast]);
+
+  const currentMatch = matches[currentIndex];
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    if (matches.length <= 1) return;
+    setCurrentIndex(prev => (prev === 0 ? matches.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    if (matches.length <= 1) return;
+    setCurrentIndex(prev => (prev === matches.length - 1 ? 0 : prev + 1));
+  };
+
   const handleMatchClick = () => {
     if (currentMatch?.fixture?.id) {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
   };
   
-  // Navigation handlers
-  const handlePrevious = () => {
-    if (filteredMatches.length <= 1) return;
-    setCurrentIndex(prev => (prev === 0 ? filteredMatches.length - 1 : prev - 1));
-  };
-  
-  const handleNext = () => {
-    if (filteredMatches.length <= 1) return;
-    setCurrentIndex(prev => (prev === filteredMatches.length - 1 ? 0 : prev + 1));
-  };
-  
-  // Format match time/status display text
-  const getMatchStatusText = (match: FixtureResponse | undefined) => {
-    if (!match) return 'Match Information';
+  // Format match status or date
+  const getMatchStatus = (match: Match | undefined) => {
+    if (!match) return 'No Match Data';
     
     const { fixture } = match;
     
-    if (fixture.status.short === 'FT') {
-      return 'Full Time';
-    } else if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
+    if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
       return fixture.status.short === 'HT' 
         ? 'Half Time' 
-        : `${liveElapsed || fixture.status.elapsed || 0}'`;
+        : `${fixture.status.elapsed || 0}'`;
+    } else if (fixture.status.short === 'FT') {
+      return 'Full Time';
     } else {
-      // For upcoming matches, show scheduled time
       try {
-        const matchDate = new Date(fixture.date);
+        const matchDate = parseISO(fixture.date);
         return format(matchDate, 'dd MMM yyyy - HH:mm');
       } catch (e) {
         return 'Upcoming';
@@ -274,11 +151,11 @@ const EnhancedFeatureMatchCard = () => {
     }
   };
   
-  // Get match status label (Live, Upcoming, etc.)
-  const getMatchStatusLabel = () => {
-    if (!currentMatch) return '';
+  // Get match status label
+  const getMatchStatusLabel = (match: Match | undefined) => {
+    if (!match) return '';
     
-    const { fixture } = currentMatch;
+    const { fixture } = match;
     
     if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
       return 'LIVE';
@@ -289,20 +166,19 @@ const EnhancedFeatureMatchCard = () => {
     }
   };
   
-  // Get dynamic team colors (simplified version)
+  // Simple team color based on team ID
   const getTeamColor = (teamId: number) => {
-    // You could implement dynamic color fetching here based on team ID
-    // For now, using some default colors
-    switch (teamId % 5) {
-      case 0: return '#6f7c93';
-      case 1: return '#8b0000';
-      case 2: return '#1d3557';
-      case 3: return '#2a9d8f';
-      case 4: return '#e63946';
-      default: return '#6f7c93';
-    }
+    const colors = [
+      '#6f7c93', // blue-gray
+      '#8b0000', // dark red
+      '#1d3557', // dark blue
+      '#2a9d8f', // teal
+      '#e63946', // red
+    ];
+    
+    return colors[teamId % colors.length];
   };
-  
+
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
       <Badge 
@@ -312,7 +188,7 @@ const EnhancedFeatureMatchCard = () => {
         Featured Match
       </Badge>
 
-      {filteredMatches.length > 1 && (
+      {matches.length > 1 && (
         <>
           <button
             onClick={handlePrevious}
@@ -359,8 +235,8 @@ const EnhancedFeatureMatchCard = () => {
 
               <div className="flex items-center gap-2">
                 <Trophy className="h-4 w-4 text-indigo-600" />
-                <span className={`text-sm font-medium ${getMatchStatusLabel() === 'LIVE' ? 'text-red-600' : 'text-indigo-800'}`}>
-                  {getMatchStatusLabel()}
+                <span className={`text-sm font-medium ${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600' : 'text-indigo-800'}`}>
+                  {getMatchStatusLabel(currentMatch) || 'UPCOMING'}
                 </span>
               </div>
             </div>
@@ -368,8 +244,8 @@ const EnhancedFeatureMatchCard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                <span className={`${getMatchStatusLabel() === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
-                  {getMatchStatusText(currentMatch)}
+                <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
+                  {getMatchStatus(currentMatch)}
                 </span>
               </div>
             </div>
@@ -395,9 +271,7 @@ const EnhancedFeatureMatchCard = () => {
                       }}
                     >
                       <img 
-                        src={currentMatch.teams.home.id 
-                          ? `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id}.png` 
-                          : currentMatch.teams.home.logo} 
+                        src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
                         alt={currentMatch.teams.home.name} 
                         className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                         style={{
@@ -451,9 +325,7 @@ const EnhancedFeatureMatchCard = () => {
                     </div>
 
                     <img 
-                      src={currentMatch.teams.away.id 
-                        ? `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id}.png` 
-                        : currentMatch.teams.away.logo} 
+                      src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
                       className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                       style={{
@@ -527,9 +399,9 @@ const EnhancedFeatureMatchCard = () => {
             </div>
 
             {/* Indicator dots for slideshow */}
-            {filteredMatches.length > 1 && (
+            {matches.length > 1 && (
               <div className="flex justify-center gap-2 mt-4">
-                {filteredMatches.map((_, index) => (
+                {matches.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
@@ -548,4 +420,4 @@ const EnhancedFeatureMatchCard = () => {
   );
 };
 
-export default EnhancedFeatureMatchCard;
+export default SimpleScoreboard;
