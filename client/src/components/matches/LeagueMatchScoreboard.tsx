@@ -1,16 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { FixtureResponse } from '@/types/fixtures';
 
 interface LeagueMatchScoreboardProps {
-  match: FixtureResponse;
-  matches?: FixtureResponse[];
-  onClick?: () => void;
   featured?: boolean;
   homeTeamColor?: string;
   awayTeamColor?: string;
   compact?: boolean;
-  maxMatches?: number;
 }
 
 export function LeagueMatchScoreboard({ 
@@ -20,6 +15,16 @@ export function LeagueMatchScoreboard({
   compact = false,
 }: LeagueMatchScoreboardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  // Keep slideshow functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % 5); // Keeping 5 as max slides
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,9 +40,8 @@ export function LeagueMatchScoreboard({
       style={{ background: '#1a1a1a' }}
     >
       <div className="w-full h-full flex justify-between relative">
-        {/* Empty scoreboard */}
         <div className="w-full h-full flex items-center justify-center text-white">
-          No matches available
+          Slide {currentSlideIndex + 1}
         </div>
       </div>
     </div>
