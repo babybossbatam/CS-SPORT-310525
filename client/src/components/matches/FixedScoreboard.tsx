@@ -638,24 +638,7 @@ const FixedScoreboard = () => {
                               const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
                               
-                              // Calculate time to match
-                              const now = new Date("2025-05-19T12:00:00Z");
-                              const msToMatch = matchDate.getTime() - now.getTime();
-                              const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-                              
-                              // Show date/time for all matches
-                              if (hoursToMatch >= 0 && hoursToMatch < 8) {
-                                return (
-                                  <div>
-                                    {formattedDate} | {timeOnly}
-                                    {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
-                                  </div>
-                                );
-                              }
-                              
-                              // If more than 8 hours away, don't show countdown
-                              
-                              // For other matches, just show date/time
+                              // Always show basic match information
                               return (
                                 <div>
                                   {formattedDate} | {timeOnly}
