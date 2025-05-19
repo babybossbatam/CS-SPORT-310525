@@ -170,39 +170,86 @@ const FixedScoreboard = () => {
 
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
 
+        // Define popular teams by ID (big teams that should be prioritized)
+        const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
+        
         // Combine matches with priority
         let finalMatches: Match[] = [];
+        
+        // Helper function to check if a match includes a popular team
+        const isPopularTeamMatch = (match: Match) => {
+          return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
+        };
+        
+        // Separate matches with popular teams
+        const livePopularMatches = liveMatches.filter(isPopularTeamMatch);
+        const liveOtherMatches = liveMatches.filter(match => !isPopularTeamMatch(match));
+        
+        const finishedPopularMatches = finishedMatches.filter(isPopularTeamMatch);
+        const finishedOtherMatches = finishedMatches.filter(match => !isPopularTeamMatch(match));
+        
+        const upcomingPopularMatches = upcomingMatches.filter(isPopularTeamMatch);
+        const upcomingOtherMatches = upcomingMatches.filter(match => !isPopularTeamMatch(match));
 
-        // 1. Live matches have highest priority
-        if (liveMatches.length > 0) {
-          finalMatches = [...liveMatches];
+        // 1. Live matches with popular teams have highest priority
+        if (livePopularMatches.length > 0) {
+          finalMatches = [...livePopularMatches];
+        }
+        
+        // 2. Other live matches (any teams) if we have space
+        if (liveOtherMatches.length > 0 && finalMatches.length < 6) {
+          const liveOtherToAdd = liveOtherMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...liveOtherToAdd];
         }
 
-        // 2. Add some recently finished matches if we have space
-        if (finishedMatches.length > 0 && finalMatches.length < 6) {
-          const finishedToAdd = finishedMatches.slice(0, 6 - finalMatches.length);
-          finalMatches = [...finalMatches, ...finishedToAdd];
+        // 3. Recently finished matches with popular teams if we have space
+        if (finishedPopularMatches.length > 0 && finalMatches.length < 6) {
+          const finishedPopularToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...finishedPopularToAdd];
+        }
+        
+        // 4. Upcoming matches with popular teams if we have space
+        if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
+          const upcomingPopularToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...upcomingPopularToAdd];
+        }
+        
+        // 5. Recently finished matches (non-popular teams) if we have space
+        if (finishedOtherMatches.length > 0 && finalMatches.length < 6) {
+          const finishedOtherToAdd = finishedOtherMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...finishedOtherToAdd];
+        }
+        
+        // 6. Upcoming matches (non-popular teams) if we have space
+        if (upcomingOtherMatches.length > 0 && finalMatches.length < 6) {
+          const upcomingOtherToAdd = upcomingOtherMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...upcomingOtherToAdd];
         }
 
-        // 3. Add upcoming matches within 8 hours if we have space
-        if (upcomingMatches.length > 0 && finalMatches.length < 6) {
-          const upcomingToAdd = upcomingMatches.slice(0, 6 - finalMatches.length);
-          finalMatches = [...finalMatches, ...upcomingToAdd];
-        }
-
-        // 4. If we still don't have enough, add other matches from popular leagues
+        // 7. If we still don't have enough, add other matches from popular leagues
         if (finalMatches.length < 6) {
           // Get other matches from popular leagues not already included
           const otherPopularMatches = popularLeagueMatches
             .filter(match => !finalMatches.find(m => m.fixture.id === match.fixture.id))
             .sort((a, b) => {
-              // Sort by closest match time to now (upcoming preferred over past)
+              // Sort by popular teams first
+              const aHasPopularTeam = isPopularTeamMatch(a);
+              const bHasPopularTeam = isPopularTeamMatch(b);
+              
+              if (aHasPopularTeam && !bHasPopularTeam) return -1;
+              if (!aHasPopularTeam && bHasPopularTeam) return 1;
+              
+              // Sort by status (bracket) - prioritize FT (finished) matches
+              if (a.fixture.status.short === 'FT' && b.fixture.status.short !== 'FT') return -1;
+              if (a.fixture.status.short !== 'FT' && b.fixture.status.short === 'FT') return 1;
+              
+              // Then sort by time
               const aDate = new Date(a.fixture.date);
               const bDate = new Date(b.fixture.date);
               const aTimeDiff = aDate.getTime() - now.getTime();
               const bTimeDiff = bDate.getTime() - now.getTime();
 
-              // Prioritize upcoming over finished matches
+              // Prioritize upcoming over matches far in the future
               if (aTimeDiff >= 0 && bTimeDiff < 0) return -1;
               if (aTimeDiff < 0 && bTimeDiff >= 0) return 1;
 
