@@ -342,10 +342,21 @@ const FixedScoreboard = () => {
         const timeDiff = matchDate.getTime() - now.getTime();
 
         if (timeDiff <= 0) {
-          return format(matchDate, 'HH:mm');
+          // Match is live, show elapsed time
+          const elapsedTime = Math.abs(timeDiff);
+          const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+          const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+          
+          return (
+            <div className="flex items-center gap-2">
+              <span className="animate-pulse bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
+              <span>{`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}</span>
+            </div>
+          );
         }
 
-        // Calculate hours, minutes, seconds
+        // Calculate countdown time
         const hours = Math.floor(timeDiff / (1000 * 60 * 60));
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
