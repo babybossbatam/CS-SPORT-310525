@@ -450,7 +450,7 @@ const FixedScoreboard = () => {
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
       <Badge 
         variant="secondary" 
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-50 pointer-events-none"
       >
         Featured Match
       </Badge>
