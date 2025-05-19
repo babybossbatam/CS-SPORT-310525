@@ -168,7 +168,6 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
                 <span className="text-gray-400">Match Information</span>
               </div>
             </div>
-        </div>
 
         <div className="relative">
           <div 
@@ -233,7 +232,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
           <button 
             className="flex flex-col items-center cursor-pointer w-1/4"
-            onClick={() => navigate(`/match/${match?.fixture?.id}`)}
+            onClick={() => {}}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
               <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
@@ -242,7 +241,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           </button>
           <button 
             className="flex flex-col items-center cursor-pointer w-1/4"
-            onClick={() => navigate(`/match/${match?.fixture?.id}/lineups`)}
+            onClick={() => {}}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
               <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
@@ -251,7 +250,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           </button>
           <button 
             className="flex flex-col items-center cursor-pointer w-1/4"
-            onClick={() => navigate(`/match/${match?.fixture?.id}/stats`)}
+            onClick={() => {}}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
               <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor" />
@@ -260,9 +259,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
           </button>
           <button 
             className="flex flex-col items-center cursor-pointer w-1/4"
-            onClick={() => {
-              navigate(`/league/${match?.league?.id}/standings`);
-            }}
+            onClick={() => {}}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
               <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
@@ -275,19 +272,19 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
         </div>
 
         <div className="flex justify-center gap-2 mt-4">
-          {matches.map((_, index) => (
-            <button
-              key={index}
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentMatchIndex(index);
-              }}
-              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                currentMatchIndex === index ? 'bg-indigo-600' : 'bg-gray-300'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
+          {/* Static indicator dots */}
+          <button
+            className="w-2 h-2 rounded-full transition-all duration-200 bg-indigo-600"
+            aria-label="Go to slide 1"
+          />
+          <button
+            className="w-2 h-2 rounded-full transition-all duration-200 bg-gray-300"
+            aria-label="Go to slide 2"
+          />
+          <button
+            className="w-2 h-2 rounded-full transition-all duration-200 bg-gray-300"
+            aria-label="Go to slide 3"
+          />
         </div>
           </motion.div>
         </AnimatePresence>
