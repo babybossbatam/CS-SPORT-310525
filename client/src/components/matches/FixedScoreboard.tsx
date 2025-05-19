@@ -359,9 +359,7 @@ const FixedScoreboard = () => {
           }
         }
 
-        // For upcoming matches, calculate relative time
-        const matchDate = parseISO(fixture.date);
-        const now = new Date();
+        // Calculate remaining time for upcoming matches
         const diffMs = matchDate.getTime() - now.getTime();
         const hoursDiff = diffMs / (1000 * 60 * 60);
         const daysDiff = Math.floor(hoursDiff / 24);
