@@ -191,7 +191,7 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
             className="flex relative h-[53px] rounded-md mb-8 transition-all duration-300 ease-in-out opacity-100 mt-[-8px]"
             onClick={handleMatchClick}
             style={{ 
-              cursor: onClick ? 'pointer' : 'default'
+              cursor: 'pointer'
             }}
           >
             <div className="w-full h-full flex justify-between relative">
@@ -205,8 +205,10 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
                 <div 
                   className="absolute left-[-32px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                   style={{
-                    top: "calc(50% - 32px)"
+                    top: "calc(50% - 32px)",
+                    cursor: 'pointer'
                   }}
+                  onClick={handleMatchClick}
                 />
               </div>
 
@@ -235,8 +237,10 @@ const FeatureMatchCard = ({ match, leagueName, leagueLogo, matchDate }: FeatureM
               <div
                 className="absolute right-[41px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                 style={{
-                  top: "calc(50% - 32px)"
+                  top: "calc(50% - 32px)",
+                  cursor: 'pointer'
                 }}
+                onClick={handleMatchClick}
               />
             </div>
           </div>
