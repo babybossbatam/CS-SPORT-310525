@@ -680,7 +680,7 @@ const FixedScoreboard = () => {
                     </div>
 
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-67px)] mr-[77px]" 
+                    <div className="h-full w-[calc(50%-67px)] mr-[77px] relative" 
                       style={{ 
                         background: getTeamColor(currentMatch.teams.away.id)
                       }}
@@ -690,10 +690,11 @@ const FixedScoreboard = () => {
                     <img 
                       src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
                       alt={currentMatch.teams.away.name} 
-                      className="absolute right-[41px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 32px)"
+                        top: "calc(50% - 32px)",
+                        right: "-32px"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
