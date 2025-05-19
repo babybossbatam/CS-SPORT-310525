@@ -483,7 +483,7 @@ const FixedScoreboard = () => {
             className="overflow-hidden"
           >
             {/* Match header with league info */}
-            <div className="flex items-center mb-3 px-2">
+            <div className="flex items-center justify-center mb-3 px-2">
               <div className="flex-shrink-0 mr-2">
                 {currentMatch?.league?.logo ? (
                   <img 
@@ -498,12 +498,10 @@ const FixedScoreboard = () => {
                   <Trophy className="w-5 h-5 text-amber-500" />
                 )}
               </div>
-              <div className="flex-grow">
-                <p className="text-xs font-medium text-gray-700 truncate">
+              <div className="flex items-center">
+                <p className="text-xs font-medium text-gray-700 mr-2">
                   {currentMatch?.league?.name || 'League Name'}
                 </p>
-              </div>
-              <div className="flex items-center">
                 <Badge 
                   variant="outline" 
                   className={`text-[10px] px-1.5 py-0 border ${
