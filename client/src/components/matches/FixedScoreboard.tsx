@@ -430,7 +430,7 @@ const FixedScoreboard = () => {
               return (
                 <div className="flex flex-col space-y-0 relative pb-6">
                   <span className="text-gray-500">Today</span>
-                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '70%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20, marginTop: '-15px' }}>
+                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '80%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20, marginTop: '-15px' }}>
                     <span className="font-bold text-red-500">Live start in:</span> 
                     <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
                   </div>
@@ -572,7 +572,7 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className="font-medium text-center mb-3" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className="font-medium text-center mb-5" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
                 {getMatchStatus(currentMatch)}
               </div>
                 
