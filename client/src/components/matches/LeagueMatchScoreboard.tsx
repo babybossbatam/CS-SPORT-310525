@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface LeagueMatchScoreboardProps {
   featured?: boolean;
@@ -15,24 +14,6 @@ export function LeagueMatchScoreboard({
   compact = false,
 }: LeagueMatchScoreboardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-
-  // Keep slideshow functionality
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % 5); // Keeping 5 as max slides
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 150);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div 
@@ -41,7 +22,7 @@ export function LeagueMatchScoreboard({
     >
       <div className="w-full h-full flex justify-between relative">
         <div className="w-full h-full flex items-center justify-center text-white">
-          Slide {currentSlideIndex + 1}
+          No matches available
         </div>
       </div>
     </div>
