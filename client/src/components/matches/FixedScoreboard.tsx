@@ -538,28 +538,12 @@ const FixedScoreboard = () => {
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches within 8 hours, show active countdown
+        // For matches within 8 hours, show simplified time display instead of countdown
         if (hoursToMatch < 8 && daysToMatch === 0) {
-          // Check if this is the current match that we're viewing
-          if (currentMatch && fixture.id === currentMatch.fixture.id && currentTimer) {
-            // Use the dedicated current match timer that is actively counting down
-            const { hours, minutes, seconds } = currentTimer;
-            
-            // Return fixed format with no animation/blinking
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }
-          // For other matches, use the countdown from the general state
-          else if (countdowns[fixture.id]) {
-            const { hours, minutes, seconds } = countdowns[fixture.id];
-            
-            // Regular separator for non-viewed matches
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }
-          // Fallback if countdown not available yet
           if (hoursToMatch === 0) {
             return `In ${minutesToMatch}m`;
           }
-          return `In ${hoursToMatch}h ${minutesToMatch}m`;
+          return `In ${hoursToMatch}h`;
         }
         
         // If match is tomorrow, show "Tomorrow"
