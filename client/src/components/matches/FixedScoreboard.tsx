@@ -597,25 +597,33 @@ const FixedScoreboard = () => {
                           {(() => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
-                              // Show countdown for matches within 8 hours
-                              const now = new Date("2025-05-19T12:00:00Z");
-                              const msToMatch = matchDate.getTime() - now.getTime();
-                              const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-                              
-                              // For matches within 8 hours, display countdown
-                              if (hoursToMatch >= 0 && hoursToMatch <= 8) {
-                                return (
-                                  <div className="flex flex-col items-center">
-                                    <MatchCountdownTimer matchDate={currentMatch.fixture.date} />
-                                    <div className="mt-1">{currentMatch.fixture.venue?.name || ''}</div>
-                                  </div>
-                                );
-                              }
-                              
-                              // Otherwise show regular date/time
                               const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
-                              return `${formattedDate} | ${timeOnly}${currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}`;
+                              
+                              // Calculate countdown for real-time display
+                              const now = new Date("2025-05-19T12:00:00Z");
+                              const msToMatch = matchDate.getTime() - now.getTime();
+                              const hours = Math.floor(msToMatch / (1000 * 60 * 60));
+                              const minutes = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
+                              const seconds = Math.floor((msToMatch % (1000 * 60)) / 1000);
+                              
+                              // Format with leading zeros
+                              const formattedHours = hours.toString().padStart(2, '0');
+                              const formattedMinutes = minutes.toString().padStart(2, '0');
+                              const formattedSeconds = seconds.toString().padStart(2, '0');
+                              
+                              return (
+                                <>
+                                  <div className="mb-1">
+                                    <span className="font-bold text-red-500">COUNTDOWN:</span> 
+                                    <span className="font-mono">{formattedHours}:{formattedMinutes}:{formattedSeconds}</span>
+                                  </div>
+                                  <div>
+                                    {formattedDate} | {timeOnly}
+                                    {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
+                                  </div>
+                                </>
+                              );
                             } catch (e) {
                               return currentMatch.fixture.venue?.name || '';
                             }
