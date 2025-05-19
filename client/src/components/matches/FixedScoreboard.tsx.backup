@@ -378,41 +378,33 @@ const FixedScoreboard = () => {
         // Get time differences in various units
         const msToMatch = matchDate.getTime() - now.getTime();
         const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+        const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+        const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches today, show a simple format
+        // For matches today (within 24 hours)
         if (daysToMatch === 0) {
-          try {
-            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-            // For matches less than 8 hours away, show timer below "Today"
-            if (hoursToMatch >= 0 && hoursToMatch < 8) {
-              return (
-                <div className="flex flex-col space-y-0">
-                  <span className="text-gray-500">Today</span>
-                  <div style={{ fontSize: '0.65rem' }}>
-                    <span className="font-bold text-red-500">Live start in:</span> 
-                    <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
-                  </div>
-                </div>
-              );
-            } else {
-              // More than 8 hours away
-              return <span className="text-gray-500">Today</span>;
-            }
-          } catch (e) {
-            return <span className="text-gray-500">Today</span>;
+          // For matches within 8 hours, show countdown timer
+          if (hoursToMatch <= 8) {
+            return <FixedMatchTimer matchDate={fixture.date} />;
           }
+          // For other matches today, just show the day without time
+          return <span>Today</span>;
         }
         
-        // For matches tomorrow or later, show the regular format
+        // If match is tomorrow, show "Tomorrow"
         if (daysToMatch === 1) {
-          return <span className="text-gray-500">Tomorrow</span>;
-        } else if (daysToMatch <= 7) {
-          return <span className="text-gray-500">{daysToMatch} more days</span>;
-        } else {
-          return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
+          return 'Tomorrow';
         }
+        
+        // If match is within 3 days, show "X more days"
+        if (daysToMatch > 1 && daysToMatch <= 3) {
+          return `${daysToMatch} more days`;
+        }
+        
+        // For matches further away, show month and date
+        return format(matchDate, 'MMM d');
       } catch (e) {
-        return <span className="text-gray-500">Upcoming</span>;
+        return 'Upcoming';
       }
     }
   };
@@ -461,71 +453,115 @@ const FixedScoreboard = () => {
             onClick={handlePrevious}
             className="absolute left-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-3 w-3" />
           </button>
+
           <button
             onClick={handleNext}
             className="absolute right-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-3 w-3" />
           </button>
         </>
       )}
 
-      <CardContent className="px-2 pt-2 pb-2">
+      <CardContent className="p-4 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -100, opacity: 0 }}
+            transition={{ type: "tween", duration: 0.2 }}
           >
-            {/* Match header with league info */}
-            <div className="flex items-center mb-3 px-2">
-              <div className="flex-shrink-0 mr-2">
-                {currentMatch?.league?.logo ? (
+            {/* League and match status header */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                {currentMatch?.league?.logo && (
                   <img 
                     src={currentMatch.league.logo} 
-                    alt={currentMatch.league.name} 
+                    alt={currentMatch.league.name}
                     className="w-5 h-5 object-contain"
                     onError={(e) => {
-                      e.currentTarget.src = '/assets/fallback-logo.svg';
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
                     }}
                   />
-                ) : (
-                  <Trophy className="w-5 h-5 text-amber-500" />
                 )}
+                <span className="text-sm font-medium">{currentMatch?.league?.name || 'League Name'}</span>
               </div>
-              <div className="flex-grow">
-                <p className="text-xs font-medium text-gray-700 truncate">
-                  {currentMatch?.league?.name || 'League Name'}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <Badge 
-                  variant="outline" 
-                  className={`text-[10px] px-1.5 py-0 border ${
-                    getMatchStatusLabel(currentMatch) === 'LIVE' 
-                      ? 'border-red-500 text-red-500 animate-pulse' 
-                      : getMatchStatusLabel(currentMatch) === 'FINISHED'
-                        ? 'border-gray-500 text-gray-500'
-                        : 'border-blue-500 text-blue-500'
-                  }`}
-                >
-                  {getMatchStatusLabel(currentMatch)}
-                </Badge>
+
+              <span className="text-gray-400">-</span>
+
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-indigo-600" />
+                <span className={`text-sm font-medium ${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600' : 'text-indigo-800'}`}>
+                  {getMatchStatusLabel(currentMatch) || 'UPCOMING'}
+                </span>
               </div>
             </div>
 
-            {/* Match time/status display */}
-            <div className="flex justify-center mb-3">
-              <div className="flex items-center justify-center text-center">
-                <div className="text-xs font-medium">
+            {/* Match time/status information */}
+            <div className="text-lg font-semibold text-center mb-3">
+              <div className="flex flex-col items-center mb-[5px]">
+                {/* Simple static status display */}
+                <div className="h-8 flex justify-center items-center">
                   {(() => {
-                    if (currentMatch) {
-                      return getMatchStatus(currentMatch);
+                    if (!currentMatch) return null;
+                    
+                    if (getMatchStatusLabel(currentMatch) === 'LIVE') {
+                      return (
+                        <span className="text-red-600 font-bold">
+                          {currentMatch.fixture.status.short === '1H' 
+                            ? `First half: ${currentMatch.fixture.status.elapsed}'` 
+                            : currentMatch.fixture.status.short === '2H'
+                              ? `Second half: ${currentMatch.fixture.status.elapsed}'`
+                              : 'LIVE'}
+                        </span>
+                      );
+                    }
+                    
+                    if (currentMatch.fixture.status.short === 'NS') {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date("2025-05-19T12:00:00Z");
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+                        
+                        // For matches today, show a simple format
+                        if (daysToMatch === 0) {
+                          try {
+                            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+                            // For matches less than 8 hours away, show timer below "Today"
+                            if (hoursToMatch >= 0 && hoursToMatch < 8) {
+                              return (
+                                <div className="flex flex-col space-y-0">
+                                  <span className="text-gray-500">Today</span>
+                                  <div style={{ fontSize: '0.65rem' }}>
+                                    <span className="font-bold text-red-500">Live start in:</span> 
+                                    <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
+                                  </div>
+                                </div>
+                              );
+                            } else {
+                              // More than 8 hours away
+                              return <span className="text-gray-500">Today</span>;
+                            }
+                          } catch (e) {
+                            return <span className="text-gray-500">Today</span>;
+                          }
+                        }
+                        
+                        // For matches tomorrow or later, show the regular format
+                        if (daysToMatch === 1) {
+                          return <span className="text-gray-500">Tomorrow</span>;
+                        } else if (daysToMatch <= 7) {
+                          return <span className="text-gray-500">{daysToMatch} more days</span>;
+                        } else {
+                          return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
+                        }
+                      } catch (e) {
+                        return <span className="text-gray-500">Upcoming</span>;
+                      }
                     }
                     
                     return <span className="text-gray-500">Full Time</span>;
@@ -641,6 +677,12 @@ const FixedScoreboard = () => {
                       </div>
                     )}
                     
+
+
+
+                    
+
+                    
                     {/* VS circle */}
                     <div 
                       className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
@@ -653,6 +695,8 @@ const FixedScoreboard = () => {
                     >
                       <span className="vs-text font-bold">VS</span>
                     </div>
+
+                    {/* Remove the venue info from under the VS circle since we moved it below the team logo */}
 
                     {/* Away team colored bar and logo */}
                     <div className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
@@ -688,8 +732,12 @@ const FixedScoreboard = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex justify-center items-center py-6 text-gray-500">
+                  <span>No matches available at this moment</span>
+                </div>
+              )}
+            </div>
 
             {/* Bottom navigation */}
             <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
