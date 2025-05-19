@@ -1,6 +1,20 @@
 @tailwind base;
 @tailwind components;
 
+/* Timer styling to prevent jumping */
+.timer-container {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-text {
+  font-family: monospace;
+  font-variant-numeric: tabular-nums;
+  width: 120px;
+  text-align: center;
+}
 
 
 @tailwind utilities;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -674,17 +674,19 @@ const FixedScoreboard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                {/* Simple static timer display - no animations or fancy positioning */}
-                <div className="flex justify-center items-center h-8">
-                  {getMatchStatusLabel(currentMatch) === 'LIVE' ? (
-                    <span className="text-red-600 font-semibold">
-                      {getMatchStatus(currentMatch)}
-                    </span>
-                  ) : (
-                    <span className="text-gray-500">
-                      {getMatchStatus(currentMatch)}
-                    </span>
-                  )}
+                {/* Using specific timer classes from CSS */}
+                <div className="timer-container">
+                  <div className="timer-text">
+                    {getMatchStatusLabel(currentMatch) === 'LIVE' ? (
+                      <div className="text-red-600 font-bold">
+                        {getMatchStatus(currentMatch)}
+                      </div>
+                    ) : (
+                      <div className="text-gray-500">
+                        {getMatchStatus(currentMatch)}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
