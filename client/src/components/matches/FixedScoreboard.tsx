@@ -605,8 +605,8 @@ const FixedScoreboard = () => {
                               const msToMatch = matchDate.getTime() - now.getTime();
                               const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
                               
-                              // Only show countdown for matches within 8 hours
-                              if (hoursToMatch >= 0 && hoursToMatch <= 8) {
+                              // Only show countdown for matches less than 8 hours away
+                              if (hoursToMatch >= 0 && hoursToMatch < 8) {
                                 return (
                                   <>
                                     <div className="mb-1">

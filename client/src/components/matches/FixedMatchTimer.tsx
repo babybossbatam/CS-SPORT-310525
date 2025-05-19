@@ -32,8 +32,8 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
         // Calculate hours to match - for display decisions
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         
-        // Don't show countdown if more than 8 hours away
-        if (hoursToMatch > 8 || hoursToMatch < 0) {
+        // Only show countdown if less than 8 hours away (not equal to 8)
+        if (hoursToMatch >= 8 || hoursToMatch < 0) {
           return;
         }
         
