@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import MatchCountdownTimer from './MatchCountdownTimer';
 
 // Types
 interface Team {
@@ -355,8 +356,13 @@ const FixedScoreboard = () => {
         const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
         const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
         
-        // For matches today (within 24 hours), show the time
+        // For matches today (within 24 hours)
         if (daysToMatch === 0) {
+          // For matches within 8 hours, show countdown timer
+          if (hoursToMatch <= 8) {
+            return <MatchCountdownTimer matchDate={fixture.date} />;
+          }
+          // For other matches today, just show the time
           return `Today ${format(matchDate, 'HH:mm')}`;
         }
         
