@@ -428,9 +428,9 @@ const FixedScoreboard = () => {
             // For matches less than 8 hours away, show timer below "Today"
             if (hoursToMatch >= 0 && hoursToMatch < 8) {
               return (
-                <div className="flex flex-col space-y-0">
+                <div className="flex flex-col space-y-0 relative">
                   <span className="text-gray-500">Today</span>
-                  <div style={{ fontSize: '0.65rem' }}>
+                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20 }}>
                     <span className="font-bold text-red-500">Live start in:</span> 
                     <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
                   </div>
