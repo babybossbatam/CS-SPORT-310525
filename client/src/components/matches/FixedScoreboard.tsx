@@ -338,47 +338,34 @@ const FixedScoreboard = () => {
     else {
       try {
         const matchDate = parseISO(fixture.date);
-        const now = new Date();
-        const timeDiff = matchDate.getTime() - now.getTime();
-
-      if (timeDiff <= 0) {
-        const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
-
-        useEffect(() => {
-          const updateElapsedTime = () => {
-            const elapsedTime = Math.abs(timeDiff) + (Date.now() - new Date().getTime());
-            const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
-            const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-            setElapsed({ hours, minutes, seconds });
-          };
-
-          updateElapsedTime();
-          const timer = setInterval(updateElapsedTime, 1000);
-          return () => clearInterval(timer);
-        }, [timeDiff]);
-
-        return (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
-              <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-semibold">LIVE</span>
-            </div>
-            <span>{`${elapsed.hours.toString().padStart(2, '0')}:${elapsed.minutes.toString().padStart(2, '0')}:${elapsed.seconds.toString().padStart(2, '0')}`}</span>
-          </div>
-        );
-      }
-      
-
-        // Calculate countdown time
-        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const now = new Date("2025-05-19T12:00:00Z"); // Use same hardcoded time as above for consistency
+        
+        // Get time differences in various units
+        const msToMatch = matchDate.getTime() - now.getTime();
+        const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+        const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+        const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
+        
+        // For matches within 8 hours, show hours remaining
+        if (hoursToMatch < 8 && daysToMatch === 0) {
+          if (hoursToMatch === 0) {
+            return `In ${minutesToMatch}m`;
+          }
+          return `In ${hoursToMatch}h ${minutesToMatch}m`;
+        }
+        
+        // If match is tomorrow, show "Tomorrow"
+        if (daysToMatch === 1) {
+          return 'Tomorrow';
+        }
+        
+        // If match is within 3 days, show "X more days"
+        if (daysToMatch > 1 && daysToMatch <= 3) {
+          return `${daysToMatch} more days`;
+        }
+        
+        // For matches further away, show month and date
+        return format(matchDate, 'MMM d');
       } catch (e) {
         return 'Upcoming';
       }
