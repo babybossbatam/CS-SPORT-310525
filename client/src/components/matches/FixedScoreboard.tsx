@@ -536,9 +536,9 @@ const FixedScoreboard = () => {
                               return (
                                 <div>
                                   <span className="text-gray-500">Today</span>
-                                  <div className="mt-2">
+                                  <div className="mt-1" style={{ fontSize: '0.65rem' }}>
                                     <span className="font-bold text-red-500">Live start in:</span> 
-                                    <FixedMatchTimer matchDate={matchDate.toISOString()} />
+                                    <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
                                   </div>
                                 </div>
                               );
