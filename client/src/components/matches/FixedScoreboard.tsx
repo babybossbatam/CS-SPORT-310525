@@ -545,7 +545,7 @@ const FixedScoreboard = () => {
             // Use the dedicated current match timer that is actively counting down
             const { hours, minutes, seconds } = currentTimer;
             
-            // Create fixed-width characters for the timer
+            // Return fixed format with no animation/blinking
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
           }
           // For other matches, use the countdown from the general state
@@ -674,13 +674,17 @@ const FixedScoreboard = () => {
             {/* Match time/status information */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                {/* Fixed height and min-width container with monospace font for stability */}
-                <div className="h-8 min-w-[150px] flex items-center justify-center">
-                  <div className="font-mono w-[150px] text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    <span className={`${getMatchStatusLabel(currentMatch) === 'LIVE' ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}>
+                {/* Simple static timer display - no animations or fancy positioning */}
+                <div className="flex justify-center items-center h-8">
+                  {getMatchStatusLabel(currentMatch) === 'LIVE' ? (
+                    <span className="text-red-600 font-semibold">
                       {getMatchStatus(currentMatch)}
                     </span>
-                  </div>
+                  ) : (
+                    <span className="text-gray-500">
+                      {getMatchStatus(currentMatch)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
