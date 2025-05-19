@@ -36,25 +36,23 @@ export function LeagueMatchScoreboard({
 
     // Define popular leagues IDs (same as in PopularLeagueFilter.tsx)
     // No filtering - show all matches
-    const filteredMatches = matches || [];
-
-    // Keep track of match time for reference
-    const matchTime = filteredMatches[0]?.fixture.timestamp || 0;
+    const filteredMatches = matches.filter(match => {
+      const matchTime = match.fixture.timestamp;
       const timeDiff = currentTime - matchTime;
 
-      // Show all live matches from popular leagues
+      // Show all live matches
       if (match.fixture.status.short === 'LIVE') {
         return true;
       }
 
-      // Show upcoming matches from popular leagues (within next 8 hours)
+      // Show upcoming matches (within next 8 hours)
       if (match.fixture.status.short === 'NS' && 
           matchTime > currentTime && 
           matchTime - currentTime <= eightHoursInSeconds) {
         return true;
       }
 
-      // Show recently finished matches from popular leagues (within last 8 hours)
+      // Show recently finished matches (within last 8 hours)
       if (match.fixture.status.short === 'FT' && timeDiff <= eightHoursInSeconds) {
         return true;
       }
