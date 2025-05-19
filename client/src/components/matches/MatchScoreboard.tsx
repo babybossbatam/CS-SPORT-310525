@@ -96,18 +96,12 @@ export function MatchScoreboard({
   awayTeamColor = '#8b0000',
   compact = false 
 }: MatchScoreboardProps) {
-  const allMatches = [match, ...matches].slice(0, 5);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const { fixture, league, teams, goals, score } = allMatches[currentMatchIndex];
+  // Use only the primary match, ignore additional matches for slideshow
+  const { fixture, league, teams, goals, score } = match;
   const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentMatchIndex((prev) => (prev + 1) % allMatches.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [allMatches.length]);
+  
+  // Removed slideshow functionality
+  // console.log("Slideshow disabled - using only primary match");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -147,9 +141,9 @@ export function MatchScoreboard({
               if (target.src.includes('sportmonks') && teams?.home?.logo) {
                 target.src = teams.home.logo;
               } else if (teams?.home?.name) {
-                target.src = `/src/assets/fallback-logo.png`;
+                target.src = `/assets/fallback-logo.svg`;
               } else {
-                target.src = 'https://via.placeholder.com/64?text=H';
+                target.src = `/assets/fallback-logo.svg`;
               }
             }}
           />
@@ -195,9 +189,9 @@ export function MatchScoreboard({
             if (target.src.includes('sportmonks') && teams?.away?.logo) {
               target.src = teams.away.logo;
             } else if (teams?.away?.name) {
-              target.src = `/src/assets/fallback-logo.png`;
+              target.src = `/assets/fallback-logo.svg`;
             } else {
-              target.src = 'https://via.placeholder.com/64?text=A';
+              target.src = `/assets/fallback-logo.svg`;
             }
           }}
         />
