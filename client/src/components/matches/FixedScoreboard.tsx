@@ -659,6 +659,35 @@ const FixedScoreboard = () => {
                         </div>
                       </div>
                     )}
+                    
+                    {/* Countdown Timer moved below status */}
+                    {(() => {
+                      try {
+                        const matchDate = new Date(currentMatch.fixture.date);
+                        const now = new Date();
+                        const diffMs = matchDate.getTime() - now.getTime();
+                        const hoursToMatch = diffMs / (1000 * 60 * 60);
+                        
+                        // Only show countdown for matches less than 8 hours away
+                        if (hoursToMatch >= 0 && hoursToMatch < 8 && currentMatch.fixture.status.short === 'NS') {
+                          return (
+                            <div 
+                              className="absolute text-white font-bold text-xs z-30 text-center bg-black bg-opacity-70 px-2 py-1 rounded"
+                              style={{
+                                left: 'calc(50% - 70px)', 
+                                top: 'calc(50% - 5px)',
+                                width: '140px'
+                              }}
+                            >
+                              <span className="text-red-500">Live start in:</span> <FixedMatchTimer matchDate={currentMatch.fixture.date} />
+                            </div>
+                          );
+                        }
+                        return null;
+                      } catch (e) {
+                        return null;
+                      }
+                    })()}
 
                     {/* VS circle */}
                     <div 
