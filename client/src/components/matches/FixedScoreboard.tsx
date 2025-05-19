@@ -385,10 +385,10 @@ const FixedScoreboard = () => {
         if (daysToMatch === 0) {
           // For matches within 8 hours, show countdown timer
           if (hoursToMatch <= 8) {
-            return <MatchCountdownTimer matchDate={fixture.date} />;
+            return <CountdownTimer matchDate={fixture.date} />;
           }
-          // For other matches today, just show the time
-          return `Today ${format(matchDate, 'HH:mm')}`;
+          // For other matches today, just show the day without time
+          return <span>Today</span>;
         }
         
         // If match is tomorrow, show "Tomorrow"
@@ -529,13 +529,13 @@ const FixedScoreboard = () => {
                         
                         // For matches today, show a simple format instead of timer
                         if (daysToMatch === 0) {
-                          return <span className="text-gray-500">Today {format(matchDate, 'HH:mm')}</span>;
+                          return <span className="text-gray-500">Today</span>;
                         }
                         
                         // For matches tomorrow or later, show the regular format
                         if (daysToMatch === 1) {
                           return <span className="text-gray-500">Tomorrow</span>;
-                        } else if (daysToMatch <= 3) {
+                        } else if (daysToMatch <= 7) {
                           return <span className="text-gray-500">{daysToMatch} more days</span>;
                         } else {
                           return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
