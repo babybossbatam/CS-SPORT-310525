@@ -660,7 +660,9 @@ const FixedScoreboard = () => {
                       </div>
                     )}
                     
-                    {/* Countdown Timer moved below status */}
+
+
+                    {/* Countdown Timer - placed below status and above VS circle */}
                     {(() => {
                       try {
                         const matchDate = new Date(currentMatch.fixture.date);
@@ -672,10 +674,10 @@ const FixedScoreboard = () => {
                         if (hoursToMatch >= 0 && hoursToMatch < 8 && currentMatch.fixture.status.short === 'NS') {
                           return (
                             <div 
-                              className="absolute text-white font-bold text-xs z-30 text-center bg-black bg-opacity-70 px-2 py-1 rounded"
+                              className="absolute text-white font-bold text-xs z-30 text-center"
                               style={{
                                 left: 'calc(50% - 70px)', 
-                                top: 'calc(50% - 5px)',
+                                top: 'calc(50% - 65px)',
                                 width: '140px'
                               }}
                             >
@@ -688,7 +690,7 @@ const FixedScoreboard = () => {
                         return null;
                       }
                     })()}
-
+                    
                     {/* VS circle */}
                     <div 
                       className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
