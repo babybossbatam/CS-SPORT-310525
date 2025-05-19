@@ -1,16 +1,12 @@
+
 import { useState, useEffect } from 'react';
-import TeamLogo from './TeamLogo';
 
 interface LeagueMatchScoreboardProps {
-  homeTeamColor?: string;
-  awayTeamColor?: string;
-  compact?: boolean;
   onClick?: () => void;
+  compact?: boolean;
 }
 
 export function LeagueMatchScoreboard({
-  homeTeamColor = '#6f7c93',
-  awayTeamColor = '#8b0000',
   compact = false,
   onClick
 }: LeagueMatchScoreboardProps) {
