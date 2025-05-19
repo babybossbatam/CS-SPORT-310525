@@ -57,7 +57,7 @@ const FixedScoreboard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch matches from popular leagues and include different match types
+  // Fetch matches from popular leagues
   useEffect(() => {
     const popularLeagues = [2, 3, 39, 140, 135, 78];
     const currentSeason = 2024;
@@ -66,44 +66,8 @@ const FixedScoreboard = () => {
       try {
         setIsLoading(true);
         
-        // Get today's date and tomorrow's date
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        // Get yesterday's date for recent results
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        // Format dates for API calls
-        const todayFormatted = format(today, 'yyyy-MM-dd');
-        const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
-        const yesterdayFormatted = format(yesterday, 'yyyy-MM-dd');
-        
-        // Fetch fixtures for today, tomorrow, and yesterday to get a good mix
-        const todayPromise = apiRequest('GET', `/api/fixtures/date/${todayFormatted}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching today\'s fixtures:', error);
-            return [];
-          });
-          
-        const tomorrowPromise = apiRequest('GET', `/api/fixtures/date/${tomorrowFormatted}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching tomorrow\'s fixtures:', error);
-            return [];
-          });
-          
-        const yesterdayPromise = apiRequest('GET', `/api/fixtures/date/${yesterdayFormatted}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching yesterday\'s fixtures:', error);
-            return [];
-          });
-        
-        // Also fetch fixtures from popular leagues to ensure we have important matches
-        const leaguePromises = popularLeagues.map(leagueId => 
+        // Fetch fixtures for all popular leagues
+        const promises = popularLeagues.map(leagueId => 
           apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
             .then(response => response.json())
             .catch(error => {
@@ -112,95 +76,24 @@ const FixedScoreboard = () => {
             })
         );
         
-        // Combine all promises
-        const results = await Promise.all([
-          todayPromise, 
-          tomorrowPromise, 
-          yesterdayPromise, 
-          ...leaguePromises
-        ]);
-        
-        // Flatten results and remove duplicates by fixture ID
-        const allMatches = Array.from(
-          new Map(
-            results.flat()
-              .filter(match => match && match.fixture && match.teams && match.league)
-              .map(match => [match.fixture.id, match])
-          ).values()
-        );
+        const results = await Promise.all(promises);
+        const allMatches = results.flat();
         
         console.log(`Total matches fetched: ${allMatches.length}`);
         
-        // Categorize matches by status
-        const liveMatches = allMatches.filter(match => 
-          ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
-        );
+        // Take 6 most recent matches for display
+        const filteredMatches = allMatches
+          .filter(match => match && match.fixture && match.teams && match.league)
+          .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
+          .slice(0, 6);
+          
+        console.log(`Displaying ${filteredMatches.length} matches`);
         
-        const finishedMatches = allMatches.filter(match => 
-          match.fixture.status.short === 'FT' && 
-          new Date(match.fixture.date) >= yesterday
-        ).sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime());
-        
-        const upcomingMatches = allMatches.filter(match => 
-          match.fixture.status.short === 'NS'
-        ).sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
-        
-        // Prioritize by status: live, upcoming today, finished recently, upcoming tomorrow
-        const todayUpcoming = upcomingMatches.filter(match => 
-          format(new Date(match.fixture.date), 'yyyy-MM-dd') === todayFormatted
-        );
-        
-        const tomorrowUpcoming = upcomingMatches.filter(match => 
-          format(new Date(match.fixture.date), 'yyyy-MM-dd') === tomorrowFormatted
-        );
-        
-        const otherUpcoming = upcomingMatches.filter(match => 
-          format(new Date(match.fixture.date), 'yyyy-MM-dd') !== todayFormatted && 
-          format(new Date(match.fixture.date), 'yyyy-MM-dd') !== tomorrowFormatted
-        );
-        
-        // Build a balanced list of matches with different types
-        let combinedMatches = [];
-        
-        // First add live matches (most important)
-        combinedMatches = [...liveMatches];
-        
-        // Then add some recent finished matches
-        if (finishedMatches.length > 0) {
-          // Take up to 5 recent finished matches
-          combinedMatches = [...combinedMatches, ...finishedMatches.slice(0, 5)];
+        if (filteredMatches.length > 0) {
+          console.log(`First match: ${filteredMatches[0].teams.home.name} vs ${filteredMatches[0].teams.away.name}`);
         }
         
-        // Then add upcoming matches for today
-        if (todayUpcoming.length > 0) {
-          // Take up to 5 upcoming matches for today
-          combinedMatches = [...combinedMatches, ...todayUpcoming.slice(0, 5)];
-        }
-        
-        // Then add upcoming matches for tomorrow
-        if (tomorrowUpcoming.length > 0) {
-          // Take up to 3 upcoming matches for tomorrow
-          combinedMatches = [...combinedMatches, ...tomorrowUpcoming.slice(0, 3)];
-        }
-        
-        // Add other upcoming matches if needed to reach at least 6 total
-        if (combinedMatches.length < 6 && otherUpcoming.length > 0) {
-          combinedMatches = [
-            ...combinedMatches, 
-            ...otherUpcoming.slice(0, 6 - combinedMatches.length)
-          ];
-        }
-        
-        // Ensure we have no more than 15 matches total
-        combinedMatches = combinedMatches.slice(0, 15);
-        
-        console.log(`Displaying ${combinedMatches.length} matches`);
-        
-        if (combinedMatches.length > 0) {
-          console.log(`First match: ${combinedMatches[0].teams.home.name} vs ${combinedMatches[0].teams.away.name}`);
-        }
-        
-        setMatches(combinedMatches);
+        setMatches(filteredMatches);
       } catch (error) {
         console.error('Error fetching matches:', error);
         toast({
