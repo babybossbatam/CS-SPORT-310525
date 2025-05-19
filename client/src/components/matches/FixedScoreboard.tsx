@@ -321,8 +321,9 @@ const FixedScoreboard = () => {
                           {(() => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
+                              const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
-                              return `${timeOnly}${currentMatch.fixture.venue?.name ? ` • ${currentMatch.fixture.venue.name}` : ''}`;
+                              return `${formattedDate} | ${timeOnly}${currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}`;
                             } catch (e) {
                               return currentMatch.fixture.venue?.name || '';
                             }
