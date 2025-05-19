@@ -248,6 +248,31 @@ const FixedScoreboard = () => {
 
   const currentMatch = matches[currentIndex];
   
+  // Ensure we display the match with the countdown timer if one exists
+  useEffect(() => {
+    if (!matches.length) return;
+    
+    // Find match within 8 hours window
+    const now = new Date("2025-05-19T12:00:00Z");
+    const upcomingMatchIndex = matches.findIndex(match => {
+      if (match.fixture.status.short !== 'NS') return false;
+      
+      try {
+        const matchDate = parseISO(match.fixture.date);
+        const hoursToMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        return hoursToMatch >= 0 && hoursToMatch <= 8;
+      } catch (e) {
+        return false;
+      }
+    });
+    
+    // If we found a match within 8 hours, display it
+    if (upcomingMatchIndex !== -1) {
+      setCurrentIndex(upcomingMatchIndex);
+      console.log(`Found match with countdown: ${matches[upcomingMatchIndex].teams.home.name} vs ${matches[upcomingMatchIndex].teams.away.name}`);
+    }
+  }, [matches]);
+  
   // Only use effect for fetching match data
   useEffect(() => {
     // Just a placeholder to ensure the component works
