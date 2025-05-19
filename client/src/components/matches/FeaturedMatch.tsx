@@ -262,12 +262,7 @@ const FeaturedMatch = () => {
   }
   
   return (
-    <FeatureMatchCard
-      match={featuredMatch}
-      leagueName={featuredMatch?.league?.name || 'Unknown League'}
-      leagueLogo={featuredMatch?.league?.logo || null}
-      matchDate={formatMatchDate(featuredMatch?.fixture?.date)}
-    />
+    <FeatureMatchCard />
   );
 };
 
