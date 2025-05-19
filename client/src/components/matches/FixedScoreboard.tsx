@@ -572,25 +572,23 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className="flex flex-col justify-center mb-3">
-                <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
-                  {getMatchStatus(currentMatch)}
-                </div>
-                
-                {/* Score display below status for finished matches */}
-                {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
-                  <div className="flex items-center justify-center mt-1">
-                    <div className="text-xl font-bold flex gap-2 items-center">
-                      <span>{currentMatch.goals.home}</span>
-                      <span className="text-base">-</span>
-                      <span>{currentMatch.goals.away}</span>
-                    </div>
-                  </div>
-                )}
+              <div className="font-medium text-center mb-[0.4rem]" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>
+                {getMatchStatus(currentMatch)}
               </div>
+                
+              {/* Score display below status for finished matches */}
+              {currentMatch && ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+                <div className="flex items-center justify-center mt-1 mb-1">
+                  <div className="text-xl font-bold flex gap-2 items-center">
+                    <span>{currentMatch.goals.home}</span>
+                    <span className="text-base">-</span>
+                    <span>{currentMatch.goals.away}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Team scoreboard */}
-              <div className="relative mt-4">
+              <div className="relative mt-2">
                 <div 
                   className="flex relative h-[53px] rounded-md mb-8"
                   onClick={handleMatchClick}
