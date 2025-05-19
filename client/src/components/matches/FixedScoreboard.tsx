@@ -489,7 +489,7 @@ const FixedScoreboard = () => {
   };
 
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ transform: 'scale(2)', transformOrigin: 'top center', marginBottom: '6rem' }}>
+    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
       <Badge 
         variant="secondary" 
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -574,7 +574,7 @@ const FixedScoreboard = () => {
               {/* Match time/status display */}
               <div className="flex flex-col justify-center mb-3">
                 <div className="flex items-center justify-center text-center">
-                  <div className="text-sm font-medium">
+                  <div className="text-xl font-medium" style={{ transform: 'scale(2)', transformOrigin: 'center', marginTop: '1rem', marginBottom: '1rem' }}>
                     {getMatchStatus(currentMatch)}
                   </div>
                 </div>
