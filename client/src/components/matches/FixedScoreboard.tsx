@@ -489,7 +489,7 @@ const FixedScoreboard = () => {
   };
 
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ minHeight: '340px' }}>
+    <div className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative" style={{ minHeight: '340px' }}>
       <Badge 
         variant="secondary" 
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -514,7 +514,7 @@ const FixedScoreboard = () => {
         </>
       )}
 
-      <CardContent className="px-8 pt-2 pb-2">
+      <div className="px-8 pt-2 pb-2">
         {isLoading ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
@@ -774,8 +774,8 @@ const FixedScoreboard = () => {
           </motion.div>
         </AnimatePresence>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
