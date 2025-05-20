@@ -536,10 +536,20 @@ export const apiRequest = async (method: string, endpoint: string, body?: any) =
         'Content-Type': 'application/json',
       },
       body: body ? JSON.stringify(body) : undefined,
+      credentials: 'same-origin',
+      mode: 'cors',
+      retry: 3,
+      timeout: 5000,
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API request error for ${method} ${endpoint}:`, error);
+    throw new Error(error instanceof Error ? error.message : 'Network connection error');}`);
     }
 
     return await response.json();
