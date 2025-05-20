@@ -623,10 +623,7 @@ const FixedScoreboard = () => {
                     >
                       {currentMatch?.teams?.home && (
                       <img 
-                        src={currentMatch.teams.home.id ? 
-                          `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png` :
-                          '/assets/fallback-logo.svg'
-                        } 
+                        src={currentMatch.teams.home.logo || `/assets/fallback-logo.svg`}
                         alt={currentMatch.teams.home.name || 'Home Team'} 
                         className="absolute left-[-23px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
