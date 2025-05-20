@@ -580,15 +580,13 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Score display below status for finished matches */}
-              {currentMatch && 
-               currentMatch.fixture && 
-               currentMatch.goals &&
+              {currentMatch?.fixture?.status?.short && 
                ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
                 <div className="flex items-center justify-center mt-1 mb-1">
                   <div className="text-xl font-bold flex gap-2 items-center">
-                    <span>{currentMatch.goals.home ?? 0}</span>
+                    <span>{currentMatch?.goals?.home ?? 0}</span>
                     <span className="text-base">-</span>
-                    <span>{currentMatch.goals.away ?? 0}</span>
+                    <span>{currentMatch?.goals?.away ?? 0}</span>
                   </div>
                 </div>
               )}
@@ -604,12 +602,15 @@ const FixedScoreboard = () => {
                     {/* Home team colored bar and logo */}
                     <div className="h-full w-[calc(50%-67px)] ml-[77px] relative" 
                       style={{ 
-                        background: getTeamColor(currentMatch.teams.home.id)
+                        background: currentMatch?.teams?.home?.id ? getTeamColor(currentMatch.teams.home.id) : '#6f7c93'
                       }}
                     >
                       <img 
-                        src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png`} 
-                        alt={currentMatch.teams.home.name} 
+                        src={currentMatch?.teams?.home?.id ? 
+                          `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png` :
+                          '/assets/fallback-logo.svg'
+                        } 
+                        alt={currentMatch?.teams?.home?.name || 'Home Team'} 
                         className="absolute left-[-77px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
@@ -618,10 +619,10 @@ const FixedScoreboard = () => {
                         onClick={handleMatchClick}
                         onError={(e) => {
                           const target = e.currentTarget;
-                          if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
+                          if (target.src.includes('sportmonks') && currentMatch?.teams?.home?.logo) {
                             target.src = currentMatch.teams.home.logo;
-                          } else {
-                            target.src = `/assets/fallback-logo.svg`;
+                          } else if (target.src !== '/assets/fallback-logo.svg') {
+                            target.src = '/assets/fallback-logo.svg';
                           }
                         }}
                       />
@@ -694,8 +695,11 @@ const FixedScoreboard = () => {
                     </div>
 
                     <img 
-                      src={`https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png`} 
-                      alt={currentMatch.teams.away.name} 
+                      src={currentMatch?.teams?.away?.id ? 
+                        `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png` :
+                        '/assets/fallback-logo.svg'
+                      } 
+                      alt={currentMatch?.teams?.away?.name || 'Away Team'} 
                       className="absolute right-[13px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
@@ -704,16 +708,16 @@ const FixedScoreboard = () => {
                       onClick={handleMatchClick}
                       onError={(e) => {
                         const target = e.currentTarget;
-                        if (target.src.includes('sportmonks') && currentMatch.teams.away.logo) {
+                        if (target.src.includes('sportmonks') && currentMatch?.teams?.away?.logo) {
                           target.src = currentMatch.teams.away.logo;
-                        } else {
-                          target.src = `/assets/fallback-logo.svg`;
+                        } else if (target.src !== '/assets/fallback-logo.svg') {
+                          target.src = '/assets/fallback-logo.svg';
                         }
                       }}
                     />
 
                     <div className="absolute right-[87px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
-                      {currentMatch.teams.away.name}
+                      {currentMatch?.teams?.away?.name || 'Away Team'}
                     </div>
                   </div>
                 </div>
