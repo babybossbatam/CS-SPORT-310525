@@ -553,10 +553,10 @@ const FixedScoreboard = () => {
               className="overflow-hidden"
             >
               <Card className="bg-white shadow-sm">
-                <CardContent className="p-4"
+                <CardContent className="p-6 pt-0"
               >
               {/* Match header with league info */}
-              <div className="flex items-center justify-center mb-3 px-2">
+              <div className="flex items-center justify-center mb-2 px-2 pt-4">
                 <div className="flex-shrink-0 mr-2">
                   {currentMatch?.league?.logo ? (
                     <img 
