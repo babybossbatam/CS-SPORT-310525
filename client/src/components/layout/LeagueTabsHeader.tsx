@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import LeagueTabs from "./LeagueTabs";
 
 interface LeagueTabsHeaderProps {
   leagueId?: number;
