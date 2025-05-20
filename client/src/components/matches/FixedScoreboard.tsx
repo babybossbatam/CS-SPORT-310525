@@ -602,7 +602,7 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-26px)] ml-[32px] relative" 
+                    <div className="h-full w-[calc(50%-67px)] ml-[77px] relative" 
                       style={{ 
                         background: currentMatch?.teams?.home?.id ? getTeamColor(currentMatch.teams.home.id) : '#6f7c93'
                       }}
@@ -653,7 +653,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)", left: "calc(77px + 10px)"}}>
+                    <div className="absolute left-[10px] text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch?.teams?.home?.name || 'TBD'}
                     </div>
 
@@ -689,7 +689,7 @@ const FixedScoreboard = () => {
                     </div>
 
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-26px)] mr-[32px]" 
+                    <div className="h-full w-[calc(50%-67px)] mr-[77px]" 
                       style={{ 
                         background: getTeamColor(currentMatch.teams.away.id)
                       }}
