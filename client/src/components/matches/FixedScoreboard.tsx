@@ -517,7 +517,7 @@ const FixedScoreboard = () => {
       )}
 
       <div className="px-8 pt-2 pb-2">
-        {isLoading ? (
+        {isLoading && matches.length === 0 ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin h-6 w-6 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
