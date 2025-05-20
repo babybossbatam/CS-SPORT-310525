@@ -607,12 +607,13 @@ const FixedScoreboard = () => {
                         background: currentMatch?.teams?.home?.id ? getTeamColor(currentMatch.teams.home.id) : '#6f7c93'
                       }}
                     >
+                      {currentMatch?.teams?.home && (
                       <img 
-                        src={currentMatch?.teams?.home?.id ? 
+                        src={currentMatch.teams.home.id ? 
                           `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.home.id % 100}.png` :
                           '/assets/fallback-logo.svg'
                         } 
-                        alt={currentMatch?.teams?.home?.name || 'Home Team'} 
+                        alt={currentMatch.teams.home.name || 'Home Team'} 
                         className="absolute left-[-77px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
@@ -621,13 +622,14 @@ const FixedScoreboard = () => {
                         onClick={handleMatchClick}
                         onError={(e) => {
                           const target = e.currentTarget;
-                          if (target.src.includes('sportmonks') && currentMatch?.teams?.home?.logo) {
+                          if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
                             target.src = currentMatch.teams.home.logo;
                           } else if (target.src !== '/assets/fallback-logo.svg') {
                             target.src = '/assets/fallback-logo.svg';
                           }
                         }}
                       />
+                    )}
 
                       {/* Match time & venue information starting from home logo center */}
                       {currentMatch.fixture.status.short === 'NS' && (
@@ -741,7 +743,8 @@ const FixedScoreboard = () => {
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM<previous_generation>```text
+19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
                   </svg>
                   <span className="text-xs text-gray-600 mt-1">Lineups</span>
                 </button>
