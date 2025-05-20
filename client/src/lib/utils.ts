@@ -549,12 +549,6 @@ export const apiRequest = async (method: string, endpoint: string, body?: any) =
     return await response.json();
   } catch (error) {
     console.error(`API request error for ${method} ${endpoint}:`, error);
-    throw new Error(error instanceof Error ? error.message : 'Network connection error');}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(`API request error for ${method} ${endpoint}:`, error);
-    throw error;
+    throw new Error(error instanceof Error ? error.message : 'Network connection error');
   }
 };
