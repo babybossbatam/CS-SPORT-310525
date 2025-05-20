@@ -293,6 +293,20 @@ const FixedScoreboard = () => {
   // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
+    
+    // Preload team logos
+    matches.forEach(match => {
+      const homeLogo = match?.teams?.home?.logo;
+      const awayLogo = match?.teams?.away?.logo;
+      if (homeLogo) {
+        const img = new Image();
+        img.src = homeLogo;
+      }
+      if (awayLogo) {
+        const img = new Image();
+        img.src = awayLogo;
+      }
+    });
 
     // Find match within 8 hours window
     const now = new Date("2025-05-19T12:00:00Z");
@@ -699,10 +713,7 @@ const FixedScoreboard = () => {
                     </div>
 
                     <img 
-                      src={currentMatch?.teams?.away?.id ? 
-                        `https://cdn.sportmonks.com/images/soccer/teams/${currentMatch.teams.away.id % 100}.png` :
-                        '/assets/fallback-logo.svg'
-                      } 
+                      src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                       alt={currentMatch?.teams?.away?.name || 'Away Team'} 
                       className="absolute right-[13px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
@@ -711,12 +722,7 @@ const FixedScoreboard = () => {
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
-                        const target = e.currentTarget;
-                        if (target.src.includes('sportmonks') && currentMatch?.teams?.away?.logo) {
-                          target.src = currentMatch.teams.away.logo;
-                        } else if (target.src !== '/assets/fallback-logo.svg') {
-                          target.src = '/assets/fallback-logo.svg';
-                        }
+                        e.currentTarget.src = '/assets/fallback-logo.svg';
                       }}
                     />
 
