@@ -614,7 +614,7 @@ const FixedScoreboard = () => {
                           '/assets/fallback-logo.svg'
                         } 
                         alt={currentMatch.teams.home.name || 'Home Team'} 
-                        className="absolute left-[13px] z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute left-[-23px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
                           top: "calc(50% - 32px)"
