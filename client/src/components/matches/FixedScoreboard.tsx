@@ -529,9 +529,41 @@ const FixedScoreboard = () => {
           </>
         )}
         {isLoading && matches.length === 0 ? (
-          // Loading state - clean display with spinner only
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin h-6 w-6 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
+          // Loading state with skeleton
+          <div className="p-4">
+            {/* League info skeleton */}
+            <div className="flex items-center justify-center mb-4">
+              <Skeleton className="h-5 w-5 rounded-full mr-2" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+            
+            {/* Match time skeleton */}
+            <Skeleton className="h-6 w-40 mx-auto mb-6" />
+            
+            {/* Teams skeleton */}
+            <div className="relative mt-4">
+              <div className="flex justify-between items-center h-[53px] mb-8">
+                <div className="flex items-center w-[45%]">
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <Skeleton className="h-6 w-24 ml-4" />
+                </div>
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="flex items-center justify-end w-[45%]">
+                  <Skeleton className="h-6 w-24 mr-4" />
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Bottom nav skeleton */}
+            <div className="flex justify-around mt-4 pt-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex flex-col items-center w-1/4">
+                  <Skeleton className="h-5 w-5 mb-1" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              ))}
+            </div>
           </div>
         ) : !currentMatch ? (
           // Empty state - no matches available
