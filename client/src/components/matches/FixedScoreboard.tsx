@@ -76,28 +76,20 @@ const FixedScoreboard = () => {
         // Fetch fixtures for popular leagues for latest season
         const leaguePromises = popularLeagues.map(leagueId => 
           apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
+            .then(response => response.json())
             .catch(error => {
               console.error(`Error fetching league ${leagueId} fixtures:`, error);
-              toast({
-                title: "Error",
-                description: `Failed to load matches for league ${leagueId}`,
-                variant: "destructive"
-              });
               return [];
             })
         );
 
         // Also fetch today, yesterday, and tomorrow's fixtures for more comprehensive data
         const todayPromise = apiRequest('GET', `/api/fixtures/date/${todayDate}`)
-            .catch(error => {
-              console.error('Error fetching today\'s fixtures:', error);
-              toast({
-                title: "Error", 
-                description: "Failed to load today's matches",
-                variant: "destructive"
-              });
-              return [];
-            });
+          .then(response => response.json())
+          .catch(error => {
+            console.error('Error fetching today\'s fixtures:', error);
+            return [];
+          });
 
         const tomorrowPromise = apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`)
           .then(response => response.json())
@@ -113,16 +105,13 @@ const FixedScoreboard = () => {
             return [];
           });
 
-        // Wait for all API calls to complete with error handling
+        // Wait for all API calls to complete
         const allResults = await Promise.all([
           ...leaguePromises,
           todayPromise,
           tomorrowPromise,
           yesterdayPromise
-        ].map(p => p.catch(error => {
-          console.error('Error fetching matches:', error);
-          return []; // Return empty array on error to prevent complete failure
-        })));
+        ]);
 
         // Combine and filter out duplicate matches
         const allMatches = Array.from(
@@ -170,16 +159,6 @@ const FixedScoreboard = () => {
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
 
-          // Check if either team is a popular team
-          const isPopularMatch = popularTeamIds.includes(match.teams.home.id) || 
-                               popularTeamIds.includes(match.teams.away.id);
-
-          // Skip non-popular teams unless it's a final/semi-final match
-          const isBracketMatch = match.league.round?.toLowerCase().includes('final') || 
-                                match.league.round?.toLowerCase().includes('semi');
-
-          if (!isPopularMatch && !isBracketMatch) return false;
-
           const matchDate = new Date(match.fixture.date);
           // For finished matches, add ~2 hours to match start time to approximate end time
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
@@ -187,99 +166,44 @@ const FixedScoreboard = () => {
 
           // ONLY show if completed within the last 8 hours - strict filter
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
-        }).sort((a, b) => {
-          // Prioritize finals/semi-finals
-          const aIsBracket = a.league.round?.toLowerCase().includes('final') || 
-                            a.league.round?.toLowerCase().includes('semi');
-          const bIsBracket = b.league.round?.toLowerCase().includes('final') || 
-                            b.league.round?.toLowerCase().includes('semi');
-
-          if (aIsBracket && !bIsBracket) return -1;
-          if (!aIsBracket && bIsBracket) return 1;
-
-          // Then sort by recency
-          return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-        });
+        }).sort((a, b) => 
+          new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
+        );
 
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
 
         // Define popular teams by ID (big teams that should be prioritized)
         const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
 
-        // Define popular leagues
-        const popularLeagues = [2, 3, 39, 140, 135, 78]; // UCL, UEL, EPL, La Liga, Serie A, Bundesliga
+        // Combine matches with priority
+        let finalMatches: Match[] = [];
 
-        // Get top 3 teams from standings (mock data for now - replace with actual standings data)
-        const topTeamsByLeague: { [key: number]: number[] } = {
-          39: [33, 50, 42], // EPL top 3
-          140: [541, 530, 529], // La Liga top 3
-          135: [505, 497, 489], // Serie A top 3
-          78: [157, 165, 161], // Bundesliga top 3
+        // Helper function to check if a match includes a popular team
+        const isPopularTeamMatch = (match: Match) => {
+          return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
         };
 
-        // Helper functions
-        const isPopularLeagueMatch = (match: Match) => popularLeagues.includes(match.league.id);
-        
-        const isTopTeamMatch = (match: Match) => {
-          const leagueTopTeams = topTeamsByLeague[match.league.id];
-          if (!leagueTopTeams) return false;
-          return (
-            leagueTopTeams.includes(match.teams.home.id) || 
-            leagueTopTeams.includes(match.teams.away.id)
-          );
+        // Teams to exclude (like Crystal Palace and Wolves)
+        const excludeTeamIds = [52, 76]; // Crystal Palace and Wolves
+
+        // Function to check if a match should be excluded
+        const shouldExcludeMatch = (match: Match) => {
+          return excludeTeamIds.includes(match.teams.home.id) || 
+                 excludeTeamIds.includes(match.teams.away.id);
         };
 
-        const isImportantRoundMatch = (match: Match) => {
-          const round = match.league.round?.toLowerCase() || '';
-          return (
-            round.includes('final') || 
-            round.includes('semi') || 
-            round.includes('quarter')
-          );
-        };
+        // Filter to only include matches with popular teams AND exclude specific teams
+        const livePopularMatches = liveMatches
+          .filter(isPopularTeamMatch)
+          .filter(match => !shouldExcludeMatch(match));
 
-        // Live matches with countdown for upcoming 8 hours
-        const livePopularMatches = liveMatches.filter(match => {
-          const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
-          if (!isPopular && !isImportantRoundMatch(match)) return false;
-          return true;
-        });
+        const finishedPopularMatches = finishedMatches
+          .filter(isPopularTeamMatch)
+          .filter(match => !shouldExcludeMatch(match));
 
-        // Upcoming matches within 8 hours
-        const upcomingPopularMatches = upcomingMatches.filter(match => {
-          const matchDate = new Date(match.fixture.date);
-          const hoursUntilMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-          
-          // Only include matches within next 8 hours
-          if (hoursUntilMatch > 8) return false;
-
-          const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
-          if (!isPopular && !isImportantRoundMatch(match)) return false;
-          
-          return true;
-        }).sort((a, b) => {
-          // Sort by start time (nearest first)
-          return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
-        });
-
-        // Recently finished matches within last 8 hours
-        const finishedPopularMatches = finishedMatches.filter(match => {
-          const matchDate = new Date(match.fixture.date);
-          // Add 2 hours to match start time to approximate end time
-          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
-          const hoursSinceEnd = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
-          
-          // Only include matches finished within last 8 hours
-          if (hoursSinceEnd > 8) return false;
-
-          const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
-          if (!isPopular && !isImportantRoundMatch(match)) return false;
-          
-          return true;
-        }).sort((a, b) => {
-          // Sort by end time (most recent first)
-          return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-        });
+        const upcomingPopularMatches = upcomingMatches
+          .filter(isPopularTeamMatch)
+          .filter(match => !shouldExcludeMatch(match));
 
         // 1. Live matches with popular teams have highest priority
         if (livePopularMatches.length > 0) {
@@ -370,7 +294,7 @@ const FixedScoreboard = () => {
   // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
-
+    
     // Preload team logos
     matches.forEach(match => {
       const homeLogo = match?.teams?.home?.logo;
@@ -613,10 +537,10 @@ const FixedScoreboard = () => {
               <Skeleton className="h-5 w-5 rounded-full mr-2" />
               <Skeleton className="h-4 w-32" />
             </div>
-
+            
             {/* Match time skeleton */}
             <Skeleton className="h-6 w-40 mx-auto mb-6" />
-
+            
             {/* Teams skeleton */}
             <div className="relative mt-4">
               <div className="flex justify-between items-center h-[53px] mb-8">
@@ -631,7 +555,7 @@ const FixedScoreboard = () => {
                 </div>
               </div>
             </div>
-
+            
             {/* Bottom nav skeleton */}
             <div className="flex justify-around mt-4 pt-3">
               {[1, 2, 3, 4].map((i) => (
@@ -699,22 +623,21 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className="font-medium text-center mb-5">
-                <div className={`${
-                  currentMatch?.fixture?.status?.short === 'LIVE' ? 'text-red-600' : ''
-                }`} style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>
-                  {getMatchStatus(currentMatch)}
-                </div>
+              <div className="font-medium text-center mb-5" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
+                {getMatchStatus(currentMatch)}
               </div>
 
-              {/* Basic score display */}
-              <div className="flex items-center justify-center mt-1 mb-1">
-                <div className="text-xl font-bold flex gap-2 items-center">
-                  <span>{currentMatch?.goals?.home ?? 0}</span>
-                  <span className="text-base">-</span>
-                  <span>{currentMatch?.goals?.away ?? 0}</span>
+              {/* Score display below status for finished matches */}
+              {currentMatch?.fixture?.status?.short && 
+               ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+                <div className="flex items-center justify-center mt-1 mb-1">
+                  <div className="text-xl font-bold flex gap-2 items-center">
+                    <span>{currentMatch?.goals?.home ?? 0}</span>
+                    <span className="text-base">-</span>
+                    <span>{currentMatch?.goals?.away ?? 0}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Team scoreboard */}
               <div className="relative mt-4">
@@ -855,7 +778,8 @@ const FixedScoreboard = () => {
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM<previous_generation>```text
+19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
                   </svg>
                   <span className="text-xs text-gray-600 mt-1">Lineups</span>
                 </button>
