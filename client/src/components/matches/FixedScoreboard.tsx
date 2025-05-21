@@ -72,6 +72,9 @@ const FixedScoreboard = () => {
         const todayDate = "2025-05-19";
         const tomorrowDate = "2025-05-20";
         const yesterdayDate = "2025-05-18";
+        // Adding more days for upcoming matches
+        const day3Date = "2025-05-21";
+        const day4Date = "2025-05-22";
 
         // Fetch fixtures for popular leagues for latest season with better error handling
         const leaguePromises = popularLeagues.map(async leagueId => {
@@ -132,19 +135,69 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
+        
+        // Fetch day 3 fixtures
+        const day3Promise = (async () => {
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/date/${day3Date}`);
+            if (!response.ok) {
+              console.log(`Error fetching day 3 fixtures: ${response.status}`);
+              return [];
+            }
+            return await response.json();
+          } catch (error) {
+            console.error('Error processing day 3 fixtures:', error);
+            return [];
+          }
+        })();
+        
+        // Fetch day 4 fixtures
+        const day4Promise = (async () => {
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/date/${day4Date}`);
+            if (!response.ok) {
+              console.log(`Error fetching day 4 fixtures: ${response.status}`);
+              return [];
+            }
+            return await response.json();
+          } catch (error) {
+            console.error('Error processing day 4 fixtures:', error);
+            return [];
+          }
+        })();
+        
+        // Fetch standings for popular leagues to identify top teams
+        const standingsPromises = popularLeagues.map(async leagueId => {
+          try {
+            const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
+            if (!response.ok) {
+              console.log(`Error fetching league ${leagueId} standings: ${response.status}`);
+              return null;
+            }
+            return await response.json();
+          } catch (error) {
+            console.error(`Error processing league ${leagueId} standings:`, error);
+            return null;
+          }
+        });
 
         // Wait for all API calls to complete
-        const allResults = await Promise.all([
-          ...leaguePromises,
-          todayPromise,
-          tomorrowPromise,
-          yesterdayPromise
+        const [fixtureResults, standingsResults] = await Promise.all([
+          Promise.all([
+            ...leaguePromises,
+            todayPromise,
+            tomorrowPromise,
+            yesterdayPromise,
+            day3Promise,
+            day4Promise
+          ]),
+          Promise.all(standingsPromises)
         ]);
 
         // Combine and filter out duplicate matches
         const allMatches = Array.from(
           new Map(
-            allResults.flat()
+            fixtureResults.flat()
               .filter(match => match && match.fixture && match.teams && match.league)
               .map(match => [match.fixture.id, match])
           ).values()
@@ -162,6 +215,49 @@ const FixedScoreboard = () => {
 
         console.log(`Filtered to ${popularLeagueMatches.length} matches from popular leagues only`);
 
+        // Extract top 3 teams from standings for each league
+        let topTeamIds: number[] = [];
+        standingsResults.forEach(leagueStanding => {
+          if (leagueStanding && leagueStanding.league && leagueStanding.league.standings) {
+            leagueStanding.league.standings.forEach((standingGroup: any) => {
+              // Get top 3 teams from each standings group
+              if (Array.isArray(standingGroup) && standingGroup.length > 0) {
+                const groupTopTeams = standingGroup.slice(0, 3).map((teamData: any) => {
+                  return teamData?.team?.id;
+                }).filter(Boolean);
+                topTeamIds.push(...groupTopTeams);
+              }
+            });
+          }
+        });
+        
+        // Define popular teams by ID (big teams that should be prioritized)
+        // plus top standings teams we extracted above
+        const manualPopularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Big teams
+        
+        // Combine manual and standings-based team IDs and remove duplicates
+        const uniqueTeamIds = Array.from(new Set([...manualPopularTeamIds, ...topTeamIds]));
+        
+        // Helper functions for filtering
+        const isPopularTeamMatch = (match: Match) => {
+          return uniqueTeamIds.includes(match.teams.home.id) || uniqueTeamIds.includes(match.teams.away.id);
+        };
+        
+        // Check if match is a final or semifinal
+        const isFinalOrSemifinal = (match: Match) => {
+          const round = match.league.round?.toLowerCase() || '';
+          return round.includes('final') || round.includes('semi') || round.includes('semi-final');
+        };
+        
+        // Teams to exclude
+        const excludeTeamIds = [52, 76]; // Teams to exclude
+        
+        // Function to check if a match should be excluded
+        const shouldExcludeMatch = (match: Match) => {
+          return excludeTeamIds.includes(match.teams.home.id) || 
+                 excludeTeamIds.includes(match.teams.away.id);
+        };
+        
         // Filter matches according to specified criteria - ONLY from popular leagues
 
         // 1. Live matches from popular leagues
@@ -169,120 +265,112 @@ const FixedScoreboard = () => {
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
 
-        // 2. Upcoming matches from popular leagues - prioritized by nearest to current time
+        // 2. Upcoming matches - prioritize finals/semifinals, limit regular matches to 3 days
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
-
+          
           const matchDate = new Date(match.fixture.date);
-          const timeDiff = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60); // hours
-
-          // Only keep matches that are in the future
-          return timeDiff >= 0;
-        }).sort((a, b) => 
-          // Sort by nearest to current time (ascending time difference)
-          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-        );
-
-        // 3. Recently finished matches from popular leagues - show ONLY within 8 hours after completion
+          const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+          const timeDiffDays = timeDiffHours / 24;
+          
+          // Only include future matches
+          if (timeDiffHours < 0) return false;
+          
+          // Always include finals/semifinals regardless of date
+          if (isFinalOrSemifinal(match)) return true;
+          
+          // For regular matches, limit to 3 days
+          return timeDiffDays <= 3;
+        }).sort((a, b) => {
+          // Sort by importance, then by time
+          const aIsFinal = isFinalOrSemifinal(a);
+          const bIsFinal = isFinalOrSemifinal(b);
+          
+          // Finals/semifinals first
+          if (aIsFinal && !bIsFinal) return -1;
+          if (!aIsFinal && bIsFinal) return 1;
+          
+          // Then by time - closest to now first
+          return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+        });
+        
+        // 3. Recently finished matches - show only within 8 hours after completion
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
-
+          
           const matchDate = new Date(match.fixture.date);
-          // For finished matches, add ~2 hours to match start time to approximate end time
+          // For finished matches, add ~2 hours to start time for approximate end time
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
           const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
-
-          // ONLY show if completed within the last 8 hours - strict filter
+          
+          // Only show if completed within the last 8 hours
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
-        }).sort((a, b) => 
-          new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-        );
-
-        console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
-
-        // Define popular teams by ID (big teams that should be prioritized)
-        const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
-
-        // Combine matches with priority
+        }).sort((a, b) => {
+          // Sort by importance first, then by recency
+          const aIsFinal = isFinalOrSemifinal(a);
+          const bIsFinal = isFinalOrSemifinal(b);
+          
+          // Finals/semifinals first
+          if (aIsFinal && !bIsFinal) return -1;
+          if (!aIsFinal && bIsFinal) return 1;
+          
+          // Most recently finished first
+          return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+        });
+        
+        // Log match count for better insight
+        console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.filter(m => {
+          const matchDate = new Date(m.fixture.date);
+          const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+          return timeDiffHours <= 8;
+        }).length}, Finished (within 8h): ${finishedMatches.length}`);
+        
+        // Build the final match list with proper prioritization
         let finalMatches: Match[] = [];
-
-        // Helper function to check if a match includes a popular team
-        const isPopularTeamMatch = (match: Match) => {
-          return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
-        };
-
-        // Teams to exclude (like Crystal Palace and Wolves)
-        const excludeTeamIds = [52, 76]; // Crystal Palace and Wolves
-
-        // Function to check if a match should be excluded
-        const shouldExcludeMatch = (match: Match) => {
-          return excludeTeamIds.includes(match.teams.home.id) || 
-                 excludeTeamIds.includes(match.teams.away.id);
-        };
-
-        // Filter to only include matches with popular teams AND exclude specific teams
+        
+        // PRIORITY 1: Live matches with popular teams or finals/semifinals
         const livePopularMatches = liveMatches
-          .filter(isPopularTeamMatch)
+          .filter(match => isPopularTeamMatch(match) || isFinalOrSemifinal(match))
           .filter(match => !shouldExcludeMatch(match));
-
-        const finishedPopularMatches = finishedMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
-
-        const upcomingPopularMatches = upcomingMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
-
-        // 1. Live matches with popular teams have highest priority
+        
         if (livePopularMatches.length > 0) {
           finalMatches = [...livePopularMatches];
         }
-
-        // MODIFIED SELECTION LOGIC: Popular teams always have priority
-
-        // 2. Recently finished matches with popular teams if we have space
-        if (finishedPopularMatches.length > 0 && finalMatches.length < 6) {
-          const finishedPopularToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
-          finalMatches = [...finalMatches, ...finishedPopularToAdd];
-        }
-
-        // 3. Upcoming matches with popular teams if we have space - prioritize nearest to now
-        if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
-          const upcomingPopularToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
-          finalMatches = [...finalMatches, ...upcomingPopularToAdd];
-        }
-
-        // We're no longer showing non-popular team matches at all
-        // REMOVED: finishedOtherMatches
-        // REMOVED: upcomingOtherMatches
-        // REMOVED: liveOtherMatches
-
-        // 4. If we still don't have enough, add other matches with popular teams
-        if (finalMatches.length < 6) {
-          // Get additional matches involving popular teams not already included
-          const additionalPopularTeamMatches = popularLeagueMatches
-            .filter(match => 
-              // Only include matches with popular teams that we haven't already included
-              isPopularTeamMatch(match) && 
-              !finalMatches.find(m => m.fixture.id === match.fixture.id)
-            )
-            .sort((a, b) => {              
-              // Sort by status - prioritize upcoming matches nearest to now
-              const aDate = new Date(a.fixture.date);
-              const bDate = new Date(b.fixture.date);
-              const aTimeDiff = aDate.getTime() - now.getTime();
-              const bTimeDiff = bDate.getTime() - now.getTime();
-
-              // Prioritize matches in the near future
-              if (aTimeDiff >= 0 && bTimeDiff < 0) return -1;
-              if (aTimeDiff < 0 && bTimeDiff >= 0) return 1;
-
-              // For upcoming matches, sort by closest to now
-              return Math.abs(aTimeDiff) - Math.abs(bTimeDiff);
-            })
+        
+        // PRIORITY 2: Finals or semifinals (upcoming within 24h or just finished)
+        const specialMatches = [...upcomingMatches, ...finishedMatches]
+          .filter(match => isFinalOrSemifinal(match) && !shouldExcludeMatch(match))
+          .filter(match => {
+            const matchDate = new Date(match.fixture.date);
+            const timeDiffHours = Math.abs((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60));
+            return timeDiffHours <= 24; // within 24 hours (before or after)
+          });
+        
+        if (specialMatches.length > 0 && finalMatches.length < 6) {
+          const specialToAdd = specialMatches
+            .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id))
             .slice(0, 6 - finalMatches.length);
-
-          finalMatches = [...finalMatches, ...additionalPopularTeamMatches];
+          finalMatches = [...finalMatches, ...specialToAdd];
+        }
+        
+        // PRIORITY 3: Recently finished matches with popular teams
+        const finishedPopularMatches = finishedMatches
+          .filter(match => isPopularTeamMatch(match) && !shouldExcludeMatch(match))
+          .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
+        
+        if (finishedPopularMatches.length > 0 && finalMatches.length < 6) {
+          const finishedToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...finishedToAdd];
+        }
+        
+        // PRIORITY 4: Upcoming matches with popular teams - prioritize closest ones
+        const upcomingPopularMatches = upcomingMatches
+          .filter(match => isPopularTeamMatch(match) && !shouldExcludeMatch(match))
+          .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
+        
+        if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
+          const upcomingToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
+          finalMatches = [...finalMatches, ...upcomingToAdd];
         }
 
         // Ensure limit of exactly 6 matches for the carousel
