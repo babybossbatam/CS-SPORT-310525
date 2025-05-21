@@ -9,6 +9,10 @@
   --accent: #ff00ff;
   --link: #00ffff;
   --border: #ffffff;
+  --success: #00ff00;
+  --error: #ff0000;
+  --warning: #ffff00;
+  --info: #00ffff;
   
   /* Override shadcn colors */
   --card: #000000;
@@ -19,7 +23,15 @@
   --muted-foreground: #ffffff;
   
   /* Focus styles */
-  --focus-ring: 2px solid var(--primary);
+  --focus-ring: 3px solid var(--primary);
+  
+  /* Sports-specific elements */
+  --live-indicator: #ff0000;
+  --team-home: #00ffff;
+  --team-away: #ffff00;
+  --match-border: #ffffff;
+  --venue-text: #ffffff;
+  --time-text: #ffffff;
 }
 
 /* Applying high contrast styles */
