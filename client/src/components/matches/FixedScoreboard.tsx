@@ -648,7 +648,7 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-32px)] ml-[32px] relative" 
+                    <div className="h-full w-[calc(50%-42px)] ml-[42px] relative" 
                       style={{ 
                         background: currentMatch?.teams?.home?.id ? getTeamColor(currentMatch.teams.home.id) : '#6f7c93'
                       }}
@@ -657,7 +657,7 @@ const FixedScoreboard = () => {
                       <img 
                         src={currentMatch.teams.home.logo || `/assets/fallback-logo.svg`}
                         alt={currentMatch.teams.home.name || 'Home Team'} 
-                        className="absolute left-[-23px] z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute left-[-13px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
                           top: "calc(50% - 32px)"
