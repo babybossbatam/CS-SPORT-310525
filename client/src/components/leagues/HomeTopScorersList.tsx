@@ -123,26 +123,25 @@ const HomeTopScorersList = () => {
           <TabsContent key={league.id} value={league.id.toString()}>
             <CardContent className="p-0">
               <div className="relative overflow-x-auto">
-                <div className="space-y-3">
+                <div className="space-y-1">
                 {topScorers?.slice(0, 5).map((scorer, index) => {
                   const playerStats = scorer.statistics[0];
                   const goals = playerStats?.goals?.total || 0;
 
                   return (
-                    <div key={scorer.player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
+                    <div key={scorer.player.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-1">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-11 w-11 rounded-full">
                           <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
                           <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-semibold text-sm">{scorer.player.name}</div>
-                          <div className="text-sm text-gray-500">{playerStats.games.position}</div>
+                          <div className="font-semibold text-sm">{scorer.player.name} <span className="font-normal text-gray-500">{playerStats.games.position}</span></div>
                           <div className="text-sm text-gray-500">{playerStats.team.name}</div>
                         </div>
                       </div>
-                      <div className="text-center rounded-md">
-                        <div className="font-bold text-xl">{goals}</div>
+                      <div className="text-right px-2">
+                        <div className="font-bold text-lg">{goals}</div>
                         <div className="text-xs text-gray-500">Goals</div>
                       </div>
                     </div>
@@ -157,12 +156,12 @@ const HomeTopScorersList = () => {
                   onClick={() => navigate(`/league/${selectedLeague}/stats`)}
                 >
                   <div className="flex items-center justify-center">
-                    {selectedLeague === '140' && 'LaLiga Stats'}
-                    {selectedLeague === '39' && 'Premier League Stats'}
-                    {selectedLeague === '135' && 'Serie A Stats'}
-                    {selectedLeague === '78' && 'Bundesliga Stats'}
-                    {selectedLeague === '2' && 'Champions League Stats'}
-                    {selectedLeague === '3' && 'Europa League Stats'}
+                    {selectedLeague.toString() === '140' && 'LaLiga Stats'}
+                    {selectedLeague.toString() === '39' && 'Premier League Stats'}
+                    {selectedLeague.toString() === '135' && 'Serie A Stats'}
+                    {selectedLeague.toString() === '78' && 'Bundesliga Stats'}
+                    {selectedLeague.toString() === '2' && 'Champions League Stats'}
+                    {selectedLeague.toString() === '3' && 'Europa League Stats'}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
                       <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
