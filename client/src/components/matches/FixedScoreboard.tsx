@@ -162,6 +162,16 @@ const FixedScoreboard = () => {
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
 
+          // Check if either team is a popular team
+          const isPopularMatch = popularTeamIds.includes(match.teams.home.id) || 
+                               popularTeamIds.includes(match.teams.away.id);
+          
+          // Skip non-popular teams unless it's a final/semi-final match
+          const isBracketMatch = match.league.round?.toLowerCase().includes('final') || 
+                                match.league.round?.toLowerCase().includes('semi');
+          
+          if (!isPopularMatch && !isBracketMatch) return false;
+
           const matchDate = new Date(match.fixture.date);
           // For finished matches, add ~2 hours to match start time to approximate end time
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
@@ -169,9 +179,19 @@ const FixedScoreboard = () => {
 
           // ONLY show if completed within the last 8 hours - strict filter
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
-        }).sort((a, b) => 
-          new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-        );
+        }).sort((a, b) => {
+          // Prioritize finals/semi-finals
+          const aIsBracket = a.league.round?.toLowerCase().includes('final') || 
+                            a.league.round?.toLowerCase().includes('semi');
+          const bIsBracket = b.league.round?.toLowerCase().includes('final') || 
+                            b.league.round?.toLowerCase().includes('semi');
+          
+          if (aIsBracket && !bIsBracket) return -1;
+          if (!aIsBracket && bIsBracket) return 1;
+          
+          // Then sort by recency
+          return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+        });
 
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.length}, Finished (within 8h): ${finishedMatches.length}`);
 
