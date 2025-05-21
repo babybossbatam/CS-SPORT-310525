@@ -230,9 +230,6 @@ const FixedScoreboard = () => {
           );
         };
 
-        // Filter matches based on new criteria
-        const now = new Date("2025-05-19T12:00:00Z"); // Using hardcoded time for demo
-
         // Live matches with countdown for upcoming 8 hours
         const livePopularMatches = liveMatches.filter(match => {
           const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
