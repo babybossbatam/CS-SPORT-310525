@@ -922,6 +922,30 @@ const FixedScoreboard = () => {
                 </button>
               </div>
 
+              {/* Navigation buttons for previous/next match */}
+              {matches.length > 1 && (
+                <div className="absolute inset-x-0 top-1/2 flex justify-between items-center px-2 transform -translate-y-1/2 z-30 pointer-events-none">
+                  <button 
+                    onClick={handlePrevious}
+                    className="bg-white bg-opacity-80 rounded-full p-1 shadow-md text-gray-700 hover:text-gray-900 pointer-events-auto"
+                    aria-label="Previous match"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={handleNext}
+                    className="bg-white bg-opacity-80 rounded-full p-1 shadow-md text-gray-700 hover:text-gray-900 pointer-events-auto"
+                    aria-label="Next match"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
+              
               {/* Indicator dots for slideshow */}
               {matches.length > 1 && (
                 <div className="flex justify-center gap-2 my-4">
