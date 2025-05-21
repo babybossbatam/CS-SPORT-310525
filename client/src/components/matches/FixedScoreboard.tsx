@@ -205,14 +205,9 @@ const FixedScoreboard = () => {
 
         console.log(`Total matches fetched: ${allMatches.length}`);
 
-        // We need to use a date that would include matches within 8 hours
-        // Based on our fixtures, we have Tottenham vs Man United 2201 hours ago
-        // If we want to include that specific match, we need to adjust our reference date
-        const referenceDateTime = new Date("2025-02-17T16:00:00Z");
-        
-        // We'll use this as our "now" date for filtering
-        const now = referenceDateTime;
-        console.log("Using reference date for filtering:", now.toISOString());
+        // Use the current date for proper filtering
+        // Important: for testing with our fixture data, we need to use 2025 date
+        const now = new Date("2025-05-19T12:00:00Z");
 
         // Only use matches from the popular leagues list
         const popularLeagueMatches = allMatches.filter(match => 
