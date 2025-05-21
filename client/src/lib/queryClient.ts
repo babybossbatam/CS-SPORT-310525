@@ -88,9 +88,9 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 30 * 60 * 1000, // Data stays fresh for 30 minutes
-      cacheTime: 60 * 60 * 1000, // Keep unused data in cache for 1 hour
-      gcTime: 60 * 60 * 1000, // 1 hour
+      staleTime: 60 * 60 * 1000, // Data stays fresh for 60 minutes
+      cacheTime: 120 * 60 * 1000, // Keep unused data in cache for 2 hours
+      gcTime: 120 * 60 * 1000, // 2 hours
       retry: 1,
       retryDelay: 2000,
       refetchOnMount: false,

@@ -239,6 +239,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
+      const { popularOnly } = req.query;
 
       // Check cache first to prevent frequent API calls
       const cachedFixtures = await storage.getCachedFixturesByLeague("date:" + date);
@@ -261,6 +262,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Use only API-Football (RapidAPI)
         fixtures = await rapidApiService.getFixturesByDate(date);
         console.log(`Got ${fixtures.length} fixtures from API-Football for date ${date}`);
+
+        // Apply server-side filtering if requested
+        if (popularOnly === 'true') {
+          const popularLeagues = [39, 2, 78]; // Example league IDs
+          fixtures = fixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
+          console.log(`Filtered to ${fixtures.length} fixtures with popular leagues for date ${date}`);
+        }
       } catch (error) {
         console.error(`API-Football error for date ${date}:`, error);
 
