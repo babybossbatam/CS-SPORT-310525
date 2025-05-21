@@ -129,34 +129,21 @@ const HomeTopScorersList = () => {
                   const goals = playerStats?.goals?.total || 0;
 
                   return (
-                    <div key={scorer.player.id} className="flex items-center justify-between p-2 hover:bg-gray-50/50 rounded-lg transition-all duration-200 group">
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-500 font-medium">{index + 1}</span>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-12 w-12 border-2 border-gray-100 group-hover:border-blue-100 transition-all duration-200">
-                            <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
-                            <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-semibold text-[0.75em]">{scorer.player.name}</div>
-                            <div className="flex items-center gap-2 text-[0.75em] text-gray-500">
-                              <img 
-                                src={playerStats.team.logo} 
-                                alt={playerStats.team.name} 
-                                className="w-4 h-4 object-contain"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=T';
-                                }}
-                              />
-                              {playerStats.team.name}
-                            </div>
-                            <div className="text-xs text-gray-400 capitalize">{playerStats.games.position.toLowerCase()}</div>
-                          </div>
+                    <div key={scorer.player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-11 w-11 rounded-full">
+                          <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
+                          <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-semibold text-sm">{scorer.player.name}</div>
+                          <div className="text-sm text-gray-500">{playerStats.games.position}</div>
+                          <div className="text-sm text-gray-500">{playerStats.team.name}</div>
                         </div>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="font-semibold text-[0.75em]">{goals}</div>
-                        <div className="text-[0.65em] text-gray-500">Goals</div>
+                      <div className="text-center rounded-md">
+                        <div className="font-bold text-xl">{goals}</div>
+                        <div className="text-xs text-gray-500">Goals</div>
                       </div>
                     </div>
                       );
@@ -169,8 +156,17 @@ const HomeTopScorersList = () => {
                   className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto"
                   onClick={() => navigate(`/league/${selectedLeague}/stats`)}
                 >
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  See full rankings
+                  <div className="flex items-center justify-center">
+                    {selectedLeague === '140' && 'LaLiga Stats'}
+                    {selectedLeague === '39' && 'Premier League Stats'}
+                    {selectedLeague === '135' && 'Serie A Stats'}
+                    {selectedLeague === '78' && 'Bundesliga Stats'}
+                    {selectedLeague === '2' && 'Champions League Stats'}
+                    {selectedLeague === '3' && 'Europa League Stats'}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </div>
                 </button>
               </div>
             </CardContent>
