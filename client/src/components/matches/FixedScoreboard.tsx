@@ -579,7 +579,7 @@ const FixedScoreboard = () => {
               initial={{ x: 300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.8 }}
               className="overflow-hidden h-full w-full"
             >
               <Card className="bg-white shadow-sm h-full w-full cursor-pointer"
@@ -674,9 +674,9 @@ const FixedScoreboard = () => {
                       />
                     )}
 
-                      {/* Match time & venue information below VS */}
+                      {/* Match time & venue information centered with VS */}
                       {currentMatch.fixture.status.short === 'NS' && (
-                        <div className="absolute text-center text-xs text-gray-500 w-[300px] left-[50%] transform -translate-x-1/2 top-[calc(50%+40px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                        <div className="absolute text-center text-xs text-gray-500 w-[300px] left-[50%] transform -translate-x-1/2 top-[calc(50%-60px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible' }}>
                           {(() => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
@@ -685,7 +685,7 @@ const FixedScoreboard = () => {
 
                               // Always show basic match information
                               return (
-                                <div className="text-center">
+                                <div>
                                   {formattedDate} | {timeOnly}
                                   {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
                                 </div>
