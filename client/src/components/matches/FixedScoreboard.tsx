@@ -198,35 +198,83 @@ const FixedScoreboard = () => {
         // Define popular teams by ID (big teams that should be prioritized)
         const popularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Examples: Man United, Real Madrid, Barcelona, Liverpool, etc.
 
-        // Combine matches with priority
-        let finalMatches: Match[] = [];
+        // Define popular leagues
+        const popularLeagues = [2, 3, 39, 140, 135, 78]; // UCL, UEL, EPL, La Liga, Serie A, Bundesliga
 
-        // Helper function to check if a match includes a popular team
-        const isPopularTeamMatch = (match: Match) => {
-          return popularTeamIds.includes(match.teams.home.id) || popularTeamIds.includes(match.teams.away.id);
+        // Get top 3 teams from standings (mock data for now - replace with actual standings data)
+        const topTeamsByLeague: { [key: number]: number[] } = {
+          39: [33, 50, 42], // EPL top 3
+          140: [541, 530, 529], // La Liga top 3
+          135: [505, 497, 489], // Serie A top 3
+          78: [157, 165, 161], // Bundesliga top 3
         };
 
-        // Teams to exclude (like Crystal Palace and Wolves)
-        const excludeTeamIds = [52, 76]; // Crystal Palace and Wolves
-
-        // Function to check if a match should be excluded
-        const shouldExcludeMatch = (match: Match) => {
-          return excludeTeamIds.includes(match.teams.home.id) || 
-                 excludeTeamIds.includes(match.teams.away.id);
+        // Helper functions
+        const isPopularLeagueMatch = (match: Match) => popularLeagues.includes(match.league.id);
+        
+        const isTopTeamMatch = (match: Match) => {
+          const leagueTopTeams = topTeamsByLeague[match.league.id];
+          if (!leagueTopTeams) return false;
+          return (
+            leagueTopTeams.includes(match.teams.home.id) || 
+            leagueTopTeams.includes(match.teams.away.id)
+          );
         };
 
-        // Filter to only include matches with popular teams AND exclude specific teams
-        const livePopularMatches = liveMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
+        const isImportantRoundMatch = (match: Match) => {
+          const round = match.league.round?.toLowerCase() || '';
+          return (
+            round.includes('final') || 
+            round.includes('semi') || 
+            round.includes('quarter')
+          );
+        };
 
-        const finishedPopularMatches = finishedMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
+        // Filter matches based on new criteria
+        const now = new Date("2025-05-19T12:00:00Z"); // Using hardcoded time for demo
 
-        const upcomingPopularMatches = upcomingMatches
-          .filter(isPopularTeamMatch)
-          .filter(match => !shouldExcludeMatch(match));
+        // Live matches with countdown for upcoming 8 hours
+        const livePopularMatches = liveMatches.filter(match => {
+          const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
+          if (!isPopular && !isImportantRoundMatch(match)) return false;
+          return true;
+        });
+
+        // Upcoming matches within 8 hours
+        const upcomingPopularMatches = upcomingMatches.filter(match => {
+          const matchDate = new Date(match.fixture.date);
+          const hoursUntilMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+          
+          // Only include matches within next 8 hours
+          if (hoursUntilMatch > 8) return false;
+
+          const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
+          if (!isPopular && !isImportantRoundMatch(match)) return false;
+          
+          return true;
+        }).sort((a, b) => {
+          // Sort by start time (nearest first)
+          return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+        });
+
+        // Recently finished matches within last 8 hours
+        const finishedPopularMatches = finishedMatches.filter(match => {
+          const matchDate = new Date(match.fixture.date);
+          // Add 2 hours to match start time to approximate end time
+          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
+          const hoursSinceEnd = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
+          
+          // Only include matches finished within last 8 hours
+          if (hoursSinceEnd > 8) return false;
+
+          const isPopular = isPopularLeagueMatch(match) || isTopTeamMatch(match);
+          if (!isPopular && !isImportantRoundMatch(match)) return false;
+          
+          return true;
+        }).sort((a, b) => {
+          // Sort by end time (most recent first)
+          return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+        });
 
         // 1. Live matches with popular teams have highest priority
         if (livePopularMatches.length > 0) {
