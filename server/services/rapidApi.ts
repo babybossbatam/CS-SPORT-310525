@@ -74,7 +74,12 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error('Error fetching fixtures by date:', error);
-      return cached?.data || [];
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return [];
     }
   },
 
@@ -107,7 +112,12 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error('Error fetching live fixtures:', error);
-      return cached?.data || [];
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return [];
     }
   },
 
@@ -140,7 +150,12 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching fixture with ID ${id}:`, error);
-      return cached?.data || null;
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return null;
     }
   },
 
@@ -186,7 +201,7 @@ export const rapidApiService = {
       if (response.data && response.data.response) {
         // Include all fixtures from the requested league
         const filteredFixtures = response.data.response;
-        
+
         // Log the fixtures count
         console.log(`Received ${response.data.response.length} fixtures for league ${leagueId}`);
 
@@ -200,7 +215,12 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-      return cached?.data || [];
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return [];
     }
   },
 
@@ -230,7 +250,12 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error('Error fetching leagues:', error);
-      return cached?.data || [];
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return [];
     }
   },
 
@@ -268,7 +293,12 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching league with ID ${id}:`, error);
-      return cached?.data || null;
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return null;
     }
   },
 
@@ -324,7 +354,12 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error(`Error fetching top scorers for league ${leagueId}:`, error);
-      return cached?.data || [];
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return [];
     }
   },
 
@@ -380,7 +415,12 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
-      return cached?.data || null;
+      if (cached?.data) {
+        console.log('Using cached data due to API error');
+        return cached.data;
+      }
+      console.error('API request failed and no cache available');
+      return null;
     }
   }
 };
