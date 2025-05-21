@@ -265,7 +265,7 @@ const FixedScoreboard = () => {
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
 
-        // 2. Upcoming matches - prioritize finals/semifinals, limit regular matches to 3 days
+        // 2. Upcoming matches - prioritize finals/semifinals, but strictly limit ALL matches to 3-4 days
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
           
@@ -273,14 +273,10 @@ const FixedScoreboard = () => {
           const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           const timeDiffDays = timeDiffHours / 24;
           
-          // Only include future matches
-          if (timeDiffHours < 0) return false;
+          // Only include future matches within the next 4 days (strict limit, even for finals)
+          if (timeDiffHours < 0 || timeDiffDays > 4) return false;
           
-          // Always include finals/semifinals regardless of date
-          if (isFinalOrSemifinal(match)) return true;
-          
-          // For regular matches, limit to 3 days
-          return timeDiffDays <= 3;
+          return true;
         }).sort((a, b) => {
           // Sort by importance, then by time
           const aIsFinal = isFinalOrSemifinal(a);
@@ -337,14 +333,10 @@ const FixedScoreboard = () => {
           finalMatches = [...livePopularMatches];
         }
         
-        // PRIORITY 2: Finals or semifinals (upcoming within 24h or just finished)
+        // PRIORITY 2: Finals or semifinals (upcoming within 3-4 days or just finished)
         const specialMatches = [...upcomingMatches, ...finishedMatches]
           .filter(match => isFinalOrSemifinal(match) && !shouldExcludeMatch(match))
-          .filter(match => {
-            const matchDate = new Date(match.fixture.date);
-            const timeDiffHours = Math.abs((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60));
-            return timeDiffHours <= 24; // within 24 hours (before or after)
-          });
+          // No additional time filter needed here since upcomingMatches is already filtered to 4 days max
         
         if (specialMatches.length > 0 && finalMatches.length < 6) {
           const specialToAdd = specialMatches
