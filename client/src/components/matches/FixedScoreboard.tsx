@@ -530,7 +530,7 @@ const FixedScoreboard = () => {
         </>
       )}
 
-      <CardContent className="px-8 pt-2 pb-2">
+      <CardContent className="px-4 pt-2 pb-2">
         {isLoading && matches.length === 0 ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
@@ -552,8 +552,8 @@ const FixedScoreboard = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden h-full w-full"
             >
-              <Card className="bg-white shadow-sm h-full">
-                <CardContent className="p-6 h-full"
+              <Card className="bg-white shadow-sm h-full w-full">
+                <CardContent className="p-4 h-full"
               >
               {/* Match header with league info */}
               <div className="flex items-center justify-center mb-2 px-2 pt-4">
