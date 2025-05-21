@@ -579,7 +579,7 @@ const FixedScoreboard = () => {
               initial={{ x: 300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.2 }}
               className="overflow-hidden h-full w-full"
             >
               <Card className="bg-white shadow-sm h-full w-full cursor-pointer"
