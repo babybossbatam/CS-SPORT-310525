@@ -550,10 +550,10 @@ const FixedScoreboard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="overflow-hidden"
+              className="overflow-hidden h-full w-full"
             >
-              <Card className="bg-white shadow-sm">
-                <CardContent className="p-6 pt-0"
+              <Card className="bg-white shadow-sm h-full">
+                <CardContent className="p-4 pt-0 h-full"
               >
               {/* Match header with league info */}
               <div className="flex items-center justify-center mb-2 px-2 pt-4">
