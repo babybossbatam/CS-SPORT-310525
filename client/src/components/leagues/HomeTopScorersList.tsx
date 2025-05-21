@@ -155,8 +155,8 @@ const HomeTopScorersList = () => {
                         </div>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="font-semibold text-[0.6rem]">{goals}</div>
-                        <div className="text-[0.5rem] text-gray-500">Goals</div>
+                        <div className="font-semibold text-[0.75em]">{goals}</div>
+                        <div className="text-[0.65em] text-gray-500">Goals</div>
                       </div>
                     </div>
                       );
