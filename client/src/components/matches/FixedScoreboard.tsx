@@ -295,23 +295,13 @@ const FixedScoreboard = () => {
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
         
-        // 3. Recently finished matches - we need to find recent matches
+        // 3. Recently finished matches - strict 8-hour window
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
           
-          // Let's find the specific match date we're looking for
-          if (match.teams.home.name === "Tottenham" && match.teams.away.name === "Manchester United" ||
-              match.teams.home.name === "Manchester United" && match.teams.away.name === "Tottenham") {
-            const matchDate = new Date(match.fixture.date);
-            console.log(`Found our target match: ${match.teams.home.name} vs ${match.teams.away.name}, date: ${matchDate.toISOString()}`);
-            
-            // Include this match specifically
-            return true;
-          }
-          
-          // For all other matches, use the 8-hour window criteria
+          // Get match date and calculate hours since completion
           const matchDate = new Date(match.fixture.date);
-          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
+          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000)); // Add 2 hours for match duration
           const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
           
           // Show all matches completed within the last 8 hours
