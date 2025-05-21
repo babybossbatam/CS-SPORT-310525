@@ -783,8 +783,8 @@ const FixedScoreboard = () => {
                       />
                     )}
 
-                      {/* Match time & venue information below VS - only for upcoming matches */}
-                      {currentMatch.fixture.status.short === 'NS' && (
+                      {/* Match time & venue information below VS - ONLY for "Not Started" matches */}
+                      {currentMatch?.fixture?.status?.short === 'NS' && (
                         <div className="absolute text-center text-xs text-gray-500 w-[300px]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible', textAlign: 'center', zIndex: 30, left: '50%', transform: 'translateX(-50%)', top: 'calc(50% + 40px)' }}>
                           {(() => {
                             try {
@@ -792,7 +792,6 @@ const FixedScoreboard = () => {
                               const formattedDate = format(matchDate, "EEEE, do MMM");
                               const timeOnly = format(matchDate, 'HH:mm');
 
-                              // Always show basic match information
                               return (
                                 <div>
                                   {formattedDate} | {timeOnly}
@@ -800,7 +799,7 @@ const FixedScoreboard = () => {
                                 </div>
                               );
                             } catch (e) {
-                              return currentMatch.fixture.venue?.name || '';
+                              return '';
                             }
                           })()}
                         </div>
