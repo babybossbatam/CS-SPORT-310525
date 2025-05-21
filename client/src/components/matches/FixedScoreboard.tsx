@@ -76,20 +76,28 @@ const FixedScoreboard = () => {
         // Fetch fixtures for popular leagues for latest season
         const leaguePromises = popularLeagues.map(leagueId => 
           apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
-            .then(response => response.json())
             .catch(error => {
               console.error(`Error fetching league ${leagueId} fixtures:`, error);
+              toast({
+                title: "Error",
+                description: `Failed to load matches for league ${leagueId}`,
+                variant: "destructive"
+              });
               return [];
             })
         );
 
         // Also fetch today, yesterday, and tomorrow's fixtures for more comprehensive data
         const todayPromise = apiRequest('GET', `/api/fixtures/date/${todayDate}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching today\'s fixtures:', error);
-            return [];
-          });
+            .catch(error => {
+              console.error('Error fetching today\'s fixtures:', error);
+              toast({
+                title: "Error", 
+                description: "Failed to load today's matches",
+                variant: "destructive"
+              });
+              return [];
+            });
 
         const tomorrowPromise = apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`)
           .then(response => response.json())
