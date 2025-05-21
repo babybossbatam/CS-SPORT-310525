@@ -820,7 +820,7 @@ const FixedScoreboard = () => {
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
-                        e.currentTarget.src =`/assets/fallback-logo.svg';
+                        e.currentTarget.src = '/assets/fallback-logo.svg';
                       }}
                     />
 
