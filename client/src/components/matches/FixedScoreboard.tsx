@@ -515,15 +515,13 @@ const FixedScoreboard = () => {
         <>
           <button
             onClick={handlePrevious}
-            className="absolute left-0 top-[50%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-0 rounded-r-md z-40 flex items-center border border-gray-200"
-            style={{left: "0px"}}
+            className="bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-0 rounded-r-md z-40 flex items-center border border-gray-200"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-0 top-[50%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-0 rounded-l-md z-40 flex items-center border border-gray-200"
-            style={{right: "0px"}}
+            className="bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-0 rounded-l-md z-40 flex items-center border border-gray-200"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
