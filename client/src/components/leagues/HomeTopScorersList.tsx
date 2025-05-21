@@ -138,8 +138,8 @@ const HomeTopScorersList = () => {
                             <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-semibold">{scorer.player.name}</div>
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <div className="font-semibold text-[0.5em]">{scorer.player.name}</div>
+                            <div className="flex items-center gap-2 text-[0.5em] text-gray-500">
                               <img 
                                 src={playerStats.team.logo} 
                                 alt={playerStats.team.name} 
