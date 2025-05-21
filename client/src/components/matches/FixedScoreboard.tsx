@@ -73,37 +73,65 @@ const FixedScoreboard = () => {
         const tomorrowDate = "2025-05-20";
         const yesterdayDate = "2025-05-18";
 
-        // Fetch fixtures for popular leagues for latest season
-        const leaguePromises = popularLeagues.map(leagueId => 
-          apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
-            .then(response => response.json())
-            .catch(error => {
-              console.error(`Error fetching league ${leagueId} fixtures:`, error);
+        // Fetch fixtures for popular leagues for latest season with better error handling
+        const leaguePromises = popularLeagues.map(async leagueId => {
+          try {
+            const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`);
+            if (!response.ok) {
+              console.log(`Error fetching league ${leagueId} fixtures: ${response.status}`);
               return [];
-            })
-        );
-
-        // Also fetch today, yesterday, and tomorrow's fixtures for more comprehensive data
-        const todayPromise = apiRequest('GET', `/api/fixtures/date/${todayDate}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching today\'s fixtures:', error);
+            }
+            return await response.json();
+          } catch (error) {
+            console.error(`Error processing league ${leagueId} fixtures:`, error);
             return [];
-          });
+          }
+        });
 
-        const tomorrowPromise = apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching tomorrow\'s fixtures:', error);
+        // Fetch today's fixtures with better error handling
+        const todayPromise = (async () => {
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/date/${todayDate}`);
+            if (!response.ok) {
+              console.log(`Error fetching today's fixtures: ${response.status}`);
+              return [];
+            }
+            return await response.json();
+          } catch (error) {
+            console.error('Error processing today\'s fixtures:', error);
             return [];
-          });
+          }
+        })();
 
-        const yesterdayPromise = apiRequest('GET', `/api/fixtures/date/${yesterdayDate}`)
-          .then(response => response.json())
-          .catch(error => {
-            console.error('Error fetching yesterday\'s fixtures:', error);
+        // Fetch tomorrow's fixtures with better error handling
+        const tomorrowPromise = (async () => {
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`);
+            if (!response.ok) {
+              console.log(`Error fetching tomorrow's fixtures: ${response.status}`);
+              return [];
+            }
+            return await response.json();
+          } catch (error) {
+            console.error('Error processing tomorrow\'s fixtures:', error);
             return [];
-          });
+          }
+        })();
+
+        // Fetch yesterday's fixtures with better error handling
+        const yesterdayPromise = (async () => {
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/date/${yesterdayDate}`);
+            if (!response.ok) {
+              console.log(`Error fetching yesterday's fixtures: ${response.status}`);
+              return [];
+            }
+            return await response.json();
+          } catch (error) {
+            console.error('Error processing yesterday\'s fixtures:', error);
+            return [];
+          }
+        })();
 
         // Wait for all API calls to complete
         const allResults = await Promise.all([

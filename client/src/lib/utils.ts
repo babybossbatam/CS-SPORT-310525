@@ -538,17 +538,19 @@ export const apiRequest = async (method: string, endpoint: string, body?: any) =
       body: body ? JSON.stringify(body) : undefined,
       credentials: 'same-origin',
       mode: 'cors',
-      retry: 3,
-      timeout: 5000,
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
+    // Return the response object instead of parsing JSON immediately
+    // This allows the caller to handle different response types 
+    return response;
   } catch (error) {
     console.error(`API request error for ${method} ${endpoint}:`, error);
-    throw new Error(error instanceof Error ? error.message : 'Network connection error');
+    // Instead of throwing, return a response-like object that indicates failure
+    return {
+      ok: false,
+      status: 0,
+      statusText: error instanceof Error ? error.message : 'Network connection error',
+      json: async () => ({ error: true, message: 'Failed to connect to server' })
+    };
   }
 };

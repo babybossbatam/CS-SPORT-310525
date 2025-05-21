@@ -142,7 +142,7 @@ const AnimatedTeamLogo: React.FC<AnimatedTeamLogoProps> = ({
         </AnimatePresence>
       )}
       
-      {/* Team logo with animations */}
+      {/* Team logo with animations - with additional error check */}
       <motion.div
         className="relative z-20"
         initial="initial"
@@ -152,13 +152,13 @@ const AnimatedTeamLogo: React.FC<AnimatedTeamLogoProps> = ({
         style={{ cursor: onClick ? 'pointer' : 'default' }}
       >
         <img 
-          src={logoUrl} 
+          src={logoUrl || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="gray"/><text x="50%" y="50%" font-size="12" text-anchor="middle" fill="white">Team</text></svg>'} 
           alt={teamName}
           className={`${logoSize} w-auto object-contain`}
           onError={(e) => {
             if (!imageFailed) {
               setImageFailed(true);
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+              (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="gray"/><text x="50%" y="50%" font-size="12" text-anchor="middle" fill="white">Team</text></svg>';
             }
           }}
         />
