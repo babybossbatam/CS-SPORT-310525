@@ -165,11 +165,11 @@ const FixedScoreboard = () => {
           // Check if either team is a popular team
           const isPopularMatch = popularTeamIds.includes(match.teams.home.id) || 
                                popularTeamIds.includes(match.teams.away.id);
-          
+
           // Skip non-popular teams unless it's a final/semi-final match
           const isBracketMatch = match.league.round?.toLowerCase().includes('final') || 
                                 match.league.round?.toLowerCase().includes('semi');
-          
+
           if (!isPopularMatch && !isBracketMatch) return false;
 
           const matchDate = new Date(match.fixture.date);
@@ -185,10 +185,10 @@ const FixedScoreboard = () => {
                             a.league.round?.toLowerCase().includes('semi');
           const bIsBracket = b.league.round?.toLowerCase().includes('final') || 
                             b.league.round?.toLowerCase().includes('semi');
-          
+
           if (aIsBracket && !bIsBracket) return -1;
           if (!aIsBracket && bIsBracket) return 1;
-          
+
           // Then sort by recency
           return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
         });
@@ -317,7 +317,7 @@ const FixedScoreboard = () => {
   // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
-    
+
     // Preload team logos
     matches.forEach(match => {
       const homeLogo = match?.teams?.home?.logo;
@@ -560,10 +560,10 @@ const FixedScoreboard = () => {
               <Skeleton className="h-5 w-5 rounded-full mr-2" />
               <Skeleton className="h-4 w-32" />
             </div>
-            
+
             {/* Match time skeleton */}
             <Skeleton className="h-6 w-40 mx-auto mb-6" />
-            
+
             {/* Teams skeleton */}
             <div className="relative mt-4">
               <div className="flex justify-between items-center h-[53px] mb-8">
@@ -578,7 +578,7 @@ const FixedScoreboard = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Bottom nav skeleton */}
             <div className="flex justify-around mt-4 pt-3">
               {[1, 2, 3, 4].map((i) => (
@@ -646,25 +646,22 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className={`font-medium text-center mb-5 ${
-                currentMatch?.fixture?.status?.short === 'LIVE' ? 'text-red-600' : ''
-              }`} style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
-                {getMatchStatus(currentMatch)}
+              <div className="font-medium text-center mb-5">
+                <div className={`${
+                  currentMatch?.fixture?.status?.short === 'LIVE' ? 'text-red-600' : ''
+                }`} style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>
+                  {getMatchStatus(currentMatch)}
+                </div>
               </div>
 
-              {/* Score display for both live and finished matches */}
-              {currentMatch?.fixture?.status?.short && 
-               ['1H', '2H', 'HT', 'FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
-                <div className="flex items-center justify-center mt-1 mb-1">
-                  <div className={`text-xl font-bold flex gap-2 items-center ${
-                    ['1H', '2H', 'HT'].includes(currentMatch.fixture.status.short) ? 'text-red-600' : ''
-                  }`}>
-                    <span>{currentMatch?.goals?.home ?? 0}</span>
-                    <span className="text-base">-</span>
-                    <span>{currentMatch?.goals?.away ?? 0}</span>
-                  </div>
+              {/* Basic score display */}
+              <div className="flex items-center justify-center mt-1 mb-1">
+                <div className="text-xl font-bold flex gap-2 items-center">
+                  <span>{currentMatch?.goals?.home ?? 0}</span>
+                  <span className="text-base">-</span>
+                  <span>{currentMatch?.goals?.away ?? 0}</span>
                 </div>
-              )}
+              </div>
 
               {/* Team scoreboard */}
               <div className="relative mt-4">
@@ -778,7 +775,7 @@ const FixedScoreboard = () => {
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
+                        e.currentTarget.src =`/assets/fallback-logo.svg';
                       }}
                     />
 
@@ -805,8 +802,7 @@ const FixedScoreboard = () => {
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM<previous_generation>```text
-19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
                   </svg>
                   <span className="text-xs text-gray-600 mt-1">Lineups</span>
                 </button>
