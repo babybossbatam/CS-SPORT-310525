@@ -133,16 +133,10 @@ const HomeTopScorersList = () => {
                       <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-500 font-medium">{index + 1}</span>
                         <div className="flex items-center gap-3">
-                          <div className="relative w-[52px] h-[52px]">
-                            <Avatar className="h-12 w-12 border-2 border-gray-100 group-hover:border-blue-100 transition-all duration-200 overflow-visible shadow-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                              <AvatarImage 
-                                src={scorer.player.photo} 
-                                alt={scorer.player.name}
-                                className="object-cover object-center scale-[1.4] contrast-110 brightness-110 hover:scale-[1.5] transition-transform duration-200 transform-gpu -translate-y-[8%] hover:-translate-y-[12%] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%]" 
-                              />
-                              <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
-                            </Avatar>
-                          </div>
+                          <Avatar className="h-12 w-12 border-2 border-gray-100 group-hover:border-blue-100 transition-all duration-200">
+                            <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
+                            <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="font-semibold">{scorer.player.name}</div>
                             <div className="flex items-center gap-2 text-xs text-gray-500">
