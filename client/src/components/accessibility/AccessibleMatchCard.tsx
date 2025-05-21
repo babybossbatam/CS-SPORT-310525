@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAccessibility } from '../../context/AccessibilityContext';
-import { Link } from 'wouter';
+import AccessibleWrapper from './AccessibleWrapper';
+import { Badge } from '@/components/ui/badge';
 
 interface Team {
   id: number;
@@ -46,9 +47,10 @@ interface Match {
 interface AccessibleMatchCardProps {
   match: Match;
   className?: string;
+  onClick?: () => void;
 }
 
-const AccessibleMatchCard: React.FC<AccessibleMatchCardProps> = ({ match, className = '' }) => {
+const AccessibleMatchCard: React.FC<AccessibleMatchCardProps> = ({ match, className = '', onClick }) => {
   const { highContrast, largeText, screenReaderMode } = useAccessibility();
   
   // Format match date
@@ -81,104 +83,134 @@ const AccessibleMatchCard: React.FC<AccessibleMatchCardProps> = ({ match, classN
   } else if (isUpcoming) {
     const now = new Date();
     const timeUntilMatch = matchDate.getTime() - now.getTime();
-    const hoursUntilMatch = Math.floor(timeUntilMatch / (1000 * 60 * 60));
-    
-    if (hoursUntilMatch < 24) {
-      timeDescription = `Starting in ${hoursUntilMatch} hours`;
+    const hoursUntil = Math.floor(timeUntilMatch / (1000 * 60 * 60));
+    if (hoursUntil < 24) {
+      timeDescription = `Starts in ${hoursUntil} hours`;
     } else {
-      const daysUntilMatch = Math.floor(hoursUntilMatch / 24);
-      timeDescription = `Starting in ${daysUntilMatch} days`;
+      const daysUntil = Math.floor(hoursUntil / 24);
+      timeDescription = `Starts in ${daysUntil} days`;
+    }
+  } else if (isFinished) {
+    const now = new Date();
+    const timeSinceMatch = now.getTime() - matchDate.getTime();
+    const hoursSince = Math.floor(timeSinceMatch / (1000 * 60 * 60));
+    if (hoursSince < 24) {
+      timeDescription = `Finished ${hoursSince} hours ago`;
+    } else {
+      const daysSince = Math.floor(hoursSince / 24);
+      timeDescription = `Finished ${daysSince} days ago`;
     }
   }
   
-  // Enhanced ARIA description for screen readers
-  const matchAriaDescription = `${match.teams.home.name} versus ${match.teams.away.name}, ${matchStatusText} match in ${match.league.name}. ${
-    isFinished ? `Final score: ${match.goals.home} to ${match.goals.away}.` :
-    isLive ? `Current score: ${match.goals.home} to ${match.goals.away}. ${timeDescription}.` :
-    `${timeDescription}. Match will be played at ${formattedTime} on ${formattedDate}`
-  }${match.fixture.venue?.name ? ` at ${match.fixture.venue.name}` : ''}.`;
+  // Create venue information if available
+  const venueInfo = match.fixture.venue?.name ? `at ${match.fixture.venue.name}` : '';
+  
+  // Create full accessible description for screen readers
+  const accessibleDescription = `${match.teams.home.name} versus ${match.teams.away.name}. ${matchStatusText} match. ${scoreText}. ${timeDescription}. ${venueInfo}`;
+  
+  // Apply high contrast classes conditionally
+  const cardClasses = [
+    className,
+    'match-card p-4 rounded-lg shadow-md mb-4',
+    highContrast ? 'bg-black text-white border-2 border-yellow-400' : 'bg-white',
+    largeText ? 'text-lg' : ''
+  ].filter(Boolean).join(' ');
+  
+  // Apply high contrast for score display
+  const scoreClasses = [
+    'score-display text-center font-bold my-2',
+    highContrast ? 'text-yellow-400' : 'text-gray-800',
+    largeText ? 'text-2xl' : 'text-xl'
+  ].filter(Boolean).join(' ');
+  
+  // Apply high contrast for status badge
+  const statusClasses = [
+    'status-badge px-2 py-1 rounded text-xs inline-block',
+    isLive ? (highContrast ? 'bg-yellow-400 text-black animate-pulse' : 'bg-red-600 text-white animate-pulse') :
+    isFinished ? (highContrast ? 'bg-gray-200 text-black' : 'bg-gray-600 text-white') :
+    (highContrast ? 'bg-blue-400 text-black' : 'bg-blue-600 text-white')
+  ].filter(Boolean).join(' ');
   
   return (
-    <Link 
-      to={`/match/${match.fixture.id}`}
-      className={`match-card p-4 rounded-lg ${className} ${highContrast ? 'high-contrast-match-card' : ''}`}
-      aria-label={matchAriaDescription}
+    <AccessibleWrapper
+      className={cardClasses}
+      ariaLabel={`${match.teams.home.name} versus ${match.teams.away.name} match`}
+      ariaDescription={accessibleDescription}
+      onClick={onClick}
+      role="article"
     >
-      <div className="match-card-inner">
-        {/* League info with proper aria labels */}
-        <div className="league-info mb-2 flex items-center" aria-label={`${match.league.name} ${match.league.round || ''}`}>
-          <img 
-            src={match.league.logo} 
-            alt={`${match.league.name} logo`} 
-            className="w-6 h-6 mr-2" 
-            aria-hidden={screenReaderMode}
-          />
-          <span className="league-name text-sm">{match.league.name}</span>
-          {match.league.round && (
-            <span className="round-info text-xs ml-2 text-gray-500">{match.league.round}</span>
-          )}
-        </div>
-        
-        {/* Match status indicator */}
-        <div className="match-status mb-3">
-          {isLive && (
-            <div className="live-indicator bg-red-600 text-white px-2 py-1 rounded text-xs inline-block">
-              LIVE {match.fixture.status.elapsed && `${match.fixture.status.elapsed}'`}
-            </div>
-          )}
-          {!isLive && (
-            <div className="match-time text-sm text-gray-600">
-              {isFinished ? 'Final' : `${formattedDate}, ${formattedTime}`}
-            </div>
-          )}
-        </div>
-        
-        {/* Teams and score */}
-        <div className="teams-container">
-          {/* Home team */}
-          <div className="team home-team flex items-center mb-2">
-            <img 
-              src={match.teams.home.logo} 
-              alt={`${match.teams.home.name} logo`} 
-              className="w-8 h-8 mr-3" 
-              aria-hidden={screenReaderMode}
-            />
-            <span className="team-name">{match.teams.home.name}</span>
-          </div>
-          
-          {/* Away team */}
-          <div className="team away-team flex items-center">
-            <img 
-              src={match.teams.away.logo} 
-              alt={`${match.teams.away.name} logo`} 
-              className="w-8 h-8 mr-3" 
-              aria-hidden={screenReaderMode}
-            />
-            <span className="team-name">{match.teams.away.name}</span>
-          </div>
-          
-          {/* Score display */}
-          <div className="score-display absolute right-4 top-1/2 transform -translate-y-1/2 text-xl font-bold">
-            {scoreText}
-          </div>
-        </div>
-        
-        {/* Venue information for screen readers */}
-        {match.fixture.venue?.name && (
-          <div className="venue-info mt-2 text-xs text-gray-500" aria-label={`Venue: ${match.fixture.venue.name}, ${match.fixture.venue.city || ''}`}>
-            <span>Venue: {match.fixture.venue.name}</span>
-            {match.fixture.venue.city && <span>, {match.fixture.venue.city}</span>}
+      {/* League and round information */}
+      <div className="league-info flex items-center mb-2">
+        <img 
+          src={match.league.logo} 
+          alt={`${match.league.name} logo`} 
+          className="w-5 h-5 mr-2" 
+          aria-hidden={screenReaderMode}
+        />
+        <span className={`league-name ${largeText ? 'text-base' : 'text-sm'}`}>{match.league.name}</span>
+        {match.league.round && (
+          <span className={`round-info ml-2 ${highContrast ? 'text-yellow-300' : 'text-gray-500'} ${largeText ? 'text-sm' : 'text-xs'}`}>
+            {match.league.round}
+          </span>
+        )}
+      </div>
+      
+      {/* Match status indicator */}
+      <div className="match-status mb-3">
+        {isLive && (
+          <div className={statusClasses}>
+            LIVE {match.fixture.status.elapsed && `${match.fixture.status.elapsed}'`}
           </div>
         )}
-        
-        {/* Skip to match details link for keyboard navigation */}
-        {screenReaderMode && (
-          <div className="sr-only">
-            Press Enter to view detailed match information
+        {!isLive && (
+          <div className={`match-time ${largeText ? 'text-base' : 'text-sm'} ${highContrast ? 'text-yellow-300' : 'text-gray-600'}`}>
+            {isFinished ? 'Final' : `${formattedDate}, ${formattedTime}`}
           </div>
         )}
       </div>
-    </Link>
+      
+      {/* Teams and score */}
+      <div className="teams-container">
+        {/* Home team */}
+        <div className="team home-team flex items-center mb-2">
+          <img 
+            src={match.teams.home.logo} 
+            alt={`${match.teams.home.name} logo`} 
+            className="w-8 h-8 mr-3" 
+            aria-hidden={screenReaderMode}
+          />
+          <span className={`team-name ${highContrast ? 'text-white' : ''} ${largeText ? 'text-lg' : ''}`}>
+            {match.teams.home.name}
+          </span>
+        </div>
+        
+        {/* Away team */}
+        <div className="team away-team flex items-center">
+          <img 
+            src={match.teams.away.logo} 
+            alt={`${match.teams.away.name} logo`} 
+            className="w-8 h-8 mr-3"
+            aria-hidden={screenReaderMode}
+          />
+          <span className={`team-name ${highContrast ? 'text-white' : ''} ${largeText ? 'text-lg' : ''}`}>
+            {match.teams.away.name}
+          </span>
+        </div>
+      </div>
+      
+      {/* Score display */}
+      <div className={scoreClasses}>
+        {scoreText}
+      </div>
+      
+      {/* Venue information if available */}
+      {match.fixture.venue?.name && (
+        <div className={`venue-info mt-2 ${largeText ? 'text-sm' : 'text-xs'} ${highContrast ? 'text-yellow-300' : 'text-gray-500'}`}>
+          Venue: {match.fixture.venue.name}
+          {match.fixture.venue.city && `, ${match.fixture.venue.city}`}
+        </div>
+      )}
+    </AccessibleWrapper>
   );
 };
 
