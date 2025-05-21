@@ -623,15 +623,19 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Match time/status display */}
-              <div className="font-medium text-center mb-5" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className={`font-medium text-center mb-5 ${
+                currentMatch?.fixture?.status?.short === 'LIVE' ? 'text-red-600' : ''
+              }`} style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
                 {getMatchStatus(currentMatch)}
               </div>
 
-              {/* Score display below status for finished matches */}
+              {/* Score display for both live and finished matches */}
               {currentMatch?.fixture?.status?.short && 
-               ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+               ['1H', '2H', 'HT', 'FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
                 <div className="flex items-center justify-center mt-1 mb-1">
-                  <div className="text-xl font-bold flex gap-2 items-center">
+                  <div className={`text-xl font-bold flex gap-2 items-center ${
+                    ['1H', '2H', 'HT'].includes(currentMatch.fixture.status.short) ? 'text-red-600' : ''
+                  }`}>
                     <span>{currentMatch?.goals?.home ?? 0}</span>
                     <span className="text-base">-</span>
                     <span>{currentMatch?.goals?.away ?? 0}</span>
