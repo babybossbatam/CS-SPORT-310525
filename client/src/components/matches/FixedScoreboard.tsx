@@ -530,7 +530,7 @@ const FixedScoreboard = () => {
         </>
       )}
 
-      <div className="px-8 pt-2 pb-2">
+      <CardContent className="px-8 pt-2 pb-2">
         {isLoading && matches.length === 0 ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
@@ -794,7 +794,7 @@ const FixedScoreboard = () => {
           </motion.div>
         </AnimatePresence>
         )}
-      </div>
+      </CardContent>
     </>
   );
 };
