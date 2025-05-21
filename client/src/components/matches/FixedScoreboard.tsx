@@ -105,13 +105,16 @@ const FixedScoreboard = () => {
             return [];
           });
 
-        // Wait for all API calls to complete
+        // Wait for all API calls to complete with error handling
         const allResults = await Promise.all([
           ...leaguePromises,
           todayPromise,
           tomorrowPromise,
           yesterdayPromise
-        ]);
+        ].map(p => p.catch(error => {
+          console.error('Error fetching matches:', error);
+          return []; // Return empty array on error to prevent complete failure
+        })));
 
         // Combine and filter out duplicate matches
         const allMatches = Array.from(
