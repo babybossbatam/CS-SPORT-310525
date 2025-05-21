@@ -808,7 +808,7 @@ const FixedScoreboard = () => {
 
               {/* Indicator dots for slideshow */}
               {matches.length > 1 && (
-                <div className="flex justify-center gap-2 mt-2">
+                <div className="flex justify-center gap-2 my-4">
                   {matches.map((_, index) => (
                     <button
                       key={index}
