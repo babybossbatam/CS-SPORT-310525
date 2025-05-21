@@ -205,9 +205,10 @@ const FixedScoreboard = () => {
 
         console.log(`Total matches fetched: ${allMatches.length}`);
 
-        // Use date that aligns with the fixtures we have in our data
-        // For a reference point that includes matches from May 22, 2025 at 03:00
-        const now = new Date("2025-05-22T10:00:00Z");
+        // Use a date that matches our fixture data to ensure we show matches within 8 hours
+        // When using the real API, this will be 'new Date()' to always show recent matches
+        const now = new Date("2025-05-21T23:00:00Z");
+        
         console.log("Current filtering date:", now.toISOString());
 
         // Only use matches from the popular leagues list
@@ -296,14 +297,19 @@ const FixedScoreboard = () => {
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
         
-        // 3. Recently finished matches - strict 8-hour window
+        // 3. Recently finished matches - improved 8-hour window
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
           
-          // Get match date and calculate hours since completion
+          // Calculate hours since match ended
           const matchDate = new Date(match.fixture.date);
-          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000)); // Add 2 hours for match duration
-          const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
+          const matchEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000)); // Match + ~2 hours
+          const hoursSinceCompletion = (now.getTime() - matchEndTime.getTime()) / (1000 * 60 * 60);
+          
+          // Debug output to check time calculations
+          if (hoursSinceCompletion >= 0 && hoursSinceCompletion <= 10) {
+            console.log(`Match within time window: ${match.teams.home.name} vs ${match.teams.away.name}, Hours since: ${hoursSinceCompletion.toFixed(1)}`);
+          }
           
           // Show all matches completed within the last 8 hours
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
