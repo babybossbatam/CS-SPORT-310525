@@ -3,9 +3,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
-import { AccessibilityProvider } from "./context/AccessibilityContext";
-import AccessibilityToggle from "./components/accessibility/AccessibilityToggle";
-import SkipLink from "./components/accessibility/SkipLink";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -63,21 +60,12 @@ function Router() {
 
 function App() {
   return (
-    <AccessibilityProvider>
-      <TooltipProvider>
-        <Toaster />
-        
-        {/* Skip link for keyboard navigation */}
-        <SkipLink targetId="main-content" />
-        
-        {/* Accessibility controls */}
-        <AccessibilityToggle />
-        
-        <main id="main-content" className="pt-[124px]">
-          <Router />
-        </main>
-      </TooltipProvider>
-    </AccessibilityProvider>
+    <TooltipProvider>
+      <Toaster />
+      <main className="pt-[124px]">
+        <Router />
+      </main>
+    </TooltipProvider>
   );
 }
 

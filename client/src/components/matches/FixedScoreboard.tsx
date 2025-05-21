@@ -9,8 +9,6 @@ import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import FixedMatchTimer from './FixedMatchTimer';
-import { useAccessibility } from '../../context/AccessibilityContext';
-import ScreenReaderAnnouncement from '../accessibility/ScreenReaderAnnouncement';
 
 // Types
 interface Team {
@@ -60,8 +58,6 @@ const FixedScoreboard = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [announcement, setAnnouncement] = useState<string>('');
-  const { highContrast, largeText, screenReaderMode } = useAccessibility();
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
