@@ -648,7 +648,7 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-42px)] ml-[42px] relative" 
+                    <div className="h-full w-[calc(50%-32px)] ml-[32px] relative" 
                       style={{ 
                         background: currentMatch?.teams?.home?.id ? getTeamColor(currentMatch.teams.home.id) : '#6f7c93'
                       }}
@@ -657,7 +657,7 @@ const FixedScoreboard = () => {
                       <img 
                         src={currentMatch.teams.home.logo || `/assets/fallback-logo.svg`}
                         alt={currentMatch.teams.home.name || 'Home Team'} 
-                        className="absolute left-[-13px] z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute left-[-32px] z-20 w-[64px] h-[64px] object-contain"
                         style={{
                           cursor: 'pointer',
                           top: "calc(50% - 32px)"
@@ -676,7 +676,7 @@ const FixedScoreboard = () => {
 
                       {/* Match time & venue information starting from home logo center */}
                       {currentMatch.fixture.status.short === 'NS' && (
-                        <div className="absolute text-center text-xs text-gray-500 w-[300px] left-[-23px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                        <div className="absolute text-center text-xs text-gray-500 w-[300px] left-[-32px] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible' }}>
                           {(() => {
                             try {
                               const matchDate = parseISO(currentMatch.fixture.date);
@@ -698,7 +698,7 @@ const FixedScoreboard = () => {
                       )}
                     </div>
 
-                    <div className="absolute text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)", left: "calc(77px + 10px)"}}>
+                    <div className="absolute text-white font-bold text-sm uppercase max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)", left: "42px"}}>
                       {currentMatch?.teams?.home?.name || 'TBD'}
                     </div>
 
