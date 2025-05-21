@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -38,16 +37,7 @@ export const FixtureTimeline = ({ fixture, className }: FixtureTimelineProps) =>
                   />
                   <div className="text-sm font-medium">{fixture.teams?.home?.name}</div>
                 </div>
-
-                <div className="text-center text-xl font-semibold">
-                  {fixture.fixture?.status?.short === 'NS' 
-                    ? fixture.fixture?.date 
-                      ? new Date(fixture.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : '03:00'
-                    : `${fixture.goals?.home || 0} - ${fixture.goals?.away || 0}`
-                  }
-                </div>
-
+                <div className="text-center text-2xl font-bold">VS</div>
                 <div className="text-center">
                   <TeamLogo
                     src={fixture.teams?.away?.logo}
