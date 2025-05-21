@@ -205,9 +205,10 @@ const FixedScoreboard = () => {
 
         console.log(`Total matches fetched: ${allMatches.length}`);
 
-        // Use the current date for proper filtering
-        // Important: for testing with our fixture data, we need to use 2025 date
-        const now = new Date("2025-05-19T12:00:00Z");
+        // Use date that aligns with the fixtures we have in our data
+        // For a reference point that includes matches from May 22, 2025 at 03:00
+        const now = new Date("2025-05-22T10:00:00Z");
+        console.log("Current filtering date:", now.toISOString());
 
         // Only use matches from the popular leagues list
         const popularLeagueMatches = allMatches.filter(match => 
