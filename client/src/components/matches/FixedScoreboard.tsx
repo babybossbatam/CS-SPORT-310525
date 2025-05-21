@@ -265,7 +265,7 @@ const FixedScoreboard = () => {
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
 
-        // 2. Upcoming matches - prioritize finals/semifinals, but strictly limit ALL matches to 3-4 days
+        // 2. Upcoming matches - limit to 5 days (a balance to ensure we have enough matches to display)
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
           
@@ -273,10 +273,14 @@ const FixedScoreboard = () => {
           const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           const timeDiffDays = timeDiffHours / 24;
           
-          // Only include future matches within the next 4 days (strict limit, even for finals)
-          if (timeDiffHours < 0 || timeDiffDays > 4) return false;
+          // Only include future matches
+          if (timeDiffHours < 0) return false;
           
-          return true;
+          // For finals/semifinals, give a little more leeway (5 days)
+          if (isFinalOrSemifinal(match) && timeDiffDays <= 5) return true;
+          
+          // For regular matches, strictly limit to 4 days
+          return timeDiffDays <= 4;
         }).sort((a, b) => {
           // Sort by importance, then by time
           const aIsFinal = isFinalOrSemifinal(a);
@@ -335,8 +339,7 @@ const FixedScoreboard = () => {
         
         // PRIORITY 2: Finals or semifinals (upcoming within 3-4 days or just finished)
         const specialMatches = [...upcomingMatches, ...finishedMatches]
-          .filter(match => isFinalOrSemifinal(match) && !shouldExcludeMatch(match))
-          // No additional time filter needed here since upcomingMatches is already filtered to 4 days max
+          .filter(match => isFinalOrSemifinal(match) && !shouldExcludeMatch(match));
         
         if (specialMatches.length > 0 && finalMatches.length < 6) {
           const specialToAdd = specialMatches
