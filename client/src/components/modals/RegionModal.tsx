@@ -22,7 +22,9 @@ const RegionModal = () => {
 
   return (
     <Dialog open={showModal} onOpenChange={handleClose}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="bg-background p-6 rounded-lg shadow-lg" />
+      </div>
     </Dialog>
   );
 };
