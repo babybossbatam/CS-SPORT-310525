@@ -124,7 +124,7 @@ const HomeTopScorersList = () => {
             <CardContent className="p-0">
               <div className="relative overflow-x-auto">
                 <div className="space-y-1">
-                {topScorers?.slice(0, 5).map((scorer, index) => {
+                {topScorers?.slice(0, 3).map((scorer, index) => {
                   const playerStats = scorer.statistics[0];
                   const goals = playerStats?.goals?.total || 0;
 
