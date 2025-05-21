@@ -511,24 +511,23 @@ const FixedScoreboard = () => {
         Featured Match
       </Badge>
 
-      {matches.length > 1 && (
-        <>
-          <button
-            onClick={handlePrevious}
-            className="bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-0 rounded-r-md z-40 flex items-center border border-gray-200"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={handleNext}
-            className="bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-0 rounded-l-md z-40 flex items-center border border-gray-200"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </>
-      )}
-
-      <CardContent className="px-0 pt-2 pb-2">
+      <CardContent className="px-0 pt-2 pb-2 relative">
+        {matches.length > 1 && (
+          <>
+            <button
+              onClick={handlePrevious}
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-2 rounded-r-md z-40 flex items-center border border-gray-200"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[64px] p-2 rounded-l-md z-40 flex items-center border border-gray-200"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
         {isLoading && matches.length === 0 ? (
           // Loading state - clean display with spinner only
           <div className="flex justify-center items-center py-20">
