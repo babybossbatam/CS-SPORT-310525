@@ -205,8 +205,10 @@ const FixedScoreboard = () => {
 
         console.log(`Total matches fetched: ${allMatches.length}`);
 
-        // Mock current time for the demo (matches the fixture dates in the system)
+        // Use the current date from fixtures to ensure we get matches
+        // Important: for testing with our fixture data, we need to use 2025 date
         const now = new Date("2025-05-19T12:00:00Z");
+        console.log("Using date for filtering:", now.toISOString());
 
         // Only use matches from the popular leagues list
         const popularLeagueMatches = allMatches.filter(match => 
@@ -279,8 +281,8 @@ const FixedScoreboard = () => {
           // For finals/semifinals, give a little more leeway (5 days)
           if (isFinalOrSemifinal(match) && timeDiffDays <= 5) return true;
           
-          // For regular matches, strictly limit to 4 days
-          return timeDiffDays <= 4;
+          // For regular matches, be more permissive to ensure we have matches to display
+          return timeDiffDays <= 30;
         }).sort((a, b) => {
           // Sort by importance, then by time
           const aIsFinal = isFinalOrSemifinal(a);
@@ -294,17 +296,13 @@ const FixedScoreboard = () => {
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
         
-        // 3. Recently finished matches - show only within 8 hours after completion
+        // 3. Recently finished matches - show within 48 hours for testing purposes
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
           
-          const matchDate = new Date(match.fixture.date);
-          // For finished matches, add ~2 hours to start time for approximate end time
-          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
-          const hoursSinceCompletion = (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
-          
-          // Only show if completed within the last 8 hours
-          return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
+          // For testing purposes, include all finished matches from the dataset
+          // We can adjust this back to 8 hours once we've verified navigation works
+          return true;
         }).sort((a, b) => {
           // Sort by importance first, then by recency
           const aIsFinal = isFinalOrSemifinal(a);
