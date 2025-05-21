@@ -552,7 +552,9 @@ const FixedScoreboard = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden h-full w-full"
             >
-              <Card className="bg-white shadow-sm h-full w-full">
+              <Card className="bg-white shadow-sm h-full w-full cursor-pointer"
+                onClick={handleMatchClick}
+              >
                 <CardContent className="p-0 h-full"
               >
               {/* Match header with league info */}
