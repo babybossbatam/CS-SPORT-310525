@@ -78,8 +78,10 @@ export const rapidApiService = {
         console.log('Using cached data due to API error');
         return cached.data;
       }
-      console.error('API request failed and no cache available');
-      return [];
+      if (error instanceof Error) {
+        throw new Error(`Failed to fetch fixtures: ${error.message}`);
+      }
+      throw new Error('Failed to fetch fixtures: Unknown error');
     }
   },
 

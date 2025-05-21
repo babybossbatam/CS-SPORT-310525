@@ -10,6 +10,14 @@ interface FixtureTimelineProps {
 }
 
 export const FixtureTimeline = ({ fixture, className }: FixtureTimelineProps) => {
+  if (!fixture) {
+    return (
+      <div className={cn("w-full bg-white rounded-lg shadow-sm p-4", className)}>
+        <div className="text-center text-gray-500">Loading match details...</div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("w-full bg-white rounded-lg shadow-sm", className)}>
       <Tabs defaultValue="overview" className="w-full">
