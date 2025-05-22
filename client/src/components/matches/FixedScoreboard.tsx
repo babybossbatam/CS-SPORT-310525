@@ -29,7 +29,7 @@ interface Fixture {
     name?: string;
     city?: string;
   };
-}
+}```typescript
 interface League {
   id: number;
   name: string;
@@ -63,11 +63,11 @@ const FixedScoreboard = () => {
   useEffect(() => {
     const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
     const currentSeason = 2024;
-  
+
     const fetchMatches = async () => {
       try {
         setIsLoading(true);
-  
+
         // Use a smaller date range to reduce data
         const todayDate = "2025-05-19";
         const tomorrowDate = "2025-05-20";
@@ -75,7 +75,7 @@ const FixedScoreboard = () => {
         // Only fetch 2 additional days
         const day3Date = "2025-05-21";
         const day4Date = "2025-05-22";
-  
+
         // Fetch fixtures for popular leagues for latest season with better error handling
         const leaguePromises = popularLeagues.map(async leagueId => {
           try {
@@ -90,24 +90,24 @@ const FixedScoreboard = () => {
             return [];
           }
         });
-  
+
         // Fetch today's fixtures with better error handling
         const todayPromise = (async () => {
           try {
             // Check localStorage for cached data
             const cacheKey = `/api/fixtures/date/${todayDate}`;
             const cachedData = localStorage.getItem(cacheKey);
-  
+
             if (cachedData) {
               return JSON.parse(cachedData);
             }
-  
+
             const response = await apiRequest('GET', `/api/fixtures/date/${todayDate}`);
             if (!response.ok) {
               console.log(`Error fetching today's fixtures: ${response.status}`);
               return [];
             }
-  
+
             const data = await response.json();
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
@@ -116,24 +116,24 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-  
+
         // Fetch tomorrow's fixtures with better error handling
         const tomorrowPromise = (async () => {
           try {
             // Check localStorage for cached data
             const cacheKey = `/api/fixtures/date/${tomorrowDate}`;
             const cachedData = localStorage.getItem(cacheKey);
-  
+
             if (cachedData) {
               return JSON.parse(cachedData);
             }
-  
+
             const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`);
             if (!response.ok) {
               console.log(`Error fetching tomorrow's fixtures: ${response.status}`);
               return [];
             }
-  
+
             const data = await response.json();
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
@@ -142,24 +142,24 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-  
+
         // Fetch yesterday's fixtures with better error handling
         const yesterdayPromise = (async () => {
           try {
             // Check localStorage for cached data
             const cacheKey = `/api/fixtures/date/${yesterdayDate}`;
             const cachedData = localStorage.getItem(cacheKey);
-  
+
             if (cachedData) {
               return JSON.parse(cachedData);
             }
-  
+
             const response = await apiRequest('GET', `/api/fixtures/date/${yesterdayDate}`);
             if (!response.ok) {
               console.log(`Error fetching yesterday's fixtures: ${response.status}`);
               return [];
             }
-  
+
             const data = await response.json();
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
@@ -168,24 +168,24 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-  
+
         // Fetch day 3 fixtures
         const day3Promise = (async () => {
           try {
             // Check localStorage for cached data
             const cacheKey = `/api/fixtures/date/${day3Date}`;
             const cachedData = localStorage.getItem(cacheKey);
-  
+
             if (cachedData) {
               return JSON.parse(cachedData);
             }
-  
+
             const response = await apiRequest('GET', `/api/fixtures/date/${day3Date}`);
             if (!response.ok) {
               console.log(`Error fetching day 3 fixtures: ${response.status}`);
               return [];
             }
-  
+
             const data = await response.json();
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
@@ -194,24 +194,24 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-  
+
         // Fetch day 4 fixtures
         const day4Promise = (async () => {
           try {
             // Check localStorage for cached data
             const cacheKey = `/api/fixtures/date/${day4Date}`;
             const cachedData = localStorage.getItem(cacheKey);
-  
+
             if (cachedData) {
               return JSON.parse(cachedData);
             }
-  
+
             const response = await apiRequest('GET', `/api/fixtures/date/${day4Date}`);
             if (!response.ok) {
               console.log(`Error fetching day 4 fixtures: ${response.status}`);
               return [];
             }
-  
+
             const data = await response.json();
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
@@ -220,7 +220,7 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-  
+
         // Fetch standings for popular leagues to identify top teams
         const standingsPromises = popularLeagues.map(async leagueId => {
           try {
@@ -235,7 +235,7 @@ const FixedScoreboard = () => {
             return null;
           }
         });
-  
+
         // Wait for all API calls to complete
         const [fixtureResults, standingsResults] = await Promise.all([
           Promise.all([
@@ -248,7 +248,7 @@ const FixedScoreboard = () => {
           ]),
           Promise.all(standingsPromises)
         ]);
-  
+
         // Combine and filter out duplicate matches
         const allMatches = Array.from(
           new Map(
@@ -257,22 +257,22 @@ const FixedScoreboard = () => {
               .map(match => [match.fixture.id, match])
           ).values()
         );
-  
+
         console.log(`Total matches fetched: ${allMatches.length}`);
-  
+
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
         const now = new Date();
-  
+
         console.log("Current filtering date:", now.toISOString());
-  
+
         // Only use matches from the popular leagues list
         const popularLeagueMatches = allMatches.filter(match => 
           popularLeagues.includes(match.league.id)
         );
-  
+
         console.log(`Filtered to ${popularLeagueMatches.length} matches from popular leagues only`);
-  
+
         // Extract top 3 teams from standings for each league
         let topTeamIds: number[] = [];
         standingsResults.forEach(leagueStanding => {
@@ -288,160 +288,160 @@ const FixedScoreboard = () => {
             });
           }
         });
-  
+
         // Define popular teams by ID (big teams that should be prioritized)
         // plus top standings teams we extracted above
         const manualPopularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Big teams
-  
+
         // Combine manual and standings-based team IDs and remove duplicates
         const uniqueTeamIds = Array.from(new Set([...manualPopularTeamIds, ...topTeamIds]));
-  
+
         // Helper functions for filtering
         const isPopularTeamMatch = (match: Match) => {
           return uniqueTeamIds.includes(match.teams.home.id) || uniqueTeamIds.includes(match.teams.away.id);
         };
-  
+
         // Check if match is a final or semifinal
         const isFinalOrSemifinal = (match: Match) => {
           const round = match.league.round?.toLowerCase() || '';
           return round.includes('final') || round.includes('semi') || round.includes('semi-final');
         };
-  
+
         // Teams to exclude
         const excludeTeamIds = [52, 76]; // Teams to exclude
-  
+
         // Function to check if a match should be excluded
         const shouldExcludeMatch = (match: Match) => {
           return excludeTeamIds.includes(match.teams.home.id) || 
                  excludeTeamIds.includes(match.teams.away.id);
         };
-  
+
         // Filter matches according to specified criteria - ONLY from popular leagues
-  
+
         // 1. Live matches from popular leagues
         const liveMatches = popularLeagueMatches.filter(match => 
           ['1H', '2H', 'HT', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)
         );
-  
+
         // 2. Upcoming matches - limit to 5 days (a balance to ensure we have enough matches to display)
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
-  
+
           const matchDate = new Date(match.fixture.date);
           const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           const timeDiffDays = timeDiffHours / 24;
-  
+
           // Only include future matches
           if (timeDiffHours < 0) return false;
-  
+
           // For finals/semifinals, give a little more leeway (5 days)
           if (isFinalOrSemifinal(match) && timeDiffDays <= 5) return true;
-  
+
           // For regular matches, be more permissive to ensure we have matches to display
           return timeDiffDays <= 30;
         }).sort((a, b) => {
           // Sort by importance, then by time
           const aIsFinal = isFinalOrSemifinal(a);
           const bIsFinal = isFinalOrSemifinal(b);
-  
+
           // Finals/semifinals first
           if (aIsFinal && !bIsFinal) return -1;
           if (!aIsFinal && bIsFinal) return 1;
-  
+
           // Then by time - closest to now first
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
-  
+
         // 3. Recently finished matches - improved 8-hour window
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
-  
+
           // Calculate hours since match ended
           const matchDate = new Date(match.fixture.date);
           const matchEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000)); // Match + ~2 hours
           const hoursSinceCompletion = (now.getTime() - matchEndTime.getTime()) / (1000 * 60 * 60);
-  
+
           // Debug output to check time calculations
           if (hoursSinceCompletion >= 0 && hoursSinceCompletion <= 10) {
             console.log(`Match within time window: ${match.teams.home.name} vs ${match.teams.away.name}, Hours since: ${hoursSinceCompletion.toFixed(1)}`);
           }
-  
+
           // Show all matches completed within the last 8 hours
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
         }).sort((a, b) => {
           // Sort by importance first, then by recency
           const aIsFinal = isFinalOrSemifinal(a);
           const bIsFinal = isFinalOrSemifinal(b);
-  
+
           // Finals/semifinals first
           if (aIsFinal && !bIsFinal) return -1;
           if (!aIsFinal && bIsFinal) return 1;
-  
+
           // Most recently finished first
           return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
         });
-  
+
         // Log match count for better insight
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.filter(m => {
           const matchDate = new Date(m.fixture.date);
           const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           return timeDiffHours <= 8;
         }).length}, Finished (within 8h): ${finishedMatches.length}`);
-  
+
         // Build the final match list with proper prioritization
         let finalMatches: Match[] = [];
-  
+
         // PRIORITY 1: Live matches with popular teams or finals/semifinals
         const livePopularMatches = liveMatches
           .filter(match => isPopularTeamMatch(match) || isFinalOrSemifinal(match))
           .filter(match => !shouldExcludeMatch(match));
-  
+
         if (livePopularMatches.length >0) {
           finalMatches = [...livePopularMatches];
         }
-  
+
         // PRIORITY 2: Finals or semifinals (upcoming within 3-4 days or just finished)
         const specialMatches = [...upcomingMatches, ...finishedMatches]
           .filter(match => isFinalOrSemifinal(match) && !shouldExcludeMatch(match));
-  
+
         if (specialMatches.length > 0 && finalMatches.length < 6) {
           const specialToAdd = specialMatches
             .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id))
             .slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...specialToAdd];
         }
-  
+
         // PRIORITY 3: Recently finished matches with popular teams
         const finishedPopularMatches = finishedMatches
           .filter(match => isPopularTeamMatch(match) && !shouldExcludeMatch(match))
           .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
-  
+
         if (finishedPopularMatches.length > 0 && finalMatches.length < 6) {
           const finishedToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...finishedToAdd];
         }
-  
+
         // PRIORITY 4: Upcoming matches with popular teams - prioritize closest ones
         const upcomingPopularMatches = upcomingMatches
           .filter(match => isPopularTeamMatch(match) && !shouldExcludeMatch(match))
           .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
-  
+
         if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
           const upcomingToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...upcomingToAdd];
         }
-  
+
         // No need for specific match overrides - we'll use our standard filter criteria
-  
+
         // Ensure limit of exactly 6 matches for the carousel
         finalMatches = finalMatches.slice(0, 6);
-  
+
         console.log(`Displaying ${finalMatches.length} matches`);
-  
+
         if (finalMatches.length > 0) {
           console.log(`First match: ${finalMatches[0].teams.home.name} vs ${finalMatches[0].teams.away.name}`);
         }
-  
+
         setMatches(finalMatches);
       } catch (error) {
         console.error('Error fetching matches:', error);
@@ -454,22 +454,22 @@ const FixedScoreboard = () => {
         setIsLoading(false);
       }
     };
-  
+
     fetchMatches();
-  
+
     // Refresh data every 5 minutes
     const interval = setInterval(() => {
       fetchMatches();
       // Clear local storage to re-fetch every day (or shorter interval if needed)
       localStorage.clear();
     }, 5 * 60 * 1000);
-  
+
     return () => clearInterval(interval);
   }, [toast]);
 
   useEffect(() => {
     if (!matches.length) return;
-    
+
     // Preload team logos
     matches.forEach(match => {
         const homeLogo = match?.teams?.home?.logo;
@@ -487,7 +487,7 @@ const FixedScoreboard = () => {
 
   useEffect(() => {
       if (!matches.length) return;
-  
+
       // Preload team logos
       matches.forEach(match => {
           const homeLogo = match?.teams?.home?.logo;
@@ -501,12 +501,12 @@ const FixedScoreboard = () => {
               img.src = awayLogo;
           }
       });
-  
+
       // Find match within 8 hours window
       const now = new Date("2025-05-19T12:00:00Z");
       const upcomingMatchIndex = matches.findIndex(match => {
           if (match.fixture.status.short !== 'NS') return false;
-  
+
           try {
               const matchDate = parseISO(match.fixture.date);
               const hoursToMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -515,7 +515,7 @@ const FixedScoreboard = () => {
               return false;
           }
       });
-  
+
       // If we found a match within 8 hours, display it
       if (upcomingMatchIndex !== -1) {
           setCurrentIndex(upcomingMatchIndex);
@@ -542,33 +542,33 @@ const FixedScoreboard = () => {
     // Update timer for live matches
     useEffect(() => {
       if (!currentMatch) return;
-  
+
       // Only set up timer for live matches
       if (!['1H', '2H'].includes(currentMatch.fixture.status.short)) {
         setLiveElapsed(null);
         return;
       }
-  
+
       // Initialize with current elapsed time from the API
       if (currentMatch.fixture.status.elapsed) {
         setLiveElapsed(currentMatch.fixture.status.elapsed);
       }
-  
+
       // Update timer every minute for live matches
       const timer = setInterval(() => {
         setLiveElapsed(prev => prev !== null ? prev + 1 : prev);
       }, 60000); // Update every minute
-  
+
       return () => clearInterval(timer);
     }, [currentMatch]);
 
     const getMatchStatus = (match: Match | undefined) => {
       if (!match) return 'No Match Data';
-  
+
       const { fixture } = match;
       // Use hardcoded "now" for demo purposes to match the fixture dates in our data
       const now = new Date("2025-05-19T12:00:00Z");
-  
+
       // LIVE MATCHES - show match minute or halftime
       if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
         // For halftime
@@ -594,7 +594,7 @@ const FixedScoreboard = () => {
           // Calculate how long ago match ended (add ~2 hours to start time)
           const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
           const hoursSince = Math.floor((now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60));
-  
+
           if (hoursSince <= 1) {
             return 'Just finished';
           } else if (hoursSince < 8) {
@@ -611,11 +611,11 @@ const FixedScoreboard = () => {
         try {
           const matchDate = parseISO(fixture.date);
           const now = new Date("2025-05-19T12:00:00Z"); // Use same hardcoded time as above for consistency
-  
+
           // Get time differences in various units
           const msToMatch = matchDate.getTime() - now.getTime();
           const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
-  
+
           // For matches today, show a simple format
           if (daysToMatch === 0) {
             try {
@@ -639,7 +639,7 @@ const FixedScoreboard = () => {
               return <span className="text-gray-500">Today</span>;
             }
           }
-  
+
           // For matches tomorrow or later, show the regular format
           if (daysToMatch === 1) {
             return <span className="text-gray-500">Tomorrow</span>;
@@ -653,13 +653,13 @@ const FixedScoreboard = () => {
         }
       }
     };
-  
+
     // Get match status label with proper formatting
     const getMatchStatusLabel = (match: Match | undefined) => {
       if (!match) return '';
-  
+
       const { fixture, league } = match;
-  
+
       if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
         return 'LIVE';
       } else if (fixture.status.short === 'FT') {
@@ -802,7 +802,8 @@ const FixedScoreboard = () => {
                     {(() => {
                       try {
                         const matchDate = parseISO(currentMatch.fixture.date);
-                        return format(matchDate, 'MMM d');
+                        ```typescript
+return format(matchDate, 'MMM d');
                       } catch (e) {
                         return '';
                       }
@@ -814,8 +815,7 @@ const FixedScoreboard = () => {
               {/* Fixed height container for match status and score */}
               <div className="h-[80px] flex flex-col justify-center" style={{ marginBottom: '-5px' }}>
                 {/* Match time/status display */}
-                <div className="font-medium text-center"```typescript
- style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>                  {getMatchStatus(currentMatch)}
+                <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>                  {getMatchStatus(currentMatch)}
                 </div>
 
                 {/* Score display with date for finished matches */}
@@ -976,7 +976,7 @@ const FixedScoreboard = () => {
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/h2h`)}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2Z" fill="currentColor" />
+                    <path d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z" fill="currentColor" />
                   </svg>
                   <span className="text-[0.75rem] text-gray-600 mt-1">H2H</span>
                 </button>
