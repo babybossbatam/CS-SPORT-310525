@@ -835,14 +835,13 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Team scoreboard */}
-              <div className="relative">
-                <div 
-                  className="flex relative h-[53px] rounded-md mb-8"
-                  onClick={handleMatchClick}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="w-full h-full flex justify-between relative">
-                    {/* Home team colored bar and logo */}
+              {/* Team scoreboard with VS centered */}
+              <div 
+                className="flex relative h-[53px] rounded-md mb-8"
+                onClick={handleMatchClick}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Home team colored bar and logo */}
                     <div className="h-full w-[calc(50%-64px)] ml-[64px] relative" 
                       style={{ 
                         background: getTeamColor(currentMatch?.teams?.home?.id || 0)
