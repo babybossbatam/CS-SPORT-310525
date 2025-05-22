@@ -760,50 +760,57 @@ const FixedScoreboard = () => {
               className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
               onClick={handleMatchClick}
             >
-                {/* League info and match header at the top */}
+                <div className="p-0 h-full my-[10px] relative">
+              {/* League info and match header at the top */}
               <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[60px] bg-white/95 backdrop-blur-sm">
-
+                <div className="flex items-center justify-center mb-1">
+                  <div className="flex-shrink-0 mr-2">
+                    {currentMatch?.league?.logo ? (
                       <img 
-                        src={currentMatch?.league?.logo} 
+                        src={currentMatch.league.logo} 
                         alt={currentMatch.league.name} 
                         className="w-5 h-5 object-contain"
                         onError={(e) => {
                           e.currentTarget.src = '/assets/fallback-logo.svg';
                         }}
                       />
-
-                  <p className="text-sm font-medium text-black whitespace-nowrap">
-                    {currentMatch?.league?.name || 'League Name'}
-                  </p>
-                  <span className="text-gray-400 mx-1">•</span>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-[10px] px-2 py-0.5 border whitespace-nowrap ${
-                      getMatchStatusLabel(currentMatch) === 'LIVE' 
-                        ? 'border-red-500 text-red-500 animate-pulse' 
-                        : getMatchStatusLabel(currentMatch) === 'FINISHED'
-                          ? 'border-gray-500 text-gray-500'
-                          : 'border-blue-500 text-blue-500'
-                    }`}
-                  >
-                    {getMatchStatusLabel(currentMatch)}
-                  </Badge>
-                  <span className="text-gray-400 mx-1">•</span>
-                  <span className="text-sm text-gray-500 whitespace-nowrap">
-                    {(() => {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        return format(matchDate, 'MMM d');
-                      } catch (e) {
-                        return '';
-                      }
-                    })()}
-                  </span>
+                    ) : (
+                      <Trophy className="w-5 h-5 text-amber-500" />
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <p className="text-sm font-medium text-black mr-2">
+                      {currentMatch?.league?.name || 'League Name'}
+                    </p>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[10px] px-1.5 py-0 border ${
+                        getMatchStatusLabel(currentMatch) === 'LIVE' 
+                          ? 'border-red-500 text-red-500 animate-pulse' 
+                          : getMatchStatusLabel(currentMatch) === 'FINISHED'
+                            ? 'border-gray-500 text-gray-500'
+                            : 'border-blue-500 text-blue-500'
+                      }`}
+                    >
+                      {getMatchStatusLabel(currentMatch)}
+                    </Badge>
+                  </div>
+                </div>
+                {/* Match date row */}
+                <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center">
+                  {(() => {
+                    try {
+                      const matchDate = parseISO(currentMatch.fixture.date);
+                      return format(matchDate, 'MMM d');
+                    } catch (e) {
+                      return '';
+                    }
+                  })()}
+                </div>
               </div>
 
               {/* Fixed height container for match status and score */}
-              <div className="h-[80px] flex flex-col justify-center" style={{ marginBottom:// Removing outer div and keeping content.
- '-5px' }}>
+              <div className="h-[80px] flex flex-col justify-center" style={{ marginBottom: '-5px' }}>
                 {/* Match time/status display */}
                 <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>                  {getMatchStatus(currentMatch)}
                 </div>
@@ -835,13 +842,14 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Team scoreboard */}
-              {/* Team scoreboard with VS centered */}
-              <div 
-                className="flex relative h-[53px] rounded-md mb-8"
-                onClick={handleMatchClick}
-                style={{ cursor: 'pointer' }}
-              >
-                {/* Home team colored bar and logo */}
+              <div className="relative">
+                <div 
+                  className="flex relative h-[53px] rounded-md mb-8"
+                  onClick={handleMatchClick}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="w-full h-full flex justify-between relative">
+                    {/* Home team colored bar and logo */}
                     <div className="h-full w-[calc(50%-64px)] ml-[64px] relative" 
                       style={{ 
                         background: getTeamColor(currentMatch?.teams?.home?.id || 0)
@@ -938,7 +946,7 @@ const FixedScoreboard = () => {
 
                     </div>
                 </div>
-              
+              </div>
 
               {/* Bottom navigation */}
               <div className="flex justify-around border-t border-gray-200 pt-4">
@@ -995,11 +1003,12 @@ const FixedScoreboard = () => {
                   ))}
                 </div>
               )}
-            
-          
-        
-      
-    
+            </div>
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </Card>
+    </>
   );
 };
 
