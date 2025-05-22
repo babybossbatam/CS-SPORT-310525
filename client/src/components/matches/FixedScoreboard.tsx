@@ -839,7 +839,7 @@ const FixedScoreboard = () => {
                     </div>
 
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-32px)] mr-[32px]" 
+                    <div className="h-full w-[calc(50%-52px)] mr-[52px]" 
                       style={{ 
                         background: getTeamColor(currentMatch.teams.away.id)
                       }}
@@ -849,7 +849,7 @@ const FixedScoreboard = () => {
                     <img 
                       src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                       alt={currentMatch?.teams?.away?.name || 'Away Team'} 
-                      className="absolute right-[13px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute right-[-7px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
                         top: "calc(50% - 32px)"
@@ -860,7 +860,7 @@ const FixedScoreboard = () => {
                       }}
                     />
 
-                    <div className="absolute right-[87px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+                    <div className="absolute right-[67px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch?.teams?.away?.name || 'Away Team'}
                     </div>
                   </div>
