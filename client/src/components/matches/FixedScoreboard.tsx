@@ -825,15 +825,8 @@ const FixedScoreboard = () => {
                       <span>{currentMatch?.goals?.away ?? 0}</span>
                     </div>
                     <span className="text-sm text-gray-500">•</span>
-                    <div className="text-sm text-gray-500">
-                      {(() => {
-                        try {
-                          const matchDate = parseISO(currentMatch.fixture.date);
-                          return format(matchDate, 'MMM d');
-                        } catch (e) {
-                          return '';
-                        }
-                      })()}
+                    <div className="text-sm font-semibold">
+                      {currentMatch?.goals?.home ?? 0} - {currentMatch?.goals?.away ?? 0}
                     </div>
                   </>
                 )}
