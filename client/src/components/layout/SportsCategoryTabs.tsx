@@ -1,4 +1,3 @@
-
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState, uiActions } from '@/lib/store';
@@ -54,14 +53,14 @@ const SportsCategoryTabs = () => {
               key={id}
               onClick={() => handleSportSelect(id)}
               className={cn(
-                'flex flex-col items-center p-2 w-full transition-all duration-200 ease-in-out rounded-lg',
+                'flex flex-col items-center p-1.5 w-full transition-all duration-200 ease-in-out rounded-lg',
                 selectedSport === id
                   ? 'text-[#15222A] bg-gray-100'
                   : 'text-[#6B7173] hover:text-[#15222A] hover:bg-gray-50/50'
               )}
             >
-              <Icon className="h-4.5 w-4.5 mb-1" />
-              <span className="text-sm font-normal">{label}</span>
+              <Icon className="h-3 w-3 mb-1" />
+              <span className="text-xs font-normal">{label}</span>
             </button>
           ))}
         </div>
