@@ -798,7 +798,8 @@ const FixedScoreboard = () => {
                   <span className="text-gray-400 mx-1">•</span>
                   <span className="text-sm text-gray-500 whitespace-nowrap">
                     {(() => {
-                      try {
+                      ```javascript
+try {
                         const matchDate = parseISO(currentMatch.fixture.date);
                         return format(matchDate, 'MMM d');
                       } catch (e) {
@@ -1004,12 +1005,12 @@ const FixedScoreboard = () => {
                 </div>
               )}
             </div>
-              </motion.div>
-            </AnimatePresence>
-          )}
-        </Card>
-      </>
-    );
+          </motion.div>
+        </AnimatePresence>
+      )}
+    </Card>
+  </>
+);
 };
 
 export default FixedScoreboard;
