@@ -815,17 +815,28 @@ const FixedScoreboard = () => {
                 <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>                  {getMatchStatus(currentMatch)}
                 </div>
 
-                {/* Score display for finished matches */}
-                <div className="h-[24px] flex items-center justify-center">
+                {/* Score display with date for finished matches */}
+                <div className="h-[24px] flex items-center justify-center gap-3">
                   {currentMatch?.fixture?.status?.short && 
                    ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
-
-                    <div className="text-xl font-bold flex gap-2 items-center">
-                      <span>{currentMatch?.goals?.home ?? 0}</span>
-                      <span className="text-base">-</span>
-                      <span>{currentMatch?.goals?.away ?? 0}</span>
-                    </div>
-
+                    <>
+                      <div className="text-xl font-bold flex gap-2 items-center">
+                        <span>{currentMatch?.goals?.home ?? 0}</span>
+                        <span className="text-base">-</span>
+                        <span>{currentMatch?.goals?.away ?? 0}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">•</span>
+                      <div className="text-sm text-gray-500">
+                        {(() => {
+                          try {
+                            const matchDate = parseISO(currentMatch.fixture.date);
+                            return format(matchDate, 'MMM d');
+                          } catch (e) {
+                            return '';
+                          }
+                        })()}
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
