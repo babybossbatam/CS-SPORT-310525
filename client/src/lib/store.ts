@@ -1,4 +1,4 @@
-import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore, createSlice, createSelector, PayloadAction } from '@reduxjs/toolkit';
 import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../../../server/types';
 import { NewsItem } from '@/components/news/NewsCard';
 import { exclusionTerms, shouldExcludeFixture } from './exclusionFilters';
@@ -403,6 +403,27 @@ export const store = configureStore({
       },
     }),
 });
+
+// Memoized Selectors
+export const selectFixturesByDate = createSelector(
+  [(state: RootState) => state.fixtures.byDate],
+  (byDate) => byDate
+);
+
+export const selectFixturesByLeague = createSelector(
+  [(state: RootState) => state.fixtures.byLeague],
+  (byLeague) => byLeague
+);
+
+export const selectLiveFixtures = createSelector(
+  [(state: RootState) => state.fixtures.live],
+  (live) => live
+);
+
+export const selectUpcomingFixtures = createSelector(
+  [(state: RootState) => state.fixtures.upcoming],
+  (upcoming) => upcoming
+);
 
 // Export types
 export type RootState = ReturnType<typeof store.getState>;
