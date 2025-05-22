@@ -82,9 +82,15 @@ app.use((req, res, next) => {
     }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryPort < 5010) {
         log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
-        tryListen(retryPort + 1);
+        if (retryPort + 1 <= 5010) {
+            tryListen(retryPort + 1);
+        } else {
+            console.error("Failed to find an open port between 5000 and 5010");
+            process.exit(1);
+        }
       } else {
-        throw err;
+        console.error("Failed to start server:", err);
+        process.exit(1);
       }
     });
   };
