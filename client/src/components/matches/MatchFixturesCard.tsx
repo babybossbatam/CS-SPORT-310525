@@ -32,7 +32,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     >
       <div className="p-4">
         <div className="flex items-center text-xs text-gray-500 mb-2">
-          <Calendar className="h-3 w-3 mr-1" />
+          <CalendarIcon className="h-3 w-3 mr-1" />
           <span>{format(parseISO(fixture.fixture.date), 'EEE, MMM d')}</span>
           <span className="mx-2">•</span>
           <Clock className="h-3 w-3 mr-1" />
