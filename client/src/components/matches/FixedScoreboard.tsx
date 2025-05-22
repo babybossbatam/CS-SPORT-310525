@@ -782,7 +782,7 @@ const FixedScoreboard = () => {
                     )}
                   </div>
                   <div className="flex items-center">
-                    <p className="text-xs font-medium text-gray-700 mr-2">
+                    <p className="text-xs font-medium text-black mr-2">
                       {currentMatch?.league?.name || 'League Name'}
                     </p>
                     <Badge 
@@ -800,7 +800,7 @@ const FixedScoreboard = () => {
                   </div>
                 </div>
                 {/* Match date row */}
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-black">
                   {(() => {
                     try {
                       const matchDate = parseISO(currentMatch.fixture.date);
