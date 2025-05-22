@@ -820,23 +820,7 @@ const FixedScoreboard = () => {
                       {currentMatch?.teams?.home?.name || 'TBD'}
                     </div>
 
-                    {/* Score display above the VS circle */}
-                    {currentMatch.fixture.status.short !== 'NS' && (
-                      <div 
-                        className="absolute text-white font-bold text-xl z-30 text-center"
-                        style={{
-                          left: 'calc(50% - 35px)', 
-                          top: 'calc(50% - 40px)',
-                          width: '70px'
-                        }}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <span>{currentMatch.goals.home ?? 0}</span>
-                          <span className="text-sm">-</span>
-                          <span>{currentMatch.goals.away ?? 0}</span>
-                        </div>
-                      </div>
-                    )}
+                    
 
                     {/* VS circle */}
                     <div 
