@@ -800,7 +800,7 @@ const FixedScoreboard = () => {
                     {(() => {
                       try {
                         const matchDate = parseISO(currentMatch.fixture.date);
-                        return format(matchDate, ''MMM d');
+                        return format(matchDate, 'MMM d');
                       } catch (e) {
                         return '';
                       }
