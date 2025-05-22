@@ -757,13 +757,10 @@ const FixedScoreboard = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden h-full w-full"
+              className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
+              onClick={handleMatchClick}
             >
-              <Card className="bg-white shadow-sm h-[280px] w-full cursor-pointer"
-                onClick={handleMatchClick}
-              >
-                <CardContent className="p-0 h-full my-[10px] relative"
-              >
+                <div className="p-0 h-full my-[10px] relative">
               {/* League info and match header at the top */}
               <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[60px] bg-white/95 backdrop-blur-sm">
                 <div className="flex items-center justify-center mb-1">
@@ -995,8 +992,7 @@ const FixedScoreboard = () => {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
             </motion.div>
           </AnimatePresence>
         )}
