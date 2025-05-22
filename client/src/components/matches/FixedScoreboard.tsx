@@ -762,7 +762,7 @@ const FixedScoreboard = () => {
               <Card className="bg-white shadow-sm h-full w-full cursor-pointer"
                 onClick={handleMatchClick}
               >
-                <CardContent className="p-0 h-full"
+                <CardContent className="p-0 h-full my-[10px]"
               >
               {/* League info and match header at the top */}
               <div className="absolute top-0 left-0 right-0 z-40 flex flex-col items-center justify-center pt-2 pb-1 bg-white/95 backdrop-blur-sm">
