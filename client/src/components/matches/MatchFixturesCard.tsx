@@ -95,8 +95,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           
           <TabsContent value="fixtures">
             <div className="divide-y divide-gray-100">
-              {futureFixtures.length > 0 ? (
-                futureFixtures.slice(0, 5).map(renderFixture)
+              {upcomingFixtures.length > 0 ? (
+                upcomingFixtures.map(renderFixture)
               ) : (
                 <div className="p-4 text-center text-gray-500">
                   No upcoming fixtures
