@@ -775,24 +775,7 @@ const FixedScoreboard = () => {
                       }}
                     >
                       {currentMatch?.teams?.home && (
-                      <img 
-                        src={currentMatch.teams.home.logo || `/assets/fallback-logo.svg`}
-                        alt={currentMatch.teams.home.name || 'Home Team'} 
-                        className="absolute left-[-27px] z-20 w-[64px] h-[64px] object-contain"
-                        style={{
-                          cursor: 'pointer',
-                          top: "calc(50% - 32px)"
-                        }}
-                        onClick={handleMatchClick}
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
-                            target.src = currentMatch.teams.home.logo;
-                          } else if (target.src !== '/assets/fallback-logo.svg') {
-                            target.src = '/assets/fallback-logo.svg';
-                          }
-                        }}
-                      />
+                      
                     )}
 
                       {/* Match time & venue information below VS - for ALL matches */}
@@ -843,19 +826,9 @@ const FixedScoreboard = () => {
                     >
                     </div>
 
-                    <img 
-                      src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
-                      alt={currentMatch?.teams?.away?.name || 'Away Team'} 
-                      className="absolute right-[13px] z-20 w-[64px] h-[64px] object-contain"
-                      style={{
-                        cursor: 'pointer',
-                        top: "calc(50% - 32px)"
-                      }}
-                      onClick={handleMatchClick}
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
+                    
+                      
+                    
 
                     <div className="absolute right-[87px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                       {currentMatch?.teams?.away?.name || 'Away Team'}
@@ -870,39 +843,28 @@ const FixedScoreboard = () => {
                   className="flex flex-col items-center cursor-pointer w-1/4"
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
-                  </svg>
+                  
                   <span className="text-xs text-gray-600 mt-1">Match Page</span>
                 </button>
                 <button 
                   className="flex flex-col items-center cursor-pointer w-1/4"
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
-                  </svg>
+                  
                   <span className="text-xs text-gray-600 mt-1">Lineups</span>
                 </button>
                 <button 
                   className="flex flex-col items-center cursor-pointer w-1/4"
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/stats`)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor" />
-                  </svg>
+                  
                   <span className="text-xs text-gray-600 mt-1">Stats</span>
                 </button>
                 <button 
                   className="flex flex-col items-center cursor-pointer w-1/4"
                   onClick={() => currentMatch?.league?.id && navigate(`/league/${currentMatch.league.id}/standings`)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor" />
-                    <path d="M7 7H9V17H7V7Z" fill="currentColor" />
-                    <path d="M11 7H13V17H11V7Z" fill="currentColor" />
-                    <path d="M15 7H17V17H15V7Z" fill="currentColor" />
-                  </svg>
+                  
                   <span className="text-xs text-gray-600 mt-1">Standings</span>
                 </button>
               </div>
@@ -913,14 +875,7 @@ const FixedScoreboard = () => {
               {matches.length > 1 && (
                 <div className="flex justify-center gap-2 my-4">
                   {matches.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                        index === currentIndex ? 'bg-black' : 'bg-gray-300'
-                      }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
+                    
                   ))}
                 </div>
               )}
