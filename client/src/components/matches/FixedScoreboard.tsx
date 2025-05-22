@@ -262,7 +262,7 @@ const FixedScoreboard = () => {
 
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
-        const now = new Date("2025-05-21T23:00:00Z");
+        const now = new Date();
 
         console.log("Current filtering date:", now.toISOString());
 
