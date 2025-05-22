@@ -802,7 +802,6 @@ const FixedScoreboard = () => {
                 {/* Match date row */}
                 <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center">
                   {(() => {
-                    The code updates the styling of the away team name in the FixedScoreboard component to match the home team's styling.```text
                     try {
                       const matchDate = parseISO(currentMatch.fixture.date);
                       return format(matchDate, 'MMM d');
