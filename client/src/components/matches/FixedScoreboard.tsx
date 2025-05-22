@@ -1003,7 +1003,6 @@ const FixedScoreboard = () => {
                   ))}
                 </div>
               </div>
-              </div>
             </motion.div>
           </AnimatePresence>
         )}
