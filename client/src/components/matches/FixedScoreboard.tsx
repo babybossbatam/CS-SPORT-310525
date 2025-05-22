@@ -775,8 +775,16 @@ const FixedScoreboard = () => {
                       }}
                     >
                       {currentMatch?.teams?.home && (
-                      
-                    )}
+                        <img 
+                          src={currentMatch.teams.home.logo}
+                          alt={currentMatch.teams.home.name}
+                          className="h-6 w-6 object-contain absolute left-4"
+                          style={{ top: 'calc(50% - 12px)' }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                          }}
+                        />
+                      )}
 
                       {/* Match time & venue information below VS - for ALL matches */}
                       <div className="absolute text-center text-xs text-gray-500 w-[300px]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible', textAlign: 'center', zIndex: 30, left: '50%', transform: 'translateX(-50%)', top: 'calc(50% + 40px)' }}>
