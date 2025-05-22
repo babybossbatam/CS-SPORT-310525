@@ -9,6 +9,7 @@ import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import FixedMatchTimer from './FixedMatchTimer';
+import { getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
 
 // Types
 interface Team {
