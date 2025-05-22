@@ -1,6 +1,8 @@
 import { format, parseISO } from 'date-fns';
 import { Calendar, Clock } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
+import { Calendar } from '../ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -92,10 +94,22 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <button className="p-2 hover:bg-gray-100 rounded-full">
               <ChevronLeft className="h-5 w-5 text-gray-600" />
             </button>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold">Today's Matches</h2>
-              <ChevronDown className="h-4 w-4 text-gray-600" />
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <h2 className="text-lg font-semibold">Today's Matches</h2>
+                  <ChevronDown className="h-4 w-4 text-gray-600" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <Calendar
+                  mode="single"
+                  className="rounded-md border"
+                  selected={new Date()}
+                  onSelect={(date) => console.log(date)}
+                />
+              </PopoverContent>
+            </Popover>
             <button className="p-2 hover:bg-gray-100 rounded-full">
               <ChevronRight className="h-5 w-5 text-gray-600" />
             </button>
