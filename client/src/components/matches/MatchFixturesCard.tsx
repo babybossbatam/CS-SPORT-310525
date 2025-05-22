@@ -1,4 +1,3 @@
-
 import { format, parseISO } from 'date-fns';
 import { Calendar, Clock } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
@@ -37,7 +36,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <Clock className="h-3 w-3 mr-1" />
           <span>{format(parseISO(fixture.fixture.date), 'HH:mm')}</span>
         </div>
-        
+
         <div className="grid grid-cols-7 items-center">
           <div className="col-span-3 flex items-center justify-end space-x-3">
             <span className="font-medium text-right">{fixture.teams.home.name}</span>
@@ -50,7 +49,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               }}
             />
           </div>
-          
+
           <div className="col-span-1 flex justify-center font-semibold">
             <span className={cn(
               "px-3 py-1 rounded",
@@ -62,7 +61,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               }
             </span>
           </div>
-          
+
           <div className="col-span-3 flex items-center space-x-3">
             <img 
               src={fixture.teams.away.logo}
@@ -75,7 +74,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <span className="font-medium">{fixture.teams.away.name}</span>
           </div>
         </div>
-        
+
         {fixture.fixture.venue.name && (
           <div className="mt-2 text-xs text-gray-500">
             {fixture.fixture.venue.name}, {fixture.fixture.venue.city}
@@ -101,9 +100,21 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               <ChevronRight className="h-5 w-5 text-gray-600" />
             </button>
           </div>
+          <div className="flex gap-2 px-4 py-2 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="bg-gray-600 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1">
+                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                Live
+              </div>
+              <div className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                By time
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
-      
+
       <Card className="bg-white shadow-md">
         <CardContent className="p-0">
         <Tabs defaultValue="fixtures" className="w-full">
@@ -111,7 +122,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <TabsTrigger value="fixtures">Upcoming</TabsTrigger>
             <TabsTrigger value="results">Completed</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="fixtures">
             <div className="divide-y divide-gray-100">
               {upcomingFixtures.length > 0 ? (
@@ -123,7 +134,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               )}
             </div>
           </TabsContent>
-          
+
           <TabsContent value="results">
             <div className="divide-y divide-gray-100">
               {completedFixtures.length > 0 ? (
