@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
@@ -48,7 +47,7 @@ interface Standing {
 const LeagueStandingsFilter = () => {
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id.toString());
 
-  const { data: standings, isLoading } = useQuery({
+  const { data: standings, isLoading: standingsLoading } = useQuery({
     queryKey: ['standings', selectedLeague],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
@@ -56,6 +55,16 @@ const LeagueStandingsFilter = () => {
       return data?.league?.standings?.[0] || [];
     },
   });
+
+  const { data: fixtures, isLoading: fixturesLoading } = useQuery({
+    queryKey: ['fixtures', selectedLeague],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/fixtures`);
+      return response.json();
+    },
+  });
+
+  const isLoading = standingsLoading || fixturesLoading;
 
   if (isLoading) {
     return (
