@@ -29,7 +29,7 @@ interface Fixture {
     name?: string;
     city?: string;
   };
-}```typescript
+}
 interface League {
   id: number;
   name: string;
