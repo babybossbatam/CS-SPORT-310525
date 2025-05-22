@@ -86,21 +86,26 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   );
 
   return (
-    <Card className="bg-white shadow-md">
-      <CardContent className="p-0">
-        {/* Today's Matches Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <button className="p-2 hover:bg-gray-100 rounded-full">
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
-          </button>
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Today's Matches</h2>
-            <ChevronDown className="h-4 w-4 text-gray-600" />
+    <div className="space-y-4">
+      <Card className="bg-white shadow-md">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <button className="p-2 hover:bg-gray-100 rounded-full">
+              <ChevronLeft className="h-5 w-5 text-gray-600" />
+            </button>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold">Today's Matches</h2>
+              <ChevronDown className="h-4 w-4 text-gray-600" />
+            </div>
+            <button className="p-2 hover:bg-gray-100 rounded-full">
+              <ChevronRight className="h-5 w-5 text-gray-600" />
+            </button>
           </div>
-          <button className="p-2 hover:bg-gray-100 rounded-full">
-            <ChevronRight className="h-5 w-5 text-gray-600" />
-          </button>
-        </div>
+        </CardContent>
+      </Card>
+      
+      <Card className="bg-white shadow-md">
+        <CardContent className="p-0">
         <Tabs defaultValue="fixtures" className="w-full">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
             <TabsTrigger value="fixtures">Upcoming</TabsTrigger>
@@ -135,7 +140,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 };
 
