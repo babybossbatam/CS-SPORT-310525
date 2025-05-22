@@ -909,36 +909,38 @@ const FixedScoreboard = () => {
                       <span className="vs-text font-bold">VS</span>
                     </div>
 
-                    {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-52px)] mr-[52px]" 
-                      style={{ 
-                        background: getTeamColor(currentMatch.teams.away.id)
-                      }}
-                    >
-                    </div>
+                    {/* Away team group */}
+                    <div className="relative flex items-center">
+                      <div className="h-full w-[calc(50%-52px)] mr-[52px]" 
+                        style={{ 
+                          background: getTeamColor(currentMatch.teams.away.id)
+                        }}
+                      >
+                      </div>
 
-                    <img 
-                      src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
-                      alt={currentMatch?.teams?.away?.name || 'Away Team'} 
-                      className="absolute z-20 w-[64px] h-[64px] object-contain"
-                      style={{
-                        cursor: 'pointer',
-                        top: "calc(50% - 32px)",
-                        right: "0px"
-                      }}
-                      onClick={handleMatchClick}
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
+                      <div className="absolute text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)", right: "80px"}}>
+                        {currentMatch?.teams?.away?.name || 'Away Team'}
+                      </div>
+
+                      <img 
+                        src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
+                        alt={currentMatch?.teams?.away?.name || 'Away Team'} 
+                        className="absolute z-20 w-[64px] h-[64px] object-contain"
+                        style={{
+                          cursor: 'pointer',
+                          top: "calc(50% - 32px)",
+                          right: "0px"
+                        }}
+                        onClick={handleMatchClick}
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/fallback-logo.svg';
+                        }}
+                      />
+                    </div>
 
                     </div>
                 </div>
               </div>
-
-              <div className="absolute text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 26px)", right: "80px"}}>
-                      {currentMatch?.teams?.away?.name || 'Away Team'}
-                    </div>
 
               {/* Bottom navigation */}
               <div className="flex justify-around border-t border-gray-200 pt-4">
