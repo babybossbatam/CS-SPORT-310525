@@ -870,7 +870,7 @@ const FixedScoreboard = () => {
                     )}
 
                       {/* Match time & venue information below VS - for ALL matches */}
-                      <div className="absolute text-center text-xs text-gray-500 w-[300px]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible', textAlign: 'center', zIndex: 30, left: '50%', transform: 'translateX(-50%)', top: 'calc(50% + 40px)' }}>
+                      <div className="absolute text-center text-xs text-gray-500 w-[300px]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible', textAlign: 'center', zIndex: 30, left: '50%', transform: 'translateX(-50%)', top: 'calc(50% + 35px)' }}>
                         {(() => {
                           try {
                             const matchDate = parseISO(currentMatch.fixture.date);
