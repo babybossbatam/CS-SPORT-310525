@@ -941,15 +941,15 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Bottom navigation */}
-              <div className="flex justify-around border-t border-gray-200 pt-3">
+              <div className="flex justify-around border-t border-gray-200 pt-4">
                 <button 
                   className="flex flex-col items-center cursor-pointer w-1/4"
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" className="text-gray-600">
+                  <svg width="21" height="21" viewBox="0 0 24 24" className="text-gray-600">
                     <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
                   </svg>
-                  <span className="text-[0.65rem] text-gray-600 mt-0.5">Match Page</span>
+                  <span className="text-[0.975rem] text-gray-600 mt-1">Match Page</span>
                 </button>
                 <button 
                   className="flex flex-col items-center cursor-pointer w-1/4"
