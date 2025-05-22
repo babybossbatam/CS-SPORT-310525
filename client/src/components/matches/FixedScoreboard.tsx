@@ -9,7 +9,7 @@ import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import FixedMatchTimer from './FixedMatchTimer';
-import { getTeamColor, getOpposingTeamColor } from '@/lib/colorUtils';
+import { getTeamColor } from '@/lib/colorUtils';
 
 // Types
 interface Team {
@@ -844,7 +844,7 @@ const FixedScoreboard = () => {
                     <div 
                       className="h-full w-[calc(50%-32px)] mr-[32px]" 
                       style={{ 
-                        background: `linear-gradient(90deg, ${getTeamColor(currentMatch?.teams?.away?.name || '')} 0%, ${getOpposingTeamColor(currentMatch?.teams?.home?.name || '', currentMatch?.teams?.away?.name || '')} 100%)`
+                        background: `linear-gradient(90deg, ${getTeamColor(currentMatch?.teams?.away?.name || '')} 0%, ${getTeamColor(currentMatch?.teams?.home?.name || '')} 100%)`
                       }}
                     >
                     </div>
