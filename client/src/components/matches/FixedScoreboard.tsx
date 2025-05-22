@@ -849,7 +849,7 @@ const FixedScoreboard = () => {
                     <img 
                       src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                       alt={currentMatch?.teams?.away?.name || 'Away Team'} 
-                      className="absolute right-[-7px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute right-[-27px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
                         top: "calc(50% - 32px)"
