@@ -802,6 +802,7 @@ const FixedScoreboard = () => {
                 {/* Match date row */}
                 <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center">
                   {(() => {
+                    The code updates the styling of the away team name in the FixedScoreboard component to match the home team's styling.```text
                     try {
                       const matchDate = parseISO(currentMatch.fixture.date);
                       return format(matchDate, 'MMM d');
@@ -936,9 +937,9 @@ const FixedScoreboard = () => {
                 </div>
               </div>
 
-              <div className="absolute right-[137px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
-                {currentMatch?.teams?.away?.name || 'Away Team'}
-              </div>
+              <div className="absolute text-white font-bold text-sm uppercase text-center w-full" style={{top: "calc(50% - 8px)", left: "0", right: "0"}}>
+                      {currentMatch?.teams?.away?.name || 'Away Team'}
+                    </div>
 
               {/* Bottom navigation */}
               <div className="flex justify-around border-t border-gray-200 pt-4">
