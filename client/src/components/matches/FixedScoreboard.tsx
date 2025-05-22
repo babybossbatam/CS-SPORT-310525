@@ -866,10 +866,10 @@ const FixedScoreboard = () => {
                             const timeOnly = format(matchDate, 'HH:mm');
 
                             return (
-                              <div>
+                              <>
                                 {formattedDate} | {timeOnly}
                                 {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
-                              </div>
+                              </>
                             );
                           } catch (e) {
                             return currentMatch.fixture.venue?.name || '';
