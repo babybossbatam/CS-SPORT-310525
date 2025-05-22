@@ -131,8 +131,12 @@ const HomeTopScorersList = () => {
                   return (
                     <div key={scorer.player.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-1">
                       <div className="flex items-start gap-3">
-                        <Avatar className="h-11 w-11 rounded-full">
-                          <AvatarImage src={scorer.player.photo} alt={scorer.player.name} />
+                        <Avatar className="h-11 w-11 rounded-full overflow-hidden">
+                          <AvatarImage 
+                            src={scorer.player.photo} 
+                            alt={scorer.player.name}
+                            className="object-cover object-center scale-110" 
+                          />
                           <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
