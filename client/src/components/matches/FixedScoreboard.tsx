@@ -938,7 +938,7 @@ const FixedScoreboard = () => {
 
                     </div>
                 </div>
-              </div>
+              
 
               {/* Bottom navigation */}
               <div className="flex justify-around border-t border-gray-200 pt-4">
@@ -995,11 +995,11 @@ const FixedScoreboard = () => {
                   ))}
                 </div>
               )}
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </Card>
-    </>
+            
+          
+        
+      
+    
   );
 };
 
