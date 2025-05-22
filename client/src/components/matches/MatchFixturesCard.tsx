@@ -1,7 +1,7 @@
 import { format, parseISO } from 'date-fns';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
-import { Calendar } from '../ui/calendar';
+import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
@@ -102,7 +102,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 </div>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="center">
-                <Calendar
+                <DatePicker
                   mode="single"
                   className="rounded-md border"
                   selected={new Date()}
