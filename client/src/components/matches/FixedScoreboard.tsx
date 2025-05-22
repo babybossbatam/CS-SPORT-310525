@@ -764,9 +764,9 @@ const FixedScoreboard = () => {
               >
                 <CardContent className="p-0 h-full"
               >
-              {/* Match header with league info */}
-              <div className="flex items-center justify-between mb-2 px-2 pt-4">
-                <div className="flex items-center">
+              {/* League info and match header at the top */}
+              <div className="absolute top-0 left-0 right-0 z-40 flex flex-col items-center justify-center pt-2 pb-1 bg-white/95 backdrop-blur-sm">
+                <div className="flex items-center justify-center mb-1">
                   <div className="flex-shrink-0 mr-2">
                     {currentMatch?.league?.logo ? (
                       <img 
@@ -798,6 +798,17 @@ const FixedScoreboard = () => {
                       {getMatchStatusLabel(currentMatch)}
                     </Badge>
                   </div>
+                </div>
+                {/* Match date row */}
+                <div className="text-xs text-gray-500">
+                  {(() => {
+                    try {
+                      const matchDate = parseISO(currentMatch.fixture.date);
+                      return format(matchDate, 'MMM d');
+                    } catch (e) {
+                      return '';
+                    }
+                  })()}
                 </div>
               </div>
 
