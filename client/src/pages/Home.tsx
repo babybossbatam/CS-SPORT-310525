@@ -30,7 +30,7 @@ import { Trophy, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import EnhancedLeagueFixtures from '@/components/leagues/EnhancedLeagueFixtures';
+import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
 import { useLocation } from "wouter";
 
 const Home = () => {
@@ -210,7 +210,7 @@ const Home = () => {
           <div className="lg:col-span-4 space-y-4">
             <Card>
               <CardContent className="p-0">
-                <EnhancedLeagueFixtures
+                <MatchFixturesCard
                   fixtures={fixtures}
                   onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
                 />
