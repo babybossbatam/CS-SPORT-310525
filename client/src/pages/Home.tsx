@@ -161,7 +161,7 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <main className="container mx-auto px-2 py-2 ml-[10%] mr-[10%]">
+      <main className="container mx-auto px-2 py-2 ml-[10%] mr-[20%]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (8 columns) - Live Scoreboard */}
           <div className="lg:col-span-8">
