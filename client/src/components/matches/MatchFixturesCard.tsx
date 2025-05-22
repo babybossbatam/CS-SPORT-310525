@@ -96,7 +96,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <TabsContent value="fixtures">
             <div className="divide-y divide-gray-100">
               {futureFixtures.length > 0 ? (
-                futureFixtures.map(renderFixture)
+                futureFixtures.slice(0, 5).map(renderFixture)
               ) : (
                 <div className="p-4 text-center text-gray-500">
                   No upcoming fixtures
@@ -110,7 +110,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               {completedFixtures.length > 0 ? (
                 [...completedFixtures]
                   .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
-                  .slice(0, 20)
+                  .slice(0, 5)
                   .map(renderFixture)
               ) : (
                 <div className="p-4 text-center text-gray-500">
