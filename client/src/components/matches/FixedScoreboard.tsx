@@ -396,7 +396,7 @@ const FixedScoreboard = () => {
           .filter(match => isPopularTeamMatch(match) || isFinalOrSemifinal(match))
           .filter(match => !shouldExcludeMatch(match));
 
-        if (livePopularMatches.length > 0) {
+        if (livePopularMatches.length >0) {
           finalMatches = [...livePopularMatches];
         }
 
@@ -800,7 +800,7 @@ const FixedScoreboard = () => {
                     {(() => {
                       try {
                         const matchDate = parseISO(currentMatch.fixture.date);
-                        return format(matchDate, 'MMM d');
+                        return format(matchDate, ''MMM d');
                       } catch (e) {
                         return '';
                       }
@@ -1002,13 +1002,4 @@ const FixedScoreboard = () => {
                     />
                   ))}
                 </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </Card>
-    </>
-    );
-};
-
-export default FixedScoreboard;
+              )}
