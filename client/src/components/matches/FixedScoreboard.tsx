@@ -689,7 +689,7 @@ const FixedScoreboard = () => {
         Featured Match
       </Badge>
 
-      <CardContent className="px-0 pt-2 pb-2 relative">
+      <Card className="px-0 pt-2 pb-2 relative">
         {matches.length > 1 && (
           <>
             <button
@@ -996,7 +996,7 @@ const FixedScoreboard = () => {
             </motion.div>
           </AnimatePresence>
         )}
-      </CardContent>
+      </Card>
     </>
   );
 };
