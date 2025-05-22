@@ -772,9 +772,10 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-32px)] ml-[32px] relative" 
+                    <div 
+                      className="h-full w-[calc(50%-32px)] ml-[32px] relative" 
                       style={{ 
-                        background: currentMatch?.teams?.home?.id ? getTeamColor(currentMatch.teams.home.id) : '#6f7c93'
+                        background: `linear-gradient(90deg, ${getTeamColor(currentMatch?.teams?.home?.name || '', true)} 0%, ${getTeamColor(currentMatch?.teams?.home?.name || '')} 100%)`
                       }}
                     >
                       {currentMatch?.teams?.home && (
@@ -839,9 +840,10 @@ const FixedScoreboard = () => {
                     </div>
 
                     {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-32px)] mr-[32px]" 
+                    <div 
+                      className="h-full w-[calc(50%-32px)] mr-[32px]" 
                       style={{ 
-                        background: getTeamColor(currentMatch.teams.away.id)
+                        background: `linear-gradient(90deg, ${getTeamColor(currentMatch?.teams?.away?.name || '')} 0%, ${getOpposingTeamColor(currentMatch?.teams?.home?.name || '', currentMatch?.teams?.away?.name || '')} 100%)`
                       }}
                     >
                     </div>
