@@ -175,12 +175,15 @@ const Home = () => {
     fetchUpcomingFixtures();
   }, [dispatch]);
 
-  if (isLoading) {
+  const loading = useSelector((state: RootState) => state.leagues.loading || state.fixtures.loading);
+
+  if (loading) {
     return (
       <>
         <Header />
-        <div className="flex items-center justify-center min-h-screen">
-          <p>Loading matches...</p>
+        <SportsCategoryTabs />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-gray-500">Loading matches...</p>
         </div>
       </>
     );
@@ -195,7 +198,7 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <main className="container mx-auto px-2 py-2 ml-[10%] mr-[20%]">
+      <main className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (8 columns) - Live Scoreboard */}
           <div className="lg:col-span-8">
