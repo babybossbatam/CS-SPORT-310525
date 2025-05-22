@@ -46,6 +46,7 @@ interface Standing {
 
 const LeagueStandingsFilter = () => {
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id.toString());
+  const [selectedLeagueName, setSelectedLeagueName] = useState(POPULAR_LEAGUES[0].name);
 
   const { data: standings, isLoading: standingsLoading } = useQuery({
     queryKey: ['standings', selectedLeague],
@@ -87,9 +88,18 @@ const LeagueStandingsFilter = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>League Standings</CardTitle>
-        <Select value={selectedLeague} onValueChange={setSelectedLeague}>
+        <Select 
+          value={selectedLeague} 
+          onValueChange={(value) => {
+            setSelectedLeague(value);
+            const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
+            if (league) {
+              setSelectedLeagueName(league.name);
+            }
+          }}
+        >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select League" />
+            <SelectValue>{selectedLeagueName}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {POPULAR_LEAGUES.map((league) => (
