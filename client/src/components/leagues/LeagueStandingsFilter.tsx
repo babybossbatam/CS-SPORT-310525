@@ -144,26 +144,41 @@ const LeagueStandingsFilter = () => {
                       ))}
                     </div>
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="px-2 py-2 relative group">
                     <div className="flex items-center justify-center gap-2">
                       {standings?.find(opponent => 
                         opponent.team.id !== standing.team.id && 
                         opponent.rank > standing.rank
                       ) && (
-                        <img 
-                          src={standings.find(opponent => 
-                            opponent.team.id !== standing.team.id && 
-                            opponent.rank > standing.rank
-                          )?.team.logo} 
-                          alt={`Next opponent: ${standings.find(opponent => 
-                            opponent.team.id !== standing.team.id && 
-                            opponent.rank > standing.rank
-                          )?.team.name}`}
-                          className="w-4 h-4"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
-                          }}
-                        />
+                        <>
+                          <img 
+                            src={standings.find(opponent => 
+                              opponent.team.id !== standing.team.id && 
+                              opponent.rank > standing.rank
+                            )?.team.logo} 
+                            alt={`Next opponent: ${standings.find(opponent => 
+                              opponent.team.id !== standing.team.id && 
+                              opponent.rank > standing.rank
+                            )?.team.name}`}
+                            className="w-4 h-4 hover:scale-110 transition-transform"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
+                            }}
+                          />
+                          <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
+                            <div className="text-xs">
+                              <span className="font-medium">{standing.team.name}</span>
+                              <span className="mx-2">vs</span>
+                              <span className="font-medium">
+                                {standings.find(opponent => 
+                                  opponent.team.id !== standing.team.id && 
+                                  opponent.rank > standing.rank
+                                )?.team.name}
+                              </span>
+                              <div className="text-gray-500 mt-1">25/05/2025</div>
+                            </div>
+                          </div>
+                        </>
                       )}
                     </div>
                   </td>
