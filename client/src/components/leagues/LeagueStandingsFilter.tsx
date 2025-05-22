@@ -91,7 +91,7 @@ const LeagueStandingsFilter = () => {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="relative overflow-x-auto">
+        <div className="relative">
           <table className="w-full text-sm text-left">
             <thead className="text-xs uppercase bg-gray-50">
               <tr>
@@ -175,7 +175,7 @@ const LeagueStandingsFilter = () => {
                                   opponent.rank > standing.rank
                                 )?.team.name}
                               </span>
-                              <div className="text-gray-500 mt-1">25/05/2025</div>
+                              <div className="text-gray-500 mt-1">{format(new Date(), 'dd/MM/yyyy')}</div>
                             </div>
                           </div>
                         </>
