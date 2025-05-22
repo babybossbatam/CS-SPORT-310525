@@ -743,25 +743,28 @@ const FixedScoreboard = () => {
                 </div>
               </div>
 
-              {/* Match time/status display */}
-              <div className="font-medium text-center mb-5" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
-                {getMatchStatus(currentMatch)}
+              {/* Fixed height container for match status and score */}
+              <div className="h-[80px] flex flex-col justify-center">
+                {/* Match time/status display */}
+                <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>
+                  {getMatchStatus(currentMatch)}
+                </div>
+
+                {/* Score display for finished matches */}
+                <div className="h-[24px] flex items-center justify-center">
+                  {currentMatch?.fixture?.status?.short && 
+                   ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+                    <div className="text-xl font-bold flex gap-2 items-center">
+                      <span>{currentMatch?.goals?.home ?? 0}</span>
+                      <span className="text-base">-</span>
+                      <span>{currentMatch?.goals?.away ?? 0}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Score display below status for finished matches */}
-              {currentMatch?.fixture?.status?.short && 
-               ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
-                <div className="flex items-center justify-center mt-1 mb-1">
-                  <div className="text-xl font-bold flex gap-2 items-center">
-                    <span>{currentMatch?.goals?.home ?? 0}</span>
-                    <span className="text-base">-</span>
-                    <span>{currentMatch?.goals?.away ?? 0}</span>
-                  </div>
-                </div>
-              )}
-
               {/* Team scoreboard */}
-              <div className="relative mt-4">
+              <div className="relative">
                 <div 
                   className="flex relative h-[53px] rounded-md mb-8"
                   onClick={handleMatchClick}
