@@ -790,7 +790,7 @@ const FixedScoreboard = () => {
                         onError={(e) => {
                           const target = e.currentTarget;
                           if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
-                            The home team logo position is adjusted by changing the left position in the style attribute.target.src = currentMatch.teams.home.logo;
+                            target.src = currentMatch.teams.home.logo;
                           } else if (target.src !== '/assets/fallback-logo.svg') {
                             target.src = '/assets/fallback-logo.svg';
                           }
