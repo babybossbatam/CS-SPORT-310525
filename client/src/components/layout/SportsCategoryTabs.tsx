@@ -60,7 +60,7 @@ const SportsCategoryTabs = () => {
               )}
             >
               <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4" />
+                <Icon className="h-[1.1rem] w-[1.1rem]" />
                 <span className="text-[0.94rem] font-normal">{label}</span>
               </div>
             </button>
