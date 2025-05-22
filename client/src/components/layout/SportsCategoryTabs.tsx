@@ -46,8 +46,8 @@ const SportsCategoryTabs = () => {
 
   return (
     <Card className="rounded-none border-b shadow-lg fixed left-0 z-50 top-[72px] w-full bg-white/95 backdrop-blur-sm">
-      <CardContent className="p-1 ml-[8%] mr-[10%]">
-        <div className="flex flex-row justify-around items-center">
+      <CardContent className="p-1">
+        <div className="flex flex-row items-center">
           {sportsList.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
