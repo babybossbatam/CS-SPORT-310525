@@ -828,7 +828,7 @@ const FixedScoreboard = () => {
                 >
                   <div className="w-full h-full flex justify-between relative">
                     {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-32px)] ml-[32px] relative" 
+                    <div className="h-full w-[calc(50%-64px)] ml-[64px] relative" 
                       style={{ 
                         background: getTeamColor(currentMatch?.teams?.home?.id || 0)
                       }}
