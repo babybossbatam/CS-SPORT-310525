@@ -920,10 +920,11 @@ const FixedScoreboard = () => {
                     <img 
                       src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                       alt={currentMatch?.teams?.away?.name || 'Away Team'} 
-                      className="absolute right-[-47px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
-                        top: "calc(50% - 32px)"
+                        top: "calc(50% - 32px)",
+                        right: "-32px"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
