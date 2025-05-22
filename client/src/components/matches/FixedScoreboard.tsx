@@ -765,8 +765,8 @@ const FixedScoreboard = () => {
                 <CardContent className="p-0 h-full"
               >
               {/* Match header with league info */}
-              <div className="flex items-center justify-between mb-2 px-2 pt-4">
-                <div className="flex items-center">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[140%] z-30 flex items-center">
+                <div className="flex items-center bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
                   <div className="flex-shrink-0 mr-2">
                     {currentMatch?.league?.logo ? (
                       <img 
