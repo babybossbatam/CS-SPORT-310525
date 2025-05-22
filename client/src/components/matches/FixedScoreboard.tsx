@@ -798,8 +798,7 @@ const FixedScoreboard = () => {
                   <span className="text-gray-400 mx-1">•</span>
                   <span className="text-sm text-gray-500 whitespace-nowrap">
                     {(() => {
-                      ```javascript
-try {
+                      try {
                         const matchDate = parseISO(currentMatch.fixture.date);
                         return format(matchDate, 'MMM d');
                       } catch (e) {
@@ -889,7 +888,7 @@ try {
                             return (
                               <>
                                 {formattedDate} | {timeOnly}
-                                {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
+                                {currentMatch.fixture.venue?.name ? (' | ' + currentMatch.fixture.venue.name) : ''}
                               </>
                             );
                           } catch (e) {
