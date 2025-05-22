@@ -765,37 +765,39 @@ const FixedScoreboard = () => {
                 <CardContent className="p-0 h-full"
               >
               {/* Match header with league info */}
-              <div className="flex items-center justify-center mb-2 px-2 pt-4">
-                <div className="flex-shrink-0 mr-2">
-                  {currentMatch?.league?.logo ? (
-                    <img 
-                      src={currentMatch.league.logo} 
-                      alt={currentMatch.league.name} 
-                      className="w-5 h-5 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
-                  ) : (
-                    <Trophy className="w-5 h-5 text-amber-500" />
-                  )}
-                </div>
+              <div className="flex items-center justify-between mb-2 px-2 pt-4">
                 <div className="flex items-center">
-                  <p className="text-xs font-medium text-gray-700 mr-2">
-                    {currentMatch?.league?.name || 'League Name'}
-                  </p>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-[10px] px-1.5 py-0 border ${
-                      getMatchStatusLabel(currentMatch) === 'LIVE' 
-                        ? 'border-red-500 text-red-500 animate-pulse' 
-                        : getMatchStatusLabel(currentMatch) === 'FINISHED'
-                          ? 'border-gray-500 text-gray-500'
-                          : 'border-blue-500 text-blue-500'
-                    }`}
-                  >
-                    {getMatchStatusLabel(currentMatch)}
-                  </Badge>
+                  <div className="flex-shrink-0 mr-2">
+                    {currentMatch?.league?.logo ? (
+                      <img 
+                        src={currentMatch.league.logo} 
+                        alt={currentMatch.league.name} 
+                        className="w-5 h-5 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/fallback-logo.svg';
+                        }}
+                      />
+                    ) : (
+                      <Trophy className="w-5 h-5 text-amber-500" />
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <p className="text-xs font-medium text-gray-700 mr-2">
+                      {currentMatch?.league?.name || 'League Name'}
+                    </p>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[10px] px-1.5 py-0 border ${
+                        getMatchStatusLabel(currentMatch) === 'LIVE' 
+                          ? 'border-red-500 text-red-500 animate-pulse' 
+                          : getMatchStatusLabel(currentMatch) === 'FINISHED'
+                            ? 'border-gray-500 text-gray-500'
+                            : 'border-blue-500 text-blue-500'
+                      }`}
+                    >
+                      {getMatchStatusLabel(currentMatch)}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
