@@ -757,7 +757,7 @@ const FixedScoreboard = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
+              className="overflow-hidden h-[350px] w-full bg-white shadow-sm cursor-pointer"
               onClick={handleMatchClick}
             >
                 <div className="p-0 h-full my-[10px] relative">
