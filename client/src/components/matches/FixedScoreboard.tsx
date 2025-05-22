@@ -883,7 +883,12 @@ const FixedScoreboard = () => {
               {matches.length > 1 && (
                 <div className="flex justify-center gap-2 my-4">
                   {matches.map((_, index) => (
-                    
+                    <div
+                      key={index}
+                      className={`h-2 w-2 rounded-full mx-1 ${
+                        index === currentIndex ? 'bg-gray-800' : 'bg-gray-300'
+                      }`}
+                    />
                   ))}
                 </div>
               )}
