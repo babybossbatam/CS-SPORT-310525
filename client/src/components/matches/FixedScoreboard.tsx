@@ -804,7 +804,7 @@ const FixedScoreboard = () => {
                   {(() => {
                     try {
                       const matchDate = parseISO(currentMatch.fixture.date);
-                      return format(matchDate, 'MMM d');
+                      returnformat(matchDate, 'MMM d');
                     } catch (e) {
                       return '';
                     }
@@ -822,11 +822,13 @@ const FixedScoreboard = () => {
                 <div className="h-[24px] flex items-center justify-center">
                   {currentMatch?.fixture?.status?.short && 
                    ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
+                    
                     <div className="text-xl font-bold flex gap-2 items-center">
                       <span>{currentMatch?.goals?.home ?? 0}</span>
                       <span className="text-base">-</span>
                       <span>{currentMatch?.goals?.away ?? 0}</span>
                     </div>
+                    
                   )}
                 </div>
               </div>
