@@ -878,6 +878,22 @@ const FixedScoreboard = () => {
                       </div>
                     </div>
 
+                    {/* Navigation dots */}
+                    {matches.length > 1 && (
+                      <div className="flex justify-center gap-2 mt-8 pb-2">
+                        {matches.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              index === currentIndex ? 'bg-indigo-600' : 'bg-gray-300'
+                            }`}
+                            aria-label={`Go to slide ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+
                     <div className="absolute text-white font-bold text-sm uppercase text-left max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)", left: "30px"}}>
                       {currentMatch?.teams?.home?.name || 'TBD'}
                     </div>
