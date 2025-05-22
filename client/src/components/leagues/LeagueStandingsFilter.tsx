@@ -120,7 +120,7 @@ const LeagueStandingsFilter = () => {
             </thead>
             <tbody>
               {standings?.slice(0, 7).map((standing: Standing) => (
-                <tr key={standing.team.id} className="border-b hover:bg-gray-50">
+                <tr key={standing.team.id} className="border-b hover:bg-gray-100">
                   <td className="px-2 py-2">{standing.rank}</td>
                   <td className="px-2 py-2 flex items-center gap-2">
                     <img 
