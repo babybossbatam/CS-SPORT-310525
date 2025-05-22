@@ -59,8 +59,10 @@ const SportsCategoryTabs = () => {
                   : 'text-[#6B7173] hover:text-[#15222A] hover:bg-gray-50/50'
               )}
             >
-              <Icon className="h-4 w-4 mb-1" />
-              <span className="text-[0.94rem] font-normal">{label}</span>
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4" />
+                <span className="text-[0.94rem] font-normal">{label}</span>
+              </div>
             </button>
           ))}
         </div>
