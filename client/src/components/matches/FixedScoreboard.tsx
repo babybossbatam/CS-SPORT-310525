@@ -776,7 +776,7 @@ const FixedScoreboard = () => {
                     <div 
                       className="h-full w-[calc(50%-32px)] ml-[32px] relative" 
                       style={{ 
-                        background: `linear-gradient(90deg, ${getTeamColor(currentMatch?.teams?.home?.name || '', true)} 0%, ${getTeamColor(currentMatch?.teams?.home?.name || '')} 100%)`
+                        background: `linear-gradient(90deg, ${getTailwindToHex(getTeamColor(currentMatch?.teams?.home?.name || ''))} 0%, ${getTailwindToHex(getTeamColor(currentMatch?.teams?.home?.name || ''))} 100%)`
                       }}
                     >
                       {currentMatch?.teams?.home && (
@@ -844,7 +844,7 @@ const FixedScoreboard = () => {
                     <div 
                       className="h-full w-[calc(50%-32px)] mr-[32px]" 
                       style={{ 
-                        background: `linear-gradient(90deg, ${getTeamColor(currentMatch?.teams?.away?.name || '')} 0%, ${getTeamColor(currentMatch?.teams?.home?.name || '')} 100%)`
+                        background: `linear-gradient(90deg, ${getTailwindToHex(getTeamColor(currentMatch?.teams?.away?.name || ''))} 0%, ${getTailwindToHex(getTeamColor(currentMatch?.teams?.away?.name || ''))} 100%)`
                       }}
                     >
                     </div>
