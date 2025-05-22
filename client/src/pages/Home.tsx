@@ -20,7 +20,6 @@ import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 
-
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
@@ -31,11 +30,15 @@ import { Trophy, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import EnhancedLeagueFixtures from '@/components/leagues/EnhancedLeagueFixtures';
+import { useRouter } from 'next/navigation';
 
 const Home = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
+  const [fixtures, setFixtures] = useState([]);
+  const navigate = useRouter();
 
   const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const allLeagues = useSelector((state: RootState) => state.leagues.list);
@@ -86,7 +89,7 @@ const Home = () => {
           console.log(`Using cached leagues data (${allLeagues.length} leagues)`);
           return; // Skip API call if we already have data
         }
-        
+
         dispatch(leaguesActions.setLoadingLeagues(true));
 
         const response = await apiRequest('GET', '/api/leagues');
@@ -142,6 +145,7 @@ const Home = () => {
 
         if (data && data.length > 0) {
           dispatch(fixturesActions.setUpcomingFixtures(data));
+          setFixtures(data);
         }
       } catch (error) {
         console.error('Error fetching upcoming fixtures:', error);
@@ -205,35 +209,17 @@ const Home = () => {
           {/* Right column (4 columns) */}
           <div className="lg:col-span-4 space-y-4">
             <Card>
-              <CardContent className="p-4">
-                <div>
-                  <div 
-                    data-widget-type="entityScores" 
-                    data-entity-type="league" 
-                    data-entity-id="573" 
-                    data-lang="en" 
-                    data-widget-id="ee5dc0f6-5236-443a-9f93-fb9826542e8a"
-                  />
-                  <div id="powered-by" className="text-sm text-gray-500 mt-2">
-                    Powered by
-                    <a 
-                      id="powered-by-link" 
-                      href="https://www.365scores.com" 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-1 text-blue-500 hover:text-blue-600"
-                    >
-                      365Scores.com
-                    </a>
-                  </div>
-                  <script src="https://widgets.365scores.com/main.js" async />
-                </div>
+              <CardContent className="p-0">
+                <EnhancedLeagueFixtures
+                  fixtures={fixtures}
+                  onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                />
               </CardContent>
             </Card>
           </div>
         </div>
 
-        
+
       </main>
 
       <RegionModal />
