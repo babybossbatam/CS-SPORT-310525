@@ -757,7 +757,7 @@ const FixedScoreboard = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden h-[350px] w-full bg-white shadow-sm cursor-pointer"
+              className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
               onClick={handleMatchClick}
             >
                 <div className="p-0 h-full my-[10px] relative">
@@ -867,7 +867,7 @@ const FixedScoreboard = () => {
                     )}
 
                       {/* Match time & venue information below VS - for ALL matches */}
-                      <div className="absolute text-center text-xs text-gray-500 w-[300px]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible', textAlign: 'center', zIndex: 30, left: '50%', transform: 'translateX(-50%)', top: 'calc(50% + 85px)' }}>
+                      <div className="absolute text-center text-xs text-gray-500 w-[300px]" style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'visible', textAlign: 'center', zIndex: 30, left: '50%', transform: 'translateX(-50%)', top: 'calc(50% + 35px)' }}>
                         {(() => {
                           try {
                             const matchDate = parseISO(currentMatch.fixture.date);
