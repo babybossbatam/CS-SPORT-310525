@@ -825,10 +825,7 @@ const FixedScoreboard = () => {
                       <span>{currentMatch?.goals?.away ?? 0}</span>
                     </div>
                     <span className="text-sm text-gray-500">•</span>
-                    <div className="text-sm font-semibold">
-                      {currentMatch?.goals?.home ?? 0} - {currentMatch?.goals?.away ?? 0}
-                    </div>
-                  </>
+                    </>
                 )}
               </div>
 
