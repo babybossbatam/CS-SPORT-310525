@@ -804,8 +804,7 @@ const FixedScoreboard = () => {
               {/* Fixed height container for match status and score */}
               <div className="h-[80px] flex flex-col justify-center">
                 {/* Match time/status display */}
-                <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>
-                  {getMatchStatus(currentMatch)}
+                <div className="font-medium text-center" style={{ fontSize: 'calc(0.875rem * 1.5)', fontWeight: '600' }}>                  {getMatchStatus(currentMatch)}
                 </div>
 
                 {/* Score display for finished matches */}
@@ -922,7 +921,7 @@ const FixedScoreboard = () => {
                     </div>
                 </div>
               </div>
-              
+
               <div className="absolute right-[117px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                 {currentMatch?.teams?.away?.name || 'Away Team'}
               </div>
