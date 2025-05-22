@@ -9,8 +9,6 @@ import MatchFilters from '@/components/matches/MatchFilters';
 import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
 
-import LiveScoreboardPage from '@/pages/LiveScoreboardPage';
-
 import StatsPanel from '@/components/stats/StatsPanel';
 import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
@@ -33,7 +31,17 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
 import { useLocation } from "wouter";
 
+// Cleanup any stale video references
+const cleanupFrames = () => {
+  const iframes = document.querySelectorAll('iframe');
+  iframes.forEach(iframe => iframe.remove());
+};
+
 const Home = () => {
+  useEffect(() => {
+    cleanupFrames();
+    return () => cleanupFrames();
+  }, []);
   const dispatch = useDispatch();
   const { toast } = useToast();
   const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
