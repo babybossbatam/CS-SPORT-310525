@@ -11,16 +11,16 @@ interface FixtureProps {
 }
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
-  const futureFixtures = fixtures.filter(fixture => 
+  const upcomingFixtures = fixtures.filter(fixture => 
     fixture.fixture.status.short === "NS" || 
     fixture.fixture.status.short === "TBD"
-  );
+  ).slice(0, 5);
 
   const completedFixtures = fixtures.filter(fixture => 
     fixture.fixture.status.short === "FT" || 
     fixture.fixture.status.short === "AET" || 
     fixture.fixture.status.short === "PEN"
-  );
+  ).slice(0, 5);
 
   const renderFixture = (fixture: any) => (
     <div 
@@ -89,8 +89,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       <CardContent className="p-0">
         <Tabs defaultValue="fixtures" className="w-full">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
-            <TabsTrigger value="fixtures">Fixtures</TabsTrigger>
-            <TabsTrigger value="results">Results</TabsTrigger>
+            <TabsTrigger value="fixtures">Upcoming</TabsTrigger>
+            <TabsTrigger value="results">Completed</TabsTrigger>
           </TabsList>
           
           <TabsContent value="fixtures">
