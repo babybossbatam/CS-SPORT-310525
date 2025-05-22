@@ -778,16 +778,17 @@ const FixedScoreboard = () => {
                       <Trophy className="w-5 h-5 text-amber-500" />
                     )}
                   </div>
-                  <p className="text-sm font-medium text-black whitespace-nowrap">
-                    {currentMatch?.league?.name || 'League Name'}
-                  </p>
-                  <span className="text-gray-400 mx-1">•</span>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-[10px] px-2 py-0.5 border whitespace-nowrap ${
-                      getMatchStatusLabel(currentMatch) === 'LIVE' 
-                        ? 'border-red-500 text-red-500 animate-pulse' 
-                        : getMatchStatusLabel(currentMatch) === 'FINISHED'
+                  <div className="flex items-center">
+                    <p className="text-sm font-medium text-black whitespace-nowrap">
+                      {currentMatch?.league?.name || 'League Name'}
+                    </p>
+                    <span className="text-gray-400 mx-1">•</span>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[10px] px-2 py-0.5 border whitespace-nowrap ${
+                        getMatchStatusLabel(currentMatch) === 'LIVE' 
+                          ? 'border-red-500 text-red-500 animate-pulse' 
+                          : getMatchStatusLabel(currentMatch) === 'FINISHED'
                           ? 'border-gray-500 text-gray-500'
                           : 'border-blue-500 text-blue-500'
                     }`}
