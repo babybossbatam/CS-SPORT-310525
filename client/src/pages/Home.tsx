@@ -204,6 +204,32 @@ const Home = () => {
 
           {/* Right column (4 columns) */}
           <div className="lg:col-span-4 space-y-4">
+            <Card>
+              <CardContent className="p-4">
+                <div>
+                  <div 
+                    data-widget-type="entityScores" 
+                    data-entity-type="league" 
+                    data-entity-id="573" 
+                    data-lang="en" 
+                    data-widget-id="ee5dc0f6-5236-443a-9f93-fb9826542e8a"
+                  />
+                  <div id="powered-by" className="text-sm text-gray-500 mt-2">
+                    Powered by
+                    <a 
+                      id="powered-by-link" 
+                      href="https://www.365scores.com" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-1 text-blue-500 hover:text-blue-600"
+                    >
+                      365Scores.com
+                    </a>
+                  </div>
+                  <script src="https://widgets.365scores.com/main.js" async />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
