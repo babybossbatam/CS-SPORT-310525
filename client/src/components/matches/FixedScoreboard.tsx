@@ -761,11 +761,11 @@ const FixedScoreboard = () => {
               onClick={handleMatchClick}
             >
                 <div className="p-0 h-full my-[10px] relative">
-                {/* League info and match header at the top */}
-                <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[60px] bg-white/95 backdrop-blur-sm">
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="flex-shrink-0">
-                    {currentMatch?.league?.logo ? (
+                  {/* League info and match header at the top */}
+                  <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[60px] bg-white/95 backdrop-blur-sm">
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="flex-shrink-0">
+                        {currentMatch?.league?.logo ? (
                       <img 
                         src={currentMatch.league.logo} 
                         alt={currentMatch.league.name} 
@@ -1001,14 +1001,16 @@ const FixedScoreboard = () => {
                       aria-label={`Go to slide ${index + 1}`}
                     />
                   ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </Card>
-    </>
-  );
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </Card>
+      </>
+    );
 };
 
 export default FixedScoreboard;
