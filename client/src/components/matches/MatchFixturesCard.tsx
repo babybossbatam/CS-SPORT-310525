@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns';
 import { Calendar, Clock } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FixtureProps {
@@ -87,6 +88,19 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   return (
     <Card className="bg-white shadow-md">
       <CardContent className="p-0">
+        {/* Today's Matches Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <button className="p-2 hover:bg-gray-100 rounded-full">
+            <ChevronLeft className="h-5 w-5 text-gray-600" />
+          </button>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">Today's Matches</h2>
+            <ChevronDown className="h-4 w-4 text-gray-600" />
+          </div>
+          <button className="p-2 hover:bg-gray-100 rounded-full">
+            <ChevronRight className="h-5 w-5 text-gray-600" />
+          </button>
+        </div>
         <Tabs defaultValue="fixtures" className="w-full">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
             <TabsTrigger value="fixtures">Upcoming</TabsTrigger>
