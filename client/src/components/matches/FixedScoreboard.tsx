@@ -74,6 +74,7 @@ const FixedScoreboard = () => {
         const yesterdayDate = "2025-05-18";
         // Only fetch 2 additional days
         const day3Date = "2025-05-21";
+        const day4Date = "2025-05-22";
 
         // Fetch fixtures for popular leagues for latest season with better error handling
         const leaguePromises = popularLeagues.map(async leagueId => {
@@ -93,12 +94,23 @@ const FixedScoreboard = () => {
         // Fetch today's fixtures with better error handling
         const todayPromise = (async () => {
           try {
+            // Check localStorage for cached data
+            const cacheKey = `/api/fixtures/date/${todayDate}`;
+            const cachedData = localStorage.getItem(cacheKey);
+
+            if (cachedData) {
+              return JSON.parse(cachedData);
+            }
+
             const response = await apiRequest('GET', `/api/fixtures/date/${todayDate}`);
             if (!response.ok) {
               console.log(`Error fetching today's fixtures: ${response.status}`);
               return [];
             }
-            return await response.json();
+
+            const data = await response.json();
+            localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
+            return data;
           } catch (error) {
             console.error('Error processing today\'s fixtures:', error);
             return [];
@@ -108,12 +120,23 @@ const FixedScoreboard = () => {
         // Fetch tomorrow's fixtures with better error handling
         const tomorrowPromise = (async () => {
           try {
+            // Check localStorage for cached data
+            const cacheKey = `/api/fixtures/date/${tomorrowDate}`;
+            const cachedData = localStorage.getItem(cacheKey);
+
+            if (cachedData) {
+              return JSON.parse(cachedData);
+            }
+
             const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowDate}`);
             if (!response.ok) {
               console.log(`Error fetching tomorrow's fixtures: ${response.status}`);
               return [];
             }
-            return await response.json();
+
+            const data = await response.json();
+            localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
+            return data;
           } catch (error) {
             console.error('Error processing tomorrow\'s fixtures:', error);
             return [];
@@ -123,12 +146,23 @@ const FixedScoreboard = () => {
         // Fetch yesterday's fixtures with better error handling
         const yesterdayPromise = (async () => {
           try {
+            // Check localStorage for cached data
+            const cacheKey = `/api/fixtures/date/${yesterdayDate}`;
+            const cachedData = localStorage.getItem(cacheKey);
+
+            if (cachedData) {
+              return JSON.parse(cachedData);
+            }
+
             const response = await apiRequest('GET', `/api/fixtures/date/${yesterdayDate}`);
             if (!response.ok) {
               console.log(`Error fetching yesterday's fixtures: ${response.status}`);
               return [];
             }
-            return await response.json();
+
+            const data = await response.json();
+            localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
+            return data;
           } catch (error) {
             console.error('Error processing yesterday\'s fixtures:', error);
             return [];
@@ -138,12 +172,23 @@ const FixedScoreboard = () => {
         // Fetch day 3 fixtures
         const day3Promise = (async () => {
           try {
+            // Check localStorage for cached data
+            const cacheKey = `/api/fixtures/date/${day3Date}`;
+            const cachedData = localStorage.getItem(cacheKey);
+
+            if (cachedData) {
+              return JSON.parse(cachedData);
+            }
+
             const response = await apiRequest('GET', `/api/fixtures/date/${day3Date}`);
             if (!response.ok) {
               console.log(`Error fetching day 3 fixtures: ${response.status}`);
               return [];
             }
-            return await response.json();
+
+            const data = await response.json();
+            localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
+            return data;
           } catch (error) {
             console.error('Error processing day 3 fixtures:', error);
             return [];
@@ -153,12 +198,23 @@ const FixedScoreboard = () => {
         // Fetch day 4 fixtures
         const day4Promise = (async () => {
           try {
+            // Check localStorage for cached data
+            const cacheKey = `/api/fixtures/date/${day4Date}`;
+            const cachedData = localStorage.getItem(cacheKey);
+
+            if (cachedData) {
+              return JSON.parse(cachedData);
+            }
+
             const response = await apiRequest('GET', `/api/fixtures/date/${day4Date}`);
             if (!response.ok) {
               console.log(`Error fetching day 4 fixtures: ${response.status}`);
               return [];
             }
-            return await response.json();
+
+            const data = await response.json();
+            localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
+            return data;
           } catch (error) {
             console.error('Error processing day 4 fixtures:', error);
             return [];
@@ -404,6 +460,8 @@ const FixedScoreboard = () => {
     // Refresh data every 5 minutes
     const interval = setInterval(() => {
       fetchMatches();
+      // Clear local storage to re-fetch every day (or shorter interval if needed)
+      localStorage.clear();
     }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
