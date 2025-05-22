@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { 
   Select,
   SelectContent,
@@ -176,7 +176,15 @@ const LeagueStandingsFilter = () => {
                                   opponent.rank > standing.rank
                                 )?.team.name}
                               </span>
-                              <div className="text-gray-500 mt-1">{format(new Date(), 'dd/MM/yyyy')}</div>
+                              <div className="text-gray-500 mt-1">
+                                {(() => {
+                                  const nextMatch = fixtures?.find(f => 
+                                    (f.teams.home.id === standing.team.id || f.teams.away.id === standing.team.id) &&
+                                    new Date(f.fixture.date) > new Date()
+                                  );
+                                  return nextMatch ? format(parseISO(nextMatch.fixture.date), 'dd/MM/yyyy') : 'No upcoming matches';
+                                })()}
+                              </div>
                             </div>
                           </div>
                         </>
