@@ -259,16 +259,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let fixtures: any[] = [];
 
       try {
-        // Use only API-Football (RapidAPI)
-        fixtures = await rapidApiService.getFixturesByDate(date);
-        console.log(`Got ${fixtures.length} fixtures from API-Football for date ${date}`);
+        // Define popular leagues - matches core leagues
+        const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
 
-        // Apply server-side filtering if requested
-        if (popularOnly === 'true') {
-          const popularLeagues = [39, 2, 78]; // Example league IDs
-          fixtures = fixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
-          console.log(`Filtered to ${fixtures.length} fixtures with popular leagues for date ${date}`);
-        }
+        // Use only API-Football (RapidAPI) with filtering
+        fixtures = await rapidApiService.getFixturesByDate(date);
+        
+        // Always filter to only popular leagues to reduce data
+        fixtures = fixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
+        console.log(`Got ${fixtures.length} fixtures from popular leagues for date ${date}`);
       } catch (error) {
         console.error(`API-Football error for date ${date}:`, error);
 

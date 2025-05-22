@@ -61,20 +61,19 @@ const FixedScoreboard = () => {
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
-    const popularLeagues = [2, 3, 39, 140, 135, 78];
+    const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
     const currentSeason = 2024;
 
     const fetchMatches = async () => {
       try {
         setIsLoading(true);
 
-        // Use API-provided dates for best results in demo environment
+        // Use a smaller date range to reduce data
         const todayDate = "2025-05-19";
         const tomorrowDate = "2025-05-20";
         const yesterdayDate = "2025-05-18";
-        // Adding more days for upcoming matches
+        // Only fetch 2 additional days
         const day3Date = "2025-05-21";
-        const day4Date = "2025-05-22";
 
         // Fetch fixtures for popular leagues for latest season with better error handling
         const leaguePromises = popularLeagues.map(async leagueId => {
