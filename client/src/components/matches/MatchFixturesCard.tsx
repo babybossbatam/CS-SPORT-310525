@@ -39,23 +39,27 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <span>{format(parseISO(fixture.fixture.date), 'HH:mm')}</span>
         </div>
 
-        <div className="grid grid-cols-7 items-center">
-          <div className="col-span-3 flex items-center justify-end space-x-3">
-            <span className="font-medium text-right">{fixture.teams.home.name}</span>
-            <img 
-              src={fixture.teams.home.logo}
-              alt={fixture.teams.home.name}
-              className="h-6 w-6 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-              }}
-            />
+        <div className="grid grid-cols-7 items-center min-h-[64px]">
+          <div className="col-span-3 flex items-center justify-end gap-3 min-w-[200px]">
+            <span className="font-medium text-right line-clamp-1">{fixture.teams.home.name}</span>
+            <div className="w-[40px] flex justify-center">
+              <img 
+                src={fixture.teams.home.logo}
+                alt={fixture.teams.home.name}
+                className="h-6 w-6 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                }}
+              />
+            </div>
           </div>
 
-          <div className="col-span-1 flex justify-center font-semibold">
+          <div className="col-span-1 flex justify-center w-[80px]">
             <span className={cn(
-              "px-3 py-1 rounded",
-              fixture.fixture.status.short === "NS" ? "bg-gray-100" : "bg-gray-800 text-white"
+              "px-3 py-1 rounded min-w-[60px] text-center",
+              fixture.fixture.status.short === "NS" ? "bg-gray-100" : 
+              fixture.fixture.status.short === "LIVE" ? "bg-red-600 text-white" :
+              "bg-gray-800 text-white"
             )}>
               {fixture.fixture.status.short === "NS" 
                 ? "vs"
@@ -64,16 +68,18 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             </span>
           </div>
 
-          <div className="col-span-3 flex items-center space-x-3">
-            <img 
-              src={fixture.teams.away.logo}
-              alt={fixture.teams.away.name}
-              className="h-6 w-6 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-              }}
-            />
-            <span className="font-medium">{fixture.teams.away.name}</span>
+          <div className="col-span-3 flex items-center gap-3 min-w-[200px]">
+            <div className="w-[40px] flex justify-center">
+              <img 
+                src={fixture.teams.away.logo}
+                alt={fixture.teams.away.name}
+                className="h-6 w-6 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                }}
+              />
+            </div>
+            <span className="font-medium line-clamp-1">{fixture.teams.away.name}</span>
           </div>
         </div>
 
