@@ -800,7 +800,7 @@ const FixedScoreboard = () => {
                   </div>
                 </div>
                 {/* Match date row */}
-                <div className="text-sm text-black h-6 flex items-center justify-center">
+                <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center">
                   {(() => {
                     try {
                       const matchDate = parseISO(currentMatch.fixture.date);
