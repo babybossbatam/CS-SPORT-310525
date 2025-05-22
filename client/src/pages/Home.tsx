@@ -31,14 +31,14 @@ import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import EnhancedLeagueFixtures from '@/components/leagues/EnhancedLeagueFixtures';
-import { useRouter } from 'next/navigation';
+import { useLocation } from "wouter";
 
 const Home = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
   const [fixtures, setFixtures] = useState([]);
-  const navigate = useRouter();
+  const [location, navigate] = useLocation();
 
   const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const allLeagues = useSelector((state: RootState) => state.leagues.list);
