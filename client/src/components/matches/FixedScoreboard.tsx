@@ -135,7 +135,7 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-        
+
         // Fetch day 3 fixtures
         const day3Promise = (async () => {
           try {
@@ -150,7 +150,7 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-        
+
         // Fetch day 4 fixtures
         const day4Promise = (async () => {
           try {
@@ -165,7 +165,7 @@ const FixedScoreboard = () => {
             return [];
           }
         })();
-        
+
         // Fetch standings for popular leagues to identify top teams
         const standingsPromises = popularLeagues.map(async leagueId => {
           try {
@@ -208,7 +208,7 @@ const FixedScoreboard = () => {
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
         const now = new Date("2025-05-21T23:00:00Z");
-        
+
         console.log("Current filtering date:", now.toISOString());
 
         // Only use matches from the popular leagues list
@@ -233,34 +233,34 @@ const FixedScoreboard = () => {
             });
           }
         });
-        
+
         // Define popular teams by ID (big teams that should be prioritized)
         // plus top standings teams we extracted above
         const manualPopularTeamIds = [33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165]; // Big teams
-        
+
         // Combine manual and standings-based team IDs and remove duplicates
         const uniqueTeamIds = Array.from(new Set([...manualPopularTeamIds, ...topTeamIds]));
-        
+
         // Helper functions for filtering
         const isPopularTeamMatch = (match: Match) => {
           return uniqueTeamIds.includes(match.teams.home.id) || uniqueTeamIds.includes(match.teams.away.id);
         };
-        
+
         // Check if match is a final or semifinal
         const isFinalOrSemifinal = (match: Match) => {
           const round = match.league.round?.toLowerCase() || '';
           return round.includes('final') || round.includes('semi') || round.includes('semi-final');
         };
-        
+
         // Teams to exclude
         const excludeTeamIds = [52, 76]; // Teams to exclude
-        
+
         // Function to check if a match should be excluded
         const shouldExcludeMatch = (match: Match) => {
           return excludeTeamIds.includes(match.teams.home.id) || 
                  excludeTeamIds.includes(match.teams.away.id);
         };
-        
+
         // Filter matches according to specified criteria - ONLY from popular leagues
 
         // 1. Live matches from popular leagues
@@ -271,113 +271,113 @@ const FixedScoreboard = () => {
         // 2. Upcoming matches - limit to 5 days (a balance to ensure we have enough matches to display)
         const upcomingMatches = popularLeagueMatches.filter(match => {
           if (match.fixture.status.short !== 'NS') return false;
-          
+
           const matchDate = new Date(match.fixture.date);
           const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           const timeDiffDays = timeDiffHours / 24;
-          
+
           // Only include future matches
           if (timeDiffHours < 0) return false;
-          
+
           // For finals/semifinals, give a little more leeway (5 days)
           if (isFinalOrSemifinal(match) && timeDiffDays <= 5) return true;
-          
+
           // For regular matches, be more permissive to ensure we have matches to display
           return timeDiffDays <= 30;
         }).sort((a, b) => {
           // Sort by importance, then by time
           const aIsFinal = isFinalOrSemifinal(a);
           const bIsFinal = isFinalOrSemifinal(b);
-          
+
           // Finals/semifinals first
           if (aIsFinal && !bIsFinal) return -1;
           if (!aIsFinal && bIsFinal) return 1;
-          
+
           // Then by time - closest to now first
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
-        
+
         // 3. Recently finished matches - improved 8-hour window
         const finishedMatches = popularLeagueMatches.filter(match => {
           if (!['FT', 'AET', 'PEN'].includes(match.fixture.status.short)) return false;
-          
+
           // Calculate hours since match ended
           const matchDate = new Date(match.fixture.date);
           const matchEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000)); // Match + ~2 hours
           const hoursSinceCompletion = (now.getTime() - matchEndTime.getTime()) / (1000 * 60 * 60);
-          
+
           // Debug output to check time calculations
           if (hoursSinceCompletion >= 0 && hoursSinceCompletion <= 10) {
             console.log(`Match within time window: ${match.teams.home.name} vs ${match.teams.away.name}, Hours since: ${hoursSinceCompletion.toFixed(1)}`);
           }
-          
+
           // Show all matches completed within the last 8 hours
           return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
         }).sort((a, b) => {
           // Sort by importance first, then by recency
           const aIsFinal = isFinalOrSemifinal(a);
           const bIsFinal = isFinalOrSemifinal(b);
-          
+
           // Finals/semifinals first
           if (aIsFinal && !bIsFinal) return -1;
           if (!aIsFinal && bIsFinal) return 1;
-          
+
           // Most recently finished first
           return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
         });
-        
+
         // Log match count for better insight
         console.log(`Match breakdown from popular leagues - Live: ${liveMatches.length}, Upcoming (within 8h): ${upcomingMatches.filter(m => {
           const matchDate = new Date(m.fixture.date);
           const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           return timeDiffHours <= 8;
         }).length}, Finished (within 8h): ${finishedMatches.length}`);
-        
+
         // Build the final match list with proper prioritization
         let finalMatches: Match[] = [];
-        
+
         // PRIORITY 1: Live matches with popular teams or finals/semifinals
         const livePopularMatches = liveMatches
           .filter(match => isPopularTeamMatch(match) || isFinalOrSemifinal(match))
           .filter(match => !shouldExcludeMatch(match));
-        
+
         if (livePopularMatches.length > 0) {
           finalMatches = [...livePopularMatches];
         }
-        
+
         // PRIORITY 2: Finals or semifinals (upcoming within 3-4 days or just finished)
         const specialMatches = [...upcomingMatches, ...finishedMatches]
           .filter(match => isFinalOrSemifinal(match) && !shouldExcludeMatch(match));
-        
+
         if (specialMatches.length > 0 && finalMatches.length < 6) {
           const specialToAdd = specialMatches
             .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id))
             .slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...specialToAdd];
         }
-        
+
         // PRIORITY 3: Recently finished matches with popular teams
         const finishedPopularMatches = finishedMatches
           .filter(match => isPopularTeamMatch(match) && !shouldExcludeMatch(match))
           .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
-        
+
         if (finishedPopularMatches.length > 0 && finalMatches.length < 6) {
           const finishedToAdd = finishedPopularMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...finishedToAdd];
         }
-        
+
         // PRIORITY 4: Upcoming matches with popular teams - prioritize closest ones
         const upcomingPopularMatches = upcomingMatches
           .filter(match => isPopularTeamMatch(match) && !shouldExcludeMatch(match))
           .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
-        
+
         if (upcomingPopularMatches.length > 0 && finalMatches.length < 6) {
           const upcomingToAdd = upcomingPopularMatches.slice(0, 6 - finalMatches.length);
           finalMatches = [...finalMatches, ...upcomingToAdd];
         }
 
         // No need for specific match overrides - we'll use our standard filter criteria
-        
+
         // Ensure limit of exactly 6 matches for the carousel
         finalMatches = finalMatches.slice(0, 6);
 
@@ -415,7 +415,7 @@ const FixedScoreboard = () => {
   // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
-    
+
     // Preload team logos
     matches.forEach(match => {
       const homeLogo = match?.teams?.home?.logo;
@@ -658,10 +658,10 @@ const FixedScoreboard = () => {
               <Skeleton className="h-5 w-5 rounded-full mr-2" />
               <Skeleton className="h-4 w-32" />
             </div>
-            
+
             {/* Match time skeleton */}
             <Skeleton className="h-6 w-40 mx-auto mb-6" />
-            
+
             {/* Teams skeleton */}
             <div className="relative mt-4">
               <div className="flex justify-between items-center h-[53px] mb-8">
@@ -676,7 +676,7 @@ const FixedScoreboard = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Bottom nav skeleton */}
             <div className="flex justify-around mt-4 pt-3">
               {[1, 2, 3, 4].map((i) => (
@@ -820,7 +820,7 @@ const FixedScoreboard = () => {
                       {currentMatch?.teams?.home?.name || 'TBD'}
                     </div>
 
-                    
+
 
                     {/* VS circle */}
                     <div 
@@ -880,8 +880,7 @@ const FixedScoreboard = () => {
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM<previous_generation>```text
-19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM19 19H13V17H19V19ZM19 15H13V13H19V15ZM19 11H13V9H19V11ZM19 7H13V5H19V7Z" fill="currentColor" />
                   </svg>
                   <span className="text-xs text-gray-600 mt-1">Lineups</span>
                 </button>
@@ -909,7 +908,7 @@ const FixedScoreboard = () => {
               </div>
 
               {/* Navigation buttons removed as requested */}
-              
+
               {/* Indicator dots for slideshow */}
               {matches.length > 1 && (
                 <div className="flex justify-center gap-2 my-4">
