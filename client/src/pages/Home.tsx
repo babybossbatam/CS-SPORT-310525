@@ -46,10 +46,21 @@ const Home = () => {
   const { toast } = useToast();
   const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
   const [fixtures, setFixtures] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [location, navigate] = useLocation();
 
-  const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
+  // Limit to essential leagues only
+  const popularLeagues = useSelector((state: RootState) => 
+    state.leagues.popularLeagues.slice(0, 5)
+  );
   const allLeagues = useSelector((state: RootState) => state.leagues.list);
+
+  useEffect(() => {
+    // Cleanup function to handle unmounting
+    return () => {
+      cleanupFrames();
+    };
+  }, []);
 
   // Map countries to league IDs - only including the requested leagues
   const countryLeagueMap: Record<string, number[]> = {
@@ -163,6 +174,17 @@ const Home = () => {
 
     fetchUpcomingFixtures();
   }, [dispatch]);
+
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <div className="flex items-center justify-center min-h-screen">
+          <p>Loading matches...</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
