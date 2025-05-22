@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import FixedMatchTimer from './FixedMatchTimer';
@@ -29,7 +30,8 @@ interface Fixture {
     name?: string;
     city?: string;
   };
-}```typescript
+}
+
 interface League {
   id: number;
   name: string;
@@ -56,10 +58,8 @@ const FixedScoreboard = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
 
-  const currentMatch = matches[currentIndex];
-
+  // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
     const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
     const currentSeason = 2024;
@@ -262,7 +262,7 @@ const FixedScoreboard = () => {
 
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
-        const now = new Date();
+        const now = new Date("2025-05-21T23:00:00Z");
 
         console.log("Current filtering date:", now.toISOString());
 
@@ -396,7 +396,7 @@ const FixedScoreboard = () => {
           .filter(match => isPopularTeamMatch(match) || isFinalOrSemifinal(match))
           .filter(match => !shouldExcludeMatch(match));
 
-        if (livePopularMatches.length >0) {
+        if (livePopularMatches.length > 0) {
           finalMatches = [...livePopularMatches];
         }
 
@@ -467,62 +467,56 @@ const FixedScoreboard = () => {
     return () => clearInterval(interval);
   }, [toast]);
 
+  const currentMatch = matches[currentIndex];
+
+  // Find and display match with countdown timer if one exists
   useEffect(() => {
     if (!matches.length) return;
 
     // Preload team logos
     matches.forEach(match => {
-        const homeLogo = match?.teams?.home?.logo;
-        const awayLogo = match?.teams?.away?.logo;
-        if (homeLogo) {
-            const img = new Image();
-            img.src = homeLogo;
-        }
-        if (awayLogo) {
-            const img = new Image();
-            img.src = awayLogo;
-        }
-    });
-  }, [matches]);
-
-  useEffect(() => {
-      if (!matches.length) return;
-
-      // Preload team logos
-      matches.forEach(match => {
-          const homeLogo = match?.teams?.home?.logo;
-          const awayLogo = match?.teams?.away?.logo;
-          if (homeLogo) {
-              const img = new Image();
-              img.src = homeLogo;
-          }
-          if (awayLogo) {
-              const img = new Image();
-              img.src = awayLogo;
-          }
-      });
-
-      // Find match within 8 hours window
-      const now = new Date("2025-05-19T12:00:00Z");
-      const upcomingMatchIndex = matches.findIndex(match => {
-          if (match.fixture.status.short !== 'NS') return false;
-
-          try {
-              const matchDate = parseISO(match.fixture.date);
-              const hoursToMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-              return hoursToMatch >= 0 && hoursToMatch <= 8;
-          } catch (e) {
-              return false;
-          }
-      });
-
-      // If we found a match within 8 hours, display it
-      if (upcomingMatchIndex !== -1) {
-          setCurrentIndex(upcomingMatchIndex);
-          console.log(`Found match with countdown: ${matches[upcomingMatchIndex].teams.home.name} vs ${matches[upcomingMatchIndex].teams.away.name}`);
+      const homeLogo = match?.teams?.home?.logo;
+      const awayLogo = match?.teams?.away?.logo;
+      if (homeLogo) {
+        const img = new Image();
+        img.src = homeLogo;
       }
+      if (awayLogo) {
+        const img = new Image();
+        img.src = awayLogo;
+      }
+    });
+
+    // Find match within 8 hours window
+    const now = new Date("2025-05-19T12:00:00Z");
+    const upcomingMatchIndex = matches.findIndex(match => {
+      if (match.fixture.status.short !== 'NS') return false;
+
+      try {
+        const matchDate = parseISO(match.fixture.date);
+        const hoursToMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        return hoursToMatch >= 0 && hoursToMatch <= 8;
+      } catch (e) {
+        return false;
+      }
+    });
+
+    // If we found a match within 8 hours, display it
+    if (upcomingMatchIndex !== -1) {
+      setCurrentIndex(upcomingMatchIndex);
+      console.log(`Found match with countdown: ${matches[upcomingMatchIndex].teams.home.name} vs ${matches[upcomingMatchIndex].teams.away.name}`);
+    }
   }, [matches]);
 
+  // Only use effect for fetching match data
+  useEffect(() => {
+    // Just a placeholder to ensure the component works
+    if (matches.length === 0) return;
+
+    // Any additional match data initialization can go here if needed
+  }, [matches]);
+
+  // Navigation handlers
   const handlePrevious = () => {
     if (matches.length <= 1) return;
     setCurrentIndex(prev => (prev === 0 ? matches.length - 1 : prev - 1));
@@ -539,136 +533,140 @@ const FixedScoreboard = () => {
     }
   };
 
-    // Update timer for live matches
-    useEffect(() => {
-      if (!currentMatch) return;
+  // State to track elapsed time for live matches
+  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
 
-      // Only set up timer for live matches
-      if (!['1H', '2H'].includes(currentMatch.fixture.status.short)) {
-        setLiveElapsed(null);
-        return;
+  // Update timer for live matches
+  useEffect(() => {
+    if (!currentMatch) return;
+
+    // Only set up timer for live matches
+    if (!['1H', '2H'].includes(currentMatch.fixture.status.short)) {
+      setLiveElapsed(null);
+      return;
+    }
+
+    // Initialize with current elapsed time from the API
+    if (currentMatch.fixture.status.elapsed) {
+      setLiveElapsed(currentMatch.fixture.status.elapsed);
+    }
+
+    // Update timer every minute for live matches
+    const timer = setInterval(() => {
+      setLiveElapsed(prev => prev !== null ? prev + 1 : prev);
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, [currentMatch]);
+
+  // Format match status to show appropriate information based on match state
+  const getMatchStatus = (match: Match | undefined) => {
+    if (!match) return 'No Match Data';
+
+    const { fixture } = match;
+    // Use hardcoded "now" for demo purposes to match the fixture dates in our data
+    const now = new Date("2025-05-19T12:00:00Z");
+
+    // LIVE MATCHES - show match minute or halftime
+    if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
+      // For halftime
+      if (fixture.status.short === 'HT') {
+        return 'Half Time';
       }
-
-      // Initialize with current elapsed time from the API
-      if (currentMatch.fixture.status.elapsed) {
-        setLiveElapsed(currentMatch.fixture.status.elapsed);
+      // For live match with timer
+      else if (['1H', '2H'].includes(fixture.status.short)) {
+        // Use our tracked elapsed time if available, otherwise fall back to API
+        const elapsed = liveElapsed || fixture.status.elapsed || 0;
+        const halfLabel = fixture.status.short === '1H' ? 'First half' : 'Second half';
+        return `${halfLabel}: ${elapsed}'`;
       }
+      // For other live states
+      else {
+        return fixture.status.long || 'LIVE';
+      }
+    } 
+    // FINISHED MATCHES
+    else if (fixture.status.short === 'FT') {
+      try {
+        const matchDate = parseISO(fixture.date);
+        // Calculate how long ago match ended (add ~2 hours to start time)
+        const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
+        const hoursSince = Math.floor((now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60));
 
-      // Update timer every minute for live matches
-      const timer = setInterval(() => {
-        setLiveElapsed(prev => prev !== null ? prev + 1 : prev);
-      }, 60000); // Update every minute
-
-      return () => clearInterval(timer);
-    }, [currentMatch]);
-
-    const getMatchStatus = (match: Match | undefined) => {
-      if (!match) return 'No Match Data';
-
-      const { fixture } = match;
-      // Use hardcoded "now" for demo purposes to match the fixture dates in our data
-      const now = new Date("2025-05-19T12:00:00Z");
-
-      // LIVE MATCHES - show match minute or halftime
-      if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
-        // For halftime
-        if (fixture.status.short === 'HT') {
-          return 'Half Time';
-        }
-        // For live match with timer
-        else if (['1H', '2H'].includes(fixture.status.short)) {
-          // Use our tracked elapsed time if available, otherwise fall back to API
-          const elapsed = liveElapsed || fixture.status.elapsed || 0;
-          const halfLabel = fixture.status.short === '1H' ? 'First half' : 'Second half';
-          return `${halfLabel}: ${elapsed}'`;
-        }
-        // For other live states
-        else {
-          return fixture.status.long || 'LIVE';
-        }
-      } 
-      // FINISHED MATCHES
-      else if (fixture.status.short === 'FT') {
-        try {
-          const matchDate = parseISO(fixture.date);
-          // Calculate how long ago match ended (add ~2 hours to start time)
-          const estimatedEndTime = new Date(matchDate.getTime() + (2 * 60 * 60 * 1000));
-          const hoursSince = Math.floor((now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60));
-
-          if (hoursSince <= 1) {
-            return 'Just finished';
-          } else if (hoursSince < 8) {
-            return `${hoursSince}h ago`;
-          } else {
-            return 'Full Time';
-          }
-        } catch (e) {
+        if (hoursSince <= 1) {
+          return 'Just finished';
+        } else if (hoursSince < 8) {
+          return `${hoursSince}h ago`;
+        } else {
           return 'Full Time';
         }
-      } 
-      // UPCOMING MATCHES
-      else {
-        try {
-          const matchDate = parseISO(fixture.date);
-          const now = new Date("2025-05-19T12:00:00Z"); // Use same hardcoded time as above for consistency
+      } catch (e) {
+        return 'Full Time';
+      }
+    } 
+    // UPCOMING MATCHES
+    else {
+      try {
+        const matchDate = parseISO(fixture.date);
+        const now = new Date("2025-05-19T12:00:00Z"); // Use same hardcoded time as above for consistency
 
-          // Get time differences in various units
-          const msToMatch = matchDate.getTime() - now.getTime();
-          const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
+        // Get time differences in various units
+        const msToMatch = matchDate.getTime() - now.getTime();
+        const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
 
-          // For matches today, show a simple format
-          if (daysToMatch === 0) {
-            try {
-              const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-              // For matches less than 8 hours away, show timer below "Today"
-              if (hoursToMatch >= 0 && hoursToMatch < 8) {
-                return (
-                  <div className="flex flex-col space-y-0 relative pb-6">
-                    <span className="text-gray-500">Today</span>
-                    <div style={{ fontSize: '0.65rem', position: 'absolute', top: '80%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20, marginTop: '-15px' }}>
-                      <span className="font-bold text-red-500">Live start in:</span> 
-                      <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
-                    </div>
+        // For matches today, show a simple format
+        if (daysToMatch === 0) {
+          try {
+            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+            // For matches less than 8 hours away, show timer below "Today"
+            if (hoursToMatch >= 0 && hoursToMatch < 8) {
+              return (
+                <div className="flex flex-col space-y-0 relative pb-6">
+                  <span className="text-gray-500">Today</span>
+                  <div style={{ fontSize: '0.65rem', position: 'absolute', top: '80%', left: '50%', transform: 'translateX(-50%)', width: '200px', textAlign: 'center', zIndex: 20, marginTop: '-15px' }}>
+                    <span className="font-bold text-red-500">Live start in:</span> 
+                    <span className="text-red-500"><FixedMatchTimer matchDate={matchDate.toISOString()} /></span>
                   </div>
-                );
-              } else {
-                // More than 8 hours away
-                return <span className="text-gray-500">Today</span>;
-              }
-            } catch (e) {
+                </div>
+              );
+            } else {
+              // More than 8 hours away
               return <span className="text-gray-500">Today</span>;
             }
+          } catch (e) {
+            return <span className="text-gray-500">Today</span>;
           }
-
-          // For matches tomorrow or later, show the regular format
-          if (daysToMatch === 1) {
-            return <span className="text-gray-500">Tomorrow</span>;
-          } else if (daysToMatch <= 7) {
-            return <span className="text-gray-500">{daysToMatch} more days</span>;
-          } else {
-            return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
-          }
-        } catch (e) {
-          return <span className="text-gray-500">Upcoming</span>;
         }
+
+        // For matches tomorrow or later, show the regular format
+        if (daysToMatch === 1) {
+          return <span className="text-gray-500">Tomorrow</span>;
+        } else if (daysToMatch <= 7) {
+          return <span className="text-gray-500">{daysToMatch} more days</span>;
+        } else {
+          return <span className="text-gray-500">{format(matchDate, 'MMM d')}</span>;
+        }
+      } catch (e) {
+        return <span className="text-gray-500">Upcoming</span>;
       }
-    };
+    }
+  };
 
-    // Get match status label with proper formatting
-    const getMatchStatusLabel = (match: Match | undefined) => {
-      if (!match) return '';
+  // Get match status label with proper formatting
+  const getMatchStatusLabel = (match: Match | undefined) => {
+    if (!match) return '';
 
-      const { fixture, league } = match;
+    const { fixture, league } = match;
 
-      if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
-        return 'LIVE';
-      } else if (fixture.status.short === 'FT') {
-        return 'FINISHED';
-      } else {
-        // Show league/tournament round for upcoming matches
-        return league.round || 'UPCOMING';
-      }
-    };
+    if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
+      return 'LIVE';
+    } else if (fixture.status.short === 'FT') {
+      return 'FINISHED';
+    } else {
+      // Show league/tournament round for upcoming matches
+      return league.round || 'UPCOMING';
+    }
+  };
 
   // Team color helper function
   const getTeamColor = (teamId: number) => {
@@ -763,11 +761,11 @@ const FixedScoreboard = () => {
               onClick={handleMatchClick}
             >
                 <div className="p-0 h-full my-[10px] relative">
-                  {/* League info and match header at the top */}
-                  <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[60px] bg-white/95 backdrop-blur-sm">
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="flex-shrink-0">
-                        {currentMatch?.league?.logo ? (
+              {/* League info and match header at the top */}
+              <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[60px] bg-white/95 backdrop-blur-sm">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="flex-shrink-0">
+                    {currentMatch?.league?.logo ? (
                       <img 
                         src={currentMatch.league.logo} 
                         alt={currentMatch.league.name} 
@@ -780,17 +778,16 @@ const FixedScoreboard = () => {
                       <Trophy className="w-5 h-5 text-amber-500" />
                     )}
                   </div>
-                  <div className="flex items-center">
-                    <p className="text-sm font-medium text-black whitespace-nowrap">
-                      {currentMatch?.league?.name || 'League Name'}
-                    </p>
-                    <span className="text-gray-400 mx-1">•</span>
-                    <Badge 
-                      variant="outline" 
-                      className={`text-[10px] px-2 py-0.5 border whitespace-nowrap ${
-                        getMatchStatusLabel(currentMatch) === 'LIVE' 
-                          ? 'border-red-500 text-red-500 animate-pulse' 
-                          : getMatchStatusLabel(currentMatch) === 'FINISHED'
+                  <p className="text-sm font-medium text-black whitespace-nowrap">
+                    {currentMatch?.league?.name || 'League Name'}
+                  </p>
+                  <span className="text-gray-400 mx-1">•</span>
+                  <Badge 
+                    variant="outline" 
+                    className={`text-[10px] px-2 py-0.5 border whitespace-nowrap ${
+                      getMatchStatusLabel(currentMatch) === 'LIVE' 
+                        ? 'border-red-500 text-red-500 animate-pulse' 
+                        : getMatchStatusLabel(currentMatch) === 'FINISHED'
                           ? 'border-gray-500 text-gray-500'
                           : 'border-blue-500 text-blue-500'
                     }`}
@@ -802,8 +799,7 @@ const FixedScoreboard = () => {
                     {(() => {
                       try {
                         const matchDate = parseISO(currentMatch.fixture.date);
-                        ```typescript
-return format(matchDate, 'MMM d');
+                        return format(matchDate, 'MMM d');
                       } catch (e) {
                         return '';
                       }
@@ -891,7 +887,7 @@ return format(matchDate, 'MMM d');
                             return (
                               <>
                                 {formattedDate} | {timeOnly}
-                                {currentMatch.fixture.venue?.name ? (' | ' + currentMatch.fixture.venue.name) : ''}
+                                {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ''}
                               </>
                             );
                           } catch (e) {
@@ -976,7 +972,7 @@ return format(matchDate, 'MMM d');
                   onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/h2h`)}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" className="text-gray-600">
-                    <path d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z" fill="currentColor" />
+                    <path d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2Z" fill="currentColor" />
                   </svg>
                   <span className="text-[0.75rem] text-gray-600 mt-1">H2H</span>
                 </button>
@@ -1007,6 +1003,7 @@ return format(matchDate, 'MMM d');
                 </div>
               )}
             </div>
+            </motion.div>
           </AnimatePresence>
         )}
       </Card>

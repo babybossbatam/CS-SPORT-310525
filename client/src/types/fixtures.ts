@@ -80,10 +80,3 @@ export interface UserGeneratedHighlight {
   createdAt: Date;
   likes: number;
 }
-
-interface League {
-  id: number;
-  name: string;
-  logo: string;
-  round?: string;
-}
