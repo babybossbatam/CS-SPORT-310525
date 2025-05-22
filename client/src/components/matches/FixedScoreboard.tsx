@@ -1004,12 +1004,12 @@ const FixedScoreboard = () => {
                 </div>
               )}
             </div>
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </Card>
-    </>
-  );
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </Card>
+      </>
+    );
 };
 
 export default FixedScoreboard;
