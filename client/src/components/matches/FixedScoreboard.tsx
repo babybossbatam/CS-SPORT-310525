@@ -920,7 +920,7 @@ const FixedScoreboard = () => {
                     <img 
                       src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                       alt={currentMatch?.teams?.away?.name || 'Away Team'} 
-                      className="absolute right-[-27px] z-20 w-[64px] h-[64px] object-contain"
+                      className="absolute right-[-47px] z-20 w-[64px] h-[64px] object-contain"
                       style={{
                         cursor: 'pointer',
                         top: "calc(50% - 32px)"
@@ -935,7 +935,7 @@ const FixedScoreboard = () => {
                 </div>
               </div>
 
-              <div className="absolute right-[117px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
+              <div className="absolute right-[137px] text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]" style={{top: "calc(50% - 8px)"}}>
                 {currentMatch?.teams?.away?.name || 'Away Team'}
               </div>
 
