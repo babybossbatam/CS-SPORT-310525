@@ -928,7 +928,7 @@ const FixedScoreboard = () => {
                       style={{
                         cursor: 'pointer',
                         top: "calc(50% - 32px)",
-                        right: "82px"
+                        right: "52px"
                       }}
                       onClick={handleMatchClick}
                       onError={(e) => {
