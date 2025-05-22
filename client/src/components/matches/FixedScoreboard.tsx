@@ -880,7 +880,7 @@ const FixedScoreboard = () => {
 
                     {/* Navigation dots */}
                     {matches.length > 1 && (
-                      <div className="flex justify-center gap-2 mt-8 pb-2">
+                      <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-2 pb-2">
                         {matches.map((_, index) => (
                           <button
                             key={index}
