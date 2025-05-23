@@ -693,6 +693,9 @@ const FixedScoreboard = () => {
               <div>{statusText}</div>
             </div>
           );
+        } catch (error) {
+          return "Full Time";
+        }
     }
     // UPCOMING MATCHES
     else {
