@@ -1005,7 +1005,38 @@ const FixedScoreboard = () => {
                         <span className="vs-text font-bold">VS</span>
                       </div>
 
-                      
+                      {/* Match date and venue - centered below VS */}
+                      <div 
+                        className="absolute text-center text-xs text-black font-medium"
+                        style={{
+                          fontSize: "0.875rem",
+                          whiteSpace: "nowrap",
+                          overflow: "visible",
+                          textAlign: "center",
+                          position: "absolute",
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          bottom: "-25px",
+                          width: "max-content"
+                        }}
+                      >
+                        {(() => {
+                          try {
+                            const matchDate = parseISO(currentMatch.fixture.date);
+                            const formattedDate = format(matchDate, "EEEE, do MMM");
+                            const timeOnly = format(matchDate, "HH:mm");
+
+                            return (
+                              <span className="text-black">
+                                {formattedDate} | {timeOnly}
+                                {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ""}
+                              </span>
+                            );
+                          } catch (e) {
+                            return currentMatch.fixture.venue?.name || "";
+                          }
+                        })()}
+                      </div>
 
                       {/* Away team colored bar and logo */}
                     <div className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100" 
