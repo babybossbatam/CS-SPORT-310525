@@ -120,10 +120,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       </Card>
 
       <Card className="bg-white shadow-md">
-        <CardContent className="p-0">
+        <CardContent>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
+          </div>
           <div className="divide-y divide-gray-100">
             {fixtures.length > 0 ? (
               [...fixtures]
+                .filter(fixture => [2, 3, 39, 140, 135, 78].includes(fixture.league.id)) // Filter Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
                 .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime())
                 .slice(0, 5)
                 .map(renderFixture)
