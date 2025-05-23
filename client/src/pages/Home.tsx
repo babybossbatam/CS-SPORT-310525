@@ -225,11 +225,7 @@ const Home = () => {
 
             {/* Popular Leagues and Teams sections side by side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div>
-                  <PopularLeaguesList />
-                </div>
-              </div>
+              <PopularLeaguesList />
 
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
