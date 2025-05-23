@@ -148,7 +148,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <div className="grid grid-cols-1 gap-4">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-4">
                   {[
                     { id: 2, name: 'Champions League', country: 'Europe' },
                     { id: 3, name: 'Europa League', country: 'Europe' }
@@ -223,7 +223,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">National Leagues</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-4">
                   {[
                     { id: 39, name: 'Premier League', country: 'England' },
                     { id: 140, name: 'La Liga', country: 'Spain' },
