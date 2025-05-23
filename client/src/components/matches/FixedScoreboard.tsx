@@ -985,7 +985,7 @@ const FixedScoreboard = () => {
                       </div>
 
                       <div
-                        className="absolute text-white font-bold uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
+                        className="absolute text-white font-bold uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                         style={{ top: "calc(50% - 13px)", left: "120px", fontSize: "1.13rem" }}
                       >
                         {currentMatch?.teams?.home?.name || "TBD"}
