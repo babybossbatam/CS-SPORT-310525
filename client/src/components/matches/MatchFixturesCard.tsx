@@ -161,25 +161,24 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   }
 
                   return (
-                    <div className="space-y-2">
-                      {filteredFixtures.map(renderFixture)}
+                    <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
+                      <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
+                        <img
+                          src={leagueGroup.league.logo}
+                          alt={leagueGroup.league.name}
+                          className="h-6 w-6 object-contain"
+                        />
+                        <div>
+                          <div className="font-medium">{leagueGroup.league.name}</div>
+                          <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
+                        </div>
+                      </div>
+                      <div className="divide-y divide-gray-100">
+                        {filteredFixtures.map(renderFixture)}
+                      </div>
                     </div>
                   );
                 })()}
-              </div>
-                      alt={leagueGroup.league.name}
-                      className="h-6 w-6 object-contain"
-                    />
-                    <div>
-                      <div className="font-medium">{leagueGroup.league.name}</div>
-                      <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
-                    </div>
-                  </div>
-                  <div className="divide-y divide-gray-100">
-                    {filteredFixtures.map(renderFixture)}
-                  </div>
-                </div>
-              )})}
               </div>
             </CardContent>
           </Card>
