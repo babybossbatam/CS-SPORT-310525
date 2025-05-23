@@ -747,7 +747,7 @@ const FixedScoreboard = () => {
           return <span className="text-gray-500">{daysToMatch} more days</span>;
         } else {
           return (
-            <span className="text-gray-500">{format(matchDate, "MMM d")}</span>
+            <span className="text-gray-500 text-center block w-full">{format(matchDate, "MMM d")}</span>
           );
         }
       } catch (e) {
