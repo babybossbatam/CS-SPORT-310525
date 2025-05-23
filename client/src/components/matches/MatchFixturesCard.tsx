@@ -1,4 +1,3 @@
-
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
@@ -88,6 +87,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     return acc;
   }, {});
 
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
+
   return (
     <div className="space-y-4">
       <Card className="bg-white shadow-md">
@@ -107,8 +108,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 <DatePicker
                   mode="single"
                   className="rounded-md border"
-                  selected={new Date()}
-                  onSelect={(date) => console.log(date)}
+                  selected={selectedDate}
+                  onSelect={(date) => setSelectedDate(date)}
                 />
               </PopoverContent>
             </Popover>
@@ -124,24 +125,42 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
           </div>
-          {Object.values(fixturesByLeague).map((leagueGroup: any) => (
-            <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
-              <div className="flex items-center space-x-2 px-4 mb-2">
-                <img
-                  src={leagueGroup.league.logo}
-                  alt={leagueGroup.league.name}
-                  className="h-6 w-6 object-contain"
-                />
-                <div>
-                  <div className="font-medium">{leagueGroup.league.name}</div>
-                  <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
+          <div className="divide-y divide-gray-100">
+            {Object.values(fixturesByLeague).map((leagueGroup: any) => {
+              // Filter fixtures based on date and status
+              const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
+                const fixtureDate = new Date(fixture.fixture.date);
+                const isToday = new Date().toDateString() === fixtureDate.toDateString();
+                const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+
+                // Show score only if match is finished and it's today's match
+                return isSelectedDate && (isToday ? 
+                  ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) :
+                  true);
+              });
+
+              if (filteredFixtures.length === 0) return null;
+
+              return (
+                <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
+                  <div className="flex items-center space-x-2 px-4 mb-2">
+                    <img
+                      src={leagueGroup.league.logo}
+                      alt={leagueGroup.league.name}
+                      className="h-6 w-6 object-contain"
+                    />
+                    <div>
+                      <div className="font-medium">{leagueGroup.league.name}</div>
+                      <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {filteredFixtures.map(renderFixture)}
+                  </div>
                 </div>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {leagueGroup.fixtures.map(renderFixture)}
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
     </div>
