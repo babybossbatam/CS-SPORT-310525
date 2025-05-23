@@ -198,10 +198,11 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <main className="container mx-auto pl-[8.1rem] pr-6 py-4 bg-[#F4F4F6]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Left column (8 columns) - Live Scoreboard */}
-          <div className="lg:col-span-8">
+      <main className="w-full min-h-screen bg-[#F4F4F6]">
+        <div className="max-w-[1920px] mx-auto px-4 py-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* Left column (8 columns) - Live Scoreboard */}
+            <div className="lg:col-span-8">
             {/* Featured Match - Added at the top */}
             <FeaturedMatch />
 
