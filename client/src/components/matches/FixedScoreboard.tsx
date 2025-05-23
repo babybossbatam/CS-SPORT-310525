@@ -1030,13 +1030,28 @@ const FixedScoreboard = () => {
                         }}
                       >
                         {(() => {
-                        try {
-                          const matchDate = parseISO(currentMatch.fixture.date);
-                          return format(matchDate, "MMM d");
-                        } catch (e) {
-                          return "";
-                        }
-                      })()}
+                          try {
+                            const matchDate = parseISO(
+                              currentMatch.fixture.date,
+                            );
+                            const formattedDate = format(
+                              matchDate,
+                              "EEEE, do MMM",
+                            );
+                            const timeOnly = format(matchDate, "HH:mm");
+
+                            return (
+                              <>
+                                {formattedDate} | {timeOnly}
+                                {currentMatch.fixture.venue?.name
+                                  ? ` | ${currentMatch.fixture.venue.name}`
+                                  : ""}
+                              </>
+                            );
+                          } catch (e) {
+                            return currentMatch.fixture.venue?.name || "";
+                          }
+                        })()}
                       </div>
 
                       {/* Away team colored bar and logo */}
