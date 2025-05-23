@@ -685,17 +685,7 @@ const FixedScoreboard = () => {
         );
 
         if (hoursSince <= 1) {
-          return (
-            <div className="flex flex-col items-center">
-              <div className="text-sm font-medium text-black mb-1">
-                {match?.league?.name}
-                <span className="ml-2 text-xs text-gray-500">
-                  {match?.league?.round}
-                </span>
-              </div>
-              <span>Ended</span>
-            </div>
-          );
+          return "Ended";
         } else if (hoursSince < 8) {
           return `${hoursSince}h ago`;
         } else {
@@ -933,16 +923,22 @@ const FixedScoreboard = () => {
                   style={{ marginBottom: "-5px" }}
                 >
                   {/* Match time/status display */}
-                  <div
-                    className="text-center text-black"
-                    style={{
-                      fontSize: "calc(0.875rem * 1.5)",
-                      fontWeight: "700",
-                      
-                    }}
-                  >
-                    {" "}
-                    {getMatchStatus(currentMatch)}
+                  <div className="flex flex-col items-center">
+                    <div className="text-sm font-medium text-black mb-1">
+                      {currentMatch?.league?.name}
+                      <span className="ml-2 text-xs text-gray-500">
+                        {currentMatch?.league?.round}
+                      </span>
+                    </div>
+                    <div
+                      className="text-center text-black"
+                      style={{
+                        fontSize: "calc(0.875rem * 1.5)",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {getMatchStatus(currentMatch)}
+                    </div>
                   </div>
 
                   {/* Score display with date for finished matches */}
