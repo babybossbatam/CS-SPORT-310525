@@ -797,7 +797,39 @@ const FixedScoreboard = () => {
         Featured Match
       </Badge>
 
-      <Card className="px-0 pt-2 pb-2 relative">
+      <Card className="px-0 pt-0 pb-2 relative">
+        <div className="flex items-center justify-center pt-2 pb-1 border-b border-gray-100">
+          <div className="flex-shrink-0 mr-2">
+            {currentMatch?.league?.logo ? (
+              <img
+                src={currentMatch.league.logo}
+                alt={currentMatch.league.name}
+                className="w-5 h-5 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = "/assets/fallback-logo.svg";
+                }}
+              />
+            ) : (
+              <Trophy className="w-5 h-5 text-amber-500" />
+            )}
+          </div>
+          <p className="text-sm font-medium text-black mr-2">
+            {currentMatch?.league?.name || "League Name"}
+          </p>
+          <Badge
+            variant="outline"
+            className={`text-[10px] px-1.5 py-0 border ${
+              getMatchStatusLabel(currentMatch) === "LIVE"
+                ? "border-red-500 text-red-500 animate-pulse"
+                : getMatchStatusLabel(currentMatch) === "FINISHED"
+                  ? "border-gray-500 text-gray-500"
+                  : "border-blue-500 text-blue-500"
+            }`}
+          >
+            {getMatchStatusLabel(currentMatch)}
+          </Badge>
+        </div>
+        
         {matches.length > 1 && (
           <>
             <button
@@ -869,52 +901,16 @@ const FixedScoreboard = () => {
               onClick={handleMatchClick}
             >
               <div className="p-0 h-full my-[10px] relative">
-                {/* League info and match header at the top */}
-                <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center justify-center h-[86px] bg-white/95 backdrop-blur-sm">
-                  <div className="flex items-center justify-center mb-1">
-                    <div className="flex-shrink-0 mr-2">
-                      {currentMatch?.league?.logo ? (
-                        <img
-                          src={currentMatch.league.logo}
-                          alt={currentMatch.league.name}
-                          className="w-5 h-5 object-contain"
-                          onError={(e) => {
-                            e.currentTarget.src = "/assets/fallback-logo.svg";
-                          }}
-                        />
-                      ) : (
-                        <Trophy className="w-5 h-5 text-amber-500" />
-                      )}
-                    </div>
-
-                    <p className="text-sm font-medium text-black mr-2">
-                    {currentMatch?.league?.name || "League Name"}
-                  </p>
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] px-1.5 py-0 border ${
-                      getMatchStatusLabel(currentMatch) === "LIVE"
-                        ? "border-red-500 text-red-500 animate-pulse"
-                        : getMatchStatusLabel(currentMatch) === "FINISHED"
-                          ? "border-gray-500 text-gray-500"
-                          : "border-blue-500 text-blue-500"
-                    }`}
-                  >
-                    {getMatchStatusLabel(currentMatch)}
-                  </Badge>
-
-                  </div>
-                  {/* Match date row */}
-                  <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center">
-                    {(() => {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        return format(matchDate, "MMM d");
-                      } catch (e) {
-                        return "";
-                      }
-                    })()}
-                  </div>
+                {/* Match date row */}
+                <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center mt-4">
+                  {(() => {
+                    try {
+                      const matchDate = parseISO(currentMatch.fixture.date);
+                      return format(matchDate, "MMM d");
+                    } catch (e) {
+                      return "";
+                    }
+                  })()}
                 </div>
 
                 {/* Fixed height container for match status and score */}
