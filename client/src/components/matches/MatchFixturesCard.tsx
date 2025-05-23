@@ -133,16 +133,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       <div className="space-y-4">
         {Object.values(fixturesByLeague).map((leagueGroup: any) => (
           <Card key={leagueGroup.league.id} className="bg-white shadow-md">
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <img
-                  src={leagueGroup.league.logo}
-                  alt={leagueGroup.league.name}
-                  className="h-6 w-6 object-contain"
-                />
-                <h3 className="text-sm font-semibold">{leagueGroup.league.name}</h3>
-              </div>
-            </CardHeader>
+            
             <CardContent>
               <div className="divide-y divide-gray-100">
                 {(() => {
