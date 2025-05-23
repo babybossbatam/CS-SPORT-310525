@@ -981,47 +981,7 @@ const FixedScoreboard = () => {
                           />
                         )}
 
-                        {/* Match time & venue information below VS - for ALL matches */}
-                        <div
-                          className="absolute text-center text-xs text-gray-500"
-                          style={{
-                            fontSize: "0.65rem",
-                            whiteSpace: "nowrap",
-                            overflow: "visible",
-                            textAlign: "center",
-                            zIndex: 30,
-                            position: "absolute",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            bottom: "-35px",
-                            width: "max-content",
-                            minWidth: "200px"
-                          }}
-                        >
-                          {(() => {
-                            try {
-                              const matchDate = parseISO(
-                                currentMatch.fixture.date,
-                              );
-                              const formattedDate = format(
-                                matchDate,
-                                "EEEE, do MMM",
-                              );
-                              const timeOnly = format(matchDate, "HH:mm");
-
-                              return (
-                                <>
-                                  {formattedDate} | {timeOnly}
-                                  {currentMatch.fixture.venue?.name
-                                    ? ` | ${currentMatch.fixture.venue.name}`
-                                    : ""}
-                                </>
-                              );
-                            } catch (e) {
-                              return currentMatch.fixture.venue?.name || "";
-                            }
-                          })()}
-                        </div>
+                        
                       </div>
 
                       <div
