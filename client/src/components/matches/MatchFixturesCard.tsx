@@ -150,7 +150,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   if (filteredFixtures.length === 0) {
                     return (
                       <div className="p-4 text-center text-gray-500">
-                        No matches scheduled for this date
+                        Popular Football Leagues
                       </div>
                     );
                   }
