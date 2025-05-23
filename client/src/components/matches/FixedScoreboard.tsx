@@ -1066,7 +1066,7 @@ const FixedScoreboard = () => {
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
-                          right: "-12px",
+                          right: "-32px",
                           transform: "translateX(50%)",
                         }}
                         onClick={handleMatchClick}
