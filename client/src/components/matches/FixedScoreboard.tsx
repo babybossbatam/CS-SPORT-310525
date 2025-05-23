@@ -994,15 +994,15 @@ const FixedScoreboard = () => {
 
                       {/* VS circle */}
                       <div
-                        className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                        className="absolute text-white text-sm rounded-full h-[104px] w-[104px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
                         style={{
                           background: "#a00000",
-                          left: "calc(50% - 26px)",
-                          top: "calc(50% - 26px)",
-                          minWidth: "52px",
+                          left: "calc(50% - 52px)",
+                          top: "calc(50% - 52px)",
+                          minWidth: "104px",
                         }}
                       >
-                        <span className="vs-text font-bold">VS</span>
+                        <span className="vs-text">VS</span>
                       </div>
 
                       {/* Match date and venue - centered below VS */}
