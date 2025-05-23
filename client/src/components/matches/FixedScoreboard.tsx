@@ -1008,7 +1008,7 @@ const FixedScoreboard = () => {
                       <div 
                         className="absolute text-center text-xs text-gray-500"
                         style={{
-                          fontSize: "0.65rem",
+                          fontSize: "0.875rem",
                           whiteSpace: "nowrap",
                           overflow: "visible",
                           textAlign: "center",
