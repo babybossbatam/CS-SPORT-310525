@@ -54,8 +54,9 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             fixture.fixture.status.short === "NS" ? "" : ""
           )}>
             {fixture.fixture.status.short === "NS" 
-              ? "-"
-              : `${fixture.goals.home} - ${fixture.goals.away}`
+              ? fixture.fixture.date ? format(parseISO(fixture.fixture.date), 'HH:mm')
+              : "-"
+              : `${fixture.goals.home ?? 0} - ${fixture.goals.away ?? 0}`
             }
           </span>
         </div>
@@ -128,16 +129,13 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </div>
           <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
-              // Filter fixtures based on date and status
+              // Filter fixtures based on date
               const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
                 const fixtureDate = new Date(fixture.fixture.date);
-                const isToday = new Date().toDateString() === fixtureDate.toDateString();
                 const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
-
-                // Show score only if match is finished and it's today's match
-                return isSelectedDate && (isToday ? 
-                  ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) :
-                  true);
+                
+                // Show all matches for selected date
+                return isSelectedDate;
               });
 
               if (filteredFixtures.length === 0) return null;
