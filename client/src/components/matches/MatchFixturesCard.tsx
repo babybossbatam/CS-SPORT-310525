@@ -144,26 +144,37 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-2">
-            <div className="grid grid-cols-3 gap-2">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 gap-4">
               {[
-                { id: 2, name: 'Champions League', country: 'Europe' },
-                { id: 39, name: 'Premier League', country: 'England' },
-                { id: 140, name: 'La Liga', country: 'Spain' },
-                { id: 135, name: 'Serie A', country: 'Italy' },
-                { id: 78, name: 'Bundesliga', country: 'Germany' },
-                { id: 3, name: 'Europa League', country: 'Europe' }
-              ].map((league) => (
-                <button
-                  key={league.id}
-                  className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-md transition-colors"
-                  onClick={() => {
-                    // Add filter logic here
-                  }}
-                >
-                  <div className="text-sm font-medium">{league.name}</div>
-                  <div className="text-xs text-gray-500">{league.country}</div>
-                </button>
+                { category: 'European Competitions', leagues: [
+                  { id: 2, name: 'Champions League', country: 'Europe' },
+                  { id: 3, name: 'Europa League', country: 'Europe' }
+                ]},
+                { category: 'National Leagues', leagues: [
+                  { id: 39, name: 'Premier League', country: 'England' },
+                  { id: 140, name: 'La Liga', country: 'Spain' },
+                  { id: 135, name: 'Serie A', country: 'Italy' },
+                  { id: 78, name: 'Bundesliga', country: 'Germany' }
+                ]}
+              ].map((category) => (
+                <div key={category.category} className="space-y-2">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">{category.category}</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {category.leagues.map((league) => (
+                      <button
+                        key={league.id}
+                        className="flex flex-col items-center p-3 hover:bg-gray-50 rounded-md transition-colors border border-gray-100"
+                        onClick={() => {
+                          // Add filter logic here
+                        }}
+                      >
+                        <div className="text-sm font-medium">{league.name}</div>
+                        <div className="text-xs text-gray-500">{league.country}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </CardContent>
