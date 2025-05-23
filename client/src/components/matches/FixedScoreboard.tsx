@@ -946,13 +946,11 @@ const FixedScoreboard = () => {
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50% - 26px)] ml-[20px] transition-all duration-500 ease-in-out relative flex items-center"
+                        className="h-full w-[calc(50%-64px)] ml-[64px] relative"
                         style={{
                           background: getTeamColor(
                             currentMatch?.teams?.home?.id || 0,
                           ),
-                          borderTopLeftRadius: '4px',
-                          borderBottomLeftRadius: '4px'
                         }}
                       >
                         {currentMatch?.teams?.home && (
@@ -985,7 +983,44 @@ const FixedScoreboard = () => {
                           />
                         )}
 
+                        {/* Match time & venue information below VS - for ALL matches */}
+                        <div
+                          className="absolute text-center text-xs text-gray-500 w-[300px]"
+                          style={{
+                            fontSize: "0.65rem",
+                            whiteSpace: "nowrap",
+                            overflow: "visible",
+                            textAlign: "center",
+                            zIndex: 30,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            top: "calc(50% + 35px)",
+                          }}
+                        >
+                          {(() => {
+                            try {
+                              const matchDate = parseISO(
+                                currentMatch.fixture.date,
+                              );
+                              const formattedDate = format(
+                                matchDate,
+                                "EEEE, do MMM",
+                              );
+                              const timeOnly = format(matchDate, "HH:mm");
 
+                              return (
+                                <>
+                                  {formattedDate} | {timeOnly}
+                                  {currentMatch.fixture.venue?.name
+                                    ? ` | ${currentMatch.fixture.venue.name}`
+                                    : ""}
+                                </>
+                              );
+                            } catch (e) {
+                              return currentMatch.fixture.venue?.name || "";
+                            }
+                          })()}
+                        </div>
                       </div>
 
                       <div
@@ -1010,11 +1045,9 @@ const FixedScoreboard = () => {
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50% - 26px)] mr-[20px] flex items-center justify-end"
+                        className="h-full w-[calc(50%-52px)] mr-[82px]"
                         style={{
                           background: getTeamColor(currentMatch.teams.away.id),
-                          borderTopRightRadius: '4px',
-                          borderBottomRightRadius: '4px'
                         }}
                       ></div>
 
