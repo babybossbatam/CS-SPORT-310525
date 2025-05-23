@@ -24,10 +24,10 @@ import SerieASchedule from '@/components/leagues/SerieASchedule';
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
 import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
 import { apiRequest } from '@/lib/queryClient';
-import { Trophy, Activity } from 'lucide-react';
+import { Trophy, Activity, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
 import { useLocation } from "wouter";
 
@@ -229,16 +229,21 @@ const Home = () => {
                   </CardContent>
                 </Card>
                 <LeagueStandingsFilter />
-                
+
                 {/* Popular Leagues and Teams sections */}
                 <div className="grid grid-cols-1 gap-4">
                   <PopularLeaguesList />
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
-                    <div>
+                  <Card>
+                    <CardHeader className="border-b border-gray-100">
+                      <CardTitle className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-amber-500" />
+                        Popular Teams
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
                       <PopularTeamsList />
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>
