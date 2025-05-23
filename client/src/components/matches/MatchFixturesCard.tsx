@@ -101,17 +101,15 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             </button>
             <Popover>
               <PopoverTrigger asChild>
-                <SelectTrigger className="w-[240px] flex items-center justify-between">
-                  <SelectValue>
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4" />
-                      <span className="text-sm font-medium">
-                        {format(selectedDate, "MMMM d, yyyy")}
-                      </span>
-                    </div>
-                  </SelectValue>
+                <Button variant="outline" className="w-[240px] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      {format(selectedDate, "MMMM d, yyyy")}
+                    </span>
+                  </div>
                   <ChevronDown className="h-4 w-4 text-gray-600" />
-                </SelectTrigger>
+                </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="center">
                 <DatePicker
