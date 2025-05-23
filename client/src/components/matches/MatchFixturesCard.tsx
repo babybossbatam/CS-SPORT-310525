@@ -132,7 +132,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
       <Card className="bg-white shadow-md">
         <CardHeader>
-          <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
+          <h3 className="text-sm font-semibold">Popular Football Leagues</h3>
         </CardHeader>
         <CardContent>
           <div className="divide-y divide-gray-100">
