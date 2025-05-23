@@ -905,7 +905,7 @@ const FixedScoreboard = () => {
 
                 {/* Fixed height container for match status and score */}
                 <div
-                  className="h-[108px] flex flex-col justify-center"
+                  className="h-[98px] flex flex-col justify-center"
                   style={{ marginBottom: "-5px" }}
                 >
                   {/* Match time/status display */}
