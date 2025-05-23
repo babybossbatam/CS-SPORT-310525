@@ -149,19 +149,24 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
                     const fixtureDate = new Date(fixture.fixture.date);
                     const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
-
-                    return isSelectedDate && (new Date().toDateString() === fixtureDate.toDateString() ? 
-                      ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) :
-                      true);
+                    return isSelectedDate;
                   });
 
-                  if (filteredFixtures.length === 0) return null;
+                  if (filteredFixtures.length === 0) {
+                    return (
+                      <div className="p-4 text-center text-gray-500">
+                        No matches scheduled for this date
+                      </div>
+                    );
+                  }
 
                   return (
-                    <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
-                  <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
-                    <img
-                      src={leagueGroup.league.logo}
+                    <div className="space-y-2">
+                      {filteredFixtures.map(renderFixture)}
+                    </div>
+                  );
+                })()}
+              </div>
                       alt={leagueGroup.league.name}
                       className="h-6 w-6 object-contain"
                     />
