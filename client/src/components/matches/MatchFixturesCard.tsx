@@ -4,7 +4,6 @@ import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown
 import { Card, CardContent } from '../ui/card';
 import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { cn } from '@/lib/utils';
 
 interface FixtureProps {
@@ -90,15 +89,6 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   }, {});
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const [selectedLeague, setSelectedLeague] = React.useState<number | null>(null);
-
-    const POPULAR_LEAGUES = [
-        { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
-        { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
-        { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
-        { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
-        { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
-    ];
 
   return (
     <div className="space-y-4 pt-10">
@@ -135,35 +125,6 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <CardContent>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
-            <Select 
-              value={selectedLeague?.toString()} 
-              onValueChange={(value) => {
-                  const leagueId = parseInt(value);
-                  setSelectedLeague(leagueId);
-                  onMatchClick(leagueId);
-                }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select League" />
-              </SelectTrigger>
-              <SelectContent>
-                {POPULAR_LEAGUES.map((league) => (
-                  <SelectItem key={league.id} value={league.id.toString()}>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src={league.logo} 
-                        alt={league.name}
-                        className="w-4 h-4 object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
-                        }}
-                      />
-                      {league.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
