@@ -236,7 +236,6 @@ const Home = () => {
                   <Card className="w-full">
                     <CardContent className="p-4">
                       <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
-                    <CardContent className="p-0">
                       <PopularTeamsList />
                     </CardContent>
                   </Card>
