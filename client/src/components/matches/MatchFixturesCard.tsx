@@ -2,6 +2,7 @@ import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
+import LeagueStandingsFilter from '../leagues/LeagueStandingsFilter';
 import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
@@ -125,6 +126,9 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <CardContent>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
+          </div>
+          <div className="space-y-4">
+            <LeagueStandingsFilter />
           </div>
           <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
