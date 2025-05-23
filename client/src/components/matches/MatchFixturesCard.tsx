@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar as CalendarIcon, Star } from 'lucide-react';
+import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 
 interface FixtureProps {
@@ -9,6 +9,8 @@ interface FixtureProps {
 }
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
+  const [selectedFilter, setSelectedFilter] = useState("Yesterday's Matches");
+  
   // Group fixtures by league
   const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
     const leagueId = fixture.league.id;
@@ -67,6 +69,36 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
   return (
     <div className="space-y-4 pt-10">
+      <Card className="bg-white shadow-md">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <div className="relative">
+                <button className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md">
+                  <span className="font-medium">{selectedFilter}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="flex items-center gap-1 px-3 py-1 bg-neutral-800 text-white rounded-full text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                Live
+              </button>
+              <button className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100 rounded-full text-sm">
+                <Clock className="h-4 w-4" />
+                By time
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       {Object.values(fixturesByLeague).map((leagueData: any) => (
         <Card key={leagueData.league.id} className="bg-white shadow-md">
           <CardHeader className="p-4 border-b border-gray-100">
