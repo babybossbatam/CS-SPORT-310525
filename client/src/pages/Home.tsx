@@ -203,8 +203,6 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Left column (5 columns) */}
             <div className="lg:col-span-5">
-            {/* Featured Match - Added at the top */}
-            <FeaturedMatch />
 
             {/* Top Scorers Section */}
             <Card className="mt-4">
@@ -236,8 +234,9 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Right column (4 columns) */}
-          <div className="lg:col-span-4 space-y-4">
+          {/* Right column (7 columns) */}
+          <div className="lg:col-span-7 space-y-4">
+            <FeaturedMatch />
             <Card>
               <CardContent className="p-0">
                 <MatchFixturesCard
