@@ -129,13 +129,16 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </div>
           <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
-              // Filter fixtures based on date
+              // Filter fixtures based on date and status
               const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
                 const fixtureDate = new Date(fixture.fixture.date);
                 const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                const isMatchEnded = fixture.fixture.status.short === 'FT' || 
+                                   fixture.fixture.status.short === 'AET' || 
+                                   fixture.fixture.status.short === 'PEN';
                 
-                // Show all matches for selected date
-                return isSelectedDate;
+                // Show ended matches for today
+                return isSelectedDate && isMatchEnded;
               });
 
               if (filteredFixtures.length === 0) return null;
