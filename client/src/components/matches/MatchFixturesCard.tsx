@@ -1,6 +1,16 @@
 import React from 'react';
 import { format, isToday, isYesterday, isTomorrow, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
+import { useLocation } from 'wouter';
+
+const leagueData = [
+  { id: 2, name: 'UEFA Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 3, name: 'UEFA Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 39, name: 'Premier League', country: 'England', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+  { id: 140, name: 'La Liga', country: 'Spain', logo: 'https://media.api-sports.io/football/leagues/140.png' },
+  { id: 135, name: 'Serie A', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/135.png' },
+  { id: 78, name: 'Bundesliga', country: 'Germany', logo: 'https://media.api-sports.io/football/leagues/78.png' }
+];
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -149,24 +159,47 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
                   if (filteredFixtures.length === 0) {
                     return (
-                      <div className="p-4 text-center text-gray-500">
-                        Popular Football Leagues
+                      <div className="space-y-2">
+                        {leagueData.map((league) => (
+                          <div
+                            key={league.id}
+                            className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+                            onClick={() => navigate(`/league/${league.id}`)}
+                          >
+                            <img
+                              src={league.logo}
+                              alt={league.name}
+                              className="w-5 h-5 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                              }}
+                            />
+                            <div className="ml-3 flex-1">
+                              <div className="text-sm">{league.name}</div>
+                              <div className="text-xs text-gray-500">{league.country}</div>
+                            </div>
+                            <Star className="h-4 w-4 text-gray-400" />
+                          </div>
+                        ))}
                       </div>
                     );
                   }
 
                   return (
                     <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
-                      <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
-                        <img
-                          src={leagueGroup.league.logo}
-                          alt={leagueGroup.league.name}
-                          className="h-6 w-6 object-contain"
-                        />
-                        <div>
-                          <div className="font-medium">{leagueGroup.league.name}</div>
-                          <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
+                      <div className="flex items-center justify-between px-4 py-2 bg-gray-50">
+                        <div className="flex items-center space-x-2">
+                          <img
+                            src={leagueGroup.league.logo}
+                            alt={leagueGroup.league.name}
+                            className="h-6 w-6 object-contain"
+                          />
+                          <div>
+                            <div className="font-medium">{leagueGroup.league.name}</div>
+                            <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
+                          </div>
                         </div>
+                        <Star className="h-4 w-4 text-gray-400" />
                       </div>
                       <div className="divide-y divide-gray-100">
                         {filteredFixtures.map(renderFixture)}
