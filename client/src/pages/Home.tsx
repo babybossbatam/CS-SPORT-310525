@@ -233,19 +233,17 @@ const Home = () => {
                 {/* Popular Leagues and Teams sections */}
                 <div className="grid grid-cols-1 gap-4">
                   <PopularLeaguesList />
-                  <div className="flex justify-center">
-                    <Card className="w-1/2">
-                      <CardHeader className="border-b border-gray-100">
-                        <CardTitle className="flex items-center gap-2">
-                          <Star className="h-4 w-4 text-amber-500" />
-                          Popular Teams
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        <PopularTeamsList />
-                      </CardContent>
-                    </Card>
-                  </div>
+                  <Card className="w-1/2 mx-auto">
+                    <CardHeader className="border-b border-gray-100">
+                      <CardTitle className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-amber-500" />
+                        Popular Teams
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <PopularTeamsList />
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>
