@@ -986,23 +986,23 @@ const FixedScoreboard = () => {
                       </div>
 
                       <div
-                        className="absolute text-white font-bold uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                        style={{ top: "calc(50% - 13px)", left: "120px", fontSize: "1.13rem" }}
+                        className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                        style={{ top: "calc(50% - 13px)", left: "120px", fontSize: "1.24rem", fontWeight: "normal" }}
                       >
                         {currentMatch?.teams?.home?.name || "TBD"}
                       </div>
 
                       {/* VS circle */}
                       <div
-                        className="absolute text-white text-sm rounded-full h-[104px] w-[104px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                        className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
                         style={{
                           background: "#a00000",
-                          left: "calc(50% - 52px)",
-                          top: "calc(50% - 52px)",
-                          minWidth: "104px",
+                          left: "calc(50% - 26px)",
+                          top: "calc(50% - 26px)",
+                          minWidth: "52px",
                         }}
                       >
-                        <span className="vs-text">VS</span>
+                        <span className="vs-text font-bold">VS</span>
                       </div>
 
                       {/* Match date and venue - centered below VS */}
@@ -1047,8 +1047,8 @@ const FixedScoreboard = () => {
                     ></div>
 
                       <div
-                        className="absolute text-white font-bold uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
-                        style={{ top: "calc(50% - 13px)", right: "130px", fontSize: "1.13rem" }}
+                        className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
+                        style={{ top: "calc(50% - 13px)", right: "130px", fontSize: "1.24rem", fontWeight: "normal" }}
                       >
                         {currentMatch?.teams?.away?.name || "Away Team"}
                       </div>
