@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -10,7 +9,7 @@ interface FixtureProps {
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Yesterday's Matches");
-  
+
   // Group fixtures by league
   const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
     const leagueId = fixture.league.id;
@@ -72,29 +71,31 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       <Card className="bg-white shadow-md">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center h-9 gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-full flex items-center">
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="relative h-full flex items-center">
-                <button className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full">
-                  <span className="font-medium">{selectedFilter}</span>
-                  <ChevronDown className="h-4 w-4" />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 h-9">
+                <button className="p-2 hover:bg-gray-100 rounded-full flex items-center">
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <div className="relative h-full flex items-center">
+                  <button className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full">
+                    <span className="font-medium">{selectedFilter}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </div>
+                <button className="p-2 hover:bg-gray-100 rounded-full flex items-center">
+                  <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full flex items-center">
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex items-center gap-2 h-9">
-              <button className="flex items-center gap-1 px-3 py-1 bg-neutral-800 text-white rounded-full text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Live
-              </button>
-              <button className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100 rounded-full text-sm">
-                <Clock className="h-4 w-4" />
-                By time
-              </button>
+              <div className="flex items-center gap-2 h-9">
+                <button className="flex items-center gap-1 px-3 py-1 bg-neutral-800 text-white rounded-full text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Live
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100 rounded-full text-sm">
+                  <Clock className="h-4 w-4" />
+                  By time
+                </button>
+              </div>
             </div>
           </div>
         </CardContent>
