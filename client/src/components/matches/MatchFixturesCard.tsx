@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown
 import { Card, CardContent } from '../ui/card';
 import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Select, SelectTrigger, SelectValue } from '../ui/select';
 import { cn } from '@/lib/utils';
 
 interface FixtureProps {
