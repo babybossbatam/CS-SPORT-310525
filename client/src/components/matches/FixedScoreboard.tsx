@@ -636,7 +636,7 @@ const FixedScoreboard = () => {
     // Update timer every minute for live matches
     const timer = setInterval(() => {
       setLiveElapsed((prev) => (prev !== null ? prev + 1 : prev));
-    }, 60000); // Update every minute
+    }, 3000000); // Update every minute
 
     return () => clearInterval(timer);
   }, [currentMatch]);
@@ -751,7 +751,9 @@ const FixedScoreboard = () => {
         } else if (daysToMatch <= 7) {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
-          const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          const daysToMatch = Math.ceil(
+            (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+          );
           return (
             <div className="flex flex-col items-center">
               <div className="text-sm font-medium text-black mb-1">
@@ -926,7 +928,7 @@ const FixedScoreboard = () => {
                     style={{
                       fontSize: "calc(0.875rem * 1.5)",
                       fontWeight: "700",
-                      color: "#000000",
+                      
                     }}
                   >
                     {" "}
