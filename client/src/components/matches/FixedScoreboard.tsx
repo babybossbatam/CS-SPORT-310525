@@ -983,18 +983,18 @@ const FixedScoreboard = () => {
 
                         {/* Match time & venue information below VS - for ALL matches */}
                         <div
-                          className="absolute text-center text-xs text-gray-500 w-[300px]"
+                          className="absolute text-center text-xs text-gray-500"
                           style={{
                             fontSize: "0.65rem",
                             whiteSpace: "nowrap",
                             overflow: "visible",
                             textAlign: "center",
                             zIndex: 30,
-                            left: "calc(50% + 26px)",
+                            left: "50%",
                             transform: "translateX(-50%)",
                             top: "calc(50% + 35px)",
                             width: "max-content",
-                            minWidth: "300px"
+                            minWidth: "200px"
                           }}
                         >
                           {(() => {
