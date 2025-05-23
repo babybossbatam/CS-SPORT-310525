@@ -990,7 +990,8 @@ const FixedScoreboard = () => {
                             overflow: "visible",
                             textAlign: "center",
                             zIndex: 30,
-                            left: "50%",
+                            position: "absolute",
+                            left: "calc(50% - 26px + 26px)", // VS circle center (50% - 26px) + half VS width (26px)
                             transform: "translateX(-50%)",
                             top: "calc(50% + 35px)",
                             width: "max-content",
