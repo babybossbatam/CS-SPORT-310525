@@ -223,19 +223,20 @@ const Home = () => {
               <LeagueStandingsFilter />
             </div>
 
-            {/* Popular Leagues section */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <h3 className="font-semibold text-gray-700 p-3">Popular Leagues</h3>
-              <div>
-                <PopularLeaguesList />
+            {/* Popular Leagues and Teams sections side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <h3 className="font-semibold text-gray-700 p-3">Popular Leagues</h3>
+                <div>
+                  <PopularLeaguesList />
+                </div>
               </div>
-            </div>
 
-            {/* Popular Teams Section */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-4">
-              <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
-              <div>
-                <PopularTeamsList />
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
+                <div>
+                  <PopularTeamsList />
+                </div>
               </div>
             </div>
           </div>
