@@ -212,10 +212,6 @@ const Home = () => {
               </CardContent>
             </Card>
 
-            <div className="mt-4">
-              <LeagueStandingsFilter />
-            </div>
-
             {/* Popular Leagues and Teams sections side by side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <PopularLeaguesList />
@@ -243,6 +239,7 @@ const Home = () => {
                 <HomeTopScorersList />
               </CardContent>
             </Card>
+            <LeagueStandingsFilter />
           </div>
         </div>
       </div>
