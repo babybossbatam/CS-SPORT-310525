@@ -910,10 +910,10 @@ const FixedScoreboard = () => {
                 >
                   {/* Match time/status display */}
                   <div
-                    className="font-medium text-center"
+                    className="text-center text-black"
                     style={{
                       fontSize: "calc(0.875rem * 1.5)",
-                      fontWeight: "600",
+                      fontWeight: "700",
                     }}
                   >
                     {" "}
