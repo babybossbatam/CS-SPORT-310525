@@ -1008,7 +1008,7 @@ const FixedScoreboard = () => {
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(45%-52px)] mr-[82px]"
+                        className="h-full w-[calc(50%-52px)] mr-[82px]"
                         style={{
                           background: getTeamColor(currentMatch.teams.away.id),
                         }}
@@ -1016,7 +1016,7 @@ const FixedScoreboard = () => {
 
                       <div
                         className="absolute text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]"
-                        style={{ top: "calc(50% - 8px)", right: "150px" }}
+                        style={{ top: "calc(50% - 8px)", right: "130px" }}
                       >
                         {currentMatch?.teams?.away?.name || "Away Team"}
                       </div>
@@ -1031,7 +1031,7 @@ const FixedScoreboard = () => {
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
-                          right: "62px",
+                          right: "52px",
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
