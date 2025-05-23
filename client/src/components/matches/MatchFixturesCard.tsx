@@ -22,17 +22,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     >
       <div className="flex items-center justify-between px-4">
         <div className="flex items-center space-x-2">
-          <div className="text-sm">
-            {fixture.fixture.status.short === "NS" ? (
-              format(parseISO(fixture.fixture.date), 'HH:mm')
-            ) : (
-              <span className="text-gray-500">
-                {fixture.fixture.status.short === "FT" ? "Ended" : fixture.fixture.status.short}
-              </span>
-            )}
-          </div>
-          <div className="text-xs text-gray-500">
-            {fixture.fixture.venue.name ? "Neutral venue" : ""}
+          <div className="text-sm font-medium text-gray-700">
+            {fixture.league.name}
           </div>
         </div>
       </div>
@@ -53,11 +44,11 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <div className="col-span-1 flex justify-center font-semibold">
           <span className={cn(
             "px-3 rounded",
-            fixture.fixture.status.short === "NS" ? "" : ""
+            fixture.fixture.status.short === "FT" ? "text-gray-900" : "text-gray-500"
           )}>
-            {fixture.fixture.status.short === "NS" 
-              ? "-"
-              : `${fixture.goals.home} - ${fixture.goals.away}`
+            {fixture.fixture.status.short === "FT" 
+              ? `${fixture.goals.home} - ${fixture.goals.away}`
+              : "-"
             }
           </span>
         </div>
@@ -73,6 +64,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           />
           <span className="font-medium">{fixture.teams.away.name}</span>
         </div>
+      </div>
+
+      <div className="text-xs text-gray-500 text-right px-4 mt-1">
+        {fixture.fixture.status.short === "FT" ? "Ended" : format(parseISO(fixture.fixture.date), 'HH:mm')}
       </div>
     </div>
   );
