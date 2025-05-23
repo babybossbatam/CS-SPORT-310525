@@ -945,14 +945,12 @@ const FixedScoreboard = () => {
                   >
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
-                      <div
-                        className="h-full w-[calc(50%-64px)] ml-[64px] relative"
-                        style={{
-                          background: getTeamColor(
-                            currentMatch?.teams?.home?.id || 0,
-                          ),
-                        }}
-                      >
+                    <div className="h-full w-[calc(50%-26px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
+                      style={{ 
+                        background: getTeamColor(currentMatch?.teams?.home?.id || 0),
+                        transition: 'all 0.3s ease-in-out'
+                      }}
+                    >
                         {currentMatch?.teams?.home && (
                           <img
                             src={
@@ -1044,12 +1042,12 @@ const FixedScoreboard = () => {
                       </div>
 
                       {/* Away team colored bar and logo */}
-                      <div
-                        className="h-full w-[calc(50%-52px)] mr-[82px]"
-                        style={{
-                          background: getTeamColor(currentMatch.teams.away.id),
-                        }}
-                      ></div>
+                    <div className="h-full w-[calc(50%-26px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
+                      style={{ 
+                        background: getTeamColor(currentMatch.teams.away.id),
+                        transition: 'all 0.3s ease-in-out'
+                      }}
+                    ></div>
 
                       <div
                         className="absolute text-white font-bold text-sm uppercase text-right max-w-[120px] truncate md:max-w-[200px]"
