@@ -90,6 +90,15 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   }, {});
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [selectedLeague, setSelectedLeague] = React.useState<number | null>(null);
+
+    const POPULAR_LEAGUES = [
+        { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+        { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
+        { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
+        { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
+        { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
+    ];
 
   return (
     <div className="space-y-4 pt-10">
@@ -129,11 +138,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <Select 
               value={selectedLeague?.toString()} 
               onValueChange={(value) => {
-                const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
-                if (league) {
-                  onMatchClick(league.id);
-                }
-              }}
+                  const leagueId = parseInt(value);
+                  setSelectedLeague(leagueId);
+                  onMatchClick(leagueId);
+                }}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select League" />
