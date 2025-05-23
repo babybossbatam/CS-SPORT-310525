@@ -55,3 +55,15 @@ export function shouldExcludeFixture(
     awayTeam.includes(term)
   );
 }
+export const isFinalOrSemifinal = (match: any) => {
+  const roundName = match.league?.round?.toLowerCase() || '';
+  return roundName.includes('final') || roundName.includes('semi');
+};
+
+export const shouldExcludeMatch = (match: any) => {
+  const matchRound = match.league?.round?.toLowerCase() || '';
+  const matchName = match.league?.name?.toLowerCase() || '';
+  return exclusionTerms.some(term => 
+    matchRound.includes(term) || matchName.includes(term)
+  );
+};
