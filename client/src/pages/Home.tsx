@@ -204,7 +204,7 @@ const Home = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Left column (5 columns) */}
               <div className="lg:col-span-5">
-                <Card>
+                <Card className="bg-[#F4F4F6]">
                   <CardContent className="p-0">
                     <MatchFixturesCard
                       fixtures={fixtures}
