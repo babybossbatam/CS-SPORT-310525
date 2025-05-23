@@ -11,6 +11,16 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiRequest } from '@/lib/queryClient';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 // Using existing popular leagues from LeagueFilter
 const POPULAR_LEAGUES = [
@@ -112,108 +122,111 @@ const LeagueStandingsFilter = () => {
       </CardHeader>
       <CardContent>
         <div className="relative">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase bg-gray-50">
-              <tr>
-                <th className="px-2 py-2">#</th>
-                <th className="px-2 py-2 text-left">Team</th>
-                <th className="px-2 py-2">P</th>
-                <th className="px-2 py-2">GF/GA</th>
-                <th className="px-2 py-2">+/-</th>
-                <th className="px-2 py-2">PTS</th>
-                <th className="px-2 py-2">W</th>
-                <th className="px-2 py-2">D</th>
-                <th className="px-2 py-2">L</th>
-                <th className="px-2 py-2">Form</th>
-                <th className="px-2 py-2">Next</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings?.slice(0, 7).map((standing: Standing) => (
-                <tr key={standing.team.id} className="border-b hover:bg-gray-100">
-                  <td className="px-2 py-2">{standing.rank}</td>
-                  <td className="px-2 py-2 flex items-center gap-2">
-                    <img 
-                      src={standing.team.logo} 
-                      alt={standing.team.name} 
-                      className="w-5 h-5"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
-                      }}
-                    />
-                    <span className="truncate">{standing.team.name}</span>
-                  </td>
-                  <td className="px-2 py-2 text-center">{standing.all.played}</td>
-                  <td className="px-2 py-2 text-center">{standing.all.goals.for}/{standing.all.goals.against}</td>
-                  <td className="px-2 py-2 text-center">{standing.goalsDiff}</td>
-                  <td className="px-2 py-2 font-bold text-center">{standing.points}</td>
-                  <td className="px-2 py-2 text-center">{standing.all.win}</td>
-                  <td className="px-2 py-2 text-center">{standing.all.draw}</td>
-                  <td className="px-2 py-2 text-center">{standing.all.lose}</td>
-                  <td className="px-2 py-2">
-                    <div className="flex gap-1">
-                      {standing.form?.split('').map((result, i) => (
-                        <span
-                          key={i}
-                          className={`w-2 h-2 rounded-full ${
-                            result === 'W' ? 'bg-green-500' :
-                            result === 'D' ? 'bg-gray-500' :
-                            'bg-red-500'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-2 py-2 relative group">
-                    <div className="flex items-center justify-center gap-2">
-                      {standings?.find(opponent => 
-                        opponent.team.id !== standing.team.id && 
-                        opponent.rank > standing.rank
-                      ) && (
-                        <>
-                          <img 
-                            src={standings.find(opponent => 
-                              opponent.team.id !== standing.team.id && 
-                              opponent.rank > standing.rank
-                            )?.team.logo} 
-                            alt={`Next opponent: ${standings.find(opponent => 
-                              opponent.team.id !== standing.team.id && 
-                              opponent.rank > standing.rank
-                            )?.team.name}`}
-                            className="w-4 h-4 hover:scale-110 transition-transform"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
-                            }}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                  <TableHead className="w-[40px] text-center">#</TableHead>
+                  <TableHead className="pl-4">Team</TableHead>
+                  <TableHead className="text-center">P</TableHead>
+                  <TableHead className="text-center">F:A</TableHead>
+                  <TableHead className="text-center">+/-</TableHead>
+                  <TableHead className="text-center">PTS</TableHead>
+                  <TableHead className="text-center">W</TableHead>
+                  <TableHead className="text-center">D</TableHead>
+                  <TableHead className="text-center">L</TableHead>
+                  <TableHead className="text-center">Form</TableHead>
+                  <TableHead className="text-center">Next</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+              {standings?.slice(0, 7).map((standing: Standing) => {
+                const stats = standing.all;
+                return (
+                  <TableRow key={standing.team.id}>
+                    <TableCell className="font-medium text-center">{standing.rank}</TableCell>
+                    <TableCell className="flex items-center font-normal pl-4">
+                      <img
+                        src={standing.team.logo}
+                        alt={standing.team.name}
+                        className="mr-2 h-5 w-5 rounded-full"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                        }}
+                      />
+                      {standing.team.name}
+                    </TableCell>
+                    <TableCell className="text-center">{stats.played}</TableCell>
+                    <TableCell className="text-center">{stats.goals.for}:{stats.goals.against}</TableCell>
+                    <TableCell className="text-center">{standing.goalsDiff > 0 ? `+${standing.goalsDiff}` : standing.goalsDiff}</TableCell>
+                    <TableCell className="text-center font-bold">{standing.points}</TableCell>
+                    <TableCell className="text-center text-green-600">{stats.win}</TableCell>
+                    <TableCell className="text-center text-gray-600">{stats.draw}</TableCell>
+                    <TableCell className="text-center text-red-600">{stats.lose}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex gap-1 justify-center">
+                        {standing.form?.split('').map((result, i) => (
+                          <span
+                            key={i}
+                            className={`w-2 h-2 rounded-full ${
+                              result === 'W' ? 'bg-green-500' :
+                              result === 'D' ? 'bg-gray-500' :
+                              'bg-red-500'
+                            }`}
                           />
-                          <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
-                            <div className="text-xs">
-                              <span className="font-medium">{standing.team.name}</span>
-                              <span className="mx-2">vs</span>
-                              <span className="font-medium">
-                                {standings.find(opponent => 
-                                  opponent.team.id !== standing.team.id && 
-                                  opponent.rank > standing.rank
-                                )?.team.name}
-                              </span>
-                              <div className="text-gray-500 mt-1">
-                                {(() => {
-                                  const nextMatch = fixtures?.find(f => 
-                                    (f.teams.home.id === standing.team.id || f.teams.away.id === standing.team.id) &&
-                                    new Date(f.fixture.date) > new Date()
-                                  );
-                                  return nextMatch ? format(parseISO(nextMatch.fixture.date), 'dd/MM/yyyy') : 'No upcoming matches';
-                                })()}
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-2 py-2 relative group">
+                      <div className="flex items-center justify-center gap-2">
+                        {standings?.find(opponent => 
+                          opponent.team.id !== standing.team.id && 
+                          opponent.rank > standing.rank
+                        ) && (
+                          <>
+                            <img 
+                              src={standings.find(opponent => 
+                                opponent.team.id !== standing.team.id && 
+                                opponent.rank > standing.rank
+                              )?.team.logo} 
+                              alt={`Next opponent: ${standings.find(opponent => 
+                                opponent.team.id !== standing.team.id && 
+                                opponent.rank > standing.rank
+                              )?.team.name}`}
+                              className="w-4 h-4 hover:scale-110 transition-transform"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
+                              }}
+                            />
+                            <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
+                              <div className="text-xs">
+                                <span className="font-medium">{standing.team.name}</span>
+                                <span className="mx-2">vs</span>
+                                <span className="font-medium">
+                                  {standings.find(opponent => 
+                                    opponent.team.id !== standing.team.id && 
+                                    opponent.rank > standing.rank
+                                  )?.team.name}
+                                </span>
+                                <div className="text-gray-500 mt-1">
+                                  {(() => {
+                                    const nextMatch = fixtures?.find(f => 
+                                      (f.teams.home.id === standing.team.id || f.teams.away.id === standing.team.id) &&
+                                      new Date(f.fixture.date) > new Date()
+                                    );
+                                    return nextMatch ? format(parseISO(nextMatch.fixture.date), 'dd/MM/yyyy') : 'No upcoming matches';
+                                  })()}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </Card>
