@@ -900,7 +900,7 @@ const FixedScoreboard = () => {
               className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
               onClick={handleMatchClick}
             >
-              <div className="p-0 h-full my-[10px] relative">
+              <div className="p-0 h-full mt-0 mb-[10px] relative">
 
 
                 {/* Fixed height container for match status and score */}
