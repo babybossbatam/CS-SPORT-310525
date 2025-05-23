@@ -62,8 +62,8 @@ const PopularLeaguesList = () => {
   };
 
   return (
-    <Card className="w-full bg-white shadow-sm">
-      <CardContent className="p-4 w-1/2">
+    <Card className="w-1/2 bg-white shadow-sm">
+      <CardContent className="p-4">
         <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
         <div className="space-y-2">
           {leagueData.map((league) => {
