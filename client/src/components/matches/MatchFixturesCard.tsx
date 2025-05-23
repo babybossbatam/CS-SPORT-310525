@@ -140,11 +140,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               // Filter fixtures based on date and status
               const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
                 const fixtureDate = new Date(fixture.fixture.date);
-                const isToday = new Date().toDateString() === fixtureDate.toDateString();
                 const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
 
                 // Show score only if match is finished and it's today's match
-                return isSelectedDate && (isToday ? 
+                return isSelectedDate && (new Date().toDateString() === fixtureDate.toDateString() ? 
                   ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) :
                   true);
               });
@@ -153,7 +152,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
               return (
                 <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
-                  <div className="flex items-center space-x-2 px-4 mb-2">
+                  <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
                     <img
                       src={leagueGroup.league.logo}
                       alt={leagueGroup.league.name}
