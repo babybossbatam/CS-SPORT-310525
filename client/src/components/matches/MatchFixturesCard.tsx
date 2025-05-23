@@ -149,60 +149,102 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <Card className="shadow-sm">
-                    <CardContent className="p-3">
-                      <button className="w-full text-left" onClick={() => {}}>
-                        <div className="font-medium">Champions League</div>
-                        <div className="text-sm text-gray-500">Europe</div>
-                      </button>
-                    </CardContent>
-                  </Card>
-                  <Card className="shadow-sm">
-                    <CardContent className="p-3">
-                      <button className="w-full text-left" onClick={() => {}}>
-                        <div className="font-medium">Europa League</div>
-                        <div className="text-sm text-gray-500">Europe</div>
-                      </button>
-                    </CardContent>
-                  </Card>
+                  {[
+                    { id: 2, name: 'Champions League', country: 'Europe' },
+                    { id: 3, name: 'Europa League', country: 'Europe' }
+                  ].map((league) => {
+                    const leagueFixtures = Object.values(fixturesByLeague)
+                      .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                    const todayFixtures = leagueFixtures.filter((f: any) => {
+                      const fixtureDate = new Date(f.fixture.date);
+                      return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                    });
+
+                    return (
+                      <Card key={league.id} className="shadow-sm">
+                        <CardHeader className="p-3 pb-0">
+                          <div className="font-medium">{league.name}</div>
+                          <div className="text-sm text-gray-500">{league.country}</div>
+                        </CardHeader>
+                        <CardContent className="p-3 pt-2">
+                          {todayFixtures.length > 0 ? (
+                            <div className="space-y-2">
+                              {todayFixtures.slice(0, 2).map((fixture: any) => (
+                                <div key={fixture.fixture.id} className="text-sm">
+                                  <div className="flex justify-between items-center">
+                                    <span>{fixture.teams.home.name}</span>
+                                    <span className="text-gray-600">
+                                      {fixture.goals.home !== null ? fixture.goals.home : '-'}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span>{fixture.teams.away.name}</span>
+                                    <span className="text-gray-600">
+                                      {fixture.goals.away !== null ? fixture.goals.away : '-'}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-gray-500">No matches today</div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
               
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">National Leagues</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <Card className="shadow-sm">
-                    <CardContent className="p-3">
-                      <button className="w-full text-left" onClick={() => {}}>
-                        <div className="font-medium">Premier League</div>
-                        <div className="text-sm text-gray-500">England</div>
-                      </button>
-                    </CardContent>
-                  </Card>
-                  <Card className="shadow-sm">
-                    <CardContent className="p-3">
-                      <button className="w-full text-left" onClick={() => {}}>
-                        <div className="font-medium">La Liga</div>
-                        <div className="text-sm text-gray-500">Spain</div>
-                      </button>
-                    </CardContent>
-                  </Card>
-                  <Card className="shadow-sm">
-                    <CardContent className="p-3">
-                      <button className="w-full text-left" onClick={() => {}}>
-                        <div className="font-medium">Serie A</div>
-                        <div className="text-sm text-gray-500">Italy</div>
-                      </button>
-                    </CardContent>
-                  </Card>
-                  <Card className="shadow-sm">
-                    <CardContent className="p-3">
-                      <button className="w-full text-left" onClick={() => {}}>
-                        <div className="font-medium">Bundesliga</div>
-                        <div className="text-sm text-gray-500">Germany</div>
-                      </button>
-                    </CardContent>
-                  </Card>
+                  {[
+                    { id: 39, name: 'Premier League', country: 'England' },
+                    { id: 140, name: 'La Liga', country: 'Spain' },
+                    { id: 135, name: 'Serie A', country: 'Italy' },
+                    { id: 78, name: 'Bundesliga', country: 'Germany' }
+                  ].map((league) => {
+                    const leagueFixtures = Object.values(fixturesByLeague)
+                      .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                    const todayFixtures = leagueFixtures.filter((f: any) => {
+                      const fixtureDate = new Date(f.fixture.date);
+                      return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                    });
+
+                    return (
+                      <Card key={league.id} className="shadow-sm">
+                        <CardHeader className="p-3 pb-0">
+                          <div className="font-medium">{league.name}</div>
+                          <div className="text-sm text-gray-500">{league.country}</div>
+                        </CardHeader>
+                        <CardContent className="p-3 pt-2">
+                          {todayFixtures.length > 0 ? (
+                            <div className="space-y-2">
+                              {todayFixtures.slice(0, 2).map((fixture: any) => (
+                                <div key={fixture.fixture.id} className="text-sm">
+                                  <div className="flex justify-between items-center">
+                                    <span>{fixture.teams.home.name}</span>
+                                    <span className="text-gray-600">
+                                      {fixture.goals.home !== null ? fixture.goals.home : '-'}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span>{fixture.teams.away.name}</span>
+                                    <span className="text-gray-600">
+                                      {fixture.goals.away !== null ? fixture.goals.away : '-'}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-gray-500">No matches today</div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             </div>
