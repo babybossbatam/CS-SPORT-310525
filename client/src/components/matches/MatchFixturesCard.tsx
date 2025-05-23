@@ -123,7 +123,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <CardContent className="p-0">
           <div className="divide-y divide-gray-100">
             {fixtures.length > 0 ? (
-              fixtures
+              [...fixtures]
                 .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime())
                 .slice(0, 5)
                 .map(renderFixture)
