@@ -751,9 +751,8 @@ const FixedScoreboard = () => {
         } else if (daysToMatch <= 7) {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
-          return (
-            <span className="text-black">{format(matchDate, "MMM d")}</span>
-          );
+          const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          return <span className="text-black">{daysToMatch} more days</span>;
         }
       } catch (e) {
         return <span className="text-black">Upcoming</span>;
