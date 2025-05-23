@@ -991,10 +991,10 @@ const FixedScoreboard = () => {
                             textAlign: "center",
                             zIndex: 30,
                             position: "absolute",
-                            left: "calc(50% - 26px)",
+                            left: "50%",
                             transform: "translateX(-50%)",
-                            top: "calc(50% - 26px)",
-                            marginTop: "78px",
+                            top: "50%",
+                            marginTop: "26px",
                             width: "max-content",
                             minWidth: "200px"
                           }}
