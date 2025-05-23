@@ -1192,24 +1192,22 @@ const FixedScoreboard = () => {
               </div>
             </motion.div>
           </AnimatePresence>
+        )}
 
-          {/* Navigation dots fixed at top */}
-          {matches.length > 1 && (
-            <div className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-              <div className="flex justify-center gap-2 py-2">
-                {matches.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                      index === currentIndex ? "bg-black" : "bg-gray-300"
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+        {/* Navigation dots */}
+        {matches.length > 1 && (
+          <div className="flex justify-center gap-2 py-2 mt-2">
+            {matches.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  index === currentIndex ? "bg-black" : "bg-gray-300"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         )}
       </Card>
     </>
