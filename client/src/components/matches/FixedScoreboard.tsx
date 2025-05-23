@@ -37,34 +37,13 @@ export default function FixedScoreboard() {
     const fixtureResults = fixturesQueries.map(query => query.data || []);
     const standingsResults = standingsQueries.map(query => query.data || []);
 
-    let fixtures = Array.from(
+    // Combine matches without filtering
+    const fixtures = Array.from(
       new Map(
         fixtureResults
           .flat()
           .map(fixture => [fixture.fixture.id, fixture])
       ).values()
-    );
-
-    // Get teams from standings
-    const teamsFromStandings = new Set<number>();
-    standingsResults.forEach(leagueStanding => {
-      if (leagueStanding?.league?.standings) {
-        leagueStanding.league.standings.forEach((standingGroup: any) => {
-          if (Array.isArray(standingGroup)) {
-            standingGroup.forEach(team => {
-              if (team?.team?.id) {
-                teamsFromStandings.add(team.team.id);
-              }
-            });
-          }
-        });
-      }
-    });
-
-    // Filter to only show matches from teams in standings
-    fixtures = fixtures.filter(fixture => 
-      teamsFromStandings.has(fixture.teams.home.id) || 
-      teamsFromStandings.has(fixture.teams.away.id)
     );
 
     const now = new Date();
