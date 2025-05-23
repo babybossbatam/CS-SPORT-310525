@@ -32,13 +32,17 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <div className="col-span-3 flex items-center justify-end space-x-3">
           <span className="font-medium text-right">{fixture.teams.home.name}</span>
           <img 
-            src={fixture.teams.home.logo}
-            alt={fixture.teams.home.name}
-            className="h-6 w-6 object-contain"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-            }}
-          />
+                      src={fixture.teams.home.logo}
+                      alt={fixture.teams.home.name}
+                      className="h-6 w-6 object-contain"
+                      onError={React.useCallback((e) => {
+                        const img = e.target as HTMLImageElement;
+                        if (!img.dataset.errored) {
+                          img.dataset.errored = 'true';
+                          img.src = 'https://via.placeholder.com/24?text=Team';
+                        }
+                      }, [])}
+                    />
         </div>
 
         <div className="col-span-1 flex justify-center font-semibold">
