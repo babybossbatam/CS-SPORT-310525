@@ -10,7 +10,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import FixedMatchTimer from "./FixedMatchTimer";
 
-import { type Team, type Fixture, type League, type Match } from "@/types/fixtures";
+import {
+  type Team,
+  type Fixture,
+  type League,
+  type Match,
+} from "@/types/fixtures";
 
 const FixedScoreboard = () => {
   const [, navigate] = useLocation();
@@ -708,7 +713,7 @@ const FixedScoreboard = () => {
             if (hoursToMatch >= 0 && hoursToMatch < 8) {
               return (
                 <div className="flex flex-col space-y-0 relative pb-6">
-                  <span className="text-gray-500">Today</span>
+                  <span className="text-black">Today</span>
                   <div
                     style={{
                       fontSize: "0.65rem",
@@ -733,25 +738,25 @@ const FixedScoreboard = () => {
               );
             } else {
               // More than 8 hours away
-              return <span className="text-gray-500">Today</span>;
+              return <span className="text-black">Today</span>;
             }
           } catch (e) {
-            return <span className="text-gray-500">Today</span>;
+            return <span className="text-black">Today</span>;
           }
         }
 
         // For matches tomorrow or later, show the regular format
         if (daysToMatch === 1) {
-          return <span className="text-gray-500">Tomorrow</span>;
+          return <span className="text-black">Tomorrow</span>;
         } else if (daysToMatch <= 7) {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
           return (
-            <span className="text-gray-500">{format(matchDate, "MMM d")}</span>
+            <span className="text-black">{format(matchDate, "MMM d")}</span>
           );
         }
       } catch (e) {
-        return <span className="text-gray-500">Upcoming</span>;
+        return <span className="text-black">Upcoming</span>;
       }
     }
   };
@@ -901,8 +906,6 @@ const FixedScoreboard = () => {
               onClick={handleMatchClick}
             >
               <div className="p-0 h-full mt-0 mb-[10px] relative">
-
-
                 {/* Fixed height container for match status and score */}
                 <div
                   className="h-[98px] flex flex-col justify-center"
@@ -945,12 +948,15 @@ const FixedScoreboard = () => {
                   >
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
-                      style={{ 
-                        background: getTeamColor(currentMatch?.teams?.home?.id || 0),
-                        transition: 'all 0.3s ease-in-out'
-                      }}
-                    >
+                      <div
+                        className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                        style={{
+                          background: getTeamColor(
+                            currentMatch?.teams?.home?.id || 0,
+                          ),
+                          transition: "all 0.3s ease-in-out",
+                        }}
+                      >
                         {currentMatch?.teams?.home && (
                           <img
                             src={
@@ -985,7 +991,12 @@ const FixedScoreboard = () => {
 
                       <div
                         className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                        style={{ top: "calc(50% - 13px)", left: "120px", fontSize: "1.24rem", fontWeight: "normal" }}
+                        style={{
+                          top: "calc(50% - 13px)",
+                          left: "120px",
+                          fontSize: "1.24rem",
+                          fontWeight: "normal",
+                        }}
                       >
                         {currentMatch?.teams?.home?.name || "TBD"}
                       </div>
@@ -1004,7 +1015,7 @@ const FixedScoreboard = () => {
                       </div>
 
                       {/* Match date and venue - centered below VS */}
-                      <div 
+                      <div
                         className="absolute text-center text-xs text-black font-medium"
                         style={{
                           fontSize: "0.875rem",
@@ -1015,19 +1026,26 @@ const FixedScoreboard = () => {
                           left: "50%",
                           transform: "translateX(-50%)",
                           bottom: "-25px",
-                          width: "max-content"
+                          width: "max-content",
                         }}
                       >
                         {(() => {
                           try {
-                            const matchDate = parseISO(currentMatch.fixture.date);
-                            const formattedDate = format(matchDate, "EEEE, do MMM");
+                            const matchDate = parseISO(
+                              currentMatch.fixture.date,
+                            );
+                            const formattedDate = format(
+                              matchDate,
+                              "EEEE, do MMM",
+                            );
                             const timeOnly = format(matchDate, "HH:mm");
 
                             return (
                               <>
                                 {formattedDate} | {timeOnly}
-                                {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ""}
+                                {currentMatch.fixture.venue?.name
+                                  ? ` | ${currentMatch.fixture.venue.name}`
+                                  : ""}
                               </>
                             );
                           } catch (e) {
@@ -1037,16 +1055,22 @@ const FixedScoreboard = () => {
                       </div>
 
                       {/* Away team colored bar and logo */}
-                    <div className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100" 
-                      style={{ 
-                        background: getTeamColor(currentMatch.teams.away.id),
-                        transition: 'all 0.3s ease-in-out'
-                      }}
-                    ></div>
+                      <div
+                        className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
+                        style={{
+                          background: getTeamColor(currentMatch.teams.away.id),
+                          transition: "all 0.3s ease-in-out",
+                        }}
+                      ></div>
 
                       <div
                         className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
-                        style={{ top: "calc(50% - 13px)", right: "130px", fontSize: "1.24rem", fontWeight: "normal" }}
+                        style={{
+                          top: "calc(50% - 13px)",
+                          right: "130px",
+                          fontSize: "1.24rem",
+                          fontWeight: "normal",
+                        }}
                       >
                         {currentMatch?.teams?.away?.name || "Away Team"}
                       </div>
