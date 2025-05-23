@@ -1,5 +1,5 @@
 import React from 'react';
-import { format, parseISO } from 'date-fns';
+import { format, isToday, isYesterday, isTomorrow } from "date-fns";
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Calendar as DatePicker } from '../ui/calendar';
@@ -137,7 +137,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       <div className="space-y-4">
         {Object.values(fixturesByLeague).map((leagueGroup: any) => (
           <Card key={leagueGroup.league.id} className="bg-white shadow-md">
-            
+
             <CardContent>
               <div className="divide-y divide-gray-100">
                 {(() => {
