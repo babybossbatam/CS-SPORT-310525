@@ -212,19 +212,6 @@ const Home = () => {
               </CardContent>
             </Card>
 
-            {/* Top Scorers Section */}
-            <Card className="mt-4">
-              <CardHeader className="border-b border-gray-100">
-                <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
-                  <Trophy className="h-4 w-4 text-yellow-500" />
-                  Top Scorers
-                </h3>
-              </CardHeader>
-              <CardContent>
-                <HomeTopScorersList />
-              </CardContent>
-            </Card>
-
             <div className="mt-4">
               <LeagueStandingsFilter />
             </div>
@@ -245,6 +232,17 @@ const Home = () => {
           {/* Right column (7 columns) */}
           <div className="lg:col-span-7 space-y-4">
             <FeaturedMatch />
+            <Card>
+              <CardHeader className="border-b border-gray-100">
+                <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
+                  <Trophy className="h-4 w-4 text-yellow-500" />
+                  Top Scorers
+                </h3>
+              </CardHeader>
+              <CardContent>
+                <HomeTopScorersList />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
