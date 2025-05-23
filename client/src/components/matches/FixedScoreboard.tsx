@@ -946,13 +946,11 @@ const FixedScoreboard = () => {
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50% - 26px)] ml-[110px] transition-all duration-500 ease-in-out relative flex items-center"
+                        className="h-full w-[calc(50%)] ml-[32px] transition-all duration-500 ease-in-out relative"
                         style={{
                           background: getTeamColor(
                             currentMatch?.teams?.home?.id || 0,
                           ),
-                          borderTopLeftRadius: '4px',
-                          borderBottomLeftRadius: '4px'
                         }}
                       >
                         {currentMatch?.teams?.home && (
@@ -1010,11 +1008,9 @@ const FixedScoreboard = () => {
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50% - 26px)] mr-[110px]"
+                        className="h-full w-[calc(50%)] mr-[32px]"
                         style={{
                           background: getTeamColor(currentMatch.teams.away.id),
-                          borderTopRightRadius: '4px',
-                          borderBottomRightRadius: '4px'
                         }}
                       ></div>
 
