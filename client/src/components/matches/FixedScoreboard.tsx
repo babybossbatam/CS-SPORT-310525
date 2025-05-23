@@ -26,10 +26,10 @@ const FixedScoreboard = () => {
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
-    const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
-    const currentSeason = 2024;
+    let isSubscribed = true;
 
     const fetchMatches = async () => {
+      if (!isSubscribed) return;
       try {
         setIsLoading(true);
 
@@ -518,7 +518,9 @@ const FixedScoreboard = () => {
           );
         }
 
-        setMatches(finalMatches);
+        if (isSubscribed) {
+          setMatches(finalMatches);
+        }
       } catch (error) {
         console.error("Error fetching matches:", error);
         toast({
@@ -527,7 +529,9 @@ const FixedScoreboard = () => {
           variant: "destructive",
         });
       } finally {
-        setIsLoading(false);
+        if (isSubscribed) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -543,7 +547,10 @@ const FixedScoreboard = () => {
       5 * 60 * 1000,
     );
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      isSubscribed = false;
+    };
   }, [toast]);
 
   const currentMatch = matches[currentIndex];
