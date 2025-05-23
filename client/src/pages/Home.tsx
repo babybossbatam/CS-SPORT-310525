@@ -201,8 +201,8 @@ const Home = () => {
       <main className="w-full min-h-screen bg-[#F4F4F6]">
         <div className="max-w-[1920px] mx-auto px-4 py-4">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Left column (8 columns) - Live Scoreboard */}
-            <div className="lg:col-span-8">
+            {/* Left column (5 columns) */}
+            <div className="lg:col-span-5">
             {/* Featured Match - Added at the top */}
             <FeaturedMatch />
 
