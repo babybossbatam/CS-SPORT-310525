@@ -200,48 +200,48 @@ const Home = () => {
 
       <main className="w-full min-h-screen bg-[#F4F4F6]">
         <div className="max-w-[1920px] mx-auto px-4 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Left column (5 columns) */}
-            <div className="lg:col-span-5">
-            <Card>
-              <CardContent className="p-0">
-                <MatchFixturesCard
-                  fixtures={fixtures}
-                  onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                />
-              </CardContent>
-            </Card>
+          <Card>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              {/* Left column (5 columns) */}
+              <div className="lg:col-span-5">
+                <Card>
+                  <CardContent className="p-0">
+                    <MatchFixturesCard
+                      fixtures={fixtures}
+                      onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
 
-            </div>
-
-          {/* Right column (7 columns) */}
-          <div className="lg:col-span-7 space-y-4">
-            <FeaturedMatch />
-            <Card>
-              <CardHeader className="border-b border-gray-100">
-                <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
-                  <Trophy className="h-4 w-4 text-yellow-500" />
-                  Top Scorers
-                </h3>
-              </CardHeader>
-              <CardContent>
-                <HomeTopScorersList />
-              </CardContent>
-            </Card>
-            <LeagueStandingsFilter />
-            
-            {/* Popular Leagues and Teams sections */}
-            <div className="grid grid-cols-1 gap-4">
-              <PopularLeaguesList />
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
-                <div>
-                  <PopularTeamsList />
+              {/* Right column (7 columns) */}
+              <div className="lg:col-span-7 space-y-4">
+                <FeaturedMatch />
+                <Card>
+                  <CardHeader className="border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
+                      <Trophy className="h-4 w-4 text-yellow-500" />
+                      Top Scorers
+                    </h3>
+                  </CardHeader>
+                  <CardContent>
+                    <HomeTopScorersList />
+                  </CardContent>
+                </Card>
+                <LeagueStandingsFilter />
+                
+                {/* Popular Leagues and Teams sections */}
+                <div className="grid grid-cols-1 gap-4">
+                  <PopularLeaguesList />
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
+                    <div>
+                      <PopularTeamsList />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
           </Card>
         </div>
       </main>
