@@ -993,8 +993,8 @@ const FixedScoreboard = () => {
                             position: "absolute",
                             left: "50%",
                             transform: "translateX(-50%)",
-                            top: "100%",
-                            marginTop: "10px",
+                            top: "50%",
+                            marginTop: "45px",
                             width: "max-content",
                             minWidth: "200px"
                           }}
