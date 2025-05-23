@@ -112,7 +112,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                         ? "Yesterday's Matches"
                         : isTomorrow(selectedDate)
                         ? "Tomorrow's Matches"
-                        : "Matches for " + format(selectedDate, "EEEE, d MMM")}
+                        : "Matches for " + format(selectedDate, "EEEE, do MMM")}
                     </span>
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-600" />
@@ -134,41 +134,91 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
-        {[
-          { id: 2, name: 'Champions League', country: 'Europe' },
-          { id: 3, name: 'Europa League', country: 'Europe' },
-          { id: 39, name: 'Premier League', country: 'England' },
-          { id: 140, name: 'La Liga', country: 'Spain' },
-          { id: 135, name: 'Serie A', country: 'Italy' },
-          { id: 78, name: 'Bundesliga', country: 'Germany' }
-        ].map((league) => {
-          const leagueFixtures = Object.values(fixturesByLeague)
-            .find((group: any) => group.league.id === league.id)?.fixtures || [];
-          const todayFixtures = leagueFixtures.filter((f: any) => {
-            const fixtureDate = new Date(f.fixture.date);
-            return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
-          });
+      <Card className="bg-white shadow-md">
+        <CardHeader className="p-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Star className="h-5 w-5 mr-2 text-gray-600" />
+              <span className="font-semibold text-gray-800">Popular Football Leagues</span>
+            </div>
+          </div>
+        </CardHeader>
+        <div className="p-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
+              <div className="flex flex-col space-y-4">
+                {[
+                  { id: 2, name: 'Champions League', country: 'Europe' },
+                  { id: 3, name: 'Europa League', country: 'Europe' }
+                ].map((league) => {
+                  const leagueFixtures = Object.values(fixturesByLeague)
+                    .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                  const todayFixtures = leagueFixtures.filter((f: any) => {
+                    const fixtureDate = new Date(f.fixture.date);
+                    return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                  });
 
-          return (
-            <Card key={league.id} className="shadow-sm">
-              <CardHeader className="p-3 pb-0">
-                <div className="font-medium">{league.name}</div>
-                <div className="text-sm text-gray-500">{league.country}</div>
-              </CardHeader>
-              <CardContent className="p-3 pt-2">
-                {todayFixtures.length > 0 ? (
-                  <div className="space-y-2">
-                    {todayFixtures.slice(0, 2).map((fixture: any) => renderFixture(fixture))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-500">No matches today</div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  return (
+                    <Card key={league.id} className="shadow-sm">
+                      <CardHeader className="p-3 pb-0">
+                        <div className="font-medium">{league.name}</div>
+                        <div className="text-sm text-gray-500">{league.country}</div>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-2">
+                        {todayFixtures.length > 0 ? (
+                          <div className="space-y-2">
+                            {todayFixtures.slice(0, 2).map((fixture: any) => renderFixture(fixture))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-500">No matches today</div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">National Leagues</h3>
+              <div className="flex flex-col space-y-4">
+                {[
+                  { id: 39, name: 'Premier League', country: 'England' },
+                  { id: 140, name: 'La Liga', country: 'Spain' },
+                  { id: 135, name: 'Serie A', country: 'Italy' },
+                  { id: 78, name: 'Bundesliga', country: 'Germany' }
+                ].map((league) => {
+                  const leagueFixtures = Object.values(fixturesByLeague)
+                    .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                  const todayFixtures = leagueFixtures.filter((f: any) => {
+                    const fixtureDate = new Date(f.fixture.date);
+                    return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                  });
+
+                  return (
+                    <Card key={league.id} className="shadow-sm">
+                      <CardHeader className="p-3 pb-0">
+                        <div className="font-medium">{league.name}</div>
+                        <div className="text-sm text-gray-500">{league.country}</div>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-2">
+                        {todayFixtures.length > 0 ? (
+                          <div className="space-y-2">
+                            {todayFixtures.slice(0, 2).map((fixture: any) => renderFixture(fixture))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-500">No matches today</div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <div className="space-y-4">
         {Object.values(fixturesByLeague).map((leagueGroup: any) => {
