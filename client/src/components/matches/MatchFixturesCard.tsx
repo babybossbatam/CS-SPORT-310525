@@ -71,11 +71,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </div>
         </div>
 
-        {fixture.fixture.venue.name && (
-          <div className="mt-2 text-xs text-gray-500">
-            {fixture.fixture.venue.name}, {fixture.fixture.venue.city}
-          </div>
-        )}
+        
       </div>
     </div>
   );
