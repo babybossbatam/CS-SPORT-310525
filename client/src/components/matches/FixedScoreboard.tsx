@@ -674,26 +674,25 @@ const FixedScoreboard = () => {
     }
     // FINISHED MATCHES
     else if (fixture.status.short === "FT") {
-      try {
-        const matchDate = parseISO(fixture.date);
-        // Calculate how long ago match ended (add ~2 hours to start time)
-        const estimatedEndTime = new Date(
-          matchDate.getTime() + 2 * 60 * 60 * 1000,
-        );
-        const hoursSince = Math.floor(
-          (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60),
-        );
+        try {
+          const matchDate = parseISO(fixture.date);
+          // Calculate how long ago match ended (add ~2 hours to start time)
+          const estimatedEndTime = new Date(
+            matchDate.getTime() + 2 * 60 * 60 * 1000,
+          );
+          const hoursSince = Math.floor(
+            (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60),
+          );
 
-        if (hoursSince <= 1) {
-          return "Ended";
-        } else if (hoursSince < 8) {
-          return `${hoursSince}h ago`;
-        } else {
-          return "Full Time";
-        }
-      } catch (e) {
-        return "Full Time";
-      }
+          const statusText = hoursSince <= 1 ? "Ended" : hoursSince < 8 ? `${hoursSince}h ago` : "Full Time";
+          return (
+            <div className="flex flex-col items-center">
+              <div className="text-sm text-gray-600 mb-1">
+                {match?.league?.name}{match?.league?.round ? ` • ${match.league.round}` : ''}
+              </div>
+              <div>{statusText}</div>
+            </div>
+          );
     }
     // UPCOMING MATCHES
     else {
@@ -803,7 +802,7 @@ const FixedScoreboard = () => {
       </Badge>
 
       <Card className="px-0 pt-0 pb-2 relative">
-        
+
         <div className="pt-2">
             <Badge
               variant="outline"

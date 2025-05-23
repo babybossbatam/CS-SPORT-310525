@@ -72,17 +72,17 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       <Card className="bg-white shadow-md">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-full">
+            <div className="flex items-center h-9 gap-2">
+              <button className="p-2 hover:bg-gray-100 rounded-full flex items-center">
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <div className="relative">
-                <button className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md">
+              <div className="relative h-full flex items-center">
+                <button className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full">
                   <span className="font-medium">{selectedFilter}</span>
                   <ChevronDown className="h-4 w-4" />
                 </button>
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full">
+              <button className="p-2 hover:bg-gray-100 rounded-full flex items-center">
                 <ChevronRight className="h-5 w-5" />
               </button>
             </div>
