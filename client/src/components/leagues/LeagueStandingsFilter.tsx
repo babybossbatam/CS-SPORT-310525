@@ -30,7 +30,8 @@ const POPULAR_LEAGUES = [
   { id: 135, name: 'Serie A', country: 'Italy' },
   { id: 78, name: 'Bundesliga', country: 'Germany' },
   { id: 3, name: 'Europa League', country: 'Europe' },
-  { id: 307, name: 'Saudi League', country: 'Saudi Arabia' }
+  { id: 307, name: 'Saudi League', country: 'Saudi Arabia' },
+  { id: 380, name: 'Saudi Premier League', country: 'Saudi Arabia' }
 ];
 
 interface Standing {
