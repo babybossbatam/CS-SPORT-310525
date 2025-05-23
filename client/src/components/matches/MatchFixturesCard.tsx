@@ -1,7 +1,7 @@
 import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
+import { Card, CardContent, CardHeader } from '../ui/card';
 import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Select, SelectTrigger, SelectValue } from '../ui/select';
@@ -131,10 +131,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       </Card>
 
       <Card className="bg-white shadow-md">
+        <CardHeader>
+          <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
+        </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
-          </div>
           <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
               // Filter fixtures based on date and status
