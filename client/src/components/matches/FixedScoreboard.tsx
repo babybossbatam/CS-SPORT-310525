@@ -1007,7 +1007,7 @@ const FixedScoreboard = () => {
 
                       {/* Match date and venue - centered below VS */}
                       <div 
-                        className="absolute text-center text-xs text-gray-500"
+                        className="absolute text-center text-xs"
                         style={{
                           fontSize: "0.875rem",
                           whiteSpace: "nowrap",
@@ -1017,7 +1017,8 @@ const FixedScoreboard = () => {
                           left: "50%",
                           transform: "translateX(-50%)",
                           bottom: "-25px",
-                          width: "max-content"
+                          width: "max-content",
+                          color: "#000000"
                         }}
                       >
                         {(() => {
