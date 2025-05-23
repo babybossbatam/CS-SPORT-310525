@@ -20,6 +20,10 @@ interface Team {
   id: number;
   name: string;
   logo: string;
+  nextMatch?: {
+    name: string;
+    logo: string;
+  }
 }
 
 interface Standing {
@@ -164,6 +168,8 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                   <TableHead className="text-center">W</TableHead>
                   <TableHead className="text-center">D</TableHead>
                   <TableHead className="text-center">L</TableHead>
+                  <TableHead className="text-center">Form</TableHead>
+                  <TableHead className="text-center">Next</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -229,6 +235,31 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                       <TableCell className="text-center">{stats.win}</TableCell>
                       <TableCell className="text-center">{stats.draw}</TableCell>
                       <TableCell className="text-center">{stats.lose}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex gap-1 justify-center">
+                          {standing.form?.split('').map((result, i) => (
+                            <span
+                              key={i}
+                              className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white ${
+                                result === 'W' ? 'bg-green-500' :
+                                result === 'D' ? 'bg-gray-500' :
+                                'bg-red-500'
+                              }`}
+                            >
+                              {result}
+                            </span>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {standing.team.nextMatch && (
+                          <img 
+                            src={standing.team.nextMatch.logo} 
+                            alt={standing.team.nextMatch.name}
+                            className="w-6 h-6 inline-block"
+                          />
+                        )}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
