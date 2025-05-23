@@ -137,6 +137,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       <div className="space-y-4">
         {Object.values(fixturesByLeague).map((leagueGroup: any) => (
           <Card key={leagueGroup.league.id} className="bg-white shadow-md">
+            <CardHeader className="p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Star className="h-5 w-5 mr-2 text-gray-600" />
+                  <span className="font-semibold text-gray-800">Popular Football League</span>
+                </div>
+              </div>
+            </CardHeader>
             <CardContent>
               <div className="divide-y divide-gray-100">
                 {(() => {
