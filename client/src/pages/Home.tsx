@@ -234,12 +234,8 @@ const Home = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <PopularLeaguesList />
                   <Card className="w-full">
-                    <CardHeader className="border-b border-gray-100">
-                      <CardTitle className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-amber-500" />
-                        Popular Teams
-                      </CardTitle>
-                    </CardHeader>
+                    <CardContent className="p-4">
+                      <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
                     <CardContent className="p-0">
                       <PopularTeamsList />
                     </CardContent>
