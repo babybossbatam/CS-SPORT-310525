@@ -958,11 +958,12 @@ const FixedScoreboard = () => {
                               `/assets/fallback-logo.svg`
                             }
                             alt={currentMatch.teams.home.name || "Home Team"}
-                            className="absolute z-20 w-[64px] h-[64px] object-contain"
+                            className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
                               left: "-32px",
+                              filter: "contrast(115%) brightness(105%)",
                             }}
                             onClick={handleMatchClick}
                             onError={(e) => {
@@ -1058,12 +1059,13 @@ const FixedScoreboard = () => {
                           `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch?.teams?.away?.name || "Away Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
                           right: "87px",
                           transform: "translateX(50%)",
+                          filter: "contrast(115%) brightness(105%)",
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
