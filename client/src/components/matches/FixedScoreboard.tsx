@@ -819,9 +819,9 @@ const FixedScoreboard = () => {
                 {currentMatch?.fixture?.status?.short && 
                  ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) && (
                   <>
-                    <div className="text-xl font-bold flex gap-2 items-center">
+                    <div className="text-2xl font-bold flex gap-3 items-center text-red-600">
                       <span>{currentMatch?.goals?.home ?? 0}</span>
-                      <span className="text-base">-</span>
+                      <span className="text-xl text-gray-600">-</span>
                       <span>{currentMatch?.goals?.away ?? 0}</span>
                     </div>
                     <span className="text-sm text-gray-500">•</span>
