@@ -130,7 +130,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <div className="space-y-4">
             <LeagueStandingsFilter />
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="flex flex-col space-y-4">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
               // Filter fixtures based on date and status
               const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
@@ -147,7 +147,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               if (filteredFixtures.length === 0) return null;
 
               return (
-                <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
+                <Card key={leagueGroup.league.id} className="w-full max-w-2xl mx-auto">
                   <div className="flex items-center space-x-2 px-4 mb-2">
                     <img
                       src={leagueGroup.league.logo}
@@ -162,7 +162,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <div className="divide-y divide-gray-100">
                     {filteredFixtures.map(renderFixture)}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
