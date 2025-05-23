@@ -1064,7 +1064,7 @@ const FixedScoreboard = () => {
                       ></div>
 
                       <div
-                        className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
+                        className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                         style={{
                           top: "calc(50% - 13px)",
                           right: "130px",
