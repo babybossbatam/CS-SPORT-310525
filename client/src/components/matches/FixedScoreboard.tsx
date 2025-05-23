@@ -926,10 +926,9 @@ const FixedScoreboard = () => {
                       currentMatch.fixture.status.short,
                     ) && (
                       <>
-                        <div className="text-superlarge font-bold items-center justify-center">
-                          <span>{currentMatch?.goals?.home ?? 0}</span>
-                          <span className="text-lg">-</span>
-                          <span>{currentMatch?.goals?.away ?? 0}</span>
+                        <div className="text-sl text-black-500 font-bold">
+                          {currentMatch?.goals?.home ?? 0} -{" "}
+                          {currentMatch?.goals?.away ?? 0}
                         </div>
                       </>
                     )}
