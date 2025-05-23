@@ -296,6 +296,83 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   })}
                 </div>
               </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">National Leagues</h3>
+                <div className="flex flex-col space-y-4">
+                  {[
+                    { id: 39, name: 'Premier League', country: 'England' },
+                    { id: 140, name: 'La Liga', country: 'Spain' },
+                    { id: 135, name: 'Serie A', country: 'Italy' },
+                    { id: 78, name: 'Bundesliga', country: 'Germany' }
+                  ].map((league) => {
+                    const leagueFixtures = Object.values(fixturesByLeague)
+                      .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                    const todayFixtures = leagueFixtures.filter((f: any) => {
+                      const fixtureDate = new Date(f.fixture.date);
+                      return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                    });
+
+                    return (
+                      <Card key={league.id} className="shadow-sm">
+                        <CardHeader className="p-3 pb-0">
+                          <div className="font-medium">{league.name}</div>
+                          <div className="text-sm text-gray-500">{league.country}</div>
+                        </CardHeader>
+                        <CardContent className="p-3 pt-2">
+                          {todayFixtures.length > 0 ? (
+                            <div className="space-y-2">
+                              {todayFixtures.slice(0, 2).map((fixture: any) => (
+                                <div key={fixture.fixture.id} className="text-sm">
+                                  <div className="flex items-center justify-between p-3">
+                                    <div className="flex items-center gap-3">
+                                      <Star className="h-4 w-4 text-gray-400" />
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{league.name}</span>
+                                        <span className="text-sm text-gray-500">{league.country}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="px-4 py-2">
+                                    <div className="flex items-center justify-between mb-4">
+                                      <div className="flex items-center gap-3">
+                                        <img 
+                                          src={fixture.teams.home.logo} 
+                                          alt={fixture.teams.home.name}
+                                          className="w-6 h-6 object-contain"
+                                        />
+                                        <span className="font-medium">{fixture.teams.home.name}</span>
+                                      </div>
+                                      <div className="w-16 text-center">
+                                        <span className="font-semibold">
+                                          {format(parseISO(fixture.fixture.date), 'HH:mm')}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-3">
+                                        <span className="font-medium">{fixture.teams.away.name}</span>
+                                        <img 
+                                          src={fixture.teams.away.logo} 
+                                          alt={fixture.teams.away.name}
+                                          className="w-6 h-6 object-contain"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="text-sm text-gray-500 text-center">
+                                      {fixture.fixture.venue.name ? 'Title Race Clash' : 'League Match'}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-gray-500">No matches today</div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </Card>
