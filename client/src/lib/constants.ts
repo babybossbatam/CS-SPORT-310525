@@ -3,9 +3,6 @@
  * Application-wide constants
  */
 
-// Popular leagues configuration
-export const popularLeagues = [2, 3, 39, 140, 135, 78]; // UCL, UEL, EPL, La Liga, Serie A, Bundesliga
-
 // API refresh intervals
 export const API_REFRESH_INTERVALS = {
   LIVE_FIXTURES: 1800000,    // 30 minutes
