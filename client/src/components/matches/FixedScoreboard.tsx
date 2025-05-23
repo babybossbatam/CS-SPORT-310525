@@ -1045,7 +1045,7 @@ const FixedScoreboard = () => {
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(45%-52px)] mr-[82px]"
+                        className="h-full w-[calc(50%-52px)] mr-[82px]"
                         style={{
                           background: getTeamColor(currentMatch.teams.away.id),
                         }}
