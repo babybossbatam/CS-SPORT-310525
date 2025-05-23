@@ -231,9 +231,9 @@ const Home = () => {
                 <LeagueStandingsFilter />
 
                 {/* Popular Leagues and Teams sections */}
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <PopularLeaguesList />
-                  <Card className="w-1/2 mx-auto">
+                  <Card className="w-full">
                     <CardHeader className="border-b border-gray-100">
                       <CardTitle className="flex items-center gap-2">
                         <Star className="h-4 w-4 text-amber-500" />
