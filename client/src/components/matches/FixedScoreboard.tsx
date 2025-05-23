@@ -803,37 +803,44 @@ const FixedScoreboard = () => {
       </Badge>
 
       <Card className="px-0 pt-0 pb-2 relative">
-        <div className="flex items-center justify-center pt-2 pb-1 border-b border-gray-100">
-          <div className="flex-shrink-0 mr-2">
-            {currentMatch?.league?.logo ? (
-              <img
-                src={currentMatch.league.logo}
-                alt={currentMatch.league.name}
-                className="w-5 h-5 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/assets/fallback-logo.svg";
-                }}
-              />
-            ) : (
-              <Trophy className="w-5 h-5 text-amber-500" />
-            )}
+        
+        <div className="pt-2">
+            <Badge
+              variant="outline"
+              className={`text-[10px] px-1.5 py-0 border mb-2 ${
+                getMatchStatusLabel(currentMatch) === "LIVE"
+                  ? "border-red-500 text-red-500 animate-pulse"
+                  : getMatchStatusLabel(currentMatch) === "FINISHED"
+                    ? "border-gray-500 text-gray-500"
+                    : "border-blue-500 text-blue-500"
+              }`}
+            >
+              {getMatchStatusLabel(currentMatch)}
+            </Badge>
+            <div className="flex items-center justify-center gap-2 text-sm font-medium text-black">
+              <div className="flex items-center">
+                {currentMatch?.league?.logo ? (
+                  <img
+                    src={currentMatch.league.logo}
+                    alt={currentMatch.league.name}
+                    className="w-5 h-5 object-contain mr-2"
+                    onError={(e) => {
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                    }}
+                  />
+                ) : (
+                  <Trophy className="w-5 h-5 text-amber-500 mr-2" />
+                )}
+                {currentMatch?.league?.name || "League Name"}
+              </div>
+              {currentMatch?.league?.round && (
+                <>
+                  <span className="text-gray-400">•</span>
+                  <span>{currentMatch.league.round}</span>
+                </>
+              )}
+            </div>
           </div>
-          <p className="text-sm font-medium text-black mr-2">
-            {currentMatch?.league?.name || "League Name"}
-          </p>
-          <Badge
-            variant="outline"
-            className={`text-[10px] px-1.5 py-0 border ${
-              getMatchStatusLabel(currentMatch) === "LIVE"
-                ? "border-red-500 text-red-500 animate-pulse"
-                : getMatchStatusLabel(currentMatch) === "FINISHED"
-                  ? "border-gray-500 text-gray-500"
-                  : "border-blue-500 text-blue-500"
-            }`}
-          >
-            {getMatchStatusLabel(currentMatch)}
-          </Badge>
-        </div>
 
         {matches.length > 1 && (
           <>
