@@ -894,24 +894,15 @@ const FixedScoreboard = () => {
             <motion.div
               key={currentIndex}
               initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
+              animate={{ x: 0, opacity:1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
               onClick={handleMatchClick}
             >
               <div className="p-0 h-full my-[10px] relative">
-
-
-                {/* Fixed height container for match status and score */}
-                <div
-                  className="h-[108px] flex flex-col justify-center"
-                  style={{ marginBottom: "-5px" }}
-                >
-                  {/* Match time/status display */}
-                  
-                    {getMatchStatus(currentMatch)}
-                  
+                {/* Match time/status display */}
+                  {getMatchStatus(currentMatch)}
 
                   {/* Score display with date for finished matches */}
                   {currentMatch?.fixture?.status?.short &&
@@ -931,7 +922,6 @@ const FixedScoreboard = () => {
                         </div>
                       </>
                     )}
-                </div>
 
                 {/* Team scoreboard */}
                 <div className="relative">
