@@ -252,7 +252,7 @@ const FixedScoreboard = () => {
         ]);
 
         // Combine and filter out duplicate matches
-        const allMatches = Array.from(
+        let fixtures = Array.from(
           new Map(
             fixtureResults
               .flat()
@@ -264,7 +264,34 @@ const FixedScoreboard = () => {
           ).values(),
         );
 
-        console.log(`Total matches fetched: ${allMatches.length}`);
+        console.log(`Total matches fetched: ${fixtures.length}`);
+
+        // Get teams from standings data
+        const teamsFromStandings = new Set<number>();
+
+        // Get all teams from standings regardless of position
+        standingsResults.forEach((leagueStanding) => {
+          if (leagueStanding?.league?.standings) {
+            leagueStanding.league.standings.forEach((standingGroup: any) => {
+              if (Array.isArray(standingGroup)) {
+                standingGroup.forEach((teamData: any) => {
+                  if (teamData?.team?.id) {
+                    teamsFromStandings.add(teamData.team.id);
+                  }
+                });
+              }
+            });
+          }
+        });
+
+        // Filter fixtures to only include teams from standings
+        const filteredFixtures = fixtures.filter(fixture => {
+          return teamsFromStandings.has(fixture.teams.home.id) || 
+                 teamsFromStandings.has(fixture.teams.away.id);
+        });
+
+        // Use filtered fixtures if we have any, otherwise fall back to regular fixtures
+        fixtures = filteredFixtures.length > 0 ? filteredFixtures : fixtures;
 
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
@@ -273,7 +300,7 @@ const FixedScoreboard = () => {
         console.log("Current filtering date:", now.toISOString());
 
         // Only use matches from the popular leagues list
-        const popularLeagueMatches = allMatches.filter((match) =>
+        const popularLeagueMatches = fixtures.filter((match) =>
           popularLeagues.includes(match.league.id),
         );
 
@@ -878,7 +905,7 @@ const FixedScoreboard = () => {
               </div>
             </div>
 
-            {/* Bottom nav skeleton */}
+            {/*Bottom nav skeleton */}
             <div className="flex justify-around mt-4 pt-3">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex flex-col items-center w-1/4">
