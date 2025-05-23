@@ -91,7 +91,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pt-10">
       <Card className="bg-white shadow-md">
         <CardContent className="p-4 h-[120px] flex flex-col justify-center">
           <div className="flex items-center justify-between">
