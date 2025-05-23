@@ -26,10 +26,10 @@ const FixedScoreboard = () => {
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
-    let isSubscribed = true;
+    const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+    const currentSeason = 2024;
 
     const fetchMatches = async () => {
-      if (!isSubscribed) return;
       try {
         setIsLoading(true);
 
@@ -518,9 +518,7 @@ const FixedScoreboard = () => {
           );
         }
 
-        if (isSubscribed) {
-          setMatches(finalMatches);
-        }
+        setMatches(finalMatches);
       } catch (error) {
         console.error("Error fetching matches:", error);
         toast({
@@ -529,9 +527,7 @@ const FixedScoreboard = () => {
           variant: "destructive",
         });
       } finally {
-        if (isSubscribed) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
@@ -547,10 +543,7 @@ const FixedScoreboard = () => {
       5 * 60 * 1000,
     );
 
-    return () => {
-      clearInterval(interval);
-      isSubscribed = false;
-    };
+    return () => clearInterval(interval);
   }, [toast]);
 
   const currentMatch = matches[currentIndex];
@@ -643,7 +636,7 @@ const FixedScoreboard = () => {
     // Update timer every minute for live matches
     const timer = setInterval(() => {
       setLiveElapsed((prev) => (prev !== null ? prev + 1 : prev));
-    }, 3000000); // Update every minute
+    }, 60000); // Update every minute
 
     return () => clearInterval(timer);
   }, [currentMatch]);
@@ -692,7 +685,7 @@ const FixedScoreboard = () => {
         );
 
         if (hoursSince <= 1) {
-          return "Ended";
+          return "Just finished";
         } else if (hoursSince < 8) {
           return `${hoursSince}h ago`;
         } else {
@@ -758,9 +751,7 @@ const FixedScoreboard = () => {
         } else if (daysToMatch <= 7) {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
-          const daysToMatch = Math.ceil(
-            (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-          );
+          const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
           return (
             <div className="flex flex-col items-center">
               <div className="text-sm font-medium text-black mb-1">
@@ -935,8 +926,10 @@ const FixedScoreboard = () => {
                     style={{
                       fontSize: "calc(0.875rem * 1.5)",
                       fontWeight: "700",
+                      color: "#000000",
                     }}
                   >
+                    {" "}
                     {getMatchStatus(currentMatch)}
                   </div>
 
@@ -980,7 +973,7 @@ const FixedScoreboard = () => {
                               `/assets/fallback-logo.svg`
                             }
                             alt={currentMatch.teams.home.name || "Home Team"}
-                            className="absolute z-50 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                            className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
