@@ -1,5 +1,5 @@
 import React from 'react';
-import { format, isToday, isYesterday, isTomorrow } from "date-fns";
+import { format, isToday, isYesterday, isTomorrow, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Calendar as DatePicker } from '../ui/calendar';
