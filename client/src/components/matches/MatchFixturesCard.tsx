@@ -106,9 +106,13 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <div className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4" />
                     <span className="text-sm font-medium">
-                      {selectedDate.toDateString() === new Date().toDateString() 
-                        ? "Today's Matches" 
-                        : "Matches for " + format(selectedDate, "MMMM d, yyyy")}
+                      {isToday(selectedDate) 
+                      ? "Today's Matches"
+                      : isYesterday(selectedDate)
+                      ? "Yesterday's Matches"
+                      : isTomorrow(selectedDate)
+                      ? "Tomorrow's Matches"
+                      : "Matches for " + format(selectedDate, "EEEE, do MMM")}
                     </span>
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-600" />
