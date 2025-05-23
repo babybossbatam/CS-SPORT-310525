@@ -894,7 +894,7 @@ const FixedScoreboard = () => {
             <motion.div
               key={currentIndex}
               initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
+              animate={{ x: 0, opacity: 1,
               exit={{ x: -300, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
@@ -981,8 +981,6 @@ const FixedScoreboard = () => {
                             }}
                           />
                         )}
-
-
                       </div>
 
                       <div
