@@ -746,7 +746,9 @@ const FixedScoreboard = () => {
         } else if (daysToMatch <= 7) {
           return <span className="text-gray-500">{daysToMatch} more days</span>;
         } else {
-          return <span className="text-gray-500 text-center block w-full mb-[10px]">{format(matchDate, "MMM d")}</span>;
+          return (
+            <span className="text-gray-500">{format(matchDate, "MMM d")}</span>
+          );
         }
       } catch (e) {
         return <span className="text-gray-500">Upcoming</span>;
@@ -827,7 +829,7 @@ const FixedScoreboard = () => {
             {getMatchStatusLabel(currentMatch)}
           </Badge>
         </div>
-
+        
         {matches.length > 1 && (
           <>
             <button
@@ -892,15 +894,31 @@ const FixedScoreboard = () => {
             <motion.div
               key={currentIndex}
               initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity:1 }}
+              animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
               onClick={handleMatchClick}
             >
               <div className="p-0 h-full my-[10px] relative">
-                {/* Match time/status display */}
-                  {getMatchStatus(currentMatch)}
+                
+
+                {/* Fixed height container for match status and score */}
+                <div
+                  className="h-[108px] flex flex-col justify-center"
+                  style={{ marginBottom: "-5px" }}
+                >
+                  {/* Match time/status display */}
+                  <div
+                    className="font-medium text-center"
+                    style={{
+                      fontSize: "calc(0.875rem * 1.5)",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {" "}
+                    {getMatchStatus(currentMatch)}
+                  </div>
 
                   {/* Score display with date for finished matches */}
                   {currentMatch?.fixture?.status?.short &&
@@ -913,13 +931,14 @@ const FixedScoreboard = () => {
                           <span className="text-lg">-</span>
                           <span>{currentMatch?.goals?.away ?? 0}</span>
                         </div>
-
+                        
                         <div className="text-sl text-black-500 font-bold ">
                           {currentMatch?.goals?.home ?? 0} -{" "}
                           {currentMatch?.goals?.away ?? 0}
                         </div>
                       </>
                     )}
+                </div>
 
                 {/* Team scoreboard */}
                 <div className="relative">
@@ -1124,7 +1143,7 @@ const FixedScoreboard = () => {
                       className="text-gray-600"
                     >
                       <path
-                        d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z"
+                        d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2Z"
                         fill="currentColor"
                       />
                     </svg>
