@@ -178,3 +178,4 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 };
 
 export default MatchFixturesCard;
+```
