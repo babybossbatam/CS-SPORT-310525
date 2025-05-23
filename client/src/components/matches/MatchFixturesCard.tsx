@@ -72,29 +72,182 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     </div>
   );
 
+  // Group fixtures by league
+  const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
+    const leagueId = fixture.league.id;
+    if (!acc[leagueId]) {
+      acc[leagueId] = {
+        league: fixture.league,
+        fixtures: []
+      };
+    }
+    acc[leagueId].fixtures.push(fixture);
+    return acc;
+  }, {});
+
   const [selectedDate, setSelectedDate] = React.useState(new Date());
-    // Group fixtures by league
-    const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
-        const leagueId = fixture.league.id;
-        if (!acc[leagueId]) {
-            acc[leagueId] = {
-                league: fixture.league,
-                fixtures: []
-            };
-        }
-        acc[leagueId].fixtures.push(fixture);
-        return acc;
-    }, {});
 
   return (
     <div className="space-y-4 pt-10">
       <Card className="bg-white shadow-md">
-        <CardContent className="p-0">
-          <div className="divide-y divide-gray-100">
-            {fixtures.map(renderFixture)}
+        <CardContent className="p-4 h-[120px] flex flex-col justify-center">
+          <div className="flex items-center justify-between">
+            <button className="p-2 hover:bg-gray-100 rounded-full">
+              <ChevronLeft className="h-5 w-5 text-gray-600" />
+            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-[240px] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      {isToday(selectedDate) 
+                        ? "Today's Matches"
+                        : isYesterday(selectedDate)
+                        ? "Yesterday's Matches"
+                        : isTomorrow(selectedDate)
+                        ? "Tomorrow's Matches"
+                        : "Matches for " + format(selectedDate, "EEEE, do LLL")}
+                    </span>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-gray-600" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <DatePicker
+                  mode="single"
+                  className="rounded-md border"
+                  selected={selectedDate}
+                  onSelect={(date) => setSelectedDate(date)}
+                />
+              </PopoverContent>
+            </Popover>
+            <button className="p-2 hover:bg-gray-100 rounded-full">
+              <ChevronRight className="h-5 w-5 text-gray-600" />
+            </button>
           </div>
         </CardContent>
       </Card>
+
+      <Card className="bg-white shadow-md">
+        <CardHeader className="p-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Star className="h-5 w-5 mr-2 text-gray-600" />
+              <span className="font-semibold text-gray-800">Popular Football Leagues</span>
+            </div>
+          </div>
+        </CardHeader>
+        <div className="p-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
+              <div className="flex flex-col space-y-4">
+                {[
+                  { id: 2, name: 'Champions League', country: 'Europe' },
+                  { id: 3, name: 'Europa League', country: 'Europe' }
+                ].map((league) => {
+                  const leagueFixtures = Object.values(fixturesByLeague)
+                    .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                  const todayFixtures = leagueFixtures.filter((f: any) => {
+                    const fixtureDate = new Date(f.fixture.date);
+                    return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                  });
+
+                  return (
+                    <Card key={league.id} className="shadow-sm">
+                      <CardHeader className="p-3 pb-0">
+                        <div className="font-medium">{league.name}</div>
+                        <div className="text-sm text-gray-500">{league.country}</div>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-2">
+                        {todayFixtures.length > 0 ? (
+                          <div className="space-y-2">
+                            {todayFixtures.slice(0, 2).map((fixture: any) => renderFixture(fixture))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-500">No matches today</div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">National Leagues</h3>
+              <div className="flex flex-col space-y-4">
+                {[
+                  { id: 39, name: 'Premier League', country: 'England' },
+                  { id: 140, name: 'La Liga', country: 'Spain' },
+                  { id: 135, name: 'Serie A', country: 'Italy' },
+                  { id: 78, name: 'Bundesliga', country: 'Germany' }
+                ].map((league) => {
+                  const leagueFixtures = Object.values(fixturesByLeague)
+                    .find((group: any) => group.league.id === league.id)?.fixtures || [];
+                  const todayFixtures = leagueFixtures.filter((f: any) => {
+                    const fixtureDate = new Date(f.fixture.date);
+                    return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                  });
+
+                  return (
+                    <Card key={league.id} className="shadow-sm">
+                      <CardHeader className="p-3 pb-0">
+                        <div className="font-medium">{league.name}</div>
+                        <div className="text-sm text-gray-500">{league.country}</div>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-2">
+                        {todayFixtures.length > 0 ? (
+                          <div className="space-y-2">
+                            {todayFixtures.slice(0, 2).map((fixture: any) => renderFixture(fixture))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-500">No matches today</div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <div className="space-y-4">
+        {Object.values(fixturesByLeague).map((leagueGroup: any) => {
+          const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
+            const fixtureDate = new Date(fixture.fixture.date);
+            return new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+          });
+
+          if (filteredFixtures.length === 0) {
+            return null;
+          }
+
+          return (
+            <Card key={leagueGroup.league.id} className="bg-white shadow-md">
+              <CardContent className="p-0">
+                <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
+                  <img
+                    src={leagueGroup.league.logo}
+                    alt={leagueGroup.league.name}
+                    className="h-6 w-6 object-contain"
+                  />
+                  <div>
+                    <div className="font-medium">{leagueGroup.league.name}</div>
+                    <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {filteredFixtures.map(renderFixture)}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };

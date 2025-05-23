@@ -400,7 +400,7 @@ const FixedScoreboard = () => {
               matchDate.getTime() + 2 * 60 * 60 * 1000,
             ); // Match + ~2 hours
             const hoursSinceCompletion =
-              (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
+              (now.getTime() - matchEndTime.getTime()) / (1000 * 60 * 60);
 
             // Debug output to check time calculations
             if (hoursSinceCompletion >= 0 && hoursSinceCompletion <= 10) {
@@ -680,16 +680,17 @@ const FixedScoreboard = () => {
         const estimatedEndTime = new Date(
           matchDate.getTime() + 2 * 60 * 60 * 1000,
         );
-        const hoursSinceCompletion =
-          (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60);
+        const hoursSince = Math.floor(
+          (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60),
+        );
 
-          if (hoursSince <= 1) {
-            return <div className="my-[-10px]">Ended</div>;
-          } else if (hoursSince < 8) {
-            return <div className="my-[-10px]">{`${hoursSince}h ago`}</div>;
-          } else {
-            return <div className="my-[-10px]">Full Time</div>;
-          }
+        if (hoursSince <= 1) {
+          return "Ended";
+        } else if (hoursSince < 8) {
+          return `${hoursSince}h ago`;
+        } else {
+          return "Full Time";
+        }
       } catch (e) {
         return "Full Time";
       }
