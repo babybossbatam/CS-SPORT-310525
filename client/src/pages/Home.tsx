@@ -212,18 +212,7 @@ const Home = () => {
               </CardContent>
             </Card>
 
-            {/* Popular Leagues and Teams sections side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <PopularLeaguesList />
-
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
-                <div>
-                  <PopularTeamsList />
-                </div>
-              </div>
             </div>
-          </div>
 
           {/* Right column (7 columns) */}
           <div className="lg:col-span-7 space-y-4">
@@ -240,6 +229,17 @@ const Home = () => {
               </CardContent>
             </Card>
             <LeagueStandingsFilter />
+            
+            {/* Popular Leagues and Teams sections */}
+            <div className="grid grid-cols-1 gap-4">
+              <PopularLeaguesList />
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <h3 className="font-semibold text-gray-700 p-3">Popular Teams</h3>
+                <div>
+                  <PopularTeamsList />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
           </Card>
