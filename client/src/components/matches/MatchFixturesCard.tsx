@@ -100,10 +100,17 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             </button>
             <Popover>
               <PopoverTrigger asChild>
-                <div className="flex items-center gap-2 cursor-pointer">
-                  <h2 className="text-lg font-semibold">Today's Matches</h2>
+                <SelectTrigger className="w-[240px] flex items-center justify-between">
+                  <SelectValue>
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        {format(selectedDate, "MMMM d, yyyy")}
+                      </span>
+                    </div>
+                  </SelectValue>
                   <ChevronDown className="h-4 w-4 text-gray-600" />
-                </div>
+                </SelectTrigger>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="center">
                 <DatePicker
