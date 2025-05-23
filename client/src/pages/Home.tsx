@@ -199,7 +199,7 @@ const Home = () => {
       />
 
       <main className="w-full min-h-screen bg-[#F4F4F6]">
-        <div className="max-w-[1920px] mx-auto px-4 py-4">
+        <div className="max-w-[1920px] mx-auto px-4 py-4 ml-6">
           <Card>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Left column (5 columns) */}
