@@ -847,7 +847,7 @@ const FixedScoreboard = () => {
               onClick={handleNext}
               className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[58px] w-[26px] p-2 rounded-l-full z-40 flex items-center border border-gray-200"
             >
-              <ChevronRight className="h-14 w-14" />
+              <ChevronRight className="h-25 w-25" />
             </button>
           </>
         )}
