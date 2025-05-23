@@ -985,8 +985,8 @@ const FixedScoreboard = () => {
                       </div>
 
                       <div
-                        className="absolute text-white font-bold uppercase text-left max-w-[120px] truncate md:max-w-[200px]"
-                        style={{ top: "calc(50% - 8px)", left: "120px", fontSize: "1.04rem" }}
+                        className="absolute text-white font-bold uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
+                        style={{ top: "calc(50% - 8px)", left: "calc(25% - 60px)", fontSize: "1.04rem", transform: "translateX(-50%)" }}
                       >
                         {currentMatch?.teams?.home?.name || "TBD"}
                       </div>
@@ -1046,8 +1046,8 @@ const FixedScoreboard = () => {
                     ></div>
 
                       <div
-                        className="absolute text-white font-bold uppercase text-right max-w-[120px] truncate md:max-w-[200px]"
-                        style={{ top: "calc(50% - 8px)", right: "130px", fontSize: "1.04rem" }}
+                        className="absolute text-white font-bold uppercase text-center max-w-[120px] truncate md:max-w-[200px]"
+                        style={{ top: "calc(50% - 8px)", left: "calc(75% + 60px)", fontSize: "1.04rem", transform: "translateX(-50%)" }}
                       >
                         {currentMatch?.teams?.away?.name || "Away Team"}
                       </div>
