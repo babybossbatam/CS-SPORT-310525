@@ -946,7 +946,7 @@ const FixedScoreboard = () => {
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50% - 26px)] ml-[110px] transition-all duration-500 ease-in-out relative"
+                        className="h-full w-[calc(50% - 26px)] ml-[110px] transition-all duration-500 ease-in-out relative flex items-center"
                         style={{
                           background: getTeamColor(
                             currentMatch?.teams?.home?.id || 0,
@@ -964,7 +964,8 @@ const FixedScoreboard = () => {
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
-                              left: "-54px",
+                              left: "-64px",
+                              position: "absolute",
                             }}
                             onClick={handleMatchClick}
                             onError={(e) => {
