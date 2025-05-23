@@ -145,21 +145,20 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             </CardHeader>
             <CardContent>
               <div className="divide-y divide-gray-100">
-              // Filter fixtures based on date and status
-              const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
-                const fixtureDate = new Date(fixture.fixture.date);
-                const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
+                {(() => {
+                  const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
+                    const fixtureDate = new Date(fixture.fixture.date);
+                    const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
 
-                // Show score only if match is finished and it's today's match
-                return isSelectedDate && (new Date().toDateString() === fixtureDate.toDateString() ? 
-                  ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) :
-                  true);
-              });
+                    return isSelectedDate && (new Date().toDateString() === fixtureDate.toDateString() ? 
+                      ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short) :
+                      true);
+                  });
 
-              if (filteredFixtures.length === 0) return null;
+                  if (filteredFixtures.length === 0) return null;
 
-              return (
-                <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
+                  return (
+                    <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
                   <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
                     <img
                       src={leagueGroup.league.logo}
@@ -174,7 +173,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <div className="divide-y divide-gray-100">
                     {filteredFixtures.map(renderFixture)}
                   </div>
-                </div>
+                  );
+                })()}
               </div>
             </CardContent>
           </Card>
