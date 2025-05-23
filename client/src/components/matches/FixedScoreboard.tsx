@@ -744,7 +744,7 @@ const FixedScoreboard = () => {
         if (daysToMatch === 1) {
           return <span className="text-gray-500">Tomorrow</span>;
         } else if (daysToMatch <= 7) {
-          return <span className="text-gray-500">{daysToMatch} more days</span>;
+          return <span className="text-black">{daysToMatch} more days</span>;
         } else {
           return (
             <span className="text-gray-500">{format(matchDate, "MMM d")}</span>
