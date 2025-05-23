@@ -2,7 +2,6 @@ import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
-import LeagueStandingsFilter from '../leagues/LeagueStandingsFilter';
 import { Calendar as DatePicker } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
@@ -127,10 +126,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
           </div>
-          <div className="space-y-4">
-            <LeagueStandingsFilter />
-          </div>
-          <div className="flex flex-col space-y-4">
+          <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
               // Filter fixtures based on date and status
               const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
@@ -147,7 +143,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               if (filteredFixtures.length === 0) return null;
 
               return (
-                <Card key={leagueGroup.league.id} className="w-full max-w-2xl mx-auto">
+                <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
                   <div className="flex items-center space-x-2 px-4 mb-2">
                     <img
                       src={leagueGroup.league.logo}
@@ -162,7 +158,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <div className="divide-y divide-gray-100">
                     {filteredFixtures.map(renderFixture)}
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>
