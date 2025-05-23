@@ -162,7 +162,7 @@ const LeagueStandingsFilter = () => {
                         </div>
                         {standing.description && (
                           <span className="text-[0.75em] text-yellow-500">
-                            {standing.rank === 1 ? 'Won title • UEFA Champions League' : standing.description}
+                            {standing.rank === 1 ? 'Won title • CAF Champions League' : standing.description}
                           </span>
                         )}
                       </TableCell>
