@@ -86,7 +86,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 <ChevronRight className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 h-9">
               <button className="flex items-center gap-1 px-3 py-1 bg-neutral-800 text-white rounded-full text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 Live
