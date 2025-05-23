@@ -901,12 +901,7 @@ const FixedScoreboard = () => {
               onClick={handleMatchClick}
             >
               <div className="p-0 h-full my-[10px] relative">
-                {/* Match date row */}
-                <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center mt-4">
-                  {(() => {
-                    return "";
-                  })()}
-                </div>
+                
 
                 {/* Fixed height container for match status and score */}
                 <div
