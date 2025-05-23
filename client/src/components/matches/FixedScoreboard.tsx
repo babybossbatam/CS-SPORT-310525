@@ -636,7 +636,7 @@ const FixedScoreboard = () => {
     // Update timer every minute for live matches
     const timer = setInterval(() => {
       setLiveElapsed((prev) => (prev !== null ? prev + 1 : prev));
-    }, 60000); // Update every minute
+    }, 3000000); // Update every minute
 
     return () => clearInterval(timer);
   }, [currentMatch]);
@@ -685,7 +685,7 @@ const FixedScoreboard = () => {
         );
 
         if (hoursSince <= 1) {
-          return "Just finished";
+          return "Ended";
         } else if (hoursSince < 8) {
           return `${hoursSince}h ago`;
         } else {
@@ -751,8 +751,20 @@ const FixedScoreboard = () => {
         } else if (daysToMatch <= 7) {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
-          const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          return <span className="text-black">{daysToMatch} more days</span>;
+          const daysToMatch = Math.ceil(
+            (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+          );
+          return (
+            <div className="flex flex-col items-center">
+              <div className="text-sm font-medium text-black mb-1">
+                {match?.league?.name}
+                <span className="ml-2 text-xs text-gray-500">
+                  {match?.league?.round}
+                </span>
+              </div>
+              <span className="text-black">{daysToMatch} more days</span>
+            </div>
+          );
         }
       } catch (e) {
         return <span className="text-black">Upcoming</span>;
@@ -911,16 +923,22 @@ const FixedScoreboard = () => {
                   style={{ marginBottom: "-5px" }}
                 >
                   {/* Match time/status display */}
-                  <div
-                    className="text-center text-black"
-                    style={{
-                      fontSize: "calc(0.875rem * 1.5)",
-                      fontWeight: "700",
-                      color: "#000000",
-                    }}
-                  >
-                    {" "}
-                    {getMatchStatus(currentMatch)}
+                  <div className="flex flex-col items-center">
+                    <div className="text-sm font-medium text-black mb-1">
+                      {currentMatch?.league?.name}
+                      <span className="ml-2 text-xs text-gray-500">
+                        {currentMatch?.league?.round}
+                      </span>
+                    </div>
+                    <div
+                      className="text-center text-black"
+                      style={{
+                        fontSize: "calc(0.875rem * 1.5)",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {getMatchStatus(currentMatch)}
+                    </div>
                   </div>
 
                   {/* Score display with date for finished matches */}
@@ -963,7 +981,7 @@ const FixedScoreboard = () => {
                               `/assets/fallback-logo.svg`
                             }
                             alt={currentMatch.teams.home.name || "Home Team"}
-                            className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                            className="absolute z-50 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
