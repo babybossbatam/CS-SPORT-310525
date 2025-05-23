@@ -112,7 +112,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                         ? "Yesterday's Matches"
                         : isTomorrow(selectedDate)
                         ? "Tomorrow's Matches"
-                        : "Matches for " + format(selectedDate, "EEEE, do MMM")}
+                        : "Matches for " + format(selectedDate, "EEEE, do LLL")}
                     </span>
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-600" />
