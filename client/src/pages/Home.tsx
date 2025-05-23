@@ -242,7 +242,8 @@ const Home = () => {
             <LeagueStandingsFilter />
           </div>
         </div>
-      </div>
+          </Card>
+        </div>
       </main>
 
       <RegionModal />
