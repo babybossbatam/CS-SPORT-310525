@@ -146,36 +146,65 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 gap-4">
-              {[
-                { category: 'European Competitions', leagues: [
-                  { id: 2, name: 'Champions League', country: 'Europe' },
-                  { id: 3, name: 'Europa League', country: 'Europe' }
-                ]},
-                { category: 'National Leagues', leagues: [
-                  { id: 39, name: 'Premier League', country: 'England' },
-                  { id: 140, name: 'La Liga', country: 'Spain' },
-                  { id: 135, name: 'Serie A', country: 'Italy' },
-                  { id: 78, name: 'Bundesliga', country: 'Germany' }
-                ]}
-              ].map((category) => (
-                <div key={category.category} className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">{category.category}</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {category.leagues.map((league) => (
-                      <button
-                        key={league.id}
-                        className="flex flex-col items-center p-3 hover:bg-gray-50 rounded-md transition-colors border border-gray-100"
-                        onClick={() => {
-                          // Add filter logic here
-                        }}
-                      >
-                        <div className="text-sm font-medium">{league.name}</div>
-                        <div className="text-xs text-gray-500">{league.country}</div>
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="shadow-sm">
+                    <CardContent className="p-3">
+                      <button className="w-full text-left" onClick={() => {}}>
+                        <div className="font-medium">Champions League</div>
+                        <div className="text-sm text-gray-500">Europe</div>
                       </button>
-                    ))}
-                  </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="p-3">
+                      <button className="w-full text-left" onClick={() => {}}>
+                        <div className="font-medium">Europa League</div>
+                        <div className="text-sm text-gray-500">Europe</div>
+                      </button>
+                    </CardContent>
+                  </Card>
                 </div>
-              ))}
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">National Leagues</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="shadow-sm">
+                    <CardContent className="p-3">
+                      <button className="w-full text-left" onClick={() => {}}>
+                        <div className="font-medium">Premier League</div>
+                        <div className="text-sm text-gray-500">England</div>
+                      </button>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="p-3">
+                      <button className="w-full text-left" onClick={() => {}}>
+                        <div className="font-medium">La Liga</div>
+                        <div className="text-sm text-gray-500">Spain</div>
+                      </button>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="p-3">
+                      <button className="w-full text-left" onClick={() => {}}>
+                        <div className="font-medium">Serie A</div>
+                        <div className="text-sm text-gray-500">Italy</div>
+                      </button>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="p-3">
+                      <button className="w-full text-left" onClick={() => {}}>
+                        <div className="font-medium">Bundesliga</div>
+                        <div className="text-sm text-gray-500">Germany</div>
+                      </button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
