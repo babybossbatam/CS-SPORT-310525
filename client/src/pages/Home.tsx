@@ -252,8 +252,7 @@ const Home = () => {
             </Card>
           </div>
         </div>
-
-
+      </div>
       </main>
 
       <RegionModal />
