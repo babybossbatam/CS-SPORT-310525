@@ -1025,10 +1025,10 @@ const FixedScoreboard = () => {
                             const matchDate = parseISO(currentMatch.fixture.date);
                             const formattedDate = format(matchDate, "EEEE, do MMM");
                             const timeOnly = format(matchDate, "HH:mm");
-                            
+
                             return (
                               <>
-                                {formattedDate} | {timeOnly} 
+                                <span className="text-black">{formattedDate} | {timeOnly}</span> 
                                 {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ""}
                               </>
                             );
