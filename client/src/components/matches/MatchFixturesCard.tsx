@@ -73,58 +73,15 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   );
 
   // Group fixtures by league
-  const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
-    const leagueId = fixture.league.id;
-    if (!acc[leagueId]) {
-      acc[leagueId] = {
-        league: fixture.league,
-        fixtures: []
-      };
-    }
-    acc[leagueId].fixtures.push(fixture);
-    return acc;
-  }, {});
-
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-
   return (
     <div className="space-y-4 pt-10">
       <Card className="bg-white shadow-md">
-        <CardContent className="p-4 h-[120px] flex flex-col justify-center">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <button className="p-2 hover:bg-gray-100 rounded-full">
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
-            </button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-[240px] flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      {isToday(selectedDate) 
-                        ? "Today's Matches"
-                        : isYesterday(selectedDate)
-                        ? "Yesterday's Matches"
-                        : isTomorrow(selectedDate)
-                        ? "Tomorrow's Matches"
-                        : "Matches for " + format(selectedDate, "EEEE, do LLL")}
-                    </span>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-gray-600" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="center">
-                <DatePicker
-                  mode="single"
-                  className="rounded-md border"
-                  selected={selectedDate}
-                  onSelect={(date) => setSelectedDate(date)}
-                />
-              </PopoverContent>
-            </Popover>
-            <button className="p-2 hover:bg-gray-100 rounded-full">
-              <ChevronRight className="h-5 w-5 text-gray-600" />
-            </button>
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4" />
+              <span className="text-sm font-medium">Match Schedule</span>
+            </div>
           </div>
         </CardContent>
       </Card>
