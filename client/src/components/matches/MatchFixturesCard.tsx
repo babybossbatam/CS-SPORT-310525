@@ -173,8 +173,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <div className="divide-y divide-gray-100">
                     {filteredFixtures.map(renderFixture)}
                   </div>
-                  );
-                })()}
+                </div>
+              )})}
               </div>
             </CardContent>
           </Card>
