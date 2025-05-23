@@ -1,3 +1,4 @@
+import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
