@@ -685,7 +685,7 @@ const FixedScoreboard = () => {
         );
 
         if (hoursSince <= 1) {
-          return "Just finished";
+          return "Ended";
         } else if (hoursSince < 8) {
           return `${hoursSince}h ago`;
         } else {
