@@ -923,22 +923,14 @@ const FixedScoreboard = () => {
                   style={{ marginBottom: "-5px" }}
                 >
                   {/* Match time/status display */}
-                  <div className="flex flex-col items-center">
-                    <div className="text-sm font-medium text-black mb-1">
-                      {currentMatch?.league?.name}
-                      <span className="ml-2 text-xs text-gray-500">
-                        {currentMatch?.league?.round}
-                      </span>
-                    </div>
-                    <div
-                      className="text-center text-black"
-                      style={{
-                        fontSize: "calc(0.875rem * 1.5)",
-                        fontWeight: "700",
-                      }}
-                    >
-                      {getMatchStatus(currentMatch)}
-                    </div>
+                  <div
+                    className="text-center text-black"
+                    style={{
+                      fontSize: "calc(0.875rem * 1.5)",
+                      fontWeight: "700",
+                    }}
+                  >
+                    {getMatchStatus(currentMatch)}
                   </div>
 
                   {/* Score display with date for finished matches */}
