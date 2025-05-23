@@ -125,6 +125,36 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <CardContent>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Popular Football Leagues</h3>
+            <Select 
+              value={selectedLeague?.toString()} 
+              onValueChange={(value) => {
+                const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
+                if (league) {
+                  onMatchClick(league.id);
+                }
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select League" />
+              </SelectTrigger>
+              <SelectContent>
+                {POPULAR_LEAGUES.map((league) => (
+                  <SelectItem key={league.id} value={league.id.toString()}>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={league.logo} 
+                        alt={league.name}
+                        className="w-4 h-4 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=L';
+                        }}
+                      />
+                      {league.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="divide-y divide-gray-100">
             {Object.values(fixturesByLeague).map((leagueGroup: any) => {
