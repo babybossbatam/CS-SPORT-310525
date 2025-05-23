@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar as CalendarIcon, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -8,21 +9,26 @@ interface FixtureProps {
 }
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
+  // Group fixtures by league
+  const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
+    const leagueId = fixture.league.id;
+    if (!acc[leagueId]) {
+      acc[leagueId] = {
+        league: fixture.league,
+        fixtures: []
+      };
+    }
+    acc[leagueId].fixtures.push(fixture);
+    return acc;
+  }, {});
+
   const renderFixture = (fixture: any) => (
     <div 
       key={fixture.fixture.id}
       onClick={() => onMatchClick(fixture.fixture.id)}
       className="hover:bg-gray-50 cursor-pointer border-b last:border-b-0 py-4"
     >
-      <div className="flex items-center justify-between px-4">
-        <div className="flex items-center space-x-2">
-          <div className="text-sm font-medium text-gray-700">
-            {fixture.league.name}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-7 items-center px-4 mt-2">
+      <div className="grid grid-cols-7 items-center px-4">
         <div className="col-span-3 flex items-center justify-end space-x-3">
           <span className="font-medium text-right">{fixture.teams.home.name}</span>
           <img 
@@ -61,32 +67,28 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
   return (
     <div className="space-y-4 pt-10">
-      <Card className="bg-white shadow-md">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Match Schedule</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-white shadow-md">
-        <CardHeader className="p-3">
-          <div className="flex items-center justify-between">
+      {Object.values(fixturesByLeague).map((leagueData: any) => (
+        <Card key={leagueData.league.id} className="bg-white shadow-md">
+          <CardHeader className="p-4 border-b border-gray-100">
             <div className="flex items-center">
-              <Star className="h-5 w-5 mr-2 text-gray-600" />
-              <span className="font-semibold text-gray-800">Matches</span>
+              <img 
+                src={leagueData.league.logo}
+                alt={leagueData.league.name}
+                className="h-6 w-6 mr-2"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                }}
+              />
+              <span className="font-semibold text-gray-800">{leagueData.league.name}</span>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y divide-gray-100">
-            {fixtures.map(renderFixture)}
-          </div>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-gray-100">
+              {leagueData.fixtures.map(renderFixture)}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
