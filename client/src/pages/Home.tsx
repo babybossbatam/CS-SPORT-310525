@@ -203,6 +203,14 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Left column (5 columns) */}
             <div className="lg:col-span-5">
+            <Card>
+              <CardContent className="p-0">
+                <MatchFixturesCard
+                  fixtures={fixtures}
+                  onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                />
+              </CardContent>
+            </Card>
 
             {/* Top Scorers Section */}
             <Card className="mt-4">
@@ -237,14 +245,6 @@ const Home = () => {
           {/* Right column (7 columns) */}
           <div className="lg:col-span-7 space-y-4">
             <FeaturedMatch />
-            <Card>
-              <CardContent className="p-0">
-                <MatchFixturesCard
-                  fixtures={fixtures}
-                  onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                />
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
