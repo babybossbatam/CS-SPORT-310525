@@ -138,44 +138,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         {Object.values(fixturesByLeague).map((leagueGroup: any) => (
           <Card key={leagueGroup.league.id} className="bg-white shadow-md">
 
-            <CardContent>
-              <div className="divide-y divide-gray-100">
-                {(() => {
-                  const filteredFixtures = leagueGroup.fixtures.filter((fixture: any) => {
-                    const fixtureDate = new Date(fixture.fixture.date);
-                    const isSelectedDate = new Date(selectedDate).toDateString() === fixtureDate.toDateString();
-                    return isSelectedDate;
-                  });
-
-                  if (filteredFixtures.length === 0) {
-                    return (
-                      <div className="p-4 text-center text-gray-500">
-                        No matches scheduled for this date
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div key={leagueGroup.league.id} className="mb-6 last:mb-0">
-                      <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50">
-                        <img
-                          src={leagueGroup.league.logo}
-                          alt={leagueGroup.league.name}
-                          className="h-6 w-6 object-contain"
-                        />
-                        <div>
-                          <div className="font-medium">{leagueGroup.league.name}</div>
-                          <div className="text-sm text-gray-500">{leagueGroup.league.country}</div>
-                        </div>
-                      </div>
-                      <div className="divide-y divide-gray-100">
-                        {filteredFixtures.map(renderFixture)}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            </CardContent>
+            
           </Card>
         ))}
       </div>
