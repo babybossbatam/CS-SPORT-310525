@@ -904,12 +904,7 @@ const FixedScoreboard = () => {
                 {/* Match date row */}
                 <div className="text-[0.9375rem] text-black h-[1.575rem] flex items-center justify-center mt-4">
                   {(() => {
-                    try {
-                      const matchDate = parseISO(currentMatch.fixture.date);
-                      return format(matchDate, "MMM d");
-                    } catch (e) {
-                      return "";
-                    }
+                    return "";
                   })()}
                 </div>
 
