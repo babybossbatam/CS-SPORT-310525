@@ -16,6 +16,7 @@ const POPULAR_LEAGUES = [
   { id: 45, name: 'FA Cup', country: 'England' },
   { id: 140, name: 'La Liga', country: 'Spain' },
   { id: 39, name: 'Premier League', country: 'England' },
+  { id: 307, name: 'Saudi League', country: 'Saudi Arabia' },
   { id: 135, name: 'Serie A', country: 'Italy' },
 ];
 

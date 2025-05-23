@@ -8,6 +8,7 @@ const POPULAR_LEAGUES = [
   { id: 140, name: 'La Liga', country: 'Spain' },
   { id: 135, name: 'Serie A', country: 'Italy' },
   { id: 78, name: 'Bundesliga', country: 'Germany' },
+  { id: 307, name: 'Saudi League', country: 'Saudi Arabia' },
   { id: 3, name: 'Europa League', country: 'Europe' }
 ];
 
