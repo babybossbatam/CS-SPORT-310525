@@ -144,14 +144,13 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
-                <div className="flex flex-col space-y-4">
-                  {[
-                    { id: 2, name: 'Champions League', country: 'Europe' },
-                    { id: 3, name: 'Europa League', country: 'Europe' }
+          <div className="p-4 grid grid-cols-1 gap-4">
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">European Competitions</h3>
+              <div className="flex flex-col space-y-4">
+                {[
+                  { id: 2, name: 'Champions League', country: 'Europe' },
+                  { id: 3, name: 'Europa League', country: 'Europe' }
                   ].map((league) => {
                     const leagueFixtures = Object.values(fixturesByLeague)
                       .find((group: any) => group.league.id === league.id)?.fixtures || [];
@@ -298,7 +297,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 </div>
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         {Object.values(fixturesByLeague).map((leagueGroup: any) => (
