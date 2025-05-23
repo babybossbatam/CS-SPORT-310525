@@ -914,6 +914,7 @@ const FixedScoreboard = () => {
                     style={{
                       fontSize: "calc(0.875rem * 1.5)",
                       fontWeight: "700",
+                      color: "#000000",
                     }}
                   >
                     {" "}
