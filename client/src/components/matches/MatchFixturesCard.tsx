@@ -87,15 +87,38 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     }, {});
 
   return (
-    <div className="space-y-4 pt-10">
-      <Card className="bg-white shadow-md">
-        <CardContent className="p-0">
-          <div className="divide-y divide-gray-100">
-            {fixtures.map(renderFixture)}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="bg-white shadow-md">
+      <CardHeader className="pb-3">
+        <h2 className="text-lg font-semibold text-gray-900">Today's Matches</h2>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="divide-y divide-gray-100">
+          {Object.entries(fixturesByLeague).map(([leagueId, { league, fixtures }]) => (
+            <div key={leagueId} className="py-3 px-4">
+              <div className="font-medium text-sm text-gray-900 mb-2">{league.name}</div>
+              <div className="space-y-2">
+                {fixtures.map((fixture) => (
+                  <div
+                    key={fixture.fixture.id}
+                    className="flex items-center justify-between hover:bg-gray-50 rounded-lg p-2 cursor-pointer"
+                    onClick={() => onMatchClick(fixture.fixture.id)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-700">{fixture.teams.home.name}</span>
+                      <span className="text-xs text-gray-500">vs</span>
+                      <span className="text-sm font-medium text-gray-700">{fixture.teams.away.name}</span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {format(parseISO(fixture.fixture.date), 'HH:mm')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
