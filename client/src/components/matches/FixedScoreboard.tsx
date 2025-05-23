@@ -982,7 +982,7 @@ const FixedScoreboard = () => {
                           />
                         )}
 
-                        
+
                       </div>
 
                       <div
@@ -1027,10 +1027,10 @@ const FixedScoreboard = () => {
                             const timeOnly = format(matchDate, "HH:mm");
 
                             return (
-                              <span className="text-black">
+                              
                                 {formattedDate} | {timeOnly}
                                 {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ""}
-                              </span>
+                              
                             );
                           } catch (e) {
                             return currentMatch.fixture.venue?.name || "";
