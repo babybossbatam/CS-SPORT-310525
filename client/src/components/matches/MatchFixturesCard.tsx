@@ -121,40 +121,19 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
       <Card className="bg-white shadow-md">
         <CardContent className="p-0">
-        <Tabs defaultValue="fixtures" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
-            <TabsTrigger value="fixtures">Upcoming</TabsTrigger>
-            <TabsTrigger value="results">Completed</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="fixtures">
-            <div className="divide-y divide-gray-100">
-              {upcomingFixtures.length > 0 ? (
-                upcomingFixtures.map(renderFixture)
-              ) : (
-                <div className="p-4 text-center text-gray-500">
-                  No upcoming fixtures
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="results">
-            <div className="divide-y divide-gray-100">
-              {completedFixtures.length > 0 ? (
-                [...completedFixtures]
-                  .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
-                  .slice(0, 5)
-                  .map(renderFixture)
-              ) : (
-                <div className="p-4 text-center text-gray-500">
-                  No completed matches
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
+          <div className="divide-y divide-gray-100">
+            {fixtures.length > 0 ? (
+              fixtures
+                .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime())
+                .slice(0, 5)
+                .map(renderFixture)
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                No fixtures available
+              </div>
+            )}
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
