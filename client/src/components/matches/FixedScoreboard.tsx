@@ -752,7 +752,17 @@ const FixedScoreboard = () => {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
           const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          return <span className="text-black">{daysToMatch} more days</span>;
+          return (
+            <div className="flex flex-col items-center">
+              <div className="text-sm font-medium text-black mb-1">
+                {match?.league?.name}
+                <span className="ml-2 text-xs text-gray-500">
+                  {match?.league?.round}
+                </span>
+              </div>
+              <span className="text-black">{daysToMatch} more days</span>
+            </div>
+          );
         }
       } catch (e) {
         return <span className="text-black">Upcoming</span>;
