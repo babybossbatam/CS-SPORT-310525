@@ -17,7 +17,7 @@ const PopularLeagueStandingsCard = () => {
   return (
     <Card className="bg-white shadow-md mb-4">
       <CardHeader>
-        <CardTitle>Premier League</CardTitle>
+        <CardTitle>{standings?.[0]?.league?.name || 'League Standings'}</CardTitle>
       </CardHeader>
       <Table className="p-4">
         <TableHeader>
