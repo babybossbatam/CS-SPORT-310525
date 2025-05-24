@@ -245,10 +245,13 @@ const LeagueStandingsFilter = () => {
                                 <span className="font-medium">{standing.team.name}</span>
                                 <span className="mx-2">vs</span>
                                 <span className="font-medium">
-                                  {standings.find(opponent => 
-                                    opponent.team.id !== standing.team.id && 
-                                    opponent.rank > standing.rank
-                                  )?.team.name}
+                                  {fixtures?.find(fixture => 
+                                    (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
+                                    new Date(fixture.fixture.date) > new Date()
+                                  )?.teams[standing.team.id === fixtures.find(fixture => 
+                                    (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
+                                    new Date(fixture.fixture.date) > new Date()
+                                  )?.teams.home.id ? 'away' : 'home'].name}
                                 </span>
                                 <div className="text-gray-500 mt-1">
                                   {(() => {
