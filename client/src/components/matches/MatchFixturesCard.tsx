@@ -86,16 +86,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex items-center justify-end w-full gap-2 h-9">
-                <button className="flex items-center gap-1 px-3 py-1 bg-neutral-800 text-white rounded-full text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Live
-                </button>
-                <button className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100 rounded-full text-sm">
-                  <Clock className="h-4 w-4" />
-                  By time
-                </button>
-              </div>
+              <button className="flex items-center gap-1 px-3 py-1 bg-neutral-800 text-white rounded-full text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                Live
+              </button>
+              <button className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100 rounded-full text-sm">
+                <Clock className="h-4 w-4" />
+                By time
+              </button>
             </div>
           </div>
         </CardContent>
@@ -104,7 +102,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <Card key={leagueData.league.id} className="bg-white shadow-md">
           <CardHeader className="p-4 border-b border-gray-100">
             <div className="flex items-center">
-              <img 
+              <img
                 src={leagueData.league.logo}
                 alt={leagueData.league.name}
                 className="h-6 w-6 mr-2"
