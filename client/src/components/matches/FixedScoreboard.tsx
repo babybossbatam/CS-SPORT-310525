@@ -835,12 +835,7 @@ const FixedScoreboard = () => {
                   <Trophy className="w-5 h-5 text-amber-500 mr-2" />
                 )}
                 {currentMatch?.league?.name || "League Name"}
-                {currentMatch?.league?.round && (
-                  <>
-                    <span className="text-gray-400">•</span>
-                    <span>{currentMatch.league.round}</span>
-                  </>
-                )}
+                
               </div>
             </div>
               <div>
