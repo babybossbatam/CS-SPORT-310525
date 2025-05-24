@@ -15,7 +15,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
   // Get standings from league data
-  const { data: leagueStandings } = useQuery({
+  const { data: leagueStandings, isLoading: standingsLoading } = useQuery({
     queryKey: ['standings', selectedFilter],
     queryFn: async () => {
       const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
@@ -76,6 +76,19 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       </table>
     </div>
   );
+
+  // Early return if no standings data
+  if (!leagueStandings || Object.keys(leagueStandings).length === 0) {
+    return (
+      <Card className="bg-white shadow-md mt-4">
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            No league standings data available for {selectedFilter}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-4 pt-10">
