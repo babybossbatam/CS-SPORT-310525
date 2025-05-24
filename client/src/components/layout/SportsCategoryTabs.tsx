@@ -7,7 +7,7 @@ import {
   TvIcon,
   FootballIcon,
   BasketballIcon,
-  CricketIcon,
+  HorseRacingIcon,
   AmericanFootballIcon,
   BaseballIcon,
   HockeyIcon,
@@ -37,7 +37,7 @@ const SportsCategoryTabs = () => {
     { id: 'tv', icon: TvIcon, label: 'TV' },
     { id: 'football', icon: FootballIcon, label: 'Football' },
     { id: 'basketball', icon: BasketballIcon, label: 'Basketball' },
-    { id: 'cricket', icon: CricketIcon, label: 'Cricket' },
+    { id: 'horseracing', icon: HorseRacingIcon, label: 'Horse Racing' },
     { id: 'baseball', icon: BaseballIcon, label: 'Baseball' },
     { id: 'tennis', icon: TennisIcon, label: 'Tennis' }
   ];
