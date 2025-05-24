@@ -9,6 +9,8 @@ interface FixtureProps {
   onMatchClick: (matchId: number) => void;
 }
 
+import { useQuery } from '@tanstack/react-query';
+
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
