@@ -219,9 +219,7 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <main className="w-full min-h-screen bg-[#F4F4F6]">
-        <div className="max-w-[1920px] mx-auto px-4 py-4 ml-6">
-          <Card>
+      <Card className="mx-4 my-4">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Left column (5 columns) */}
               <div className="lg:col-span-5 space-y-4">
@@ -268,8 +266,6 @@ const Home = () => {
               </div>
             </div>
           </Card>
-        </div>
-      </main>
 
       <RegionModal />
     </>
