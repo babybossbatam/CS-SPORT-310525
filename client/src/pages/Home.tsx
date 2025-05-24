@@ -25,7 +25,6 @@ import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
 import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
-import { apiRequest } from '@/lib/queryClient';
 import { Trophy, Activity, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
