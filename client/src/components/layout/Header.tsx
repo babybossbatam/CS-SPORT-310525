@@ -63,7 +63,6 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <LeagueTabs />
           <LeagueTabs />
-
           <Button 
             variant="ghost" 
             className="text-sm flex items-center space-x-1 text-white mr-[10%]"
