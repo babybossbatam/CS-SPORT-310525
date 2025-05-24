@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format } from 'date-fns';
 import { getMatchStatusText } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
 const POPULAR_LEAGUES = [
   { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
@@ -41,21 +42,44 @@ const StandingsFilterCard = () => {
           return (
             <div key={league.id} className="mb-4 last:mb-0">
               <CardHeader className="px-4 py-3 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <img 
-                    src={league.logo} 
-                    alt={league.name} 
-                    className="h-7 w-7 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                  <Select 
+                    defaultValue={league.id.toString()}
+                    onValueChange={(value) => {
+                      // Handle league selection
                     }}
-                  />
-                  <div>
-                    <h3 className="font-semibold text-lg">{league.name}</h3>
-                    <p className="text-sm text-gray-500">{league.country}</p>
-                  </div>
-                </div>
-              </CardHeader>
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={league.logo} 
+                          alt={league.name} 
+                          className="h-7 w-7 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                          }}
+                        />
+                        <div>
+                          <h3 className="font-semibold text-lg">{league.name}</h3>
+                          <p className="text-sm text-gray-500">{league.country}</p>
+                        </div>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {POPULAR_LEAGUES.map((l) => (
+                        <SelectItem key={l.id} value={l.id.toString()}>
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={l.logo} 
+                              alt={l.name}
+                              className="h-5 w-5 object-contain"
+                            />
+                            {l.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardHeader>
               <Table>
                 <TableHeader>
                   <TableRow>
