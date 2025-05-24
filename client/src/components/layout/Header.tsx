@@ -60,8 +60,7 @@ const Header = () => {
             </span>
           </Link>
 
-        <div className="flex items-center space-x-4">
-          <LeagueTabs />
+        <LeagueTabs />
           <LeagueTabs />
           <Button 
             variant="ghost" 
