@@ -78,9 +78,9 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   );
 
   return (
-    <div className="space-y-4 pt-10">
-      <Card className="bg-white shadow-md">
-        <CardContent className="p-0">
+    <div className="space-y-4">
+      <Card className="bg-white shadow-md w-full">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between p-4 mb-2">
             <div className="flex flex-col gap-2 w-full">
               <div className="flex items-center justify-between h-9">
