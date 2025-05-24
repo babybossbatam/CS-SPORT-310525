@@ -51,8 +51,12 @@ const StandingsFilterCard = () => {
           <CardContent className="p-4">
             {leagueMatches.length > 0 ? (
               <div className="space-y-4">
-                {POPULAR_LEAGUES.map(league => {
-                  const leagueMatches = todayMatches.filter(match => match.league.id === league.id);
+                {(() => {
+                  const liveMatches = leagueMatches.filter(match => match.fixture.status.short === "LIVE");
+                  const finishedMatches = leagueMatches.filter(match => ["FT", "AET", "PEN"].includes(match.fixture.status.short));
+
+                  return (
+                    <div className="border-b pb-4 last:border-b-0">
                   const liveMatches = leagueMatches.filter(match => match.fixture.status.short === "LIVE");
                   const finishedMatches = leagueMatches.filter(match => ["FT", "AET", "PEN"].includes(match.fixture.status.short));
 
