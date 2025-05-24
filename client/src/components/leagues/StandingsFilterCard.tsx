@@ -47,7 +47,6 @@ const StandingsFilterCard = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Status</TableHead>
                     <TableHead>Home</TableHead>
                     <TableHead className="text-center">Score</TableHead>
                     <TableHead>Away</TableHead>
@@ -56,9 +55,6 @@ const StandingsFilterCard = () => {
                 <TableBody>
                   {leagueFixtures.map((fixture: any) => (
                     <TableRow key={fixture.fixture.id}>
-                      <TableCell className="text-sm">
-                        {getMatchStatusText(fixture.fixture.status.short)}
-                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <img 
