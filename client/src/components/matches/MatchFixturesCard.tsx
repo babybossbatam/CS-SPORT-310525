@@ -95,25 +95,17 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                             const yesterday = new Date(today);
                             yesterday.setDate(yesterday.getDate() - 1);
 
-                            if (date.toDateString() === yesterday.toDateString()) {
-                              setSelectedFilter("Yesterday's Matches");
-                            } else if (date.toDateString() === today.toDateString()) {
+                            if (date.toDateString() === today.toDateString()) {
                               setSelectedFilter("Today's Matches");
+                            } else if (date.toDateString() === yesterday.toDateString()) {
+                              setSelectedFilter("Yesterday's Matches");
                             } else if (date.toDateString() === tomorrow.toDateString()) {
                               setSelectedFilter("Tomorrow's Matches");
                             } else {
-                              setSelectedFilter(date.toLocaleDateString('en-US', { 
-                                weekday: 'long', 
-                                day: 'numeric',
-                                month: 'short'
-                              }).replace(/(\d+)/, (match) => {
-                                const num = parseInt(match);
-                                const suffixes = ['th', 'st', 'nd', 'rd'];
-                                const suffix = suffixes[(num % 10) <= 3 ? (num % 10) : 0];
-                                return `${num}${suffix}`;
-                              }));
+                              setSelectedFilter(date.toDateString());
                             }
 
+                            // Close the dropdown
                             const select = document.querySelector('[data-state="open"]')?.parentElement;
                             if (select) {
                               const event = new Event('mousedown', { bubbles: true });
