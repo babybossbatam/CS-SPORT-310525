@@ -10,7 +10,7 @@ interface FixtureProps {
 }
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
-  const [selectedFilter, setSelectedFilter] = useState("Yesterday's Matches");
+  const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
   // Group fixtures by league
   const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
