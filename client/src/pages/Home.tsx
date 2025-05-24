@@ -256,26 +256,53 @@ const Home = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="p-4">
-                      <div className="divide-y divide-gray-100 bg-white rounded-lg shadow">
-                        <div className="overflow-x-auto max-w-full">
-                          <table className="w-full text-sm table-auto min-w-full">
-                            <thead>
-                              <tr className="bg-gradient-to-r from-gray-50 to-white text-gray-600">
-                                <th className="py-3 px-4 text-left font-semibold text-sm whitespace-nowrap">
-                                  <div className="flex items-center gap-1">
-                                    <span>Pos</span>
-                                    <span className="text-gray-400 text-xs">#</span>
+                      <div className="space-y-4">
+                        {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
+                          <div key={leagueData.league.id} className="bg-white rounded-lg shadow overflow-hidden">
+                            <div className="px-4 py-3 border-b border-gray-100">
+                              <div className="flex items-center gap-2">
+                                <img 
+                                  src={leagueData.league.logo} 
+                                  alt={leagueData.league.name}
+                                  className="h-6 w-6 object-contain"
+                                />
+                                <div>
+                                  <h3 className="font-semibold text-gray-900">{leagueData.league.name}</h3>
+                                  <p className="text-sm text-gray-500">{leagueData.league.country}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-4 space-y-3">
+                              {leagueData.standings.slice(0, 5).map((match: any) => (
+                                <div key={match.team.id} className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <img 
+                                      src={match.team.logo} 
+                                      alt={match.team.name}
+                                      className="h-6 w-6 object-contain"
+                                    />
+                                    <span className="font-medium text-gray-900">{match.team.name}</span>
                                   </div>
-                                </th>
-                                <th className="py-3 px-4 text-left font-semibold text-sm">Team</th>
-                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Played">P</th>
-                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Won">W</th>
-                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Drawn">D</th>
-                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Lost">L</th>
-                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Goal Difference">GD</th>
-                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Points">Pts</th>
-                              </tr>
-                            </thead>
+                                  <div className="flex items-center gap-8">
+                                    <div className="text-sm text-gray-600">
+                                      <span className="font-semibold">{match.all.played}</span> matches
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                      <span className="font-semibold">{match.points}</span> pts
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                              <button 
+                                onClick={() => navigate(`/league/${leagueData.league.id}`)}
+                                className="w-full mt-3 text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                View Full Standings →
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                             <tbody>
                               {leagueData.standings.map((team: any) => (
                                 <tr key={team.team.id} className="hover:bg-gray-50 transition-colors">
