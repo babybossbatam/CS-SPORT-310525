@@ -266,14 +266,6 @@ const LeagueStandingsFilter = () => {
                                     </>
                                   );
                                 })()}
-                                  {(() => {
-                                    const nextMatch = fixtures?.find(f => 
-                                      (f.teams.home.id === standing.team.id || f.teams.away.id === standing.team.id) &&
-                                      new Date(f.fixture.date) > new Date()
-                                    );
-                                    return nextMatch ? format(parseISO(nextMatch.fixture.date), 'dd/MM/yyyy') : 'No upcoming matches';
-                                  })()}
-                                </div>
                               </div>
                             </div>
                           </>
