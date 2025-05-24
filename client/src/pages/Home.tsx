@@ -18,6 +18,7 @@ import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
+import PopularLeagueStandingsCard from '@/components/leagues/PopularLeagueStandingsCard';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
