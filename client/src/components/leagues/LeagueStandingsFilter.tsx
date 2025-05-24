@@ -61,16 +61,14 @@ const LeagueStandingsFilter = () => {
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id.toString());
   const [selectedLeagueName, setSelectedLeagueName] = useState(POPULAR_LEAGUES[0].name);
 
-  const { data: standingsData, isLoading: standingsLoading } = useQuery({
+  const { data: standings, isLoading: standingsLoading } = useQuery({
     queryKey: ['standings', selectedLeague],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
       const data = await response.json();
-      return data;
+      return data?.league?.standings?.[0] || [];
     },
   });
-
-  const standings = standingsData?.league?.standings?.[0] || [];
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
     queryKey: ['fixtures', selectedLeague],
