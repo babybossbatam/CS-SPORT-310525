@@ -42,7 +42,7 @@ const StandingsFilterCard = () => {
           return (
             <div key={league.id} className="mb-4 last:mb-0">
               <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3">
                   <img 
                     src={league.logo} 
                     alt={league.name} 
@@ -56,48 +56,6 @@ const StandingsFilterCard = () => {
                     <p className="text-sm text-gray-500">{league.country}</p>
                   </div>
                 </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Home</TableHead>
-                      <TableHead className="text-center">Score</TableHead>
-                      <TableHead>Away</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leagueFixtures.map((fixture: any) => (
-                      <TableRow key={fixture.fixture.id}>
-                        <TableCell className="text-sm">
-                          {getMatchStatusText(fixture.fixture.status.short)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <img 
-                              src={fixture.teams.home.logo} 
-                              alt={fixture.teams.home.name} 
-                              className="h-4 w-4 object-contain"
-                            />
-                            <span className="text-sm">{fixture.teams.home.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center font-medium">
-                          {fixture.goals.home !== null ? `${fixture.goals.home} - ${fixture.goals.away}` : 'vs'}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <img 
-                              src={fixture.teams.away.logo} 
-                              alt={fixture.teams.away.name} 
-                              className="h-4 w-4 object-contain"
-                            />
-                            <span className="text-sm">{fixture.teams.away.name}</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
               </CardContent>
             </div>
           );
