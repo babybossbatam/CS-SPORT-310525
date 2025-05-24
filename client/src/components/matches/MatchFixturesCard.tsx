@@ -17,68 +17,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
-  // Get standings from league data
-  const { data: leagueStandings } = useQuery({
-    queryKey: ['standings', selectedFilter],
-    queryFn: async () => {
-      const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
-      const standingsData = {};
-
-      for (const leagueId of leagues) {
-        const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
-        const data = await response.json();
-        if (data?.league?.standings?.[0]) {
-          standingsData[leagueId] = {
-            league: data.league,
-            standings: data.league.standings[0]
-          };
-        }
-      }
-      return standingsData;
-    }
-  });
-
-  const renderStandings = (standings: any) => (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-gray-500 border-b">
-            <th className="py-2 text-left pl-4">Pos</th>
-            <th className="py-2 text-left">Team</th>
-            <th className="py-2 text-center">P</th>
-            <th className="py-2 text-center">W</th>
-            <th className="py-2 text-center">D</th>
-            <th className="py-2 text-center">L</th>
-            <th className="py-2 text-center">GD</th>
-            <th className="py-2 text-center">Pts</th>
-          </tr>
-        </thead>
-        <tbody>
-          {standings.map((team: any) => (
-            <tr key={team.team.id} className="hover:bg-gray-50 border-b last:border-b-0">
-              <td className="py-2 pl-4">{team.rank}</td>
-              <td className="py-2">
-                <div className="flex items-center space-x-2">
-                  <img 
-                    src={team.team.logo} 
-                    alt={team.team.name}
-                    className="h-5 w-5 object-contain"
-                  />
-                  <span>{team.team.name}</span>
-                </div>
-              </td>
-              <td className="text-center">{team.all.played}</td>
-              <td className="text-center">{team.all.win}</td>
-              <td className="text-center">{team.all.draw}</td>
-              <td className="text-center">{team.all.lose}</td>
-              <td className="text-center">{team.goalsDiff}</td>
-              <td className="text-center font-semibold">{team.points}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  // Keep focus on match fixtures only
 
   return (
     <Card className="bg-white shadow-md w-full space-y-4">
