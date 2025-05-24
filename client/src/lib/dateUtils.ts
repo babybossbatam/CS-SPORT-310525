@@ -67,21 +67,14 @@ export function getValidDate(input?: Date | string | number | null): Date {
       // Convert Unix timestamp (seconds) to milliseconds if needed
       result = input.toString().length <= 10
         ? new Date(input * 1000)  // Unix timestamp in seconds
-        : new Date(input);        // Unix timestamp in milliseconds
+        : new Date(input);        // Unix timestamp in milliseconds or other number
     } else {
       result = input;
     }
     
-    // Validate date
+    // Validate that the date is valid
     if (isNaN(result.getTime())) {
       console.error('Invalid date in getValidDate:', input);
-      return new Date();
-    }
-
-    // Validate date range (between 2020 and 2025)
-    const year = result.getFullYear();
-    if (year < 2020 || year > 2025) {
-      console.error('Date out of valid range (2020-2025):', input);
       return new Date();
     }
     
@@ -90,15 +83,4 @@ export function getValidDate(input?: Date | string | number | null): Date {
     console.error('Error in getValidDate:', error);
     return new Date();
   }
-}
-
-export function isValidMatchDate(date: Date): boolean {
-  const now = new Date();
-  const twoYearsAgo = new Date();
-  twoYearsAgo.setFullYear(now.getFullYear() - 2);
-  
-  const oneYearAhead = new Date();
-  oneYearAhead.setFullYear(now.getFullYear() + 1);
-  
-  return date >= twoYearsAgo && date <= oneYearAhead;
 }

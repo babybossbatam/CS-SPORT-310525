@@ -46,24 +46,18 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const imgElement = e.target as HTMLImageElement;
     
-    if (!primaryImageFailed) {
-      // Try API Football URL first
+    // Only try alternate sources if we haven't tried them before
+    if (!primaryImageFailed && !secondaryImageFailed) {
       setPrimaryImageFailed(true);
-      if (apiFootballUrl) {
-        setCurrentLogoUrl(apiFootballUrl);
+      setSecondaryImageFailed(true);
+      
+      // Try SportMonk first if available
+      if (sportmonkUrl) {
+        setCurrentLogoUrl(sportmonkUrl);
         return;
       }
-    }
-    
-    if (!secondaryImageFailed && sportmonkUrl) {
-      // Try SportMonk as second fallback
-      setSecondaryImageFailed(true);
-      setCurrentLogoUrl(sportmonkUrl);
-      return;
-    }
-
-    // Final fallback to generic logo
-    if (primaryImageFailed && secondaryImageFailed) {
+      
+      // Fallback to generic logo
       imgElement.src = '/src/assets/fallback-logo.png';
     }
   };

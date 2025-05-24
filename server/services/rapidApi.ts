@@ -26,68 +26,14 @@ const apiClient = axios.create({
   }
 });
 
-// Cache and debounce control
+// Cache control - 5 minutes for live data, 1 hour for static data
 const LIVE_DATA_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const STATIC_DATA_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
-const DEBOUNCE_DELAY = 2000; // 2 seconds
 
-// Improved cache implementation with TTL
-class Cache<T> {
-  private store = new Map<string, { data: T; timestamp: number }>();
-  private debounceTimers = new Map<string, NodeJS.Timeout>();
-  
-  constructor(private ttl: number) {}
-
-  get(key: string): T | null {
-    const item = this.store.get(key);
-    if (!item) return null;
-    
-    const now = Date.now();
-    if (now - item.timestamp > this.ttl) {
-      this.store.delete(key);
-      return null;
-    }
-    
-    return item.data;
-  }
-
-  async getOrSet(key: string, fetchFn: () => Promise<T>): Promise<T> {
-    const cached = this.get(key);
-    if (cached) return cached;
-
-    // Debounce the fetch
-    if (this.debounceTimers.has(key)) {
-      const existing = this.get(key);
-      if (existing) return existing;
-    }
-
-    return new Promise((resolve) => {
-      const timer = setTimeout(async () => {
-        const data = await fetchFn();
-        this.set(key, data);
-        resolve(data);
-        this.debounceTimers.delete(key);
-      }, DEBOUNCE_DELAY);
-      
-      this.debounceTimers.set(key, timer);
-    });
-  }
-
-  set(key: string, data: T): void {
-    this.store.set(key, { data, timestamp: Date.now() });
-  }
-
-  clear(): void {
-    this.store.clear();
-    this.debounceTimers.forEach(timer => clearTimeout(timer));
-    this.debounceTimers.clear();
-  }
-}
-
-// Cache instances
-const fixturesCache = new Cache<any>(LIVE_DATA_CACHE_DURATION);
-const leaguesCache = new Cache<any>(STATIC_DATA_CACHE_DURATION);
-const playersCache = new Cache<any>(STATIC_DATA_CACHE_DURATION);
+// Cache objects
+const fixturesCache = new Map<string, { data: any, timestamp: number }>();
+const leaguesCache = new Map<string, { data: any, timestamp: number }>();
+const playersCache = new Map<string, { data: any, timestamp: number }>();
 
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
