@@ -37,9 +37,43 @@ const StandingsFilterCard = () => {
       </CardHeader>
       <CardContent className="p-0">
         {leagueQueries.map((query, index) => {
-          if (!query.data?.standings?.length) return null;
+          if (!query.data?.standings?.length || query.data.league.name !== 'Champions League') return null;
           const league = query.data.league;
           const leagueStandings = query.data.standings;
+
+          // Calculate score overview
+          const totalGoalsScored = leagueStandings.reduce((sum, standing) => sum + standing.all.goals.for, 0);
+          const totalGoalsConceded = leagueStandings.reduce((sum, standing) => sum + standing.all.goals.against, 0);
+          const totalMatches = leagueStandings.reduce((sum, standing) => sum + standing.all.played, 0);
+
+          return (
+            <div key={league.id} className="mb-4 last:mb-0">
+              <div className="p-4 border-b bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={league.logo}
+                      alt={league.name}
+                      className="h-6 w-6 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                      }}
+                    />
+                    <h2 className="text-xl font-semibold">{league.name}</h2>
+                  </div>
+                  <div className="flex gap-4 text-sm">
+                    <div>
+                      <span className="font-semibold">Games:</span> {totalMatches}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Goals:</span> {totalGoalsScored}:{totalGoalsConceded}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Avg:</span> {(totalGoalsScored / totalMatches).toFixed(1)}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
           return (
             <div key={league.id} className="mb-4 last:mb-0">
