@@ -55,7 +55,7 @@ const Header = () => {
 
         <LeagueTabs />
         <LeagueTabs />
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 mr-[150px]">
           <Button 
             variant="ghost" 
             className="text-sm flex items-center space-x-1 text-white"
@@ -73,16 +73,16 @@ const Header = () => {
           >
             <Search className="h-5 w-5" />
           </Button>
-        </div>
 
-        <Button 
-          variant="ghost" 
-          className="text-white mr-[150px]" 
-          size="icon"
-          onClick={() => navigate('/settings')}
-        >
-          <Settings className="h-5 w-5" />
-        </Button>
+          <Button 
+            variant="ghost" 
+            className="text-white" 
+            size="icon"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+        </div>
 
         {isAuthenticated && (
           <div className="flex items-center ml-2">
