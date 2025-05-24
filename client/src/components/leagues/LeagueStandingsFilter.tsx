@@ -100,7 +100,6 @@ const LeagueStandingsFilter = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>League Standings</CardTitle>
         <Select 
           value={selectedLeague} 
           onValueChange={(value) => {
