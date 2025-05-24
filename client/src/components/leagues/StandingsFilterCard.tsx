@@ -41,46 +41,22 @@ const StandingsFilterCard = () => {
 
           return (
             <div key={league.id} className="mb-4 last:mb-0">
-              <CardHeader className="px-4 py-3 border-b border-gray-100">
-                  <Select 
-                    defaultValue={league.id.toString()}
-                    onValueChange={(value) => {
-                      // Handle league selection
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <img 
+                    src={league.logo} 
+                    alt={league.name} 
+                    className="h-8 w-8 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                     }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={league.logo} 
-                          alt={league.name} 
-                          className="h-7 w-7 object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                          }}
-                        />
-                        <div>
-                          <h3 className="font-semibold text-lg">{league.name}</h3>
-                          <p className="text-sm text-gray-500">{league.country}</p>
-                        </div>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {POPULAR_LEAGUES.map((l) => (
-                        <SelectItem key={l.id} value={l.id.toString()}>
-                          <div className="flex items-center gap-2">
-                            <img 
-                              src={l.logo} 
-                              alt={l.name}
-                              className="h-5 w-5 object-contain"
-                            />
-                            {l.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </CardHeader>
-              <Table>
+                  />
+                  <div>
+                    <h3 className="font-semibold text-lg">{league.name}</h3>
+                    <p className="text-sm text-gray-500">{league.country}</p>
+                  </div>
+                </div>
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Status</TableHead>
