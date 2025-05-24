@@ -819,42 +819,43 @@ const FixedScoreboard = () => {
 
       <Card className="px-0 pt-0 pb-2 relative">
         <div className="pt-2">
-          <div className="flex items-center">
-            {currentMatch?.league?.logo ? (
-                  <img
-                    src={currentMatch.league.logo}
-                    alt={currentMatch.league.name}
-                    className="w-5 h-5 object-contain mr-2"
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
-                  />
-                ) : (
-                  <Trophy className="w-5 h-5 text-amber-500 mr-2" />
-                )}
-                <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
-                {getMatchStatusLabel(currentMatch) === "LIVE" ? (
-                  <div className="flex items-center gap-1.5 ml-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <div className="flex items-center">
+              {currentMatch?.league?.logo ? (
+                    <img
+                      src={currentMatch.league.logo}
+                      alt={currentMatch.league.name}
+                      className="w-5 h-5 object-contain mr-2"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                  ) : (
+                    <Trophy className="w-5 h-5 text-amber-500 mr-2" />
+                  )}
+                  <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
+                  {getMatchStatusLabel(currentMatch) === "LIVE" ? (
+                    <div className="flex items-center gap-1.5 ml-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
+                      >
+                        LIVE
+                      </Badge>
+                    </div>
+                  ) : (
                     <Badge
                       variant="outline"
-                      className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
+                      className={`text-[10px] px-1.5 py-0 border ml-2 ${
+                        getMatchStatusLabel(currentMatch) === "FINISHED"
+                          ? "border-gray-500 text-gray-500"
+                          : "border-blue-500 text-blue-500"
+                      }`}
                     >
-                      LIVE
+                      {getMatchStatusLabel(currentMatch)}
                     </Badge>
-                  </div>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] px-1.5 py-0 border ml-2 ${
-                      getMatchStatusLabel(currentMatch) === "FINISHED"
-                        ? "border-gray-500 text-gray-500"
-                        : "border-blue-500 text-blue-500"
-                    }`}
-                  >
-                    {getMatchStatusLabel(currentMatch)}
-                  </Badge>
-                )}
+                  )}
+            </div>
           </div>
 
         {matches.length > 1 && (
@@ -1181,7 +1182,7 @@ const FixedScoreboard = () => {
                       className="text-gray-600"
                     >
                       <path
-                        d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2Z"
+                        d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z"
                         fill="currentColor"
                       />
                     </svg>
