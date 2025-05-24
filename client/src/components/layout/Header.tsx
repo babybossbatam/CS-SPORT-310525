@@ -85,7 +85,7 @@ const Header = () => {
 
           <Button 
             variant="ghost" 
-            className="text-white" 
+            className="text-white mr-[150px]" 
             size="icon"
             onClick={() => navigate('/settings')}
           >
