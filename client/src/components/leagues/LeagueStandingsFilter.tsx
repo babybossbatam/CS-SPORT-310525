@@ -163,7 +163,7 @@ const LeagueStandingsFilter = () => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-              {standings?.league?.standings?.[0]?.slice(0, 7).map((standing: Standing) => {
+              {standings?.slice(0, 7).map((standing: Standing) => {
                 const stats = standing.all;
                 return (
                   <TableRow key={standing.team.id} className="border-b border-gray-100">
@@ -210,17 +210,17 @@ const LeagueStandingsFilter = () => {
                     </TableCell>
                     <TableCell className="px-2 py-2 relative group">
                       <div className="flex items-center justify-center gap-2">
-                        {standings?.league?.standings?.[0]?.find(opponent => 
+                        {standings?.find(opponent => 
                           opponent.team.id !== standing.team.id && 
                           opponent.rank > standing.rank
                         ) && (
                           <>
                             <img 
-                              src={standings?.league?.standings?.[0]?.find(opponent => 
+                              src={standings.find(opponent => 
                                 opponent.team.id !== standing.team.id && 
                                 opponent.rank > standing.rank
                               )?.team.logo} 
-                              alt={`Next opponent: ${standings?.league?.standings?.[0]?.find(opponent => 
+                              alt={`Next opponent: ${standings.find(opponent => 
                                 opponent.team.id !== standing.team.id && 
                                 opponent.rank > standing.rank
                               )?.team.name}`}
@@ -234,7 +234,7 @@ const LeagueStandingsFilter = () => {
                                 <span className="font-medium">{standing.team.name}</span>
                                 <span className="mx-2">vs</span>
                                 <span className="font-medium">
-                                  {standings?.league?.standings?.[0]?.find(opponent => 
+                                  {standings.find(opponent => 
                                     opponent.team.id !== standing.team.id && 
                                     opponent.rank > standing.rank
                                   )?.team.name}
