@@ -17,78 +17,53 @@ const POPULAR_LEAGUES = [
 ];
 
 const StandingsFilterCard = () => {
-  const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id.toString());
-  const [selectedLeagueName, setSelectedLeagueName] = useState(POPULAR_LEAGUES[0].name);
+  const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].name);
 
-  const { data: standings, isLoading } = useQuery({
-    queryKey: ['standings', selectedLeague],
-    queryFn: async () => {
-      const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
-      const data = await response.json();
-      return data?.league?.standings?.[0] || [];
-    },
+  const leagueQueries = POPULAR_LEAGUES.map(league => {
+    return useQuery({
+      queryKey: ['standings', league.id.toString()],
+      queryFn: async () => {
+        const response = await apiRequest('GET', `/api/leagues/${league.id}/standings`);
+        const data = await response.json();
+        return { league, standings: data?.league?.standings?.[0] || [] };
+      },
+    });
   });
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Select 
-            value={selectedLeague} 
-            onValueChange={(value) => {
-              setSelectedLeague(value);
-              const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
-              if (league) {
-                setSelectedLeagueName(league.name);
-              }
-            }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue>Loading...</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {POPULAR_LEAGUES.map((league) => (
-                <SelectItem key={league.id} value={league.id.toString()}>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={league.logo}
-                      alt={league.name}
-                      className="h-5 w-5 object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                      }}
-                    />
-                    {league.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] flex items-center justify-center">
-            <p>Loading standings...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
+      <CardHeader>
+        <Select
+          value={selectedLeague}
+          onValueChange={setSelectedLeague}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue>{selectedLeague}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {POPULAR_LEAGUES.map((league) => (
+              <SelectItem key={league.id} value={league.name}>
+                <div className="flex items-center gap-2">
+                  <img
+                    src={league.logo}
+                    alt={league.name}
+                    className="h-5 w-5 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                  {league.name}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </CardHeader>
       <CardContent className="p-0">
-        {POPULAR_LEAGUES.map((league) => {
-          const leagueId = league.id.toString();
-          const { data: leagueStandings } = useQuery({
-            queryKey: ['standings', leagueId],
-            queryFn: async () => {
-              const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
-              const data = await response.json();
-              return data?.league?.standings?.[0] || [];
-            },
-          });
-
-          if (!leagueStandings?.length) return null;
+        {leagueQueries.map((query, index) => {
+          if (!query.data?.standings?.length || query.data.league.name !== selectedLeague) return null;
+          const league = query.data.league;
+          const leagueStandings = query.data.standings;
 
           return (
             <div key={league.id} className="mb-4 last:mb-0">
