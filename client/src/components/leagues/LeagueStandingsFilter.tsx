@@ -128,7 +128,17 @@ const LeagueStandingsFilter = () => {
           <SelectContent>
             {POPULAR_LEAGUES.map((league) => (
               <SelectItem key={league.id} value={league.id.toString()}>
-                {league.name}
+                <div className="flex items-center gap-2">
+                  <img
+                    src={league.logo}
+                    alt={league.name}
+                    className="h-5 w-5 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                  {league.name}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
