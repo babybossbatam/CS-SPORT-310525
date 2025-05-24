@@ -258,13 +258,62 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="space-y-4">
-                        {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => {
-                          const leagueFixtures = fixtures.filter(f => f.league.id === leagueData.league.id);
-                          const todayFixtures = leagueFixtures.filter(f => {
+                        {leagueStandings && Object.entries(leagueStandings).map(([leagueId, leagueData]: [string, any]) => {
+                          const selectedLeagueFixtures = fixtures.filter(f => f.league.id === parseInt(leagueId));
+                          const selectedFixtures = selectedLeagueFixtures.filter(f => {
                             const fixtureDate = new Date(f.fixture.date);
                             const selectedFilterDate = new Date(selectedDate);
                             return fixtureDate.toDateString() === selectedFilterDate.toDateString();
                           });
+
+                          const finishedMatches = selectedFixtures.filter(f => f.fixture.status.short === "FT");
+                          const totalGoals = selectedFixtures.reduce((sum, match) => sum + (match.goals.home || 0) + (match.goals.away || 0), 0);
+                          
+                          if (selectedFixtures.length === 0) return null;
+
+                          return (
+                            <div key={leagueData.league.id} className="bg-white rounded-lg p-4 shadow">
+                              <div className="flex items-center gap-3 mb-4">
+                                <img 
+                                  src={leagueData.league.logo} 
+                                  alt={leagueData.league.name}
+                                  className="h-8 w-8 object-contain"
+                                />
+                                <div>
+                                  <h3 className="font-semibold">{leagueData.league.name}</h3>
+                                  <p className="text-sm text-gray-500">{leagueData.league.country}</p>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-4 mt-4">
+                                <div className="text-center">
+                                  <h4 className="text-sm font-medium text-gray-600">Score Overview</h4>
+                                  <p className="text-xl font-bold mt-1">{totalGoals}</p>
+                                  <p className="text-xs text-gray-500">Goals</p>
+                                </div>
+                                
+                                <div className="text-center">
+                                  <h4 className="text-sm font-medium text-gray-600">Results</h4>
+                                  <p className="text-xl font-bold mt-1">{finishedMatches.length}</p>
+                                  <p className="text-xs text-gray-500">Completed</p>
+                                </div>
+
+                                <div className="text-center">
+                                  <h4 className="text-sm font-medium text-gray-600">Fixtures</h4>
+                                  <p className="text-xl font-bold mt-1">{selectedFixtures.length}</p>
+                                  <p className="text-xs text-gray-500">Matches</p>
+                                </div>
+                              </div>
+
+                              <button 
+                                onClick={() => navigate(`/league/${leagueData.league.id}`)}
+                                className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium text-center"
+                              >
+                                View Full Details →
+                              </button>
+                            </div>
+                          );
+                        })}
                           
                           if (todayFixtures.length === 0) return null;
 
