@@ -235,26 +235,7 @@ const Home = () => {
                 </Card>
                 {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
                   <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
-                    <CardHeader className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="relative">
-                            <img
-                              src={leagueData.league.logo}
-                              alt={leagueData.league.name}
-                              className="h-8 w-8 object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{leagueData.league.name}</h3>
-                            <p className="text-sm text-gray-500">{leagueData.league.country}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
+                    
                     <CardContent className="p-4">
                       <div className="text-center py-4">
                         <p className="text-sm text-gray-500">No data to display</p>
@@ -268,12 +249,6 @@ const Home = () => {
               <div className="lg:col-span-7 space-y-4">
                 <FeaturedMatch />
                 <Card>
-                  <CardHeader className="border-b border-gray-100">
-                    <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
-                      <Trophy className="h-4 w-4 text-yellow-500" />
-                      Top Scorers
-                    </h3>
-                  </CardHeader>
                   <CardContent>
                     <HomeTopScorersList />
                   </CardContent>
