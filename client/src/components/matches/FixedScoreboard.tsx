@@ -862,8 +862,7 @@ const FixedScoreboard = () => {
                   </Badge>
                 )}
               </div>
-            <div className="flex items-center justify-center gap-2 text-sm font-medium text-black">
-              {currentMatch?.league?.logo ? (
+            {currentMatch?.league?.logo ? (
                   <img
                     src={currentMatch.league.logo}
                     alt={currentMatch.league.name}
@@ -882,7 +881,6 @@ const FixedScoreboard = () => {
                   <span>{currentMatch.league.round}</span>
                 </>
               )}
-            </div>
           </div>
 
         {matches.length > 1 && (
