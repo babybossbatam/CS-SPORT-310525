@@ -48,7 +48,7 @@ const StandingsFilterCard = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Home</TableHead>
-                    <TableHead className="text-center">Score</TableHead>
+                    <TableHead className="text-center">Time/Score</TableHead>
                     <TableHead>Away</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -66,7 +66,20 @@ const StandingsFilterCard = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center font-medium">
-                        {fixture.goals.home !== null ? `${fixture.goals.home} - ${fixture.goals.away}` : 'vs'}
+                        {(() => {
+                          // Live or finished matches - show score
+                          if (['1H', '2H', 'HT', 'FT'].includes(fixture.fixture.status.short)) {
+                            return `${fixture.goals.home ?? 0} - ${fixture.goals.away ?? 0}`;
+                          }
+                          // Not started - show time
+                          else {
+                            try {
+                              return format(parseISO(fixture.fixture.date), 'HH:mm');
+                            } catch {
+                              return 'TBD';
+                            }
+                          }
+                        })()}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
