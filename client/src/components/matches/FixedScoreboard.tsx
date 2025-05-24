@@ -863,8 +863,7 @@ const FixedScoreboard = () => {
                 )}
               </div>
             <div className="flex items-center justify-center gap-2 text-sm font-medium text-black">
-              <div className="flex items-center">
-                {currentMatch?.league?.logo ? (
+              {currentMatch?.league?.logo ? (
                   <img
                     src={currentMatch.league.logo}
                     alt={currentMatch.league.name}
@@ -877,7 +876,6 @@ const FixedScoreboard = () => {
                   <Trophy className="w-5 h-5 text-amber-500 mr-2" />
                 )}
                 {currentMatch?.league?.name || "League Name"}
-              </div>
               {currentMatch?.league?.round && (
                 <>
                   <span className="text-gray-400">•</span>
