@@ -46,8 +46,7 @@ const SportsCategoryTabs = () => {
 
   return (
     <Card className="rounded-none border-b shadow-lg fixed left-0 z-50 top-[72px] w-full bg-white/95 backdrop-blur-sm">
-      <CardContent className="p-1 ml-[5%]">
-        <div className="flex flex-row items-center">
+        <div className="flex flex-row items-center p-1 ml-[5%]">
           {sportsList.map(({ id, icon: Icon, label }) => (
             <div
               key={id}
@@ -64,7 +63,6 @@ const SportsCategoryTabs = () => {
             </div>
           ))}
         </div>
-      </CardContent>
     </Card>
   );
 };
