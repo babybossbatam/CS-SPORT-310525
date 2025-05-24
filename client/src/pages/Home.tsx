@@ -255,10 +255,10 @@ const Home = () => {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-0">
-                      <div className="divide-y divide-gray-100">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
+                    <CardContent className="p-4">
+                      <div className="divide-y divide-gray-100 bg-white rounded-lg shadow">
+                        <div className="overflow-x-auto max-w-full">
+                          <table className="w-full text-sm table-auto min-w-full">
                             <thead>
                               <tr className="bg-gradient-to-r from-gray-50 to-white text-gray-600">
                                 <th className="py-3 px-4 text-left font-semibold text-sm whitespace-nowrap">
