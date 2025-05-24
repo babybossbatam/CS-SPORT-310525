@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
@@ -48,6 +50,26 @@ const Home = () => {
   const [fixtures, setFixtures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [location, navigate] = useLocation();
+
+  const { data: leagueStandings } = useQuery({
+    queryKey: ['standings'],
+    queryFn: async () => {
+      const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
+      const standingsData = {};
+      
+      for (const leagueId of leagues) {
+        const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
+        const data = await response.json();
+        if (data?.league?.standings?.[0]) {
+          standingsData[leagueId] = {
+            league: data.league,
+            standings: data.league.standings[0]
+          };
+        }
+      }
+      return standingsData;
+    }
+  });
 
   // Limit to essential leagues only
   const popularLeagues = useSelector((state: RootState) => 
