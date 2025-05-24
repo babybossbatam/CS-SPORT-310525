@@ -34,6 +34,7 @@ import { formatDateTime } from "@/lib/utils";
 import LeagueTabs from "@/components/layout/LeagueTabs";
 import LeagueTabsHeader from "@/components/layout/LeagueTabsHeader";
 import LeagueTabsDetails from "@/components/layout/LeagueTabsDetails";
+import { format } from 'date-fns';
 
 const LeagueDetails = () => {
   const { id, tab = "fixtures" } = useParams();
@@ -183,14 +184,36 @@ const LeagueDetails = () => {
       </>
     );
   }
+  const [mounted, setMounted] = useState(false);
+  const [dynamicDate, setDynamicDate] = useState(new Date());
+
+  useEffect(() => {
+    setMounted(true);
+    // Update dynamic date every minute
+    const interval = setInterval(() => {
+      setDynamicDate(new Date());
+    }, 60000);
+    return () => {
+      setMounted(false);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const selectedFilter = useSelector((state: RootState) => state.ui.selectedFilter);
+  const liveFixtures = useSelector((state: RootState) => state.fixtures.live);
+  const loading2 = useSelector((state: RootState) => state.fixtures.loading);
+  const selectedDate = useSelector((state: RootState) => 
+    format(dynamicDate, 'yyyy-MM-dd'));
+  const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate[selectedDate] || []);
+  const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
 
   return (
     <>
       <Header />
       <TournamentHeader title={league.league.name} />
-      
+
       <LeagueTabsHeader
-        
+
         leagueId={league?.league?.id}
         leagueName={league?.league?.name}
         leagueLogo={league?.league?.logo}
@@ -201,9 +224,9 @@ const LeagueDetails = () => {
           <div className="lg:col-span-8">
             <Card className="mb-6">
               <CardHeader className="p-4 border-b border-neutral-200">
-                
+
                 <LeagueTabsDetails />
-                
+
                 <Tabs
                   value={activeTab}
                   onValueChange={handleTabChange}
