@@ -23,6 +23,12 @@ const FixedScoreboard = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Reset error state on component mount
+  useEffect(() => {
+    setError(null);
+  }, []);
 
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
@@ -521,11 +527,16 @@ const FixedScoreboard = () => {
         setMatches(finalMatches);
       } catch (error) {
         console.error("Error fetching matches:", error);
+        setError(error as Error);
         toast({
           title: "Error",
-          description: "Failed to load matches",
+          description: "Failed to load matches. Retrying...",
           variant: "destructive",
         });
+        // Retry after 5 seconds
+        setTimeout(() => {
+          fetchMatches();
+        }, 5000);
       } finally {
         setIsLoading(false);
       }
