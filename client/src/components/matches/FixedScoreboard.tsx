@@ -722,7 +722,7 @@ const FixedScoreboard = () => {
             // Calculate hours to match - if more than 12 hours away, return null to hide the timer
             if (hoursToMatch >= 0 && hoursToMatch < 12) {
               return (
-                <div className="flex flex-col space-y-0 relative pb-6">
+                <div className="flex flex-col space-y-0 relative pb-1">
                   <span className="text-black">Today</span>
                   <div
                     style={{
