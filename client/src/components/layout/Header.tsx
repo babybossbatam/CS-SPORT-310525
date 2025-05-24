@@ -15,23 +15,23 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const dispatch = useDispatch();
-  
+
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
   const username = useSelector((state: RootState) => state.user.username);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!searchQuery.trim()) {
       return;
     }
-    
+
     // Close search dialog
     setSearchOpen(false);
-    
+
     // Navigate to search results
     navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    
+
     // Reset search query
     setSearchQuery('');
   };
@@ -48,7 +48,7 @@ const Header = () => {
   return (
     <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[72px]">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between mr-[10%]">
-        <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[10%]">
+        <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[150px]">
             <img 
               src="/logo.png" 
               alt="CS SPORT Logo" 
@@ -59,12 +59,12 @@ const Header = () => {
               <span className="text-amber-300 font-medium text-[clamp(0.875rem,1.8vw,1.125rem)] transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]">潮勝體育</span>
             </span>
           </Link>
-        
+
         <div className="flex items-center space-x-4">
           <LeagueTabs />
           <LeagueTabs />
-          
-          
+
+
           <Button 
             variant="ghost" 
             className="text-sm flex items-center space-x-1 text-white mr-[10%]"
@@ -73,7 +73,7 @@ const Header = () => {
             <Star className="h-4 w-4 mr-1" />
             <span>My Scores</span>
           </Button>
-          
+
           <Button 
             variant="ghost" 
             className="text-white" 
@@ -82,7 +82,7 @@ const Header = () => {
           >
             <Search className="h-5 w-5" />
           </Button>
-          
+
           <Button 
             variant="ghost" 
             className="text-white" 
@@ -91,7 +91,7 @@ const Header = () => {
           >
             <Settings className="h-5 w-5" />
           </Button>
-          
+
           {isAuthenticated && (
             <div className="flex items-center ml-2">
               <div className="text-sm mr-2">{username}</div>
@@ -106,7 +106,7 @@ const Header = () => {
           )}
         </div>
       </div>
-      
+
       {/* Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="max-w-md">
