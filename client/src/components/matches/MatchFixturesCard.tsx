@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
-import { Select, SelectContent, SelectTrigger } from '../ui/select';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '../ui/select';
 import { Calendar } from '../ui/calendar';
 
 interface FixtureProps {
@@ -86,8 +86,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 <div className="relative h-full flex items-center">
                   <Select>
                     <SelectTrigger className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent">
+                    <SelectValue>
                       <span className="font-medium">{selectedFilter}</span>
-                    </SelectTrigger>
+                    </SelectValue>
+                  </SelectTrigger>
                     <SelectContent align="start" className="w-[280px] p-0">
                       <Calendar
                         mode="single"
