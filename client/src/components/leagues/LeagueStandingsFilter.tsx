@@ -31,7 +31,7 @@ const POPULAR_LEAGUES = [
   { id: 78, name: 'Bundesliga', country: 'Germany', logo: 'https://media.api-sports.io/football/leagues/78.png' },
   { id: 3, name: 'Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' },
   { id: 307, name: 'Saudi League', country: 'Saudi Arabia', logo: 'https://media.api-sports.io/football/leagues/307.png' },
-  { id: 233, name: 'Egyptian Premier League', country: 'Egypt', logo: 'https://media.api-sports.io/football/leagues/233.png' }
+  { id: 233, name: 'Premier League', country: 'Egypt', logo: 'https://media.api-sports.io/football/leagues/233.png' }
 ];
 
 interface Standing {
