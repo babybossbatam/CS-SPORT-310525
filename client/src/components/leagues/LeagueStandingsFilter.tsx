@@ -210,10 +210,10 @@ const LeagueStandingsFilter = () => {
                     </TableCell>
                     <TableCell className="px-2 py-2 relative group">
                       <div className="flex items-center justify-center gap-2">
-                        {standings?.find(opponent => 
-                          opponent.team.id !== standing.team.id && 
-                          opponent.rank > standing.rank
-                        ) && (
+                        {fixtures?.find(fixture => 
+                            (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
+                            new Date(fixture.fixture.date) > new Date()
+                          ) && (
                           <>
                             <img 
                               src={standings.find(opponent => 
