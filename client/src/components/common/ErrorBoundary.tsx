@@ -17,14 +17,24 @@ const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({
   queryKeys = []
 }) => {
   const queryClient = useQueryClient();
+  const [lastReset, setLastReset] = React.useState<number>(0);
+  const RESET_COOLDOWN = 5000; // 5 seconds cooldown
   
   // Function to handle error reset with query invalidation
   const handleError = (error: Error) => {
     console.error('Error caught by error boundary:', error);
   };
   
-  // Function to handle error reset with query invalidation
+  // Function to handle error reset with rate limiting
   const handleReset = () => {
+    const now = Date.now();
+    if (now - lastReset < RESET_COOLDOWN) {
+      console.warn('Reset attempted too quickly, please wait');
+      return;
+    }
+
+    setLastReset(now);
+    
     // Invalidate specific query keys if provided
     if (queryKeys.length > 0) {
       queryKeys.forEach(key => {
