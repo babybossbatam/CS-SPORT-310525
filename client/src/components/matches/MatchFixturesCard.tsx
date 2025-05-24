@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -12,52 +13,20 @@ interface FixtureProps {
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
-  const renderFixture = (fixture: any) => {
-    return (
-      <div 
-        key={fixture.fixture.id}
-        onClick={() => onMatchClick(fixture.fixture.id)}
-        className="hover:bg-gray-50 cursor-pointer border-b last:border-b-0 py-4"
-      >
-        <div className="grid grid-cols-7 items-center px-4">
-          <div className="col-span-3 flex items-center justify-end space-x-3">
-            <span className="font-medium text-right">{fixture.teams.home.name}</span>
-            <img 
-              src={fixture.teams.home.logo}
-              alt={fixture.teams.home.name}
-              className="h-6 w-6 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-              }}
-            />
-          </div>
-
-          <div className="col-span-1 flex justify-center font-semibold">
-            <span className="px-3 rounded text-gray-500">
-              {fixture.goals 
-                ? `${fixture.goals.home} - ${fixture.goals.away}`
-                : fixture.fixture.status.short === "NS" 
-                  ? fixture.fixture.date.slice(11, 16)
-                  : "-"
-              }
-            </span>
-          </div>
-
-          <div className="col-span-3 flex items-center space-x-3">
-            <img 
-              src={fixture.teams.away.logo}
-              alt={fixture.teams.away.name}
-              className="h-6 w-6 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-              }}
-            />
-            <span className="font-medium">{fixture.teams.away.name}</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // Group fixtures by league
+  const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
+    const leagueId = fixture.league.id;
+    
+    if (!acc[leagueId]) {
+      acc[leagueId] = {
+        league: fixture.league,
+        fixtures: []
+      };
+    }
+    
+    acc[leagueId].fixtures.push(fixture);
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-4 pt-10">
@@ -92,38 +61,72 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex items-center justify-between">
-                <button className="flex items-center gap-1 px-1.5 py-0.5 bg-neutral-800 text-white rounded-full text-xs font-medium w-fit">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                  Live
-                </button>
-                <button className="flex items-center gap-1.5 px-2 py-0.5 hover:bg-gray-100 rounded-full text-xs font-medium w-fit">
-                  <Clock className="h-3.5 w-3.5" />
-                  By time
-                </button>
-              </div>
             </div>
           </div>
         </CardContent>
       </Card>
-      {fixtures.map((fixture) => (
-        <Card key={fixture.fixture.id} className="bg-white shadow-md">
+
+      {Object.values(fixturesByLeague).map((leagueData: any) => (
+        <Card key={leagueData.league.id} className="bg-white shadow-md">
           <CardHeader className="p-4 border-b border-gray-100">
             <div className="flex items-center">
               <img
-                src={fixture.league.logo}
-                alt={fixture.league.name}
+                src={leagueData.league.logo}
+                alt={leagueData.league.name}
                 className="h-6 w-6 mr-2"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                 }}
               />
-              <span className="font-semibold text-gray-800">{fixture.league.name}</span>
+              <span className="font-semibold text-gray-800">{leagueData.league.name}</span>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-gray-100">
-              {renderFixture(fixture)}
+              {leagueData.fixtures.map((fixture: any) => (
+                <div 
+                  key={fixture.fixture.id}
+                  onClick={() => onMatchClick(fixture.fixture.id)}
+                  className="hover:bg-gray-50 cursor-pointer border-b last:border-b-0 py-4"
+                >
+                  <div className="grid grid-cols-7 items-center px-4">
+                    <div className="col-span-3 flex items-center justify-end space-x-3">
+                      <span className="font-medium text-right">{fixture.teams.home.name}</span>
+                      <img 
+                        src={fixture.teams.home.logo}
+                        alt={fixture.teams.home.name}
+                        className="h-6 w-6 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                        }}
+                      />
+                    </div>
+
+                    <div className="col-span-1 flex justify-center font-semibold">
+                      <span className="px-3 rounded text-gray-500">
+                        {fixture.goals 
+                          ? `${fixture.goals.home} - ${fixture.goals.away}`
+                          : fixture.fixture.status.short === "NS" 
+                            ? fixture.fixture.date.slice(11, 16)
+                            : "-"
+                        }
+                      </span>
+                    </div>
+
+                    <div className="col-span-3 flex items-center space-x-3">
+                      <img 
+                        src={fixture.teams.away.logo}
+                        alt={fixture.teams.away.name}
+                        className="h-6 w-6 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                        }}
+                      />
+                      <span className="font-medium">{fixture.teams.away.name}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
