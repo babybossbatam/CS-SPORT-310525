@@ -57,16 +57,7 @@ const Header = () => {
         <LeagueTabs />
         <Button 
           variant="ghost" 
-          className="text-white" 
-          size="icon"
-          onClick={() => setSearchOpen(true)}
-        >
-          <Search className="h-5 w-5" />
-        </Button>
-
-        <Button 
-          variant="ghost" 
-          className="text-sm flex items-center space-x-1 text-white ml-[5px] mr-[150px]"
+          className="text-sm flex items-center space-x-1 text-white mr-[150px]"
           onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
         >
           <Star className="h-4 w-4 mr-1" />
@@ -76,6 +67,15 @@ const Header = () => {
         <Button 
           variant="ghost" 
           className="text-white" 
+          size="icon"
+          onClick={() => setSearchOpen(true)}
+        >
+          <Search className="h-5 w-5" />
+        </Button>
+
+        <Button 
+          variant="ghost" 
+          className="text-white mr-[150px]" 
           size="icon"
           onClick={() => navigate('/settings')}
         >
