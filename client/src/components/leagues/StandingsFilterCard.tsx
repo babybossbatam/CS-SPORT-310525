@@ -74,7 +74,8 @@ const StandingsFilterCard = () => {
                           // Not started - show time
                           else {
                             try {
-                              return format(parseISO(fixture.fixture.date), 'HH:mm');
+                              const time = format(parseISO(fixture.fixture.date), 'HH:mm');
+                              return time.padStart(5, '0'); // Ensures format like "03:00"
                             } catch {
                               return 'TBD';
                             }
