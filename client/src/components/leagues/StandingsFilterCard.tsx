@@ -57,8 +57,6 @@ const StandingsFilterCard = () => {
 
                   return (
                     <div className="border-b pb-4 last:border-b-0">
-                  const liveMatches = leagueMatches.filter(match => match.fixture.status.short === "LIVE");
-                  const finishedMatches = leagueMatches.filter(match => ["FT", "AET", "PEN"].includes(match.fixture.status.short));
 
                   if (liveMatches.length === 0 && finishedMatches.length === 0) return null;
 
