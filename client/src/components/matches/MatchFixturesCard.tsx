@@ -34,18 +34,18 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         fixtures: []
       };
     }
-    
+
     // Show score for past matches
     const fixtureDate = new Date(fixture.fixture.date);
     const today = new Date();
     const isBeforeToday = fixtureDate < today;
-    
+
     if (isBeforeToday || fixture.fixture.status.short === 'FT') {
       acc[leagueId].fixtures.push(fixture);
     } else {
       acc[leagueId].fixtures.push(fixture);
     }
-    
+
     return acc;
   }, {});
 
@@ -99,6 +99,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       </div>
     </div>
   );
+};
 
   return (
     <div className="space-y-4 pt-10">
