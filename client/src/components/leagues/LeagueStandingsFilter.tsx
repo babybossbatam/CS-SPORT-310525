@@ -110,7 +110,7 @@ const LeagueStandingsFilter = () => {
             }
           }}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full">
             <SelectValue>{selectedLeagueName}</SelectValue>
           </SelectTrigger>
           <SelectContent>
