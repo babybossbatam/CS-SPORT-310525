@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { apiRequest } from '@/lib/queryClient';
 
 const POPULAR_LEAGUES = [
   { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
@@ -17,13 +15,11 @@ const POPULAR_LEAGUES = [
 ];
 
 const StandingsFilterCard = () => {
-  const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].name);
-
   const leagueQueries = POPULAR_LEAGUES.map(league => {
     return useQuery({
       queryKey: ['standings', league.id.toString()],
       queryFn: async () => {
-        const response = await apiRequest('GET', `/api/leagues/${league.id}/standings`);
+        const response = await fetch(`/api/leagues/${league.id}/standings`);
         const data = await response.json();
         return { league, standings: data?.league?.standings?.[0] || [] };
       },
@@ -74,22 +70,6 @@ const StandingsFilterCard = () => {
                   </div>
                 </div>
               </div>
-
-          return (
-            <div key={league.id} className="mb-4 last:mb-0">
-              <div className="p-4 border-b">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={league.logo}
-                    alt={league.name}
-                    className="h-6 w-6 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                    }}
-                  />
-                  <h2 className="text-xl font-semibold">{league.name}</h2>
-                </div>
-              </div>
               <div className="p-4">
                 <Table>
                   <TableHeader>
@@ -103,7 +83,6 @@ const StandingsFilterCard = () => {
                       <TableHead className="text-center">W</TableHead>
                       <TableHead className="text-center">D</TableHead>
                       <TableHead className="text-center">L</TableHead>
-                      <TableHead className="text-center">Form</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -138,20 +117,6 @@ const StandingsFilterCard = () => {
                           <TableCell className="text-center text-[0.9em]">{stats.win}</TableCell>
                           <TableCell className="text-center text-[0.9em]">{stats.draw}</TableCell>
                           <TableCell className="text-center text-[0.9em]">{stats.lose}</TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex gap-1 justify-center">
-                              {standing.form?.split('').map((result: string, i: number) => (
-                                <span
-                                  key={i}
-                                  className={`w-2 h-2 rounded-full ${
-                                    result === 'W' ? 'bg-green-500' :
-                                    result === 'D' ? 'bg-gray-500' :
-                                    'bg-red-500'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </TableCell>
                         </TableRow>
                       );
                     })}
