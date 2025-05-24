@@ -268,7 +268,7 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
                           const finishedMatches = selectedFixtures.filter(f => f.fixture.status.short === "FT");
                           const totalGoals = selectedFixtures.reduce((sum, match) => sum + (match.goals.home || 0) + (match.goals.away || 0), 0);
-                          
+
                           if (selectedFixtures.length === 0) return null;
 
                           return (
@@ -291,7 +291,7 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
                                   <p className="text-xl font-bold mt-1">{totalGoals}</p>
                                   <p className="text-xs text-gray-500">Goals</p>
                                 </div>
-                                
+
                                 <div className="text-center">
                                   <h4 className="text-sm font-medium text-gray-600">Results</h4>
                                   <p className="text-xl font-bold mt-1">{finishedMatches.length}</p>
@@ -324,16 +324,72 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
               <div className="lg:col-span-7 space-y-4">
                 <FeaturedMatch />
                 <Card>
-                  <CardHeader className="border-b border-gray-100">
-                    <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
-                      <Trophy className="h-4 w-4 text-yellow-500" />
-                      Top Scorers
-                    </h3>
-                  </CardHeader>
-                  <CardContent>
-                    <HomeTopScorersList />
-                  </CardContent>
-                </Card>
+                    <CardHeader className="border-b border-gray-100">
+                      <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
+                        <Trophy className="h-4 w-4 text-yellow-500" />
+                        Match Overview
+                      </h3>
+                    </CardHeader>
+                    <CardContent>
+                      {leagueStandings && Object.entries(leagueStandings).map(([leagueId, leagueData]: [string, any]) => {
+                        const selectedLeagueFixtures = fixtures.filter(f => f.league.id === parseInt(leagueId));
+                        const todayFixtures = selectedLeagueFixtures.filter(f => {
+                          const fixtureDate = new Date(f.fixture.date);
+                          const selectedFilterDate = new Date(selectedDate);
+                          return fixtureDate.toDateString() === selectedFilterDate.toDateString();
+                        });
+
+                        if (todayFixtures.length === 0) return null;
+
+                        return (
+                          <div key={leagueData.league.id} className="bg-white rounded-lg p-4 mb-4">
+                            <div className="flex items-center gap-3 mb-4">
+                              <img 
+                                src={leagueData.league.logo} 
+                                alt={leagueData.league.name}
+                                className="h-8 w-8 object-contain"
+                              />
+                              <div>
+                                <h3 className="font-semibold">{leagueData.league.name}</h3>
+                                <p className="text-sm text-gray-500">{leagueData.league.country}</p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4">
+                              <div className="text-center">
+                                <h4 className="text-sm font-medium text-gray-600">Score Overview</h4>
+                                <p className="text-xl font-bold mt-1">
+                                  {todayFixtures.reduce((sum, match) => sum + (match.goals.home || 0) + (match.goals.away || 0), 0)}
+                                </p>
+                                <p className="text-xs text-gray-500">Goals</p>
+                              </div>
+
+                              <div className="text-center">
+                                <h4 className="text-sm font-medium text-gray-600">Results</h4>
+                                <p className="text-xl font-bold mt-1">
+                                  {todayFixtures.filter(match => match.fixture.status.short === "FT").length}
+                                </p>
+                                <p className="text-xs text-gray-500">Completed</p>
+                              </div>
+
+                              <div className="text-center">
+                                <h4 className="text-sm font-medium text-gray-600">Fixtures</h4>
+                                <p className="text-xl font-bold mt-1">{todayFixtures.length}</p>
+                                <p className="text-xs text-gray-500">Matches</p>
+                              </div>
+                            </div>
+
+                            <button 
+                              onClick={() => navigate(`/league/${leagueData.league.id}`)}
+                              className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium text-center"
+                            >
+                              View Full Details →
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
                 <LeagueStandingsFilter />
 
                 {/* Popular Leagues and Teams sections */}
