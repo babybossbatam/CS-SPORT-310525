@@ -64,23 +64,21 @@ const Header = () => {
             <span>My Scores</span>
           </div>
 
-          <Button 
-            variant="ghost" 
-            className="text-white" 
-            size="icon"
+          <div 
+            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => setSearchOpen(true)}
           >
-            <Search className="h-5 w-5" />
-          </Button>
+            <Search className="h-4 w-4 mr-1" />
+            <span>Search</span>
+          </div>
 
-          <Button 
-            variant="ghost" 
-            className="text-white" 
-            size="icon"
+          <div 
+            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => navigate('/settings')}
           >
-            <Settings className="h-5 w-5" />
-          </Button>
+            <Settings className="h-4 w-4 mr-1" />
+            <span>Settings</span>
+          </div>
         </div>
 
         {isAuthenticated && (
