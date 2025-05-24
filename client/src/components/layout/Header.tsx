@@ -66,7 +66,7 @@ const Header = () => {
 
         <Button 
           variant="ghost" 
-          className="text-white mx-2" 
+          className="text-white mx-0.5" 
           size="icon"
           onClick={() => setSearchOpen(true)}
         >
