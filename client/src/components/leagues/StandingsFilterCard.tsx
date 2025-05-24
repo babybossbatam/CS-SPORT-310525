@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -5,7 +6,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format } from 'date-fns';
 import { getMatchStatusText } from '@/lib/utils';
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
 const POPULAR_LEAGUES = [
   { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
@@ -57,47 +57,48 @@ const StandingsFilterCard = () => {
                   </div>
                 </div>
                 <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Home</TableHead>
-                    <TableHead className="text-center">Score</TableHead>
-                    <TableHead>Away</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {leagueFixtures.map((fixture: any) => (
-                    <TableRow key={fixture.fixture.id}>
-                      <TableCell className="text-sm">
-                        {getMatchStatusText(fixture.fixture.status.short)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <img 
-                            src={fixture.teams.home.logo} 
-                            alt={fixture.teams.home.name} 
-                            className="h-4 w-4 object-contain"
-                          />
-                          <span className="text-sm">{fixture.teams.home.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center font-medium">
-                        {fixture.goals.home !== null ? `${fixture.goals.home} - ${fixture.goals.away}` : 'vs'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <img 
-                            src={fixture.teams.away.logo} 
-                            alt={fixture.teams.away.name} 
-                            className="h-4 w-4 object-contain"
-                          />
-                          <span className="text-sm">{fixture.teams.away.name}</span>
-                        </div>
-                      </TableCell>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Home</TableHead>
+                      <TableHead className="text-center">Score</TableHead>
+                      <TableHead>Away</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {leagueFixtures.map((fixture: any) => (
+                      <TableRow key={fixture.fixture.id}>
+                        <TableCell className="text-sm">
+                          {getMatchStatusText(fixture.fixture.status.short)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={fixture.teams.home.logo} 
+                              alt={fixture.teams.home.name} 
+                              className="h-4 w-4 object-contain"
+                            />
+                            <span className="text-sm">{fixture.teams.home.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center font-medium">
+                          {fixture.goals.home !== null ? `${fixture.goals.home} - ${fixture.goals.away}` : 'vs'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={fixture.teams.away.logo} 
+                              alt={fixture.teams.away.name} 
+                              className="h-4 w-4 object-contain"
+                            />
+                            <span className="text-sm">{fixture.teams.away.name}</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
             </div>
           );
         })}
