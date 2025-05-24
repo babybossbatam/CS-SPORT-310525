@@ -24,13 +24,16 @@ const StandingsFilterCard = () => {
       const today = format(new Date(), 'yyyy-MM-dd');
       const response = await apiRequest('GET', `/api/fixtures/date/${today}`);
       const data = await response.json();
-      return data?.filter(match => match.league.id.toString() === selectedLeague) || [];
+      return data || [];
     },
   });
 
   return (
     <div className="flex flex-col gap-4">
-      {POPULAR_LEAGUES.map((league) => (
+      {POPULAR_LEAGUES.map((league) => {
+        const leagueMatches = todayMatches?.filter(match => match.league.id === league.id) || [];
+        
+        return (
         <Card key={league.id}>
           <CardHeader className="border-b">
             <div className="flex items-center gap-2">
@@ -46,7 +49,7 @@ const StandingsFilterCard = () => {
             </div>
           </CardHeader>
           <CardContent className="p-4">
-            {todayMatches?.length ? (
+            {leagueMatches.length > 0 ? (
               <div className="space-y-4">
                 {POPULAR_LEAGUES.map(league => {
                   const leagueMatches = todayMatches.filter(match => match.league.id === league.id);
