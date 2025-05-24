@@ -47,22 +47,80 @@ const StandingsFilterCard = () => {
           </CardHeader>
           <CardContent className="p-4">
             {todayMatches?.length ? (
-              <div className="space-y-2">
-                {todayMatches.map((match) => (
-                  <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <div className="flex items-center gap-2">
-                      <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
-                      <span>{match.teams.home.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>{match.teams.away.name}</span>
-                      <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
-                    </div>
+              <div className="space-y-4">
+                {/* Live Matches */}
+                {todayMatches.filter(match => match.fixture.status.short === "LIVE").length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-red-500 mb-2">Live Matches</h4>
+                    {todayMatches
+                      .filter(match => match.fixture.status.short === "LIVE")
+                      .map((match) => (
+                        <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-red-50 rounded mb-2">
+                          <div className="flex items-center gap-2">
+                            <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                            <span>{match.teams.home.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold">{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
+                            <span className="text-xs text-red-500">{match.fixture.status.elapsed}'</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span>{match.teams.away.name}</span>
+                            <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                          </div>
+                        </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Recent Ended Matches */}
+                {todayMatches.filter(match => ["FT", "AET", "PEN"].includes(match.fixture.status.short)).length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-600 mb-2">Finished Matches</h4>
+                    {todayMatches
+                      .filter(match => ["FT", "AET", "PEN"].includes(match.fixture.status.short))
+                      .map((match) => (
+                        <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-gray-50 rounded mb-2">
+                          <div className="flex items-center gap-2">
+                            <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                            <span>{match.teams.home.name}</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span>{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
+                            <span className="text-xs text-gray-500">{match.fixture.status.short}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span>{match.teams.away.name}</span>
+                            <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Upcoming Matches */}
+                {todayMatches.filter(match => match.fixture.status.short === "NS").length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-blue-600 mb-2">Upcoming Matches</h4>
+                    {todayMatches
+                      .filter(match => match.fixture.status.short === "NS")
+                      .map((match) => (
+                        <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-blue-50 rounded mb-2">
+                          <div className="flex items-center gap-2">
+                            <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                            <span>{match.teams.home.name}</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <span className="text-xs text-blue-600">{new Date(match.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span>{match.teams.away.name}</span>
+                            <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-gray-500 text-center py-2">No matches today</p>
