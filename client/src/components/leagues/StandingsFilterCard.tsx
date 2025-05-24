@@ -1,10 +1,9 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from '@/components/ui/card';
+import { format } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
-import { format } from 'date-fns';
 import { getMatchStatusText } from '@/lib/utils';
 
 const POPULAR_LEAGUES = [
