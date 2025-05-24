@@ -163,7 +163,7 @@ const LeagueStandingsFilter = () => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-              {standings?.slice(0, 7).map((standing: Standing) => {
+              {standings?.league?.standings?.[0]?.slice(0, 7).map((standing: Standing) => {
                 const stats = standing.all;
                 return (
                   <TableRow key={standing.team.id} className="border-b border-gray-100">
