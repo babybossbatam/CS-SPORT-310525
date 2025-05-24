@@ -231,6 +231,7 @@ const Home = () => {
                     />
                   </CardContent>
                 </Card>
+                <PopularLeagueStandingsCard />
                 {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
                   <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
                     
