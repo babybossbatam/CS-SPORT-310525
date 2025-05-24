@@ -56,14 +56,13 @@ const Header = () => {
         <LeagueTabs />
         <LeagueTabs />
         <div className="flex items-center gap-1 mr-[150px]">
-          <Button 
-            variant="ghost" 
-            className="text-sm flex items-center space-x-1 text-white"
+          <div 
+            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
           >
             <Star className="h-4 w-4 mr-1" />
             <span>My Scores</span>
-          </Button>
+          </div>
 
           <Button 
             variant="ghost" 
