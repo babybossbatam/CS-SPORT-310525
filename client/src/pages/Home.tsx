@@ -221,7 +221,7 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <Card className="my-4" style={{ marginLeft: '150px', marginRight: '150px' }}>
+      <Card className="my-4 bg-[#FDFBF7]" style={{ marginLeft: '150px', marginRight: '150px' }}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Left column (5 columns) */}
               <div className="lg:col-span-5 space-y-4">
