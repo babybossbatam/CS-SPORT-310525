@@ -958,11 +958,11 @@ const FixedScoreboard = () => {
                     {getMatchStatus(currentMatch)}
                   </div>
 
-                  {/* Score display with date for finished matches */}
+                  {/* Score display for live and finished matches */}
                   {currentMatch?.fixture?.status?.short &&
-                    ["FT", "AET", "PEN"].includes(
+                    (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
                       currentMatch.fixture.status.short,
-                    ) && (
+                    )) && (
                       <>
                         <div className="text-2xl text-black-500 font-bold flex items-center justify-center w-full">
                           <span>{currentMatch?.goals?.home ?? 0}</span>
