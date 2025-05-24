@@ -842,6 +842,7 @@ const FixedScoreboard = () => {
                   </>
                 )}
               </div>
+            </div>
               <div>
                 {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                   <div className="flex items-center gap-1.5">
