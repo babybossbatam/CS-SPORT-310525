@@ -20,7 +20,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     queryFn: async () => {
       const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
       const standingsData = {};
-      
+
       for (const leagueId of leagues) {
         const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
         const data = await response.json();
@@ -78,7 +78,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   );
 
   return (
-    <Card className="bg-white shadow-md w-full">
+    <Card className="bg-white shadow-md w-full space-y-4">
         <div className="flex items-center justify-between p-4 mb-2">
             <div className="flex flex-col gap-2 w-full">
               <div className="flex items-center justify-between h-9">
