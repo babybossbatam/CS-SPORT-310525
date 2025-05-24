@@ -257,7 +257,6 @@ const Home = () => {
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="space-y-4">
-                        {/* League Standings */}
                         {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
                           <div key={leagueData.league.id} className="bg-white rounded-lg shadow overflow-hidden">
                             <div className="px-4 py-3 border-b border-gray-100">
@@ -273,32 +272,32 @@ const Home = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="p-4 space-y-3">
-                              {leagueData.standings.slice(0, 5).map((match: any) => (
-                                <div key={match.team.id} className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3 flex-1">
-                                    <img 
-                                      src={match.team.logo} 
-                                      alt={match.team.name}
-                                      className="h-6 w-6 object-contain"
-                                    />
-                                    <span className="font-medium text-gray-900">{match.team.name}</span>
-                                  </div>
-                                  <div className="flex items-center gap-8">
-                                    <div className="text-sm text-gray-600">
-                                      <span className="font-semibold">{match.all.played}</span> matches
-                                    </div>
-                                    <div className="text-sm text-gray-600">
-                                      <span className="font-semibold">{match.points}</span> pts
-                                    </div>
-                                  </div>
+                            <div className="p-4 space-y-4">
+                              <div className="grid grid-cols-3 gap-4">
+                                <div className="text-center">
+                                  <h4 className="text-sm font-semibold text-gray-700">Score Overview</h4>
+                                  <p className="text-lg font-bold text-gray-900">
+                                    {leagueData.standings.reduce((sum: number, team: any) => sum + team.all.goals.for, 0)} Goals
+                                  </p>
                                 </div>
-                              ))}
+                                <div className="text-center">
+                                  <h4 className="text-sm font-semibold text-gray-700">Result</h4>
+                                  <p className="text-lg font-bold text-gray-900">
+                                    W: {leagueData.standings.reduce((sum: number, team: any) => sum + team.all.win, 0)}
+                                  </p>
+                                </div>
+                                <div className="text-center">
+                                  <h4 className="text-sm font-semibold text-gray-700">Fixtures</h4>
+                                  <p className="text-lg font-bold text-gray-900">
+                                    {leagueData.standings[0]?.all.played || 0} Matches
+                                  </p>
+                                </div>
+                              </div>
                               <button 
                                 onClick={() => navigate(`/league/${leagueData.league.id}`)}
                                 className="w-full mt-3 text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
                               >
-                                View Full Standings →
+                                View Full Details →
                               </button>
                             </div>
                           </div>
