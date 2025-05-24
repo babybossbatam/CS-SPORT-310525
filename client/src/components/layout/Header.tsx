@@ -64,7 +64,6 @@ const Header = () => {
           <LeagueTabs />
           <LeagueTabs />
 
-
           <Button 
             variant="ghost" 
             className="text-sm flex items-center space-x-1 text-white mr-[10%]"
