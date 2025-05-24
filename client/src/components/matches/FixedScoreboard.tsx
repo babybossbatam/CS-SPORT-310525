@@ -268,7 +268,7 @@ const FixedScoreboard = () => {
 
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
-        const now = new Date("2025-05-21T23:00:00Z");
+        const now = new Date();
 
         console.log("Current filtering date:", now.toISOString());
 
@@ -567,7 +567,7 @@ const FixedScoreboard = () => {
     });
 
     // Find match within 8 hours window
-    const now = new Date("2025-05-19T12:00:00Z");
+    const now = new Date();
     const upcomingMatchIndex = matches.findIndex((match) => {
       if (match.fixture.status.short !== "NS") return false;
 
@@ -647,7 +647,7 @@ const FixedScoreboard = () => {
 
     const { fixture } = match;
     // Use hardcoded "now" for demo purposes to match the fixture dates in our data
-    const now = new Date("2025-05-19T12:00:00Z");
+    const now = new Date();
 
     // LIVE MATCHES - show match minute or halftime
     if (
@@ -701,7 +701,7 @@ const FixedScoreboard = () => {
     else {
       try {
         const matchDate = parseISO(fixture.date);
-        const now = new Date("2025-05-19T12:00:00Z"); // Use same hardcoded time as above for consistency
+        const now = new Date(); // Use same hardcoded time as above for consistency
 
         // Get time differences in various units
         const msToMatch = matchDate.getTime() - now.getTime();
