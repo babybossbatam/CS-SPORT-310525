@@ -874,12 +874,13 @@ const FixedScoreboard = () => {
                     {getMatchStatusLabel(currentMatch)}
                   </Badge>
                 )}
-              {currentMatch?.league?.round && (
-                <>
-                  <span className="text-gray-400">•</span>
-                  <span>{currentMatch.league.round}</span>
-                </>
-              )}
+                {currentMatch?.league?.round && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <span>{currentMatch.league.round}</span>
+                  </>
+                )}
+              </div>
           </div>
 
         {matches.length > 1 && (
