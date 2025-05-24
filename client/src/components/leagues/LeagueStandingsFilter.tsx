@@ -239,6 +239,7 @@ const LeagueStandingsFilter = () => {
                                   (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                 }}
                               />
+                            </div>
                             <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
                               <div className="text-xs">
                                 <span className="font-medium">{standing.team.name}</span>
