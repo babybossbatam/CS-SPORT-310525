@@ -82,7 +82,6 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <Select>
                     <SelectTrigger className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent">
                       <span className="font-medium">{selectedFilter}</span>
-                      <ChevronDown className="h-4 w-4" />
                     </SelectTrigger>
                     <SelectContent align="start" className="w-[280px] p-0">
                       <Calendar
