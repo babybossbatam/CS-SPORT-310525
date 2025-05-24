@@ -809,18 +809,30 @@ const FixedScoreboard = () => {
       <Card className="px-0 pt-0 pb-2 relative">
 
         <div className="pt-2">
-            <Badge
-              variant="outline"
-              className={`text-[10px] px-1.5 py-0 border mb-2 ${
-                getMatchStatusLabel(currentMatch) === "LIVE"
-                  ? "border-red-500 text-red-500 animate-pulse"
-                  : getMatchStatusLabel(currentMatch) === "FINISHED"
-                    ? "border-gray-500 text-gray-500"
-                    : "border-blue-500 text-blue-500"
-              }`}
-            >
-              {getMatchStatusLabel(currentMatch)}
-            </Badge>
+            <div className="flex items-center gap-2">
+                {getMatchStatusLabel(currentMatch) === "LIVE" ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0 border mb-2 border-red-500 text-red-500 animate-pulse"
+                    >
+                      LIVE
+                    </Badge>
+                  </div>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] px-1.5 py-0 border mb-2 ${
+                      getMatchStatusLabel(currentMatch) === "FINISHED"
+                        ? "border-gray-500 text-gray-500"
+                        : "border-blue-500 text-blue-500"
+                    }`}
+                  >
+                    {getMatchStatusLabel(currentMatch)}
+                  </Badge>
+                )}
+              </div>
             <div className="flex items-center justify-center gap-2 text-sm font-medium text-black">
               <div className="flex items-center">
                 {currentMatch?.league?.logo ? (
