@@ -57,20 +57,20 @@ const Header = () => {
         <LeagueTabs />
         <Button 
           variant="ghost" 
-          className="text-white" 
-          size="icon"
-          onClick={() => setSearchOpen(true)}
-        >
-          <Search className="h-5 w-5" />
-        </Button>
-
-        <Button 
-          variant="ghost" 
-          className="text-sm flex items-center space-x-1 text-white ml-[-5px]"
+          className="text-sm flex items-center space-x-1 text-white"
           onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
         >
           <Star className="h-4 w-4 mr-1" />
           <span>My Scores</span>
+        </Button>
+
+        <Button 
+          variant="ghost" 
+          className="text-white mx-2" 
+          size="icon"
+          onClick={() => setSearchOpen(true)}
+        >
+          <Search className="h-5 w-5" />
         </Button>
 
         <Button 
