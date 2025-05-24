@@ -49,6 +49,7 @@ const Home = () => {
   const [fixtures, setFixtures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [location, navigate] = useLocation();
+const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
   const { data: leagueStandings } = useQuery({
     queryKey: ['standings'],
