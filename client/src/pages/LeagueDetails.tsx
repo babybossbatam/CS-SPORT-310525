@@ -184,29 +184,6 @@ const LeagueDetails = () => {
       </>
     );
   }
-  const [mounted, setMounted] = useState(false);
-  const [dynamicDate, setDynamicDate] = useState(new Date());
-
-  useEffect(() => {
-    setMounted(true);
-    // Update dynamic date every minute
-    const interval = setInterval(() => {
-      setDynamicDate(new Date());
-    }, 60000);
-    return () => {
-      setMounted(false);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const selectedFilter = useSelector((state: RootState) => state.ui.selectedFilter);
-  const liveFixtures = useSelector((state: RootState) => state.fixtures.live);
-  const loading2 = useSelector((state: RootState) => state.fixtures.loading);
-  const selectedDate = useSelector((state: RootState) => 
-    format(dynamicDate, 'yyyy-MM-dd'));
-  const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate[selectedDate] || []);
-  const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
-
   return (
     <>
       <Header />
