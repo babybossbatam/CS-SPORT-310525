@@ -167,28 +167,26 @@ const LeagueStandingsFilter = () => {
                 const stats = standing.all;
                 return (
                   <TableRow key={standing.team.id} className="border-b border-gray-100">
-                      <TableCell className="font-medium text-[0.9em] text-center w-8">{standing.rank}</TableCell>
-                  <TableCell className="flex flex-col font-normal pl-2">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={standing.team.logo}
-                        alt={standing.team.name}
-                        className="h-6 w-6 object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=T';
-                        }}
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">{standing.team.name}</span>
+                      <TableCell className="font-medium text-[0.9em] text-center">{standing.rank}</TableCell>
+                      <TableCell className="flex flex-col font-normal pl-4">
+                        <div className="flex items-center">
+                          <img
+                            src={standing.team.logo}
+                            alt={standing.team.name}
+                            className="mr-2 h-5 w-5 rounded-full"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                            }}
+                          />
+                          <span className="text-[0.9em]">{standing.team.name}</span>
+                          {standing.rank === 1 && <span className="ml-2">👑</span>}
+                        </div>
                         {standing.description && (
-                          <span className="text-xs text-blue-600">
-                            {standing.rank === 1 ? 'Champions League' : standing.description}
+                          <span className="text-[0.75em] text-yellow-500">
+                            {standing.rank === 1 ? 'Won title • CAF Champions League' : standing.description}
                           </span>
                         )}
-                      </div>
-                      {standing.rank === 1 && <span className="ml-auto text-amber-500">👑</span>}
-                    </div>
-                  </TableCell>
+                      </TableCell>
                     <TableCell className="text-center text-[0.9em]">{stats.played}</TableCell>
                     <TableCell className="text-center text-[0.9em]">{stats.goals.for}:{stats.goals.against}</TableCell>
                     <TableCell className="text-center text-[0.9em]">{standing.goalsDiff}</TableCell>
@@ -212,34 +210,20 @@ const LeagueStandingsFilter = () => {
                     </TableCell>
                     <TableCell className="px-2 py-2 relative group">
                       <div className="flex items-center justify-center gap-2">
-                        {fixtures?.find(fixture => 
-                            (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
-                            new Date(fixture.fixture.date) > new Date()
-                          ) && (
+                        {standings?.find(opponent => 
+                          opponent.team.id !== standing.team.id && 
+                          opponent.rank > standing.rank
+                        ) && (
                           <>
                             <img 
-                              src={(() => {
-                                const nextFixture = fixtures?.find(fixture => 
-                                  (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
-                                  new Date(fixture.fixture.date) > new Date()
-                                );
-                                return nextFixture 
-                                  ? (nextFixture.teams.home.id === standing.team.id 
-                                    ? nextFixture.teams.away.logo 
-                                    : nextFixture.teams.home.logo)
-                                  : '';
-                              })()} 
-                              alt={(() => {
-                                const nextFixture = fixtures?.find(fixture => 
-                                  (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
-                                  new Date(fixture.fixture.date) > new Date()
-                                );
-                                return nextFixture
-                                  ? (nextFixture.teams.home.id === standing.team.id 
-                                    ? nextFixture.teams.away.name 
-                                    : nextFixture.teams.home.name)
-                                  : 'No upcoming matches';
-                              })()}
+                              src={standings.find(opponent => 
+                                opponent.team.id !== standing.team.id && 
+                                opponent.rank > standing.rank
+                              )?.team.logo} 
+                              alt={`Next opponent: ${standings.find(opponent => 
+                                opponent.team.id !== standing.team.id && 
+                                opponent.rank > standing.rank
+                              )?.team.name}`}
                               className="w-4 h-4 hover:scale-110 transition-transform"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
