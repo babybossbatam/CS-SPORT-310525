@@ -71,8 +71,6 @@ const Header = () => {
         >
           <Star className="h-4 w-4 mr-1" />
           <span>My Scores</span>
-        >
-          <Search className="h-5 w-5" />
         </Button>
 
         <Button 
