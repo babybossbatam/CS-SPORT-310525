@@ -235,41 +235,41 @@ const Home = () => {
                 </Card>
                 {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
                   <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
-                    <CardHeader className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                      <div className="flex flex-col space-y-4">
-                        <div className="flex items-center justify-between">
+                    <CardHeader className="p-0">
+                      <div className="flex flex-col">
+                        <div className="p-3 bg-gradient-to-r from-[#f5f6f7] to-white">
                           <div className="flex items-center space-x-3">
                             <div className="relative">
                               <img
                                 src={leagueData.league.logo}
                                 alt={leagueData.league.name}
-                                className="h-8 w-8 object-contain"
+                                className="h-6 w-6 object-contain"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                 }}
                               />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-gray-900">{leagueData.league.name}</h3>
-                              <p className="text-sm text-gray-500">{leagueData.league.country}</p>
+                              <h3 className="text-sm font-medium text-gray-900">{leagueData.league.name}</h3>
+                              <p className="text-xs text-gray-500">{leagueData.league.country}</p>
                             </div>
                           </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 pt-2">
+                        <div className="grid grid-cols-3 gap-2 px-3 py-2 border-t border-gray-100">
                           <div className="text-center">
-                            <h4 className="text-sm font-medium text-gray-700">Score Overview</h4>
+                            <div className="text-xs font-medium text-gray-600">Score Overview</div>
                             <div className="mt-1 text-xs text-gray-500">
                               {leagueData.standings[0]?.all?.goals?.for || 0} Goals Scored
                             </div>
                           </div>
-                          <div className="text-center border-x border-gray-200">
-                            <h4 className="text-sm font-medium text-gray-700">Result</h4>
+                          <div className="text-center border-x border-gray-100">
+                            <div className="text-xs font-medium text-gray-600">Result</div>
                             <div className="mt-1 text-xs text-gray-500">
                               W: {leagueData.standings[0]?.all?.win || 0} L: {leagueData.standings[0]?.all?.lose || 0}
                             </div>
                           </div>
                           <div className="text-center">
-                            <h4 className="text-sm font-medium text-gray-700">Fixture</h4>
+                            <div className="text-xs font-medium text-gray-600">Fixture</div>
                             <div className="mt-1 text-xs text-gray-500">
                               {leagueData.standings[0]?.all?.played || 0} Matches Played
                             </div>
