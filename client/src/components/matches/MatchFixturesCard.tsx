@@ -86,13 +86,20 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 <div className="relative h-full flex items-center">
                   <Select>
                     <SelectTrigger className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent">
-                    <SelectValue>
-                      <span className="font-medium">{selectedFilter}</span>
-                    </SelectValue>
-                  </SelectTrigger>
+                      <SelectValue>
+                        <span className="font-medium">{selectedFilter}</span>
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent align="start" className="w-[280px] p-0">
                       <Calendar
                         mode="single"
+                        selected={new Date(selectedDate)}
+                        onSelect={(date) => {
+                          if (date) {
+                            dispatch(uiActions.setSelectedDate(format(date, 'yyyy-MM-dd')));
+                          }
+                        }}
+                        className="rounded-md"
                         selected={new Date()}
                         onSelect={(date) => {
                           if (date) {
