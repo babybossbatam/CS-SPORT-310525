@@ -48,11 +48,11 @@ const Header = () => {
   return (
     <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[72px]">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between mr-[10%]">
-        <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[145px]">
+        <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[10%]">
             <img 
               src="/logo.png" 
               alt="CS SPORT Logo" 
-              className="h-full max-h-[62px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
+              className="h-full max-h-[52px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
             />
             <span className="flex items-center gap-2 whitespace-nowrap">
               <span className="text-amber-400 font-bold text-[clamp(1rem,2vw,1.25rem)] transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
