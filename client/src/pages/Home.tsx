@@ -55,7 +55,7 @@ const Home = () => {
     queryFn: async () => {
       const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
       const standingsData = {};
-      
+
       for (const leagueId of leagues) {
         const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
         const data = await response.json();
@@ -257,6 +257,7 @@ const Home = () => {
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="space-y-4">
+                        {/* League Standings */}
                         {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
                           <div key={leagueData.league.id} className="bg-white rounded-lg shadow overflow-hidden">
                             <div className="px-4 py-3 border-b border-gray-100">
@@ -302,35 +303,6 @@ const Home = () => {
                             </div>
                           </div>
                         ))}
-                      </div>
-                            <tbody>
-                              {leagueData.standings.map((team: any) => (
-                                <tr key={team.team.id} className="hover:bg-gray-50 transition-colors">
-                                  <td className="py-3 px-4 font-medium">{team.rank}</td>
-                                  <td className="py-3 px-4">
-                                    <div className="flex items-center space-x-3">
-                                      <img 
-                                        src={team.team.logo} 
-                                        alt={team.team.name}
-                                        className="h-5 w-5 object-contain"
-                                        onError={(e) => {
-                                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                        }}
-                                      />
-                                      <span className="font-medium text-gray-900">{team.team.name}</span>
-                                    </div>
-                                  </td>
-                                  <td className="py-3 px-4 text-center">{team.all.played}</td>
-                                  <td className="py-3 px-4 text-center">{team.all.win}</td>
-                                  <td className="py-3 px-4 text-center">{team.all.draw}</td>
-                                  <td className="py-3 px-4 text-center">{team.all.lose}</td>
-                                  <td className="py-3 px-4 text-center">{team.goalsDiff}</td>
-                                  <td className="py-3 px-4 text-center font-semibold">{team.points}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
