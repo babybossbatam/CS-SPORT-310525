@@ -64,7 +64,7 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
   const formattedSeconds = timer.seconds.toString().padStart(2, '0');
   
   return (
-    <span className="font-mono">{formattedHours}:{formattedMinutes}:{formattedSeconds}</span>
+    <span style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>{formattedHours}:{formattedMinutes}:{formattedSeconds}</span>
   );
 };
 
