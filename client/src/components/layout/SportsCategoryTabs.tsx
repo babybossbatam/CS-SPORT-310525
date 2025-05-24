@@ -44,13 +44,13 @@ const SportsCategoryTabs = () => {
 
   return (
     <Card className="rounded-none border-b shadow-lg fixed left-0 z-50 top-[77px] w-full bg-white/95 backdrop-blur-sm">
-        <div className="flex flex-row items-center p-1 ml-[150px] mr-[150px]">
+        <div className="container mx-auto flex justify-between items-center p-1">
           {sportsList.map(({ id, icon: Icon, label }) => (
             <div
               key={id}
               onClick={() => handleSportSelect(id)}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out',
+                'flex items-center gap-2 px-4 py-2 cursor-pointer transition-all duration-200 ease-in-out flex-1 justify-center',
                 selectedSport === id
                   ? 'text-[#15222A]'
                   : 'text-[#6B7173] hover:text-[#15222A]'
