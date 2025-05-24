@@ -40,10 +40,22 @@ const StandingsFilterCard = () => {
 
           return (
             <div key={league.id} className="mb-4 last:mb-0">
-              <div className="flex items-center gap-2 mb-2">
-                <img src={league.logo} alt={league.name} className="h-6 w-6 object-contain" />
-                <h3 className="font-semibold">{league.name}</h3>
-              </div>
+              <CardHeader className="px-4 py-3 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={league.logo} 
+                    alt={league.name} 
+                    className="h-7 w-7 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                  <div>
+                    <h3 className="font-semibold text-lg">{league.name}</h3>
+                    <p className="text-sm text-gray-500">{league.country}</p>
+                  </div>
+                </div>
+              </CardHeader>
               <Table>
                 <TableHeader>
                   <TableRow>
