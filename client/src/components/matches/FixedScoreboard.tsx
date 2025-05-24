@@ -711,8 +711,8 @@ const FixedScoreboard = () => {
         if (daysToMatch === 0) {
           try {
             const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-            // For matches less than 8 hours away, show timer below "Today"
-            if (hoursToMatch >= 0 && hoursToMatch < 8) {
+            // Calculate hours to match - if more than 12 hours away, return null to hide the timer
+            if (hoursToMatch >= 0 && hoursToMatch < 12) {
               return (
                 <div className="flex flex-col space-y-0 relative pb-6">
                   <span className="text-black">Today</span>
