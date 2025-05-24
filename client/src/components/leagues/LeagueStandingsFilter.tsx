@@ -24,14 +24,14 @@ import {
 
 // Using existing popular leagues from LeagueFilter
 const POPULAR_LEAGUES = [
-  { id: 2, name: 'Champions League', country: 'Europe', logo: '' },
-  { id: 39, name: 'Premier League', country: 'England', logo: '' },
-  { id: 140, name: 'La Liga', country: 'Spain', logo: '' },
-  { id: 135, name: 'Serie A', country: 'Italy', logo: '' },
-  { id: 78, name: 'Bundesliga', country: 'Germany', logo: '' },
-  { id: 3, name: 'Europa League', country: 'Europe', logo: '' },
-  { id: 307, name: 'Saudi League', country: 'Saudi Arabia', logo: '' },
-  { id: 233, name: 'Egyptian Premier League', country: 'Egypt', logo: '' }
+  { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 39, name: 'Premier League', country: 'England', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+  { id: 140, name: 'La Liga', country: 'Spain', logo: 'https://media.api-sports.io/football/leagues/140.png' },
+  { id: 135, name: 'Serie A', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/135.png' },
+  { id: 78, name: 'Bundesliga', country: 'Germany', logo: 'https://media.api-sports.io/football/leagues/78.png' },
+  { id: 3, name: 'Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 307, name: 'Saudi League', country: 'Saudi Arabia', logo: 'https://media.api-sports.io/football/leagues/307.png' },
+  { id: 233, name: 'Egyptian Premier League', country: 'Egypt', logo: 'https://media.api-sports.io/football/leagues/233.png' }
 ];
 
 interface Standing {
