@@ -40,8 +40,7 @@ const SportsCategoryTabs = () => {
     { id: 'cricket', icon: CricketIcon, label: 'Cricket' },
     { id: 'baseball', icon: BaseballIcon, label: 'Baseball' },
     { id: 'tennis', icon: TennisIcon, label: 'Tennis' },
-    { id: 'handball', icon: HandballIcon, label: 'Handball' },
-    { id: 'volleyball', icon: VolleyballIcon, label: 'Volleyball' }
+    { id: 'handball', icon: HandballIcon, label: 'Handball' }
   ];
 
   return (
