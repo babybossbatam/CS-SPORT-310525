@@ -822,23 +822,31 @@ const FixedScoreboard = () => {
         <div className="pt-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {currentMatch?.league?.logo ? (
-                  <img
-                    src={currentMatch.league.logo}
-                    alt={currentMatch.league.name}
-                    className="w-5 h-5 object-contain mr-2"
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
-                  />
+                {getMatchStatusLabel(currentMatch) === "LIVE" ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
+                    >
+                      LIVE
+                    </Badge>
+                  </div>
                 ) : (
-                  <Trophy className="w-5 h-5 text-amber-500 mr-2" />
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] px-1.5 py-0 border ${
+                      getMatchStatusLabel(currentMatch) === "FINISHED"
+                        ? "border-gray-500 text-gray-500"
+                        : "border-blue-500 text-blue-500"
+                    }`}
+                  >
+                    {getMatchStatusLabel(currentMatch)}
+                  </Badge>
                 )}
-                {currentMatch?.league?.name || "League Name"}
-                
               </div>
             </div>
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
                 {currentMatch?.league?.logo ? (
                   <img
                     src={currentMatch.league.logo}
@@ -852,28 +860,6 @@ const FixedScoreboard = () => {
                   <Trophy className="w-5 h-5 text-amber-500 mr-2" />
                 )}
                 <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
-                {getMatchStatusLabel(currentMatch) === "LIVE" ? (
-                  <div className="flex items-center gap-1.5 ml-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
-                    >
-                      LIVE
-                    </Badge>
-                  </div>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] px-1.5 py-0 border ml-2 ${
-                      getMatchStatusLabel(currentMatch) === "FINISHED"
-                        ? "border-gray-500 text-gray-500"
-                        : "border-blue-500 text-blue-500"
-                    }`}
-                  >
-                    {getMatchStatusLabel(currentMatch)}
-                  </Badge>
-                )}
                 
               </div>
           </div>
