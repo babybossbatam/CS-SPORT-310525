@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
+import { Select, SelectContent, SelectTrigger } from '../ui/select';
+import { Calendar } from '../ui/calendar';
 
 interface FixtureProps {
   fixtures: any[];
@@ -77,10 +79,20 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <div className="relative h-full flex items-center">
-                  <button className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full">
-                    <span className="font-medium">{selectedFilter}</span>
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
+                  <Select>
+                    <SelectTrigger className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent">
+                      <span className="font-medium">{selectedFilter}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </SelectTrigger>
+                    <SelectContent align="start" className="w-[280px] p-0">
+                      <Calendar
+                        mode="single"
+                        selected={new Date()}
+                        onSelect={(date) => date && setSelectedFilter(date.toLocaleDateString())}
+                        className="rounded-md"
+                      />
+                    </SelectContent>
+                  </Select>
                 </div>
                 <button className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4">
                   <ChevronRight className="h-5 w-5" />
