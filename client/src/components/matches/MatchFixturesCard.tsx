@@ -12,59 +12,66 @@ interface FixtureProps {
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
-  // Group fixtures by league
-  const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
-    const leagueId = fixture.league.id;
-    if (!acc[leagueId]) {
-      acc[leagueId] = {
-        league: fixture.league,
-        fixtures: []
-      };
+  // Get standings from league data
+  const { data: leagueStandings } = useQuery({
+    queryKey: ['standings', selectedFilter],
+    queryFn: async () => {
+      const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
+      const standingsData = {};
+      
+      for (const leagueId of leagues) {
+        const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
+        const data = await response.json();
+        if (data?.league?.standings?.[0]) {
+          standingsData[leagueId] = {
+            league: data.league,
+            standings: data.league.standings[0]
+          };
+        }
+      }
+      return standingsData;
     }
-    acc[leagueId].fixtures.push(fixture);
-    return acc;
-  }, {});
+  });
 
-  const renderFixture = (fixture: any) => (
-    <div 
-      key={fixture.fixture.id}
-      onClick={() => onMatchClick(fixture.fixture.id)}
-      className="hover:bg-gray-50 cursor-pointer border-b last:border-b-0 py-4"
-    >
-      <div className="grid grid-cols-7 items-center px-4">
-        <div className="col-span-3 flex items-center justify-end space-x-3">
-          <span className="font-medium text-right">{fixture.teams.home.name}</span>
-          <img 
-            src={fixture.teams.home.logo}
-            alt={fixture.teams.home.name}
-            className="h-6 w-6 object-contain"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-            }}
-          />
-        </div>
-
-        <div className="col-span-1 flex justify-center font-semibold">
-          <span className="px-3 rounded text-gray-500">
-            {fixture.fixture.status.short === "FT" 
-              ? `${fixture.goals.home} - ${fixture.goals.away}`
-              : "-"
-            }
-          </span>
-        </div>
-
-        <div className="col-span-3 flex items-center space-x-3">
-          <img 
-            src={fixture.teams.away.logo}
-            alt={fixture.teams.away.name}
-            className="h-6 w-6 object-contain"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
-            }}
-          />
-          <span className="font-medium">{fixture.teams.away.name}</span>
-        </div>
-      </div>
+  const renderStandings = (standings: any) => (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-gray-500 border-b">
+            <th className="py-2 text-left pl-4">Pos</th>
+            <th className="py-2 text-left">Team</th>
+            <th className="py-2 text-center">P</th>
+            <th className="py-2 text-center">W</th>
+            <th className="py-2 text-center">D</th>
+            <th className="py-2 text-center">L</th>
+            <th className="py-2 text-center">GD</th>
+            <th className="py-2 text-center">Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {standings.map((team: any) => (
+            <tr key={team.team.id} className="hover:bg-gray-50 border-b last:border-b-0">
+              <td className="py-2 pl-4">{team.rank}</td>
+              <td className="py-2">
+                <div className="flex items-center space-x-2">
+                  <img 
+                    src={team.team.logo} 
+                    alt={team.team.name}
+                    className="h-5 w-5 object-contain"
+                  />
+                  <span>{team.team.name}</span>
+                </div>
+              </td>
+              <td className="text-center">{team.all.played}</td>
+              <td className="text-center">{team.all.win}</td>
+              <td className="text-center">{team.all.draw}</td>
+              <td className="text-center">{team.all.lose}</td>
+              <td className="text-center">{team.goalsDiff}</td>
+              <td className="text-center font-semibold">{team.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 
@@ -136,25 +143,26 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </div>
         </CardContent>
       </Card>
-      {Object.values(fixturesByLeague).map((leagueData: any) => (
-        <Card key={leagueData.league.id} className="bg-white shadow-md">
+      {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
+        <Card key={leagueData.league.id} className="bg-white shadow-md mb-4">
           <CardHeader className="p-4 border-b border-gray-100">
-            <div className="flex items-center">
-              <img
-                src={leagueData.league.logo}
-                alt={leagueData.league.name}
-                className="h-6 w-6 mr-2"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                }}
-              />
-              <span className="font-semibold text-gray-800">{leagueData.league.name}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <img
+                  src={leagueData.league.logo}
+                  alt={leagueData.league.name}
+                  className="h-6 w-6 mr-2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                  }}
+                />
+                <span className="font-semibold text-gray-800">{leagueData.league.name}</span>
+              </div>
+              <span className="text-sm text-gray-500">{selectedFilter}</span>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y divide-gray-100">
-              {leagueData.fixtures.map(renderFixture)}
-            </div>
+            {renderStandings(leagueData.standings)}
           </CardContent>
         </Card>
       ))}
