@@ -57,7 +57,7 @@ const SportsCategoryTabs = () => {
               )}
             >
               <Icon className="h-[1.1rem] w-[1.1rem]" />
-              <span className="text-[0.94rem] font-normal">{label}</span>
+              <span className="text-[0.94rem] font-normal whitespace-nowrap">{label}</span>
             </div>
           ))}
         </div>
