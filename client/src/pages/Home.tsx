@@ -233,98 +233,19 @@ const Home = () => {
                     />
                   </CardContent>
                 </Card>
-                {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
-                  <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
-                    <CardHeader className="p-0">
-                      <div className="flex flex-col">
-                        <div className="p-3 bg-gradient-to-r from-[#f5f6f7] to-white">
-                          <div className="flex items-center space-x-3">
-                            <div className="relative">
-                              <img
-                                src={leagueData.league.logo}
-                                alt={leagueData.league.name}
-                                className="h-6 w-6 object-contain"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-medium text-gray-900">{leagueData.league.name}</h3>
-                              <p className="text-xs text-gray-500">{leagueData.league.country}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 px-3 py-2 border-t border-gray-100">
-                          <div className="text-center">
-                            <div className="text-xs font-medium text-gray-600">Score Overview</div>
-                            <div className="mt-1 text-xs text-gray-500">
-                              {leagueData.standings[0]?.all?.goals?.for || 0} Goals Scored
-                            </div>
-                          </div>
-                          <div className="text-center border-x border-gray-100">
-                            <div className="text-xs font-medium text-gray-600">Result</div>
-                            <div className="mt-1 text-xs text-gray-500">
-                              W: {leagueData.standings[0]?.all?.win || 0} L: {leagueData.standings[0]?.all?.lose || 0}
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-medium text-gray-600">Fixture</div>
-                            <div className="mt-1 text-xs text-gray-500">
-                              {leagueData.standings[0]?.all?.played || 0} Matches Played
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <div className="divide-y divide-gray-100">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="bg-gray-50 text-gray-500">
-                                <th className="py-3 px-4 text-left font-medium">Pos</th>
-                                <th className="py-3 px-4 text-left font-medium">Team</th>
-                                <th className="py-3 px-4 text-center font-medium">P</th>
-                                <th className="py-3 px-4 text-center font-medium">W</th>
-                                <th className="py-3 px-4 text-center font-medium">D</th>
-                                <th className="py-3 px-4 text-center font-medium">L</th>
-                                <th className="py-3 px-4 text-center font-medium">GD</th>
-                                <th className="py-3 px-4 text-center font-medium">Pts</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {leagueData.standings.map((team: any) => (
-                                <tr key={team.team.id} className="hover:bg-gray-50 transition-colors">
-                                  <td className="py-3 px-4 font-medium">{team.rank}</td>
-                                  <td className="py-3 px-4">
-                                    <div className="flex items-center space-x-3">
-                                      <img 
-                                        src={team.team.logo} 
-                                        alt={team.team.name}
-                                        className="h-5 w-5 object-contain"
-                                        onError={(e) => {
-                                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                        }}
-                                      />
-                                      <span className="font-medium text-gray-900">{team.team.name}</span>
-                                    </div>
-                                  </td>
-                                  <td className="py-3 px-4 text-center">{team.all.played}</td>
-                                  <td className="py-3 px-4 text-center">{team.all.win}</td>
-                                  <td className="py-3 px-4 text-center">{team.all.draw}</td>
-                                  <td className="py-3 px-4 text-center">{team.all.lose}</td>
-                                  <td className="py-3 px-4 text-center">{team.goalsDiff}</td>
-                                  <td className="py-3 px-4 text-center font-semibold">{team.points}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                <FeaturedMatch />
+                <Card>
+                  <CardHeader className="border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
+                      <Trophy className="h-4 w-4 text-yellow-500" />
+                      Top Scorers
+                    </h3>
+                  </CardHeader>
+                  <CardContent>
+                    <HomeTopScorersList />
+                  </CardContent>
+                </Card>
+                <LeagueStandingsFilter />
               </div>
 
               {/* Right column (7 columns) */}
