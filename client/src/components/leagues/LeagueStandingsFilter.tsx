@@ -99,17 +99,21 @@ const LeagueStandingsFilter = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <Select 
-          value={selectedLeague} 
-          onValueChange={(value) => {
-            setSelectedLeague(value);
-            const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
-            if (league) {
-              setSelectedLeagueName(league.name);
-            }
-          }}
-        >
+      <CardHeader className="flex flex-col space-y-2">
+        <CardTitle className="text-lg font-semibold">
+          {POPULAR_LEAGUES.find(l => l.id.toString() === selectedLeague)?.name || 'League Standings'}
+        </CardTitle>
+        <div className="flex flex-row items-center justify-between">
+          <Select 
+            value={selectedLeague} 
+            onValueChange={(value) => {
+              setSelectedLeague(value);
+              const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
+              if (league) {
+                setSelectedLeagueName(league.name);
+              }
+            }}
+          >
           <SelectTrigger className="w-full">
             <SelectValue>
               <div className="flex items-center gap-2">
@@ -143,6 +147,7 @@ const LeagueStandingsFilter = () => {
             ))}
           </SelectContent>
         </Select>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="relative">
