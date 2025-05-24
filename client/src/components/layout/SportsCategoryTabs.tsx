@@ -44,24 +44,22 @@ const SportsCategoryTabs = () => {
 
   return (
     <Card className="rounded-none border-b shadow-lg fixed left-0 z-50 top-[77px] w-full bg-white/95 backdrop-blur-sm">
-        <div className="container mx-auto flex flex-row items-center justify-between p-1">
-          <div className="flex flex-row items-center justify-start flex-1 gap-2">
-            {sportsList.map(({ id, icon: Icon, label }) => (
-              <div
-                key={id}
-                onClick={() => handleSportSelect(id)}
-                className={cn(
-                  'flex items-center gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out whitespace-nowrap',
-                  selectedSport === id
-                    ? 'text-[#15222A]'
-                    : 'text-[#6B7173] hover:text-[#15222A]'
-                )}
-              >
+        <div className="flex flex-row items-center p-1 ml-[150px] mr-[150px]">
+          {sportsList.map(({ id, icon: Icon, label }) => (
+            <div
+              key={id}
+              onClick={() => handleSportSelect(id)}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out',
+                selectedSport === id
+                  ? 'text-[#15222A]'
+                  : 'text-[#6B7173] hover:text-[#15222A]'
+              )}
+            >
               <Icon className="h-[1.1rem] w-[1.1rem]" />
               <span className="text-[0.94rem] font-normal">{label}</span>
-              </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
     </Card>
   );
