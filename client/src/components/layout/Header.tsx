@@ -125,6 +125,25 @@ const Header = () => {
         </DialogContent>
       </Dialog>
     </header>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Search</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSearch} className="space-y-4">
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for teams, leagues, players..."
+              className="w-full"
+              autoFocus
+            />
+            <div className="flex justify-end">
+              <Button type="submit">Search</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </header>
   );
 };
 
