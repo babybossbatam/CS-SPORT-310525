@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
-import { format } from 'date-fns';
 
 const POPULAR_LEAGUES = [
   { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
@@ -28,58 +29,48 @@ const StandingsFilterCard = () => {
   });
 
   return (
-    <Card>
-      <CardHeader className="border-b">
-        <h3 className="text-lg font-semibold">Today's Matches</h3>
-      </CardHeader>
-      <CardContent className="p-4">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {POPULAR_LEAGUES.map((league) => (
-            <Button
-              key={league.id}
-              variant={selectedLeague === league.id.toString() ? 'default' : 'outline'}
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={() => setSelectedLeague(league.id.toString())}
-            >
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {POPULAR_LEAGUES.map((league) => (
+        <Card key={league.id}>
+          <CardHeader className="border-b">
+            <div className="flex items-center gap-2">
               <img
                 src={league.logo}
                 alt={league.name}
-                className="h-4 w-4 object-contain"
+                className="h-6 w-6 object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                 }}
               />
-              {league.name}
-            </Button>
-          ))}
-        </div>
-
-        <div>
-          {todayMatches?.length ? (
-            <div className="space-y-2">
-              {todayMatches.map((match) => (
-                <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <div className="flex items-center gap-2">
-                    <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
-                    <span>{match.teams.home.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>{match.teams.away.name}</span>
-                    <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
-                  </div>
-                </div>
-              ))}
+              <h3 className="text-lg font-semibold">{league.name}</h3>
             </div>
-          ) : (
-            <p className="text-gray-500 text-center py-2">No matches today</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </CardHeader>
+          <CardContent className="p-4">
+            {todayMatches?.length ? (
+              <div className="space-y-2">
+                {todayMatches.map((match) => (
+                  <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <div className="flex items-center gap-2">
+                      <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                      <span>{match.teams.home.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span>{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span>{match.teams.away.name}</span>
+                      <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-2">No matches today</p>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 
