@@ -24,14 +24,14 @@ import {
 
 // Using existing popular leagues from LeagueFilter
 const POPULAR_LEAGUES = [
-  { id: 2, name: 'Champions League', country: 'Europe' },
-  { id: 39, name: 'Premier League', country: 'England' },
-  { id: 140, name: 'La Liga', country: 'Spain' },
-  { id: 135, name: 'Serie A', country: 'Italy' },
-  { id: 78, name: 'Bundesliga', country: 'Germany' },
-  { id: 3, name: 'Europa League', country: 'Europe' },
-  { id: 307, name: 'Saudi League', country: 'Saudi Arabia' },
-  { id: 233, name: 'Egyptian Premier League', country: 'Egypt' }
+  { id: 2, name: 'Champions League', country: 'Europe', logo: '' },
+  { id: 39, name: 'Premier League', country: 'England', logo: '' },
+  { id: 140, name: 'La Liga', country: 'Spain', logo: '' },
+  { id: 135, name: 'Serie A', country: 'Italy', logo: '' },
+  { id: 78, name: 'Bundesliga', country: 'Germany', logo: '' },
+  { id: 3, name: 'Europa League', country: 'Europe', logo: '' },
+  { id: 307, name: 'Saudi League', country: 'Saudi Arabia', logo: '' },
+  { id: 233, name: 'Egyptian Premier League', country: 'Egypt', logo: '' }
 ];
 
 interface Standing {
@@ -111,7 +111,19 @@ const LeagueStandingsFilter = () => {
           }}
         >
           <SelectTrigger className="w-full">
-            <SelectValue>{selectedLeagueName}</SelectValue>
+            <SelectValue>
+              <div className="flex items-center gap-2">
+                <img
+                  src={POPULAR_LEAGUES.find(l => l.id.toString() === selectedLeague)?.logo}
+                  alt={selectedLeagueName}
+                  className="h-5 w-5 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                  }}
+                />
+                {selectedLeagueName}
+              </div>
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {POPULAR_LEAGUES.map((league) => (
