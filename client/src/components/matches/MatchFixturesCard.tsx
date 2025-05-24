@@ -12,8 +12,21 @@ interface FixtureProps {
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
-  // Group fixtures by league
-  const fixturesByLeague = fixtures.reduce((acc: any, fixture: any) => {
+  // Filter fixtures based on selected date
+  const filterFixturesByDate = (fixtures: any[], selectedDate: string) => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const selectedDateObj = new Date(selectedDate);
+
+    return fixtures.filter((fixture: any) => {
+      const fixtureDate = new Date(fixture.fixture.date);
+      return fixtureDate.toDateString() === selectedDateObj.toDateString();
+    });
+  };
+
+  // Group fixtures by league and filter by date
+  const fixturesByLeague = filterFixturesByDate(fixtures, selectedFilter).reduce((acc: any, fixture: any) => {
     const leagueId = fixture.league.id;
     if (!acc[leagueId]) {
       acc[leagueId] = {
@@ -21,11 +34,28 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         fixtures: []
       };
     }
-    acc[leagueId].fixtures.push(fixture);
+    
+    // Show score for past matches
+    const fixtureDate = new Date(fixture.fixture.date);
+    const today = new Date();
+    const isBeforeToday = fixtureDate < today;
+    
+    if (isBeforeToday || fixture.fixture.status.short === 'FT') {
+      acc[leagueId].fixtures.push(fixture);
+    } else {
+      acc[leagueId].fixtures.push(fixture);
+    }
+    
     return acc;
   }, {});
 
-  const renderFixture = (fixture: any) => (
+  const renderFixture = (fixture: any) => {
+    const fixtureDate = new Date(fixture.fixture.date);
+    const today = new Date();
+    const isBeforeToday = fixtureDate < today;
+    const showScore = isBeforeToday || fixture.fixture.status.short === 'FT';
+
+    return (
     <div 
       key={fixture.fixture.id}
       onClick={() => onMatchClick(fixture.fixture.id)}
@@ -46,9 +76,11 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
         <div className="col-span-1 flex justify-center font-semibold">
           <span className="px-3 rounded text-gray-500">
-            {fixture.fixture.status.short === "FT" 
+            {showScore && fixture.goals 
               ? `${fixture.goals.home} - ${fixture.goals.away}`
-              : "-"
+              : fixture.fixture.status.short === "NS" 
+                ? fixture.fixture.date.slice(11, 16)
+                : "-"
             }
           </span>
         </div>
