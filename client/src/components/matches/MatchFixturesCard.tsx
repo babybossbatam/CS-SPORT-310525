@@ -90,8 +90,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                 Live
               </button>
-              <button className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100 rounded-full text-sm">
-                <Clock className="h-4 w-4" />
+              <button className="flex items-center gap-1.5 px-2 py-0.5 hover:bg-gray-100 rounded-full text-xs font-medium w-fit">
+                <Clock className="h-3.5 w-3.5" />
                 By time
               </button>
             </div>
