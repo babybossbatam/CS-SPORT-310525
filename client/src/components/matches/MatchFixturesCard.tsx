@@ -3,6 +3,8 @@ import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown,
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '../ui/select';
 import { Calendar } from '../ui/calendar';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 
 interface FixtureProps {
   fixtures: any[];
@@ -13,6 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
   // Get standings from league data
   const { data: leagueStandings } = useQuery({
