@@ -224,26 +224,27 @@ const LeagueStandingsFilter = () => {
                           const opponent = isHome ? nextMatch.teams.away : nextMatch.teams.home;
 
                           return (
-                            <div className="flex items-center gap-1">
-                              <img 
-                                src={standing.team.logo}
-                                alt={standing.team.name}
-                                className="w-4 h-4 hover:scale-110 transition-transform"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                }}
-                              />
-                              <span className="text-xs">vs</span>
-                              <img 
-                                src={opponent.logo}
-                                alt={opponent.name}
-                                className="w-4 h-4 hover:scale-110 transition-transform"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                }}
-                              />
-                            </div>
-                            <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
+                            <>
+                              <div className="flex items-center gap-1">
+                                <img 
+                                  src={standing.team.logo}
+                                  alt={standing.team.name}
+                                  className="w-4 h-4 hover:scale-110 transition-transform"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                  }}
+                                />
+                                <span className="text-xs">vs</span>
+                                <img 
+                                  src={opponent.logo}
+                                  alt={opponent.name}
+                                  className="w-4 h-4 hover:scale-110 transition-transform"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                  }}
+                                />
+                              </div>
+                              <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
                               <div className="text-xs">
                                 {(() => {
                                   const nextMatch = fixtures?.find(fixture => 
