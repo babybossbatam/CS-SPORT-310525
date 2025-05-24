@@ -41,12 +41,14 @@ const LeagueDetails = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  const user = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user, (prev, next) => prev.id === next.id);
   const { list: leagues, loading: leagueLoading } = useSelector(
     (state: RootState) => state.leagues,
+    (prev, next) => prev.list === next.list && prev.loading === next.loading
   );
   const { byLeague: fixturesByLeague, loading: fixturesLoading } = useSelector(
     (state: RootState) => state.fixtures,
+    (prev, next) => prev.byLeague === next.byLeague && prev.loading === next.loading
   );
 
   const league = leagues.find((l) => l.league.id.toString() === id);
