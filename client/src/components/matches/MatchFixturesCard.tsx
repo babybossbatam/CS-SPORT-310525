@@ -13,15 +13,26 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
 
   // Filter fixtures based on selected date
-  const filterFixturesByDate = (fixtures: any[], selectedDate: string) => {
+  const filterFixturesByDate = (fixtures: any[], selectedFilter: string) => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    const selectedDateObj = new Date(selectedDate);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     return fixtures.filter((fixture: any) => {
       const fixtureDate = new Date(fixture.fixture.date);
-      return fixtureDate.toDateString() === selectedDateObj.toDateString();
+      
+      if (selectedFilter === "Today's Matches") {
+        return fixtureDate.toDateString() === today.toDateString();
+      } else if (selectedFilter === "Yesterday's Matches") {
+        return fixtureDate.toDateString() === yesterday.toDateString();
+      } else if (selectedFilter === "Tomorrow's Matches") {
+        return fixtureDate.toDateString() === tomorrow.toDateString();
+      } else {
+        const selectedDate = new Date(selectedFilter);
+        return fixtureDate.toDateString() === selectedDate.toDateString();
+      }
     });
   };
 
