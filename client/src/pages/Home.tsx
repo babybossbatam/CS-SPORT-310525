@@ -327,31 +327,54 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
                     <CardHeader className="border-b border-gray-100">
                       <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
                         <Trophy className="h-4 w-4 text-yellow-500" />
-                        Match Overview
+                        Match Overview - {new Date(selectedDate).toLocaleDateString()}
                       </h3>
                     </CardHeader>
                     <CardContent>
-                      {leagueStandings && Object.entries(leagueStandings).map(([leagueId, leagueData]: [string, any]) => {
-                        const selectedLeagueFixtures = fixtures.filter(f => f.league.id === parseInt(leagueId));
-                        const todayFixtures = selectedLeagueFixtures.filter(f => {
-                          const fixtureDate = new Date(f.fixture.date);
-                          const selectedFilterDate = new Date(selectedDate);
-                          return fixtureDate.toDateString() === selectedFilterDate.toDateString();
-                        });
-
-                        if (todayFixtures.length === 0) return null;
+                      {fixtures && fixtures.reduce((groupedFixtures, fixture) => {
+                        const fixtureDate = new Date(fixture.fixture.date);
+                        const selectedFilterDate = new Date(selectedDate);
+                        
+                        if (fixtureDate.toDateString() === selectedFilterDate.toDateString()) {
+                          const leagueId = fixture.league.id;
+                          if (!groupedFixtures[leagueId]) {
+                            groupedFixtures[leagueId] = {
+                              league: fixture.league,
+                              fixtures: []
+                            };
+                          }
+                          groupedFixtures[leagueId].fixtures.push(fixture);
+                        }
+                        return groupedFixtures;
+                      }, {}) && Object.values(fixtures.reduce((groupedFixtures, fixture) => {
+                        const fixtureDate = new Date(fixture.fixture.date);
+                        const selectedFilterDate = new Date(selectedDate);
+                        
+                        if (fixtureDate.toDateString() === selectedFilterDate.toDateString()) {
+                          const leagueId = fixture.league.id;
+                          if (!groupedFixtures[leagueId]) {
+                            groupedFixtures[leagueId] = {
+                              league: fixture.league,
+                              fixtures: []
+                            };
+                          }
+                          groupedFixtures[leagueId].fixtures.push(fixture);
+                        }
+                        return groupedFixtures;
+                      }, {})).map((leagueGroup: any) => {
+                        if (leagueGroup.fixtures.length === 0) return null;
 
                         return (
-                          <div key={leagueData.league.id} className="bg-white rounded-lg p-4 mb-4">
+                          <div key={leagueGroup.league.id} className="bg-white rounded-lg p-4 mb-4">
                             <div className="flex items-center gap-3 mb-4">
                               <img 
-                                src={leagueData.league.logo} 
-                                alt={leagueData.league.name}
+                                src={leagueGroup.league.logo} 
+                                alt={leagueGroup.league.name}
                                 className="h-8 w-8 object-contain"
                               />
                               <div>
-                                <h3 className="font-semibold">{leagueData.league.name}</h3>
-                                <p className="text-sm text-gray-500">{leagueData.league.country}</p>
+                                <h3 className="font-semibold">{leagueGroup.league.name}</h3>
+                                <p className="text-sm text-gray-500">{leagueGroup.league.country}</p>
                               </div>
                             </div>
 
@@ -359,7 +382,7 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
                               <div className="text-center">
                                 <h4 className="text-sm font-medium text-gray-600">Score Overview</h4>
                                 <p className="text-xl font-bold mt-1">
-                                  {todayFixtures.reduce((sum, match) => sum + (match.goals.home || 0) + (match.goals.away || 0), 0)}
+                                  {leagueGroup.fixtures.reduce((sum, match) => sum + (match.goals.home || 0) + (match.goals.away || 0), 0)}
                                 </p>
                                 <p className="text-xs text-gray-500">Goals</p>
                               </div>
@@ -367,20 +390,37 @@ const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
                               <div className="text-center">
                                 <h4 className="text-sm font-medium text-gray-600">Results</h4>
                                 <p className="text-xl font-bold mt-1">
-                                  {todayFixtures.filter(match => match.fixture.status.short === "FT").length}
+                                  {leagueGroup.fixtures.filter(match => match.fixture.status.short === "FT").length}
                                 </p>
                                 <p className="text-xs text-gray-500">Completed</p>
                               </div>
 
                               <div className="text-center">
                                 <h4 className="text-sm font-medium text-gray-600">Fixtures</h4>
-                                <p className="text-xl font-bold mt-1">{todayFixtures.length}</p>
+                                <p className="text-xl font-bold mt-1">{leagueGroup.fixtures.length}</p>
                                 <p className="text-xs text-gray-500">Matches</p>
                               </div>
                             </div>
 
+                            <div className="mt-4 space-y-2">
+                              {leagueGroup.fixtures.map((match) => (
+                                <div key={match.fixture.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm">{match.teams.home.name}</span>
+                                    <span className="text-sm font-bold">
+                                      {match.goals.home ?? '-'} - {match.goals.away ?? '-'}
+                                    </span>
+                                    <span className="text-sm">{match.teams.away.name}</span>
+                                  </div>
+                                  <span className="text-xs text-gray-500">
+                                    {match.fixture.status.short}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
                             <button 
-                              onClick={() => navigate(`/league/${leagueData.league.id}`)}
+                              onClick={() => navigate(`/league/${leagueGroup.league.id}`)}
                               className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium text-center"
                             >
                               View Full Details →
