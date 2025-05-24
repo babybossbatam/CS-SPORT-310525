@@ -146,25 +146,77 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </CardContent>
       </Card>
       {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
-        <Card key={leagueData.league.id} className="bg-white shadow-md mb-4">
-          <CardHeader className="p-4 border-b border-gray-100">
+        <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
+          <CardHeader className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <img
-                  src={leagueData.league.logo}
-                  alt={leagueData.league.name}
-                  className="h-6 w-6 mr-2"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                  }}
-                />
-                <span className="font-semibold text-gray-800">{leagueData.league.name}</span>
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <img
+                    src={leagueData.league.logo}
+                    alt={leagueData.league.name}
+                    className="h-8 w-8 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{leagueData.league.name}</h3>
+                  <p className="text-sm text-gray-500">{leagueData.league.country}</p>
+                </div>
               </div>
-              <span className="text-sm text-gray-500">{selectedFilter}</span>
+              <div className="flex items-center">
+                <span className="px-3 py-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-full">
+                  {selectedFilter}
+                </span>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            {renderStandings(leagueData.standings)}
+            <div className="divide-y divide-gray-100">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500">
+                      <th className="py-3 px-4 text-left font-medium">Pos</th>
+                      <th className="py-3 px-4 text-left font-medium">Team</th>
+                      <th className="py-3 px-4 text-center font-medium">P</th>
+                      <th className="py-3 px-4 text-center font-medium">W</th>
+                      <th className="py-3 px-4 text-center font-medium">D</th>
+                      <th className="py-3 px-4 text-center font-medium">L</th>
+                      <th className="py-3 px-4 text-center font-medium">GD</th>
+                      <th className="py-3 px-4 text-center font-medium">Pts</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leagueData.standings.map((team: any) => (
+                      <tr key={team.team.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="py-3 px-4 font-medium">{team.rank}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-3">
+                            <img 
+                              src={team.team.logo} 
+                              alt={team.team.name}
+                              className="h-5 w-5 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                              }}
+                            />
+                            <span className="font-medium text-gray-900">{team.team.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-center">{team.all.played}</td>
+                        <td className="py-3 px-4 text-center">{team.all.win}</td>
+                        <td className="py-3 px-4 text-center">{team.all.draw}</td>
+                        <td className="py-3 px-4 text-center">{team.all.lose}</td>
+                        <td className="py-3 px-4 text-center">{team.goalsDiff}</td>
+                        <td className="py-3 px-4 text-center font-semibold">{team.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </CardContent>
         </Card>
       ))}
