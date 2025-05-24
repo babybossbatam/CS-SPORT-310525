@@ -33,35 +33,11 @@ const StandingsFilterCard = () => {
   return (
     <Card>
       <CardHeader>
-        <Select
-          value={selectedLeague}
-          onValueChange={setSelectedLeague}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue>{selectedLeague}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {POPULAR_LEAGUES.map((league) => (
-              <SelectItem key={league.id} value={league.name}>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={league.logo}
-                    alt={league.name}
-                    className="h-5 w-5 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                    }}
-                  />
-                  {league.name}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <h2 className="text-2xl font-bold">League Standings</h2>
       </CardHeader>
       <CardContent className="p-0">
         {leagueQueries.map((query, index) => {
-          if (!query.data?.standings?.length || query.data.league.name !== selectedLeague) return null;
+          if (!query.data?.standings?.length) return null;
           const league = query.data.league;
           const leagueStandings = query.data.standings;
 
