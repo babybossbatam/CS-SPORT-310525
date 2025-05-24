@@ -216,14 +216,28 @@ const LeagueStandingsFilter = () => {
                           ) && (
                           <>
                             <img 
-                              src={standings.find(opponent => 
-                                opponent.team.id !== standing.team.id && 
-                                opponent.rank > standing.rank
-                              )?.team.logo} 
-                              alt={`Next opponent: ${standings.find(opponent => 
-                                opponent.team.id !== standing.team.id && 
-                                opponent.rank > standing.rank
-                              )?.team.name}`}
+                              src={(() => {
+                                const nextFixture = fixtures?.find(fixture => 
+                                  (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
+                                  new Date(fixture.fixture.date) > new Date()
+                                );
+                                return nextFixture 
+                                  ? (nextFixture.teams.home.id === standing.team.id 
+                                    ? nextFixture.teams.away.logo 
+                                    : nextFixture.teams.home.logo)
+                                  : '';
+                              })()} 
+                              alt={(() => {
+                                const nextFixture = fixtures?.find(fixture => 
+                                  (fixture.teams.home.id === standing.team.id || fixture.teams.away.id === standing.team.id) &&
+                                  new Date(fixture.fixture.date) > new Date()
+                                );
+                                return nextFixture
+                                  ? (nextFixture.teams.home.id === standing.team.id 
+                                    ? nextFixture.teams.away.name 
+                                    : nextFixture.teams.home.name)
+                                  : 'No upcoming matches';
+                              })()}
                               className="w-4 h-4 hover:scale-110 transition-transform"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
