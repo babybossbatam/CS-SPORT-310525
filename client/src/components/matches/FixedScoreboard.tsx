@@ -697,7 +697,7 @@ const FixedScoreboard = () => {
 
           const statusText = hoursSince <= 1 ? "Ended" : hoursSince < 8 ? `${hoursSince}h ago` : "Full Time";
           return (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center mt-0">
               <div>{statusText}</div>
             </div>
           );
