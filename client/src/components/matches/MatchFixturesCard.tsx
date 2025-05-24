@@ -87,7 +87,15 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       <Calendar
                         mode="single"
                         selected={new Date()}
-                        onSelect={(date) => date && setSelectedFilter(date.toLocaleDateString())}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedFilter(date.toLocaleDateString());
+                            const selectTrigger = document.querySelector('[data-state="open"]');
+                            if (selectTrigger instanceof HTMLElement) {
+                              selectTrigger.click();
+                            }
+                          }
+                        }}
                         className="rounded-md"
                       />
                     </SelectContent>
