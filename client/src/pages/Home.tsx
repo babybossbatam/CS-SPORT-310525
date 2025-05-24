@@ -224,7 +224,7 @@ const Home = () => {
           <Card>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Left column (5 columns) */}
-              <div className="lg:col-span-5">
+              <div className="lg:col-span-5 space-y-4">
                 <Card className="bg-[#F4F4F6]">
                   <CardContent className="p-0">
                     <MatchFixturesCard
@@ -233,11 +233,6 @@ const Home = () => {
                     />
                   </CardContent>
                 </Card>
-              </div>
-
-              {/* Right column (7 columns) */}
-              <div className="lg:col-span-7 space-y-4">
-                <FeaturedMatch />
                 {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
                   <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
                     <CardHeader className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
@@ -308,6 +303,11 @@ const Home = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+
+              {/* Right column (7 columns) */}
+              <div className="lg:col-span-7 space-y-4">
+                <FeaturedMatch />
                 <Card>
                   <CardHeader className="border-b border-gray-100">
                     <h3 className="font-semibold text-gray-700 flex items-center justify-center gap-2">
