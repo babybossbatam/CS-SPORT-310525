@@ -718,16 +718,17 @@ const FixedScoreboard = () => {
                   <span className="text-black">Today</span>
                   <div
                     style={{
-                      fontSize: "0.65rem",
-                      position: "absolute",
-                      top: "80%",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "200px",
-                      textAlign: "center",
-                      zIndex: 20,
-                      marginTop: "-15px",
-                    }}
+                        fontSize: "0.975rem", // Increased by 50% from 0.65rem
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        position: "absolute",
+                        top: "80%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "200px",
+                        textAlign: "center",
+                        zIndex: 20,
+                        marginTop: "-15px",
+                      }}
                   >
                     <span className="font-bold text-red-500">
                       Live start in:
@@ -1036,6 +1037,7 @@ const FixedScoreboard = () => {
                           transform: "translateX(-50%)",
                           bottom: "-25px",
                           width: "max-content",
+                          fontFamily: "'Inter', system-ui, sans-serif",
                         }}
                       >
                         {(() => {
