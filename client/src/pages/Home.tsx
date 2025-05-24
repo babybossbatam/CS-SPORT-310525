@@ -260,15 +260,20 @@ const Home = () => {
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead>
-                              <tr className="bg-gray-50 text-gray-500">
-                                <th className="py-3 px-4 text-left font-medium">Pos</th>
-                                <th className="py-3 px-4 text-left font-medium">Team</th>
-                                <th className="py-3 px-4 text-center font-medium">P</th>
-                                <th className="py-3 px-4 text-center font-medium">W</th>
-                                <th className="py-3 px-4 text-center font-medium">D</th>
-                                <th className="py-3 px-4 text-center font-medium">L</th>
-                                <th className="py-3 px-4 text-center font-medium">GD</th>
-                                <th className="py-3 px-4 text-center font-medium">Pts</th>
+                              <tr className="bg-gradient-to-r from-gray-50 to-white text-gray-600">
+                                <th className="py-3 px-4 text-left font-semibold text-sm whitespace-nowrap">
+                                  <div className="flex items-center gap-1">
+                                    <span>Pos</span>
+                                    <span className="text-gray-400 text-xs">#</span>
+                                  </div>
+                                </th>
+                                <th className="py-3 px-4 text-left font-semibold text-sm">Team</th>
+                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Played">P</th>
+                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Won">W</th>
+                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Drawn">D</th>
+                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Lost">L</th>
+                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Goal Difference">GD</th>
+                                <th className="py-3 px-4 text-center font-semibold text-sm" title="Points">Pts</th>
                               </tr>
                             </thead>
                             <tbody>
