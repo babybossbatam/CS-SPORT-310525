@@ -812,7 +812,7 @@ const FixedScoreboard = () => {
 
       <Card className="px-0 pt-0 pb-2 relative">
         <div className="bg-gray-50 border-b p-2">
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center mt-2">
               {currentMatch?.league?.logo ? (
                     <img
                       src={currentMatch.league.logo}
