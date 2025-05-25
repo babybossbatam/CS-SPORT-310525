@@ -1214,7 +1214,7 @@ const FixedScoreboard = () => {
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
                   index === currentIndex ? "bg-black" : "bg-gray-300"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
