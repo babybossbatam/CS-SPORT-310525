@@ -736,9 +736,8 @@ const FixedScoreboard = () => {
                       fontWeight: "normal"
                     }}
                   >
-                    <span className="text-red-500">
-                      Live start in:
-                    </span>
+                    <span className="text-black">Today</span>
+                    <span className="text-red-500">Live start in:</span>
                     <span className="text-red-500">
                       <FixedMatchTimer matchDate={matchDate.toISOString()} />
                     </span>
