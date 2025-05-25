@@ -134,24 +134,48 @@ const StandingsFilterCard = () => {
                             );
                           })}
 
-                          {/* Upcoming Matches */}
-                          {upcomingMatches.map((match) => (
-                            <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-blue-50 rounded text-sm">
-                              <div className="flex items-center gap-2 flex-1">
-                                <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
-                                <span className="truncate">{match.teams.home.name}</span>
+                          {/* Upcoming Matches - Enhanced for future dates */}
+                          {upcomingMatches.map((match) => {
+                            const selectedDateObj = new Date(selectedDate);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const tomorrow = new Date(today);
+                            tomorrow.setDate(tomorrow.getDate() + 1);
+                            const isTomorrow = selectedDateObj.getTime() === tomorrow.getTime();
+                            const isFutureDate = selectedDateObj > today;
+                            
+                            return (
+                              <div key={match.fixture.id} className={`flex items-center justify-between p-2 rounded text-sm ${
+                                isTomorrow ? 'bg-green-50 border border-green-200' : 
+                                isFutureDate ? 'bg-blue-50 border border-blue-100' : 'bg-blue-50'
+                              }`}>
+                                <div className="flex items-center gap-2 flex-1">
+                                  <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                                  <span className="truncate">{match.teams.home.name}</span>
+                                </div>
+                                <div className="flex flex-col items-center px-2">
+                                  <span className={`text-xs ${
+                                    isTomorrow ? 'text-green-700 font-semibold' :
+                                    isFutureDate ? 'text-blue-600 font-medium' : 'text-blue-600'
+                                  }`}>
+                                    {new Date(match.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                  {isTomorrow && (
+                                    <span className="text-xs text-green-600 font-bold">Tomorrow</span>
+                                  )}
+                                  {isFutureDate && !isTomorrow && (
+                                    <span className="text-xs text-blue-500">
+                                      {format(parseISO(match.fixture.date), 'MMM d')}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 flex-1 justify-end">
+                                  <span className="truncate">{match.teams.away.name}</span>
+                                  <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                                </div>
                               </div>
-                              <div className="flex flex-col items-center px-2">
-                                <span className="text-xs text-blue-600">
-                                  {new Date(match.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 flex-1 justify-end">
-                                <span className="truncate">{match.teams.away.name}</span>
-                                <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </>
                       );
                     })()}
