@@ -734,7 +734,6 @@ const FixedScoreboard = () => {
                       fontFamily: "'Inter', system-ui, sans-serif",
                       fontWeight: "normal"
                     }}>
-                      Live start in:
                       <FixedMatchTimer matchDate={matchDate.toISOString()} />
                     </span>
                 </div>
