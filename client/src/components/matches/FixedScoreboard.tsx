@@ -821,9 +821,6 @@ const FixedScoreboard = () => {
                   )}
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
-                      {currentMatch?.league?.round || ""}
-                    </Badge>
                   </div>
                   {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                     <div className="flex items-center gap-1.5 ml-2">
