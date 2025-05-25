@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, isToday, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -81,8 +81,11 @@ const StandingsFilterCard = () => {
                                 <span className="truncate">{match.teams.home.name}</span>
                               </div>
                               <div className="flex items-center gap-2 px-2">
-                                <span className="font-bold">{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
-                                <span className="text-xs text-red-500">{match.fixture.status.elapsed}'</span>
+                                <span className="font-bold text-lg">{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
+                                <div className="flex flex-col items-center">
+                                  <span className="text-xs text-red-500 font-semibold">LIVE</span>
+                                  <span className="text-xs text-red-500">{match.fixture.status.elapsed}'</span>
+                                </div>
                               </div>
                               <div className="flex items-center gap-2 flex-1 justify-end">
                                 <span className="truncate">{match.teams.away.name}</span>
@@ -91,23 +94,45 @@ const StandingsFilterCard = () => {
                             </div>
                           ))}
 
-                          {/* Finished Matches */}
-                          {finishedMatches.map((match) => (
-                            <div key={match.fixture.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
-                              <div className="flex items-center gap-2 flex-1">
-                                <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
-                                <span className="truncate">{match.teams.home.name}</span>
+                          {/* Finished Matches - Enhanced for past dates */}
+                          {finishedMatches.map((match) => {
+                            const selectedDateObj = new Date(selectedDate);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const isYesterday = selectedDateObj < today;
+                            return (
+                              <div key={match.fixture.id} className={`flex items-center justify-between p-2 rounded text-sm ${
+                                isYesterday ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
+                              }`}>
+                                <div className="flex items-center gap-2 flex-1">
+                                  <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                                  <span className="truncate">{match.teams.home.name}</span>
+                                  {match.teams.home.winner && <span className="text-green-600 font-bold">✓</span>}
+                                </div>
+                                <div className="flex items-center gap-2 px-2">
+                                  <span className={`font-bold ${isYesterday ? 'text-lg text-blue-700' : ''}`}>
+                                    {match.goals.home ?? 0} - {match.goals.away ?? 0}
+                                  </span>
+                                  <div className="flex flex-col items-center">
+                                    <span className={`text-xs ${isYesterday ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+                                      {match.fixture.status.short === 'AET' ? 'AET' : 
+                                       match.fixture.status.short === 'PEN' ? 'PEN' : 'FT'}
+                                    </span>
+                                    {isYesterday && (
+                                      <span className="text-xs text-blue-500">
+                                        {format(parseISO(match.fixture.date), 'HH:mm')}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-1 justify-end">
+                                  <span className="truncate">{match.teams.away.name}</span>
+                                  <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                                  {match.teams.away.winner && <span className="text-green-600 font-bold">✓</span>}
+                                </div>
                               </div>
-                              <div className="flex flex-col items-center px-2">
-                                <span className="font-bold">{match.goals.home ?? 0} - {match.goals.away ?? 0}</span>
-                                <span className="text-xs text-gray-500">{match.fixture.status.short}</span>
-                              </div>
-                              <div className="flex items-center gap-2 flex-1 justify-end">
-                                <span className="truncate">{match.teams.away.name}</span>
-                                <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
 
                           {/* Upcoming Matches */}
                           {upcomingMatches.map((match) => (
