@@ -736,8 +736,9 @@ const FixedScoreboard = () => {
                       fontWeight: "normal"
                     }}
                   >
-                    <span className="text-black">Today</span>
-                    <span className="text-red-500">Live start in:</span>
+                    <span className="text-red-500">
+                      Live start in:
+                    </span>
                     <span className="text-red-500">
                       <FixedMatchTimer matchDate={matchDate.toISOString()} />
                     </span>
@@ -811,7 +812,7 @@ const FixedScoreboard = () => {
 
       <Card className="px-0 pt-0 pb-2 relative">
         <div className="bg-gray-50 border-b p-2">
-            <div className="flex items-center justify-center mt-2">
+            <div className="flex items-center justify-center">
               {currentMatch?.league?.logo ? (
                     <img
                       src={currentMatch.league.logo}
