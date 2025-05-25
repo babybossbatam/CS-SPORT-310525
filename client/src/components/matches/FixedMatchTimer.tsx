@@ -49,8 +49,12 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
   return (
     <span style={{ 
       fontFamily: "'Inter', system-ui, sans-serif",
-      display: 'block',
-      marginTop: '20px'
+      position: 'absolute',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      top: '22px',
+      marginTop: '2px',
+      marginBottom: '2px'
     }} className="text-red-500">
       {formattedHours}:{formattedMinutes}:{formattedSeconds}
     </span>
@@ -58,3 +62,7 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
 };
 
 export default FixedMatchTimer;
+```
+
+```
+</replit_final_file>
