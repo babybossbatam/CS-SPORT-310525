@@ -819,9 +819,12 @@ const FixedScoreboard = () => {
                   ) : (
                     <Trophy className="w-5 h-5 text-amber-500 mr-2" />
                   )}
-                  <span className="text-sm font-medium justify-items-center">
-                    {currentMatch?.league?.name || "League Name"} · {currentMatch?.league?.round || ""}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
+                    <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
+                      {currentMatch?.league?.round || ""}
+                    </Badge>
+                  </div>
                   {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                     <div className="flex items-center gap-1.5 ml-2">
                       <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
