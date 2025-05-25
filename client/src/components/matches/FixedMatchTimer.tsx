@@ -47,11 +47,9 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
   const formattedSeconds = timer.seconds.toString().padStart(2, '0');
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span style={{ fontFamily: "'Inter', system-ui, sans-serif" }} className="text-red-500">
-        {formattedHours}:{formattedMinutes}:{formattedSeconds}
-      </span>
-    </div>
+    <span style={{ fontFamily: "'Inter', system-ui, sans-serif" }} className="text-red-500">
+      {formattedHours}:{formattedMinutes}:{formattedSeconds}
+    </span>
   );
 };
 
