@@ -923,12 +923,12 @@ const FixedScoreboard = () => {
                   style={{ marginBottom: "-5px" }}
                 >
                   {/* Match time/status display */}
-                  <div
-                    className="text-center text-black"
+                  <div className="text-center text-black"
                     style={{
                       fontSize: "calc(0.875rem * 1.5)",
                       fontWeight: "700",
                       color: "#000000",
+                      marginTop: "-15px"
                     }}
                   >
                     {" "}
