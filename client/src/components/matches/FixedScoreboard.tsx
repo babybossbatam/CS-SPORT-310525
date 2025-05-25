@@ -697,9 +697,7 @@ const FixedScoreboard = () => {
 
           const statusText = hoursSince <= 1 ? "Ended" : hoursSince < 8 ? `${hoursSince}h ago` : "Full Time";
           return (
-            <div className="flex flex-col items-center mt-0">
-              <div>{statusText}</div>
-            </div>
+            <div className="flex flex-col items-center mt-0">{statusText}</div>
           );
         } catch (error) {
           return "Full Time";
@@ -764,7 +762,6 @@ const FixedScoreboard = () => {
           return <span className="text-black">{daysToMatch} more days</span>;
         } else {
           const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          // Updated here
           return <span className="text-black">{daysToMatch} more days</span>;
         }
       } catch (e) {
@@ -904,6 +901,7 @@ const FixedScoreboard = () => {
                 <div key={i} className="flex flex-col items-center w-1/4">
                   <Skeleton className="h-5 w-5 mb-1" />
                   <Skeleton className="h-3 w-16mb-1" />
+                ```typescript
                 </div>
               ))}
             </div>
