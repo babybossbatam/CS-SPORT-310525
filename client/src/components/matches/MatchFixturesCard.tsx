@@ -4,6 +4,10 @@ import { Card, CardContent, CardHeader } from '../ui/card';
 import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
 import StandingsFilterCard from '../leagues/StandingsFilterCard';
+import { useDispatch } from 'react-redux';
+import { RootState } from '@/lib/store';
+import { format } from 'date-fns';
+import { apiRequest } from '@/lib/queryClient';
 
 interface FixtureProps {
   fixtures: any[];
@@ -14,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
+  const dispatch = useDispatch();
 
   // Get standings from league data
   const { data: leagueStandings } = useQuery({
@@ -101,6 +106,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       tomorrow.setDate(tomorrow.getDate() + 1);
                       const yesterday = new Date(today);
                       yesterday.setDate(yesterday.getDate() - 1);
+
+                      // Update Redux store with selected date
+                      const selectedDateString = format(date, 'yyyy-MM-dd');
+                      dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
 
                       if (date.toDateString() === today.toDateString()) {
                         setSelectedFilter("Today's Matches");
