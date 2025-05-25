@@ -1,7 +1,8 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -15,11 +16,12 @@ const POPULAR_LEAGUES = [
 ];
 
 const StandingsFilterCard = () => {
-  const { data: todayMatches } = useQuery({
-    queryKey: ['fixtures', 'today'],
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+
+  const { data: selectedDateMatches } = useQuery({
+    queryKey: ['fixtures', selectedDate],
     queryFn: async () => {
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const response = await apiRequest('GET', `/api/fixtures/date/${today}`);
+      const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
       const data = await response.json();
       return data || [];
     },
@@ -27,7 +29,7 @@ const StandingsFilterCard = () => {
 
   // Filter matches for popular leagues only
   const popularLeagueIds = POPULAR_LEAGUES.map(league => league.id);
-  const popularLeagueMatches = todayMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
+  const popularLeagueMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
 
   // Group matches by league
   const matchesByLeague = POPULAR_LEAGUES.map(league => ({
@@ -39,7 +41,12 @@ const StandingsFilterCard = () => {
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader className="border-b">
-          <h3 className="text-lg font-semibold">Today's Matches</h3>
+          <h3 className="text-lg font-semibold">
+            {selectedDate === format(new Date(), 'yyyy-MM-dd')
+              ? "Today's Matches"
+              : `Matches for ${format(new Date(selectedDate), 'MMM d, yyyy')}`
+            }
+          </h3>
         </CardHeader>
         <CardContent className="p-4">
           {matchesByLeague.length > 0 ? (
@@ -57,7 +64,7 @@ const StandingsFilterCard = () => {
                     />
                     <h4 className="font-semibold text-sm">{league.name}</h4>
                   </div>
-                  
+
                   <div className="space-y-2">
                     {(() => {
                       const liveMatches = league.matches.filter(match => match.fixture.status.short === "LIVE");
@@ -128,7 +135,12 @@ const StandingsFilterCard = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No matches today from popular leagues</p>
+            <p className="text-gray-500 text-center py-4">
+              {selectedDate === format(new Date(), 'yyyy-MM-dd')
+                ? "No matches today from popular leagues"
+                : "No matches from popular leagues on this date"
+              }
+            </p>
           )}
         </CardContent>
       </Card>
