@@ -48,7 +48,6 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-black">Today</span>
       <span style={{ fontFamily: "'Inter', system-ui, sans-serif" }} className="text-red-500">
         {formattedHours}:{formattedMinutes}:{formattedSeconds}
       </span>
