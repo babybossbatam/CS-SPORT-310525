@@ -726,13 +726,12 @@ const FixedScoreboard = () => {
                     style={{
                       fontSize: "0.975rem",
                       position: "absolute",
-                      top: "80%",
+                      top: "0",
                       left: "50%",
                       transform: "translateX(-50%)",
                       width: "200px",
                       textAlign: "center",
                       zIndex: 20,
-                      marginTop: "-15px",
                       fontFamily: "'Inter', system-ui, sans-serif",
                       fontWeight: "normal"
                     }}
@@ -903,7 +902,6 @@ const FixedScoreboard = () => {
                 <div key={i} className="flex flex-col items-center w-1/4">
                   <Skeleton className="h-5 w-5 mb-1" />
                   <Skeleton className="h-3 w-16mb-1" />
-                ```typescript
                 </div>
               ))}
             </div>
