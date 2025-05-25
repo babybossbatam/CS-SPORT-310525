@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { parseISO } from 'date-fns';
 
@@ -62,7 +63,3 @@ const FixedMatchTimer = ({ matchDate }: FixedMatchTimerProps) => {
 };
 
 export default FixedMatchTimer;
-```
-
-```
-</replit_final_file>
