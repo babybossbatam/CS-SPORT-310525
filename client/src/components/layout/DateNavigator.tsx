@@ -118,17 +118,11 @@ const DateNavigator = () => {
                 className="relative flex items-center space-x-2"
               >
                 <div className="flex items-center space-x-2">
-                    <img 
-                      src={league?.logo} 
-                      alt={league?.name}
-                      className="h-5 w-5"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
-                      }}
-                    />
-                    <span className="text-sm font-medium">{league?.name || getDateDisplayText()}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 rotate-90" />
+                  <span className="text-sm font-medium">
+                    {isToday ? "Today's Matches" : getDateDisplayText()}
+                  </span>
+                </div>
+                <ChevronRight className="h-4 w-4 rotate-90" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="center">
