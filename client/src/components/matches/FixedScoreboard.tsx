@@ -722,8 +722,7 @@ const FixedScoreboard = () => {
               return (
                 <div className="flex flex-col space-y-0 relative pb-1">
                   <span className="text-black">Today</span>
-                  <div
-                    style={{
+                  <span className="text-red-500" style={{
                       fontSize: "0.975rem",
                       position: "absolute",
                       top: "0",
@@ -734,15 +733,10 @@ const FixedScoreboard = () => {
                       zIndex: 20,
                       fontFamily: "'Inter', system-ui, sans-serif",
                       fontWeight: "normal"
-                    }}
-                  >
-                    <span className="text-red-500">
+                    }}>
                       Live start in:
-                    </span>
-                    <span className="text-red-500">
                       <FixedMatchTimer matchDate={matchDate.toISOString()} />
                     </span>
-                  </div>
                 </div>
               );
             } else {
