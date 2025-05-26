@@ -3,7 +3,6 @@ import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown,
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
-import StandingsFilterCard from '../leagues/StandingsFilterCard';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
 import { useDispatch, useSelector } from 'react-redux';
@@ -159,7 +158,6 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </button>
         </div>
       </Card>
-      <StandingsFilterCard />
       <TodayPopularFootballLeagues selectedDate={selectedDate} />
       <TodaysMatchesByCountry selectedDate={selectedDate} />
     </div>
