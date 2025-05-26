@@ -24,11 +24,11 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     }
   });
 
-  // Auto-expand all countries when fixtures data changes
+  // Start with all countries collapsed by default
   useEffect(() => {
     if (fixtures.length > 0) {
-      const countries = new Set(fixtures.map((fixture: any) => fixture.league.country));
-      setExpandedCountries(countries);
+      // Keep countries collapsed by default - don't auto-expand
+      setExpandedCountries(new Set());
     }
   }, [fixtures]);
 
