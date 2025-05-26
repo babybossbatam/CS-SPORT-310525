@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Flag } from 'lucide-react';
+import { Trophy, Flag } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { apiRequest } from '@/lib/queryClient';
@@ -19,10 +19,10 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
     'brazil': 'Serie A',
     'germany': 'Bundesliga'
   });
-  
+
   // Get all leagues from Redux store
   const allLeagues = useSelector((state: RootState) => state.leagues.list);
-  
+
   // Country to league ID mapping
   const countryLeagueMap: Record<string, number> = {
     'europe': 2,    // Champions League
@@ -32,16 +32,16 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
     'brazil': 71,   // Serie A (Brazil)
     'germany': 78   // Bundesliga
   };
-  
+
   // Fetch and update league names on component mount
   useEffect(() => {
     const fetchLeagueNames = async () => {
       const updatedNames: Record<string, string> = {...leagueNames};
-      
+
       // First check if we already have the data in Redux store
       for (const [country, leagueId] of Object.entries(countryLeagueMap)) {
         const leagueInfo = allLeagues.find(l => l.league.id === leagueId);
-        
+
         if (leagueInfo) {
           updatedNames[country] = leagueInfo.league.name;
         } else {
@@ -49,7 +49,7 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
           try {
             const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
             const data = await response.json();
-            
+
             if (data && data.league && data.league.name) {
               updatedNames[country] = data.league.name;
             }
@@ -58,17 +58,17 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
           }
         }
       }
-      
+
       setLeagueNames(updatedNames);
     };
-    
+
     fetchLeagueNames();
   }, [allLeagues]);
-  
+
   // Using flag icons instead of emoji to ensure consistent rendering
   // Reordered as: All, Europe, England, Spain, Italy, Brazil, Germany
   const countries = [
-    { id: 'all', name: 'All', icon: <Globe className="h-4 w-4" /> },
+    { id: 'all', name: 'All', icon: <Trophy className="h-4 w-4" /> },
     { 
       id: 'europe', 
       name: 'Europe', 
@@ -136,12 +136,12 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
       </div>
     },
   ];
-  
+
   const handleCountrySelect = (country: string | null) => {
     setSelectedCountry(country);
     onSelectCountry(country);
   };
-  
+
   return (
     <div className="p-3 border-b">
       <h2 className="text-base font-bold mb-2">Popular Football Leagues</h2>
@@ -149,7 +149,7 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
         {countries.map((country) => {
           const isSelected = selectedCountry === country.id || (selectedCountry === null && country.id === 'all');
           const isHovered = hoveredCountry === country.id;
-          
+
           return (
             <button
               key={country.id}
@@ -168,14 +168,14 @@ const LeagueCountryFilter: React.FC<LeagueCountryFilterProps> = ({ onSelectCount
                 </span>
                 <span className={`transition-all duration-300 ${isHovered ? 'font-semibold' : ''}`}>{country.name}</span>
               </div>
-              
+
               {/* League name - only show for countries with leagues */}
               {country.id !== 'all' && (
                 <span className={`text-xs ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
                   {country.leagueName}
                 </span>
               )}
-              
+
               {/* Animated background effect when hovered */}
               {isHovered && !isSelected && (
                 <span 
