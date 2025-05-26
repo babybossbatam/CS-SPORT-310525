@@ -162,8 +162,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
     
-    // Include specific countries: Saudi Arabia, Brazil, and Argentina
-    const includedCountries = ['Saudi Arabia', 'Brazil', 'Argentina'];
+    // Include specific countries: Saudi-Arabia, Brazil, and Argentina
+    const includedCountries = ['Saudi-Arabia', 'Brazil', 'Argentina'];
     
     // Include if it's one of the specified countries (case-insensitive check)
     if (includedCountries.some(country => 
