@@ -354,7 +354,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                           <img
                             src={leagueData.league.logo}
                             alt={leagueData.league.name}
-                            className="w-5 h-5 object-contain"
+                            className="w-8 h-8 object-contain"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                             }}
