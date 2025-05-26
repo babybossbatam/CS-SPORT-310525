@@ -100,6 +100,7 @@ const StandingsFilterCard = () => {
         <CardContent className="p-4">
           {matchesByLeague.length > 0 ? (
             <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Popular Football Leagues</h3>
               {matchesByLeague.map((league) => (
                 <div key={league.id} className="space-y-3">
                   <div className="flex items-center gap-2 pb-2 border-b">
