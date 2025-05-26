@@ -31,21 +31,38 @@ const StandingsFilterCard = () => {
   const popularLeagueIds = POPULAR_LEAGUES.map(league => league.id);
   const allPopularMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
   
-  // Global deduplication based on fixture ID before league grouping
-  const popularLeagueMatches = allPopularMatches.filter((match, index, self) => 
-    index === self.findIndex(m => m.fixture.id === match.fixture.id)
-  );
+  // Debug logging
+  console.log('Total matches from API:', selectedDateMatches?.length || 0);
+  console.log('Popular league matches before deduplication:', allPopularMatches.length);
+  
+  // Enhanced global deduplication - use multiple keys to ensure uniqueness
+  const popularLeagueMatches = allPopularMatches.filter((match, index, self) => {
+    const matchKey = `${match.fixture.id}-${match.teams.home.id}-${match.teams.away.id}-${match.league.id}`;
+    return index === self.findIndex(m => {
+      const mKey = `${m.fixture.id}-${m.teams.home.id}-${m.teams.away.id}-${m.league.id}`;
+      return mKey === matchKey;
+    });
+  });
+  
+  console.log('Popular league matches after deduplication:', popularLeagueMatches.length);
+  
+  // Additional deduplication by team names and time
+  const finalMatches = popularLeagueMatches.filter((match, index, self) => {
+    const matchIdentifier = `${match.teams.home.name}_vs_${match.teams.away.name}_${match.fixture.date}_${match.league.id}`;
+    return index === self.findIndex(m => {
+      const mIdentifier = `${m.teams.home.name}_vs_${m.teams.away.name}_${m.fixture.date}_${m.league.id}`;
+      return mIdentifier === matchIdentifier;
+    });
+  });
+  
+  console.log('Final matches after enhanced deduplication:', finalMatches.length);
 
-  // Group matches by league and remove duplicates
+  // Group matches by league using final deduplicated matches
   const matchesByLeague = POPULAR_LEAGUES.map(league => {
-    const leagueMatches = popularLeagueMatches.filter(match => match.league.id === league.id);
-    // Remove duplicates based on fixture ID
-    const uniqueMatches = leagueMatches.filter((match, index, self) => 
-      index === self.findIndex(m => m.fixture.id === match.fixture.id)
-    );
+    const leagueMatches = finalMatches.filter(match => match.league.id === league.id);
     return {
       ...league,
-      matches: uniqueMatches
+      matches: leagueMatches
     };
   }).filter(league => league.matches.length > 0);
 
