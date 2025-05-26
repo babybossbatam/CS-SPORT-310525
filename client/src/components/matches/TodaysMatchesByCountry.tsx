@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -248,10 +249,28 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
   if ((isLoading || isLoadingPopular) && combinedCachedData.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6 text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <Clock className="h-4 w-4 animate-spin" />
-            <p className="text-gray-500">Loading matches...</p>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-52" />
+          </div>
+          <Skeleton className="h-3 w-44" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
