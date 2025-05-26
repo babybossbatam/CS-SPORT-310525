@@ -215,14 +215,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 {/* Teams */}
                                 <div className="flex items-center gap-3 flex-1">
                                   <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <span className="text-sm font-medium truncate">
+                                      {match.teams.home.name}
+                                    </span>
                                     <TeamLogo
                                       src={match.teams.home.logo}
                                       alt={match.teams.home.name}
                                       size="sm"
                                     />
-                                    <span className="text-sm font-medium truncate">
-                                      {match.teams.home.name}
-                                    </span>
                                   </div>
                                 </div>
 
@@ -241,14 +241,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 {/* Away team */}
                                 <div className="flex items-center gap-3 flex-1">
                                   <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                                    <span className="text-sm font-medium truncate">
-                                      {match.teams.away.name}
-                                    </span>
                                     <TeamLogo
                                       src={match.teams.away.logo}
                                       alt={match.teams.away.name}
                                       size="sm"
                                     />
+                                    <span className="text-sm font-medium truncate">
+                                      {match.teams.away.name}
+                                    </span>
                                   </div>
                                 </div>
                               </div>
