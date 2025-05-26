@@ -415,11 +415,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
                                 <div className="flex-shrink-0 mx-1">
                                   <img
-                                    src={match.teams.home.logo}
+                                    src={match.teams.home.logo || '/assets/fallback-logo.png'}
                                     alt={match.teams.home.name}
                                     className="w-12 h-12 object-contain"
                                     onError={(e) => {
-                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                      const target = e.target as HTMLImageElement;
+                                      console.log(`Failed to load home team logo: ${target.src} for ${match.teams.home.name}`);
+                                      if (target.src !== '/assets/fallback-logo.png') {
+                                        target.src = '/assets/fallback-logo.png';
+                                      }
                                     }}
                                   />
                                 </div>
@@ -536,11 +540,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
                                 <div className="flex-shrink-0 mx-1">
                                   <img
-                                    src={match.teams.away.logo}
+                                    src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                     alt={match.teams.away.name}
                                     className="w-12 h-12 object-contain"
                                     onError={(e) => {
-                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                      const target = e.target as HTMLImageElement;
+                                      console.log(`Failed to load away team logo: ${target.src} for ${match.teams.away.name}`);
+                                      if (target.src !== '/assets/fallback-logo.png') {
+                                        target.src = '/assets/fallback-logo.png';
+                                      }
                                     }}
                                   />
                                 </div>
