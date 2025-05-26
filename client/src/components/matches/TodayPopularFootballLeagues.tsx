@@ -320,7 +320,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       <CardContent className="p-0">
         <div className="space-y-0">
           {sortedCountries.map((countryData: any) => {
-            const isExpanded = expandedCountries.has(countryData.country);
             const totalMatches = Object.values(countryData.leagues).reduce(
               (sum: number, league: any) => sum + league.matches.length, 0
             );
@@ -342,62 +341,51 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={countryData.flag}
-                      alt={countryData.country}
-                      className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (countryData.country === 'World' || countryData.country === 'International') {
-                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-                        } else {
-                          target.src = '/assets/fallback-logo.svg';
-                        }
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
-                    <span className="text-xs text-gray-500">({totalMatches})</span>
+                <div className="w-full p-4 flex items-center gap-3">
+                  <img
+                    src={countryData.flag}
+                    alt={countryData.country}
+                    className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (countryData.country === 'World' || countryData.country === 'International') {
+                        target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+                      } else {
+                        target.src = '/assets/fallback-logo.svg';
+                      }
+                    }}
+                  />
+                  <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
+                  <span className="text-xs text-gray-500">({totalMatches})</span>
 
-                    {/* Live/Recent badges */}
-                    {liveMatches > 0 && (
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold animate-pulse">
-                        {liveMatches} LIVE
-                      </span>
-                    )}
-                    {recentMatches > 0 && !liveMatches && (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
-                        {recentMatches} Recent
-                      </span>
-                    )}
-
-                    {countryData.hasPopularLeague && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
-                        Popular
-                      </span>
-                    )}
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  {/* Live/Recent badges */}
+                  {liveMatches > 0 && (
+                    <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold animate-pulse">
+                      {liveMatches} LIVE
+                    </span>
                   )}
-                </button>
+                  {recentMatches > 0 && !liveMatches && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
+                      {recentMatches} Recent
+                    </span>
+                  )}
 
-                {isExpanded && (
-                  <div className="bg-gray-50 border-t border-gray-100">
-                    {/* Sort leagues - popular first */}
-                    {Object.values(countryData.leagues)
-                      .sort((a: any, b: any) => {
-                        if (a.isPopular && !b.isPopular) return -1;
-                        if (!a.isPopular && b.isPopular) return 1;
-                        return a.league.name.localeCompare(b.league.name);
-                      })
-                      .map((leagueData: any) => (
+                  {countryData.hasPopularLeague && (
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
+                      Popular
+                    </span>
+                  )}
+                </div>
+
+                <div className="bg-gray-50 border-t border-gray-100">
+                  {/* Sort leagues - popular first */}
+                  {Object.values(countryData.leagues)
+                    .sort((a: any, b: any) => {
+                      if (a.isPopular && !b.isPopular) return -1;
+                      if (!a.isPopular && b.isPopular) return 1;
+                      return a.league.name.localeCompare(b.league.name);
+                    })
+                    .map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
                         {/* League Header */}
                         <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
@@ -537,8 +525,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                         </div>
                       </div>
                     ))}
-                  </div>
-                )}
+                </div>
               </div>
             );
           })}
