@@ -834,7 +834,7 @@ const FixedScoreboard = () => {
                   ) : (
                     <Badge
                       variant="outline"
-                      className={`text-[10px] px-1.5 py-0 border ${
+                      className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
                         getMatchStatusLabel(currentMatch) === "FINISHED"
                           ? "border-gray-500 text-gray-500"
                           : "border-blue-500 text-blue-500"
