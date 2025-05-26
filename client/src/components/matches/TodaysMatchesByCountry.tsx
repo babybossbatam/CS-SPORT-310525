@@ -89,19 +89,10 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     retry: 1, // Reduce retry attempts
   });
 
-  // Auto-expand logic - start with all countries expanded
+  // Start with all countries collapsed by default
   useEffect(() => {
-    if (fixtures.length > 0 || popularFixtures.length > 0) {
-      // Get all unique countries from fixtures
-      const allCountries = new Set<string>();
-
-      [...fixtures, ...popularFixtures].forEach((fixture: any) => {
-        allCountries.add(fixture.league.country);
-      });
-
-      // Start with all countries expanded by default
-      setExpandedCountries(allCountries);
-    }
+    // Reset to collapsed state when data changes
+    setExpandedCountries(new Set());
   }, [fixtures, popularFixtures, selectedDate]);
 
   // Enhanced country flag mapping
