@@ -126,22 +126,42 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
   const getMatchStatus = (fixture: any) => {
     const status = fixture.fixture.status.short;
+    
+    // Explicitly check for ended match statuses
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return 'Ended';
-    } else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+    } 
+    // Check for live match statuses
+    else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return 'Live';
-    } else {
-      // For upcoming matches (NS, TBD, PST)
-      return format(new Date(fixture.fixture.date), 'HH:mm');
+    } 
+    // For upcoming matches, ensure we handle timezone properly
+    else {
+      // Convert UTC time to local time for display
+      const matchDate = new Date(fixture.fixture.date);
+      const now = new Date();
+      
+      // If match time has passed but status is still 'NS', it might be delayed
+      if (matchDate < now && status === 'NS') {
+        return 'Delayed';
+      }
+      
+      return format(matchDate, 'HH:mm');
     }
   };
 
   const getStatusColor = (fixture: any) => {
     const status = fixture.fixture.status.short;
+    const matchDate = new Date(fixture.fixture.date);
+    const now = new Date();
+    
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return 'bg-gray-100 text-gray-600';
     } else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return 'bg-green-100 text-green-700';
+    } else if (matchDate < now && status === 'NS') {
+      // Delayed match styling
+      return 'bg-orange-100 text-orange-700';
     }
     return 'bg-blue-100 text-blue-700';
   };
@@ -304,10 +324,22 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                       <div className="text-sm font-medium text-blue-600">
                                         {format(new Date(match.fixture.date), 'HH:mm')}
                                       </div>
-                                      {/* Bracket Status for Upcoming Matches */}
-                                      <div className="text-xs text-gray-500 mt-1 px-2 py-0.5 bg-blue-50 rounded border border-blue-200">
-                                        [Scheduled]
-                                      </div>
+                                      {/* Bracket Status for Upcoming/Delayed Matches */}
+                                      {(() => {
+                                        const matchDate = new Date(match.fixture.date);
+                                        const now = new Date();
+                                        const isDelayed = matchDate < now && match.fixture.status.short === 'NS';
+                                        
+                                        return (
+                                          <div className={`text-xs mt-1 px-2 py-0.5 rounded border ${
+                                            isDelayed 
+                                              ? 'text-orange-700 bg-orange-50 border-orange-200' 
+                                              : 'text-gray-500 bg-blue-50 border-blue-200'
+                                          }`}>
+                                            [{isDelayed ? 'Delayed' : 'Scheduled'}]
+                                          </div>
+                                        );
+                                      })()}
                                     </>
                                   )}
                                 </div>
