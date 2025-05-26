@@ -4,8 +4,8 @@
  * Includes timezone-aware functionality similar to 365scores.com
  */
 
-import { parseISO, format, formatInTimeZone } from 'date-fns';
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { parseISO, format } from 'date-fns';
+import { zonedTimeToUtc, utcToZonedTime, formatInTimeZone } from 'date-fns-tz';
 
 /**
  * Get user's timezone
