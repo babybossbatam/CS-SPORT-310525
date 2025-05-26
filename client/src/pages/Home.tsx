@@ -32,7 +32,6 @@ import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
-import MatchesByCountry from '@/components/matches/MatchesByCountry';
 import { useLocation } from "wouter";
 
 // Cleanup any stale video references
@@ -52,7 +51,6 @@ const Home = () => {
   const [fixtures, setFixtures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [location, navigate] = useLocation();
-  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
   const { data: leagueStandings } = useQuery({
     queryKey: ['standings'],
@@ -236,7 +234,16 @@ const Home = () => {
               </CardContent>
             </Card>
             <StandingsFilterCard />
-            <MatchesByCountry selectedDate={selectedDate} />
+            {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
+              <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
+                
+                <CardContent className="p-4">
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500">No data to display</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* Right column (7 columns) */}
