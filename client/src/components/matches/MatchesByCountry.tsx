@@ -294,47 +294,65 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                                 {/* Score - Center */}
                                 <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
-                                  {['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(match.fixture.status.short) ? (
-                                    <>
-                                      {/* Finished matches - show final score */}
-                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                        <span>{match.goals.home !== null ? match.goals.home : 0}</span>
-                                        <span className="text-gray-400">-</span>
-                                        <span>{match.goals.away !== null ? match.goals.away : 0}</span>
-                                      </div>
-                                      <div className="text-xs text-gray-500 mt-1">
-                                        {match.fixture.status.short === 'FT' ? 'Full Time' : 
-                                         match.fixture.status.short === 'AET' ? 'After Extra Time' :
-                                         match.fixture.status.short === 'PEN' ? 'Penalties' : 'Finished'}
-                                      </div>
-                                    </>
-                                  ) : ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short) ? (
-                                    <>
-                                      {/* Live matches - show current score */}
-                                      <div className="text-lg font-bold text-green-600 flex items-center gap-2">
-                                        <span>{match.goals.home !== null ? match.goals.home : 0}</span>
-                                        <span className="text-gray-400">-</span>
-                                        <span>{match.goals.away !== null ? match.goals.away : 0}</span>
-                                      </div>
-                                      <div className="text-xs text-green-600 font-semibold mt-1">
-                                        {match.fixture.status.short === 'HT' ? 'Half Time' : 
-                                         match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <>
-                                      {/* Upcoming matches - show scheduled time only if truly upcoming */}
-                                      {match.fixture.status.short === 'NS' || match.fixture.status.short === 'TBD' ? (
+                                  {(() => {
+                                    const matchDate = new Date(match.fixture.date);
+                                    const now = new Date();
+                                    const matchPassedHours = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                                    const hasScore = match.goals.home !== null || match.goals.away !== null;
+                                    
+                                    // If match was more than 2 hours ago OR has score data, show score regardless of status
+                                    if (matchPassedHours > 2 || hasScore || ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(match.fixture.status.short)) {
+                                      return (
+                                        <>
+                                          {/* Finished matches - show final score */}
+                                          <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                            <span>{match.goals.home !== null ? match.goals.home : 0}</span>
+                                            <span className="text-gray-400">-</span>
+                                            <span>{match.goals.away !== null ? match.goals.away : 0}</span>
+                                          </div>
+                                          <div className="text-xs text-gray-500 mt-1">
+                                            {match.fixture.status.short === 'FT' ? 'Full Time' : 
+                                             match.fixture.status.short === 'AET' ? 'After Extra Time' :
+                                             match.fixture.status.short === 'PEN' ? 'Penalties' : 
+                                             matchPassedHours > 2 ? 'Finished' : 'Completed'}
+                                          </div>
+                                        </>
+                                      );
+                                    }
+                                    
+                                    // Live matches
+                                    if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short)) {
+                                      return (
+                                        <>
+                                          <div className="text-lg font-bold text-green-600 flex items-center gap-2">
+                                            <span>{match.goals.home !== null ? match.goals.home : 0}</span>
+                                            <span className="text-gray-400">-</span>
+                                            <span>{match.goals.away !== null ? match.goals.away : 0}</span>
+                                          </div>
+                                          <div className="text-xs text-green-600 font-semibold mt-1">
+                                            {match.fixture.status.short === 'HT' ? 'Half Time' : 
+                                             match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
+                                          </div>
+                                        </>
+                                      );
+                                    }
+                                    
+                                    // Truly upcoming matches
+                                    if (match.fixture.status.short === 'NS' || match.fixture.status.short === 'TBD') {
+                                      return (
                                         <div className="text-sm font-medium text-blue-600">
-                                          {format(new Date(match.fixture.date), 'HH:mm')}
+                                          {format(matchDate, 'HH:mm')}
                                         </div>
-                                      ) : (
-                                        <div className="text-sm font-medium text-orange-600">
-                                          {match.fixture.status.long || match.fixture.status.short}
-                                        </div>
-                                      )}
-                                    </>
-                                  )}
+                                      );
+                                    }
+                                    
+                                    // Fallback for any other status
+                                    return (
+                                      <div className="text-sm font-medium text-orange-600">
+                                        {match.fixture.status.long || match.fixture.status.short}
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
 
                                 {/* Away Team Logo */}
