@@ -155,7 +155,6 @@ const StandingsFilterCard = () => {
                                 <div className="flex items-center gap-2 flex-1">
                                   <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
                                   <span className="truncate">{match.teams.home.name}</span>
-                                  {match.teams.home.winner && <span className="text-green-600 font-bold">✓</span>}
                                 </div>
                                 <div className="flex items-center gap-2 px-2">
                                   <span className={`font-bold ${
@@ -182,7 +181,6 @@ const StandingsFilterCard = () => {
                                 <div className="flex items-center gap-2 flex-1 justify-end">
                                   <span className="truncate">{match.teams.away.name}</span>
                                   <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
-                                  {match.teams.away.winner && <span className="text-green-600 font-bold">✓</span>}
                                 </div>
                               </div>
                             );
