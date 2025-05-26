@@ -267,13 +267,6 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                               className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer relative border-b border-gray-100 last:border-b-0"
                               style={{ marginBottom: '5px' }}
                             >
-                              {/* Match Status at Top - Prominent Display */}
-                              <div className="flex justify-center pt-2 pb-1">
-                                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(match)}`}>
-                                  {getMatchStatus(match)}
-                                </div>
-                              </div>
-                              
                               <div className="flex items-center px-3 py-2">
                                 {/* Home Team Name - Far Left */}
                                 <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2">
