@@ -113,7 +113,7 @@ const StandingsFilterCard = () => {
                       }}
                     />
                     <div>
-                      <h4 className="font-semibold text-sm">{league.name}</h4>
+                      <h4 className="font-semibold text-sm text-gray-500">{league.name}</h4>
                       <p className="text-xs text-gray-500">{league.country}</p>
                     </div>
                   </div>
