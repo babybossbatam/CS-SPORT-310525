@@ -115,8 +115,13 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       
                       // Calculate yesterday and tomorrow strings using UTC
                       const todayUTC = new Date();
-                      const yesterday = new Date(todayUTC.getTime() - 24 * 60 * 60 * 1000);
-                      const tomorrow = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+                      const todayUTCYear = todayUTC.getUTCFullYear();
+                      const todayUTCMonth = todayUTC.getUTCMonth();
+                      const todayUTCDate = todayUTC.getUTCDate();
+                      
+                      // Create proper UTC dates for yesterday and tomorrow
+                      const yesterday = new Date(Date.UTC(todayUTCYear, todayUTCMonth, todayUTCDate - 1));
+                      const tomorrow = new Date(Date.UTC(todayUTCYear, todayUTCMonth, todayUTCDate + 1));
                       
                       const yesterdayString = formatYYYYMMDD(yesterday);
                       const tomorrowString = formatYYYYMMDD(tomorrow);

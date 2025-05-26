@@ -26,8 +26,14 @@ export function formatYYYYMMDD(dateInput: string | Date | null | undefined): str
  */
 export function getCurrentUTCDateString(): string {
   const now = new Date();
-  const utcDate = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  return format(utcDate, 'yyyy-MM-dd');
+  // Create UTC date by using UTC methods
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = now.getUTCMonth();
+  const utcDate = now.getUTCDate();
+  
+  // Create a new date in UTC
+  const utcDateObj = new Date(Date.UTC(utcYear, utcMonth, utcDate));
+  return format(utcDateObj, 'yyyy-MM-dd');
 }
 
 /**
