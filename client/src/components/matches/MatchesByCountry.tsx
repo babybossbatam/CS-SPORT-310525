@@ -212,53 +212,46 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                           <div className="p-4 space-y-4">
                             {leagueData.matches.map((match: any, index: number) => (
                               <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
-                                {/* Teams and Score */}
-                                <div className="flex items-center justify-between">
-                                  {/* Home Team */}
-                                  <div className="flex items-center gap-2 flex-1">
-                                    <span className="font-medium text-gray-900 text-right flex-1 truncate">
-                                      {match.teams.home.name}
-                                    </span>
-                                    <TeamLogo
-                                      src={match.teams.home.logo}
-                                      alt={match.teams.home.name}
-                                      size="sm"
-                                    />
-                                  </div>
+                                {/* Teams and Score - Format: HOME LOGO, HOME NAME, SCORE/TIME, AWAY NAME, AWAY LOGO */}
+                                <div className="flex items-center gap-3">
+                                  {/* Home Team Logo */}
+                                  <TeamLogo
+                                    src={match.teams.home.logo}
+                                    alt={match.teams.home.name}
+                                    size="sm"
+                                  />
+                                  
+                                  {/* Home Team Name */}
+                                  <span className="font-medium text-gray-900 text-sm">
+                                    {getShortTeamName(match.teams.home)}
+                                  </span>
 
-                                  {/* Score */}
-                                  <div className="flex flex-col items-center justify-center mx-6">
+                                  {/* Score or Time */}
+                                  <div className="flex items-center justify-center mx-4">
                                     {(match.goals.home !== null && match.goals.away !== null) ? (
-                                      <>
-                                        {/* Status/Time at top for finished/live matches */}
-                                        <span className={`text-sm font-medium mb-2 ${getStatusColor(match)}`}>
-                                          {getMatchStatus(match)}
-                                        </span>
-                                        <div className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                          <span>{match.goals.home}</span>
-                                          <span className="text-gray-400">-</span>
-                                          <span>{match.goals.away}</span>
-                                        </div>
-                                      </>
+                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-1">
+                                        <span>{match.goals.home}</span>
+                                        <span className="text-gray-400">-</span>
+                                        <span>{match.goals.away}</span>
+                                      </div>
                                     ) : (
-                                      /* Show match time when no score available */
-                                      <div className="text-lg font-medium text-gray-700">
+                                      <div className="text-sm font-medium text-gray-700">
                                         {getMatchStatus(match)}
                                       </div>
                                     )}
                                   </div>
 
-                                  {/* Away Team */}
-                                  <div className="flex items-center gap-2 flex-1">
-                                    <TeamLogo
-                                      src={match.teams.away.logo}
-                                      alt={match.teams.away.name}
-                                      size="sm"
-                                    />
-                                    <span className="font-medium text-gray-900 flex-1 truncate">
-                                      {match.teams.away.name}
-                                    </span>
-                                  </div>
+                                  {/* Away Team Name */}
+                                  <span className="font-medium text-gray-900 text-sm">
+                                    {getShortTeamName(match.teams.away)}
+                                  </span>
+                                  
+                                  {/* Away Team Logo */}
+                                  <TeamLogo
+                                    src={match.teams.away.logo}
+                                    alt={match.teams.away.name}
+                                    size="sm"
+                                  />
                                 </div>
                               </div>
                             ))}
