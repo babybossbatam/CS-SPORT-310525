@@ -126,21 +126,21 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
   const getMatchStatus = (fixture: any) => {
     const status = fixture.fixture.status.short;
-    if (status === 'FT' || status === 'AET' || status === 'PEN') {
+    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return 'Ended';
-    } else if (status === 'LIVE' || status === '1H' || status === 'HT' || status === '2H') {
+    } else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return 'Live';
-    } else if (status === 'NS') {
+    } else if (status === 'NS' || status === 'TBD' || status === 'PST') {
       return format(new Date(fixture.fixture.date), 'HH:mm');
     }
-    return status;
+    return 'Ended'; // Default to ended for any other status
   };
 
   const getStatusColor = (fixture: any) => {
     const status = fixture.fixture.status.short;
-    if (status === 'FT' || status === 'AET' || status === 'PEN') {
+    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return 'bg-gray-100 text-gray-600';
-    } else if (status === 'LIVE' || status === '1H' || status === 'HT' || status === '2H') {
+    } else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return 'bg-green-100 text-green-700';
     }
     return 'bg-blue-100 text-blue-700';
@@ -272,12 +272,12 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                                 {/* Score - Center */}
                                 <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
-                                  {(match.goals.home !== null && match.goals.away !== null) ? (
+                                  {['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP', 'LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short) ? (
                                     <>
                                       <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                        <span>{match.goals.home}</span>
+                                        <span>{match.goals.home ?? 0}</span>
                                         <span className="text-gray-400">-</span>
-                                        <span>{match.goals.away}</span>
+                                        <span>{match.goals.away ?? 0}</span>
                                       </div>
                                       {/* Bracket Status Below Score */}
                                       <div className="text-xs text-gray-500 mt-1 px-2 py-0.5 bg-gray-100 rounded border">
