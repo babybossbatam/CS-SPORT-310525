@@ -60,13 +60,13 @@ const SportsCategoryTabs = () => {
           </div>
 
           {/* Middle tabs with auto-adjusting spacing */}
-          <div className="flex-1 flex justify-center items-center gap-2">
+          <div className="flex-1 flex justify-between items-center px-4">
             {sportsList.slice(1, -1).map(({ id, icon: Icon, label }) => (
               <div
                 key={id}
                 onClick={() => handleSportSelect(id)}
                 className={cn(
-                  'flex items-center justify-start gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit',
+                  'flex items-center justify-start gap-2 px-2 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit',
                   selectedSport === id
                     ? 'text-[#15222A]'
                     : 'text-[#6B7173] hover:text-[#15222A]'
