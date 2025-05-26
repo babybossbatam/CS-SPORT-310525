@@ -523,7 +523,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                     // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                     return (
                                       <>
-                                        <div className="text-sm font-medium text-blue-600">
+                                        <div className="text-sm font-medium text-black">
                                           {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
                                         </div>
                                         {status === 'TBD' && (
