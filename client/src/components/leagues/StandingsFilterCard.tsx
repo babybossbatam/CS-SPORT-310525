@@ -24,16 +24,32 @@ const StandingsFilterCard = () => {
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
       const data = await response.json();
+      console.log(`Fetching matches for selected date: ${selectedDate}, got ${data?.length || 0} matches`);
       return data || [];
     },
+    enabled: !!selectedDate,
   });
 
   // Filter matches for popular leagues only and remove global duplicates
   const popularLeagueIds = POPULAR_LEAGUES.map(league => league.id);
-  const allPopularMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
+  const allPopularMatches = selectedDateMatches?.filter(match => {
+    // Ensure match belongs to popular league
+    const isPopularLeague = popularLeagueIds.includes(match.league.id);
+    
+    // Ensure match date matches selected date
+    const matchDate = new Date(match.fixture.date).toISOString().split('T')[0];
+    const isCorrectDate = matchDate === selectedDate;
+    
+    if (isPopularLeague && !isCorrectDate) {
+      console.warn(`Match ${match.teams.home.name} vs ${match.teams.away.name} has wrong date: ${matchDate}, expected: ${selectedDate}`);
+    }
+    
+    return isPopularLeague && isCorrectDate;
+  }) || [];
 
   // Debug logging
   console.log('Total matches from API:', selectedDateMatches?.length || 0);
+  console.log('Selected date:', selectedDate);
   console.log('Popular league matches before deduplication:', allPopularMatches.length);
 
   // Enhanced global deduplication - use multiple keys to ensure uniqueness
