@@ -466,7 +466,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                         return (
                                           <>
                                             <div className="text-xs text-gray-600 font-semibold mb-1">
-                                              {status === 'FT' ? 'FULL TIME' : 
+                                              {status === 'FT' ? 'ENDED' : 
                                                status === 'AET' ? 'AFTER EXTRA TIME' :
                                                status === 'PEN' ? 'PENALTIES' :
                                                status === 'AWD' ? 'AWARDED' :
