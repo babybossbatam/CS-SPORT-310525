@@ -246,9 +246,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         {/* Matches - Single card per league */}
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                           {/* All Matches in this league */}
-                          <div className="p-4 space-y-4">
+                          <div className="p-4 space-y-1">
                             {leagueData.matches.map((match: any, index: number) => (
-                              <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
+                              <div key={match.fixture.id} className={index > 0 ? "pt-1 border-t border-gray-100" : ""}>
                                 {/* Teams and Score - Format: HOME LOGO, HOME NAME, SCORE/TIME, AWAY NAME, AWAY LOGO */}
                                 <div className="flex items-center gap-3">
                                   {/* Home Team Logo */}
