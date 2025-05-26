@@ -194,13 +194,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
               (sum: number, league: any) => sum + league.matches.length, 0
             );
 
-            return (
-              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                
-
-                
-              </div>
-            );
+            return null;
           })}
         </div>
       </CardContent>
