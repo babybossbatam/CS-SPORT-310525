@@ -204,34 +204,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                {/* Country Header - Simple list style */}
-                <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={countryData.flag}
-                      alt={countryData.country}
-                      className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                      onError={(e) => {
-                        // For World/International, try a globe emoji as fallback
-                        if (countryData.country === 'World' || countryData.country === 'International') {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-                        } else {
-                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                        }
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
-                    <span className="text-xs text-gray-500">({totalMatches})</span>
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
+                
 
                 {/* Expanded Content */}
                 {isExpanded && (
