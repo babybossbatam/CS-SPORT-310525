@@ -392,13 +392,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                           ))}
                         </div>
 
-                        {/* League Standings Link */}
-                        <div className="mt-3 pt-2 border-t border-gray-200">
-                          <button className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                            {leagueData.league.name} Standings
-                            <ChevronDown className="h-3 w-3" />
-                          </button>
-                        </div>
+                        
                       </div>
                     ))}
                   </div>
