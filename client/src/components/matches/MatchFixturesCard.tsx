@@ -109,16 +109,16 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   selected={selectedDate ? parseISO(selectedDate) : new Date()}
                   onSelect={(date) => {
                     if (date) {
-                      // Use local timezone for date comparisons like 365scores
+                      // Use consistent UTC date formatting for API consistency
                       const selectedDateString = formatYYYYMMDD(date);
                       const todayString = getCurrentUTCDateString();
                       
-                      // Calculate yesterday and tomorrow using local timezone
+                      // Calculate yesterday and tomorrow using UTC timezone for consistency
                       const today = new Date();
                       const yesterday = new Date(today);
-                      yesterday.setDate(today.getDate() - 1);
+                      yesterday.setUTCDate(today.getUTCDate() - 1);
                       const tomorrow = new Date(today);
-                      tomorrow.setDate(today.getDate() + 1);
+                      tomorrow.setUTCDate(today.getUTCDate() + 1);
                       
                       const yesterdayString = formatYYYYMMDD(yesterday);
                       const tomorrowString = formatYYYYMMDD(tomorrow);

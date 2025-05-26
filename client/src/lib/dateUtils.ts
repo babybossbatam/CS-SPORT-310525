@@ -1,4 +1,3 @@
-
 /**
  * Date Utilities - Local Timezone Version (like 365scores.com)
  * Uses user's local timezone for date comparisons while keeping UTC for API calls
@@ -11,7 +10,7 @@ import { format, parseISO, isValid, startOfDay, endOfDay, isToday as dateFnsIsTo
  */
 export function formatYYYYMMDD(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return format(new Date(), 'yyyy-MM-dd');
-  
+
   try {
     const date = typeof dateInput === 'string' ? parseISO(dateInput) : dateInput;
     if (!isValid(date)) return format(new Date(), 'yyyy-MM-dd');
@@ -51,7 +50,7 @@ export function isMatchOnDate(matchDate: string | Date, targetDate: string): boo
   try {
     const match = typeof matchDate === 'string' ? parseISO(matchDate) : matchDate;
     const target = parseISO(targetDate);
-    
+
     // Compare just the date parts in local timezone
     return format(match, 'yyyy-MM-dd') === format(target, 'yyyy-MM-dd');
   } catch {
@@ -80,7 +79,7 @@ export function getEndOfDay(date: Date | string): Date {
  */
 export function formatTime(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return 'TBD';
-  
+
   try {
     const date = typeof dateInput === 'string' ? parseISO(dateInput) : dateInput;
     if (!isValid(date)) return 'TBD';
@@ -95,7 +94,7 @@ export function formatTime(dateInput: string | Date | null | undefined): string 
  */
 export function formatDateTime(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return 'TBD';
-  
+
   try {
     const date = typeof dateInput === 'string' ? parseISO(dateInput) : dateInput;
     if (!isValid(date)) return 'TBD';

@@ -66,37 +66,20 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
 
-          // Check if fixture is from the selected date using local timezone (like 365scores)
-          const isFixtureFromSelectedDate = (fixtureDate: string, targetDate: string) => {
-            try {
-              const fixture = new Date(fixtureDate);
-              const target = new Date(targetDate);
-
-              // Compare dates in local timezone
-              return fixture.getFullYear() === target.getFullYear() &&
-                     fixture.getMonth() === target.getMonth() &&
-                     fixture.getDate() === target.getDate();
-            } catch {
-              return false;
-            }
-          };
-
+          // Use a more reliable date matching approach
           const matchesFromSelectedDate = leagueFixtures.filter(match => {
-            const currentDate = selectedDate || getCurrentUTCDateString();
-            return isFixtureFromSelectedDate(match.fixture.date, currentDate);
-          });
-
-          // Additional filtering to ensure we only show matches for the selected date
-          const displayMatches = matchesFromSelectedDate.filter(match => {
+            try {
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
               const selectedDateObj = new Date(selectedDate);
-              const localFixtureDate = new Date(fixtureDate.getTime());
-
-              // Check if the fixture date matches the selected date
-              return isSameDay(localFixtureDate, selectedDateObj);
-            });
+              
+              // Compare dates using date-fns isSameDay for more reliable comparison
+              return isSameDay(fixtureDate, selectedDateObj);
+            } catch {
+              return false;
+            }
+          });
 
           allData.push(...matchesFromSelectedDate);
         } catch (error) {
@@ -159,15 +142,18 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     )
     .filter((fixture: any) => {
-      // Additional filtering to ensure we only show matches for the selected date
-      const fixtureDate = parseISO(fixture.fixture.date);
-      if (!isValid(fixtureDate)) return false;
+      try {
+        // Simplified date filtering - the API should already filter by date
+        const fixtureDate = parseISO(fixture.fixture.date);
+        if (!isValid(fixtureDate)) return false;
 
-      const selectedDateObj = new Date(selectedDate);
-      const localFixtureDate = new Date(fixtureDate.getTime());
-
-      // Check if the fixture date matches the selected date
-      return isSameDay(localFixtureDate, selectedDateObj);
+        const selectedDateObj = new Date(selectedDate);
+        
+        // Use isSameDay for reliable date comparison
+        return isSameDay(fixtureDate, selectedDateObj);
+      } catch {
+        return false;
+      }
     });
 
   // Group fixtures by country and league
