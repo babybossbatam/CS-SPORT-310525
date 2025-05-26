@@ -37,6 +37,11 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     // Use league flag if available
     if (leagueFlag) return leagueFlag;
     
+    // Special handling for World/International competitions
+    if (country === 'World' || country === 'International') {
+      return 'https://flagsapi.com/UN/flat/24.png'; // UN flag for international competitions
+    }
+    
     // Country code mapping for better flag display
     const countryCodeMap: { [key: string]: string } = {
       'England': 'GB-ENG',
@@ -54,8 +59,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       'Cape Verde': 'CV',
       'Democratic Republic of Congo': 'CD',
       'Curacao': 'CW',
-      'Faroe Islands': 'FO',
-      'World': 'EU'
+      'Faroe Islands': 'FO'
     };
 
     const countryCode = countryCodeMap[country] || 
