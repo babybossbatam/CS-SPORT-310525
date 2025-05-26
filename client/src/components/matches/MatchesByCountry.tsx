@@ -186,14 +186,6 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
   return (
     <Card>
-      <CardHeader className="pb-4">
-        <h3 className="text-sm font-semibold">
-          {selectedDate === format(new Date(), 'yyyy-MM-dd') 
-            ? "Today's Latest Football Results By Country" 
-            : `Football Match By Country - ${format(new Date(selectedDate), 'MMM d, yyyy')}`
-          }
-        </h3>
-      </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
           {sortedCountries.map((countryData: any) => {
