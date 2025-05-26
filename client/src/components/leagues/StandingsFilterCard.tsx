@@ -31,11 +31,18 @@ const StandingsFilterCard = () => {
   const popularLeagueIds = POPULAR_LEAGUES.map(league => league.id);
   const popularLeagueMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
 
-  // Group matches by league
-  const matchesByLeague = POPULAR_LEAGUES.map(league => ({
-    ...league,
-    matches: popularLeagueMatches.filter(match => match.league.id === league.id)
-  })).filter(league => league.matches.length > 0);
+  // Group matches by league and remove duplicates
+  const matchesByLeague = POPULAR_LEAGUES.map(league => {
+    const leagueMatches = popularLeagueMatches.filter(match => match.league.id === league.id);
+    // Remove duplicates based on fixture ID
+    const uniqueMatches = leagueMatches.filter((match, index, self) => 
+      index === self.findIndex(m => m.fixture.id === match.fixture.id)
+    );
+    return {
+      ...league,
+      matches: uniqueMatches
+    };
+  }).filter(league => league.matches.length > 0);
 
   return (
     <div className="flex flex-col gap-4">
