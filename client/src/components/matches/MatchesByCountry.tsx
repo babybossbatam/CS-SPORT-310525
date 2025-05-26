@@ -15,43 +15,6 @@ interface MatchesByCountryProps {
 const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
-  // Function to get shortened team names for display
-  const getShortTeamName = (team: any) => {
-    if (!team || !team.name) return '';
-    
-    const name = team.name;
-    
-    // Common abbreviations and short forms
-    const abbreviations: { [key: string]: string } = {
-      'Manchester United': 'Man United',
-      'Manchester City': 'Man City',
-      'Tottenham Hotspur': 'Tottenham',
-      'Leicester City': 'Leicester',
-      'Brighton & Hove Albion': 'Brighton',
-      'Wolverhampton Wanderers': 'Wolves',
-      'Newcastle United': 'Newcastle',
-      'West Ham United': 'West Ham',
-      'Nottingham Forest': 'Nott\'m Forest',
-      'Sheffield United': 'Sheffield Utd',
-      'Crystal Palace': 'Crystal Palace',
-      'Aston Villa': 'Aston Villa',
-      'Paris Saint Germain': 'PSG',
-      'Borussia Dortmund': 'Dortmund',
-      'Bayern Munich': 'Bayern',
-      'Real Madrid': 'Real Madrid',
-      'Atletico Madrid': 'Atletico',
-      'Athletic Club': 'Athletic',
-      'Real Sociedad': 'Real Sociedad',
-      'AC Milan': 'Milan',
-      'Inter Milan': 'Inter',
-      'AS Roma': 'Roma',
-      'Lazio': 'Lazio'
-    };
-    
-    // Return abbreviation if available, otherwise return original name
-    return abbreviations[name] || name;
-  };
-
   const { data: fixtures = [] } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
@@ -246,9 +209,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         {/* Matches - Single card per league */}
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                           {/* All Matches in this league */}
-                          <div className="p-4 space-y-1">
+                          <div className="p-4 space-y-4">
                             {leagueData.matches.map((match: any, index: number) => (
-                              <div key={match.fixture.id} className={index > 0 ? "pt-1 border-t border-gray-100" : ""}>
+                              <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
                                 {/* Teams and Score - Format: HOME LOGO, HOME NAME, SCORE/TIME, AWAY NAME, AWAY LOGO */}
                                 <div className="flex items-center gap-3">
                                   {/* Home Team Logo */}
