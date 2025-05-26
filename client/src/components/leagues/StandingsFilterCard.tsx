@@ -6,6 +6,7 @@ import { RootState } from '@/lib/store';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { apiRequest } from '@/lib/queryClient';
 import { formatTimeInUserTimezone, convertToUserTimezone } from '@/lib/dateUtils';
+import TimeDebugger from '@/components/debug/TimeDebugger';
 
 const POPULAR_LEAGUES = [
   { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
@@ -95,8 +96,10 @@ const StandingsFilterCard = () => {
   }).filter(league => league.matches.length > 0);
 
   return (
-    <Card>
-      <CardContent className="p-4">
+    <>
+      <TimeDebugger sampleMatch={popularLeagueMatches[0]} />
+      <Card>
+        <CardContent className="p-4">
         {matchesByLeague.length > 0 ? (
           <div className="space-y-6">
             <h3 className="text-sm font-semibold text-gray-800 mb-4">Popular Football Leagues</h3>
@@ -178,16 +181,25 @@ const StandingsFilterCard = () => {
                             const isYesterday = selectedDateObj.getTime() === yesterday.getTime();
                             const isPastDate = selectedDateObj.getTime() < today.getTime();
 
-                            // Debug logging for finished matches
-                            console.log(`Finished match: ${match.teams.home.name} vs ${match.teams.away.name}`, {
+                            // Enhanced debugging for finished matches
+                            console.log(`🏆 FINISHED MATCH DEBUG: ${match.teams.home.name} vs ${match.teams.away.name}`, {
                               homeGoals: match.goals.home,
                               awayGoals: match.goals.away,
+                              homeGoalsType: typeof match.goals.home,
+                              awayGoalsType: typeof match.goals.away,
+                              homeGoalsNull: match.goals.home === null,
+                              awayGoalsNull: match.goals.away === null,
                               status: match.fixture.status.short,
+                              statusLong: match.fixture.status.long,
                               isToday,
                               isYesterday,
                               isPastDate,
                               selectedDate,
-                              matchDate: match.fixture.date
+                              matchDate: match.fixture.date,
+                              matchTimestamp: new Date(match.fixture.date).getTime(),
+                              currentTime: new Date().getTime(),
+                              timeDiff: (new Date().getTime() - new Date(match.fixture.date).getTime()) / (1000 * 60 * 60),
+                              fullMatchObject: match
                             });
 
                             return (
@@ -308,6 +320,7 @@ const StandingsFilterCard = () => {
         )}
       </CardContent>
     </Card>
+    </>
   );
 };
 
