@@ -208,21 +208,6 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                         {/* Matches - Single card per league */}
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                          {/* League Header */}
-                          <div className="flex items-center gap-2 p-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
-                            <img
-                              src={leagueData.league.logo}
-                              alt={leagueData.league.name}
-                              className="w-5 h-5 object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                              }}
-                            />
-                            <span className="text-sm font-medium text-gray-700">
-                              {leagueData.league.name}
-                            </span>
-                          </div>
-
                           {/* All Matches in this league */}
                           <div className="p-4 space-y-4">
                             {leagueData.matches.map((match: any, index: number) => (
