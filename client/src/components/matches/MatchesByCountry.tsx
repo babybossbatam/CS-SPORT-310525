@@ -248,12 +248,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                               className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer relative border-b border-gray-100 last:border-b-0"
                               style={{ marginBottom: '5px' }}
                             >
-                              {/* Status at top right */}
-                              <div className="absolute top-2 right-3 text-xs text-gray-500">
-                                {getMatchStatus(match)}
+                              {/* Match Status at Top - Prominent Display */}
+                              <div className="flex justify-center pt-2 pb-1">
+                                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(match)}`}>
+                                  {getMatchStatus(match)}
+                                </div>
                               </div>
                               
-                              <div className="flex items-center px-3 py-3">
+                              <div className="flex items-center px-3 py-2">
                                 {/* Home Team Name - Far Left */}
                                 <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2">
                                   {match.teams.home.name}
@@ -269,17 +271,29 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 </div>
 
                                 {/* Score - Center */}
-                                <div className="flex items-center justify-center px-4 flex-shrink-0">
+                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
                                   {(match.goals.home !== null && match.goals.away !== null) ? (
-                                    <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                      <span>{match.goals.home}</span>
-                                      <span className="text-gray-400">-</span>
-                                      <span>{match.goals.away}</span>
-                                    </div>
+                                    <>
+                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <span>{match.goals.home}</span>
+                                        <span className="text-gray-400">-</span>
+                                        <span>{match.goals.away}</span>
+                                      </div>
+                                      {/* Bracket Status Below Score */}
+                                      <div className="text-xs text-gray-500 mt-1 px-2 py-0.5 bg-gray-100 rounded border">
+                                        [{match.fixture.status.short}]
+                                      </div>
+                                    </>
                                   ) : (
-                                    <div className="text-sm font-medium text-blue-600">
-                                      {format(new Date(match.fixture.date), 'HH:mm')}
-                                    </div>
+                                    <>
+                                      <div className="text-sm font-medium text-blue-600">
+                                        {format(new Date(match.fixture.date), 'HH:mm')}
+                                      </div>
+                                      {/* Bracket Status for Upcoming Matches */}
+                                      <div className="text-xs text-gray-500 mt-1 px-2 py-0.5 bg-blue-50 rounded border border-blue-200">
+                                        [Scheduled]
+                                      </div>
+                                    </>
                                   )}
                                 </div>
 
