@@ -60,9 +60,20 @@ const StandingsFilterCard = () => {
   // Group matches by league using final deduplicated matches
   const matchesByLeague = POPULAR_LEAGUES.map(league => {
     const leagueMatches = finalMatches.filter(match => match.league.id === league.id);
+    
+    // Final deduplication at league level using fixture ID only
+    const uniqueLeagueMatches = leagueMatches.filter((match, index, self) => 
+      index === self.findIndex(m => m.fixture.id === match.fixture.id)
+    );
+    
+    if (uniqueLeagueMatches.length > 0) {
+      console.log(`League ${league.name} has ${uniqueLeagueMatches.length} matches:`, 
+        uniqueLeagueMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id})`));
+    }
+    
     return {
       ...league,
-      matches: leagueMatches
+      matches: uniqueLeagueMatches
     };
   }).filter(league => league.matches.length > 0);
 
@@ -124,7 +135,7 @@ const StandingsFilterCard = () => {
                           ))}
 
                           {/* Finished Matches - Enhanced for past dates */}
-                          {finishedMatches.map((match, matchIndex) => {
+                          {finishedMatches.map((match) => {
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
@@ -137,7 +148,7 @@ const StandingsFilterCard = () => {
                             const isPastDate = selectedDateObj < today;
 
                             return (
-                              <div key={`finished-${match.fixture.id}-${matchIndex}`} className={`flex items-center justify-between p-2 rounded text-sm ${
+                              <div key={`finished-${match.fixture.id}`} className={`flex items-center justify-between p-2 rounded text-sm ${
                                 isYesterday ? 'bg-orange-50 border border-orange-200' : 
                                 isPastDate ? 'bg-gray-50 border border-gray-200' : 'bg-gray-50'
                               }`}>
@@ -181,7 +192,7 @@ const StandingsFilterCard = () => {
                           })}
 
                           {/* Upcoming Matches - Enhanced for future dates */}
-                          {upcomingMatches.map((match, matchIndex) => {
+                          {upcomingMatches.map((match) => {
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
@@ -191,7 +202,7 @@ const StandingsFilterCard = () => {
                             const isFutureDate = selectedDateObj > today;
 
                             return (
-                              <div key={`upcoming-${match.fixture.id}-${matchIndex}`} className={`flex items-center justify-between p-2 rounded text-sm ${
+                              <div key={`upcoming-${match.fixture.id}`} className={`flex items-center justify-between p-2 rounded text-sm ${
                                 isTomorrow ? 'bg-green-50 border border-green-200' : 
                                 isFutureDate ? 'bg-blue-50 border border-blue-100' : 'bg-blue-50'
                               }`}>
