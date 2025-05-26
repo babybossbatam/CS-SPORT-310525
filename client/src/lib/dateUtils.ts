@@ -25,7 +25,9 @@ export function formatYYYYMMDD(dateInput: string | Date | null | undefined): str
  * Get current UTC date as YYYY-MM-DD string
  */
 export function getCurrentUTCDateString(): string {
-  return format(new Date(), 'yyyy-MM-dd');
+  const now = new Date();
+  const utcDate = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return format(utcDate, 'yyyy-MM-dd');
 }
 
 /**

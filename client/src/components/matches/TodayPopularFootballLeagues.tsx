@@ -68,8 +68,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
           // Filter fixtures within our date range
           const filteredFixtures = leagueFixtures.filter((fixture: any) => {
-            const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
-            return fixtureDate >= startDate && fixtureDate <= endDate;
+            const fixtureDate = new Date(fixture.fixture.date);
+            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+            return fixtureDateString >= startDate && fixtureDateString <= endDate;
           });
 
           allData.push(...filteredFixtures);
