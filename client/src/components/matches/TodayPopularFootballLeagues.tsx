@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
@@ -162,16 +161,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
-    
+
     // Include specific countries: Saudi-Arabia, Brazil, and Argentina
     const includedCountries = ['Saudi-Arabia', 'Brazil', 'Argentina'];
-    
+
     // Include if it's one of the specified countries (case-insensitive check)
     if (includedCountries.some(country => 
       countryData.country.toLowerCase().includes(country.toLowerCase()) ||
       country.toLowerCase().includes(countryData.country.toLowerCase())
     )) return true;
-    
+
     return false;
   });
 
@@ -312,7 +311,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         <h3 className="text-sm font-semibold">
           {getHeaderTitle()}
         </h3>
-        
+
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
@@ -379,12 +378,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               const bStatus = b.fixture.status.short;
                               const aDate = parseISO(a.fixture.date);
                               const bDate = parseISO(b.fixture.date);
-                              
+
                               // Ensure valid dates
                               if (!isValid(aDate) || !isValid(bDate)) {
                                 return 0;
                               }
-                              
+
                               const aTime = aDate.getTime();
                               const bTime = bDate.getTime();
 
@@ -430,7 +429,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                   {(() => {
                                     const status = match.fixture.status.short;
                                     const fixtureDate = parseISO(match.fixture.date);
-                                    
+
                                     // Live matches
                                     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                       return (
@@ -455,7 +454,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                       const hasValidScores = (homeScore !== null && homeScore !== undefined) && 
                                                             (awayScore !== null && awayScore !== undefined) &&
                                                             !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
-                                      
+
                                       if (hasValidScores) {
                                         return (
                                           <>
@@ -486,7 +485,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                                          status === 'ABD' ? 'Abandoned' :
                                                          status === 'CANC' ? 'Cancelled' :
                                                          status === 'SUSP' ? 'Suspended' : 'No Score';
-                                        
+
                                         return (
                                           <>
                                             <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded text-center">
@@ -508,7 +507,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                                         status === 'SUSP' ? 'Suspended' :
                                                         status === 'AWD' ? 'Awarded' :
                                                         status === 'WO' ? 'Walkover' : status;
-                                      
+
                                       return (
                                         <>
                                           <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
