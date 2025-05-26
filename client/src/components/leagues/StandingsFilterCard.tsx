@@ -60,17 +60,17 @@ const StandingsFilterCard = () => {
   // Group matches by league using final deduplicated matches
   const matchesByLeague = POPULAR_LEAGUES.map(league => {
     const leagueMatches = finalMatches.filter(match => match.league.id === league.id);
-    
+
     // Final deduplication at league level using fixture ID only
     const uniqueLeagueMatches = leagueMatches.filter((match, index, self) => 
       index === self.findIndex(m => m.fixture.id === match.fixture.id)
     );
-    
+
     if (uniqueLeagueMatches.length > 0) {
       console.log(`League ${league.name} has ${uniqueLeagueMatches.length} matches:`, 
         uniqueLeagueMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id})`));
     }
-    
+
     return {
       ...league,
       matches: uniqueLeagueMatches
@@ -172,9 +172,6 @@ const StandingsFilterCard = () => {
                                       {match.fixture.status.short === 'AET' ? 'AET' : 
                                        match.fixture.status.short === 'PEN' ? 'PEN' : 'FT'}
                                     </span>
-                                    {isYesterday && (
-                                      <span className="text-xs text-orange-500 font-bold">Yesterday</span>
-                                    )}
                                     {isPastDate && !isYesterday && (
                                       <span className="text-xs text-gray-500">
                                         {format(parseISO(match.fixture.date), 'MMM d')}
