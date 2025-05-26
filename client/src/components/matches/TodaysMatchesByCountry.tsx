@@ -89,40 +89,18 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     retry: 1, // Reduce retry attempts
   });
 
-  // Auto-expand logic
+  // Auto-expand logic - start with all countries expanded
   useEffect(() => {
     if (fixtures.length > 0 || popularFixtures.length > 0) {
-      const today = new Date();
-      const selectedDateObj = new Date(selectedDate);
-      const isSelectedToday = isToday(selectedDateObj);
+      // Get all unique countries from fixtures
+      const allCountries = new Set<string>();
+      
+      [...fixtures, ...popularFixtures].forEach((fixture: any) => {
+        allCountries.add(fixture.league.country);
+      });
 
-      if (isSelectedToday) {
-        // For today, auto-expand countries with finished or live matches
-        const countriesWithResults = new Set<string>();
-
-        [...fixtures, ...popularFixtures].forEach((fixture: any) => {
-          const fixtureDate = new Date(fixture.fixture.date);
-          const status = fixture.fixture.status.short;
-          const hoursAgo = differenceInHours(today, fixtureDate);
-
-          // Auto-expand if match finished within last 12 hours or is currently live
-          if ((['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 12) || 
-              ['LIVE', '1H', 'HT', '2H', 'ET'].includes(status)) {
-            countriesWithResults.add(fixture.league.country);
-          }
-        });
-
-        setExpandedCountries(countriesWithResults);
-      } else {
-        // For other dates, start collapsed but expand popular countries
-        const popularCountries = new Set<string>();
-        popularFixtures.forEach((fixture: any) => {
-          if (POPULAR_LEAGUES.includes(fixture.league.id)) {
-            popularCountries.add(fixture.league.country);
-          }
-        });
-        setExpandedCountries(popularCountries);
-      }
+      // Start with all countries expanded by default
+      setExpandedCountries(allCountries);
     }
   }, [fixtures, popularFixtures, selectedDate]);
 
