@@ -157,10 +157,8 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     return acc;
   }, {});
 
-  // Sort countries - popular leagues first, then alphabetical
+  // Sort countries alphabetically A-Z
   const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
-    if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
-    if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
     return a.country.localeCompare(b.country);
   });
 
@@ -357,11 +355,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                       </span>
                     )}
 
-                    {countryData.hasPopularLeague && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
-                        Popular
-                      </span>
-                    )}
+                    
                   </div>
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
