@@ -50,7 +50,7 @@ const SportsCategoryTabs = () => {
               key={id}
               onClick={() => handleSportSelect(id)}
               className={cn(
-                'flex items-center justify-end gap-2 px-4 py-2 cursor-pointer transition-all duration-200 ease-in-out flex-1',
+                'flex items-center justify-start gap-2 px-4 py-2 cursor-pointer transition-all duration-200 ease-in-out flex-1',
                 selectedSport === id
                   ? 'text-[#15222A]'
                   : 'text-[#6B7173] hover:text-[#15222A]'
