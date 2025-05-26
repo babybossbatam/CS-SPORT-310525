@@ -15,6 +15,42 @@ interface MatchesByCountryProps {
 const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
+  // Helper function to get short team name
+  const getShortTeamName = (team: any) => {
+    // First try to use the code if available
+    if (team.code) return team.code;
+    
+    // If no code, try to extract a shorter version from the name
+    const name = team.name;
+    
+    // Common patterns to extract shorter names
+    if (name.includes('FC ')) return name.replace('FC ', '');
+    if (name.includes('CF ')) return name.replace('CF ', '');
+    if (name.includes('AC ')) return name.replace('AC ', '');
+    if (name.includes('AS ')) return name.replace('AS ', '');
+    if (name.includes('SC ')) return name.replace('SC ', '');
+    if (name.includes('SV ')) return name.replace('SV ', '');
+    if (name.includes('1. ')) return name.replace('1. ', '');
+    if (name.includes('Real ')) return name.replace('Real ', '');
+    if (name.includes('Club ')) return name.replace('Club ', '');
+    
+    // For longer names, try to get first word or abbreviation
+    if (name.length > 12) {
+      const words = name.split(' ');
+      if (words.length > 1) {
+        // Try to create abbreviation from first letters
+        const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join('');
+        if (abbreviation.length <= 4) return abbreviation;
+        
+        // Otherwise return first word if it's not too long
+        if (words[0].length <= 10) return words[0];
+      }
+    }
+    
+    // Fallback to original name
+    return name;
+  };
+
   const { data: fixtures = [] } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
@@ -217,7 +253,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                   {/* Home Team */}
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <span className="font-medium text-gray-900 text-right flex-1 text-sm">
-                                      {match.teams.home.code || match.teams.home.name}
+                                      {getShortTeamName(match.teams.home)}
                                     </span>
                                     <TeamLogo
                                       src={match.teams.home.logo}
@@ -256,7 +292,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                       size="sm"
                                     />
                                     <span className="font-medium text-gray-900 flex-1 text-sm">
-                                      {match.teams.away.code || match.teams.away.name}
+                                      {getShortTeamName(match.teams.away)}
                                     </span>
                                   </div>
                                 </div>
