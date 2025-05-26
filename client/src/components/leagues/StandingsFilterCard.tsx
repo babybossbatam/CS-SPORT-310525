@@ -27,9 +27,14 @@ const StandingsFilterCard = () => {
     },
   });
 
-  // Filter matches for popular leagues only
+  // Filter matches for popular leagues only and remove global duplicates
   const popularLeagueIds = POPULAR_LEAGUES.map(league => league.id);
-  const popularLeagueMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
+  const allPopularMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
+  
+  // Global deduplication based on fixture ID before league grouping
+  const popularLeagueMatches = allPopularMatches.filter((match, index, self) => 
+    index === self.findIndex(m => m.fixture.id === match.fixture.id)
+  );
 
   // Group matches by league and remove duplicates
   const matchesByLeague = POPULAR_LEAGUES.map(league => {
