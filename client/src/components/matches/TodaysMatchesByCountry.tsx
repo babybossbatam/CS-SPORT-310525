@@ -94,7 +94,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     if (fixtures.length > 0 || popularFixtures.length > 0) {
       // Get all unique countries from fixtures
       const allCountries = new Set<string>();
-      
+
       [...fixtures, ...popularFixtures].forEach((fixture: any) => {
         allCountries.add(fixture.league.country);
       });
