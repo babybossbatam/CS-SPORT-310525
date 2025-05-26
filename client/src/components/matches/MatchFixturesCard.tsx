@@ -108,28 +108,27 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   selected={selectedDate ? parseISO(selectedDate) : new Date()}
                   onSelect={(date) => {
                     if (date) {
-                      // Normalize dates to avoid timezone issues
-                      const normalizeDate = (d: Date) => {
-                        const normalized = new Date(d);
-                        normalized.setHours(0, 0, 0, 0);
-                        return normalized;
+                      // Normalize dates using UTC to avoid timezone issues
+                      const normalizeToUTC = (d: Date) => {
+                        const utcDate = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                        return utcDate;
                       };
 
-                      const selectedNormalized = normalizeDate(date);
-                      const today = normalizeDate(new Date());
+                      const selectedNormalized = normalizeToUTC(date);
+                      const today = normalizeToUTC(new Date());
                       const tomorrow = new Date(today);
-                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
                       const yesterday = new Date(today);
-                      yesterday.setDate(yesterday.getDate() - 1);
+                      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
 
-                      // Update Redux store with selected date in proper format
+                      // Update Redux store with selected date in UTC format
                       const selectedDateString = format(selectedNormalized, 'yyyy-MM-dd');
                       dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
 
-                      console.log('Date selected:', selectedDateString);
-                      console.log('Today:', format(today, 'yyyy-MM-dd'));
+                      console.log('Date selected (UTC):', selectedDateString);
+                      console.log('Today (UTC):', format(today, 'yyyy-MM-dd'));
 
-                      // Compare normalized dates
+                      // Compare normalized UTC dates
                       if (selectedNormalized.getTime() === today.getTime()) {
                         setSelectedFilter("Today's Matches");
                       } else if (selectedNormalized.getTime() === yesterday.getTime()) {
