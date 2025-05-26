@@ -44,7 +44,7 @@ const SportsCategoryTabs = () => {
 
   return (
     <Card className="rounded-none border-b shadow-lg fixed left-0 z-50 top-[77px] w-full bg-white/95 backdrop-blur-sm">
-        <div className="flex items-center p-1 px-4 ml-[30px] mr-[30px]">
+        <div className="flex items-center p-1 px-4 ml-[150px] mr-[150px]">
           {/* Fixed TV tab on the left */}
           <div
             onClick={() => handleSportSelect('tv')}
