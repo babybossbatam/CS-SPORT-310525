@@ -243,7 +243,7 @@ const StandingsFilterCard = () => {
         ) : (
           <p className="text-gray-500 text-center py-4">
             {selectedDate === format(new Date(), 'yyyy-MM-dd')
-              ? "No matches today from popular leagues"
+              ? "No matches today"
               : "No matches from popular leagues on this date"
             }
           </p>
