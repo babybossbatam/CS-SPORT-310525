@@ -296,28 +296,43 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
                                   {['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(match.fixture.status.short) ? (
                                     <>
-                                      {/* Finished matches - show score */}
+                                      {/* Finished matches - show final score */}
                                       <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                         <span>{match.goals.home !== null ? match.goals.home : 0}</span>
                                         <span className="text-gray-400">-</span>
                                         <span>{match.goals.away !== null ? match.goals.away : 0}</span>
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {match.fixture.status.short === 'FT' ? 'Full Time' : 
+                                         match.fixture.status.short === 'AET' ? 'After Extra Time' :
+                                         match.fixture.status.short === 'PEN' ? 'Penalties' : 'Finished'}
                                       </div>
                                     </>
                                   ) : ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short) ? (
                                     <>
-                                      {/* Live matches - show score */}
-                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                      {/* Live matches - show current score */}
+                                      <div className="text-lg font-bold text-green-600 flex items-center gap-2">
                                         <span>{match.goals.home !== null ? match.goals.home : 0}</span>
                                         <span className="text-gray-400">-</span>
                                         <span>{match.goals.away !== null ? match.goals.away : 0}</span>
                                       </div>
+                                      <div className="text-xs text-green-600 font-semibold mt-1">
+                                        {match.fixture.status.short === 'HT' ? 'Half Time' : 
+                                         match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE'}
+                                      </div>
                                     </>
                                   ) : (
                                     <>
-                                      {/* Upcoming matches - show scheduled time */}
-                                      <div className="text-sm font-medium text-blue-600">
-                                        {format(new Date(match.fixture.date), 'HH:mm')}
-                                      </div>
+                                      {/* Upcoming matches - show scheduled time only if truly upcoming */}
+                                      {match.fixture.status.short === 'NS' || match.fixture.status.short === 'TBD' ? (
+                                        <div className="text-sm font-medium text-blue-600">
+                                          {format(new Date(match.fixture.date), 'HH:mm')}
+                                        </div>
+                                      ) : (
+                                        <div className="text-sm font-medium text-orange-600">
+                                          {match.fixture.status.long || match.fixture.status.short}
+                                        </div>
+                                      )}
                                     </>
                                   )}
                                 </div>
