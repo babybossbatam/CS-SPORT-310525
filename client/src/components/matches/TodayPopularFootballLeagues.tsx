@@ -157,8 +157,29 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return acc;
   }, {});
 
+  // Filter to show only popular countries plus Arab/Brazil countries
+  const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
+    // Always include countries with popular leagues
+    if (countryData.hasPopularLeague) return true;
+    
+    // Include Arab countries
+    const arabCountries = [
+      'Saudi Arabia', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Bahrain', 
+      'Oman', 'Jordan', 'Lebanon', 'Syria', 'Iraq', 'Yemen', 'Egypt', 
+      'Morocco', 'Algeria', 'Tunisia', 'Libya', 'Sudan'
+    ];
+    
+    // Include Brazil
+    if (countryData.country === 'Brazil') return true;
+    
+    // Include if it's an Arab country
+    if (arabCountries.includes(countryData.country)) return true;
+    
+    return false;
+  });
+
   // Sort countries - popular leagues first, then alphabetical
-  const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
+  const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
     return a.country.localeCompare(b.country);
