@@ -213,9 +213,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                             {leagueData.matches.map((match: any, index: number) => (
                               <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
                                 {/* Teams and Score */}
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between w-full">
                                   {/* Home Team */}
-                                  <div className="flex items-center gap-2 flex-1">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <span className="font-medium text-gray-900 text-right flex-1 truncate">
                                       {match.teams.home.name}
                                     </span>
@@ -226,15 +226,15 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     />
                                   </div>
 
-                                  {/* Score */}
-                                  <div className="flex flex-col items-center justify-center mx-6">
+                                  {/* Score/Time - Fixed width to prevent collapse */}
+                                  <div className="flex flex-col items-center justify-center mx-4 min-w-[80px]">
                                     {(match.goals.home !== null && match.goals.away !== null) ? (
                                       <>
                                         {/* Status/Time at top for finished/live matches */}
-                                        <span className={`text-sm font-medium mb-2 ${getStatusColor(match)}`}>
+                                        <span className={`text-sm font-medium mb-1 ${getStatusColor(match)}`}>
                                           {getMatchStatus(match)}
                                         </span>
-                                        <div className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                                        <div className="text-xl font-bold text-gray-900 flex items-center gap-1">
                                           <span>{match.goals.home}</span>
                                           <span className="text-gray-400">-</span>
                                           <span>{match.goals.away}</span>
@@ -242,14 +242,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                       </>
                                     ) : (
                                       /* Show match time when no score available */
-                                      <div className="text-lg font-medium text-gray-700">
+                                      <div className="text-base font-medium text-gray-700 text-center">
                                         {getMatchStatus(match)}
                                       </div>
                                     )}
                                   </div>
 
                                   {/* Away Team */}
-                                  <div className="flex items-center gap-2 flex-1">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <TeamLogo
                                       src={match.teams.away.logo}
                                       alt={match.teams.away.name}
