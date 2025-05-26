@@ -99,10 +99,18 @@ const StandingsFilterCard = () => {
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
-                            const isYesterday = selectedDateObj < today;
+                            selectedDateObj.setHours(0, 0, 0, 0);
+                            
+                            const yesterday = new Date(today);
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            
+                            const isYesterday = selectedDateObj.getTime() === yesterday.getTime();
+                            const isPastDate = selectedDateObj < today;
+                            
                             return (
                               <div key={match.fixture.id} className={`flex items-center justify-between p-2 rounded text-sm ${
-                                isYesterday ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
+                                isYesterday ? 'bg-orange-50 border border-orange-200' : 
+                                isPastDate ? 'bg-gray-50 border border-gray-200' : 'bg-gray-50'
                               }`}>
                                 <div className="flex items-center gap-2 flex-1">
                                   <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
@@ -110,17 +118,26 @@ const StandingsFilterCard = () => {
                                   {match.teams.home.winner && <span className="text-green-600 font-bold">✓</span>}
                                 </div>
                                 <div className="flex items-center gap-2 px-2">
-                                  <span className={`font-bold ${isYesterday ? 'text-lg text-blue-700' : ''}`}>
+                                  <span className={`font-bold ${
+                                    isYesterday ? 'text-lg text-orange-700' : 
+                                    isPastDate ? 'text-gray-700' : ''
+                                  }`}>
                                     {match.goals.home ?? 0} - {match.goals.away ?? 0}
                                   </span>
                                   <div className="flex flex-col items-center">
-                                    <span className={`text-xs ${isYesterday ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+                                    <span className={`text-xs ${
+                                      isYesterday ? 'text-orange-600 font-semibold' : 
+                                      isPastDate ? 'text-gray-600' : 'text-gray-500'
+                                    }`}>
                                       {match.fixture.status.short === 'AET' ? 'AET' : 
                                        match.fixture.status.short === 'PEN' ? 'PEN' : 'FT'}
                                     </span>
                                     {isYesterday && (
-                                      <span className="text-xs text-blue-500">
-                                        {format(parseISO(match.fixture.date), 'HH:mm')}
+                                      <span className="text-xs text-orange-500 font-bold">Yesterday</span>
+                                    )}
+                                    {isPastDate && !isYesterday && (
+                                      <span className="text-xs text-gray-500">
+                                        {format(parseISO(match.fixture.date), 'MMM d')}
                                       </span>
                                     )}
                                   </div>
