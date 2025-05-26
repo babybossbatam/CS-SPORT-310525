@@ -157,23 +157,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return acc;
   }, {});
 
-  // Filter to show only popular countries plus Arab/Brazil countries
+  // Filter to show only popular countries plus Saudi Arabia, Brazil, and Argentina
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
     
-    // Include Arab countries
-    const arabCountries = [
-      'Saudi Arabia', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Bahrain', 
-      'Oman', 'Jordan', 'Lebanon', 'Syria', 'Iraq', 'Yemen', 'Egypt', 
-      'Morocco', 'Algeria', 'Tunisia', 'Libya', 'Sudan'
-    ];
+    // Include specific countries: Saudi Arabia, Brazil, and Argentina
+    const includedCountries = ['Saudi Arabia', 'Brazil', 'Argentina'];
     
-    // Include Brazil
-    if (countryData.country === 'Brazil') return true;
-    
-    // Include if it's an Arab country
-    if (arabCountries.includes(countryData.country)) return true;
+    // Include if it's one of the specified countries
+    if (includedCountries.includes(countryData.country)) return true;
     
     return false;
   });
