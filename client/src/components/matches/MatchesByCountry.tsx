@@ -283,10 +283,13 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 
                                 {/* Home Team Logo */}
                                 <div className="flex-shrink-0 mx-1">
-                                  <TeamLogo
+                                  <img
                                     src={match.teams.home.logo}
                                     alt={match.teams.home.name}
-                                    size="sm"
+                                    className="w-6 h-6 object-contain"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                    }}
                                   />
                                 </div>
 
@@ -296,9 +299,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     <>
                                       {/* Finished matches - show score */}
                                       <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                        <span>{match.goals.home ?? 0}</span>
+                                        <span>{match.goals.home !== null ? match.goals.home : 0}</span>
                                         <span className="text-gray-400">-</span>
-                                        <span>{match.goals.away ?? 0}</span>
+                                        <span>{match.goals.away !== null ? match.goals.away : 0}</span>
                                       </div>
                                       {/* Bracket Status Below Score */}
                                       <div className="text-xs text-gray-500 mt-1 px-2 py-0.5 bg-gray-100 rounded border">
@@ -309,9 +312,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     <>
                                       {/* Live matches - show score */}
                                       <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                        <span>{match.goals.home ?? 0}</span>
+                                        <span>{match.goals.home !== null ? match.goals.home : 0}</span>
                                         <span className="text-gray-400">-</span>
-                                        <span>{match.goals.away ?? 0}</span>
+                                        <span>{match.goals.away !== null ? match.goals.away : 0}</span>
                                       </div>
                                       {/* Bracket Status Below Score */}
                                       <div className="text-xs text-green-700 mt-1 px-2 py-0.5 bg-green-100 rounded border border-green-200">
@@ -346,10 +349,13 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                                 {/* Away Team Logo */}
                                 <div className="flex-shrink-0 mx-1">
-                                  <TeamLogo
+                                  <img
                                     src={match.teams.away.logo}
                                     alt={match.teams.away.name}
-                                    size="sm"
+                                    className="w-6 h-6 object-contain"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                    }}
                                   />
                                 </div>
                                 
