@@ -208,7 +208,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         </div>
 
                         {/* Matches */}
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           {leagueData.matches.map((match: any) => (
                             <div key={match.fixture.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
                               {/* League Header */}
@@ -229,8 +229,8 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                               {/* Match Content */}
                               <div className="p-4">
                                 {/* Status */}
-                                <div className="text-right mb-3">
-                                  <span className={`text-sm ${getStatusColor(match)}`}>
+                                <div className="text-right mb-4">
+                                  <span className={`text-sm font-medium ${getStatusColor(match)}`}>
                                     {getMatchStatus(match)}
                                   </span>
                                 </div>
@@ -238,9 +238,8 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 {/* Teams and Score */}
                                 <div className="flex items-center justify-between">
                                   {/* Home Team */}
-                                  <div className="flex items-center gap-3 flex-1">
-                                    <div className="w-8 h-8 bg-red-500 rounded-sm flex-shrink-0"></div>
-                                    <span className="font-medium text-gray-900 truncate">
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <span className="font-medium text-gray-900 text-right flex-1 truncate">
                                       {match.teams.home.name}
                                     </span>
                                     <TeamLogo
@@ -251,10 +250,12 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                   </div>
 
                                   {/* Score */}
-                                  <div className="flex items-center gap-4 mx-6">
+                                  <div className="flex items-center justify-center mx-6">
                                     {(match.goals.home !== null && match.goals.away !== null) ? (
-                                      <div className="text-2xl font-bold text-gray-900">
-                                        {match.goals.home} - {match.goals.away}
+                                      <div className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                                        <span>{match.goals.home}</span>
+                                        <span className="text-gray-400">-</span>
+                                        <span>{match.goals.away}</span>
                                       </div>
                                     ) : (
                                       <div className="text-lg font-medium text-gray-600">
@@ -264,31 +265,21 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                   </div>
 
                                   {/* Away Team */}
-                                  <div className="flex items-center gap-3 flex-1 justify-end">
+                                  <div className="flex items-center gap-2 flex-1">
                                     <TeamLogo
                                       src={match.teams.away.logo}
                                       alt={match.teams.away.name}
                                       size="sm"
                                     />
-                                    <span className="font-medium text-gray-900 truncate">
+                                    <span className="font-medium text-gray-900 flex-1 truncate">
                                       {match.teams.away.name}
                                     </span>
-                                    <div className="w-8 h-8 bg-green-600 rounded-sm flex-shrink-0"></div>
                                   </div>
                                 </div>
 
-                                {/* Additional Match Info */}
-                                {(match.goals.home !== null && match.goals.away !== null) && (
-                                  <div className="text-center mt-3">
-                                    <span className="text-sm text-gray-500">
-                                      Aggregate {match.goals.home} - {match.goals.away}
-                                    </span>
-                                  </div>
-                                )}
-
                                 {/* League Link */}
                                 <div className="text-center mt-4">
-                                  <button className="text-sm text-gray-600 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto">
+                                  <button className="text-sm text-gray-500 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto">
                                     {leagueData.league.name} Bracket
                                     <ChevronDown className="h-3 w-3 rotate-[-90deg]" />
                                   </button>
