@@ -7,6 +7,15 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
 import TeamLogo from './TeamLogo';
+import { 
+  formatTimeInUserTimezone, 
+  convertToUserTimezone, 
+  getUserTimezone,
+  getValidDate,
+  isToday,
+  isTomorrow,
+  isYesterday
+} from '@/lib/dateUtils';
 
 interface MatchesByCountryProps {
   selectedDate: string;
@@ -15,7 +24,7 @@ interface MatchesByCountryProps {
 const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
-  
+
 
   const { data: fixtures = [] } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
@@ -30,18 +39,18 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     if (fixtures.length > 0) {
       const today = format(new Date(), 'yyyy-MM-dd');
       const isToday = selectedDate === today;
-      
+
       if (isToday) {
         // For today, auto-expand countries that have finished matches
         const countriesWithFinishedMatches = new Set<string>();
-        
+
         fixtures.forEach((fixture: any) => {
           const status = fixture.fixture.status.short;
           if (['FT', 'AET', 'PEN'].includes(status)) {
             countriesWithFinishedMatches.add(fixture.league.country);
           }
         });
-        
+
         setExpandedCountries(countriesWithFinishedMatches);
       } else {
         // For other dates, keep collapsed
@@ -126,7 +135,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
   const getMatchStatus = (fixture: any) => {
     const status = fixture.fixture.status.short;
-    
+
     // Explicitly check for ended match statuses
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return status; // Return the actual status code (FT, AET, etc.)
@@ -139,12 +148,12 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     else {
       const matchDate = new Date(fixture.fixture.date);
       const now = new Date();
-      
+
       // If match time has passed but status is still 'NS', it might be delayed
       if (matchDate < now && status === 'NS') {
         return 'Delayed';
       }
-      
+
       return 'Scheduled';
     }
   };
@@ -153,7 +162,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     const status = fixture.fixture.status.short;
     const matchDate = new Date(fixture.fixture.date);
     const now = new Date();
-    
+
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return 'bg-gray-100 text-gray-700 font-semibold';
     } else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
@@ -251,14 +260,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                               // Sort finished matches first, then by date
                               const aFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
                               const bFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
-                              
+
                               if (aFinished && !bFinished) return -1;
                               if (!aFinished && bFinished) return 1;
-                              
+
                               // If both finished or both not finished, sort by date (most recent first for finished)
                               const aDate = new Date(a.fixture.date).getTime();
                               const bDate = new Date(b.fixture.date).getTime();
-                              
+
                               return aFinished ? bDate - aDate : aDate - bDate;
                             })
                             .map((match: any, index: number) => (
@@ -272,7 +281,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2">
                                   {match.teams.home.name}
                                 </div>
-                                
+
                                 {/* Home Team Logo */}
                                 <div className="flex-shrink-0 mx-1">
                                   <img
@@ -299,7 +308,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     const now = new Date();
                                     const matchPassedHours = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
                                     const hasScore = match.goals.home !== null || match.goals.away !== null;
-                                    
+
                                     // If match was more than 2 hours ago OR has score data, show score regardless of status
                                     if (matchPassedHours > 2 || hasScore || ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(match.fixture.status.short)) {
                                       return (
@@ -319,7 +328,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                         </>
                                       );
                                     }
-                                    
+
                                     // Live matches
                                     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short)) {
                                       return (
@@ -336,7 +345,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                         </>
                                       );
                                     }
-                                    
+
                                     // Truly upcoming matches
                                     if (match.fixture.status.short === 'NS' || match.fixture.status.short === 'TBD') {
                                       return (
@@ -345,7 +354,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                         </div>
                                       );
                                     }
-                                    
+
                                     // Fallback for any other status
                                     return (
                                       <div className="text-sm font-medium text-orange-600">
@@ -373,7 +382,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     }}
                                   />
                                 </div>
-                                
+
                                 {/* Away Team Name - Far Right */}
                                 <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2">
                                   {match.teams.away.name}
