@@ -88,31 +88,31 @@ const EnhancedFeatureMatchCard = () => {
   const [matchType, setMatchType] = useState<MatchType | null>(null);
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [lastFetchTime, setLastFetchTime] = useState<Date>(new Date());
-  
+
   // Hard-coded popular leagues to ensure we use the right IDs
   const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
-  
+
   // Get the current date for filtering
   const today = new Date();
   const todayFormatted = format(today, 'yyyy-MM-dd');
-  
+
   // Function to fetch matches for the featured leagues
   const fetchMatchesForFeaturedLeagues = useCallback(async () => {
     if (isLoading) return;
-    
+
     try {
       setIsLoading(true);
-      
+
       // Calculate if we should refresh based on 5-minute interval
       const timeSinceLastFetch = differenceInMinutes(new Date(), lastFetchTime);
       if (timeSinceLastFetch < 5 && filteredMatches.length > 0) {
         // Skip fetching if we've fetched recently and have data
         return;
       }
-      
+
       // Get current season - use 2024 since that's the current football season
       const currentSeason = 2024;
-      
+
       // Get fixtures from all popular leagues
       const allFixturesPromises = popularLeagues.map(async (leagueId) => {
         try {
@@ -127,23 +127,23 @@ const EnhancedFeatureMatchCard = () => {
           return [];
         }
       });
-      
+
       // Wait for all requests to complete
       const allFixturesResults = await Promise.all(allFixturesPromises);
-      
+
       // Flatten the array of fixtures from different leagues
       const allFixtures = allFixturesResults.flat();
-      
+
       // Update the last fetch time
       setLastFetchTime(new Date());
-      
+
       // Inspect what's in the allFixtures array
       console.log(`Total fixtures loaded: ${allFixtures.length}`);
       if (allFixtures.length > 0) {
         // Log the structure of the first fixture
         console.log("First fixture structure:", JSON.stringify(allFixtures[0], null, 2).substring(0, 500) + "...");
       }
-      
+
       // For demo/testing, make sure we only include valid fixtures
       const demoMatches = allFixtures
         .filter(match => {
@@ -154,7 +154,7 @@ const EnhancedFeatureMatchCard = () => {
             match.teams.home && 
             match.teams.away && 
             match.league;
-            
+
           if (!isValid) {
             console.log("Found invalid match:", match);
           }
@@ -164,32 +164,32 @@ const EnhancedFeatureMatchCard = () => {
           // Sort by date (newest first)
           return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
         });
-        
+
       console.log(`Filtered valid fixtures: ${demoMatches.length}`);
-      
+
       // Take the first few fixtures for testing
       const testFixtures = demoMatches.slice(0, 6);
       console.log(`Using ${testFixtures.length} test fixtures for display`);
       if (testFixtures.length > 0) {
         console.log("First test fixture:", testFixtures[0].teams.home.name, "vs", testFixtures[0].teams.away.name);
       }
-      
+
       // For now, just use the test fixtures directly
       const matches = testFixtures;
       setMatchType(MatchType.UPCOMING);
-      
+
       console.log(`Setting ${matches.length} matches for display`);
-      
+
       // Limit to 5-6 matches maximum for the slideshow
       const limitedMatches = matches.slice(0, 6);
       setFilteredMatches(limitedMatches);
-      
+
       if (limitedMatches.length > 0) {
         // Reset current index if it's out of bounds
         if (currentIndex >= limitedMatches.length) {
           setCurrentIndex(0);
         }
-        
+
         // If we have live matches, start the elapsed time ticker
         if (matchType === MatchType.LIVE && limitedMatches[currentIndex]?.fixture?.status?.elapsed) {
           setLiveElapsed(limitedMatches[currentIndex].fixture.status.elapsed);
@@ -206,57 +206,57 @@ const EnhancedFeatureMatchCard = () => {
       setIsLoading(false);
     }
   }, [popularLeagues, isLoading, lastFetchTime, filteredMatches.length, currentIndex, toast, matchType]);
-  
+
   // Initial fetch and 5-minute refresh interval
   useEffect(() => {
     fetchMatchesForFeaturedLeagues();
-    
+
     // Set up refresh interval (every 5 minutes)
     const refreshInterval = setInterval(() => {
       fetchMatchesForFeaturedLeagues();
     }, 5 * 60 * 1000); // 5 minutes in milliseconds
-    
+
     return () => clearInterval(refreshInterval);
   }, [fetchMatchesForFeaturedLeagues]);
-  
+
   // For live matches, update the elapsed time every minute
   useEffect(() => {
     if (matchType !== MatchType.LIVE || liveElapsed === null) return;
-    
+
     const liveTimer = setInterval(() => {
       setLiveElapsed(prev => prev !== null ? prev + 1 : null);
     }, 60 * 1000); // Update every minute
-    
+
     return () => clearInterval(liveTimer);
   }, [matchType, liveElapsed]);
-  
+
   // Get current match
   const currentMatch = filteredMatches[currentIndex];
-  
+
   // Handle match click to navigate to match details
   const handleMatchClick = () => {
     if (currentMatch?.fixture?.id) {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
   };
-  
+
   // Navigation handlers
   const handlePrevious = () => {
     if (filteredMatches.length <= 1) return;
     setCurrentIndex(prev => (prev === 0 ? filteredMatches.length - 1 : prev - 1));
   };
-  
+
   const handleNext = () => {
     if (filteredMatches.length <= 1) return;
     setCurrentIndex(prev => (prev === filteredMatches.length - 1 ? 0 : prev + 1));
   };
-  
+
   // Format match time/status display text
   const getMatchStatusText = (match: FixtureResponse | undefined) => {
     if (!match) return 'Match Information';
-    
+
     const { fixture } = match;
-    
+
     if (fixture.status.short === 'FT') {
       return 'Full Time';
     } else if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
@@ -273,13 +273,13 @@ const EnhancedFeatureMatchCard = () => {
       }
     }
   };
-  
+
   // Get match status label (Live, Upcoming, etc.)
   const getMatchStatusLabel = () => {
     if (!currentMatch) return '';
-    
+
     const { fixture } = currentMatch;
-    
+
     if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
       return 'LIVE';
     } else if (fixture.status.short === 'FT') {
@@ -288,7 +288,7 @@ const EnhancedFeatureMatchCard = () => {
       return 'UPCOMING';
     }
   };
-  
+
   // Get dynamic team colors (simplified version)
   const getTeamColor = (teamId: number) => {
     // You could implement dynamic color fetching here based on team ID
@@ -302,7 +302,7 @@ const EnhancedFeatureMatchCard = () => {
       default: return '#6f7c93';
     }
   };
-  
+
   return (
     <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
       <Badge 
@@ -410,7 +410,7 @@ const EnhancedFeatureMatchCard = () => {
                           if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
                             target.src = currentMatch.teams.home.logo;
                           } else {
-                            target.src = `/assets/fallback-logo.svg`;
+                            target.src = `/assets/fallback-logo.png`;
                           }
                         }}
                       />
@@ -466,7 +466,7 @@ const EnhancedFeatureMatchCard = () => {
                         if (target.src.includes('sportmonks') && currentMatch.teams.away.logo) {
                           target.src = currentMatch.teams.away.logo;
                         } else {
-                          target.src = `/assets/fallback-logo.svg`;
+                          target.src = `/assets/fallback-logo.png`;
                         }
                       }}
                     />

@@ -65,7 +65,7 @@ const SimpleScoreboard = () => {
     const fetchMatches = async () => {
       try {
         setIsLoading(true);
-        
+
         // Fetch fixtures for all popular leagues
         const promises = popularLeagues.map(leagueId => 
           apiRequest('GET', `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`)
@@ -75,24 +75,24 @@ const SimpleScoreboard = () => {
               return [];
             })
         );
-        
+
         const results = await Promise.all(promises);
         const allMatches = results.flat();
-        
+
         console.log(`Total matches fetched: ${allMatches.length}`);
-        
+
         // Take 6 most recent matches for display
         const filteredMatches = allMatches
           .filter(match => match && match.fixture && match.teams && match.league)
           .sort((a, b) => new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime())
           .slice(0, 6);
-          
+
         console.log(`Displaying ${filteredMatches.length} matches`);
-        
+
         if (filteredMatches.length > 0) {
           console.log(`First match: ${filteredMatches[0].teams.home.name} vs ${filteredMatches[0].teams.away.name}`);
         }
-        
+
         setMatches(filteredMatches);
       } catch (error) {
         console.error('Error fetching matches:', error);
@@ -107,12 +107,12 @@ const SimpleScoreboard = () => {
     };
 
     fetchMatches();
-    
+
     // Refresh data every 5 minutes
     const interval = setInterval(() => {
       fetchMatches();
     }, 5 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
   }, [toast]);
 
@@ -134,13 +134,13 @@ const SimpleScoreboard = () => {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
   };
-  
+
   // Format match status or date with relative time for upcoming matches
   const getMatchStatus = (match: Match | undefined) => {
     if (!match) return 'No Match Data';
-    
+
     const { fixture } = match;
-    
+
     if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
       return fixture.status.short === 'HT' 
         ? 'Half Time' 
@@ -151,13 +151,13 @@ const SimpleScoreboard = () => {
       try {
         const matchDate = parseISO(fixture.date);
         const today = new Date();
-        
+
         // Calculate days difference
         const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
         const diffTime = matchDay.getTime() - todayDate.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         let timeText;
         if (diffDays === 0) {
           timeText = 'Today';
@@ -168,7 +168,7 @@ const SimpleScoreboard = () => {
         } else {
           timeText = format(matchDate, 'dd MMM yyyy');
         }
-        
+
         // Add time 
         const timeOnly = format(matchDate, 'HH:mm');
         return `${timeText} at ${timeOnly}`;
@@ -177,13 +177,13 @@ const SimpleScoreboard = () => {
       }
     }
   };
-  
+
   // Get match status label with bracket information
   const getMatchStatusLabel = (match: Match | undefined) => {
     if (!match) return '';
-    
+
     const { fixture, league } = match;
-    
+
     if (['1H', '2H', 'HT', 'LIVE'].includes(fixture.status.short)) {
       return 'LIVE';
     } else if (fixture.status.short === 'FT') {
@@ -193,7 +193,7 @@ const SimpleScoreboard = () => {
       return league.round || 'UPCOMING';
     }
   };
-  
+
   // Simple team color based on team ID
   const getTeamColor = (teamId: number) => {
     const colors = [
@@ -203,7 +203,7 @@ const SimpleScoreboard = () => {
       '#2a9d8f', // teal
       '#e63946', // red
     ];
-    
+
     return colors[teamId % colors.length];
   };
 
@@ -312,7 +312,7 @@ const SimpleScoreboard = () => {
                           if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
                             target.src = currentMatch.teams.home.logo;
                           } else {
-                            target.src = `/assets/fallback-logo.svg`;
+                            target.src = `/assets/fallback-logo.png`;
                           }
                         }}
                       />
@@ -342,7 +342,7 @@ const SimpleScoreboard = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Match venue/location information (small text under the VS circle) */}
                     {currentMatch.fixture.status.short === 'NS' && currentMatch.fixture.venue && currentMatch.fixture.venue.name && (
                       <div className="absolute text-center text-xs text-gray-500 w-[100px] left-[calc(50%-50px)] top-[calc(50%+32px)]" style={{ fontSize: '0.65rem' }}>
@@ -374,7 +374,7 @@ const SimpleScoreboard = () => {
                         if (target.src.includes('sportmonks') && currentMatch.teams.away.logo) {
                           target.src = currentMatch.teams.away.logo;
                         } else {
-                          target.src = `/assets/fallback-logo.svg`;
+                          target.src = `/assets/fallback-logo.png`;
                         }
                       }}
                     />

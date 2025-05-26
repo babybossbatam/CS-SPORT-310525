@@ -1,6 +1,12 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
+
+// Setup global error handlers
+setupGlobalErrorHandlers();
 import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { QueryClientProvider } from "@tanstack/react-query";

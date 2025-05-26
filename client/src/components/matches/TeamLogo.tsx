@@ -58,7 +58,7 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
       }
       
       // Fallback to generic logo
-      imgElement.src = '/src/assets/fallback-logo.png';
+      imgElement.src = '/assets/fallback-logo.png';
     }
   };
 
