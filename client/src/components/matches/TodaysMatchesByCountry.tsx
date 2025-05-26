@@ -17,7 +17,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
 
   // Fetch all fixtures for the selected date with aggressive caching
-  const { data: fixtures = [], isLoading } = useQuery({
+  const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
       console.log(`Fetching fixtures for date: ${selectedDate}`);
@@ -35,7 +35,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
   });
 
   // Fetch popular league fixtures with even more aggressive caching
-  const { data: popularFixtures = [], isLoading: isLoadingPopular } = useQuery({
+  const { data: popularFixtures = [], isLoading: isLoadingPopular, hasData: hasCachedPopular } = useQuery({
     queryKey: ['popular-fixtures', selectedDate],
     queryFn: async () => {
       const allData = [];
@@ -268,7 +268,15 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     }
   };
 
-  if (isLoading) {
+  // Use cached data if available, even during loading
+  const cachedFixtures = hasCachedFixtures || [];
+  const cachedPopularFixtures = hasCachedPopular || [];
+  const combinedCachedData = [...cachedFixtures, ...cachedPopularFixtures].filter((fixture, index, self) => 
+    index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+  );
+
+  // Show loading only if no cached data exists and we're actually loading
+  if ((isLoading || isLoadingPopular) && combinedCachedData.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
