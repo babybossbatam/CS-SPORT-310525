@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader } from '../ui/card';
 import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
 import StandingsFilterCard from '../leagues/StandingsFilterCard';
-import { useDispatch } from 'react-redux';
+import TodaysMatchesByCountry from './TodaysMatchesByCountry';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
@@ -19,6 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const dispatch = useDispatch();
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
   // Get standings from league data
   const { data: leagueStandings } = useQuery({
@@ -157,6 +159,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </div>
       </Card>
       <StandingsFilterCard />
+      <TodaysMatchesByCountry selectedDate={selectedDate} />
     </div>
   );
 };
