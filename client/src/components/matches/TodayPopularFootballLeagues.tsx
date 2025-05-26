@@ -66,39 +66,18 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
 
-          // Check if fixture is from the selected date using local timezone (like 365scores)
-          const isFixtureFromSelectedDate = (fixtureDate: string, targetDate: string) => {
-            try {
-              const fixture = new Date(fixtureDate);
-              const target = new Date(targetDate);
-
-              // Compare dates in local timezone
-              return fixture.getFullYear() === target.getFullYear() &&
-                     fixture.getMonth() === target.getMonth() &&
-                     fixture.getDate() === target.getDate();
-            } catch {
-              return false;
-            }
-          };
-
-          const matchesFromSelectedDate = leagueFixtures.filter(match => {
-            const currentDate = selectedDate || getCurrentUTCDateString();
-            return isFixtureFromSelectedDate(match.fixture.date, currentDate);
+          // Filter fixtures within our date range
+          const filteredFixtures = leagueFixtures.filter((fixture: any) => {
+            const fixtureDate = parseISO(fixture.fixture.date);
+            if (!isValid(fixtureDate)) return false;
+            
+            // Convert to local date for comparison
+            const localFixtureDate = new Date(fixtureDate.getTime());
+            const fixtureDateString = format(localFixtureDate, 'yyyy-MM-dd');
+            return fixtureDateString >= startDate && fixtureDateString <= endDate;
           });
 
-          // Additional filtering to ensure we only show matches for the selected date
-          const displayMatches = matchesFromSelectedDate.filter(match => {
-              const fixtureDate = parseISO(match.fixture.date);
-              if (!isValid(fixtureDate)) return false;
-
-              const selectedDateObj = new Date(selectedDate);
-              const localFixtureDate = new Date(fixtureDate.getTime());
-
-              // Check if the fixture date matches the selected date
-              return isSameDay(localFixtureDate, selectedDateObj);
-            });
-
-          allData.push(...matchesFromSelectedDate);
+          allData.push(...filteredFixtures);
         } catch (error) {
           console.error(`Error fetching fixtures for league ${leagueId}:`, error);
         }
@@ -162,10 +141,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       // Additional filtering to ensure we only show matches for the selected date
       const fixtureDate = parseISO(fixture.fixture.date);
       if (!isValid(fixtureDate)) return false;
-
+      
       const selectedDateObj = new Date(selectedDate);
       const localFixtureDate = new Date(fixtureDate.getTime());
-
+      
       // Check if the fixture date matches the selected date
       return isSameDay(localFixtureDate, selectedDateObj);
     });
@@ -341,15 +320,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         </CardContent>
       </Card>
     );
-  }
-
-  // Utility function to get current UTC date string
-  function getCurrentUTCDateString() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
   }
 
   return (

@@ -25,10 +25,6 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
-      
-      // The API already filters by date, so we don't need additional filtering here
-      // Just log and return the data
-      console.log(`Received ${data.length} fixtures for ${selectedDate} from API`);
       return data;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
@@ -70,12 +66,10 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
 
-          // The API call will handle date filtering, but we can add a safety check
+          // Filter fixtures within our date range
           const filteredFixtures = leagueFixtures.filter((fixture: any) => {
-            const fixtureDate = new Date(fixture.fixture.date);
-            const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
-            // Use broader date range for safety
-            return fixtureLocalDate >= startDate && fixtureLocalDate <= endDate;
+            const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
+            return fixtureDate >= startDate && fixtureDate <= endDate;
           });
 
           allData.push(...filteredFixtures);
@@ -299,7 +293,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
           <Calendar className="h-4 w-4" />
           {getHeaderTitle()}
         </h3>
-        
+        <p className="text-xs text-gray-500">
+          {allFixtures.length} matches found • Popular leagues shown first
+        </p>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
