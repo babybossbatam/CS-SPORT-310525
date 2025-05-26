@@ -354,9 +354,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                     )}
                   </div>
                   {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  ) : (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
                   )}
                 </button>
 
