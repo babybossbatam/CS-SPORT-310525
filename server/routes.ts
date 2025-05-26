@@ -239,10 +239,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
-      const { popularOnly } = req.query;
+      const { all } = req.query;
 
       // Check cache first to prevent frequent API calls
-      const cachedFixtures = await storage.getCachedFixturesByLeague("date:" + date);
+      const cacheKey = all === 'true' ? `date-all:${date}` : `date:${date}`;
+      const cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
       if (cachedFixtures && cachedFixtures.length > 0) {
         // Check if cache is fresh (less than 30 minutes old)
         const now = new Date();
@@ -250,7 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         if (cacheAge < 30 * 60 * 1000) { // 30 minutes
-          console.log(`Returning ${cachedFixtures.length} cached fixtures for date ${date}`);
+          console.log(`Returning ${cachedFixtures.length} cached fixtures for date ${date} (all=${all})`);
           return res.json(cachedFixtures.map(fixture => fixture.data));
         }
       }
@@ -259,15 +260,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let fixtures: any[] = [];
 
       try {
-        // Define popular leagues - matches core leagues
-        const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+        if (all === 'true') {
+          // Fetch ALL fixtures without any league filtering
+          fixtures = await rapidApiService.getFixturesByDate(date, true);
+          console.log(`Got ${fixtures.length} fixtures from ALL countries/leagues for date ${date}`);
+        } else {
+          // Define popular leagues - matches core leagues
+          const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
 
-        // Use only API-Football (RapidAPI) with filtering
-        fixtures = await rapidApiService.getFixturesByDate(date);
+          // Use only API-Football (RapidAPI) with filtering
+          fixtures = await rapidApiService.getFixturesByDate(date, false);
 
-        // Always filter to only popular leagues to reduce data
-        fixtures = fixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
-        console.log(`Got ${fixtures.length} fixtures from popular leagues for date ${date}`);
+          // Filter to only popular leagues to reduce data
+          fixtures = fixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
+          console.log(`Got ${fixtures.length} fixtures from popular leagues for date ${date}`);
+        }
       } catch (error) {
         console.error(`API-Football error for date ${date}:`, error);
 
@@ -288,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // We'll update if exists or create if not exists
           for (const fixture of fixtures) {
             try {
-              const fixtureId = `date:${date}:${fixture.fixture.id}`;
+              const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
               const existingFixture = await storage.getCachedFixture(fixtureId);
 
               if (existingFixture) {
@@ -299,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 await storage.createCachedFixture({
                   fixtureId: fixtureId,
                   data: fixture,
-                  league: "date:" + date,
+                  league: cacheKey,
                   date: date
                 });
               }
