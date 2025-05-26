@@ -208,20 +208,27 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                           </span>
                         </div>
 
-                        {/* Matches - 365scores style design */}
+                        {/* Matches - Exact 365scores style */}
                         <div className="space-y-1">
                           {leagueData.matches.map((match: any, index: number) => (
                             <div 
                               key={match.fixture.id} 
-                              className="bg-white border border-gray-100 hover:bg-gray-50 transition-all duration-200 cursor-pointer relative"
+                              className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer relative border-b border-gray-100 last:border-b-0"
                               style={{ marginBottom: '5px' }}
                             >
-                              <div className="flex items-center justify-between px-3 py-2.5 relative">
-                                {/* Home Team - Left Side */}
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                  <div className="text-sm font-medium text-gray-900 truncate">
-                                    {match.teams.home.name}
-                                  </div>
+                              {/* Status at top right */}
+                              <div className="absolute top-2 right-3 text-xs text-gray-500">
+                                {getMatchStatus(match)}
+                              </div>
+                              
+                              <div className="flex items-center px-3 py-3">
+                                {/* Home Team Name - Far Left */}
+                                <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2">
+                                  {match.teams.home.name}
+                                </div>
+                                
+                                {/* Home Team Logo */}
+                                <div className="flex-shrink-0 mx-1">
                                   <TeamLogo
                                     src={match.teams.home.logo}
                                     alt={match.teams.home.name}
@@ -230,38 +237,33 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 </div>
 
                                 {/* Score - Center */}
-                                <div className="flex items-center justify-center px-4">
+                                <div className="flex items-center justify-center px-4 flex-shrink-0">
                                   {(match.goals.home !== null && match.goals.away !== null) ? (
-                                    <div className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                       <span>{match.goals.home}</span>
                                       <span className="text-gray-400">-</span>
                                       <span>{match.goals.away}</span>
                                     </div>
                                   ) : (
                                     <div className="text-sm font-medium text-blue-600">
-                                      {getMatchStatus(match)}
+                                      {format(new Date(match.fixture.date), 'HH:mm')}
                                     </div>
                                   )}
                                 </div>
 
-                                {/* Away Team - Right Side */}
-                                <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                                {/* Away Team Logo */}
+                                <div className="flex-shrink-0 mx-1">
                                   <TeamLogo
                                     src={match.teams.away.logo}
                                     alt={match.teams.away.name}
                                     size="sm"
                                   />
-                                  <div className="text-sm font-medium text-gray-900 truncate">
-                                    {match.teams.away.name}
-                                  </div>
                                 </div>
-
-                                {/* Status Badge - Top Right */}
-                                {match.fixture.status.short === 'FT' && (
-                                  <div className="absolute top-1 right-2 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">
-                                    Ended
-                                  </div>
-                                )}
+                                
+                                {/* Away Team Name - Far Right */}
+                                <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2">
+                                  {match.teams.away.name}
+                                </div>
                               </div>
                             </div>
                           ))}
