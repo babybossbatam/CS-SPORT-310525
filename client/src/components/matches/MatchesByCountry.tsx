@@ -15,6 +15,38 @@ interface MatchesByCountryProps {
 const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
+  // Helper function to get short team name
+  const getShortTeamName = (team: any) => {
+    if (!team || !team.name) return '';
+    
+    const name = team.name;
+    
+    // If name is short enough, return as is
+    if (name.length <= 8) return name;
+    
+    // Try to get abbreviation from words
+    const words = name.split(' ');
+    if (words.length > 1) {
+      const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join('');
+      if (abbreviation.length >= 2 && abbreviation.length <= 5) {
+        return abbreviation;
+      }
+    }
+    
+    // For single long word, truncate to 8 characters
+    if (words.length === 1) {
+      return name.substring(0, 8);
+    }
+    
+    // For multiple words, try first word if reasonable length
+    if (words[0].length <= 8) {
+      return words[0];
+    }
+    
+    // Last resort: truncate to 8 characters
+    return name.substring(0, 8);
+  };
+
   const { data: fixtures = [] } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
