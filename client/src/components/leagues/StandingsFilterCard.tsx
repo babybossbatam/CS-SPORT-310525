@@ -30,11 +30,11 @@ const StandingsFilterCard = () => {
   // Filter matches for popular leagues only and remove global duplicates
   const popularLeagueIds = POPULAR_LEAGUES.map(league => league.id);
   const allPopularMatches = selectedDateMatches?.filter(match => popularLeagueIds.includes(match.league.id)) || [];
-  
+
   // Debug logging
   console.log('Total matches from API:', selectedDateMatches?.length || 0);
   console.log('Popular league matches before deduplication:', allPopularMatches.length);
-  
+
   // Enhanced global deduplication - use multiple keys to ensure uniqueness
   const popularLeagueMatches = allPopularMatches.filter((match, index, self) => {
     const matchKey = `${match.fixture.id}-${match.teams.home.id}-${match.teams.away.id}-${match.league.id}`;
@@ -43,9 +43,9 @@ const StandingsFilterCard = () => {
       return mKey === matchKey;
     });
   });
-  
+
   console.log('Popular league matches after deduplication:', popularLeagueMatches.length);
-  
+
   // Additional deduplication by team names and time
   const finalMatches = popularLeagueMatches.filter((match, index, self) => {
     const matchIdentifier = `${match.teams.home.name}_vs_${match.teams.away.name}_${match.fixture.date}_${match.league.id}`;
@@ -54,7 +54,7 @@ const StandingsFilterCard = () => {
       return mIdentifier === matchIdentifier;
     });
   });
-  
+
   console.log('Final matches after enhanced deduplication:', finalMatches.length);
 
   // Group matches by league using final deduplicated matches
@@ -124,20 +124,20 @@ const StandingsFilterCard = () => {
                           ))}
 
                           {/* Finished Matches - Enhanced for past dates */}
-                          {finishedMatches.map((match) => {
+                          {finishedMatches.map((match, matchIndex) => {
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
                             selectedDateObj.setHours(0, 0, 0, 0);
-                            
+
                             const yesterday = new Date(today);
                             yesterday.setDate(yesterday.getDate() - 1);
-                            
+
                             const isYesterday = selectedDateObj.getTime() === yesterday.getTime();
                             const isPastDate = selectedDateObj < today;
-                            
+
                             return (
-                              <div key={match.fixture.id} className={`flex items-center justify-between p-2 rounded text-sm ${
+                              <div key={`finished-${match.fixture.id}-${matchIndex}`} className={`flex items-center justify-between p-2 rounded text-sm ${
                                 isYesterday ? 'bg-orange-50 border border-orange-200' : 
                                 isPastDate ? 'bg-gray-50 border border-gray-200' : 'bg-gray-50'
                               }`}>
@@ -181,7 +181,7 @@ const StandingsFilterCard = () => {
                           })}
 
                           {/* Upcoming Matches - Enhanced for future dates */}
-                          {upcomingMatches.map((match) => {
+                          {upcomingMatches.map((match, matchIndex) => {
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
@@ -189,9 +189,9 @@ const StandingsFilterCard = () => {
                             tomorrow.setDate(tomorrow.getDate() + 1);
                             const isTomorrow = selectedDateObj.getTime() === tomorrow.getTime();
                             const isFutureDate = selectedDateObj > today;
-                            
+
                             return (
-                              <div key={match.fixture.id} className={`flex items-center justify-between p-2 rounded text-sm ${
+                              <div key={`upcoming-${match.fixture.id}-${matchIndex}`} className={`flex items-center justify-between p-2 rounded text-sm ${
                                 isTomorrow ? 'bg-green-50 border border-green-200' : 
                                 isFutureDate ? 'bg-blue-50 border border-blue-100' : 'bg-blue-50'
                               }`}>
