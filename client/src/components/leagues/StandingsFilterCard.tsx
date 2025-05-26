@@ -80,14 +80,6 @@ const StandingsFilterCard = () => {
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <CardHeader className="border-b">
-          <h3 className="text-lg font-semibold">
-            {selectedDate === format(new Date(), 'yyyy-MM-dd')
-              ? "Today's Matches"
-              : `Matches for ${format(new Date(selectedDate), 'MMM d, yyyy')}`
-            }
-          </h3>
-        </CardHeader>
         <CardContent className="p-4">
           {matchesByLeague.length > 0 ? (
             <div className="space-y-6">
