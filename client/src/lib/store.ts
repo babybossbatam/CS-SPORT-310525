@@ -114,10 +114,10 @@ const initialStatsState: StatsState = {
   error: null,
 };
 
-import { getTodayFormatted } from './dateUtils';
+import { getCurrentUTCDateString } from './dateUtils';
 
 const initialUIState: UIState = {
-  selectedDate: getTodayFormatted(),
+  selectedDate: getCurrentUTCDateString(),
   selectedFilter: 'all',
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League
