@@ -112,7 +112,10 @@ const StandingsFilterCard = () => {
                         (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                       }}
                     />
-                    <h4 className="font-semibold text-sm">{league.name}</h4>
+                    <div>
+                      <h4 className="font-semibold text-sm">{league.name}</h4>
+                      <p className="text-xs text-gray-500">{league.country}</p>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
