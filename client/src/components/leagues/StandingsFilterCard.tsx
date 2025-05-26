@@ -36,15 +36,15 @@ const StandingsFilterCard = () => {
   const allPopularMatches = selectedDateMatches?.filter(match => {
     // Ensure match belongs to popular league
     const isPopularLeague = popularLeagueIds.includes(match.league.id);
-    
+
     // Ensure match date matches selected date
     const matchDate = new Date(match.fixture.date).toISOString().split('T')[0];
     const isCorrectDate = matchDate === selectedDate;
-    
+
     if (isPopularLeague && !isCorrectDate) {
       console.warn(`Match ${match.teams.home.name} vs ${match.teams.away.name} has wrong date: ${matchDate}, expected: ${selectedDate}`);
     }
-    
+
     return isPopularLeague && isCorrectDate;
   }) || [];
 
@@ -168,7 +168,7 @@ const StandingsFilterCard = () => {
                             const matchDate = new Date(match.fixture.date);
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
-                            
+
                             // Set all times to midnight for proper date comparison
                             today.setHours(0, 0, 0, 0);
                             selectedDateObj.setHours(0, 0, 0, 0);
