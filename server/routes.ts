@@ -264,7 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Use only API-Football (RapidAPI) with filtering
         fixtures = await rapidApiService.getFixturesByDate(date);
-        
+
         // Always filter to only popular leagues to reduce data
         fixtures = fixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
         console.log(`Got ${fixtures.length} fixtures from popular leagues for date ${date}`);
@@ -1007,6 +1007,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting news article:", error);
       res.status(500).json({ message: "Failed to delete news article" });
+    }
+  });
+
+    // Get fixtures by date
+  apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+      const { all } = req.query;
+
+      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+
+      const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
+      console.log(`Got ${fixtures.length} fixtures ${all === 'true' ? 'from all leagues' : 'from popular leagues'} for date ${date}`);
+      res.json(fixtures);
+    } catch (error) {
+      console.error('Error fetching fixtures by date:', error);
+      res.status(500).json({ error: 'Failed to fetch fixtures' });
     }
   });
 

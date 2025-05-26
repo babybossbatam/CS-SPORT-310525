@@ -17,9 +17,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
   const { data: fixtures = [] } = useQuery({
-    queryKey: ['fixtures-by-date', selectedDate],
+    queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
-      const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
+      const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       return await response.json();
     }
   });

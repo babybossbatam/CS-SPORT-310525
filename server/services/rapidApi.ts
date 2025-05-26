@@ -49,8 +49,8 @@ export const rapidApiService = {
   /**
    * Get fixtures by date
    */
-  async getFixturesByDate(date: string): Promise<FixtureResponse[]> {
-    const cacheKey = `fixtures-date-${date}`;
+  async getFixturesByDate(date: string, fetchAll: boolean = false): Promise<FixtureResponse[]> {
+    const cacheKey = `fixtures-date-${date}${fetchAll ? '-all' : ''}`;
     const cached = fixturesCache.get(cacheKey);
 
     const now = Date.now();
@@ -59,16 +59,52 @@ export const rapidApiService = {
     }
 
     try {
-      const response = await apiClient.get('/fixtures', {
-        params: { date }
-      });
+      if (fetchAll) {
+        // Fetch all fixtures for the date
+        const response = await apiClient.get('/fixtures', {
+          params: { date }
+        });
 
-      if (response.data && response.data.response) {
+        if (response.data && response.data.response) {
+          fixturesCache.set(cacheKey, { 
+            data: response.data.response, 
+            timestamp: now 
+          });
+          return response.data.response;
+        }
+      } else {
+        // Original behavior - fetch only popular leagues
+        const popularLeagueIds = [2, 3, 39, 45, 140, 135, 78, 207, 219, 203];
+        let allFixtures: FixtureResponse[] = [];
+
+        for (const leagueId of popularLeagueIds) {
+          try {
+            const leagueFixtures = await this.getFixturesByLeague(leagueId, 2024);
+            const dateFixtures = leagueFixtures.filter(fixture => {
+              const fixtureDate = new Date(fixture.fixture.date).toISOString().split('T')[0];
+              return fixtureDate === date;
+            });
+            allFixtures = [...allFixtures, ...dateFixtures];
+          } catch (error) {
+            console.error(`Error fetching fixtures for league ${leagueId}:`, error);
+            continue;
+          }
+        }
+
+        // Remove duplicates
+        const uniqueFixtures = allFixtures.reduce((acc: FixtureResponse[], current) => {
+          const exists = acc.find(fixture => fixture.fixture.id === current.fixture.id);
+          if (!exists) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+
         fixturesCache.set(cacheKey, { 
-          data: response.data.response, 
+          data: uniqueFixtures, 
           timestamp: now 
         });
-        return response.data.response;
+        return uniqueFixtures;
       }
 
       return [];
