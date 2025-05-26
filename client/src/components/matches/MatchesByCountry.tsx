@@ -141,10 +141,10 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
   return (
     <Card>
       <CardHeader className="pb-4">
-        <h3 className="text-lg font-semibold">
+        <h3 className="text-sm font-semibold">
           {selectedDate === format(new Date(), 'yyyy-MM-dd') 
-            ? "Today's Football Matches By Country" 
-            : `Football Matches By Country - ${format(new Date(selectedDate), 'MMM d, yyyy')}`
+            ? "Football Match By Country" 
+            : `Football Match By Country - ${format(new Date(selectedDate), 'MMM d, yyyy')}`
           }
         </h3>
       </CardHeader>
