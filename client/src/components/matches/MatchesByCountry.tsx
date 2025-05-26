@@ -208,14 +208,39 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         </div>
 
                         {/* Matches */}
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                           {leagueData.matches.map((match: any) => (
-                            <div key={match.fixture.id} className="bg-white rounded-lg p-3 shadow-sm">
-                              <div className="flex items-center justify-between">
-                                {/* Teams */}
-                                <div className="flex items-center gap-3 flex-1">
-                                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    <span className="text-sm font-medium truncate">
+                            <div key={match.fixture.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
+                              {/* League Header */}
+                              <div className="flex items-center gap-2 p-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
+                                <img
+                                  src={leagueData.league.logo}
+                                  alt={leagueData.league.name}
+                                  className="w-5 h-5 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                  }}
+                                />
+                                <span className="text-sm font-medium text-gray-700">
+                                  {leagueData.league.name}
+                                </span>
+                              </div>
+
+                              {/* Match Content */}
+                              <div className="p-4">
+                                {/* Status */}
+                                <div className="text-right mb-3">
+                                  <span className={`text-sm ${getStatusColor(match)}`}>
+                                    {getMatchStatus(match)}
+                                  </span>
+                                </div>
+
+                                {/* Teams and Score */}
+                                <div className="flex items-center justify-between">
+                                  {/* Home Team */}
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div className="w-8 h-8 bg-red-500 rounded-sm flex-shrink-0"></div>
+                                    <span className="font-medium text-gray-900 truncate">
                                       {match.teams.home.name}
                                     </span>
                                     <TeamLogo
@@ -224,32 +249,49 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                       size="sm"
                                     />
                                   </div>
-                                </div>
 
-                                {/* Score/Status */}
-                                <div className="flex flex-col items-center mx-4">
-                                  <div className={`text-xs ${getStatusColor(match)}`}>
-                                    {getMatchStatus(match)}
+                                  {/* Score */}
+                                  <div className="flex items-center gap-4 mx-6">
+                                    {(match.goals.home !== null && match.goals.away !== null) ? (
+                                      <div className="text-2xl font-bold text-gray-900">
+                                        {match.goals.home} - {match.goals.away}
+                                      </div>
+                                    ) : (
+                                      <div className="text-lg font-medium text-gray-600">
+                                        vs
+                                      </div>
+                                    )}
                                   </div>
-                                  {(match.goals.home !== null && match.goals.away !== null) && (
-                                    <div className="text-lg font-bold text-gray-900">
-                                      {match.goals.home} - {match.goals.away}
-                                    </div>
-                                  )}
-                                </div>
 
-                                {/* Away team */}
-                                <div className="flex items-center gap-3 flex-1">
-                                  <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
+                                  {/* Away Team */}
+                                  <div className="flex items-center gap-3 flex-1 justify-end">
                                     <TeamLogo
                                       src={match.teams.away.logo}
                                       alt={match.teams.away.name}
                                       size="sm"
                                     />
-                                    <span className="text-sm font-medium truncate">
+                                    <span className="font-medium text-gray-900 truncate">
                                       {match.teams.away.name}
                                     </span>
+                                    <div className="w-8 h-8 bg-green-600 rounded-sm flex-shrink-0"></div>
                                   </div>
+                                </div>
+
+                                {/* Additional Match Info */}
+                                {(match.goals.home !== null && match.goals.away !== null) && (
+                                  <div className="text-center mt-3">
+                                    <span className="text-sm text-gray-500">
+                                      Aggregate {match.goals.home} - {match.goals.away}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* League Link */}
+                                <div className="text-center mt-4">
+                                  <button className="text-sm text-gray-600 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto">
+                                    {leagueData.league.name} Bracket
+                                    <ChevronDown className="h-3 w-3 rotate-[-90deg]" />
+                                  </button>
                                 </div>
                               </div>
                             </div>
