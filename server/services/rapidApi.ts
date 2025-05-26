@@ -60,17 +60,36 @@ export const rapidApiService = {
 
     try {
       if (fetchAll) {
-        // Fetch all fixtures for the date
+        console.log(`Fetching ALL fixtures for date ${date} from all countries and leagues`);
+        
+        // Fetch all fixtures for the date without league restrictions
         const response = await apiClient.get('/fixtures', {
-          params: { date }
+          params: { 
+            date: date,
+            // Don't specify league parameter to get all leagues
+          }
         });
 
+        console.log(`API response for all fixtures on ${date}: status ${response.status}, results: ${response.data?.results || 0}`);
+
         if (response.data && response.data.response) {
+          const allFixtures = response.data.response;
+          console.log(`Retrieved ${allFixtures.length} fixtures from all countries for ${date}`);
+          
+          // Log country breakdown for debugging
+          const countryBreakdown = allFixtures.reduce((acc: any, fixture: any) => {
+            const country = fixture.league.country;
+            acc[country] = (acc[country] || 0) + 1;
+            return acc;
+          }, {});
+          console.log('Country breakdown:', Object.keys(countryBreakdown).length, 'countries:', 
+            Object.entries(countryBreakdown).slice(0, 10).map(([country, count]) => `${country}(${count})`).join(', '));
+
           fixturesCache.set(cacheKey, { 
-            data: response.data.response, 
+            data: allFixtures, 
             timestamp: now 
           });
-          return response.data.response;
+          return allFixtures;
         }
       } else {
         // Original behavior - fetch only popular leagues

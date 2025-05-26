@@ -32,13 +32,45 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     }
   }, [fixtures]);
 
+  // Enhanced country flag mapping
+  const getCountryFlag = (country: string, leagueFlag?: string) => {
+    // Use league flag if available
+    if (leagueFlag) return leagueFlag;
+    
+    // Country code mapping for better flag display
+    const countryCodeMap: { [key: string]: string } = {
+      'England': 'GB-ENG',
+      'Scotland': 'GB-SCT',
+      'Wales': 'GB-WLS',
+      'Northern Ireland': 'GB-NIR',
+      'United States': 'US',
+      'South Korea': 'KR',
+      'Czech Republic': 'CZ',
+      'United Arab Emirates': 'AE',
+      'Bosnia & Herzegovina': 'BA',
+      'North Macedonia': 'MK',
+      'Trinidad & Tobago': 'TT',
+      'Ivory Coast': 'CI',
+      'Cape Verde': 'CV',
+      'Democratic Republic of Congo': 'CD',
+      'Curacao': 'CW',
+      'Faroe Islands': 'FO',
+      'World': 'EU'
+    };
+
+    const countryCode = countryCodeMap[country] || 
+      country.substring(0, 2).toUpperCase();
+    
+    return `https://flagsapi.com/${countryCode}/flat/24.png`;
+  };
+
   // Group fixtures by country
   const fixturesByCountry = fixtures.reduce((acc: any, fixture: any) => {
     const country = fixture.league.country;
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: fixture.league.flag || `https://flagsapi.com/${country.substring(0, 2).toUpperCase()}/flat/24.png`,
+        flag: getCountryFlag(country, fixture.league.flag),
         leagues: {}
       };
     }
@@ -54,6 +86,11 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     acc[country].leagues[leagueId].matches.push(fixture);
     return acc;
   }, {});
+
+  // Sort countries alphabetically
+  const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => 
+    a.country.localeCompare(b.country)
+  );
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
@@ -109,7 +146,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
-          {Object.values(fixturesByCountry).map((countryData: any) => {
+          {sortedCountries.map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
             const totalMatches = Object.values(countryData.leagues).reduce(
               (sum: number, league: any) => sum + league.matches.length, 0
