@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid } from 'date-fns';
+import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid, isSameDay } from 'date-fns';
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
@@ -68,8 +68,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
           // Filter fixtures within our date range
           const filteredFixtures = leagueFixtures.filter((fixture: any) => {
-            const fixtureDate = new Date(fixture.fixture.date);
-            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+            const fixtureDate = parseISO(fixture.fixture.date);
+            if (!isValid(fixtureDate)) return false;
+            
+            // Convert to local date for comparison
+            const localFixtureDate = new Date(fixtureDate.getTime());
+            const fixtureDateString = format(localFixtureDate, 'yyyy-MM-dd');
             return fixtureDateString >= startDate && fixtureDateString <= endDate;
           });
 
@@ -129,9 +133,21 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   };
 
   // Combine and deduplicate fixtures
-  const allFixtures = [...fixtures, ...popularFixtures].filter((fixture, index, self) => 
-    index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-  );
+  const allFixtures = [...fixtures, ...popularFixtures]
+    .filter((fixture, index, self) => 
+      index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+    )
+    .filter((fixture: any) => {
+      // Additional filtering to ensure we only show matches for the selected date
+      const fixtureDate = parseISO(fixture.fixture.date);
+      if (!isValid(fixtureDate)) return false;
+      
+      const selectedDateObj = new Date(selectedDate);
+      const localFixtureDate = new Date(fixtureDate.getTime());
+      
+      // Check if the fixture date matches the selected date
+      return isSameDay(localFixtureDate, selectedDateObj);
+    });
 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
@@ -333,7 +349,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                 const status = match.fixture.status.short;
                 const fixtureDate = parseISO(match.fixture.date);
                 if (!isValid(fixtureDate)) return false;
-                const hoursAgo = differenceInHours(new Date(), fixtureDate);
+                const localFixtureDate = new Date(fixtureDate.getTime());
+                const hoursAgo = differenceInHours(new Date(), localFixtureDate);
                 return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAgo <= 3;
               }).length;
             }, 0);
@@ -390,8 +407,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                 return 0;
                               }
 
-                              const aTime = aDate.getTime();
-                              const bTime = bDate.getTime();
+                              // Use local time for comparison
+                              const aTime = new Date(aDate.getTime()).getTime();
+                              const bTime = new Date(bDate.getTime()).getTime();
 
                               const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
                               const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
