@@ -164,13 +164,6 @@ const StandingsFilterCard = () => {
                                     {match.goals.home ?? 0} - {match.goals.away ?? 0}
                                   </span>
                                   <div className="flex flex-col items-center">
-                                    <span className={`text-xs ${
-                                      isYesterday ? 'text-orange-600 font-semibold' : 
-                                      isPastDate ? 'text-gray-600' : 'text-gray-500'
-                                    }`}>
-                                      {match.fixture.status.short === 'AET' ? 'AET' : 
-                                       match.fixture.status.short === 'PEN' ? 'PEN' : 'FT'}
-                                    </span>
                                     {isPastDate && !isYesterday && (
                                       <span className="text-xs text-gray-500">
                                         {format(parseISO(match.fixture.date), 'MMM d')}
