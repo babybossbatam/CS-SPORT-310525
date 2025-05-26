@@ -313,9 +313,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           <Calendar className="h-4 w-4" />
           {getHeaderTitle()}
         </h3>
-        <p className="text-xs text-gray-500">
-          {allFixtures.length} matches found • Popular leagues shown first
-        </p>
+        
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
