@@ -24,6 +24,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     }
   });
 
+  // Auto-expand all countries when fixtures data changes
+  useEffect(() => {
+    if (fixtures.length > 0) {
+      const countries = new Set(fixtures.map((fixture: any) => fixture.league.country));
+      setExpandedCountries(countries);
+    }
+  }, [fixtures]);
+
   // Group fixtures by country
   const fixturesByCountry = fixtures.reduce((acc: any, fixture: any) => {
     const country = fixture.league.country;
@@ -91,7 +99,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-4">
         <h3 className="text-lg font-semibold">
           {selectedDate === format(new Date(), 'yyyy-MM-dd') 
             ? "Today's Football Matches By Country" 
@@ -100,7 +108,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
         </h3>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="space-y-1">
+        <div className="space-y-0">
           {Object.values(fixturesByCountry).map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
             const totalMatches = Object.values(countryData.leagues).reduce(
@@ -109,16 +117,16 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                {/* Country Header */}
+                {/* Country Header - Simple list style */}
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={countryData.flag}
                       alt={countryData.country}
-                      className="w-6 h-4 object-cover rounded-sm"
+                      className="w-6 h-4 object-cover rounded-sm shadow-sm"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                       }}
