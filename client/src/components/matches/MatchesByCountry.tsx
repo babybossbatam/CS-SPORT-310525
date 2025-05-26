@@ -217,7 +217,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                   {/* Home Team */}
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <span className="font-medium text-gray-900 text-right flex-1 text-sm">
-                                      {match.teams.home.name}
+                                      {match.teams.home.code || match.teams.home.name}
                                     </span>
                                     <TeamLogo
                                       src={match.teams.home.logo}
@@ -256,7 +256,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                       size="sm"
                                     />
                                     <span className="font-medium text-gray-900 flex-1 text-sm">
-                                      {match.teams.away.name}
+                                      {match.teams.away.code || match.teams.away.name}
                                     </span>
                                   </div>
                                 </div>
