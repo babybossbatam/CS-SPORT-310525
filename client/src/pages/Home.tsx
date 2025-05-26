@@ -222,53 +222,53 @@ const Home = () => {
       />
 
       <Card className="my-4 bg-[#FDFBF7]" style={{ marginLeft: '150px', marginRight: '150px' }}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              {/* Left column (5 columns) */}
-              <div className="lg:col-span-5 space-y-4">
-                <Card className="bg-[#F4F4F6]">
-                  <CardContent className="p-0">
-                    <MatchFixturesCard
-                      fixtures={fixtures}
-                      onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                    />
-                  </CardContent>
-                </Card>
-                <StandingsFilterCard />
-                {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
-                  <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
-                    
-                    <CardContent className="p-4">
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-500">No data to display</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Left column (5 columns) */}
+          <div className="lg:col-span-5 space-y-4">
+            <Card className="bg-[#F4F4F6]">
+              <CardContent className="p-0">
+                <MatchFixturesCard
+                  fixtures={fixtures}
+                  onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+                />
+              </CardContent>
+            </Card>
+            <StandingsFilterCard />
+            {leagueStandings && Object.values(leagueStandings).map((leagueData: any) => (
+              <Card key={leagueData.league.id} className="bg-white shadow-md mb-4 overflow-hidden">
+                
+                <CardContent className="p-4">
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500">No data to display</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-              {/* Right column (7 columns) */}
-              <div className="lg:col-span-7 space-y-4">
-                <FeaturedMatch />
-                <Card>
-                  <CardContent>
-                    <HomeTopScorersList />
-                  </CardContent>
-                </Card>
-                <LeagueStandingsFilter />
+          {/* Right column (7 columns) */}
+          <div className="lg:col-span-7 space-y-4">
+            <FeaturedMatch />
+            <Card>
+              <CardContent>
+                <HomeTopScorersList />
+              </CardContent>
+            </Card>
+            <LeagueStandingsFilter />
 
-                {/* Popular Leagues and Teams sections */}
-                <div className="grid grid-cols-2 gap-4">
-                  <PopularLeaguesList />
-                  <Card className="w-full">
-                    <CardContent className="p-4">
-                      <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
-                      <PopularTeamsList />
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+            {/* Popular Leagues and Teams sections */}
+            <div className="grid grid-cols-2 gap-4">
+              <PopularLeaguesList />
+              <Card className="w-full">
+                <CardContent className="p-4">
+                  <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
+                  <PopularTeamsList />
+                </CardContent>
+              </Card>
             </div>
-          </Card>
+          </div>
+        </div>
+      </Card>
 
       <RegionModal />
     </>
