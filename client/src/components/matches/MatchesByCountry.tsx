@@ -211,7 +211,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                     {Object.values(countryData.leagues).map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
                         {/* League Header */}
-                        <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
                           <img
                             src={leagueData.league.logo}
                             alt={leagueData.league.name}
@@ -226,7 +226,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         </div>
 
                         {/* Matches - Exact 365scores style */}
-                        <div className="space-y-1">
+                        <div className="space-y-1 mt-3">
                           {leagueData.matches
                             .sort((a: any, b: any) => {
                               // Sort finished matches first, then by date
