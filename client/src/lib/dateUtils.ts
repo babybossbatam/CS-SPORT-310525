@@ -5,7 +5,7 @@
  */
 
 import { parseISO, format } from 'date-fns';
-import { zonedTimeToUtc, utcToZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { fromZonedTime, toZonedTime, formatInTimeZone } from 'date-fns-tz';
 
 /**
  * Get user's timezone
@@ -103,7 +103,7 @@ export function convertToUserTimezone(date: Date | string, timezone?: string): D
       return new Date();
     }
     
-    return utcToZonedTime(d, userTimezone);
+    return toZonedTime(d, userTimezone);
   } catch (error) {
     console.error('Error converting to user timezone:', error);
     return new Date();
@@ -124,7 +124,7 @@ export function convertToUTC(date: Date | string, timezone?: string): Date {
       return new Date();
     }
     
-    return zonedTimeToUtc(d, userTimezone);
+    return fromZonedTime(d, userTimezone);
   } catch (error) {
     console.error('Error converting to UTC:', error);
     return new Date();
