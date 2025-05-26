@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -36,12 +35,12 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
   const getCountryFlag = (country: string, leagueFlag?: string) => {
     // Use league flag if available
     if (leagueFlag) return leagueFlag;
-    
+
     // Special handling for World/International competitions
     if (country === 'World' || country === 'International') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png'; // FIFA logo for world competitions
     }
-    
+
     // Country code mapping for better flag display
     const countryCodeMap: { [key: string]: string } = {
       'England': 'GB-ENG',
@@ -64,7 +63,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
     const countryCode = countryCodeMap[country] || 
       country.substring(0, 2).toUpperCase();
-    
+
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
@@ -78,7 +77,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
         leagues: {}
       };
     }
-    
+
     const leagueId = fixture.league.id;
     if (!acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
@@ -86,7 +85,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
         matches: []
       };
     }
-    
+
     acc[country].leagues[leagueId].matches.push(fixture);
     return acc;
   }, {});
@@ -244,20 +243,22 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                                   {/* Score */}
                                   <div className="flex flex-col items-center justify-center mx-6">
-                                    {/* Status/Time at top */}
-                                    <span className={`text-sm font-medium mb-2 ${getStatusColor(match)}`}>
-                                      {getMatchStatus(match)}
-                                    </span>
-                                    
                                     {(match.goals.home !== null && match.goals.away !== null) ? (
-                                      <div className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                        <span>{match.goals.home}</span>
-                                        <span className="text-gray-400">-</span>
-                                        <span>{match.goals.away}</span>
-                                      </div>
+                                      <>
+                                        {/* Status/Time at top for finished/live matches */}
+                                        <span className={`text-sm font-medium mb-2 ${getStatusColor(match)}`}>
+                                          {getMatchStatus(match)}
+                                        </span>
+                                        <div className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                                          <span>{match.goals.home}</span>
+                                          <span className="text-gray-400">-</span>
+                                          <span>{match.goals.away}</span>
+                                        </div>
+                                      </>
                                     ) : (
-                                      <div className="text-lg font-medium text-gray-600">
-                                        vs
+                                      /* Show match time when no score available */
+                                      <div className="text-lg font-medium text-gray-700">
+                                        {getMatchStatus(match)}
                                       </div>
                                     )}
                                   </div>
@@ -276,7 +277,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 </div>
                               </div>
                             ))}
-                            
+
                             {/* League Link */}
                             <div className="text-center mt-4 pt-4 border-t border-gray-100">
                               <button className="text-sm text-gray-500 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto">
