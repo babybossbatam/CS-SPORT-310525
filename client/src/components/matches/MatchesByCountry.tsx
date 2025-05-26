@@ -207,27 +207,27 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                           </span>
                         </div>
 
-                        {/* Matches */}
-                        <div className="space-y-3">
-                          {leagueData.matches.map((match: any) => (
-                            <div key={match.fixture.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                              {/* League Header */}
-                              <div className="flex items-center gap-2 p-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
-                                <img
-                                  src={leagueData.league.logo}
-                                  alt={leagueData.league.name}
-                                  className="w-5 h-5 object-contain"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                  }}
-                                />
-                                <span className="text-sm font-medium text-gray-700">
-                                  {leagueData.league.name}
-                                </span>
-                              </div>
+                        {/* Matches - Single card per league */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                          {/* League Header */}
+                          <div className="flex items-center gap-2 p-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
+                            <img
+                              src={leagueData.league.logo}
+                              alt={leagueData.league.name}
+                              className="w-5 h-5 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                              }}
+                            />
+                            <span className="text-sm font-medium text-gray-700">
+                              {leagueData.league.name}
+                            </span>
+                          </div>
 
-                              {/* Match Content */}
-                              <div className="p-4">
+                          {/* All Matches in this league */}
+                          <div className="p-4 space-y-4">
+                            {leagueData.matches.map((match: any, index: number) => (
+                              <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
                                 {/* Status */}
                                 <div className="text-right mb-4">
                                   <span className={`text-sm font-medium ${getStatusColor(match)}`}>
@@ -276,17 +276,17 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     </span>
                                   </div>
                                 </div>
-
-                                {/* League Link */}
-                                <div className="text-center mt-4">
-                                  <button className="text-sm text-gray-500 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto">
-                                    {leagueData.league.name} Bracket
-                                    <ChevronDown className="h-3 w-3 rotate-[-90deg]" />
-                                  </button>
-                                </div>
                               </div>
+                            ))}
+                            
+                            {/* League Link */}
+                            <div className="text-center mt-4 pt-4 border-t border-gray-100">
+                              <button className="text-sm text-gray-500 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto">
+                                {leagueData.league.name} Bracket
+                                <ChevronDown className="h-3 w-3 rotate-[-90deg]" />
+                              </button>
                             </div>
-                          ))}
+                          </div>
                         </div>
 
                         {/* League Standings Link */}
