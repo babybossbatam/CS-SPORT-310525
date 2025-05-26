@@ -15,36 +15,6 @@ interface MatchesByCountryProps {
 const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
-  // Helper function to get short team name
-  const getShortTeamName = (team: any) => {
-    const name = team.name;
-    
-    // If name is short enough, return as is
-    if (name.length <= 8) return name;
-    
-    // Try to get abbreviation from words
-    const words = name.split(' ');
-    if (words.length > 1) {
-      const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join('');
-      if (abbreviation.length >= 2 && abbreviation.length <= 5) {
-        return abbreviation;
-      }
-    }
-    
-    // For single long word, truncate to 8 characters
-    if (words.length === 1) {
-      return name.substring(0, 8);
-    }
-    
-    // For multiple words, try first word if reasonable length
-    if (words[0].length <= 8) {
-      return words[0];
-    }
-    
-    // Last resort: truncate to 8 characters
-    return name.substring(0, 8);
-  };
-
   const { data: fixtures = [] } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
@@ -243,11 +213,11 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                             {leagueData.matches.map((match: any, index: number) => (
                               <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
                                 {/* Teams and Score */}
-                                <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center justify-between">
                                   {/* Home Team */}
-                                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <span className="font-medium text-gray-900 text-right flex-1 text-sm">
-                                      {getShortTeamName(match.teams.home)}
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <span className="font-medium text-gray-900 text-right flex-1 truncate">
+                                      {match.teams.home.name}
                                     </span>
                                     <TeamLogo
                                       src={match.teams.home.logo}
@@ -256,15 +226,15 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                     />
                                   </div>
 
-                                  {/* Score/Time - Fixed width to prevent collapse */}
-                                  <div className="flex flex-col items-center justify-center mx-3 min-w-[70px]">
+                                  {/* Score */}
+                                  <div className="flex flex-col items-center justify-center mx-6">
                                     {(match.goals.home !== null && match.goals.away !== null) ? (
                                       <>
                                         {/* Status/Time at top for finished/live matches */}
-                                        <span className={`text-xs font-medium mb-1 ${getStatusColor(match)}`}>
+                                        <span className={`text-sm font-medium mb-2 ${getStatusColor(match)}`}>
                                           {getMatchStatus(match)}
                                         </span>
-                                        <div className="text-lg font-bold text-gray-900 flex items-center gap-1">
+                                        <div className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                           <span>{match.goals.home}</span>
                                           <span className="text-gray-400">-</span>
                                           <span>{match.goals.away}</span>
@@ -272,21 +242,21 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                       </>
                                     ) : (
                                       /* Show match time when no score available */
-                                      <div className="text-sm font-medium text-gray-700 text-center">
+                                      <div className="text-lg font-medium text-gray-700">
                                         {getMatchStatus(match)}
                                       </div>
                                     )}
                                   </div>
 
                                   {/* Away Team */}
-                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-1">
                                     <TeamLogo
                                       src={match.teams.away.logo}
                                       alt={match.teams.away.name}
                                       size="sm"
                                     />
-                                    <span className="font-medium text-gray-900 flex-1 text-sm">
-                                      {getShortTeamName(match.teams.away)}
+                                    <span className="font-medium text-gray-900 flex-1 truncate">
+                                      {match.teams.away.name}
                                     </span>
                                   </div>
                                 </div>
