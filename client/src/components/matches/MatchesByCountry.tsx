@@ -177,8 +177,8 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         }
                       }}
                     />
-                    <span className="font-medium text-gray-900">{countryData.country}</span>
-                    <span className="text-sm text-gray-500">({totalMatches})</span>
+                    <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
+                    <span className="text-xs text-gray-500">({totalMatches})</span>
                   </div>
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
