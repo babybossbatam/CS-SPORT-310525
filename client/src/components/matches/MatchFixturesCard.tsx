@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format, parseISO } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
-import { formatYYYYMMDD, getCurrentUTCDateString, parseDate } from '@/lib/dateUtils';
 
 interface FixtureProps {
   fixtures: any[];
@@ -106,38 +105,39 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               <SelectContent align="start" className="w-[280px] p-0">
                 <Calendar
                   mode="single"
-                  selected={selectedDate ? parseDate(selectedDate) : new Date()}
+                  selected={selectedDate ? parseISO(selectedDate) : new Date()}
                   onSelect={(date) => {
                     if (date) {
-                      // Use UTC-only date handling
-                      const selectedDateString = formatYYYYMMDD(date);
-                      const todayString = getCurrentUTCDateString();
-                      
-                      // Calculate yesterday and tomorrow in UTC
-                      const today = parseDate(todayString);
-                      const tomorrow = new Date(today);
-                      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-                      const yesterday = new Date(today);
-                      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-                      
-                      const tomorrowString = formatYYYYMMDD(tomorrow);
-                      const yesterdayString = formatYYYYMMDD(yesterday);
+                      // Normalize dates to avoid timezone issues
+                      const normalizeDate = (d: Date) => {
+                        const normalized = new Date(d);
+                        normalized.setHours(0, 0, 0, 0);
+                        return normalized;
+                      };
 
-                      // Update Redux store with selected date in UTC format
+                      const selectedNormalized = normalizeDate(date);
+                      const today = normalizeDate(new Date());
+                      const tomorrow = new Date(today);
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      const yesterday = new Date(today);
+                      yesterday.setDate(yesterday.getDate() - 1);
+
+                      // Update Redux store with selected date in proper format
+                      const selectedDateString = format(selectedNormalized, 'yyyy-MM-dd');
                       dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
 
-                      console.log('Date selected (UTC):', selectedDateString);
-                      console.log('Today (UTC):', todayString);
+                      console.log('Date selected:', selectedDateString);
+                      console.log('Today:', format(today, 'yyyy-MM-dd'));
 
-                      // Compare UTC date strings
-                      if (selectedDateString === todayString) {
+                      // Compare normalized dates
+                      if (selectedNormalized.getTime() === today.getTime()) {
                         setSelectedFilter("Today's Matches");
-                      } else if (selectedDateString === yesterdayString) {
+                      } else if (selectedNormalized.getTime() === yesterday.getTime()) {
                         setSelectedFilter("Yesterday's Matches");
-                      } else if (selectedDateString === tomorrowString) {
+                      } else if (selectedNormalized.getTime() === tomorrow.getTime()) {
                         setSelectedFilter("Tomorrow's Matches");
                       } else {
-                        setSelectedFilter(format(parseDate(selectedDateString), 'MMM d, yyyy'));
+                        setSelectedFilter(format(selectedNormalized, 'MMM d, yyyy'));
                       }
 
                       // Close the dropdown
