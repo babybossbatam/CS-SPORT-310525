@@ -122,11 +122,11 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
   const getStatusColor = (fixture: any) => {
     const status = fixture.fixture.status.short;
     if (status === 'FT' || status === 'AET' || status === 'PEN') {
-      return 'text-gray-500';
+      return 'bg-gray-100 text-gray-600';
     } else if (status === 'LIVE' || status === '1H' || status === 'HT' || status === '2H') {
-      return 'text-green-600 font-semibold';
+      return 'bg-green-100 text-green-700';
     }
-    return 'text-gray-700';
+    return 'bg-blue-100 text-blue-700';
   };
 
   if (!fixtures.length) {
@@ -211,49 +211,58 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                         {/* Matches - Single card per league */}
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                           {/* All Matches in this league */}
-                          <div className="p-4 space-y-4">
+                          <div className="p-2">
                             {leagueData.matches.map((match: any, index: number) => (
-                              <div key={match.fixture.id} className={index > 0 ? "pt-4 border-t border-gray-100" : ""}>
-                                {/* Teams and Score - Format: HOME LOGO, HOME NAME, SCORE/TIME, AWAY NAME, AWAY LOGO */}
+                              <div 
+                                key={match.fixture.id} 
+                                className={`group cursor-pointer transition-all duration-200 hover:bg-gray-50 rounded-lg p-3 ${index > 0 ? "mt-2" : ""}`}
+                              >
                                 <div className="flex items-center gap-3">
-                                  {/* Home Team Logo */}
-                                  <TeamLogo
-                                    src={match.teams.home.logo}
-                                    alt={match.teams.home.name}
-                                    size="sm"
-                                  />
-                                  
-                                  {/* Home Team Name */}
-                                  <span className="font-medium text-gray-900 text-sm">
-                                    {match.teams.home.name}
-                                  </span>
+                                  {/* Favorite Icon */}
+                                  <button className="text-gray-300 hover:text-yellow-500 transition-colors duration-200">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                  </button>
+
+                                  {/* Home Team */}
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <TeamLogo
+                                      src={match.teams.home.logo}
+                                      alt={match.teams.home.name}
+                                      size="sm"
+                                    />
+                                    <span className="font-medium text-gray-900 text-sm truncate">
+                                      {match.teams.home.name}
+                                    </span>
+                                  </div>
 
                                   {/* Score or Time */}
-                                  <div className="flex items-center justify-center mx-4">
+                                  <div className="flex items-center justify-center min-w-[80px] px-3">
                                     {(match.goals.home !== null && match.goals.away !== null) ? (
-                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-1">
+                                      <div className="text-base font-bold text-gray-900 flex items-center gap-1">
                                         <span>{match.goals.home}</span>
                                         <span className="text-gray-400">-</span>
                                         <span>{match.goals.away}</span>
                                       </div>
                                     ) : (
-                                      <div className="text-sm font-medium text-gray-700">
+                                      <div className={`text-sm font-medium px-2 py-1 rounded ${getStatusColor(match)}`}>
                                         {getMatchStatus(match)}
                                       </div>
                                     )}
                                   </div>
 
-                                  {/* Away Team Name */}
-                                  <span className="font-medium text-gray-900 text-sm">
-                                    {match.teams.away.name}
-                                  </span>
-                                  
-                                  {/* Away Team Logo */}
-                                  <TeamLogo
-                                    src={match.teams.away.logo}
-                                    alt={match.teams.away.name}
-                                    size="sm"
-                                  />
+                                  {/* Away Team */}
+                                  <div className="flex items-center gap-2 flex-1 justify-end">
+                                    <span className="font-medium text-gray-900 text-sm truncate text-right">
+                                      {match.teams.away.name}
+                                    </span>
+                                    <TeamLogo
+                                      src={match.teams.away.logo}
+                                      alt={match.teams.away.name}
+                                      size="sm"
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             ))}
