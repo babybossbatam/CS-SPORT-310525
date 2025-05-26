@@ -83,6 +83,11 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     </div>
   );
 
+  // Debug logging to check what data we have
+  console.log('MatchFixturesCard - selected filter:', selectedFilter);
+  console.log('MatchFixturesCard - fixtures length:', fixtures?.length || 0);
+  console.log('MatchFixturesCard - league standings:', leagueStandings);
+
   return (
     <div className="space-y-4">
       <Card className="bg-white shadow-md w-full">
@@ -110,6 +115,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       // Update Redux store with selected date
                       const selectedDateString = format(date, 'yyyy-MM-dd');
                       dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
+
+                      console.log('Date selected:', selectedDateString);
 
                       if (date.toDateString() === today.toDateString()) {
                         setSelectedFilter("Today's Matches");

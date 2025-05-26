@@ -123,6 +123,20 @@ const StandingsFilterCard = () => {
                       const finishedMatches = league.matches.filter(match => ["FT", "AET", "PEN"].includes(match.fixture.status.short));
                       const upcomingMatches = league.matches.filter(match => match.fixture.status.short === "NS");
 
+                      // Debug logging for match categorization
+                      console.log(`League ${league.name} match breakdown:`, {
+                        total: league.matches.length,
+                        live: liveMatches.length,
+                        finished: finishedMatches.length,
+                        upcoming: upcomingMatches.length,
+                        allMatches: league.matches.map(m => ({
+                          teams: `${m.teams.home.name} vs ${m.teams.away.name}`,
+                          status: m.fixture.status.short,
+                          homeGoals: m.goals.home,
+                          awayGoals: m.goals.away
+                        }))
+                      });
+
                       return (
                         <>
                           {/* Live Matches */}
@@ -148,17 +162,33 @@ const StandingsFilterCard = () => {
 
                           {/* Finished Matches - Enhanced for all dates including today */}
                           {finishedMatches.map((match) => {
+                            const matchDate = new Date(match.fixture.date);
                             const selectedDateObj = new Date(selectedDate);
                             const today = new Date();
+                            
+                            // Set all times to midnight for proper date comparison
                             today.setHours(0, 0, 0, 0);
                             selectedDateObj.setHours(0, 0, 0, 0);
+                            matchDate.setHours(0, 0, 0, 0);
 
                             const yesterday = new Date(today);
                             yesterday.setDate(yesterday.getDate() - 1);
 
                             const isToday = selectedDateObj.getTime() === today.getTime();
                             const isYesterday = selectedDateObj.getTime() === yesterday.getTime();
-                            const isPastDate = selectedDateObj < today;
+                            const isPastDate = selectedDateObj.getTime() < today.getTime();
+
+                            // Debug logging for finished matches
+                            console.log(`Finished match: ${match.teams.home.name} vs ${match.teams.away.name}`, {
+                              homeGoals: match.goals.home,
+                              awayGoals: match.goals.away,
+                              status: match.fixture.status.short,
+                              isToday,
+                              isYesterday,
+                              isPastDate,
+                              selectedDate,
+                              matchDate: match.fixture.date
+                            });
 
                             return (
                               <div key={`finished-${match.fixture.id}`} className={`flex items-center justify-between p-2 rounded text-sm ${
@@ -167,7 +197,14 @@ const StandingsFilterCard = () => {
                                 isPastDate ? 'bg-gray-50 border border-gray-200' : 'bg-gray-50'
                               }`}>
                                 <div className="flex items-center gap-2 flex-1">
-                                  <img src={match.teams.home.logo} alt={match.teams.home.name} className="h-4 w-4" />
+                                  <img 
+                                    src={match.teams.home.logo} 
+                                    alt={match.teams.home.name} 
+                                    className="h-4 w-4"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                    }}
+                                  />
                                   <span className="truncate">{match.teams.home.name}</span>
                                 </div>
                                 <div className="flex items-center gap-2 px-2">
@@ -176,18 +213,21 @@ const StandingsFilterCard = () => {
                                     isYesterday ? 'text-orange-700' : 
                                     isPastDate ? 'text-gray-700' : 'text-gray-900'
                                   }`}>
-                                    {match.goals.home ?? 0} - {match.goals.away ?? 0}
+                                    {match.goals.home !== null ? match.goals.home : 0} - {match.goals.away !== null ? match.goals.away : 0}
                                   </span>
                                   <div className="flex flex-col items-center">
                                     <span className={`text-xs font-semibold ${
                                       isToday ? 'text-green-600' :
                                       isYesterday ? 'text-orange-600' : 'text-gray-500'
                                     }`}>
-                                      {isToday ? 'FT' :
+                                      {match.fixture.status.short === 'FT' ? 'FT' :
+                                       match.fixture.status.short === 'AET' ? 'AET' :
+                                       match.fixture.status.short === 'PEN' ? 'PEN' :
+                                       isToday ? 'FT' :
                                        isYesterday ? 'Yesterday' :
                                        isPastDate ? format(parseISO(match.fixture.date), 'MMM d') : 'FT'}
                                     </span>
-                                    {isToday && (
+                                    {(isToday || match.fixture.status.short !== 'FT') && (
                                       <span className="text-xs text-green-500">
                                         {formatTimeInUserTimezone(match.fixture.date, 'HH:mm')}
                                       </span>
@@ -196,7 +236,14 @@ const StandingsFilterCard = () => {
                                 </div>
                                 <div className="flex items-center gap-2 flex-1 justify-end">
                                   <span className="truncate">{match.teams.away.name}</span>
-                                  <img src={match.teams.away.logo} alt={match.teams.away.name} className="h-4 w-4" />
+                                  <img 
+                                    src={match.teams.away.logo} 
+                                    alt={match.teams.away.name} 
+                                    className="h-4 w-4"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                    }}
+                                  />
                                 </div>
                               </div>
                             );
