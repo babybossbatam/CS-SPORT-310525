@@ -92,9 +92,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
   // Start with all countries collapsed by default
   useEffect(() => {
-    // Reset to collapsed state when data changes
+    // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
-  }, [fixtures, popularFixtures, selectedDate]);
+  }, [selectedDate]);
 
   // Enhanced country flag mapping
   const getCountryFlag = (country: string, leagueFlag?: string) => {

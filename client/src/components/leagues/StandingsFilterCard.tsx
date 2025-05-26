@@ -9,7 +9,6 @@ import {
   formatTimeInUserTimezone,
   convertToUserTimezone,
 } from "@/lib/dateUtils";
-import TimeDebugger from "@/components/debug/TimeDebugger";
 
 const POPULAR_LEAGUES = [
   {
@@ -172,7 +171,6 @@ const StandingsFilterCard = () => {
   return (
     <>
       <Card>
-        <TimeDebugger sampleMatch={popularLeagueMatches[0]} />
         <CardContent className="p-4">
           {matchesByLeague.length > 0 ? (
             <div className="space-y-6">
