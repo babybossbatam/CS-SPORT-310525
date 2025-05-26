@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format, parseISO } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
+import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtils';
 
 interface FixtureProps {
   fixtures: any[];
@@ -108,25 +109,27 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                   selected={selectedDate ? parseISO(selectedDate) : new Date()}
                   onSelect={(date) => {
                     if (date) {
-                      // Get dates in YYYY-MM-DD format for consistent comparison
-                      const selectedDateString = format(date, 'yyyy-MM-dd');
-                      const todayString = format(new Date(), 'yyyy-MM-dd');
+                      // Use UTC date utilities for consistent comparison
+                      const selectedDateString = formatYYYYMMDD(date);
+                      const todayString = getCurrentUTCDateString();
                       
-                      // Calculate yesterday and tomorrow strings
-                      const todayDate = new Date();
-                      const yesterday = new Date(todayDate);
-                      yesterday.setDate(yesterday.getDate() - 1);
-                      const tomorrow = new Date(todayDate);
-                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      // Calculate yesterday and tomorrow strings using UTC
+                      const todayUTC = new Date();
+                      const yesterday = new Date(todayUTC);
+                      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+                      const tomorrow = new Date(todayUTC);
+                      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
                       
-                      const yesterdayString = format(yesterday, 'yyyy-MM-dd');
-                      const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+                      const yesterdayString = formatYYYYMMDD(yesterday);
+                      const tomorrowString = formatYYYYMMDD(tomorrow);
 
                       // Update Redux store with selected date
                       dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
 
-                      console.log('Date selected:', selectedDateString);
-                      console.log('Today:', todayString);
+                      console.log('Date selected (UTC):', selectedDateString);
+                      console.log('Today (UTC):', todayString);
+                      console.log('Yesterday (UTC):', yesterdayString);
+                      console.log('Tomorrow (UTC):', tomorrowString);
 
                       // Compare date strings instead of Date objects
                       if (selectedDateString === todayString) {
