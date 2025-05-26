@@ -130,10 +130,10 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       return 'Ended';
     } else if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return 'Live';
-    } else if (status === 'NS' || status === 'TBD' || status === 'PST') {
+    } else {
+      // For upcoming matches (NS, TBD, PST)
       return format(new Date(fixture.fixture.date), 'HH:mm');
     }
-    return 'Ended'; // Default to ended for any other status
   };
 
   const getStatusColor = (fixture: any) => {
@@ -272,8 +272,9 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                                 {/* Score - Center */}
                                 <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
-                                  {['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP', 'LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short) ? (
+                                  {['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(match.fixture.status.short) ? (
                                     <>
+                                      {/* Finished matches - show score */}
                                       <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                         <span>{match.goals.home ?? 0}</span>
                                         <span className="text-gray-400">-</span>
@@ -284,8 +285,22 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                         [{match.fixture.status.short}]
                                       </div>
                                     </>
+                                  ) : ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short) ? (
+                                    <>
+                                      {/* Live matches - show score */}
+                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <span>{match.goals.home ?? 0}</span>
+                                        <span className="text-gray-400">-</span>
+                                        <span>{match.goals.away ?? 0}</span>
+                                      </div>
+                                      {/* Bracket Status Below Score */}
+                                      <div className="text-xs text-green-700 mt-1 px-2 py-0.5 bg-green-100 rounded border border-green-200">
+                                        [{match.fixture.status.short}]
+                                      </div>
+                                    </>
                                   ) : (
                                     <>
+                                      {/* Upcoming matches - show time */}
                                       <div className="text-sm font-medium text-blue-600">
                                         {format(new Date(match.fixture.date), 'HH:mm')}
                                       </div>
