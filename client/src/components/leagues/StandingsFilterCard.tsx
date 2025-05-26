@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format, isToday, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { apiRequest } from '@/lib/queryClient';
+import { formatTimeInUserTimezone, convertToUserTimezone } from '@/lib/dateUtils';
 
 const POPULAR_LEAGUES = [
   { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
@@ -195,7 +196,7 @@ const StandingsFilterCard = () => {
                                     isTomorrow ? 'text-green-700 font-semibold' :
                                     isFutureDate ? 'text-blue-600 font-medium' : 'text-blue-600'
                                   }`}>
-                                    {new Date(match.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {formatTimeInUserTimezone(match.fixture.date, 'HH:mm')}
                                   </span>
                                   {isTomorrow && (
                                     <span className="text-xs text-green-600 font-bold">Tomorrow</span>

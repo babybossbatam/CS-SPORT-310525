@@ -1,19 +1,36 @@
 /**
  * Date Utilities
  * Centralized utilities for date handling to ensure consistent behavior across the application
+ * Includes timezone-aware functionality similar to 365scores.com
  */
 
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, formatInTimeZone } from 'date-fns';
+import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 
 /**
- * Format date to YYYY-MM-DD format
+ * Get user's timezone
+ */
+export function getUserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch (error) {
+    console.error('Error getting user timezone:', error);
+    return 'UTC';
+  }
+}
+
+/**
+ * Format date to YYYY-MM-DD format in user's timezone
  * @param date Date to format
+ * @param timezone Optional timezone, defaults to user's timezone
  * @returns Formatted date string
  */
-export function formatYYYYMMDD(date?: Date | string | number | null): string {
+export function formatYYYYMMDD(date?: Date | string | number | null, timezone?: string): string {
   try {
+    const userTimezone = timezone || getUserTimezone();
+    
     if (!date) {
-      return format(new Date(), 'yyyy-MM-dd');
+      return formatInTimeZone(new Date(), userTimezone, 'yyyy-MM-dd');
     }
     
     let d: Date;
@@ -30,23 +47,153 @@ export function formatYYYYMMDD(date?: Date | string | number | null): string {
     
     if (isNaN(d.getTime())) {
       console.error('Invalid date in formatYYYYMMDD:', date);
-      return format(new Date(), 'yyyy-MM-dd');
+      return formatInTimeZone(new Date(), userTimezone, 'yyyy-MM-dd');
     }
     
-    return format(d, 'yyyy-MM-dd');
+    return formatInTimeZone(d, userTimezone, 'yyyy-MM-dd');
   } catch (error) {
     console.error('Error in formatYYYYMMDD:', error);
-    // Fallback to hardcoded format
+    // Fallback to hardcoded format in user timezone
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const userTimezone = getUserTimezone();
+    return formatInTimeZone(now, userTimezone, 'yyyy-MM-dd');
   }
 }
 
 /**
- * Get today's date in YYYY-MM-DD format
+ * Get today's date in YYYY-MM-DD format in user's timezone
  */
 export function getTodayFormatted(): string {
   return formatYYYYMMDD(new Date());
+}
+
+/**
+ * Format time in user's timezone
+ * @param date Date to format
+ * @param formatStr Format string (default: 'HH:mm')
+ * @param timezone Optional timezone, defaults to user's timezone
+ */
+export function formatTimeInUserTimezone(date: Date | string, formatStr: string = 'HH:mm', timezone?: string): string {
+  try {
+    const userTimezone = timezone || getUserTimezone();
+    const d = typeof date === 'string' ? parseISO(date) : date;
+    
+    if (isNaN(d.getTime())) {
+      return 'TBD';
+    }
+    
+    return formatInTimeZone(d, userTimezone, formatStr);
+  } catch (error) {
+    console.error('Error formatting time in timezone:', error);
+    return 'TBD';
+  }
+}
+
+/**
+ * Convert UTC date to user's timezone
+ * @param date UTC date
+ * @param timezone Optional timezone, defaults to user's timezone
+ */
+export function convertToUserTimezone(date: Date | string, timezone?: string): Date {
+  try {
+    const userTimezone = timezone || getUserTimezone();
+    const d = typeof date === 'string' ? parseISO(date) : date;
+    
+    if (isNaN(d.getTime())) {
+      return new Date();
+    }
+    
+    return utcToZonedTime(d, userTimezone);
+  } catch (error) {
+    console.error('Error converting to user timezone:', error);
+    return new Date();
+  }
+}
+
+/**
+ * Convert local date to UTC
+ * @param date Local date
+ * @param timezone Optional timezone, defaults to user's timezone
+ */
+export function convertToUTC(date: Date | string, timezone?: string): Date {
+  try {
+    const userTimezone = timezone || getUserTimezone();
+    const d = typeof date === 'string' ? parseISO(date) : date;
+    
+    if (isNaN(d.getTime())) {
+      return new Date();
+    }
+    
+    return zonedTimeToUtc(d, userTimezone);
+  } catch (error) {
+    console.error('Error converting to UTC:', error);
+    return new Date();
+  }
+}
+
+/**
+ * Check if a date is today in user's timezone
+ * @param date Date to check
+ * @param timezone Optional timezone, defaults to user's timezone
+ */
+export function isToday(date: Date | string, timezone?: string): boolean {
+  try {
+    const userTimezone = timezone || getUserTimezone();
+    const d = typeof date === 'string' ? parseISO(date) : date;
+    const today = new Date();
+    
+    const dateInUserTz = formatInTimeZone(d, userTimezone, 'yyyy-MM-dd');
+    const todayInUserTz = formatInTimeZone(today, userTimezone, 'yyyy-MM-dd');
+    
+    return dateInUserTz === todayInUserTz;
+  } catch (error) {
+    console.error('Error checking if date is today:', error);
+    return false;
+  }
+}
+
+/**
+ * Check if a date is yesterday in user's timezone
+ * @param date Date to check
+ * @param timezone Optional timezone, defaults to user's timezone
+ */
+export function isYesterday(date: Date | string, timezone?: string): boolean {
+  try {
+    const userTimezone = timezone || getUserTimezone();
+    const d = typeof date === 'string' ? parseISO(date) : date;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const dateInUserTz = formatInTimeZone(d, userTimezone, 'yyyy-MM-dd');
+    const yesterdayInUserTz = formatInTimeZone(yesterday, userTimezone, 'yyyy-MM-dd');
+    
+    return dateInUserTz === yesterdayInUserTz;
+  } catch (error) {
+    console.error('Error checking if date is yesterday:', error);
+    return false;
+  }
+}
+
+/**
+ * Check if a date is tomorrow in user's timezone
+ * @param date Date to check
+ * @param timezone Optional timezone, defaults to user's timezone
+ */
+export function isTomorrow(date: Date | string, timezone?: string): boolean {
+  try {
+    const userTimezone = timezone || getUserTimezone();
+    const d = typeof date === 'string' ? parseISO(date) : date;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const dateInUserTz = formatInTimeZone(d, userTimezone, 'yyyy-MM-dd');
+    const tomorrowInUserTz = formatInTimeZone(tomorrow, userTimezone, 'yyyy-MM-dd');
+    
+    return dateInUserTz === tomorrowInUserTz;
+  } catch (error) {
+    console.error('Error checking if date is tomorrow:', error);
+    return false;
+  }
 }
 
 /**

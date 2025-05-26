@@ -110,9 +110,9 @@ export function formatMatchDateFn(dateString: string | Date | number | null | un
       return `Tomorrow • ${format(date, 'h:mm a')}`;
     } else if (isYesterday(date)) {
       return `Yesterday • ${format(date, 'h:mm a')}`;
+    } else {
+      return format(date, 'EEE, MMM d • h:mm a');
     }
-
-    return format(date, 'EEE, MMM d • h:mm a');
   } catch (error) {
     console.error('Error formatting match date function:', error);
     return 'TBD';
@@ -528,7 +528,7 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
 }
 export const apiRequest = async (method: string, endpoint: string, body?: any) => {
   const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
-  
+
   try {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method,
