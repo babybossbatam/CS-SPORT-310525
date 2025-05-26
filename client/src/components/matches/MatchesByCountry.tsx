@@ -276,11 +276,18 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 {/* Home Team Logo */}
                                 <div className="flex-shrink-0 mx-1">
                                   <img
-                                    src={match.teams.home.logo}
+                                    src={match.teams.home.logo || '/assets/fallback-logo.png'}
                                     alt={match.teams.home.name}
                                     className="w-6 h-6 object-contain"
                                     onError={(e) => {
-                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                      const target = e.target as HTMLImageElement;
+                                      // Try different fallback options
+                                      if (target.src.includes('fallback-logo.png')) {
+                                        // If even fallback failed, use a data URL
+                                        target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Im04IDEyaDhtLTQtNGwwIDh6IiBmaWxsPSIjMzM3M2RjIi8+Cjwvc3ZnPgo=';
+                                      } else {
+                                        target.src = '/assets/fallback-logo.png';
+                                      }
                                     }}
                                   />
                                 </div>
@@ -351,11 +358,18 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
                                 {/* Away Team Logo */}
                                 <div className="flex-shrink-0 mx-1">
                                   <img
-                                    src={match.teams.away.logo}
+                                    src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                     alt={match.teams.away.name}
                                     className="w-6 h-6 object-contain"
                                     onError={(e) => {
-                                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                      const target = e.target as HTMLImageElement;
+                                      // Try different fallback options
+                                      if (target.src.includes('fallback-logo.png')) {
+                                        // If even fallback failed, use a data URL
+                                        target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Im04IDEyaDhtLTQtNGwwIDh6IiBmaWxsPSIjMzM3M2RjIi8+Cjwvc3ZnPgo=';
+                                      } else {
+                                        target.src = '/assets/fallback-logo.png';
+                                      }
                                     }}
                                   />
                                 </div>
