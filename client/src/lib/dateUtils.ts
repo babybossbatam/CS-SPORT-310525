@@ -1,13 +1,13 @@
 
 /**
- * Date Utilities - UTC Only Version
- * Simplified utilities that work exclusively with UTC to avoid timezone complexity
+ * Date Utilities - Local Timezone Version (like 365scores.com)
+ * Uses user's local timezone for date comparisons while keeping UTC for API calls
  */
 
-import { format, parseISO, isValid, startOfDay, endOfDay } from 'date-fns';
+import { format, parseISO, isValid, startOfDay, endOfDay, isToday as dateFnsIsToday } from 'date-fns';
 
 /**
- * Format date to YYYY-MM-DD string in UTC
+ * Format date to YYYY-MM-DD string in user's local timezone
  */
 export function formatYYYYMMDD(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return format(new Date(), 'yyyy-MM-dd');
@@ -22,18 +22,11 @@ export function formatYYYYMMDD(dateInput: string | Date | null | undefined): str
 }
 
 /**
- * Get current UTC date as YYYY-MM-DD string
+ * Get current date as YYYY-MM-DD string in user's local timezone
  */
 export function getCurrentUTCDateString(): string {
-  const now = new Date();
-  // Create UTC date by using UTC methods
-  const utcYear = now.getUTCFullYear();
-  const utcMonth = now.getUTCMonth();
-  const utcDate = now.getUTCDate();
-  
-  // Create a new date in UTC
-  const utcDateObj = new Date(Date.UTC(utcYear, utcMonth, utcDate));
-  return format(utcDateObj, 'yyyy-MM-dd');
+  // Use local date instead of UTC to match user's perception of "today"
+  return format(new Date(), 'yyyy-MM-dd');
 }
 
 /**
@@ -44,16 +37,30 @@ export function parseDate(dateString: string): Date {
 }
 
 /**
- * Check if date is today (UTC)
+ * Check if date is today in user's local timezone
  */
 export function isToday(date: Date | string): boolean {
   const targetDate = typeof date === 'string' ? parseISO(date) : date;
-  const today = new Date();
-  return format(targetDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+  return dateFnsIsToday(targetDate);
 }
 
 /**
- * Get start of day in UTC
+ * Check if a match date falls within the user's selected local date
+ */
+export function isMatchOnDate(matchDate: string | Date, targetDate: string): boolean {
+  try {
+    const match = typeof matchDate === 'string' ? parseISO(matchDate) : matchDate;
+    const target = parseISO(targetDate);
+    
+    // Compare just the date parts in local timezone
+    return format(match, 'yyyy-MM-dd') === format(target, 'yyyy-MM-dd');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get start of day in local timezone
  */
 export function getStartOfDay(date: Date | string): Date {
   const targetDate = typeof date === 'string' ? parseISO(date) : date;
@@ -61,7 +68,7 @@ export function getStartOfDay(date: Date | string): Date {
 }
 
 /**
- * Get end of day in UTC
+ * Get end of day in local timezone  
  */
 export function getEndOfDay(date: Date | string): Date {
   const targetDate = typeof date === 'string' ? parseISO(date) : date;
@@ -69,7 +76,7 @@ export function getEndOfDay(date: Date | string): Date {
 }
 
 /**
- * Format time for display (UTC)
+ * Format time for display in user's local timezone
  */
 export function formatTime(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return 'TBD';
@@ -84,7 +91,7 @@ export function formatTime(dateInput: string | Date | null | undefined): string 
 }
 
 /**
- * Format full date and time for display (UTC)
+ * Format full date and time for display in user's local timezone
  */
 export function formatDateTime(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return 'TBD';
@@ -96,4 +103,22 @@ export function formatDateTime(dateInput: string | Date | null | undefined): str
   } catch {
     return 'TBD';
   }
+}
+
+/**
+ * Get yesterday's date in local timezone
+ */
+export function getYesterday(): string {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return format(yesterday, 'yyyy-MM-dd');
+}
+
+/**
+ * Get tomorrow's date in local timezone
+ */
+export function getTomorrow(): string {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return format(tomorrow, 'yyyy-MM-dd');
 }
