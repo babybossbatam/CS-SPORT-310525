@@ -26,20 +26,10 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       const data = await response.json();
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
       
-      // Additional filtering for date matching like 365scores
-      const filteredData = data.filter((fixture: any) => {
-        const fixtureDate = new Date(fixture.fixture.date);
-        const targetDate = new Date(selectedDate);
-        
-        // Compare dates in local timezone (like 365scores)
-        const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
-        const targetLocalDate = format(targetDate, 'yyyy-MM-dd');
-        
-        return fixtureLocalDate === targetLocalDate;
-      });
-      
-      console.log(`Filtered to ${filteredData.length} fixtures for ${selectedDate} after date matching`);
-      return filteredData;
+      // The API already filters by date, so we don't need additional filtering here
+      // Just log and return the data
+      console.log(`Received ${data.length} fixtures for ${selectedDate} from API`);
+      return data;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
     gcTime: 60 * 60 * 1000, // 1 hour garbage collection time
@@ -80,10 +70,11 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
 
-          // Filter fixtures within our date range
+          // The API call will handle date filtering, but we can add a safety check
           const filteredFixtures = leagueFixtures.filter((fixture: any) => {
             const fixtureDate = new Date(fixture.fixture.date);
             const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
+            // Use broader date range for safety
             return fixtureLocalDate >= startDate && fixtureLocalDate <= endDate;
           });
 
