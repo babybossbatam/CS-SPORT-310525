@@ -417,7 +417,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                   <img
                                     src={match.teams.home.logo}
                                     alt={match.teams.home.name}
-                                    className="w-6 h-6 object-contain"
+                                    className="w-12 h-12 object-contain"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                     }}
@@ -538,7 +538,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                   <img
                                     src={match.teams.away.logo}
                                     alt={match.teams.away.name}
-                                    className="w-6 h-6 object-contain"
+                                    className="w-12 h-12 object-contain"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                     }}
