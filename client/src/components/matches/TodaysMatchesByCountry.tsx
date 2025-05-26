@@ -355,7 +355,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                       </span>
                     )}
 
-                    
+
                   </div>
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -466,7 +466,44 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                     }
 
                                     // Finished matches
-                                    if (['FT', 'AET', 'PEN'].includes(status) || hasScore) {
+                                    if (['FT', 'AET', 'PEN'].includes(status)) {
+                                      // Check if we actually have valid score data
+                                      const hasValidScore = match.goals.home !== null && match.goals.away !== null;
+
+                                      if (hasValidScore) {
+                                        return (
+                                          <>
+                                            <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                              <span>{match.goals.home}</span>
+                                              <span className="text-gray-400">-</span>
+                                              <span>{match.goals.away}</span>
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-1">
+                                              {status === 'FT' ? 'FT' : 
+                                               status === 'AET' ? 'AET' :
+                                               status === 'PEN' ? 'PEN' : 'Finished'}
+                                            </div>
+                                          </>
+                                        );
+                                      } else {
+                                        // Match is finished but no score data available
+                                        return (
+                                          <>
+                                            <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded">
+                                              Score TBD
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-1">
+                                              {status === 'FT' ? 'Finished' : 
+                                               status === 'AET' ? 'AET' :
+                                               status === 'PEN' ? 'PEN' : 'Finished'}
+                                            </div>
+                                          </>
+                                        );
+                                      }
+                                    }
+
+                                    // Check for other finished statuses with score data
+                                    if (hasScore) {
                                       return (
                                         <>
                                           <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -475,9 +512,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                             <span>{match.goals.away ?? 0}</span>
                                           </div>
                                           <div className="text-xs text-gray-500 mt-1">
-                                            {status === 'FT' ? 'FT' : 
-                                             status === 'AET' ? 'AET' :
-                                             status === 'PEN' ? 'PEN' : 'Finished'}
+                                            Finished
                                           </div>
                                         </>
                                       );
