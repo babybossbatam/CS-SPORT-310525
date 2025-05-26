@@ -100,8 +100,8 @@ const StandingsFilterCard = () => {
         {matchesByLeague.length > 0 ? (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Popular Football Leagues</h3>
-              {matchesByLeague.map((league) => (
-                <div key={league.id} className="space-y-3">
+            {matchesByLeague.map((league) => (
+              <div key={league.id} className="space-y-3">
                   <div className="flex items-center gap-2 pb-2 border-b">
                     <img
                       src={league.logo}
@@ -238,8 +238,8 @@ const StandingsFilterCard = () => {
                     })()}
                   </div>
                 </div>
-              ))}
-            </div>
+            ))}
+          </div>
         ) : (
           <p className="text-gray-500 text-center py-4">
             {selectedDate === format(new Date(), 'yyyy-MM-dd')
