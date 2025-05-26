@@ -167,7 +167,11 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </button>
         </div>
       </Card>
-      <TodayPopularFootballLeagues selectedDate={selectedDate} />
+      {selectedFilter === "Today's Matches" && (
+              <div className="space-y-4">
+                <TodayPopularFootballLeagues selectedDate={selectedDate} />
+              </div>
+            )}
       <TodaysMatchesByCountry selectedDate={selectedDate} />
     </div>
   );
