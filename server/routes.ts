@@ -1023,8 +1023,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { date } = req.params;
       const { all } = req.query;
 
-      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.log(`Fetching fixtures for date: ${date}, all=${all}`);
+
+      // Validate date format
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+
+      // Check cache with broader date range for better timezone handling
+      const cacheKey = all ? `${date}-all` : date;
+      let cachedData = fixturesCache.get(cacheKey);
+      if (cachedData) {
+        console.log(`Returning ${cachedData.length} cached fixtures for date ${date} (all=${all})`);
+        return res.json(cachedData);
       }
 
       const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');

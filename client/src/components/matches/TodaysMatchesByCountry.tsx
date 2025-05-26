@@ -25,7 +25,21 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
-      return data;
+      
+      // Additional filtering for date matching like 365scores
+      const filteredData = data.filter((fixture: any) => {
+        const fixtureDate = new Date(fixture.fixture.date);
+        const targetDate = new Date(selectedDate);
+        
+        // Compare dates in local timezone (like 365scores)
+        const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
+        const targetLocalDate = format(targetDate, 'yyyy-MM-dd');
+        
+        return fixtureLocalDate === targetLocalDate;
+      });
+      
+      console.log(`Filtered to ${filteredData.length} fixtures for ${selectedDate} after date matching`);
+      return filteredData;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
     gcTime: 60 * 60 * 1000, // 1 hour garbage collection time
@@ -68,8 +82,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
           // Filter fixtures within our date range
           const filteredFixtures = leagueFixtures.filter((fixture: any) => {
-            const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
-            return fixtureDate >= startDate && fixtureDate <= endDate;
+            const fixtureDate = new Date(fixture.fixture.date);
+            const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
+            return fixtureLocalDate >= startDate && fixtureLocalDate <= endDate;
           });
 
           allData.push(...filteredFixtures);

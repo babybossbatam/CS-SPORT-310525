@@ -122,3 +122,17 @@ export function getTomorrow(): string {
   tomorrow.setDate(tomorrow.getDate() + 1);
   return format(tomorrow, 'yyyy-MM-dd');
 }
+
+/**
+ * Check if two dates are the same day (ignoring time)
+ */
+export function isSameLocalDate(date1: string | Date, date2: string | Date): boolean {
+  try {
+    const d1 = typeof date1 === 'string' ? parseISO(date1) : date1;
+    const d2 = typeof date2 === 'string' ? parseISO(date2) : date2;
+    
+    return format(d1, 'yyyy-MM-dd') === format(d2, 'yyyy-MM-dd');
+  } catch {
+    return false;
+  }
+}
