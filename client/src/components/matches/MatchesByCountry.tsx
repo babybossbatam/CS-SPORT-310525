@@ -17,38 +17,32 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
   // Helper function to get short team name
   const getShortTeamName = (team: any) => {
-    // First try to use the code if available
-    if (team.code) return team.code;
-    
-    // If no code, try to extract a shorter version from the name
     const name = team.name;
     
-    // Common patterns to extract shorter names
-    if (name.includes('FC ')) return name.replace('FC ', '');
-    if (name.includes('CF ')) return name.replace('CF ', '');
-    if (name.includes('AC ')) return name.replace('AC ', '');
-    if (name.includes('AS ')) return name.replace('AS ', '');
-    if (name.includes('SC ')) return name.replace('SC ', '');
-    if (name.includes('SV ')) return name.replace('SV ', '');
-    if (name.includes('1. ')) return name.replace('1. ', '');
-    if (name.includes('Real ')) return name.replace('Real ', '');
-    if (name.includes('Club ')) return name.replace('Club ', '');
+    // If name is short enough, return as is
+    if (name.length <= 8) return name;
     
-    // For longer names, try to get first word or abbreviation
-    if (name.length > 12) {
-      const words = name.split(' ');
-      if (words.length > 1) {
-        // Try to create abbreviation from first letters
-        const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join('');
-        if (abbreviation.length <= 4) return abbreviation;
-        
-        // Otherwise return first word if it's not too long
-        if (words[0].length <= 10) return words[0];
+    // Try to get abbreviation from words
+    const words = name.split(' ');
+    if (words.length > 1) {
+      const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join('');
+      if (abbreviation.length >= 2 && abbreviation.length <= 5) {
+        return abbreviation;
       }
     }
     
-    // Fallback to original name
-    return name;
+    // For single long word, truncate to 8 characters
+    if (words.length === 1) {
+      return name.substring(0, 8);
+    }
+    
+    // For multiple words, try first word if reasonable length
+    if (words[0].length <= 8) {
+      return words[0];
+    }
+    
+    // Last resort: truncate to 8 characters
+    return name.substring(0, 8);
   };
 
   const { data: fixtures = [] } = useQuery({
