@@ -17,6 +17,12 @@ const POPULAR_LEAGUES = [
   { id: 3, name: 'Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' }
 ];
 
+// Mock formatTimeInUTC function for demonstration, replace with actual implementation
+const formatTimeInUTC = (date: string, formatStr: string) => {
+  const utcDate = new Date(date);
+  return format(utcDate, formatStr, { timeZone: 'UTC' });
+};
+
 const StandingsFilterCard = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
@@ -241,7 +247,7 @@ const StandingsFilterCard = () => {
                                     </span>
                                     {(isToday || match.fixture.status.short !== 'FT') && (
                                       <span className="text-xs text-green-500">
-                                        {formatTimeInUserTimezone(match.fixture.date, 'HH:mm')}
+                                        {formatTimeInUTC(match.fixture.date, 'HH:mm')}
                                       </span>
                                     )}
                                   </div>
@@ -285,7 +291,7 @@ const StandingsFilterCard = () => {
                                     isTomorrow ? 'text-green-700 font-semibold' :
                                     isFutureDate ? 'text-blue-600 font-medium' : 'text-blue-600'
                                   }`}>
-                                    {formatTimeInUserTimezone(match.fixture.date, 'HH:mm')}
+                                    {formatTimeInUTC(match.fixture.date, 'HH:mm')}
                                   </span>
                                   {isTomorrow && (
                                     <span className="text-xs text-green-600 font-bold">Tomorrow</span>
