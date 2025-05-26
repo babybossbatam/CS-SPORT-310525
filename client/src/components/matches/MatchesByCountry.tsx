@@ -25,13 +25,30 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     }
   });
 
-  // Start with all countries collapsed by default
+  // Auto-expand countries that have finished matches today
   useEffect(() => {
     if (fixtures.length > 0) {
-      // Keep countries collapsed by default - don't auto-expand
-      setExpandedCountries(new Set());
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const isToday = selectedDate === today;
+      
+      if (isToday) {
+        // For today, auto-expand countries that have finished matches
+        const countriesWithFinishedMatches = new Set<string>();
+        
+        fixtures.forEach((fixture: any) => {
+          const status = fixture.fixture.status.short;
+          if (['FT', 'AET', 'PEN'].includes(status)) {
+            countriesWithFinishedMatches.add(fixture.league.country);
+          }
+        });
+        
+        setExpandedCountries(countriesWithFinishedMatches);
+      } else {
+        // For other dates, keep collapsed
+        setExpandedCountries(new Set());
+      }
     }
-  }, [fixtures]);
+  }, [fixtures, selectedDate]);
 
   // Enhanced country flag mapping
   const getCountryFlag = (country: string, leagueFlag?: string) => {
@@ -144,7 +161,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       <CardHeader className="pb-4">
         <h3 className="text-sm font-semibold">
           {selectedDate === format(new Date(), 'yyyy-MM-dd') 
-            ? "Today's Football Matches By Country" 
+            ? "Today's Latest Football Results By Country" 
             : `Football Match By Country - ${format(new Date(selectedDate), 'MMM d, yyyy')}`
           }
         </h3>
@@ -210,7 +227,22 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
                         {/* Matches - Exact 365scores style */}
                         <div className="space-y-1">
-                          {leagueData.matches.map((match: any, index: number) => (
+                          {leagueData.matches
+                            .sort((a: any, b: any) => {
+                              // Sort finished matches first, then by date
+                              const aFinished = ['FT', 'AET', 'PEN'].includes(a.fixture.status.short);
+                              const bFinished = ['FT', 'AET', 'PEN'].includes(b.fixture.status.short);
+                              
+                              if (aFinished && !bFinished) return -1;
+                              if (!aFinished && bFinished) return 1;
+                              
+                              // If both finished or both not finished, sort by date (most recent first for finished)
+                              const aDate = new Date(a.fixture.date).getTime();
+                              const bDate = new Date(b.fixture.date).getTime();
+                              
+                              return aFinished ? bDate - aDate : aDate - bDate;
+                            })
+                            .map((match: any, index: number) => (
                             <div 
                               key={match.fixture.id} 
                               className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer relative border-b border-gray-100 last:border-b-0"
