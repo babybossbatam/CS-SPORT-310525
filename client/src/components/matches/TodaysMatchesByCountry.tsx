@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
@@ -12,11 +11,12 @@ interface TodaysMatchesByCountryProps {
 
 const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
+  const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
 
-  // Fetch all fixtures for the selected date
+  // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
@@ -26,57 +26,67 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
       return data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
+    gcTime: 60 * 60 * 1000, // 1 hour garbage collection time
+    enabled: !!selectedDate && enableFetching,
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnMount: false, // Don't refetch on component mount if data exists
+    refetchOnReconnect: false, // Don't refetch on network reconnection
   });
 
-  // Fetch popular league fixtures specifically (for better today/yesterday/tomorrow handling)
-  const { data: popularFixtures = [] } = useQuery({
+  // Fetch popular league fixtures with even more aggressive caching
+  const { data: popularFixtures = [], isLoading: isLoadingPopular } = useQuery({
     queryKey: ['popular-fixtures', selectedDate],
     queryFn: async () => {
       const allData = [];
       const today = new Date();
       const selectedDateObj = new Date(selectedDate);
-      
+
       // Determine date range based on selected date
       let startDate = selectedDate;
       let endDate = selectedDate;
-      
+
       if (isToday(selectedDateObj)) {
         // For today, also get yesterday and tomorrow for context
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
+
         startDate = format(yesterday, 'yyyy-MM-dd');
         endDate = format(tomorrow, 'yyyy-MM-dd');
       }
 
       console.log(`Fetching popular league fixtures from ${startDate} to ${endDate}`);
-      
+
       // Fetch data for each popular league
       for (const leagueId of POPULAR_LEAGUES) {
         try {
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
-          
+
           // Filter fixtures within our date range
           const filteredFixtures = leagueFixtures.filter((fixture: any) => {
             const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
             return fixtureDate >= startDate && fixtureDate <= endDate;
           });
-          
+
           allData.push(...filteredFixtures);
         } catch (error) {
           console.error(`Error fetching fixtures for league ${leagueId}:`, error);
         }
       }
-      
+
       console.log(`Fetched ${allData.length} popular league fixtures`);
       return allData;
     },
-    enabled: POPULAR_LEAGUES.length > 0,
-    staleTime: 5 * 60 * 1000,
+    enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
+    staleTime: 60 * 60 * 1000, // 1 hour - very long cache time for popular fixtures
+    gcTime: 2 * 60 * 60 * 1000, // 2 hours garbage collection time
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnMount: false, // Don't refetch on component mount if data exists
+    refetchOnReconnect: false, // Don't refetch on network reconnection
+    retry: 1, // Reduce retry attempts
   });
 
   // Auto-expand logic
@@ -89,12 +99,12 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       if (isSelectedToday) {
         // For today, auto-expand countries with finished or live matches
         const countriesWithResults = new Set<string>();
-        
+
         [...fixtures, ...popularFixtures].forEach((fixture: any) => {
           const fixtureDate = new Date(fixture.fixture.date);
           const status = fixture.fixture.status.short;
           const hoursAgo = differenceInHours(today, fixtureDate);
-          
+
           // Auto-expand if match finished within last 12 hours or is currently live
           if ((['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 12) || 
               ['LIVE', '1H', 'HT', '2H', 'ET'].includes(status)) {
@@ -207,17 +217,17 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       if (hoursAgo <= 24) return 'Recent';
       return status;
     }
-    
+
     // Live matches
     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return status === 'HT' ? 'Half Time' : 'LIVE';
     }
-    
+
     // Upcoming matches
     if (fixtureDate < now && status === 'NS') {
       return 'Delayed';
     }
-    
+
     return 'Scheduled';
   };
 
@@ -231,22 +241,22 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       if (hoursAgo <= 2) return 'bg-green-100 text-green-700 font-semibold';
       return 'bg-gray-100 text-gray-700 font-semibold';
     }
-    
+
     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       return 'bg-red-100 text-red-700 font-semibold animate-pulse';
     }
-    
+
     if (fixtureDate < now && status === 'NS') {
       return 'bg-orange-100 text-orange-700';
     }
-    
+
     return 'bg-blue-100 text-blue-700';
   };
 
   // Get header title based on selected date
   const getHeaderTitle = () => {
     const selectedDateObj = new Date(selectedDate);
-    
+
     if (isToday(selectedDateObj)) {
       return "Today's Football Matches by Country";
     } else if (isYesterday(selectedDateObj)) {
@@ -338,7 +348,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                     />
                     <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
                     <span className="text-xs text-gray-500">({totalMatches})</span>
-                    
+
                     {/* Live/Recent badges */}
                     {liveMatches > 0 && (
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold animate-pulse">
@@ -350,7 +360,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                         {recentMatches} Recent
                       </span>
                     )}
-                    
+
                     {countryData.hasPopularLeague && (
                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
                         Popular
@@ -404,20 +414,20 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                               const bStatus = b.fixture.status.short;
                               const aDate = new Date(a.fixture.date).getTime();
                               const bDate = new Date(b.fixture.date).getTime();
-                              
+
                               const aLive = ['LIVE', '1H', 'HT', '2H', 'ET'].includes(aStatus);
                               const bLive = ['LIVE', '1H', 'HT', '2H', 'ET'].includes(bStatus);
-                              
+
                               if (aLive && !bLive) return -1;
                               if (!aLive && bLive) return 1;
-                              
+
                               const aFinished = ['FT', 'AET', 'PEN'].includes(aStatus);
                               const bFinished = ['FT', 'AET', 'PEN'].includes(bStatus);
-                              
+
                               if (aFinished && bFinished) return bDate - aDate; // Most recent first
                               if (aFinished && !bFinished) return -1;
                               if (!aFinished && bFinished) return 1;
-                              
+
                               return aDate - bDate; // Upcoming: earliest first
                             })
                             .map((match: any) => (
