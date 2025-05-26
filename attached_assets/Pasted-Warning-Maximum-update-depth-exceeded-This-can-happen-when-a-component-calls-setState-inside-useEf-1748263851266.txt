@@ -1,0 +1,63 @@
+Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn&#x27;t have a dependency array, or one of the dependencies changes on every render.
+    at TodayPopularFootballLeagues (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/matches/TodayPopularFootballLeagues.tsx:25:40)
+    at div
+    at MatchFixturesCard (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/matches/MatchFixturesCard.tsx:29:37)
+    at div
+    at _c9 (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at div
+    at _c (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:20:11)
+    at Home (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/pages/Home.tsx:46:3)
+    at Route (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c89eecf1:265:16)
+    at Switch (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c89eecf1:321:17)
+    at Suspense
+    at Router
+    at main
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c89eecf1:38:15)
+    at TooltipProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c89eecf1:61:5)
+    at App
+    at V (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=c89eecf1:44:25)
+    at J (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=c89eecf1:42:18)
+    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=c89eecf1:2805:3)
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:923:11)
+MatchFixturesCard - selected filter: Today's Matches
+MatchFixturesCard - fixtures length: 0
+MatchFixturesCard - league standings: undefined
+Total matches from API: 1
+Selected date: 2025-05-26
+Popular league matches before deduplication: 1
+Popular league matches after deduplication: 1
+Final matches after enhanced deduplication: 1
+League Bundesliga has 1 matches: 
+Array ["SV Elversberg vs 1. FC Heidenheim (ID: 1375863)"]
+League Bundesliga match breakdown: 
+Object {total: 1, live: 0, finished: 0, upcoming: 1, allMatches: Array(1)}
+Using cached leagues data (1 leagues)
+Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn&#x27;t have a dependency array, or one of the dependencies changes on every render.
+    at TodayPopularFootballLeagues (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/matches/TodayPopularFootballLeagues.tsx:25:40)
+    at div
+    at MatchFixturesCard (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/matches/MatchFixturesCard.tsx:29:37)
+    at div
+    at _c9 (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at div
+    at _c (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:20:11)
+    at Home (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/pages/Home.tsx:46:3)
+    at Route (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c89eecf1:265:16)
+    at Switch (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c89eecf1:321:17)
+    at Suspense
+    at Router
+    at main
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=c89eecf1:38:15)
+    at TooltipProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c89eecf1:61:5)
+    at App
+    at V (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=c89eecf1:44:25)
+    at J (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=c89eecf1:42:18)
+    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=c89eecf1:2805:3)
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:923:11)
