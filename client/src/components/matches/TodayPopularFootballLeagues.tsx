@@ -438,6 +438,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                       return (
                                         <>
+                                          <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
+                                            LIVE
+                                          </div>
                                           <div className="text-lg font-bold text-red-600 flex items-center gap-2">
                                             <span>{match.goals.home ?? 0}</span>
                                             <span className="text-gray-400">-</span>
@@ -462,6 +465,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                       if (hasValidScores) {
                                         return (
                                           <>
+                                            <div className="text-xs text-gray-600 font-semibold mb-1">
+                                              {status === 'FT' ? 'FULL TIME' : 
+                                               status === 'AET' ? 'AFTER EXTRA TIME' :
+                                               status === 'PEN' ? 'PENALTIES' :
+                                               status === 'AWD' ? 'AWARDED' :
+                                               status === 'WO' ? 'WALKOVER' :
+                                               status === 'ABD' ? 'ABANDONED' :
+                                               status === 'CANC' ? 'CANCELLED' :
+                                               status === 'SUSP' ? 'SUSPENDED' : status}
+                                            </div>
                                             <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                               <span>{homeScore}</span>
                                               <span className="text-gray-400">-</span>
