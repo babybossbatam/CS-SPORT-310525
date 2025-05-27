@@ -261,9 +261,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'h2h gg', 'battle', 'volta', '8 mins', '10 mins', '12 mins', '6 mins'
     ];
 
-    // Additional terms to exclude - Friendlies, Women's, and Youth leagues (especially U17 and U20)
+    // Additional terms to exclude - Women's, and Youth leagues (especially U17 and U20)
     const excludedTerms = [
-      'friendlies', 'friendly', 'women', 'womens', "women's", 'girls', 'female',
+      'women', 'womens', "women's", 'girls', 'female',
       'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'under 15', 'under 16', 
       'under 17', 'under 18', 'under 19', 'under 20', 'under 21', 'under 23',
       'youth', 'junior', 'reserve', 'reserves', 'amateur', 'development', 'academy',
@@ -279,12 +279,30 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       awayTeamName.includes(term)
     );
 
+    // Check for friendlies but allow world tournament friendlies
+    const isFriendly = leagueName.includes('friendly') || leagueName.includes('friendlies') ||
+                      homeTeamName.includes('friendly') || awayTeamName.includes('friendly');
+    
+    // Allow friendlies if they're world tournaments (FIFA, international, world cup, etc.)
+    const isWorldTournamentFriendly = isFriendly && (
+      leagueName.includes('fifa') || 
+      leagueName.includes('world') || 
+      leagueName.includes('international') || 
+      leagueName.includes('nations') ||
+      leagueName.includes('confederation') ||
+      country === 'World' || 
+      country === 'International'
+    );
+
     // Check if any excluded terms are present in league or team names
     const isExcluded = excludedTerms.some(term => 
       leagueName.includes(term) || 
       homeTeamName.includes(term) || 
       awayTeamName.includes(term)
     );
+
+    // Exclude regular friendlies but allow world tournament friendlies
+    const shouldExcludeFriendly = isFriendly && !isWorldTournamentFriendly;
 
     if (isVirtual) {
       console.log(`Filtering out virtual/esports fixture: ${league.name}`);
@@ -293,6 +311,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     if (isExcluded) {
       console.log(`Filtering out excluded fixture: ${league.name}`);
+      return acc;
+    }
+
+    if (shouldExcludeFriendly) {
+      console.log(`Filtering out regular friendly fixture: ${league.name}`);
       return acc;
     }
 
