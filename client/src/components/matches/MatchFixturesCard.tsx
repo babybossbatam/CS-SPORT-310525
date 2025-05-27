@@ -175,8 +175,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             Live
           </button>
           
-          {/* View Mode Toggle - centered */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
+          {/* View Mode Buttons - individual buttons */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setViewMode('date');
@@ -184,8 +184,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 viewMode === 'date' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-blue-100 text-blue-700 shadow-sm' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               By Date
@@ -197,8 +197,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 viewMode === 'country' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-blue-100 text-blue-700 shadow-sm' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               By Country
