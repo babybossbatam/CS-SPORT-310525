@@ -175,19 +175,20 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             Live
           </button>
           
-          <div className="flex items-center gap-2 mt-8">
-            <button 
-              onClick={() => setTimeFilterActive(!timeFilterActive)}
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
-                timeFilterActive 
-                  ? 'bg-blue-100 text-blue-700 shadow-sm' 
-                  : 'hover:bg-gray-100 hover:shadow-sm hover:scale-105'
-              }`}
-            >
-              <Clock className="h-3.5 w-3.5" />
-              By time
-            </button>
-          </div>
+          {/* By time button fixed to right edge */}
+          <button 
+            onClick={() => setTimeFilterActive(!timeFilterActive)}
+            className={`absolute right-4 top-0 flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
+              timeFilterActive 
+                ? 'bg-blue-100 text-blue-700 shadow-sm' 
+                : 'hover:bg-gray-100 hover:shadow-sm hover:scale-105'
+            }`}
+          >
+            <Clock className="h-3.5 w-3.5" />
+            By time
+          </button>
+          
+          <div className="flex items-center gap-2 mt-8"></div>
           
           {/* View Mode Toggle */}
           <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
