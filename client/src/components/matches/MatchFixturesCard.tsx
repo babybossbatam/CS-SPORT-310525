@@ -169,14 +169,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
-        <div className="relative flex flex-col items-center justify-center px-4 pb-4 mt-[10px] text-[110.25%] gap-3">
-          {/* Live button fixed to left edge */}
-          <button className="absolute left-4 top-0 flex items-center gap-1 px-1.5 py-0.5 bg-gray-300 text-black rounded-full text-xs font-medium w-fit hover:bg-gray-400 transition-colors duration-200">
+        <div className="flex items-center justify-between px-4 pb-4 mt-[10px] text-[110.25%]">
+          {/* Live button */}
+          <button className="flex items-center gap-1 px-1.5 py-0.5 bg-gray-300 text-black rounded-full text-xs font-medium w-fit hover:bg-gray-400 transition-colors duration-200">
             Live
           </button>
           
-          {/* View Mode Toggle - centered between Live and By time */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1 mt-0">
+          {/* View Mode Toggle - centered */}
+          <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
             <button
               onClick={() => setViewMode('date')}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
@@ -199,10 +199,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             </button>
           </div>
           
-          {/* By time button fixed to right edge */}
+          {/* By time button */}
           <button 
             onClick={() => setTimeFilterActive(!timeFilterActive)}
-            className={`absolute right-4 top-0 flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
               timeFilterActive 
                 ? 'bg-blue-100 text-blue-700 shadow-sm' 
                 : 'hover:bg-gray-100 hover:shadow-sm hover:scale-105'
