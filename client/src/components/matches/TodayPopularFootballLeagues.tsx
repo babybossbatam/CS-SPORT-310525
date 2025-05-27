@@ -110,7 +110,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     if (leagueFlag) return leagueFlag;
 
     // Add null/undefined check for country
-    if (!country) {
+    if (!country || typeof country !== 'string') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }
 
@@ -137,7 +137,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'Faroe Islands': 'FO'
     };
 
-    const countryCode = countryCodeMap[country] || country.substring(0, 2).toUpperCase();
+    const countryCode = countryCodeMap[country] || (country.length >= 2 ? country.substring(0, 2).toUpperCase() : 'XX');
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
@@ -149,18 +149,18 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
-    const country = fixture.league.country;
+    const country = fixture.league?.country || 'Unknown';
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlag(country, fixture.league.flag),
+        flag: getCountryFlag(country, fixture.league?.flag),
         leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(fixture.league.id)
+        hasPopularLeague: POPULAR_LEAGUES.includes(fixture.league?.id)
       };
     }
 
-    const leagueId = fixture.league.id;
-    if (!acc[country].leagues[leagueId]) {
+    const leagueId = fixture.league?.id;
+    if (leagueId && !acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
         league: fixture.league,
         matches: [],
@@ -168,7 +168,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       };
     }
 
-    acc[country].leagues[leagueId].matches.push(fixture);
+    if (leagueId) {
+      acc[country].leagues[leagueId].matches.push(fixture);
+    }
     return acc;
   }, {});
 
@@ -179,6 +181,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     // Include specific countries: Saudi-Arabia and Brazil
     const includedCountries = ['Saudi-Arabia', 'Brazil'];
+
+    // Add null check for country before string operations
+    if (!countryData.country || typeof countryData.country !== 'string') {
+      return false;
+    }
 
     // Include if it's one of the specified countries (case-insensitive check)
     if (includedCountries.some(country => 
@@ -193,7 +200,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
-    return a.country.localeCompare(b.country);
+    
+    // Add null checks for country comparison
+    const countryA = a.country || '';
+    const countryB = b.country || '';
+    return countryA.localeCompare(countryB);
   });
 
   const toggleCountry = (country: string) => {

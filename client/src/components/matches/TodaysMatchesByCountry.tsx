@@ -89,18 +89,18 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
-    const country = fixture.league.country;
+    const country = fixture.league?.country || 'Unknown';
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlag(country, fixture.league.flag),
+        flag: getCountryFlag(country, fixture.league?.flag),
         leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(fixture.league.id)
+        hasPopularLeague: POPULAR_LEAGUES.includes(fixture.league?.id)
       };
     }
 
-    const leagueId = fixture.league.id;
-    if (!acc[country].leagues[leagueId]) {
+    const leagueId = fixture.league?.id;
+    if (leagueId && !acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
         league: fixture.league,
         matches: [],
@@ -108,13 +108,17 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       };
     }
 
-    acc[country].leagues[leagueId].matches.push(fixture);
+    if (leagueId) {
+      acc[country].leagues[leagueId].matches.push(fixture);
+    }
     return acc;
   }, {});
 
   // Sort countries alphabetically A-Z
   const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
-    return a.country.localeCompare(b.country);
+    const countryA = a.country || '';
+    const countryB = b.country || '';
+    return countryA.localeCompare(countryB);
   });
 
   const toggleCountry = (country: string) => {
