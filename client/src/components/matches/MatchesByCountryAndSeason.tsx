@@ -114,15 +114,15 @@ export const MatchesByCountryAndSeason: React.FC<MatchesByCountryAndSeasonProps>
               </SelectTrigger>
               <SelectContent>
                 {countriesLoading ? (
-                  <SelectItem value="loading" disabled>Loading countries...</SelectItem>
+                  <SelectItem value="__loading__" disabled>Loading countries...</SelectItem>
                 ) : (
                   countries.map((country) => (
-                    <SelectItem key={country.name} value={country.name}>
+                    <SelectItem key={country.name} value={country.name || 'unknown'}>
                       <div className="flex items-center gap-2">
                         {country.flag && (
                           <img src={country.flag} alt={country.code} className="w-4 h-3 object-cover" />
                         )}
-                        <span>{country.name}</span>
+                        <span>{country.name || 'Unknown Country'}</span>
                         <Badge variant="secondary" className="ml-auto">
                           {country.leagueCount} leagues
                         </Badge>
