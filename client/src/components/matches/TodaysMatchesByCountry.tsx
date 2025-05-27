@@ -639,6 +639,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                       {(() => {
                                         const status = match.fixture.status.short;
                                         const fixtureDate = parseISO(match.fixture.date);
+                                         const matchDate = safeSubstring(match.fixture?.date, 0, 10);
 
                                         // Live matches
                                         if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
@@ -731,7 +732,8 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                             <div className="text-sm font-medium text-black">
                                               {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
                                             </div>
-                                            {status === 'TBD' && (
+                                            {status ===```text
+'TBD' && (
                                               <div className="text-xs text-gray-500 mt-1">Time TBD</div>
                                             )}
                                           </>
