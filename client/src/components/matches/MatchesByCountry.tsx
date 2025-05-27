@@ -68,14 +68,14 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
     // Add comprehensive null/undefined check for country
     if (!country || typeof country !== 'string' || country.trim() === '') {
-      return 'https://media.api-sports.io/football/leagues/1.png'; // Default football logo
+      return '/assets/fallback-logo.png'; // Default football logo
     }
 
     const cleanCountry = country.trim();
 
     // Special handling for World/International competitions
     if (cleanCountry === 'World' || cleanCountry === 'International' || cleanCountry === 'Unknown') {
-      return 'https://media.api-sports.io/football/leagues/1.png'; // Default football logo
+      return '/assets/fallback-logo.png'; // Default football logo
     }
 
     // Country code mapping for better flag display
@@ -98,17 +98,17 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       'Faroe Islands': 'FO'
     };
 
-    // Safe substring operation
+    // Safe substring operation with proper null checks
     let countryCode = 'XX';
-    if (countryCodeMap[cleanCountry]) {
-      countryCode = countryCodeMap[cleanCountry];
-    } else if (cleanCountry.length >= 2) {
-      try {
+    try {
+      if (countryCodeMap[cleanCountry]) {
+        countryCode = countryCodeMap[cleanCountry];
+      } else if (cleanCountry && typeof cleanCountry === 'string' && cleanCountry.length >= 2) {
         countryCode = cleanCountry.substring(0, 2).toUpperCase();
-      } catch (error) {
-        console.error('Error processing country name:', cleanCountry, error);
-        countryCode = 'XX';
       }
+    } catch (error) {
+      console.error('Error processing country name:', cleanCountry, error);
+      countryCode = 'XX';
     }
 
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
