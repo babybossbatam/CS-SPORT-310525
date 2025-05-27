@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, selectSelectedLeagues, selectPopularLeagues, selectFixturesByDate, selectFilteredLeagues, selectAllLeagues, selectStandingsByLeague, selectSelectedCountries, leaguesActions, fixturesActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import Header from '@/components/layout/Header';
@@ -84,10 +84,13 @@ const Home = () => {
   });
 
   // Limit to essential leagues only
-  const popularLeagues = useSelector((state: RootState) => 
-    state.leagues.popularLeagues.slice(0, 5)
-  );
-  const allLeagues = useSelector((state: RootState) => state.leagues.list);
+  const selectedLeagues = useSelector(selectSelectedLeagues);
+  const popularLeagues = useSelector(selectPopularLeagues);
+  const fixturesByDate = useSelector(selectFixturesByDate);
+  const filteredLeagues = useSelector(selectFilteredLeagues);
+  const allLeagues = useSelector(selectAllLeagues);
+  const standingsByLeague = useSelector(selectStandingsByLeague);
+  const selectedCountries = useSelector(selectSelectedCountries);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
