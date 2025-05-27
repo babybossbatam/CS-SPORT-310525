@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
@@ -91,9 +91,9 @@ const Home = () => {
   const standingsByLeague = useSelector((state: RootState) => state.stats.topScorers);
   const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
 
-  // Apply transformations in the component to avoid identity function warnings
-  const popularLeagues = popularLeaguesData.slice(0, 5);
-  const allLeagues = allLeaguesData.filter(league => league && league.league);
+  // Memoize array transformations to prevent unnecessary re-renders
+  const popularLeagues = useMemo(() => popularLeaguesData.slice(0, 5), [popularLeaguesData]);
+  const allLeagues = useMemo(() => allLeaguesData.filter(league => league && league.league), [allLeaguesData]);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
