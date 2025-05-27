@@ -703,8 +703,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                             ) : (
                               <div className="flex items-start gap-2 mb-3 pb-2 border-b border-gray-300">
                                 <img
-                                  src={leagueData.league.logo```text
-|| '/assets/fallback-logo.svg'}
+                                  src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                                   alt={leagueData.league.name || 'Unknown League'}
                                   className="w-5 h-5 object-contain mt-0.5"
                                   onError={(e) => {
