@@ -55,7 +55,9 @@ export const rapidApiService = {
     const cached = fixturesCache.get(cacheKey);
 
     const now = Date.now();
-    if (cached && now - cached.timestamp < LIVE_DATA_CACHE_DURATION) {
+    // Use shorter cache time for more accurate real-time data
+    const cacheTime = 2 * 60 * 1000; // 2 minutes
+    if (cached && now - cached.timestamp < cacheTime) {
       return cached.data;
     }
 
@@ -75,22 +77,33 @@ export const rapidApiService = {
 
         if (response.data && response.data.response) {
           const allFixtures = response.data.response;
-          console.log(`Retrieved ${allFixtures.length} fixtures from all countries for ${date}`);
           
-          // Log country breakdown for debugging
-          const countryBreakdown = allFixtures.reduce((acc: any, fixture: any) => {
-            const country = fixture.league.country;
-            acc[country] = (acc[country] || 0) + 1;
-            return acc;
-          }, {});
-          console.log('Country breakdown:', Object.keys(countryBreakdown).length, 'countries:', 
-            Object.entries(countryBreakdown).slice(0, 10).map(([country, count]) => `${country}(${count})`).join(', '));
+          // Validate that all fixtures are for the correct date
+          const validFixtures = allFixtures.filter((fixture: any) => {
+            try {
+              const fixtureDate = new Date(fixture.fixture.date);
+              const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+              return fixtureDateString === date;
+            } catch {
+              return false;
+            }
+          });
+          
+          console.log(`Retrieved ${allFixtures.length} fixtures, ${validFixtures.length} valid for date ${date}`);
+          
+          // Log score data sample for debugging
+          const withScores = validFixtures.filter((f: any) => f.goals.home !== null || f.goals.away !== null);
+          console.log(`Fixtures with scores: ${withScores.length}/${validFixtures.length}`);
+          if (withScores.length > 0) {
+            const sample = withScores[0];
+            console.log(`Score sample: ${sample.teams.home.name} ${sample.goals.home}-${sample.goals.away} ${sample.teams.away.name} (${sample.fixture.status.short})`);
+          }
 
           fixturesCache.set(cacheKey, { 
-            data: allFixtures, 
+            data: validFixtures, 
             timestamp: now 
           });
-          return allFixtures;
+          return validFixtures;
         }
       } else {
         // Original behavior - fetch only popular leagues
@@ -120,6 +133,7 @@ export const rapidApiService = {
           return acc;
         }, []);
 
+        console.log(`Popular leagues: ${uniqueFixtures.length} fixtures for ${date}`);
         fixturesCache.set(cacheKey, { 
           data: uniqueFixtures, 
           timestamp: now 

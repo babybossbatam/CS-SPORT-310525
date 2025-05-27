@@ -25,31 +25,16 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
 
-      // Apply additional date filtering to ensure we get the right matches
-      const filteredData = data.filter((fixture: any) => {
-        try {
-          const fixtureDate = parseISO(fixture.fixture.date);
-          if (!isValid(fixtureDate)) return false;
-
-          // Convert fixture date to local date string (YYYY-MM-DD)
-          const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
-
-          // Compare with selected date string directly
-          return fixtureLocalDateString === selectedDate;
-        } catch {
-          return false;
-        }
-      });
-
-      console.log(`Received ${data.length} fixtures, filtered to ${filteredData.length} for ${selectedDate}`);
-      return filteredData;
+      console.log(`Received ${data.length} fixtures for ${selectedDate} - no additional filtering applied`);
+      // Trust the API to return correct fixtures for the date - don't double filter
+      return data;
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
-    gcTime: 60 * 60 * 1000, // 1 hour garbage collection time
+    staleTime: 5 * 60 * 1000, // 5 minutes for fresher data
+    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
     enabled: !!selectedDate && enableFetching,
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    refetchOnMount: false, // Don't refetch on component mount if data exists
-    refetchOnReconnect: false, // Don't refetch on network reconnection
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   // Start with all countries collapsed by default

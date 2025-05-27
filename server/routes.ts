@@ -1031,7 +1031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-    // Get fixtures by date
+  // Get fixtures by date
   apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
@@ -1050,7 +1050,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-    // Get live fixtures (with B365API fallback)
+  // Get live fixtures (with B365API fallback)
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
     try {
       // Use API-Football (RapidAPI) only
@@ -1083,7 +1083,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (rapidApiError) {
         console.error('RapidAPI error for live fixtures:', rapidApiError);
 
-                // If both APIs fail, try to return cached live fixtures from today
+        // If both APIs fail, try to return cached live fixtures from today
         try {
           const todayDate = new Date().toISOString().split('T')[0];
           const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
@@ -1149,3 +1149,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   return httpServer;
 }
+// Get fixtures by date with better data source fallback logic
+  app.get('/api/fixtures/date/:date', async (req, res) => {
+    try {
+      const { date } = req.params;
+      const fetchAll = req.query.all === 'true';
+
+      console.log(`API: Getting fixtures for date ${date}, fetchAll: ${fetchAll}`);
+
+      // Check cache first
+      const cacheKey = `fixtures-date-${date}${fetchAll ? '-all' : ''}`;
+      const cached = cache.get(cacheKey);
+
+      if (cached) {
+        console.log(`Returning ${cached.length} cached fixtures for date ${date} (all=${fetchAll})`);
+        return res.json(cached);
+      }
+
+      let fixtures = [];
+
+      try {
+        // Primary: RapidAPI
+        fixtures = await rapidApiService.getFixturesByDate(date, fetchAll);
+        console.log(`RapidAPI: Retrieved ${fixtures.length} fixtures for ${date}`);
+
+        // Validate that fixtures actually match the requested date
+        const validFixtures = fixtures.filter(fixture => {
+          try {
+            const fixtureDate = new Date(fixture.fixture.date);
+            const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+            return fixtureDateString === date;
+          } catch {
+            return false;
+          }
+        });
+
+        if (validFixtures.length !== fixtures.length) {
+          console.log(`Date validation: filtered from ${fixtures.length} to ${validFixtures.length} fixtures`);
+          fixtures = validFixtures;
+        }
+
+      } catch (rapidError) {
+        console.error('RapidAPI failed for fixtures by date:', rapidError);
+
+        try {
+          // Secondary: B365API (for current date only)
+          const today = new Date().toISOString().split('T')[0];
+          if (date === today) {
+            console.log('Trying B365API as secondary fallback...');
+            const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+
+            if (b365LiveMatches && b365LiveMatches.length > 0) {
+              fixtures = b365LiveMatches.map(match => 
+                b365ApiService.convertToRapidApiFormat(match)
+              );
+              console.log(`B365API: Retrieved ${fixtures.length} fixtures for today`);
+            }
+          }
+        } catch (b365Error) {
+          console.error('B365API also failed:', b365Error);
+        }
+      }
+
+      // Cache the results with shorter cache time for more accurate data
+      cache.set(cacheKey, fixtures, 2 * 60 * 1000); // 2 minute cache for fresher data
+
+      console.log(`Returning ${fixtures.length} fixtures for date ${date}`);
+      res.json(fixtures);
+    } catch (error) {
+      console.error(`Error getting fixtures for date ${req.params.date}:`, error);
+      res.status(500).json({ error: 'Failed to fetch fixtures' });
+    }
+  });
