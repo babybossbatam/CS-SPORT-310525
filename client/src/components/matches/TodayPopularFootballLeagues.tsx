@@ -694,8 +694,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               alt={leagueData.league.name || 'Unknown League'}
                               className="w-5 h-5 object-contain"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                              }}
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';                              }}
                             />
                             <span className="font-medium text-sm text-gray-700">
                               {leagueData.league.name || 'Unknown League'}
