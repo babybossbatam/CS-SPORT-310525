@@ -874,7 +874,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (sportType === 'football' && process.env.SPORTMONKS_API_KEY) {
         try {
           console.log("Using SportMonks API for football news (Third fallback)");
-          const apiKey = process.env.SPORTMONKS_API_KEY;
+          const apiKey = 'WXpmx7hqkHuMBp44TO35qaYQPa4n0dB6hSGR54CiYvhWOGzn1obqYJygtE2J';
 
           // Try to fetch from the Serie A news endpoint with updated subscription
           // Note: The API documentation shows league_id=384 for Serie A
