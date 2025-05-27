@@ -25,6 +25,7 @@ import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedul
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
 import SerieASchedule from '@/components/leagues/SerieASchedule';
 import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
+import ConferenceLeagueSchedule from '@/components/leagues/ConferenceLeagueSchedule';
 import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
 import { Trophy, Activity, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -65,7 +66,7 @@ const Home = () => {
   const { data: leagueStandings } = useQuery({
     queryKey: ['standings'],
     queryFn: async () => {
-      const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
+      const leagues = [39, 140, 78, 135, 2, 3, 848]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL, Conference League
       const standingsData = {};
 
       for (const leagueId of leagues) {
@@ -100,7 +101,7 @@ const Home = () => {
     'england': [39],     // Premier League
     'italy': [135],      // Serie A (Italy)
     'germany': [78],     // Bundesliga
-    'europe': [2, 3]     // Champions League (2), Europa League (3)
+    'europe': [2, 3, 848]     // Champions League (2), Europa League (3), Conference League (848)
   };
 
   // Pre-fetch all these leagues to ensure they're available for country filtering

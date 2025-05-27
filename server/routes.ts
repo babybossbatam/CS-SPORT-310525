@@ -634,6 +634,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Conference League fixtures endpoint (League ID 848)
+  apiRouter.get("/conference-league/fixtures", async (_req: Request, res: Response) => {
+    try {
+      console.log("Conference League fixtures API call initiated");
+
+      // Conference League ID is 848
+      const leagueId = 848;
+      // Always use 2025 season data as requested
+      const seasonToUse = 2025;
+
+      console.log(`Attempting to fetch Conference League (ID: ${leagueId}) fixtures for season ${seasonToUse}`);
+
+      // Use API-Football (RapidAPI) only
+      // First, let's verify the league exists
+      const leagueData = await rapidApiService.getLeagueById(leagueId);
+      if (!leagueData) {
+        console.error("Conference League data not found in API");
+        // Return empty array instead of 404 error to avoid breaking frontend
+        return res.json([]);
+      }
+
+      console.log(`Conference League found in RapidAPI: ${leagueData.league.name}, attempting to fetch fixtures...`);
+      console.log(`Using fixed season ${seasonToUse} for Conference League fixtures as requested`);
+
+      // Fetch fixtures using the verified season
+      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
+
+      console.log(`Conference League fixtures response received from RapidAPI, count: ${fixtures ? fixtures.length : 0}`);
+
+      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+        console.warn("No Conference League fixtures found in API response");
+        // Return empty array instead of 404 error to avoid breaking frontend
+        return res.json([]);
+      }
+
+      // Sort fixtures by date (newest first)
+      const sortedFixtures = [...fixtures].sort((a, b) => {
+        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+      });
+
+      console.log(`Returning ${sortedFixtures.length} sorted Conference League fixtures from RapidAPI`);
+      return res.json(sortedFixtures);
+    } catch (error) {
+      console.error("Error fetching Conference League fixtures:", error);
+      // Return empty array instead of error to avoid breaking frontend
+      return res.json([]);
+    }
+  });
+
   // Europa League fixtures endpoint (League ID 3)
   apiRouter.get("/europa-league/fixtures", async (_req: Request, res: Response) => {
     try {

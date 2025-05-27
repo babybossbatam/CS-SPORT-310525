@@ -192,7 +192,7 @@ export const rapidApiService = {
         }
       } else {
         // Popular leagues behavior
-        const popularLeagueIds = [2, 3, 39, 45, 140, 135, 78, 207, 219, 203];
+        const popularLeagueIds = [2, 3, 848, 39, 45, 140, 135, 78, 207, 219, 203];
 
         for (const leagueId of popularLeagueIds) {
           try {

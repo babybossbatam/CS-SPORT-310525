@@ -93,6 +93,7 @@ const initialLeaguesState: LeaguesState = {
   popularLeagues: [
     2,   // UEFA Champions League
     3,   // UEFA Europa League
+    848, // UEFA Conference League
     39,  // Premier League (England) 
     45,  // FA Cup (England)
     140, // La Liga (Spain)

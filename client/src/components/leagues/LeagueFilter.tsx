@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 const POPULAR_LEAGUES = [
   { id: 78, name: 'Bundesliga', country: 'Germany' },
   { id: 2, name: 'Champions League', country: 'Europe' },
+  { id: 848, name: 'Conference League', country: 'Europe' },
   { id: 137, name: 'Coppa Italia', country: 'Italy' },
   { id: 3, name: 'Europa League', country: 'Europe' },
   { id: 45, name: 'FA Cup', country: 'England' },
@@ -25,43 +26,43 @@ const LeagueFilter = () => {
   const selectedLeague = useSelector((state: RootState) => state.ui.selectedLeague);
   const [visibleStart, setVisibleStart] = useState(0);
   const visibleCount = 5; // Number of tabs visible at once
-  
+
   // Fetch league data for logos
   const { data: leagueData, isLoading } = useQuery({
     queryKey: ['/api/leagues'],
     staleTime: 60 * 60 * 1000, // 1 hour cache
   });
-  
+
   // Get league logos from the API data
   const getLeagueLogo = (leagueId: number) => {
     if (!leagueData || isLoading || !Array.isArray(leagueData)) return null;
-    
+
     const leagueArray = leagueData as Array<{league: {id: number, logo: string}}>;
     const league = leagueArray.find(l => l.league.id === leagueId);
     return league?.league?.logo || null;
   };
-  
+
   // Handle league selection
   const handleLeagueChange = (leagueId: string) => {
     dispatch(uiActions.setSelectedLeague(parseInt(leagueId, 10)));
   };
-  
+
   // Handle navigation between tabs
   const handlePrevious = () => {
     setVisibleStart(prev => Math.max(0, prev - 1));
   };
-  
+
   const handleNext = () => {
     setVisibleStart(prev => Math.min(POPULAR_LEAGUES.length - visibleCount, prev + 1));
   };
-  
+
   // Set default league if none selected
   useEffect(() => {
     if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
       dispatch(uiActions.setSelectedLeague(POPULAR_LEAGUES[0].id));
     }
   }, [selectedLeague, dispatch]);
-  
+
   // Get the abbreviated name for mobile displays
   const getAbbreviatedName = (name: string) => {
     switch(name) {
@@ -74,10 +75,10 @@ const LeagueFilter = () => {
       default: return name.substring(0, 3);
     }
   };
-  
+
   // Visible leagues based on current navigation state
   const visibleLeagues = POPULAR_LEAGUES.slice(visibleStart, visibleStart + visibleCount);
-  
+
   if (isLoading) {
     return (
       <div className="mt-1 mb-4">
@@ -85,7 +86,7 @@ const LeagueFilter = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="mt-1 mb-4">
       <Tabs 
@@ -104,7 +105,7 @@ const LeagueFilter = () => {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          
+
           <TabsList className="flex-1 grid grid-cols-5 h-6 max-w-[430px]">
             {visibleLeagues.map((league) => (
               <TabsTrigger 
@@ -127,7 +128,7 @@ const LeagueFilter = () => {
               </TabsTrigger>
             ))}
           </TabsList>
-          
+
           <Button 
             variant="ghost" 
             size="icon"
