@@ -24,7 +24,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'Internationals'
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World'
   ];
 
   // Popular leagues by country for better filtering
@@ -38,7 +38,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     'Saudi Arabia': [307], // Saudi Pro League
     'Egypt': [233], // Egyptian Premier League
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'Internationals': [2, 3, 848], // International competitions
+    'World': [2, 3, 848], // International competitions
   };
 
   // Flatten popular leagues for backward compatibility
@@ -177,7 +177,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     }
 
     // Special cases for international competitions
-    if (cleanCountry === 'Internationals') {
+    if (cleanCountry === 'World') {
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
     }
 
@@ -260,7 +260,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
       // Note: Friendlies are now filtered out above, so this section is no longer needed
 
-      // Allow Internationals and Europe competitions to pass through
+      // Allow World and Europe competitions to pass through
       if (league.name && (
           league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
@@ -268,11 +268,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           league.name.toLowerCase().includes('fifa') ||
           league.name.toLowerCase().includes('champions') ||
           league.name.toLowerCase().includes('conference'))) {
-        const countryKey = 'Internationals';
+        const countryKey = 'World';
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
-            flag: getCountryFlag(countryKey), // Use the new flag logic for Internationals
+            flag: getCountryFlag(countryKey), // Use the new flag logic for World
             leagues: {},
             hasPopularLeague: true
           };
@@ -281,7 +281,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
         if (!acc[countryKey].leagues[leagueId]) {
           acc[countryKey].leagues[leagueId] = {
-            league: { ...league, country: 'Internationals' },
+            league: { ...league, country: 'World' },
             matches: [],
             isPopular: POPULAR_LEAGUES.includes(leagueId),
             isFriendlies: false
@@ -297,8 +297,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     const validCountry = country.trim();
 
-    // Only allow valid country names, Internationals, and Europe
-    if (validCountry !== 'Internationals' && validCountry !== 'Europe' && validCountry.length === 0) {
+    // Only allow valid country names, World, and Europe
+    if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
       console.warn('Skipping fixture with empty country name:', country, fixture);
       return acc;
     }
@@ -406,9 +406,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     const aIsPopularCountry = aPopularIndex !== 999;
     const bIsPopularCountry = bPopularIndex !== 999;
 
-    // Check if countries are Internationals or Europe (International competitions)
-    const aIsInternationalOrEurope = a.country === 'Internationals' || a.country === 'Europe';
-    const bIsInternationalOrEurope = b.country === 'Internationals' || b.country === 'Europe';
+    // Check if countries are World or Europe (International competitions)
+    const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe';
+    const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe';
 
     // Priority order: Popular countries with badge leagues first
     if (aIsPopularCountry && a.hasPopularLeague && (!bIsPopularCountry || !b.hasPopularLeague)) return -1;
@@ -419,20 +419,20 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return aPopularIndex - bPopularIndex;
     }
 
-    // Internationals/Europe competitions come after popular country badge leagues
-    if (!aIsPopularCountry && aIsInternationalOrEurope && bIsPopularCountry && b.hasPopularLeague) return 1;
-    if (aIsPopularCountry && a.hasPopularLeague && !bIsPopularCountry && bIsInternationalOrEurope) return -1;
+    // World/Europe competitions come after popular country badge leagues
+    if (!aIsPopularCountry && aIsWorldOrEurope && bIsPopularCountry && b.hasPopularLeague) return 1;
+    if (aIsPopularCountry && a.hasPopularLeague && !bIsPopularCountry && bIsWorldOrEurope) return -1;
 
-    // Both are Internationals/Europe - preserve original order with Europe first
-    if (aIsInternationalOrEurope && bIsInternationalOrEurope) {
-      if (a.country === 'Europe' && b.country === 'Internationals') return -1;
-      if (a.country === 'Internationals' && b.country === 'Europe') return 1;
+    // Both are World/Europe - preserve original order with Europe first
+    if (aIsWorldOrEurope && bIsWorldOrEurope) {
+      if (a.country === 'Europe' && b.country === 'World') return -1;
+      if (a.country === 'World' && b.country === 'Europe') return 1;
       return 0;
     }
 
-    // Popular countries without badge leagues come after Internationals/Europe
-    if (aIsPopularCountry && !a.hasPopularLeague && bIsInternationalOrEurope) return 1;
-    if (aIsInternationalOrEurope && bIsPopularCountry && !b.hasPopularLeague) return -1;
+    // Popular countries without badge leagues come after World/Europe
+    if (aIsPopularCountry && !a.hasPopularLeague && bIsWorldOrEurope) return 1;
+    if (aIsWorldOrEurope && bIsPopularCountry && !b.hasPopularLeague) return -1;
 
     // Both are popular countries without badge leagues - sort by priority order
     if (aIsPopularCountry && bIsPopularCountry) {
