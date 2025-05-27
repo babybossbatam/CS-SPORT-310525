@@ -13,7 +13,7 @@ export const exclusionTerms = [
   'women', 'girls', 
   
   // Lower divisions and regional competitions
-  'regional', 'division 3', 'division 4', 'kosice', 'boys', 
+  'regional', 'division 3', 'division 4', '2. bundesliga', 'kosice', 'boys', 
   
   // Non-competitive matches
   'friendly', 'test', 'club friendlies', 'exhibition',
