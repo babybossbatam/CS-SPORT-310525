@@ -65,12 +65,12 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     if (leagueFlag) return leagueFlag;
 
     // Add null/undefined check for country
-    if (!country) {
+    if (!country || typeof country !== 'string') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }
 
     // Special handling for World/International competitions
-    if (country === 'World' || country === 'International') {
+    if (country === 'World' || country === 'International' || country === 'Unknown') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png'; // FIFA logo for world competitions
     }
 
@@ -95,38 +95,42 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     };
 
     const countryCode = countryCodeMap[country] || 
-      country.substring(0, 2).toUpperCase();
+      (country.length >= 2 ? country.substring(0, 2).toUpperCase() : 'XX');
 
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
   // Group fixtures by country
   const fixturesByCountry = fixtures.reduce((acc: any, fixture: any) => {
-    const country = fixture.league.country;
+    const country = fixture.league?.country || 'Unknown';
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlag(country, fixture.league.flag),
+        flag: getCountryFlag(country, fixture.league?.flag),
         leagues: {}
       };
     }
 
-    const leagueId = fixture.league.id;
-    if (!acc[country].leagues[leagueId]) {
+    const leagueId = fixture.league?.id;
+    if (leagueId && !acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
         league: fixture.league,
         matches: []
       };
     }
 
-    acc[country].leagues[leagueId].matches.push(fixture);
+    if (leagueId) {
+      acc[country].leagues[leagueId].matches.push(fixture);
+    }
     return acc;
   }, {});
 
-  // Sort countries alphabetically
-  const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => 
-    a.country.localeCompare(b.country)
-  );
+  // Sort countries alphabetically with null checks
+  const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
+    const countryA = a.country || '';
+    const countryB = b.country || '';
+    return countryA.localeCompare(countryB);
+  });
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
