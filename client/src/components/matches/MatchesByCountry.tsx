@@ -184,6 +184,18 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     );
   }
 
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    try {
+      if (!dateString) return '--:--';
+      const date = new Date(dateString);
+      return format(date, 'HH:mm');
+    } catch (error) {
+      console.error('Error formatting match time:', error);
+      return '--:--';
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-0">

@@ -324,6 +324,46 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return `${year}-${month}-${day}`;
   }
 
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    try {
+      if (!dateString) return '--:--';
+      const date = new Date(dateString);
+      return format(date, 'HH:mm');
+    } catch (error) {
+      console.error('Error formatting match time:', error);
+      return '--:--';
+    }
+  };
+
+  const isMatchLive = (status: string | null | undefined, dateString: string | null | undefined) => {
+    if (!status || !dateString) return false;
+
+    const liveStatuses = ['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE', 'INT'];
+
+    // Check if status indicates live match
+    if (liveStatuses.some(liveStatus => status.includes(liveStatus))) {
+      return true;
+    }
+
+    // For "NS" (Not Started) status, check if match time is within reasonable live window
+    if (status === 'NS') {
+      try {
+        const matchTime = new Date(dateString);
+        const now = new Date();
+        const diffInMinutes = (now.getTime() - matchTime.getTime()) / (1000 * 60);
+
+        // Consider it live if it's within 15 minutes of start time
+        return diffInMinutes >= 0 && diffInMinutes <= 15;
+      } catch (error) {
+        console.error('Error checking live match status:', error);
+        return false;
+      }
+    }
+
+    return false;
+  };
+
   return (
     <Card>
       <CardHeader className="pb-4">
