@@ -104,7 +104,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
-              // Convert to local date string for comparison (using UTC to avoid timezone issues)
+              // Get the actual local date of the match (not UTC)
               const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
 
               return fixtureLocalDateString === selectedDate;
@@ -506,46 +506,19 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return 'bg-blue-100 text-blue-700';
   };
 
-  // Get header title based on selected date with midnight logic
+  // Get header title based on selected date
   const getHeaderTitle = () => {
     const selectedDateObj = new Date(selectedDate);
-    const now = new Date();
-    const currentHour = now.getHours();
-    
     let baseTitle = "";
-
-    // Check if it's past midnight (00:00 - 06:00) and treat as "tomorrow"
-    const isPastMidnight = currentHour >= 0 && currentHour < 6;
     
     if (isToday(selectedDateObj)) {
-      if (isPastMidnight) {
-        // If it's past midnight but still "today's" date, show as "Tonight's" or "Early Morning"
-        baseTitle = currentHour >= 0 && currentHour < 3 
-          ? "Tonight's Popular Football Leagues" 
-          : "Early Morning Popular Football Leagues";
-      } else {
-        baseTitle = "Today's Popular Football Leagues";
-      }
+      baseTitle = "Today's Popular Football Leagues";
     } else if (isYesterday(selectedDateObj)) {
       baseTitle = "Yesterday's Popular Football Leagues";
     } else if (isTomorrow(selectedDateObj)) {
-      if (isPastMidnight) {
-        // If it's past midnight and we're looking at tomorrow's matches, call it "Today's"
-        baseTitle = "Today's Popular Football Leagues";
-      } else {
-        baseTitle = "Tomorrow's Popular Football Leagues";
-      }
+      baseTitle = "Tomorrow's Popular Football Leagues";
     } else {
-      // For dates beyond tomorrow, check if we should adjust based on midnight logic
-      const daysDiff = Math.ceil((selectedDateObj.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (isPastMidnight && daysDiff === 1) {
-        baseTitle = "Today's Popular Football Leagues";
-      } else if (isPastMidnight && daysDiff === 2) {
-        baseTitle = "Tomorrow's Popular Football Leagues";
-      } else {
-        baseTitle = `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
-      }
+      baseTitle = `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
     }
 
     // Add time filter indicator
