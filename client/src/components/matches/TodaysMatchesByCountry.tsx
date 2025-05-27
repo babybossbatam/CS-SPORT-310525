@@ -88,7 +88,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       if (countryCodeMap[cleanCountry]) {
         countryCode = countryCodeMap[cleanCountry];
       } else if (cleanCountry && typeof cleanCountry === 'string' && cleanCountry.length >= 2) {
-        countryCode = cleanCountry.slice(0, 2).toUpperCase();
+        countryCode = cleanCountry.slice(0, 2).toUpperCase(); // Use slice for safe string extraction
       }
     } catch (error) {
       console.error('Error processing country name:', cleanCountry, error);

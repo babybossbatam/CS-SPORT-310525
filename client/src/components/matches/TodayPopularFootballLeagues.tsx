@@ -190,7 +190,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       if (countryCodeMap[cleanCountry]) {
         countryCode = countryCodeMap[cleanCountry];
       } else if (cleanCountry && typeof cleanCountry === 'string' && cleanCountry.length >= 2) {
-        countryCode = cleanCountry.slice(0, 2).toUpperCase(); // Use slice instead of substring for safety
+        countryCode = cleanCountry.slice(0, 2).toUpperCase(); // Use slice for safe string extraction
       }
     } catch (error) {
       console.error('Error processing country name for flag:', cleanCountry, error);
