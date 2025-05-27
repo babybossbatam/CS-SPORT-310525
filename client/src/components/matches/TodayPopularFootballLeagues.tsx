@@ -161,7 +161,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     const cleanCountry = country.trim();
 
-    if (cleanCountry === 'World' || cleanCountry === 'International' || cleanCountry === 'Unknown') {
+    // Special handling for Unknown country only
+    if (cleanCountry === 'Unknown') {
       return '/assets/fallback-logo.svg'; // Default football logo
     }
 

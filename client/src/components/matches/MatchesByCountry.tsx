@@ -73,8 +73,8 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
 
     const cleanCountry = country.trim();
 
-    // Special handling for World/International competitions
-    if (cleanCountry === 'World' || cleanCountry === 'International' || cleanCountry === 'Unknown') {
+    // Special handling for Unknown country only
+    if (cleanCountry === 'Unknown') {
       return '/assets/fallback-logo.png'; // Default football logo
     }
 
