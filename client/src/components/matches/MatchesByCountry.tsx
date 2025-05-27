@@ -87,37 +87,32 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       return 'https://flagsapi.com/EU/flat/24.png';
     }
 
-    // Country code mapping for better flag display
+    // Comprehensive country code mapping
     const countryCodeMap: { [key: string]: string } = {
-      'England': 'GB-ENG',
-      'Scotland': 'GB-SCT',
-      'Wales': 'GB-WLS',
-      'Northern Ireland': 'GB-NIR',
-      'United States': 'US',
-      'South Korea': 'KR',
-      'Czech Republic': 'CZ',
-      'United Arab Emirates': 'AE',
-      'Bosnia & Herzegovina': 'BA',
-      'North Macedonia': 'MK',
-      'Trinidad & Tobago': 'TT',
-      'Ivory Coast': 'CI',
-      'Cape Verde': 'CV',
-      'Democratic Republic of Congo': 'CD',
-      'Curacao': 'CW',
-      'Faroe Islands': 'FO'
+      'England': 'GB-ENG', 'Scotland': 'GB-SCT', 'Wales': 'GB-WLS', 'Northern Ireland': 'GB-NIR',
+      'United States': 'US', 'South Korea': 'KR', 'Czech Republic': 'CZ', 'United Arab Emirates': 'AE',
+      'Bosnia & Herzegovina': 'BA', 'North Macedonia': 'MK', 'Trinidad & Tobago': 'TT', 'Ivory Coast': 'CI',
+      'Cape Verde': 'CV', 'Democratic Republic of Congo': 'CD', 'Curacao': 'CW', 'Faroe Islands': 'FO',
+      'Saudi Arabia': 'SA', 'South Africa': 'ZA', 'Costa Rica': 'CR', 'El Salvador': 'SV', 'Puerto Rico': 'PR',
+      'New Zealand': 'NZ', 'Dominican Republic': 'DO', 'Brazil': 'BR', 'Argentina': 'AR', 'Germany': 'DE',
+      'France': 'FR', 'Italy': 'IT', 'Spain': 'ES', 'Portugal': 'PT', 'Netherlands': 'NL', 'Belgium': 'BE',
+      'Switzerland': 'CH', 'Austria': 'AT', 'Poland': 'PL', 'Turkey': 'TR', 'Russia': 'RU', 'Ukraine': 'UA',
+      'Sweden': 'SE', 'Norway': 'NO', 'Denmark': 'DK', 'Finland': 'FI', 'Greece': 'GR', 'Croatia': 'HR',
+      'Serbia': 'RS', 'Romania': 'RO', 'Bulgaria': 'BG', 'Hungary': 'HU', 'Slovenia': 'SI', 'Slovakia': 'SK',
+      'Ireland': 'IE', 'Iceland': 'IS', 'Japan': 'JP', 'China': 'CN', 'India': 'IN', 'Australia': 'AU',
+      'Canada': 'CA', 'Mexico': 'MX', 'Colombia': 'CO', 'Peru': 'PE', 'Chile': 'CL', 'Uruguay': 'UY',
+      'Nigeria': 'NG', 'Ghana': 'GH', 'Senegal': 'SN', 'Morocco': 'MA', 'Tunisia': 'TN', 'Algeria': 'DZ',
+      'Egypt': 'EG', 'Cameroon': 'CM', 'Israel': 'IL', 'Jordan': 'JO', 'Iran': 'IR', 'Thailand': 'TH',
+      'Vietnam': 'VN', 'Malaysia': 'MY', 'Singapore': 'SG', 'Indonesia': 'ID', 'Philippines': 'PH'
     };
 
-    // Safe substring operation with proper null checks
+    // Use country mapping, fallback to 'XX' for unknown countries
     let countryCode = 'XX';
-    try {
-      if (countryCodeMap[cleanCountry]) {
-        countryCode = countryCodeMap[cleanCountry];
-      } else if (cleanCountry && typeof cleanCountry === 'string' && cleanCountry.length >= 2) {
-        countryCode = cleanCountry.slice(0, 2).toUpperCase(); // Use slice for safe string extraction
-      }
-    } catch (error) {
-      console.error('Error processing country name:', cleanCountry, error);
-      countryCode = 'XX';
+    if (countryCodeMap[cleanCountry]) {
+      countryCode = countryCodeMap[cleanCountry];
+    } else {
+      console.warn('Unknown country for flag mapping:', cleanCountry);
+      countryCode = 'XX'; // Will show a default flag
     }
 
     return `https://flagsapi.com/${countryCode}/flat/24.png`;

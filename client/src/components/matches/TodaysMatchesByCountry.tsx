@@ -71,8 +71,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       return 'https://flagsapi.com/EU/flat/24.png';
     }
 
-    // Country code mapping for better flag display
+    // Comprehensive country code mapping
     const countryCodeMap: { [key: string]: string } = {
+      // Major football countries
       'England': 'GB-ENG',
       'Scotland': 'GB-SCT',
       'Wales': 'GB-WLS',
@@ -88,20 +89,135 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       'Cape Verde': 'CV',
       'Democratic Republic of Congo': 'CD',
       'Curacao': 'CW',
-      'Faroe Islands': 'FO'
+      'Faroe Islands': 'FO',
+      'Saudi Arabia': 'SA',
+      'South Africa': 'ZA',
+      'Costa Rica': 'CR',
+      'El Salvador': 'SV',
+      'Puerto Rico': 'PR',
+      'New Zealand': 'NZ',
+      'Dominican Republic': 'DO',
+      'Sierra Leone': 'SL',
+      'Burkina Faso': 'BF',
+      'Guinea-Bissau': 'GW',
+      'Equatorial Guinea': 'GQ',
+      'Central African Republic': 'CF',
+      'Papua New Guinea': 'PG',
+      'Solomon Islands': 'SB',
+      'Marshall Islands': 'MH',
+      'Cook Islands': 'CK',
+      'American Samoa': 'AS',
+      'British Virgin Islands': 'VG',
+      'Cayman Islands': 'KY',
+      'Turks and Caicos Islands': 'TC',
+      'Saint Kitts and Nevis': 'KN',
+      'Saint Vincent and the Grenadines': 'VC',
+      'Antigua and Barbuda': 'AG',
+      'São Tomé and Príncipe': 'ST',
+      'North Korea': 'KP',
+      'East Timor': 'TL',
+      'Vatican City': 'VA',
+      // Common countries that might appear
+      'Brazil': 'BR',
+      'Argentina': 'AR',
+      'Germany': 'DE',
+      'France': 'FR',
+      'Italy': 'IT',
+      'Spain': 'ES',
+      'Portugal': 'PT',
+      'Netherlands': 'NL',
+      'Belgium': 'BE',
+      'Switzerland': 'CH',
+      'Austria': 'AT',
+      'Poland': 'PL',
+      'Turkey': 'TR',
+      'Russia': 'RU',
+      'Ukraine': 'UA',
+      'Sweden': 'SE',
+      'Norway': 'NO',
+      'Denmark': 'DK',
+      'Finland': 'FI',
+      'Greece': 'GR',
+      'Croatia': 'HR',
+      'Serbia': 'RS',
+      'Romania': 'RO',
+      'Bulgaria': 'BG',
+      'Hungary': 'HU',
+      'Slovenia': 'SI',
+      'Slovakia': 'SK',
+      'Lithuania': 'LT',
+      'Latvia': 'LV',
+      'Estonia': 'EE',
+      'Ireland': 'IE',
+      'Iceland': 'IS',
+      'Luxembourg': 'LU',
+      'Malta': 'MT',
+      'Cyprus': 'CY',
+      'Japan': 'JP',
+      'China': 'CN',
+      'India': 'IN',
+      'Australia': 'AU',
+      'Canada': 'CA',
+      'Mexico': 'MX',
+      'Colombia': 'CO',
+      'Peru': 'PE',
+      'Chile': 'CL',
+      'Uruguay': 'UY',
+      'Paraguay': 'PY',
+      'Bolivia': 'BO',
+      'Venezuela': 'VE',
+      'Ecuador': 'EC',
+      'Nigeria': 'NG',
+      'Ghana': 'GH',
+      'Senegal': 'SN',
+      'Morocco': 'MA',
+      'Tunisia': 'TN',
+      'Algeria': 'DZ',
+      'Egypt': 'EG',
+      'Cameroon': 'CM',
+      'Kenya': 'KE',
+      'Ethiopia': 'ET',
+      'South Sudan': 'SS',
+      'Mali': 'ML',
+      'Niger': 'NE',
+      'Chad': 'TD',
+      'Libya': 'LY',
+      'Sudan': 'SD',
+      'Israel': 'IL',
+      'Jordan': 'JO',
+      'Lebanon': 'LB',
+      'Syria': 'SY',
+      'Iraq': 'IQ',
+      'Iran': 'IR',
+      'Afghanistan': 'AF',
+      'Pakistan': 'PK',
+      'Bangladesh': 'BD',
+      'Sri Lanka': 'LK',
+      'Myanmar': 'MM',
+      'Thailand': 'TH',
+      'Vietnam': 'VN',
+      'Cambodia': 'KH',
+      'Laos': 'LA',
+      'Malaysia': 'MY',
+      'Singapore': 'SG',
+      'Indonesia': 'ID',
+      'Philippines': 'PH',
+      'Brunei': 'BN',
+      'Mongolia': 'MN',
+      'Kazakhstan': 'KZ',
+      'Uzbekistan': 'UZ',
+      'Turkmenistan': 'TM',
+      'Kyrgyzstan': 'KG',
+      'Tajikistan': 'TJ'
     };
 
-    // Safe substring operation with proper null checks
+    // Use country mapping, fallback to 'XX' for unknown countries
     let countryCode = 'XX';
-    try {
-      if (countryCodeMap[cleanCountry]) {
-        countryCode = countryCodeMap[cleanCountry];
-      } else if (cleanCountry && typeof cleanCountry === 'string' && cleanCountry.length >= 2) {
-        countryCode = cleanCountry.slice(0, 2).toUpperCase(); // Use slice for safe string extraction
-      }
-    } catch (error) {
-      console.error('Error processing country name:', cleanCountry, error);
-      countryCode = 'XX';
+    if (countryCodeMap[cleanCountry]) {
+      countryCode = countryCodeMap[cleanCountry];
+    } else {
+      console.warn('Unknown country for flag mapping:', cleanCountry);
+      countryCode = 'XX'; // Will show a default flag
     }
 
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
