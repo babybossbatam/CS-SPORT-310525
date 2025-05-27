@@ -398,7 +398,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                         <div className="space-y-1 mt-3">
                           {leagueData.matches
                             .sort((a: any, b: any) => {
-                              // Sort: Live > Recent Finished > Upcoming > Old Finished
+                              // Sort: Live > Upcoming > Recent Finished > Old Finished
                               const aStatus = a.fixture.status.short;
                               const bStatus = b.fixture.status.short;
                               const aDate = parseISO(a.fixture.date);
@@ -409,24 +409,46 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                 return 0;
                               }
 
-                              // Use local time for comparison
-                              const aTime = new Date(aDate.getTime()).getTime();
-                              const bTime = new Date(bDate.getTime()).getTime();
+                              const now = new Date();
+                              const aTime = aDate.getTime();
+                              const bTime = bDate.getTime();
 
+                              // 1. Prioritize LIVE matches first
                               const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
                               const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
 
                               if (aLive && !bLive) return -1;
                               if (!aLive && bLive) return 1;
 
+                              // 2. Then prioritize UPCOMING matches (not started and in future)
+                              const aUpcoming = aStatus === 'NS' && aTime > now.getTime();
+                              const bUpcoming = bStatus === 'NS' && bTime > now.getTime();
+
+                              if (aUpcoming && !bUpcoming) return -1;
+                              if (!aUpcoming && bUpcoming) return 1;
+
+                              // 3. Then finished matches
                               const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
                               const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
 
-                              if (aFinished && bFinished) return bTime - aTime; // Most recent first
-                              if (aFinished && !bFinished) return -1;
-                              if (!aFinished && bFinished) return 1;
+                              // Within each category, sort by time
+                              if (aLive && bLive) {
+                                // For live matches, sort by start time (earlier matches first)
+                                return aTime - bTime;
+                              }
 
-                              return aTime - bTime; // Upcoming: earliest first
+                              if (aUpcoming && bUpcoming) {
+                                // For upcoming matches, sort by start time (earliest first)
+                                return aTime - bTime;
+                              }
+
+                              if (aFinished && bFinished) {
+                                // For finished matches, sort by end time (most recent first)
+                                return bTime - aTime;
+                              }
+
+                              // Default time-based sorting
+                              return aTime - bTime;
                             })
                             .map((match: any) => (
                             <div 
