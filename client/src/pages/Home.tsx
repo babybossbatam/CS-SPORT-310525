@@ -84,12 +84,16 @@ const Home = () => {
   });
 
   // Use direct state access to avoid identity function warnings
-  const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues.slice(0, 5));
+  const popularLeaguesData = useSelector((state: RootState) => state.leagues.popularLeagues);
   const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate);
-  const allLeagues = useSelector((state: RootState) => state.leagues.list.filter(league => league && league.league));
+  const allLeaguesData = useSelector((state: RootState) => state.leagues.list);
   const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const standingsByLeague = useSelector((state: RootState) => state.stats.topScorers);
   const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
+
+  // Apply transformations in the component to avoid identity function warnings
+  const popularLeagues = popularLeaguesData.slice(0, 5);
+  const allLeagues = allLeaguesData.filter(league => league && league.league);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
