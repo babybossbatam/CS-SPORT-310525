@@ -231,6 +231,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     // Skip fixtures without a valid country, but keep World and Europe competitions
     if (!country || 
+        country === null ||
+        country === undefined ||
         typeof country !== 'string' || 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
