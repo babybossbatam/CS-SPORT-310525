@@ -17,6 +17,20 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1
 
+  // Popular teams for match prioritization
+  const POPULAR_TEAMS = [
+    // Premier League
+    33, 40, 42, 50, 47, 49, // Manchester United, Liverpool, Arsenal, Manchester City, Tottenham, Chelsea
+    // La Liga
+    529, 541, 530, 548, 727, // Barcelona, Real Madrid, Atletico Madrid, Real Sociedad, Athletic Bilbao
+    // Serie A
+    489, 492, 496, 500, 502, 505, // AC Milan, Napoli, Juventus, Inter, Fiorentina, Lazio
+    // Bundesliga
+    157, 165, 168, 173, 192, // Bayern Munich, Borussia Dortmund, Bayer Leverkusen, RB Leipzig, Eintracht Frankfurt
+    // Champions League popular teams
+    85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
+  ];
+
   // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
@@ -508,6 +522,14 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               const aTime = aDate.getTime();
                               const bTime = bDate.getTime();
 
+                              // Check if matches involve popular teams
+                              const aHasPopularTeam = POPULAR_TEAMS.includes(a.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
+                              const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(b.teams.away.id);
+
+                              // Prioritize popular team matches first
+                              if (aHasPopularTeam && !bHasPopularTeam) return -1;
+                              if (!aHasPopularTeam && bHasPopularTeam) return 1;
+
                               // Define status categories
                               const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
                               const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
@@ -532,7 +554,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               else if (bFinished) bPriority = 3;
                               else bPriority = 4;
 
-                              // First sort by priority
+                              // Second sort by match status priority
                               if (aPriority !== bPriority) {
                                 return aPriority - bPriority;
                               }
