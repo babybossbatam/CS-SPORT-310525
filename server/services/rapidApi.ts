@@ -1,6 +1,3 @@
-Applying enhanced esports filtering and null country handling to the RapidAPI service.
-```
-```replit_final_file
 import axios from 'axios';
 import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../types';
 import { b365ApiService } from './b365Api';
