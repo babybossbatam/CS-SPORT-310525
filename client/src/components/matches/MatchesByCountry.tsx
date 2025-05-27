@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow } from 'date-fns';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { safeSubstring } from '@/lib/dateUtilsUpdated';
 
 // Before calling substring, check if the value exists
 function safeSubstring(value: any, start: number, end?: number): string {

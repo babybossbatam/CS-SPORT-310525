@@ -74,39 +74,39 @@ interface FixtureResponse {
 const SerieASchedule = () => {
   const [, navigate] = useLocation();
   const [visibleFixtures, setVisibleFixtures] = useState<FixtureResponse[]>([]);
-  
+
   // Get selected date from Redux store
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const isToday = isSameDay(parseISO(selectedDate), new Date());
-  
+
   // Serie A ID is 135
   const leagueId = 135;
   const currentYear = new Date().getFullYear();
-  
+
   // Get Serie A info
   const { data: leagueInfo } = useQuery({
     queryKey: [`/api/leagues/${leagueId}`],
     staleTime: 60 * 60 * 1000, // 1 hour
   });
-  
+
   // Get the league fixtures with current season from league info
   const { data: allFixtures, isLoading, error } = useQuery<FixtureResponse[]>({
     queryKey: [`/api/leagues/${leagueId}/fixtures`],
     enabled: !!leagueInfo,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-  
+
   // Handle fixtures based on selected date
   useEffect(() => {
     if (!allFixtures) return;
-    
+
     const fixtures = [...allFixtures];
     const now = new Date();
     const selectedDateObj = parseISO(selectedDate);
-    
+
     // Filter fixtures by the selected date
     let filteredFixtures: FixtureResponse[] = [];
-    
+
     if (isToday) {
       // For today, show both completed and upcoming matches
       // 1. Get finished and live matches from today
@@ -120,7 +120,7 @@ const SerieASchedule = () => {
            isLiveMatch(f.fixture.status.short))
         );
       });
-      
+
       // 2. Get upcoming matches for today
       const todayUpcomingMatches = fixtures.filter(f => {
         const fixtureDate = new Date(f.fixture.date);
@@ -133,7 +133,7 @@ const SerieASchedule = () => {
           fixtureDate > now
         );
       });
-      
+
       // 3. Combine finished and upcoming matches for today
       filteredFixtures = [...todayFinishedMatches, ...todayUpcomingMatches];
     } else {
@@ -148,38 +148,38 @@ const SerieASchedule = () => {
         );
       });
     }
-    
+
     // Sort the fixtures
     filteredFixtures.sort((a, b) => {
       // First, prioritize live matches
       const aIsLive = isLiveMatch(a.fixture.status.short);
       const bIsLive = isLiveMatch(b.fixture.status.short);
-      
+
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
-      
+
       const aDate = new Date(a.fixture.date);
       const bDate = new Date(b.fixture.date);
-      
+
       // Then upcoming matches vs completed matches
       if (aDate > now && bDate <= now) return -1;
       if (aDate <= now && bDate > now) return 1;
-      
+
       // For upcoming matches, sort by time (earliest first)
       if (aDate > now && bDate > now) {
         return aDate.getTime() - bDate.getTime();
       }
-      
+
       // For completed matches, sort by time (latest first)
       return bDate.getTime() - aDate.getTime();
     });
-    
+
     // Limit to a reasonable number
     const limitedFixtures = filteredFixtures.slice(0, 5);
-    
+
     setVisibleFixtures(limitedFixtures);
   }, [allFixtures, selectedDate, isToday]);
-  
+
   // Loading state
   if (isLoading) {
     return (
@@ -200,7 +200,7 @@ const SerieASchedule = () => {
       </Card>
     );
   }
-  
+
   // Error state
   if (error) {
     return (
@@ -217,7 +217,7 @@ const SerieASchedule = () => {
               <p className="font-medium">We're having trouble connecting to the Serie A API.</p>
               <p className="mt-1 text-xs text-sky-600">This data will be available soon.</p>
             </div>
-            
+
             {/* Fallback image */}
             <div className="flex justify-center mt-4">
               <div className="relative w-32 h-32 opacity-50">
@@ -236,7 +236,7 @@ const SerieASchedule = () => {
       </Card>
     );
   }
-  
+
   // Empty state
   if (!visibleFixtures || visibleFixtures.length === 0) {
     return (
@@ -253,7 +253,7 @@ const SerieASchedule = () => {
               <p className="font-medium">No Serie A fixtures are currently available.</p>
               <p className="mt-1 text-xs text-yellow-600">Fixtures will be listed here when matches are scheduled.</p>
             </div>
-            
+
             {/* Fallback image */}
             <div className="flex justify-center mt-4">
               <div className="relative w-24 h-24 opacity-60">
@@ -272,7 +272,7 @@ const SerieASchedule = () => {
       </Card>
     );
   }
-  
+
   return (
     <Card className="mb-4">
       <CardHeader className="p-3">
@@ -309,7 +309,7 @@ const SerieASchedule = () => {
                   {fixture.league.round}
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 {/* Home team */}
                 <div className="flex items-center space-x-2 w-2/5">
@@ -323,7 +323,7 @@ const SerieASchedule = () => {
                   />
                   <span className="font-medium text-sm truncate">{fixture.teams.home.name}</span>
                 </div>
-                
+
                 {/* Score */}
                 <div className="flex items-center justify-center px-3 py-1 rounded min-w-[60px] text-center">
                   {isLiveMatch(fixture.fixture.status.short) ? (
@@ -354,7 +354,7 @@ const SerieASchedule = () => {
                     <span className="text-xs text-gray-500 font-medium">vs</span>
                   )}
                 </div>
-                
+
                 {/* Away team */}
                 <div className="flex items-center justify-end space-x-2 w-2/5">
                   <span className="font-medium text-sm truncate">{fixture.teams.away.name}</span>
@@ -368,7 +368,7 @@ const SerieASchedule = () => {
                   />
                 </div>
               </div>
-              
+
 
             </div>
           ))}

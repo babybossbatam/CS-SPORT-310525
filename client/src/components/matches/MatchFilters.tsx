@@ -7,6 +7,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { isLiveMatch } from '@/lib/utils';
 import { FixtureResponse } from '@/types/fixtures';
+import { isToday, isTomorrow } from '@/lib/dateUtilsUpdated';
 
 const MatchFilters = () => {
   const dispatch = useDispatch();
@@ -44,7 +45,7 @@ const MatchFilters = () => {
       if (match.league.id === 39 && match.league.country.toLowerCase() === 'england') {
         return true;
       }
-      
+
       // Other top leagues
       const otherTopLeagues = ['140', '135', '78', '61']; // La Liga, Serie A, Bundesliga, Ligue 1
       if (otherTopLeagues.includes(String(match.league.id))) {

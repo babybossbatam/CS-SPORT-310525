@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow } from 'date-fns';
-import { safeSubstring } from '@/lib/dateUtils';
+import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 interface TodayPopularFootballLeaguesProps {
