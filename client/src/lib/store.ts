@@ -437,11 +437,8 @@ export const selectAllLeagues = createSelector(
   (leagues) => leagues.filter(league => league && league.league) // Filter valid leagues
 );
 
-// Simple selectors - use direct state access instead of memoized selectors
-export const selectSelectedLeagues = (state: RootState) => state.leagues.popularLeagues;
-export const selectFilteredLeagues = (state: RootState) => state.leagues.list;
-export const selectStandingsByLeague = (state: RootState) => state.stats.topScorers;
-export const selectSelectedCountries = (state: RootState) => state.user.preferences.region;
+// Note: Simple state selectors removed to prevent identity function warnings
+// Use direct state access: (state: RootState) => state.path.to.value
 
 // Export types
 export type RootState = ReturnType<typeof store.getState>;
