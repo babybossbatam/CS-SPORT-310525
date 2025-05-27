@@ -125,12 +125,19 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
     const country = league.country;
 
-    // Skip fixtures without a valid country, but keep World/International competitions
+    // Skip fixtures without a valid country, but keep World and Europe competitions
     if (!country || 
         typeof country !== 'string' || 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
       console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
+      return acc;
+    }
+
+    // Only allow valid country names, World, and Europe
+    const validCountry = country.trim();
+    if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
+      console.warn('Skipping fixture with empty country name:', country, fixture);
       return acc;
     }
 
@@ -391,8 +398,10 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                       className="w-6 h-4 object-cover rounded-sm shadow-sm"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (countryData.country === 'World' || countryData.country === 'International') {
+                        if (countryData.country === 'World') {
                           target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+                        } else if (countryData.country === 'Europe') {
+                          target.src = 'https://flagsapi.com/EU/flat/24.png';
                         } else {
                           target.src = '/assets/fallback-logo.svg';
                         }

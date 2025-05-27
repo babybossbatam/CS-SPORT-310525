@@ -224,12 +224,19 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     const country = league.country;
 
-    // Skip fixtures without a valid country, but keep World/International competitions
+    // Skip fixtures without a valid country, but keep World and Europe competitions
     if (!country || 
         typeof country !== 'string' || 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
       console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
+      return acc;
+    }
+
+    // Only allow valid country names, World, and Europe
+    const validCountry = country.trim();
+    if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
+      console.warn('Skipping fixture with empty country name:', country, fixture);
       return acc;
     }
 
