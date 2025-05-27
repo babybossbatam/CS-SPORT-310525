@@ -283,7 +283,7 @@ const FixedScoreboard = () => {
 
         console.log("Current filtering date:", now.toISOString());
 
-        // Extract top 3 teams from standings for each league
+        // Extract top 10 teams from standings for each league
         let topTeamIds: number[] = [];
         standingsResults.forEach((leagueStanding) => {
           if (
@@ -292,10 +292,10 @@ const FixedScoreboard = () => {
             leagueStanding.league.standings
           ) {
             leagueStanding.league.standings.forEach((standingGroup: any) => {
-              // Get top 3 teams from each standings group
+              // Get top 10 teams from each standings group
               if (Array.isArray(standingGroup) && standingGroup.length > 0) {
                 const groupTopTeams = standingGroup
-                  .slice(0, 3)
+                  .slice(0, 10)
                   .map((teamData: any) => {
                     return teamData?.team?.id;
                   })

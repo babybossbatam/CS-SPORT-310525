@@ -157,7 +157,7 @@ const FixedScoreboardFilterByPopularCountry = () => {
             leagueStanding.league.standings.forEach((standingGroup: any) => {
               if (Array.isArray(standingGroup) && standingGroup.length > 0) {
                 const groupTopTeams = standingGroup
-                  .slice(0, 3)
+                  .slice(0, 10)
                   .map((teamData: any) => teamData?.team?.id)
                   .filter(Boolean);
                 topTeamIds.push(...groupTopTeams);
