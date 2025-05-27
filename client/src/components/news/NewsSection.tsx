@@ -1,251 +1,341 @@
 
-import React, { useEffect } from 'react';
-import { Newspaper, ArrowRight, Clock, ExternalLink } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, newsActions } from '@/lib/store';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Clock, Calendar, ExternalLink, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
-import { Link } from 'wouter';
-import { Card, CardContent } from '@/components/ui/card';
-import { formatDistance } from 'date-fns';
+import { apiRequest } from '@/lib/queryClient';
+import { format, parseISO, isValid } from 'date-fns';
 
-// Define NewsItem interface that matches the server structure
-export interface NewsItem {
+interface NewsArticle {
   id: number;
   title: string;
-  content: string;
-  imageUrl: string;
-  source: string;
-  url: string;
+  content?: string;
+  summary?: string;
   publishedAt: string;
-  createdAt?: string;
-  updatedAt?: string;
+  source: string;
+  url?: string;
+  imageUrl?: string;
+  category?: string;
+  league?: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  teams?: Array<{
+    id: number;
+    name: string;
+    logo: string;
+  }>;
 }
 
 interface NewsSectionProps {
+  title?: string;
   maxItems?: number;
-  sport?: string;
-  showHeader?: boolean;
-  variant?: 'card' | 'list' | '365scores';
-  className?: string;
+  showImages?: boolean;
+  compact?: boolean;
 }
 
-// Individual news item component for 365scores style
-const NewsItem365: React.FC<{ news: NewsItem }> = ({ news }) => {
-  const [imageError, setImageError] = React.useState(false);
-  
-  const fallbackImage = 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg';
-  
-  const handleClick = () => {
-    if (news.url) {
-      let safeUrl = news.url;
-      if (!safeUrl.startsWith('http')) {
-        safeUrl = `https://${safeUrl}`;
-      }
-      if (safeUrl.startsWith('/')) {
-        safeUrl = `${window.location.origin}${safeUrl}`;
-      }
-      window.open(safeUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
-  
-  const getTimeAgo = () => {
-    try {
-      const publishedDate = new Date(news.publishedAt);
-      const now = new Date();
-      return formatDistance(publishedDate, now, { addSuffix: true });
-    } catch (error) {
-      return 'Recently';
-    }
-  };
-  
-  return (
-    <div 
-      className="flex items-start gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-200"
-      onClick={handleClick}
-    >
-      <div className="flex-shrink-0 w-16 h-12 overflow-hidden rounded">
-        <img 
-          src={imageError ? fallbackImage : (news.imageUrl || fallbackImage)} 
-          alt={news.title} 
-          className="w-full h-full object-cover"
-          onError={() => setImageError(true)}
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium line-clamp-2 mb-1 text-gray-900">{news.title}</h4>
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {getTimeAgo()}
-          </span>
-          <span className="text-gray-400">{news.source}</span>
-        </div>
-      </div>
-      <ExternalLink className="w-3 h-3 text-gray-400 flex-shrink-0 mt-1" />
-    </div>
-  );
-};
-
-// Individual news card component
-const NewsCard: React.FC<{ news: NewsItem }> = ({ news }) => {
-  const [imageError, setImageError] = React.useState(false);
-  
-  const fallbackImage = 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg';
-  
-  const handleClick = () => {
-    if (news.url) {
-      let safeUrl = news.url;
-      if (!safeUrl.startsWith('http')) {
-        safeUrl = `https://${safeUrl}`;
-      }
-      if (safeUrl.startsWith('/')) {
-        safeUrl = `${window.location.origin}${safeUrl}`;
-      }
-      window.open(safeUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
-  
-  const getTimeAgo = () => {
-    try {
-      const publishedDate = new Date(news.publishedAt);
-      const now = new Date();
-      return formatDistance(publishedDate, now, { addSuffix: true });
-    } catch (error) {
-      return 'Recently';
-    }
-  };
-  
-  return (
-    <Card 
-      className="w-full overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.02] border-0 shadow-none"
-      onClick={handleClick}
-    >
-      <div className="aspect-[16/9] overflow-hidden">
-        <img 
-          src={imageError ? fallbackImage : (news.imageUrl || fallbackImage)} 
-          alt={news.title} 
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-          onError={() => setImageError(true)}
-        />
-      </div>
-      <CardContent className="p-3 px-0">
-        <h3 className="text-sm font-medium line-clamp-2 mb-2 h-10">{news.title}</h3>
-        <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>{news.source}</span>
-          <span>{getTimeAgo()}</span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
 const NewsSection: React.FC<NewsSectionProps> = ({ 
-  maxItems = 3, 
-  sport, 
-  showHeader = true, 
-  variant = 'card',
-  className = '' 
+  title = "Live Football News",
+  maxItems = 10,
+  showImages = true,
+  compact = false
 }) => {
-  const dispatch = useDispatch();
-  const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
-  const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Use the sport prop if provided, otherwise use the selectedSport from Redux
-  const sportType = sport || selectedSport;
-
-  // Fetch news articles from API with the selected sport as a parameter
-  const { data: newsData, isLoading, isError } = useQuery<NewsItem[]>({
-    queryKey: ['/api/news', sportType],
+  // Fetch news data
+  const { data: newsArticles = [], isLoading, error } = useQuery({
+    queryKey: ['football-news'],
     queryFn: async () => {
-      // Only pass sport if it's not 'tv' (which is not a real sport category)
-      const sportParam = sportType !== 'tv' ? `&sport=${sportType}` : '';
-      const response = await fetch(`/api/news?category=sports${sportParam}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch news');
+      try {
+        const response = await apiRequest('GET', '/api/news');
+        const data = await response.json();
+        
+        // Transform API response to consistent format
+        return data.map((article: any, index: number) => ({
+          id: article.id || index + 1,
+          title: article.title || 'No Title Available',
+          content: article.content || article.summary || '',
+          summary: article.summary || article.content?.substring(0, 150) + '...' || '',
+          publishedAt: article.publishedAt || article.published_at || new Date().toISOString(),
+          source: article.source || 'SportMonks',
+          url: article.url || article.link || '#',
+          imageUrl: article.imageUrl || article.image || null,
+          category: article.category || article.type || 'general',
+          league: article.league ? {
+            id: article.league.id,
+            name: article.league.name,
+            logo: article.league.logo
+          } : null,
+          teams: article.teams || []
+        }));
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        return [];
       }
-      return response.json();
     },
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
   });
 
-  // Update Redux store when data is fetched
-  useEffect(() => {
-    if (isLoading) {
-      dispatch(newsActions.setLoadingNews(true));
-    } else if (isError) {
-      dispatch(newsActions.setNewsError('Failed to fetch news articles'));
-    } else if (newsData) {
-      dispatch(newsActions.setNewsItems(newsData));
-      dispatch(newsActions.setLoadingNews(false));
+  // Get unique categories
+  const categories = React.useMemo(() => {
+    const cats = ['all', ...new Set(newsArticles.map(article => article.category).filter(Boolean))];
+    return cats;
+  }, [newsArticles]);
+
+  // Filter articles by category
+  const filteredArticles = React.useMemo(() => {
+    let filtered = selectedCategory === 'all' 
+      ? newsArticles 
+      : newsArticles.filter(article => article.category === selectedCategory);
+    
+    return filtered.slice(0, maxItems);
+  }, [newsArticles, selectedCategory, maxItems]);
+
+  // Format time ago
+  const getTimeAgo = (dateString: string) => {
+    try {
+      const date = parseISO(dateString);
+      if (!isValid(date)) return 'Just now';
+      
+      const now = new Date();
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+      
+      if (diffInMinutes < 1) return 'Just now';
+      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+      if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)}d ago`;
+      
+      return format(date, 'MMM d');
+    } catch {
+      return 'Just now';
     }
-  }, [newsData, isLoading, isError, dispatch]);
+  };
 
-  // Show loading state
-  if (loading || isLoading) {
+  // Get category display name
+  const getCategoryDisplayName = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'all': 'All News',
+      'general': 'General',
+      'postmatch': 'Post Match',
+      'prematch': 'Pre Match',
+      'transfer': 'Transfers',
+      'injury': 'Injuries',
+      'lineup': 'Lineups'
+    };
+    return categoryMap[category] || category.charAt(0).toUpperCase() + category.slice(1);
+  };
+
+  if (isLoading) {
     return (
-      <div className={`flex justify-center items-center py-10 ${className}`}>
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0 p-4">
+                <div className="flex gap-3">
+                  {showImages && (
+                    <Skeleton className="w-20 h-16 rounded-lg flex-shrink-0" />
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
-  // Show error state
-  if (error || isError) {
+  if (error || !newsArticles.length) {
     return (
-      <div className={`flex justify-center items-center py-10 text-red-500 ${className}`}>
-        <p>Failed to load news articles</p>
-      </div>
-    );
-  }
-
-  // If no news items, show empty state
-  if (!newsItems || newsItems.length === 0) {
-    return (
-      <div className={`flex justify-center items-center py-10 text-gray-500 ${className}`}>
-        <p>No news articles available</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">{title}</h3>
+        </CardHeader>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No news available at the moment</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className={className}>
-      {showHeader && (
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Newspaper className="mr-2 h-5 w-5" />
-            {variant === '365scores' ? 'Live Football News' : 'Latest News'}
-          </h2>
-          {variant !== '365scores' && (
-            <Link href="/news" className="text-blue-600 hover:text-blue-800 flex items-center text-sm">
-              View All News <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          )}
+    <Card>
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            {title}
+          </h3>
+          <span className="text-sm text-gray-500">{filteredArticles.length} articles</span>
         </div>
-      )}
-      
-      {variant === '365scores' ? (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="max-h-96 overflow-y-auto">
-            {newsItems.slice(0, maxItems).map((news: NewsItem) => (
-              <NewsItem365 key={news.id} news={news} />
+        
+        {/* Category filters */}
+        {categories.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {getCategoryDisplayName(category)}
+              </button>
             ))}
           </div>
-        </div>
-      ) : variant === 'list' ? (
-        <div className="space-y-2">
-          {newsItems.slice(0, maxItems).map((news: NewsItem) => (
-            <NewsItem365 key={news.id} news={news} />
+        )}
+      </CardHeader>
+      
+      <CardContent className="p-0">
+        <div className="space-y-0">
+          {filteredArticles.map((article, index) => (
+            <div 
+              key={article.id} 
+              className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => {
+                if (article.url && article.url !== '#') {
+                  window.open(article.url, '_blank', 'noopener,noreferrer');
+                }
+              }}
+            >
+              <div className={`${compact ? 'p-3' : 'p-4'}`}>
+                <div className="flex gap-3">
+                  {/* Article Image */}
+                  {showImages && article.imageUrl && (
+                    <div className="flex-shrink-0">
+                      <img
+                        src={article.imageUrl}
+                        alt={article.title}
+                        className="w-20 h-16 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* League/Team logos for context */}
+                  {!showImages && (article.league || article.teams?.length) && (
+                    <div className="flex-shrink-0 flex items-center">
+                      {article.league && (
+                        <img
+                          src={article.league.logo}
+                          alt={article.league.name}
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                      {article.teams?.slice(0, 2).map((team) => (
+                        <img
+                          key={team.id}
+                          src={team.logo}
+                          alt={team.name}
+                          className="w-6 h-6 object-contain -ml-1"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Article Content */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className={`font-semibold text-gray-900 line-clamp-2 ${compact ? 'text-sm' : 'text-base'} mb-1`}>
+                      {article.title}
+                    </h4>
+                    
+                    {article.summary && !compact && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                        {article.summary}
+                      </p>
+                    )}
+                    
+                    {/* Article Meta */}
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{getTimeAgo(article.publishedAt)}</span>
+                      </div>
+                      
+                      <span>•</span>
+                      <span>{article.source}</span>
+                      
+                      {article.category && article.category !== 'general' && (
+                        <>
+                          <span>•</span>
+                          <span className="bg-gray-100 px-2 py-0.5 rounded-full">
+                            {getCategoryDisplayName(article.category)}
+                          </span>
+                        </>
+                      )}
+                      
+                      {article.league && (
+                        <>
+                          <span>•</span>
+                          <span>{article.league.name}</span>
+                        </>
+                      )}
+                      
+                      {article.url && article.url !== '#' && (
+                        <>
+                          <span>•</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Arrow indicator */}
+                  <div className="flex-shrink-0 flex items-center">
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {newsItems.slice(0, maxItems).map((news: NewsItem) => (
-            <NewsCard key={news.id} news={news} />
-          ))}
-        </div>
-      )}
-    </div>
+        
+        {/* View More Button */}
+        {newsArticles.length > maxItems && (
+          <div className="p-4 border-t">
+            <button
+              onClick={() => {
+                // Navigate to full news page or expand
+                console.log('View more news');
+              }}
+              className="w-full text-center text-blue-600 hover:text-blue-700 font-medium text-sm py-2"
+            >
+              View All News ({newsArticles.length} total)
+            </button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

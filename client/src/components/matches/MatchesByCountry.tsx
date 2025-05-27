@@ -64,6 +64,11 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     // Use league flag if available
     if (leagueFlag) return leagueFlag;
 
+    // Add null/undefined check for country
+    if (!country) {
+      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
+    }
+
     // Special handling for World/International competitions
     if (country === 'World' || country === 'International') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png'; // FIFA logo for world competitions

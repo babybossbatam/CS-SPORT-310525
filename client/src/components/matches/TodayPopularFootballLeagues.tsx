@@ -109,6 +109,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const getCountryFlag = (country: string, leagueFlag?: string) => {
     if (leagueFlag) return leagueFlag;
 
+    // Add null/undefined check for country
+    if (!country) {
+      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
+    }
+
     if (country === 'World' || country === 'International') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }

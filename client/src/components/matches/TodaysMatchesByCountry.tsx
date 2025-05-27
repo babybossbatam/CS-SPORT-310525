@@ -45,12 +45,20 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
   // Enhanced country flag mapping
   const getCountryFlag = (country: string, leagueFlag?: string) => {
+    // Use league flag if available
     if (leagueFlag) return leagueFlag;
 
-    if (country === 'World' || country === 'International') {
+    // Add null/undefined check for country
+    if (!country) {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }
 
+    // Special handling for World/International competitions
+    if (country === 'World' || country === 'International') {
+      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png'; // FIFA logo for world competitions
+    }
+
+    // Country code mapping for better flag display
     const countryCodeMap: { [key: string]: string } = {
       'England': 'GB-ENG',
       'Scotland': 'GB-SCT',
@@ -70,7 +78,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       'Faroe Islands': 'FO'
     };
 
-    const countryCode = countryCodeMap[country] || country.substring(0, 2).toUpperCase();
+    const countryCode = countryCodeMap[country] || 
+      country.substring(0, 2).toUpperCase();
+
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
