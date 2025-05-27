@@ -24,7 +24,7 @@ const DateNavigator = () => {
   }, []);
 
   // Format the selected date for display
-  const formattedDate = format(parseISO(selectedDate), 'yyyy-MM-dd');
+  const formattedDate = selectedDate;
   const today = format(new Date(), 'yyyy-MM-dd');
   const isToday = formattedDate === today;
 
