@@ -47,7 +47,7 @@ const LeagueCollapseToggle: React.FC<LeagueCollapseToggleProps> = ({
         {/* League Info */}
         <div className="flex flex-col items-start">
           <span className="font-medium text-sm text-gray-800">
-            {safeSubstring(leagueName, 0)}{countryName && countryName !== 'Unknown' ? safeSubstring(countryName, 0) : ''}
+            {leagueName && leagueName.includes('2. Bundesliga') ? 'Bundesliga' : (leagueName || 'Unknown League')}
           </span>
           <span className="text-xs text-gray-500">
             {countryName || 'Unknown Country'}
