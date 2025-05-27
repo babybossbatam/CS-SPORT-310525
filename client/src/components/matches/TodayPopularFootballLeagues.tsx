@@ -84,7 +84,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           const matchesFromSelectedDate = leagueFixtures.filter(match => {
             try {
               if (!match || !match.fixture || !match.fixture.date) return false;
-              
+
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
@@ -105,7 +105,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       }
 
       console.log(`Fetched ${allData.length} popular league fixtures for date ${selectedDate}`);
-      
+
       // Debug: Log matches by league
       const matchesByLeague = allData.reduce((acc, match) => {
         const leagueId = match.league?.id;
@@ -118,9 +118,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         }
         return acc;
       }, {});
-      
+
       console.log('Matches by league for', selectedDate, ':', matchesByLeague);
-      
+
       return allData;
     },
     enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
@@ -153,13 +153,13 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     // Add comprehensive null/undefined check for country
     if (!country || typeof country !== 'string' || country.trim() === '') {
-      return '/assets/fallback-logo.png'; // Default football logo
+      return '/assets/fallback-logo.svg'; // Default football logo
     }
 
     const cleanCountry = country.trim();
 
     if (cleanCountry === 'World' || cleanCountry === 'International' || cleanCountry === 'Unknown') {
-      return '/assets/fallback-logo.png'; // Default football logo
+      return '/assets/fallback-logo.svg'; // Default football logo
     }
 
     const countryCodeMap: { [key: string]: string } = {
@@ -193,7 +193,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       console.error('Error processing country name for flag:', cleanCountry, error);
       countryCode = 'XX';
     }
-    
+
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
@@ -254,11 +254,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         teams: {
           home: {
             ...fixture.teams.home,
-            logo: fixture.teams.home.logo || '/assets/fallback-logo.png'
+            logo: fixture.teams.home.logo || '/assets/fallback-logo.svg'
           },
           away: {
             ...fixture.teams.away,
-            logo: fixture.teams.away.logo || '/assets/fallback-logo.png'
+            logo: fixture.teams.away.logo || '/assets/fallback-logo.svg'
           }
         }
       });
@@ -661,14 +661,14 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
                                 <div className="flex-shrink-0 mx-1">
                                   <img
-                                    src={match.teams.home.logo || '/assets/fallback-logo.png'}
+                                    src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                                     alt={match.teams.home.name}
                                     className="w-12 h-12 object-contain"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       console.log(`Failed to load home team logo: ${target.src} for ${match.teams.home.name}`);
-                                      if (target.src !== '/assets/fallback-logo.png') {
-                                        target.src = '/assets/fallback-logo.png';
+                                      if (target.src !== '/assets/fallback-logo.svg') {
+                                        target.src = '/assets/fallback-logo.svg';
                                       }
                                     }}
                                   />
@@ -746,7 +746,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                                          status === 'AWD' ? 'Awarded' :
                                                          status === 'WO' ? 'Walkover' :
                                                          status === 'ABD' ? 'Abandoned' :
-                                                         status === 'CANC' ? 'Cancelled' :
+status === 'CANC' ? 'Cancelled' :
                                                          status === 'SUSP' ? 'Suspended' : 'No Score';
 
                                         return (
@@ -799,14 +799,14 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
                                 <div className="flex-shrink-0 mx-1">
                                   <img
-                                    src={match.teams.away.logo || '/assets/fallback-logo.png'}
+                                    src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                                     alt={match.teams.away.name}
                                     className="w-12 h-12 object-contain"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       console.log(`Failed to load away team logo: ${target.src} for ${match.teams.away.name}`);
-                                      if (target.src !== '/assets/fallback-logo.png') {
-                                        target.src = '/assets/fallback-logo.png';
+                                      if (target.src !== '/assets/fallback-logo.svg') {
+                                        target.src = '/assets/fallback-logo.svg';
                                       }
                                     }}
                                   />
