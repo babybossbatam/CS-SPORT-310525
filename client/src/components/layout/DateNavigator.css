@@ -13,7 +13,9 @@
 }
 
 .calendar-day.today {
-  color: #4285f4; /* Blue text for today's date */
+  background-color: #e3f2fd; /* Light blue background for today */
+  color: #1565c0; /* Darker blue text for today */
+  font-weight: 600;
 }
 
 .calendar-day:hover {
@@ -23,10 +25,17 @@
 .calendar-day.selected {
   background-color: #4285f4; /* Blue background for selected date */
   color: white; /* White text for selected date */
+  font-weight: 600;
 }
 
 .calendar-day.selected:hover {
   background-color: #4285f4; /* Keep blue background on hover for selected date */
+}
+
+.calendar-day.today.selected {
+  background-color: #4285f4; /* When today is selected, use selected styling */
+  color: white;
+  font-weight: 600;
 }
 
 .calendar-day:disabled {

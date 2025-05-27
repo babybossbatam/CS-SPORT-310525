@@ -142,10 +142,10 @@ const DateNavigator = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className={`px-3 py-1 text-sm font-medium ${
+                className={`px-3 py-1 text-sm font-medium transition-colors ${
                   isToday 
                     ? "bg-blue-500 text-white hover:bg-blue-600" 
-                    : "bg-transparent text-blue-500 hover:text-blue-600 hover:bg-transparent"
+                    : "bg-transparent text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                 }`}
                 onClick={goToToday}
               >
@@ -219,12 +219,10 @@ const DateNavigator = () => {
                     </div>
 
                     <div 
-                      className={`today-indicator ${isToday ? 'disabled' : ''}`}
+                      className="today-indicator"
                       onClick={() => {
-                        if (!isToday) {
-                          goToToday();
-                          setIsCalendarOpen(false);
-                        }
+                        goToToday();
+                        setIsCalendarOpen(false);
                       }}
                     >
                       Today
