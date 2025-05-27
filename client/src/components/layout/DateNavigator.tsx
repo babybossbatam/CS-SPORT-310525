@@ -1,9 +1,8 @@
+
 import { useEffect, useState } from 'react';
-import { format, addDays, subDays, parseISO } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { format, addDays, subDays, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions, fixturesActions } from '@/lib/store';
 import { apiRequest } from '@/lib/queryClient';
@@ -14,7 +13,7 @@ const DateNavigator = () => {
   const { toast } = useToast();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [league, setLeague] = useState<{ name: string; logo: string } | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   // Always ensure today's date is set as default on component mount
   useEffect(() => {
@@ -42,12 +41,9 @@ const DateNavigator = () => {
   };
 
   // Handle calendar date selection
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      const newDate = format(date, 'yyyy-MM-dd');
-      dispatch(uiActions.setSelectedDate(newDate));
-      setIsCalendarOpen(false);
-    }
+  const handleDateSelect = (date: string) => {
+    dispatch(uiActions.setSelectedDate(date));
+    setIsCalendarOpen(false);
   };
 
   // Get display text for date
@@ -73,6 +69,28 @@ const DateNavigator = () => {
   const goToToday = () => {
     const today = format(new Date(), 'yyyy-MM-dd');
     dispatch(uiActions.setSelectedDate(today));
+  };
+
+  // Calendar navigation
+  const prevMonth = () => {
+    setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  // Get days for calendar display
+  const getDaysInMonth = () => {
+    const start = startOfMonth(calendarMonth);
+    const end = endOfMonth(calendarMonth);
+    const days = eachDayOfInterval({ start, end });
+    
+    // Add empty cells for days before the month starts
+    const startDay = getDay(start);
+    const emptyDays = Array(startDay).fill(null);
+    
+    return [...emptyDays, ...days];
   };
 
   // Fetch fixtures for the selected date
@@ -104,36 +122,136 @@ const DateNavigator = () => {
     fetchFixtures();
   }, [selectedDate, dispatch, toast]);
 
-  return (
-    <div className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-2">
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="p-2 text-neutral-500"
-            onClick={goToPreviousDay}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+  const daysInMonth = getDaysInMonth();
 
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`px-3 py-1 text-sm font-medium ${
-                isToday 
-                  ? "text-gray-400 cursor-not-allowed opacity-60" 
-                  : "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-              }`}
-              onClick={goToToday}
-              disabled={isToday}
+  return (
+    <>
+      <style>{`
+        .calendar-day {
+          background: transparent;
+          color: #333;
+          border: none;
+          padding: 8px;
+          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 400;
+        }
+
+        .calendar-day.today {
+          color: #4285f4;
+          font-weight: 600;
+        }
+
+        .calendar-day:hover {
+          background-color: #f1f1f1;
+        }
+
+        .calendar-day.selected {
+          background-color: #4285f4;
+          color: white;
+        }
+
+        .calendar-day.selected:hover {
+          background-color: #4285f4;
+        }
+
+        .calendar-day:disabled {
+          color: #ccc;
+          cursor: not-allowed;
+        }
+
+        .calendar-popup {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: white;
+          border: 1px solid #e1e5e9;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 1000;
+          min-width: 280px;
+          padding: 16px;
+        }
+
+        .calendar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+
+        .calendar-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 4px;
+          margin-bottom: 8px;
+        }
+
+        .calendar-weekday {
+          text-align: center;
+          font-size: 12px;
+          font-weight: 600;
+          color: #666;
+          padding: 8px 4px;
+        }
+
+        .calendar-days {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 4px;
+        }
+
+        .today-indicator {
+          text-align: center;
+          color: #4285f4;
+          font-size: 12px;
+          font-weight: 600;
+          margin-top: 12px;
+          padding-top: 12px;
+          border-top: 1px solid #e1e5e9;
+          cursor: pointer;
+        }
+
+        .today-indicator:hover {
+          color: #1a73e8;
+        }
+      `}</style>
+
+      <div className="bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-2 text-neutral-500"
+              onClick={goToPreviousDay}
             >
-              Today
+              <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-              <PopoverTrigger asChild>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`px-3 py-1 text-sm font-medium ${
+                  isToday 
+                    ? "text-gray-400 cursor-not-allowed opacity-60" 
+                    : "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                }`}
+                onClick={goToToday}
+                disabled={isToday}
+              >
+                Today
+              </Button>
+
+              <div className="relative">
                 <Button 
                   variant="ghost" 
                   className={`relative flex items-center space-x-2 ${
@@ -141,6 +259,7 @@ const DateNavigator = () => {
                       ? "bg-blue-500 text-white hover:bg-blue-600" 
                       : "text-gray-600 hover:bg-gray-50"
                   }`}
+                  onClick={() => setIsCalendarOpen(!isCalendarOpen)}
                 >
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">
@@ -149,29 +268,88 @@ const DateNavigator = () => {
                   </div>
                   <ChevronRight className="h-4 w-4 rotate-90" />
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="center">
-                <CalendarComponent
-                  mode="single"
-                  selected={parseISO(selectedDate)}
-                  onSelect={handleDateSelect}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="p-2 text-neutral-500"
-            onClick={goToNextDay}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+                {isCalendarOpen && (
+                  <div className="calendar-popup">
+                    <div className="calendar-header">
+                      <button 
+                        onClick={prevMonth}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <div className="font-semibold text-gray-800">
+                        {format(calendarMonth, 'MMMM yyyy')}
+                      </div>
+                      <button 
+                        onClick={nextMonth}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="calendar-weekdays">
+                      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                        <div key={day} className="calendar-weekday">{day}</div>
+                      ))}
+                    </div>
+
+                    <div className="calendar-days">
+                      {daysInMonth.map((day, index) => {
+                        if (!day) {
+                          return <div key={index} />;
+                        }
+
+                        const dayString = format(day, 'yyyy-MM-dd');
+                        const isDayToday = dayString === today;
+                        const isSelected = dayString === selectedDate;
+                        
+                        return (
+                          <button
+                            key={dayString}
+                            className={`calendar-day ${isDayToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                            onClick={() => handleDateSelect(dayString)}
+                          >
+                            {format(day, 'd')}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div 
+                      className="today-indicator"
+                      onClick={() => {
+                        goToToday();
+                        setIsCalendarOpen(false);
+                      }}
+                    >
+                      Today
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-2 text-neutral-500"
+              onClick={goToNextDay}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {isCalendarOpen && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setIsCalendarOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
