@@ -31,8 +31,26 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
-  // Popular leagues for prioritization
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+  // Popular countries prioritization (like 365scores.com)
+  const POPULAR_COUNTRIES_ORDER = [
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Europe', 'World', 'Brazil', 'Argentina'
+  ];
+
+  // Popular leagues by country for better filtering
+  const POPULAR_LEAGUES_BY_COUNTRY = {
+    'England': [39, 45, 48], // Premier League, FA Cup, EFL Cup
+    'Spain': [140, 143], // La Liga, Copa del Rey
+    'Italy': [135, 137], // Serie A, Coppa Italia
+    'Germany': [78, 81], // Bundesliga, DFB Pokal
+    'France': [61, 66], // Ligue 1, Coupe de France
+    'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
+    'World': [2, 3, 848], // International competitions
+    'Brazil': [71], // Serie A Brazil
+    'Argentina': [128] // Primera División Argentina
+  };
+
+  // Flatten popular leagues for backward compatibility
+  const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -156,11 +174,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     setExpandedLeagues(new Set());
   }, [selectedDate]);
 
-  // Popular countries for prioritization - only keep Brazil, Saudi Arabia, and Egypt as additional countries
-  const POPULAR_COUNTRIES = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 
-    'Saudi Arabia', 'Egypt', 'World'
-  ];
+  // Use the prioritized popular countries list
+  const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
   // Enhanced country flag mapping with null safety
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
@@ -353,7 +368,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       };
     }
 
-    if (POPULAR_LEAGUES.includes(leagueId)) {
+    // Check if this is a popular league for this country
+    const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
+    const isPopularForCountry = countryPopularLeagues.includes(leagueId);
+    const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
+
+    if (isPopularForCountry || isGloballyPopular) {
       acc[country].hasPopularLeague = true;
     }
 
@@ -364,7 +384,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
         },
         matches: [],
-        isPopular: POPULAR_LEAGUES.includes(leagueId),
+        isPopular: isPopularForCountry || isGloballyPopular,
+        isPopularForCountry: isPopularForCountry,
         isFriendlies: false
       };
     }
@@ -417,42 +438,42 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     );
   });
 
-  // Sort countries - popular leagues first, then popular countries, then Friendlies, then alphabetical
+  // Sort countries by popular countries order (like 365scores.com)
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aIsFriendlies = a.country === 'Friendlies' || a.isFriendlies;
     const bIsFriendlies = b.country === 'Friendlies' || b.isFriendlies;
 
-    // First priority: countries with popular leagues
+    // Handle friendlies specially - put them at the end
+    if (aIsFriendlies && !bIsFriendlies) return 1;
+    if (!aIsFriendlies && bIsFriendlies) return -1;
+    if (aIsFriendlies && bIsFriendlies) return 0;
+
+    // Get popular country indices (lower index = higher priority)
+    const getPopularIndex = (country: string) => {
+      if (!country) return 999;
+      const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
+        safeSubstring(country, 0).toLowerCase() === safeSubstring(pc, 0).toLowerCase()
+      );
+      return index === -1 ? 999 : index;
+    };
+
+    const aIndex = getPopularIndex(a.country);
+    const bIndex = getPopularIndex(b.country);
+
+    // If both are popular countries, sort by their order
+    if (aIndex !== 999 && bIndex !== 999) {
+      return aIndex - bIndex;
+    }
+
+    // If only one is popular, prioritize it
+    if (aIndex !== 999 && bIndex === 999) return -1;
+    if (aIndex === 999 && bIndex !== 999) return 1;
+
+    // Countries with popular leagues get priority over those without
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
 
-    // Second priority: popular countries (excluding friendlies)
-    const aIsPopularCountry = !aIsFriendlies && a.country && typeof a.country === 'string' && POPULAR_COUNTRIES.some(country => 
-      safeSubstring(a.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
-    );
-    const bIsPopularCountry = !bIsFriendlies && b.country && typeof b.country === 'string' && POPULAR_COUNTRIES.some(country => 
-      safeSubstring(b.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
-    );
-
-    if (aIsPopularCountry && !bIsPopularCountry) return -1;
-    if (!aIsPopularCountry && bIsPopularCountry) return 1;
-
-    // Third priority: Friendlies after popular countries but before regular countries  
-    if (aIsFriendlies && !bIsFriendlies) return -1;
-    if (!aIsFriendlies && bIsFriendlies) return 1;
-
-    // If both are popular countries, sort by POPULAR_COUNTRIES order
-    if (aIsPopularCountry && bIsPopularCountry) {
-      const aIndex = POPULAR_COUNTRIES.findIndex(country => 
-        a.country && typeof a.country === 'string' && safeSubstring(a.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
-      );
-      const bIndex = POPULAR_COUNTRIES.findIndex(country => 
-        b.country && typeof b.country === 'string' && safeSubstring(b.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
-      );
-      if (aIndex !== bIndex) return aIndex - bIndex;
-    }
-
-    // Add null checks for country comparison
+    // Both are non-popular countries, sort alphabetically
     const countryA = a.country || '';
     const countryB = b.country || '';
     return countryA.localeCompare(countryB);
@@ -677,11 +698,18 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
                 <div className="bg-gray-50">
-                  {/* Sort leagues - popular first */}
+                  {/* Sort leagues - country-specific popular first, then globally popular, then alphabetical */}
                   {Object.values(countryData.leagues)
                     .sort((a: any, b: any) => {
+                      // Prioritize leagues that are popular for this specific country
+                      if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+                      if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
+                      
+                      // Then globally popular leagues
                       if (a.isPopular && !b.isPopular) return -1;
                       if (!a.isPopular && b.isPopular) return 1;
+                      
+                      // Finally alphabetical
                       return a.league.name.localeCompare(b.league.name);
                     })
                     .map((leagueData: any) => (
