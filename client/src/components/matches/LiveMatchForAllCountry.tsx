@@ -379,7 +379,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       <CardHeader className="pb-4">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Activity className="h-4 w-4 text-red-500" />
-          Live Football Matches by Country
+          Live Football Scores
         </h3>
       </CardHeader>
       <CardContent className="p-0">
