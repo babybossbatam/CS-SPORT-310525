@@ -23,10 +23,10 @@ function Calendar({
   }
 
   return (
-    <div className="p-0 bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="p-0 bg-white rounded-lg shadow-sm">
       <DayPicker
         showOutsideDays={showOutsideDays}
-        className={cn("p-4 bg-white", className)}
+        className={cn("p-6 bg-white w-full min-w-[320px]", className)}
         classNames={{
           months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
           month: "space-y-4 bg-white",
@@ -38,13 +38,13 @@ function Calendar({
           ),
           nav_button_previous: "absolute left-2",
           nav_button_next: "absolute right-2",
-          table: "w-full border-collapse bg-white",
+          table: "w-full border-collapse bg-white min-w-[280px]",
           head_row: "flex mb-3",
-          head_cell: "text-gray-600 w-10 h-8 font-medium text-sm text-center flex items-center justify-center",
+          head_cell: "text-gray-600 flex-1 h-8 font-medium text-sm text-center flex items-center justify-center min-w-[40px]",
           row: "flex w-full",
-          cell: "h-10 w-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+          cell: "flex-1 h-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20 min-w-[40px]",
           day: cn(
-            "h-10 w-10 p-0 font-normal text-gray-800 hover:bg-blue-50 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200"
+            "h-10 w-full p-0 font-normal text-gray-800 hover:bg-blue-50 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 min-w-[40px]"
           ),
           day_range_end: "day-range-end",
           day_selected: "bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600 rounded-lg font-medium",
