@@ -125,10 +125,10 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     return acc;
   }, {});
 
-  // Sort countries alphabetically with null checks
+  // Sort countries alphabetically
   const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
-    const countryA = a.country || '';
-    const countryB = b.country || '';
+    const countryA = a?.country || '';
+    const countryB = b?.country || '';
     return countryA.localeCompare(countryB);
   });
 

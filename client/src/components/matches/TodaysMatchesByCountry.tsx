@@ -240,8 +240,9 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
   // Format the time for display
   const formatMatchTime = (dateString: string | null | undefined) => {
+    if (!dateString || typeof dateString !== 'string') return '--:--';
+
     try {
-      if (!dateString) return '--:--';
       const date = new Date(dateString);
       return format(date, 'HH:mm');
     } catch (error) {

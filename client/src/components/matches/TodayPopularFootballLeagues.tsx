@@ -200,7 +200,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
-    
+
     // Add null checks for country comparison
     const countryA = a.country || '';
     const countryB = b.country || '';
