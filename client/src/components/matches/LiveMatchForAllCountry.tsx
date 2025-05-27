@@ -397,7 +397,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                         }
                       }}
                     />
-                    <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
                     <span className="text-xs text-gray-500">({totalMatches})</span>
 
                     {/* Live badge with animation */}
