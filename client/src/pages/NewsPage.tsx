@@ -27,7 +27,7 @@ const NewsPage = () => {
   const [sport, setSport] = useState<string>('football');
   const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
-  
+
   // Handle URL parameters
   useEffect(() => {
     const pathSegments = location.split('/');
@@ -36,14 +36,14 @@ const NewsPage = () => {
       console.log('NewsPage accessed with parameter:', pathSegments[2]);
     }
   }, [location]);
-  
+
   // Update the sport based on the selected sport in UI
   useEffect(() => {
     if (selectedSport) {
       setSport(selectedSport);
     }
   }, [selectedSport]);
-  
+
   // Fetch news articles from API with the selected category and sport
   const { data: newsData, isLoading, isError, error: queryError } = useQuery<NewsApiResponse[]>({
     queryKey: ['/api/news', category, sport],
@@ -61,7 +61,7 @@ const NewsPage = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
   });
-  
+
   // Update Redux store when data is fetched
   useEffect(() => {
     if (isLoading) {
@@ -78,18 +78,18 @@ const NewsPage = () => {
       dispatch(newsActions.setLoadingNews(false));
     }
   }, [newsData, isLoading, isError, dispatch, toast]);
-  
+
   const handleCategoryChange = (newCategory: string) => {
     setCategory(newCategory);
   };
-  
+
   // Handle sport selection from SportsCategoryTabs
   const handleSportChange = (sportId: string) => {
     setSport(sportId);
     // Update the global UI state as well
     dispatch(uiActions.setSelectedSport(sportId));
   };
-  
+
   // Show loading state
   if (loading || isLoading) {
     return (
@@ -108,7 +108,7 @@ const NewsPage = () => {
       </>
     );
   }
-  
+
   // Show error state
   if (error || isError) {
     return (
@@ -133,7 +133,7 @@ const NewsPage = () => {
       </>
     );
   }
-  
+
   return (
     <>
       <Header />
@@ -151,7 +151,7 @@ const NewsPage = () => {
             <span className="text-sm text-muted-foreground">Category:</span>
           </div>
         </div>
-        
+
         <Tabs defaultValue="sports" className="mb-8">
           <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-5">
             <TabsTrigger 
@@ -188,7 +188,7 @@ const NewsPage = () => {
         </Tabs>
 
         <Separator className="my-6" />
-        
+
         {/* If no news items, show empty state */}
         {(!newsItems || newsItems.length === 0) ? (
           <div className="flex justify-center items-center py-10 text-gray-500">
