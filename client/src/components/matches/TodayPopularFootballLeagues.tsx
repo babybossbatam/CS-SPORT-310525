@@ -212,7 +212,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
     );
 
-  // Group fixtures by country and league
+  // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
     // Add comprehensive null checks
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
@@ -236,53 +236,76 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         typeof country !== 'string' || 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
-      console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
+
+      // Check if it's a Friendlies league
+      if (league.name.toLowerCase().includes('friendlies')) {
+        const countryKey = 'Friendlies';
+        if (!acc[countryKey]) {
+          acc[countryKey] = {
+            country: countryKey,
+            flag: getCountryFlag(countryKey), // Use the new flag logic for Friendlies
+            leagues: {},
+            hasPopularLeague: false
+          };
+        }
+        const leagueId = league.id;
+
+        if (!acc[countryKey].leagues[leagueId]) {
+          acc[countryKey].leagues[leagueId] = {
+            league: { ...league, country: 'Friendlies' },
+            matches: [],
+            isPopular: false,
+            isFriendlies: true
+          };
+        }
+        acc[countryKey].leagues[leagueId].matches.push(fixture);
+        return acc;
+      }
+
+      // Allow World and Europe competitions to pass through
+      if (league.name.toLowerCase().includes('world') || 
+          league.name.toLowerCase().includes('europe') ||
+          league.name.toLowerCase().includes('uefa') ||
+          league.name.toLowerCase().includes('fifa') ||
+          league.name.toLowerCase().includes('international') ||
+          league.name.toLowerCase().includes('champions') ||
+          league.name.toLowerCase().includes('conference')) {
+        const countryKey = 'International';
+        if (!acc[countryKey]) {
+          acc[countryKey] = {
+            country: countryKey,
+            flag: getCountryFlag(countryKey), // Use the new flag logic for International
+            leagues: {},
+            hasPopularLeague: true
+          };
+        }
+        const leagueId = league.id;
+
+        if (!acc[countryKey].leagues[leagueId]) {
+          acc[countryKey].leagues[leagueId] = {
+            league: { ...league, country: 'International' },
+            matches: [],
+            isPopular: POPULAR_LEAGUES.includes(leagueId),
+            isFriendlies: false
+          };
+        }
+        acc[countryKey].leagues[leagueId].matches.push(fixture);
+        return acc;
+      }
+
+      console.log(`Skipping fixture with invalid country: ${country}, league: ${league.name}`);
       return acc;
     }
 
-    // Frontend backup esports filtering - safety net
-    const leagueName = league.name?.toLowerCase() || '';
-    const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || '';
-    const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || '';
-    
-    const esportsTerms = [
-      'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
-      'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football',
-      'volta', 'ultimate team', 'clubs', 'gaming', 'game',
-      'simulator', 'simulation', 'digital', 'online',
-      'battle', 'legend', 'champion', 'tournament online',
-      'vs online', 'gt sport', 'rocket league', 'fc online',
-      'dream league', 'top eleven', 'football manager',
-      'championship manager', 'mobile', 'app'
-    ];
-    
-    const isEsports = esportsTerms.some(term => 
-      leagueName.includes(term) || 
-      homeTeamName.includes(term) || 
-      awayTeamName.includes(term)
-    );
-    
-    if (isEsports) {
-      console.warn('Frontend: Filtering out esports fixture that slipped through:', leagueName, fixture);
-      return acc;
-    }
+    const validCountry = country.trim();
 
     // Only allow valid country names, World, and Europe
-    const validCountry = country.trim();
     if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
       console.warn('Skipping fixture with empty country name:', country, fixture);
       return acc;
     }
 
-    // Filter out esports leagues which have null country but keep real international competitions
-    const leagueNameLower = league.name?.toLowerCase() || '';
-    if (leagueNameLower.includes('esoccer') || leagueNameLower.includes('ebet') || leagueNameLower.includes('cyber')) {
-      console.warn('Skipping esports fixture:', leagueNameLower, fixture);
-      return acc;
-    }
-
     const leagueId = league.id;
-
     if (!acc[country]) {
       acc[country] = {
         country,
@@ -292,7 +315,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       };
     }
 
-    // Update hasPopularLeague if this league is popular
     if (POPULAR_LEAGUES.includes(leagueId)) {
       acc[country].hasPopularLeague = true;
     }
@@ -304,7 +326,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
         },
         matches: [],
-        isPopular: POPULAR_LEAGUES.includes(leagueId)
+        isPopular: POPULAR_LEAGUES.includes(leagueId),
+        isFriendlies: false
       };
     }
 
@@ -339,6 +362,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
 
+    // Include Friendlies
+    if (countryData.country === 'Friendlies') return true;
+
     // Add null check for country before string operations
     if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
       return false;
@@ -353,8 +379,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     );
   });
 
-  // Sort countries - popular leagues first, then popular countries, then alphabetical
+  // Sort countries - popular leagues first, then popular countries, then alphabetical, with Friendlies last
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
+    const aIsFriendlies = a.country === 'Friendlies';
+    const bIsFriendlies = b.country === 'Friendlies';
+
+    // Friendlies always go to the bottom
+    if (aIsFriendlies && !bIsFriendlies) return 1;
+    if (!aIsFriendlies && bIsFriendlies) return -1;
+  
     // First priority: countries with popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
@@ -619,8 +652,25 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                     })
                     .map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
-                        {/* League Header with Collapse/Expand for Non-Popular Leagues */}
-                        {!leagueData.isPopular ? (
+                        {/* League Header - Special handling for Friendlies */}
+                        {leagueData.isFriendlies ? (
+                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                            <img
+                              src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                              alt={leagueData.league.name || 'Unknown League'}
+                              className="w-5 h-5 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                              }}
+                            />
+                            <span className="font-medium text-sm text-gray-700">
+                              {leagueData.league.name || 'Unknown League'}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
+                            </span>
+                          </div>
+                        ) : !leagueData.isPopular ? (
                           <LeagueCollapseToggle
                             leagueName={leagueData.league.name || 'Unknown League'}
                             countryName={leagueData.league.country || 'Unknown Country'}
@@ -655,22 +705,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                 (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                               }}
                             />
-                            <div className="flex flex-col">
-                              <span className="font-medium text-sm text-gray-800">
-                                {leagueData.league.name || 'Unknown League'}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {leagueData.league.country || 'Unknown Country'}
-                              </span>
-                            </div>
+                            <span className="font-semibold text-sm text-gray-800">
+                              {leagueData.league.name || 'Unknown League'}
+                            </span>
                             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                               Popular
                             </span>
                           </div>
                         )}
-
-                        {/* Matches - Only show if league is popular or expanded */}
-                        {(leagueData.isPopular || expandedLeagues.has(leagueData.league.id.toString())) && (
+                        {/* Matches - Show if league is popular, expanded, or Friendlies */}
+                        {(leagueData.isPopular || leagueData.isFriendlies || expandedLeagues.has(leagueData.league.id.toString())) && (
                           <div className="space-y-1 mt-3">
                           {leagueData.matches
                             .sort((a: any, b: any) => {
