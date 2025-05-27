@@ -66,16 +66,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
 
-          // Use string-based date matching for more reliable comparison
+          // Filter fixtures for the selected date
           const matchesFromSelectedDate = leagueFixtures.filter(match => {
             try {
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
-              // Convert fixture date to local date string (YYYY-MM-DD)
+              // Convert to local date string for comparison
               const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
               
-              // Compare with selected date string directly
               return fixtureLocalDateString === selectedDate;
             } catch {
               return false;
@@ -141,22 +140,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const allFixtures = [...fixtures, ...popularFixtures]
     .filter((fixture, index, self) => 
       index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-    )
-    .filter((fixture: any) => {
-      try {
-        // Parse the fixture date (which comes from API in UTC)
-        const fixtureDate = parseISO(fixture.fixture.date);
-        if (!isValid(fixtureDate)) return false;
-
-        // Convert fixture date to local date string (YYYY-MM-DD)
-        const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
-        
-        // Compare with selected date string directly
-        return fixtureLocalDateString === selectedDate;
-      } catch {
-        return false;
-      }
-    });
+    );
 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
