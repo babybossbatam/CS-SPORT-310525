@@ -18,6 +18,13 @@ import {
   type Match,
 } from "@/types/fixtures";
 
+import {
+  filterPopularCountryMatches,
+  getMatchesWithinTimeWindow,
+  POPULAR_COUNTRIES,
+  type FilterOptions
+} from "@/lib/matchFilters";
+
 const FixedScoreboardFilterByPopularCountry = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -25,12 +32,6 @@ const FixedScoreboardFilterByPopularCountry = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  // Popular countries we want to prioritize
-  const POPULAR_COUNTRIES = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 
-    'Brazil', 'Argentina', 'Netherlands', 'Portugal', 'World'
-  ];
 
   // Popular leagues from these countries
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 71, 94]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Primeira Liga
