@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, uiActions, fixturesActions } from '@/lib/store';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import './DateNavigator.css';
 
 const DateNavigator = () => {
   const dispatch = useDispatch();
@@ -126,104 +127,6 @@ const DateNavigator = () => {
 
   return (
     <>
-      <style>{`
-        .calendar-day {
-          background: transparent;
-          color: #333;
-          border: none;
-          padding: 8px;
-          border-radius: 50%;
-          width: 36px;
-          height: 36px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 400;
-        }
-
-        .calendar-day.today {
-          color: #4285f4;
-          font-weight: 600;
-        }
-
-        .calendar-day:hover {
-          background-color: #f1f1f1;
-        }
-
-        .calendar-day.selected {
-          background-color: #4285f4;
-          color: white;
-        }
-
-        .calendar-day.selected:hover {
-          background-color: #4285f4;
-        }
-
-        .calendar-day:disabled {
-          color: #ccc;
-          cursor: not-allowed;
-        }
-
-        .calendar-popup {
-          position: absolute;
-          top: 100%;
-          left: 50%;
-          transform: translateX(-50%);
-          background: white;
-          border: 1px solid #e1e5e9;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          z-index: 1000;
-          min-width: 280px;
-          padding: 16px;
-        }
-
-        .calendar-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .calendar-weekdays {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 4px;
-          margin-bottom: 8px;
-        }
-
-        .calendar-weekday {
-          text-align: center;
-          font-size: 12px;
-          font-weight: 600;
-          color: #666;
-          padding: 8px 4px;
-        }
-
-        .calendar-days {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 4px;
-        }
-
-        .today-indicator {
-          text-align: center;
-          color: #4285f4;
-          font-size: 12px;
-          font-weight: 600;
-          margin-top: 12px;
-          padding-top: 12px;
-          border-top: 1px solid #e1e5e9;
-          cursor: pointer;
-        }
-
-        .today-indicator:hover {
-          color: #1a73e8;
-        }
-      `}</style>
-
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
