@@ -1,3 +1,6 @@
+Applying enhanced esports filtering and null country handling to the RapidAPI service.
+```
+```replit_final_file
 import axios from 'axios';
 import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../types';
 import { b365ApiService } from './b365Api';
@@ -57,7 +60,7 @@ export const rapidApiService = {
     const now = Date.now();
     const today = new Date().toISOString().split('T')[0];
     const isToday = date === today;
-    
+
     // Use shorter cache time for today's data (30 seconds) vs other dates (2 minutes)
     const cacheTime = isToday ? 30 * 1000 : 2 * 60 * 1000;
     if (cached && now - cached.timestamp < cacheTime) {
@@ -72,7 +75,7 @@ export const rapidApiService = {
         try {
           console.log(`Getting live fixtures first for today (${date})`);
           const liveFixtures = await this.getLiveFixtures();
-          
+
           if (liveFixtures && liveFixtures.length > 0) {
             console.log(`Found ${liveFixtures.length} live fixtures for today`);
             // Validate live fixtures before adding
@@ -90,7 +93,7 @@ export const rapidApiService = {
 
       if (fetchAll) {
         console.log(`Fetching ALL fixtures for date ${date} from all countries and leagues`);
-        
+
         // Fetch all fixtures for the date without league restrictions
         const response = await apiClient.get('/fixtures', {
           params: { 
@@ -103,7 +106,7 @@ export const rapidApiService = {
 
         if (response.data && response.data.response) {
           const dateFixtures = response.data.response;
-          
+
           // Validate that all fixtures are for the correct date and have required data
           const validFixtures = dateFixtures.filter((fixture: any) => {
             try {
@@ -124,20 +127,64 @@ export const rapidApiService = {
               if (!fixture.teams.home.logo) fixture.teams.home.logo = '/assets/fallback-logo.png';
               if (!fixture.teams.away.logo) fixture.teams.away.logo = '/assets/fallback-logo.png';
 
+              // COMPREHENSIVE ESPORTS FILTERING - Enhanced version
+              const leagueName = fixture.league.name?.toLowerCase() || '';
+              const homeTeamName = fixture.teams.home.name?.toLowerCase() || '';
+              const awayTeamName = fixture.teams.away.name?.toLowerCase() || '';
+
+              // Expanded esports exclusion terms
+              const esportsTerms = [
+                'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
+                'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football',
+                'volta', 'ultimate team', 'clubs', 'gaming', 'game',
+                'simulator', 'simulation', 'digital', 'online',
+                'battle', 'legend', 'champion', 'tournament online',
+                'vs online', 'gt sport', 'rocket league', 'fc online',
+                'dream league', 'top eleven', 'football manager',
+                'championship manager', 'mobile', 'app'
+              ];
+
+              // Check if any esports term exists in league or team names
+              const isEsports = esportsTerms.some(term => 
+                leagueName.includes(term) || 
+                homeTeamName.includes(term) || 
+                awayTeamName.includes(term)
+              );
+
+              if (isEsports) {
+                console.log(`Filtering out esports fixture: ${fixture.league.name} - ${homeTeamName} vs ${awayTeamName}`);
+                return false;
+              }
+
+              // CRITICAL: Filter out fixtures with null/undefined country (99% are esports)
+              if (fixture.league.country === null || 
+                  fixture.league.country === undefined || 
+                  fixture.league.country === '') {
+                console.log(`Filtering out fixture with null/empty country: ${fixture.league.name}`);
+                return false;
+              }
+
+              // Additional check for suspicious country values
+              if (typeof fixture.league.country === 'string' && 
+                  fixture.league.country.toLowerCase().includes('unknown')) {
+                console.log(`Filtering out fixture with unknown country: ${fixture.league.name}`);
+                return false;
+              }
+
               return true;
             } catch (error) {
               console.error('Error validating fixture:', error, fixture);
               return false;
             }
           });
-          
+
           console.log(`Retrieved ${dateFixtures.length} fixtures, ${validFixtures.length} valid for date ${date}`);
-          
+
           // Merge with live fixtures, avoiding duplicates
           const existingIds = new Set(allFixtures.map(f => f.fixture.id));
           const newFixtures = validFixtures.filter((f: any) => !existingIds.has(f.fixture.id));
           allFixtures = [...allFixtures, ...newFixtures];
-          
+
           // Log score data sample for debugging
           const withScores = allFixtures.filter((f: any) => f.goals.home !== null || f.goals.away !== null);
           console.log(`Total fixtures with scores: ${withScores.length}/${allFixtures.length}`);
@@ -149,7 +196,7 @@ export const rapidApiService = {
       } else {
         // Popular leagues behavior
         const popularLeagueIds = [2, 3, 39, 45, 140, 135, 78, 207, 219, 203];
-        
+
         for (const leagueId of popularLeagueIds) {
           try {
             const leagueFixtures = await this.getFixturesByLeague(leagueId, 2024);
@@ -157,7 +204,7 @@ export const rapidApiService = {
               const fixtureDate = new Date(fixture.fixture.date).toISOString().split('T')[0];
               return fixtureDate === date;
             });
-            
+
             // Merge avoiding duplicates
             const existingIds = new Set(allFixtures.map(f => f.fixture.id));
             const newFixtures = dateFixtures.filter(f => !existingIds.has(f.fixture.id));
@@ -176,23 +223,23 @@ export const rapidApiService = {
         allFixtures.sort((a, b) => {
           const aStatus = a.fixture.status.short;
           const bStatus = b.fixture.status.short;
-          
+
           // Live matches first
           const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
           const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
           if (aLive && !bLive) return -1;
           if (!aLive && bLive) return 1;
-          
+
           // Then upcoming matches
           const aUpcoming = aStatus === 'NS' && new Date(a.fixture.date) > new Date();
           const bUpcoming = bStatus === 'NS' && new Date(b.fixture.date) > new Date();
           if (aUpcoming && !bUpcoming) return -1;
           if (!aUpcoming && bUpcoming) return 1;
-          
+
           // Finally by time
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
-        
+
         console.log(`Sorted ${allFixtures.length} fixtures for today - prioritizing live matches`);
       }
 
@@ -200,22 +247,22 @@ export const rapidApiService = {
         data: allFixtures, 
         timestamp: now 
       });
-      
+
       return allFixtures;
     } catch (error) {
       console.error('RapidAPI: Error fetching fixtures by date:', error);
-      
+
       // Try B365API as fallback for current date
       if (isToday) {
         try {
           console.log('RapidAPI failed for today, trying B365API live matches as fallback...');
           const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
-          
+
           if (b365LiveMatches && b365LiveMatches.length > 0) {
             const convertedMatches = b365LiveMatches.map(match => 
               b365ApiService.convertToRapidApiFormat(match)
             );
-            
+
             console.log(`B365API Fallback: Retrieved ${convertedMatches.length} fixtures for today`);
             fixturesCache.set(cacheKey, { 
               data: convertedMatches, 
@@ -227,7 +274,7 @@ export const rapidApiService = {
           console.error('B365API Fallback also failed:', b365Error);
         }
       }
-      
+
       if (cached?.data) {
         console.log('Using cached data due to API error');
         return cached.data;
@@ -259,24 +306,63 @@ export const rapidApiService = {
       });
 
       if (response.data && response.data.response && response.data.response.length > 0) {
-        console.log(`RapidAPI: Retrieved ${response.data.response.length} live fixtures`);
+        // Enhanced esports filtering for live fixtures
+        const filteredLiveFixtures = response.data.response.filter((fixture: any) => {
+          const leagueName = fixture.league?.name?.toLowerCase() || '';
+          const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || '';
+          const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || '';
+
+          // Same expanded esports terms
+          const esportsTerms = [
+            'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
+            'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football',
+            'volta', 'ultimate team', 'clubs', 'gaming', 'game',
+            'simulator', 'simulation', 'digital', 'online',
+            'battle', 'legend', 'champion', 'tournament online',
+            'vs online', 'gt sport', 'rocket league', 'fc online',
+            'dream league', 'top eleven', 'football manager',
+            'championship manager', 'mobile', 'app'
+          ];
+
+          const isEsports = esportsTerms.some(term => 
+            leagueName.includes(term) || 
+            homeTeamName.includes(term) || 
+            awayTeamName.includes(term)
+          );
+
+          // Enhanced country filtering
+          const hasInvalidCountry = fixture.league?.country === null || 
+                                   fixture.league?.country === undefined || 
+                                   fixture.league?.country === '' ||
+                                   (typeof fixture.league?.country === 'string' && 
+                                    fixture.league.country.toLowerCase().includes('unknown'));
+
+          if (isEsports || hasInvalidCountry) {
+            console.log(`Filtering out esports/invalid live fixture: ${fixture.league?.name} (country: ${fixture.league?.country})`);
+            return false;
+          }
+
+          return true;
+        });
+
+        console.log(`RapidAPI: Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering`);
         fixturesCache.set(cacheKey, { 
-          data: response.data.response, 
+          data: filteredLiveFixtures, 
           timestamp: now 
         });
-        return response.data.response;
+        return filteredLiveFixtures;
       }
 
       // If RapidAPI returns no live fixtures, try B365API as fallback
       console.log('RapidAPI: No live fixtures found, trying B365API as fallback...');
       const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
-      
+
       if (b365LiveMatches && b365LiveMatches.length > 0) {
         // Convert B365 matches to RapidAPI format
         const convertedMatches = b365LiveMatches.map(match => 
           b365ApiService.convertToRapidApiFormat(match)
         );
-        
+
         console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures`);
         fixturesCache.set(cacheKey, { 
           data: convertedMatches, 
@@ -288,17 +374,17 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error('RapidAPI: Error fetching live fixtures:', error);
-      
+
       // Try B365API as fallback when RapidAPI fails
       try {
         console.log('RapidAPI failed, trying B365API as fallback...');
         const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
-        
+
         if (b365LiveMatches && b365LiveMatches.length > 0) {
           const convertedMatches = b365LiveMatches.map(match => 
             b365ApiService.convertToRapidApiFormat(match)
           );
-          
+
           console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
           fixturesCache.set(cacheKey, { 
             data: convertedMatches, 
@@ -309,13 +395,13 @@ export const rapidApiService = {
       } catch (b365Error) {
         console.error('B365API Fallback also failed:', b365Error);
       }
-      
+
       // Use cached data if available
       if (cached?.data) {
         console.log('Using cached data due to both APIs failing');
         return cached.data;
       }
-      
+
       console.error('All API requests failed and no cache available');
       return [];
     }

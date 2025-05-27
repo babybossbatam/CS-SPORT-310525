@@ -238,6 +238,33 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return acc;
     }
 
+    // Frontend backup esports filtering - safety net
+    const leagueName = league.name?.toLowerCase() || '';
+    const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || '';
+    const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || '';
+    
+    const esportsTerms = [
+      'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
+      'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football',
+      'volta', 'ultimate team', 'clubs', 'gaming', 'game',
+      'simulator', 'simulation', 'digital', 'online',
+      'battle', 'legend', 'champion', 'tournament online',
+      'vs online', 'gt sport', 'rocket league', 'fc online',
+      'dream league', 'top eleven', 'football manager',
+      'championship manager', 'mobile', 'app'
+    ];
+    
+    const isEsports = esportsTerms.some(term => 
+      leagueName.includes(term) || 
+      homeTeamName.includes(term) || 
+      awayTeamName.includes(term)
+    );
+    
+    if (isEsports) {
+      console.warn('Frontend: Filtering out esports fixture that slipped through:', leagueName, fixture);
+      return acc;
+    }
+
     // Only allow valid country names, World, and Europe
     const validCountry = country.trim();
     if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
