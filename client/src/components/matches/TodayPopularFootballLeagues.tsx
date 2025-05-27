@@ -227,10 +227,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return acc;
     }
 
-    // Enhanced filtering for virtual/esports/non-football fixtures with null safety
-    const leagueName = (league.name && typeof league.name === 'string' ? league.name : '').toLowerCase();
-    const homeTeamName = (fixture.teams?.home?.name && typeof fixture.teams.home.name === 'string' ? fixture.teams.home.name : '').toLowerCase();
-    const awayTeamName = (fixture.teams?.away?.name && typeof fixture.teams.away.name === 'string' ? fixture.teams.away.name : '').toLowerCase();
+    // Enhanced filtering for virtual/esports/non-football fixtures
+    const leagueName = (league.name || '').toLowerCase();
+    const homeTeamName = (fixture.teams?.home?.name || '').toLowerCase();
+    const awayTeamName = (fixture.teams?.away?.name || '').toLowerCase();
     
     // Comprehensive list of terms to exclude
     const virtualTerms = [
@@ -242,9 +242,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     
     // Check if any virtual terms are present in league or team names
     const isVirtual = virtualTerms.some(term => 
-      (leagueName && leagueName.includes(term)) || 
-      (homeTeamName && homeTeamName.includes(term)) || 
-      (awayTeamName && awayTeamName.includes(term))
+      leagueName.includes(term) || 
+      homeTeamName.includes(term) || 
+      awayTeamName.includes(term)
     );
     
     if (isVirtual) {
@@ -262,9 +262,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
 
-      // Check if it's a Friendlies league (with comprehensive null safety)
-      if (league.name && typeof league.name === 'string' && league.name.toLowerCase().includes('friendlies')) {
-        const countryKey = 'International Friendlies';
+      // Check if it's a Friendlies league
+      if (league.name && league.name.toLowerCase().includes('friendlies')) {
+        const countryKey = 'Friendlies';
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
@@ -278,7 +278,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
         if (!acc[countryKey].leagues[leagueId]) {
           acc[countryKey].leagues[leagueId] = {
-            league: { ...league, country: 'International Friendlies' },
+            league: { ...league, country: 'Friendlies' },
             matches: [],
             isPopular: false,
             isFriendlies: true
@@ -389,8 +389,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
 
-    // Include International Friendlies
-    if (countryData.country === 'International Friendlies') return true;
+    // Include Friendlies
+    if (countryData.country === 'Friendlies') return true;
 
     // Add null check for country before string operations
     if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
@@ -408,12 +408,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   // Sort countries - popular leagues first, then popular countries, then Friendlies, then alphabetical
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
-    const aIsFriendlies = a.country === 'International Friendlies' || a.isFriendlies;
-    const bIsFriendlies = b.country === 'International Friendlies' || b.isFriendlies;
+    const aIsFriendlies = a.country === 'Friendlies' || a.isFriendlies;
+    const bIsFriendlies = b.country === 'Friendlies' || b.isFriendlies;
   
-    // First priority: countries with popular leagues (but not Friendlies)
-    if (a.hasPopularLeague && !b.hasPopularLeague && !aIsFriendlies) return -1;
-    if (!a.hasPopularLeague && b.hasPopularLeague && !bIsFriendlies) return 1;
+    // First priority: countries with popular leagues
+    if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
+    if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
 
     // Second priority: popular countries (excluding friendlies)
     const aIsPopularCountry = !aIsFriendlies && a.country && POPULAR_COUNTRIES.some(country => 
@@ -425,12 +425,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       country.toLowerCase().includes(b.country.toLowerCase())
     );
 
-    if (aIsPopularCountry && !bIsPopularCountry && !bIsFriendlies) return -1;
-    if (!aIsPopularCountry && bIsPopularCountry && !aIsFriendlies) return 1;
+    if (aIsPopularCountry && !bIsPopularCountry) return -1;
+    if (!aIsPopularCountry && bIsPopularCountry) return 1;
 
-    // Third priority: Friendlies after popular leagues and popular countries
-    if (aIsFriendlies && !bIsFriendlies) return 1;
-    if (!aIsFriendlies && bIsFriendlies) return -1;
+    // Third priority: Friendlies after popular countries but before regular countries  
+    if (aIsFriendlies && !bIsFriendlies) return -1;
+    if (!aIsFriendlies && bIsFriendlies) return 1;
 
     // If both are popular countries, sort by POPULAR_COUNTRIES order
     if (aIsPopularCountry && bIsPopularCountry) {
@@ -735,11 +735,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                             <span className="font-semibold text-sm text-gray-800">
                               {leagueData.league.name || 'Unknown League'}
                             </span>
-                            {leagueData.isPopular && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                Popular
-                              </span>
-                            )}
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                              Popular
+                            </span>
                           </div>
                         )}
                         {/* Matches - Show if league is popular, expanded, or Friendlies */}

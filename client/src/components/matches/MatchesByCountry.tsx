@@ -160,10 +160,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       return acc;
     }
 
-    // Enhanced filtering for virtual/esports/non-football fixtures with null safety
-    const leagueName = (fixture.league?.name && typeof fixture.league.name === 'string' ? fixture.league.name : '').toLowerCase();
-    const homeTeamName = (fixture.teams?.home?.name && typeof fixture.teams.home.name === 'string' ? fixture.teams.home.name : '').toLowerCase();
-    const awayTeamName = (fixture.teams?.away?.name && typeof fixture.teams.away.name === 'string' ? fixture.teams.away.name : '').toLowerCase();
+    
 
     const leagueId = league.id;
 
