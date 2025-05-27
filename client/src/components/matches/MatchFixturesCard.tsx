@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
+import MatchesByCountryAndSeason from './MatchesByCountryAndSeason';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format, parseISO } from 'date-fns';
@@ -20,6 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
+  const [viewMode, setViewMode] = useState<'date' | 'country'>('date');
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
@@ -167,20 +169,53 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </button>
         </div>
         <div className="flex items-center justify-between px-4 pb-4">
-          <button className="flex items-center gap-1 px-1.5 py-0.5 bg-neutral-800 text-white rounded-full text-xs font-medium w-fit">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-            Live
-          </button>
-          <button className="flex items-center gap-1.5 px-2 py-0.5 hover:bg-gray-100 rounded-full text-xs font-medium w-fit">
-            <Clock className="h-3.5 w-3.5" />
-            By time
-          </button>
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-1 px-1.5 py-0.5 bg-neutral-800 text-white rounded-full text-xs font-medium w-fit">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              Live
+            </button>
+            <button className="flex items-center gap-1.5 px-2 py-0.5 hover:bg-gray-100 rounded-full text-xs font-medium w-fit">
+              <Clock className="h-3.5 w-3.5" />
+              By time
+            </button>
+          </div>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
+            <button
+              onClick={() => setViewMode('date')}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                viewMode === 'date' 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              By Date
+            </button>
+            <button
+              onClick={() => setViewMode('country')}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                viewMode === 'country' 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              By Country
+            </button>
+          </div>
         </div>
       </Card>
-      <div className="space-y-4">
-        <TodayPopularFootballLeagues selectedDate={selectedDate} />
-      </div>
-      <TodaysMatchesByCountry selectedDate={selectedDate} />
+      
+      {viewMode === 'date' ? (
+        <>
+          <div className="space-y-4">
+            <TodayPopularFootballLeagues selectedDate={selectedDate} />
+          </div>
+          <TodaysMatchesByCountry selectedDate={selectedDate} />
+        </>
+      ) : (
+        <MatchesByCountryAndSeason onMatchClick={onMatchClick} />
+      )}
     </div>
   );
 };

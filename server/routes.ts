@@ -842,7 +842,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 publishedAt: new Date().toISOString(),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
-              };
+              };```text
+
             });
 
             return res.json(articles);
@@ -1019,6 +1020,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get fixtures by country and season
+  apiRouter.get('/fixtures/country/:country', async (req: Request, res: Response) => {
+    try {
+      const { country } = req.params;
+      const { season, league } = req.query;
+
+      console.log(`API: Getting fixtures for country: ${country}, season: ${season}, league: ${league}`);
+
+      // Get all available leagues first
+      const allLeagues = await rapidApiService.getLeagues();
+
+      // Filter leagues by country
+      const countryLeagues = allLeagues.filter(leagueResponse => {
+        const leagueCountry = leagueResponse.country?.name?.toLowerCase() || '';
+        return leagueCountry.includes(country.toLowerCase());
+      });
+
+      console.log(`Found ${countryLeagues.length} leagues for country: ${country}`);
+
+      let allFixtures: any[] = [];
+
+      // Fetch fixtures for each league in the country
+      for (const leagueResponse of countryLeagues.slice(0, 10)) { // Limit to top 10 leagues to avoid timeout
+        try {
+          const leagueId = leagueResponse.league.id;
+          const seasonYear = season ? parseInt(season as string) : 2024;
+
+          const leagueFixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonYear);
+
+          // Filter by specific league if requested
+          if (league && !leagueResponse.league.name.toLowerCase().includes((league as string).toLowerCase())) {
+            continue;
+          }
+
+          allFixtures = [...allFixtures, ...leagueFixtures];
+
+          console.log(`Added ${leagueFixtures.length} fixtures from ${leagueResponse.league.name}`);
+        } catch (error) {
+          console.error(`Error fetching fixtures for league ${leagueResponse.league.id}:`, error);
+          continue;
+        }
+      }
+
+      // Sort by date
+      allFixtures.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+
+      console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
+
+      res.json({ 
+        success: true, 
+        fixtures: allFixtures,
+        country: country,
+        season: season || 2024,
+        totalLeagues: countryLeagues.length,
+        totalFixtures: allFixtures.length
+      });
+    } catch (error) {
+      console.error('Error fetching fixtures by country:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch fixtures by country'
+      });
+    }
+  });
+
   // Get fixtures by date
   apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
     try {
@@ -1129,6 +1195,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: 'Failed to fetch B365 events',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // Get available countries and their seasons
+  apiRouter.get('/countries', async (req: Request, res: Response) => {
+    try {
+      console.log('API: Getting available countries and seasons');
+
+      const allLeagues = await rapidApiService.getLeagues();
+
+      // Group leagues by country and extract season information
+      const countriesMap = new Map();
+
+      allLeagues.forEach(leagueResponse => {
+        const countryName = leagueResponse.country?.name || 'Unknown';
+        const countryCode = leagueResponse.country?.code || '';
+        const countryFlag = leagueResponse.country?.flag || '';
+
+        if (!countriesMap.has(countryName)) {
+          countriesMap.set(countryName, {
+            name: countryName,
+            code: countryCode,
+            flag: countryFlag,
+            leagues: [],
+            seasons: new Set()
+          });
+        }
+
+        const countryData = countriesMap.get(countryName);
+        countryData.leagues.push({
+          id: leagueResponse.league.id,
+          name: leagueResponse.league.name,
+          type: leagueResponse.league.type,
+          logo: leagueResponse.league.logo
+        });
+
+        // Add available seasons for this league
+        if (leagueResponse.seasons) {
+          leagueResponse.seasons.forEach(season => {
+            countryData.seasons.add(season.year);
+          });
+        }
+      });
+
+      // Convert to array and sort
+      const countries = Array.from(countriesMap.values()).map(country => ({
+        ...country,
+        seasons: Array.from(country.seasons).sort((a, b) => b - a), // Sort seasons descending
+        leagueCount: country.leagues.length
+      })).sort((a, b) => a.name.localeCompare(b.name));
+
+      console.log(`Found ${countries.length} countries with leagues`);
+
+      res.json({ 
+        success: true, 
+        countries: countries,
+        totalCountries: countries.length,
+        totalLeagues: allLeagues.length
+      });
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch countries'
+      });
+    }
+  });
+
+  // Get league standings
+  apiRouter.get('/leagues/:id/standings', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      // Calculate current season based on date
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+      // If we're in the second half of the year, use next year as season
+      const currentSeason = currentMonth >= 7 ? 
+        currentDate.getFullYear() + 1 : 
+        currentDate.getFullYear();
+      const season = parseInt(req.query.season as string) || currentSeason;
+
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid league ID" });
+      }
+
+      console.log(`Fetching standings for league ${id} with fixed season ${season} as requested`);
+
+      // Use API-Football (RapidAPI) only
+      const standings = await rapidApiService.getLeagueStandings(id, season);
+      console.log(`Received standings data for league ${id} from RapidAPI`);
+
+      res.json(standings);
+    } catch (error) {
+      console.error(`Error fetching standings for league ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch standings data" });
     }
   });
 

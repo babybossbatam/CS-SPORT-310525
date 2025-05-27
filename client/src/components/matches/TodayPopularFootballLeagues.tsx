@@ -273,9 +273,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     }
 
     // Filter out esports leagues which have null country but keep real international competitions
-    const leagueName = league.name?.toLowerCase() || '';
-    if (leagueName.includes('esoccer') || leagueName.includes('ebet') || leagueName.includes('cyber')) {
-      console.warn('Skipping esports fixture:', leagueName, fixture);
+    const leagueNameLower = league.name?.toLowerCase() || '';
+    if (leagueNameLower.includes('esoccer') || leagueNameLower.includes('ebet') || leagueNameLower.includes('cyber')) {
+      console.warn('Skipping esports fixture:', leagueNameLower, fixture);
       return acc;
     }
 
