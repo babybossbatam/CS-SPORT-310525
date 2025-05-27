@@ -99,7 +99,7 @@ export const MatchesByCountryAndSeason: React.FC<MatchesByCountryAndSeasonProps>
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
             Browse Matches by Country & Season
           </CardTitle>
