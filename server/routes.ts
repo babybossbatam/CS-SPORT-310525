@@ -795,15 +795,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sportType = req.query.sport as string || '';
       const count = parseInt(req.query.count as string || '10');
 
-      // First, try RapidAPI for football news (Primary)
+      // First, try SportMonks API as primary for football news
       if (sportType === 'football') {
         try {
-          console.log("Trying RapidAPI for football news (Primary)");
-          // Note: This would require implementing football news endpoint in RapidAPI
-          // For now, we'll skip to GNews as RapidAPI doesn't have news endpoints
-          throw new Error('RapidAPI news not implemented');
-        } catch (rapidApiError) {
-          console.log("RapidAPI for news not available, trying GNews...");
+          console.log("Using SportMonks API for football news (Primary)");
+          const apiKey = 'WXpmx7hqkHuMBp44TO35qaYQPa4n0dB6hSGR54CiYvhWOGzn1obqYJygtE2J';
+
+          // Try to fetch from the Serie A news endpoint with updated subscription
+          // Note: The API documentation shows league_id=384 for Serie A
+          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}&league_id=384`;
+          console.log(`Fetching Serie A football news from SportMonks API (Primary)`);
+
+          const response = await fetch(sportMonksUrl);
+          const data = await response.json();
+
+          // Print the data structure for debugging
+          const apiResponse = JSON.stringify(data);
+          console.log("SportMonks API response status:", response.status);
+          console.log("SportMonks API response structure:", apiResponse.substring(0, 500) + "...");
+
+          // Log API error if present
+          if (data.message) {
+            console.log("SportMonks API error message:", data.message);
+          }
+
+          // Check if response is valid
+          if (response.ok && data.data && Array.isArray(data.data)) {
+            console.log(`Successfully fetched ${data.data.length} football news articles from SportMonks`);
+            console.log("First article sample:", JSON.stringify(data.data[0]));
+
+            // Transform the SportMonks news data format to match our news article format
+            const articles = data.data.slice(0, count).map((article: any, index: number) => {
+              // Don't link directly to SportMonks but keep a reference to the league_id
+              // Set the URL to our own site's path 
+              const newsUrl = "/news/" + (index + 1);
+
+              return {
+                id: index + 1,
+                title: article.title || 'Serie A News Update',
+                // Use a generic content since the API doesn't provide detailed content
+                content: `Serie A ${article.type || 'match'} news: ${article.title}`,
+                // Use a default football image
+                imageUrl: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
+                source: "Serie A News",
+                url: newsUrl,
+                publishedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              };
+            });
+
+            return res.json(articles);
+          } else {
+            console.warn("SportMonks API returned an invalid response or access denied:", data.message || "Unknown error");
+            // Log the specific error message if available
+            if (data.message) {
+              console.warn(`SportMonks error message: ${data.message}`);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching from SportMonks API:", error);
         }
       }
 
@@ -868,69 +919,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(articles);
       } catch (gnewsError) {
         console.error("GNews API failed:", gnewsError);
-      }
-
-      // Third, try SportMonks API as final fallback for football
-      if (sportType === 'football' && process.env.SPORTMONKS_API_KEY) {
-        try {
-          console.log("Using SportMonks API for football news (Third fallback)");
-          const apiKey = 'WXpmx7hqkHuMBp44TO35qaYQPa4n0dB6hSGR54CiYvhWOGzn1obqYJygtE2J';
-
-          // Try to fetch from the Serie A news endpoint with updated subscription
-          // Note: The API documentation shows league_id=384 for Serie A
-          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}&league_id=384`;
-          console.log(`Fetching Serie A football news from SportMonks API (URL redacted for security)`);
-
-          const response = await fetch(sportMonksUrl);
-          const data = await response.json();
-
-          // Print the data structure for debugging
-          const apiResponse = JSON.stringify(data);
-          console.log("SportMonks API response status:", response.status);
-          console.log("SportMonks API response structure:", apiResponse.substring(0, 500) + "...");
-
-          // Log API error if present
-          if (data.message) {
-            console.log("SportMonks API error message:", data.message);
-          }
-
-          // Check if response is valid
-          if (response.ok && data.data && Array.isArray(data.data)) {
-            console.log(`Successfully fetched ${data.data.length} football news articles from SportMonks`);
-            console.log("First article sample:", JSON.stringify(data.data[0]));
-
-            // Transform the SportMonks news data format to match our news article format
-            const articles = data.data.slice(0, count).map((article: any, index: number) => {
-              // Don't link directly to SportMonks but keep a reference to the league_id
-              // Set the URL to our own site's path 
-              const newsUrl = "/news/" + (index + 1);
-
-              return {
-                id: index + 1,
-                title: article.title || 'Serie A News Update',
-                // Use a generic content since the API doesn't provide detailed content
-                content: `Serie A ${article.type || 'match'} news: ${article.title}`,
-                // Use a default football image
-                imageUrl: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
-                source: "Serie A News",
-                url: newsUrl,
-                publishedAt: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              };
-            });
-
-            return res.json(articles);
-          } else {
-            console.warn("SportMonks API returned an invalid response or access denied:", data.message || "Unknown error");
-            // Log the specific error message if available
-            if (data.message) {
-              console.warn(`SportMonks error message: ${data.message}`);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching from SportMonks API:", error);
-        }
       }
 
       // Final fallback to local storage
