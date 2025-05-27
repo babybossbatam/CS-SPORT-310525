@@ -69,14 +69,17 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           // Filter fixtures for the selected date
           const matchesFromSelectedDate = leagueFixtures.filter(match => {
             try {
+              if (!match || !match.fixture || !match.fixture.date) return false;
+              
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
-              // Convert to local date string for comparison
+              // Convert to local date string for comparison (using UTC to avoid timezone issues)
               const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
 
               return fixtureLocalDateString === selectedDate;
-            } catch {
+            } catch (error) {
+              console.error('Error filtering match by date:', error, match);
               return false;
             }
           });
@@ -87,7 +90,23 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         }
       }
 
-      console.log(`Fetched ${allData.length} popular league fixtures`);
+      console.log(`Fetched ${allData.length} popular league fixtures for date ${selectedDate}`);
+      
+      // Debug: Log matches by league
+      const matchesByLeague = allData.reduce((acc, match) => {
+        const leagueId = match.league?.id;
+        const leagueName = match.league?.name;
+        if (leagueId) {
+          if (!acc[leagueId]) {
+            acc[leagueId] = { name: leagueName, count: 0 };
+          }
+          acc[leagueId].count++;
+        }
+        return acc;
+      }, {});
+      
+      console.log('Matches by league for', selectedDate, ':', matchesByLeague);
+      
       return allData;
     },
     enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
@@ -110,11 +129,13 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     if (leagueFlag) return leagueFlag;
 
     // Add null/undefined check for country
-    if (!country || typeof country !== 'string') {
+    if (!country || typeof country !== 'string' || country.trim() === '') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }
 
-    if (country === 'World' || country === 'International') {
+    const cleanCountry = country.trim();
+
+    if (cleanCountry === 'World' || cleanCountry === 'International') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }
 
@@ -137,7 +158,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'Faroe Islands': 'FO'
     };
 
-    const countryCode = countryCodeMap[country] || (country.length >= 2 ? country.substring(0, 2).toUpperCase() : 'XX');
+    const countryCode = countryCodeMap[cleanCountry] || (cleanCountry.length >= 2 ? cleanCountry.substring(0, 2).toUpperCase() : 'XX');
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
@@ -149,51 +170,65 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
-    const country = fixture.league?.country || 'Unknown';
+    // Add comprehensive null checks
+    if (!fixture || !fixture.league) {
+      return acc;
+    }
+
+    const country = fixture.league.country || 'Unknown';
+    const leagueId = fixture.league.id;
+    
+    // Skip if no valid league ID
+    if (!leagueId) {
+      return acc;
+    }
+
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlag(country, fixture.league?.flag),
+        flag: getCountryFlag(country, fixture.league.flag),
         leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(fixture.league?.id)
+        hasPopularLeague: POPULAR_LEAGUES.includes(leagueId)
       };
     }
 
-    const leagueId = fixture.league?.id;
-    if (leagueId && !acc[country].leagues[leagueId]) {
+    if (!acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
         league: fixture.league,
         matches: [],
-        isPopular: POPULAR_LEAGUES.includes(fixture.league.id)
+        isPopular: POPULAR_LEAGUES.includes(leagueId)
       };
     }
 
-    if (leagueId) {
-      acc[country].leagues[leagueId].matches.push(fixture);
-    }
+    acc[country].leagues[leagueId].matches.push(fixture);
     return acc;
   }, {});
 
   // Filter to show only popular countries plus Saudi Arabia, Brazil, and Argentina
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
+    // Add comprehensive null checks
+    if (!countryData || typeof countryData !== 'object') {
+      return false;
+    }
+
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
 
     // Include specific countries: Saudi-Arabia and Brazil
-    const includedCountries = ['Saudi-Arabia', 'Brazil'];
+    const includedCountries = ['Saudi-Arabia', 'Brazil', 'Argentina'];
 
     // Add null check for country before string operations
-    if (!countryData.country || typeof countryData.country !== 'string') {
+    if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
       return false;
     }
 
-    // Include if it's one of the specified countries (case-insensitive check)
-    if (includedCountries.some(country => 
-      countryData.country.toLowerCase().includes(country.toLowerCase()) ||
-      country.toLowerCase().includes(countryData.country.toLowerCase())
-    )) return true;
+    const countryName = countryData.country.trim().toLowerCase();
 
-    return false;
+    // Include if it's one of the specified countries (case-insensitive check)
+    return includedCountries.some(country => 
+      countryName.includes(country.toLowerCase()) ||
+      country.toLowerCase().includes(countryName)
+    );
   });
 
   // Sort countries - popular leagues first, then alphabetical
