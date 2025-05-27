@@ -238,14 +238,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         country.toLowerCase() === 'unknown') {
 
       // Check if it's a Friendlies league
-      if (league.name.toLowerCase().includes('friendlies')) {
+      if (league.name && league.name.toLowerCase().includes('friendlies')) {
         const countryKey = 'Friendlies';
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
-            flag: getCountryFlag(countryKey), // Use the new flag logic for Friendlies
+            flag: getCountryFlag('World'), // Use World flag for Friendlies
             leagues: {},
-            hasPopularLeague: false
+            hasPopularLeague: false,
+            isFriendlies: true // Mark the entire country group as friendlies
           };
         }
         const leagueId = league.id;
@@ -263,13 +264,14 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       }
 
       // Allow World and Europe competitions to pass through
-      if (league.name.toLowerCase().includes('world') || 
+      if (league.name && (
+          league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
           league.name.toLowerCase().includes('fifa') ||
           league.name.toLowerCase().includes('international') ||
           league.name.toLowerCase().includes('champions') ||
-          league.name.toLowerCase().includes('conference')) {
+          league.name.toLowerCase().includes('conference'))) {
         const countryKey = 'International';
         if (!acc[countryKey]) {
           acc[countryKey] = {
@@ -379,14 +381,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     );
   });
 
-  // Sort countries - popular leagues first, then popular countries, then alphabetical, with Friendlies last
+  // Sort countries - popular leagues first, then popular countries, then Friendlies, then alphabetical
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
-    const aIsFriendlies = a.country === 'Friendlies';
-    const bIsFriendlies = b.country === 'Friendlies';
-
-    // Friendlies always go to the bottom
-    if (aIsFriendlies && !bIsFriendlies) return 1;
-    if (!aIsFriendlies && bIsFriendlies) return -1;
+    const aIsFriendlies = a.country === 'Friendlies' || a.isFriendlies;
+    const bIsFriendlies = b.country === 'Friendlies' || b.isFriendlies;
   
     // First priority: countries with popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
@@ -404,6 +402,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     if (aIsPopularCountry && !bIsPopularCountry) return -1;
     if (!aIsPopularCountry && bIsPopularCountry) return 1;
+
+    // Third priority: Friendlies after popular countries but before regular countries
+    if (aIsFriendlies && !bIsFriendlies && !bIsPopularCountry) return -1;
+    if (!aIsFriendlies && bIsFriendlies && !aIsPopularCountry) return 1;
 
     // If both are popular countries, sort by POPULAR_COUNTRIES order
     if (aIsPopularCountry && bIsPopularCountry) {
