@@ -178,7 +178,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           {/* View Mode Toggle - centered */}
           <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
             <button
-              onClick={() => setViewMode('date')}
+              onClick={() => {
+                setViewMode('date');
+                console.log('Switched to date view mode');
+              }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 viewMode === 'date' 
                   ? 'bg-white text-gray-900 shadow-sm' 
@@ -188,7 +191,10 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               By Date
             </button>
             <button
-              onClick={() => setViewMode('country')}
+              onClick={() => {
+                setViewMode('country');
+                console.log('Switched to country view mode');
+              }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 viewMode === 'country' 
                   ? 'bg-white text-gray-900 shadow-sm' 
