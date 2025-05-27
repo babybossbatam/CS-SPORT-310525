@@ -50,7 +50,7 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/search" component={SearchResults} />
       <Route path="/live" component={LiveMatches} />
-      <Route path="/news" component={NewsPage} />
+      <Route path="/news/:id" component={NewsPage} />
       <Route path="/scoreboard-demo" component={ScoreboardDemo} />
       <Route component={NotFound} />
     </Switch>

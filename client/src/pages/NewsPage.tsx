@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 // Import the NewsItem type from our NewsCard component
 import { NewsItem } from '@/components/news/NewsCard';
@@ -21,10 +22,20 @@ type NewsApiResponse = NewsItem;
 const NewsPage = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const [location] = useLocation();
   const [category, setCategory] = useState<string>('sports');
   const [sport, setSport] = useState<string>('football');
   const { items: newsItems, loading, error } = useSelector((state: RootState) => state.news);
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
+  
+  // Handle URL parameters
+  useEffect(() => {
+    const pathSegments = location.split('/');
+    if (pathSegments.length > 2) {
+      // If there's a parameter like /news/1, just use the base news page
+      console.log('NewsPage accessed with parameter:', pathSegments[2]);
+    }
+  }, [location]);
   
   // Update the sport based on the selected sport in UI
   useEffect(() => {
@@ -34,16 +45,21 @@ const NewsPage = () => {
   }, [selectedSport]);
   
   // Fetch news articles from API with the selected category and sport
-  const { data: newsData, isLoading, isError } = useQuery<NewsApiResponse[]>({
+  const { data: newsData, isLoading, isError, error: queryError } = useQuery<NewsApiResponse[]>({
     queryKey: ['/api/news', category, sport],
     queryFn: async () => {
-      const response = await fetch(`/api/news?category=${category}&sport=${sport}&source=gnews`);
+      console.log('Fetching news with:', { category, sport });
+      const response = await fetch(`/api/news?category=${category}&sport=${sport}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch news');
+        console.error('News API error:', response.status, response.statusText);
+        throw new Error(`Failed to fetch news: ${response.status}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log('News data received:', data);
+      return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
   });
   
   // Update Redux store when data is fetched
