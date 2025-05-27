@@ -141,10 +141,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     setExpandedLeagues(new Set());
   }, [selectedDate]);
 
-  // Popular countries for prioritization
+  // Popular countries for prioritization - only keep Brazil, Saudi Arabia, and Egypt as additional countries
   const POPULAR_COUNTRIES = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Argentina', 
-    'Saudi Arabia', 'World', 'Netherlands', 'Portugal', 'Turkey'
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 
+    'Saudi Arabia', 'Egypt', 'World'
   ];
 
   // Enhanced country flag mapping with null safety
@@ -399,10 +399,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     const countryName = countryData.country.trim().toLowerCase();
 
-    // Include if it's one of the popular countries (case-insensitive check)
+    // Include if it's one of the popular countries (exact match for better filtering)
     return POPULAR_COUNTRIES.some(country => 
-      countryName.includes(country.toLowerCase()) ||
-      country.toLowerCase().includes(countryName)
+      countryName === country.toLowerCase()
     );
   });
 
@@ -417,12 +416,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     // Second priority: popular countries (excluding friendlies)
     const aIsPopularCountry = !aIsFriendlies && a.country && POPULAR_COUNTRIES.some(country => 
-      a.country.toLowerCase().includes(country.toLowerCase()) ||
-      country.toLowerCase().includes(a.country.toLowerCase())
+      a.country.toLowerCase() === country.toLowerCase()
     );
     const bIsPopularCountry = !bIsFriendlies && b.country && POPULAR_COUNTRIES.some(country => 
-      b.country.toLowerCase().includes(country.toLowerCase()) ||
-      country.toLowerCase().includes(b.country.toLowerCase())
+      b.country.toLowerCase() === country.toLowerCase()
     );
 
     if (aIsPopularCountry && !bIsPopularCountry) return -1;
@@ -435,12 +432,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // If both are popular countries, sort by POPULAR_COUNTRIES order
     if (aIsPopularCountry && bIsPopularCountry) {
       const aIndex = POPULAR_COUNTRIES.findIndex(country => 
-        a.country && (a.country.toLowerCase().includes(country.toLowerCase()) ||
-        country.toLowerCase().includes(a.country.toLowerCase()))
+        a.country && a.country.toLowerCase() === country.toLowerCase()
       );
       const bIndex = POPULAR_COUNTRIES.findIndex(country => 
-        b.country && (b.country.toLowerCase().includes(country.toLowerCase()) ||
-        country.toLowerCase().includes(b.country.toLowerCase()))
+        b.country && b.country.toLowerCase() === country.toLowerCase()
       );
       if (aIndex !== bIndex) return aIndex - bIndex;
     }
