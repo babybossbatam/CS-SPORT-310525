@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO } from 'date-fns';
+import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid } from 'date-fns';
 
 interface TodaysMatchesByCountryProps {
   selectedDate: string;
@@ -24,8 +24,25 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       console.log(`Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
-      console.log(`Received ${data.length} fixtures for ${selectedDate}`);
-      return data;
+
+      // Apply additional date filtering to ensure we get the right matches
+      const filteredData = data.filter((fixture: any) => {
+        try {
+          const fixtureDate = parseISO(fixture.fixture.date);
+          if (!isValid(fixtureDate)) return false;
+
+          // Convert fixture date to local date string (YYYY-MM-DD)
+          const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
+
+          // Compare with selected date string directly
+          return fixtureLocalDateString === selectedDate;
+        } catch {
+          return false;
+        }
+      });
+
+      console.log(`Received ${data.length} fixtures, filtered to ${filteredData.length} for ${selectedDate}`);
+      return filteredData;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
     gcTime: 60 * 60 * 1000, // 1 hour garbage collection time
@@ -293,7 +310,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
           <Calendar className="h-4 w-4" />
           {getHeaderTitle()}
         </h3>
-        
+
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">

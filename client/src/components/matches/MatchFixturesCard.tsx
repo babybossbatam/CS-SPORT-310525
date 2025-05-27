@@ -131,7 +131,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       console.log('Yesterday (Local):', yesterdayString);
                       console.log('Tomorrow (Local):', tomorrowString);
 
-                      // Compare date strings based on local timezone
+                      // Compare date strings for accurate filtering
+                      console.log('Date comparison:', {
+                        selected: selectedDateString,
+                        today: todayString,
+                        yesterday: yesterdayString,
+                        tomorrow: tomorrowString
+                      });
+
                       if (selectedDateString === todayString) {
                         setSelectedFilter("Today's Matches");
                       } else if (selectedDateString === yesterdayString) {
@@ -170,11 +177,9 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </button>
         </div>
       </Card>
-      {selectedFilter === "Today's Matches" && (
-              <div className="space-y-4">
-                <TodayPopularFootballLeagues selectedDate={selectedDate} />
-              </div>
-            )}
+      <div className="space-y-4">
+        <TodayPopularFootballLeagues selectedDate={selectedDate} />
+      </div>
       <TodaysMatchesByCountry selectedDate={selectedDate} />
     </div>
   );

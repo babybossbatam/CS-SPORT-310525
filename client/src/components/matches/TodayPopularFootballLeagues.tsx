@@ -66,16 +66,17 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
           const leagueFixtures = await response.json();
 
-          // Use a more reliable date matching approach
+          // Use string-based date matching for more reliable comparison
           const matchesFromSelectedDate = leagueFixtures.filter(match => {
             try {
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
-              const selectedDateObj = new Date(selectedDate);
+              // Convert fixture date to local date string (YYYY-MM-DD)
+              const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
               
-              // Compare dates using date-fns isSameDay for more reliable comparison
-              return isSameDay(fixtureDate, selectedDateObj);
+              // Compare with selected date string directly
+              return fixtureLocalDateString === selectedDate;
             } catch {
               return false;
             }
@@ -143,14 +144,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     )
     .filter((fixture: any) => {
       try {
-        // Simplified date filtering - the API should already filter by date
+        // Parse the fixture date (which comes from API in UTC)
         const fixtureDate = parseISO(fixture.fixture.date);
         if (!isValid(fixtureDate)) return false;
 
-        const selectedDateObj = new Date(selectedDate);
+        // Convert fixture date to local date string (YYYY-MM-DD)
+        const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
         
-        // Use isSameDay for reliable date comparison
-        return isSameDay(fixtureDate, selectedDateObj);
+        // Compare with selected date string directly
+        return fixtureLocalDateString === selectedDate;
       } catch {
         return false;
       }
