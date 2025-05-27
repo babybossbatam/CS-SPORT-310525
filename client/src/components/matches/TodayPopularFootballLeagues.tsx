@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
-import LeagueCollapseToggle from './LeagueCollapseToggle';
+
 import { isToday, isYesterday, isTomorrow, safeSubstring } from '@/lib/dateUtils';
 
 interface TodayPopularFootballLeaguesProps {
@@ -20,7 +20,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   showTop20 = false 
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
-  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular countries prioritization with new requirements
@@ -160,11 +159,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     retry: 1, // Reduce retry attempts
   });
 
-  // Start with all countries and leagues collapsed by default
+  // Start with all countries collapsed by default
   useEffect(() => {
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
-    setExpandedLeagues(new Set());
   }, [selectedDate]);
 
   // Use the prioritized popular countries list
@@ -506,15 +504,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     setExpandedCountries(newExpanded);
   };
 
-  const toggleLeague = (leagueId: string) => {
-    const newExpanded = new Set(expandedLeagues);
-    if (newExpanded.has(leagueId)) {
-      newExpanded.delete(leagueId);
-    } else {
-      newExpanded.add(leagueId);
-    }
-    setExpandedLeagues(newExpanded);
-  };
+  
 
   // Enhanced match status logic
   const getMatchStatus = (fixture: any) => {
@@ -758,31 +748,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                   {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
                                 </span>
                               </div>
-                            ) : !leagueData.isPopular ? (
-                              <LeagueCollapseToggle
-                                leagueName={leagueData.league.name || 'Unknown League'}
-                                countryName={leagueData.league.country || 'Unknown Country'}
-                                leagueLogo={leagueData.league.logo}
-                                matchCount={leagueData.matches.length}
-                                liveMatches={leagueData.matches.filter((match: any) => 
-                                  ['LIVE', '1H', 'HT', '2H', 'ET'].includes(match.fixture?.status?.short || '')
-                                ).length}
-                                recentMatches={leagueData.matches.filter((match: any) => {
-                                  const status = match.fixture?.status?.short;
-                                  if (!status || !match.fixture?.date) return false;
-                                  try {
-                                    const fixtureDate = parseISO(match.fixture.date);
-                                    if (!isValid(fixtureDate)) return false;
-                                    const hoursAgo = differenceInHours(new Date(), fixtureDate);
-                                    return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAgo <= 3;
-                                  } catch (error) {
-                                    return false;
-                                  }
-                                }).length}
-                                isExpanded={expandedLeagues.has(leagueData.league.id.toString())}
-                                onToggle={() => toggleLeague(leagueData.league.id.toString())}
-                                isPopular={false}
-                              />
                             ) : (
                               <div className="flex items-start gap-2 mb-3 pb-2 border-b border-gray-300">
                                 <img
@@ -817,8 +782,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                             )}
                           </>
                         )}
-                        {/* Matches - Show if league is popular, expanded, or Friendlies */}
-                        {(leagueData.isPopular || leagueData.isFriendlies || expandedLeagues.has(leagueData.league.id.toString())) && (
+                        {/* Matches - Show for all leagues */}
+                        {(
                           <div className="space-y-1 mt-3">
                           {leagueData.matches
                             .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
