@@ -86,9 +86,9 @@ const SelectContent = React.forwardRef<
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
-          "p-1 bg-gray-900",
+          "p-1 bg-gray-950 border border-gray-700",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] flex justify-end"
+            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] ml-auto text-right"
         )}
       >
         {children}
