@@ -124,7 +124,7 @@ const DateNavigator = () => {
               className={`px-3 py-1 text-sm font-medium ${
                 isToday 
                   ? "text-blue-500 cursor-not-allowed opacity-60" 
-                  : "text-neutral-600 hover:text-blue-500 hover:bg-blue-50"
+                  : "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
               }`}
               onClick={goToToday}
               disabled={isToday}
