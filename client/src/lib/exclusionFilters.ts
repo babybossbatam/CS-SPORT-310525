@@ -10,7 +10,7 @@ export const exclusionTerms = [
   'development', 'academy', 'primavera', 'reserves',
 
   // Women's competitions
-  'women', 'girls', 
+  'women', 'girls', 'friendlies women',
 
   // Lower divisions and regional competitions
   'regional', 'division 3', 'division 4', '2. bundesliga', '2 bundesliga', 'second bundesliga', 'bundesliga 2', '2nd bundesliga', 'zweite bundesliga', 'eintracht braunschweig', 'fc saarbrücken', 'kosice', 'boys',
