@@ -728,82 +728,86 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                       // Prioritize leagues that are popular for this specific country
                       if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
                       if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-                      
+
                       // Then globally popular leagues
                       if (a.isPopular && !b.isPopular) return -1;
                       if (!a.isPopular && b.isPopular) return 1;
-                      
+
                       // Finally alphabetical
                       return a.league.name.localeCompare(b.league.name);
                     })
                     .map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
-                        {/* League Header - Special handling for Friendlies */}
-                        {leagueData.isFriendlies ? (
-                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
-                            <img
-                              src={leagueData.league.logo || '/assets/fallback-logo.svg'}
-                              alt={leagueData.league.name || 'Unknown League'}
-                              className="w-5 h-5 object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';                              }}
-                            />
-                            <span className="font-medium text-sm text-gray-700">
-                              {leagueData.league.name || 'Unknown League'}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
-                            </span>
-                          </div>
-                        ) : !leagueData.isPopular ? (
-                          <LeagueCollapseToggle
-                            leagueName={leagueData.league.name || 'Unknown League'}
-                            countryName={leagueData.league.country || 'Unknown Country'}
-                            leagueLogo={leagueData.league.logo}
-                            matchCount={leagueData.matches.length}
-                            liveMatches={leagueData.matches.filter((match: any) => 
-                              ['LIVE', '1H', 'HT', '2H', 'ET'].includes(match.fixture?.status?.short || '')
-                            ).length}
-                            recentMatches={leagueData.matches.filter((match: any) => {
-                              const status = match.fixture?.status?.short;
-                              if (!status || !match.fixture?.date) return false;
-                              try {
-                                const fixtureDate = parseISO(match.fixture.date);
-                                if (!isValid(fixtureDate)) return false;
-                                const hoursAgo = differenceInHours(new Date(), fixtureDate);
-                                return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAgo <= 3;
-                              } catch (error) {
-                                return false;
-                              }
-                            }).length}
-                            isExpanded={expandedLeagues.has(leagueData.league.id.toString())}
-                            onToggle={() => toggleLeague(leagueData.league.id.toString())}
-                            isPopular={false}
-                          />
-                        ) : (
-                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
-                            <img
-                              src={leagueData.league.logo || '/assets/fallback-logo.svg'}
-                              alt={leagueData.league.name || 'Unknown League'}
-                              className="w-5 h-5 object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                              }}
-                            />
-                            <span className="font-semibold text-sm text-gray-800">
-                              {leagueData.league.name || 'Unknown League'}
-                            </span>
-                            {leagueData.isPopularForCountry && (
-                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                Popular Country
-                              </span>
+                        {/* League Header - Hide when time filter is active */}
+                        {!timeFilterActive && (
+                          <>
+                            {leagueData.isFriendlies ? (
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                                <img
+                                  src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                                  alt={leagueData.league.name || 'Unknown League'}
+                                  className="w-5 h-5 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';                              }}
+                                />
+                                <span className="font-medium text-sm text-gray-700">
+                                  {leagueData.league.name || 'Unknown League'}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
+                                </span>
+                              </div>
+                            ) : !leagueData.isPopular ? (
+                              <LeagueCollapseToggle
+                                leagueName={leagueData.league.name || 'Unknown League'}
+                                countryName={leagueData.league.country || 'Unknown Country'}
+                                leagueLogo={leagueData.league.logo}
+                                matchCount={leagueData.matches.length}
+                                liveMatches={leagueData.matches.filter((match: any) => 
+                                  ['LIVE', '1H', 'HT', '2H', 'ET'].includes(match.fixture?.status?.short || '')
+                                ).length}
+                                recentMatches={leagueData.matches.filter((match: any) => {
+                                  const status = match.fixture?.status?.short;
+                                  if (!status || !match.fixture?.date) return false;
+                                  try {
+                                    const fixtureDate = parseISO(match.fixture.date);
+                                    if (!isValid(fixtureDate)) return false;
+                                    const hoursAgo = differenceInHours(new Date(), fixtureDate);
+                                    return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAgo <= 3;
+                                  } catch (error) {
+                                    return false;
+                                  }
+                                }).length}
+                                isExpanded={expandedLeagues.has(leagueData.league.id.toString())}
+                                onToggle={() => toggleLeague(leagueData.league.id.toString())}
+                                isPopular={false}
+                              />
+                            ) : (
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                                <img
+                                  src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                                  alt={leagueData.league.name || 'Unknown League'}
+                                  className="w-5 h-5 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                                  }}
+                                />
+                                <span className="font-semibold text-sm text-gray-800">
+                                  {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
+                                </span>
+                                {leagueData.isPopularForCountry && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                    Popular Country
+                                  </span>
+                                )}
+                                {leagueData.isPopular && !leagueData.isPopularForCountry && (
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                    Popular
+                                  </span>
+                                )}
+                              </div>
                             )}
-                            {leagueData.isPopular && !leagueData.isPopularForCountry && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                Popular
-                              </span>
-                            )}
-                          </div>
+                          </>
                         )}
                         {/* Matches - Show if league is popular, expanded, or Friendlies */}
                         {(leagueData.isPopular || leagueData.isFriendlies || expandedLeagues.has(leagueData.league.id.toString())) && (
@@ -816,7 +820,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                 const aDate = parseISO(a.fixture.date);
                                 const bDate = parseISO(b.fixture.date);
                                 const now = new Date();
-                                
+
                                 // Ensure valid dates
                                 if (!isValid(aDate) || !isValid(bDate)) {
                                   return 0;
