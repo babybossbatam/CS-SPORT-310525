@@ -144,7 +144,7 @@ const DateNavigator = () => {
                 size="sm"
                 className={`px-3 py-1 text-sm font-medium transition-colors ${
                   isToday 
-                    ? "bg-blue-500 text-white hover:bg-blue-600" 
+                    ? "bg-blue-100 text-blue-600 hover:bg-blue-200" 
                     : "bg-transparent text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                 }`}
                 onClick={goToToday}
