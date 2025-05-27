@@ -263,7 +263,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'under 15', 'under 16', 
       'under 17', 'under 18', 'under 19', 'under 20', 'under 21', 'under 23',
       'youth', 'junior', 'reserve', 'reserves', 'amateur', 'development', 'academy',
-      '17', '20' // Additional filters for U17 and U20
+      'u-17', 'u-20', 'under-17', 'under-20', '17', '20', 'youth league', 'junior league',
+      'argentina' // Exclude Argentina as requested
     ];
 
     // Check if any virtual terms are present in league or team names
@@ -399,18 +400,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return acc;
   }, {});
 
-  // Filter to show only popular countries plus Saudi Arabia, Brazil, and Argentina
+  // Filter to show only popular countries with badge system
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
     // Add comprehensive null checks
     if (!countryData || typeof countryData !== 'object') {
       return false;
     }
-
-    // Always include countries with popular leagues
-    if (countryData.hasPopularLeague) return true;
-
-    // Include Friendlies
-    if (countryData.country === 'Friendlies') return true;
 
     // Add null check for country before string operations with safe handling
     const countryStr = safeSubstring(countryData.country, 0);
@@ -420,33 +415,30 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     const countryName = countryStr.trim().toLowerCase();
 
+    // Exclude Argentina explicitly
+    if (countryName === 'argentina') {
+      return false;
+    }
+
+    // Always include countries with popular leagues that are in our popular countries list
+    if (countryData.hasPopularLeague && POPULAR_COUNTRIES_ORDER.some(country => 
+      safeSubstring(countryName, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
+    )) {
+      return true;
+    }
+
     // Include if it's one of the popular countries (exact match for better filtering)
-    return POPULAR_COUNTRIES.some(country => 
+    return POPULAR_COUNTRIES_ORDER.some(country => 
       safeSubstring(countryName, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
     );
   });
 
-  // Sort countries by popular countries order with popular countries first, then World and Europe
+  // Sort countries with popular country badge leagues first, then world/Europe competitions
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
-    const aIsFriendlies = a.country === 'Friendlies' || a.isFriendlies;
-    const bIsFriendlies = b.country === 'Friendlies' || b.isFriendlies;
-
-    // Handle friendlies specially - put them at the end
-    if (aIsFriendlies && !bIsFriendlies) return 1;
-    if (!aIsFriendlies && bIsFriendlies) return -1;
-    if (aIsFriendlies && bIsFriendlies) return 0;
-
-    // Check if countries are World or Europe (International competitions)
-    const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe' || a.country === 'International';
-    const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe' || b.country === 'International';
-
-    // Get popular country indices (excluding World and Europe for this calculation)
+    // Get popular country indices from our priority order
     const getPopularCountryIndex = (country: string) => {
       if (!country) return 999;
-      const popularCountriesExcludingWorldEurope = POPULAR_COUNTRIES_ORDER.filter(c => 
-        c !== 'World' && c !== 'Europe'
-      );
-      const index = popularCountriesExcludingWorldEurope.findIndex(pc => 
+      const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
         safeSubstring(country, 0).toLowerCase() === safeSubstring(pc, 0).toLowerCase()
       );
       return index === -1 ? 999 : index;
@@ -458,31 +450,40 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     const aIsPopularCountry = aPopularIndex !== 999;
     const bIsPopularCountry = bPopularIndex !== 999;
 
-    // Priority order: Popular countries first, then World/Europe, then others
-    if (aIsPopularCountry && !bIsPopularCountry && !bIsWorldOrEurope) return -1;
-    if (!aIsPopularCountry && !aIsWorldOrEurope && bIsPopularCountry) return 1;
+    // Check if countries are World or Europe (International competitions)
+    const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe' || a.country === 'International';
+    const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe' || b.country === 'International';
 
-    // Both are popular countries - sort by their order
-    if (aIsPopularCountry && bIsPopularCountry) {
+    // Priority order: Popular countries with badge leagues first
+    if (aIsPopularCountry && a.hasPopularLeague && (!bIsPopularCountry || !b.hasPopularLeague)) return -1;
+    if (bIsPopularCountry && b.hasPopularLeague && (!aIsPopularCountry || !a.hasPopularLeague)) return 1;
+
+    // Both are popular countries with badge leagues - sort by priority order
+    if (aIsPopularCountry && a.hasPopularLeague && bIsPopularCountry && b.hasPopularLeague) {
       return aPopularIndex - bPopularIndex;
     }
 
-    // World/Europe comes after popular countries but before others
-    if (!aIsPopularCountry && aIsWorldOrEurope && !bIsPopularCountry && !bIsWorldOrEurope) return -1;
-    if (!aIsWorldOrEurope && !aIsPopularCountry && !bIsPopularCountry && bIsWorldOrEurope) return 1;
+    // World/Europe competitions come after popular country badge leagues
+    if (!aIsPopularCountry && aIsWorldOrEurope && bIsPopularCountry && b.hasPopularLeague) return 1;
+    if (aIsPopularCountry && a.hasPopularLeague && !bIsPopularCountry && bIsWorldOrEurope) return -1;
 
-    // Both are World/Europe - preserve original order
+    // Both are World/Europe - preserve original order with Europe first
     if (aIsWorldOrEurope && bIsWorldOrEurope) {
       if (a.country === 'Europe' && b.country === 'World') return -1;
       if (a.country === 'World' && b.country === 'Europe') return 1;
       return 0;
     }
 
-    // Countries with popular leagues get priority over those without
-    if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
-    if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
+    // Popular countries without badge leagues come after World/Europe
+    if (aIsPopularCountry && !a.hasPopularLeague && bIsWorldOrEurope) return 1;
+    if (aIsWorldOrEurope && bIsPopularCountry && !b.hasPopularLeague) return -1;
 
-    // Both are non-popular countries, sort alphabetically
+    // Both are popular countries without badge leagues - sort by priority order
+    if (aIsPopularCountry && bIsPopularCountry) {
+      return aPopularIndex - bPopularIndex;
+    }
+
+    // Default to alphabetical sorting for other cases
     const countryA = a.country || '';
     const countryB = b.country || '';
     return countryA.localeCompare(countryB);
@@ -778,9 +779,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                             <span className="font-semibold text-sm text-gray-800">
                               {leagueData.league.name || 'Unknown League'}
                             </span>
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                              Popular
-                            </span>
+                            {leagueData.isPopularForCountry && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                Popular Country
+                              </span>
+                            )}
+                            {leagueData.isPopular && !leagueData.isPopularForCountry && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                Popular
+                              </span>
+                            )}
                           </div>
                         )}
                         {/* Matches - Show if league is popular, expanded, or Friendlies */}
