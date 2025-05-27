@@ -28,7 +28,7 @@ export const exclusionTerms = [
   'brazilian serie b', 'brazilian serie c', 'chilean primera b', 'copa chile', 
   'copa do brasil', 'copa argentina', 'copa colombia', 'copa ecuador',
   'paraguay division profesional', 'peruvian primera division',
-  'uruguayan primera division', 'venezuelan primera division'
+  'uruguayan primera division', 'venezuelan primera division', 'gaúcho', 'gaucho'
 ];
 
 // Safe substring function to handle null/undefined values
