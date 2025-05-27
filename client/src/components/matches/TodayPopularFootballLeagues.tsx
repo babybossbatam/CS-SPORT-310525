@@ -264,7 +264,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
       // Check if it's a Friendlies league (with comprehensive null safety)
       if (league.name && typeof league.name === 'string' && league.name.toLowerCase().includes('friendlies')) {
-        const countryKey = 'Friendlies';
+        const countryKey = 'International Friendlies';
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
@@ -278,7 +278,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
         if (!acc[countryKey].leagues[leagueId]) {
           acc[countryKey].leagues[leagueId] = {
-            league: { ...league, country: 'Friendlies' },
+            league: { ...league, country: 'International Friendlies' },
             matches: [],
             isPopular: false,
             isFriendlies: true
@@ -389,8 +389,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
 
-    // Include Friendlies
-    if (countryData.country === 'Friendlies') return true;
+    // Include International Friendlies
+    if (countryData.country === 'International Friendlies') return true;
 
     // Add null check for country before string operations
     if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
@@ -408,8 +408,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   // Sort countries - popular leagues first, then popular countries, then Friendlies, then alphabetical
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
-    const aIsFriendlies = a.country === 'Friendlies' || a.isFriendlies;
-    const bIsFriendlies = b.country === 'Friendlies' || b.isFriendlies;
+    const aIsFriendlies = a.country === 'International Friendlies' || a.isFriendlies;
+    const bIsFriendlies = b.country === 'International Friendlies' || b.isFriendlies;
   
     // First priority: countries with popular leagues (but not Friendlies)
     if (a.hasPopularLeague && !b.hasPopularLeague && !aIsFriendlies) return -1;
