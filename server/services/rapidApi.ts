@@ -48,20 +48,40 @@ const popularLeagues: { [leagueId: number]: string[] } = {
 
 export const rapidApiService = {
   /**
-   * Get fixtures by date
+   * Get fixtures by date with prioritized live scores for today
    */
   async getFixturesByDate(date: string, fetchAll: boolean = false): Promise<FixtureResponse[]> {
     const cacheKey = `fixtures-date-${date}${fetchAll ? '-all' : ''}`;
     const cached = fixturesCache.get(cacheKey);
 
     const now = Date.now();
-    // Use shorter cache time for more accurate real-time data
-    const cacheTime = 2 * 60 * 1000; // 2 minutes
+    const today = new Date().toISOString().split('T')[0];
+    const isToday = date === today;
+    
+    // Use shorter cache time for today's data (30 seconds) vs other dates (2 minutes)
+    const cacheTime = isToday ? 30 * 1000 : 2 * 60 * 1000;
     if (cached && now - cached.timestamp < cacheTime) {
       return cached.data;
     }
 
     try {
+      let allFixtures: FixtureResponse[] = [];
+
+      // For today's matches, prioritize live data first
+      if (isToday) {
+        try {
+          console.log(`Getting live fixtures first for today (${date})`);
+          const liveFixtures = await this.getLiveFixtures();
+          
+          if (liveFixtures && liveFixtures.length > 0) {
+            console.log(`Found ${liveFixtures.length} live fixtures for today`);
+            allFixtures = [...liveFixtures];
+          }
+        } catch (liveError) {
+          console.error('Error fetching live fixtures for today:', liveError);
+        }
+      }
+
       if (fetchAll) {
         console.log(`Fetching ALL fixtures for date ${date} from all countries and leagues`);
         
@@ -76,10 +96,10 @@ export const rapidApiService = {
         console.log(`API response for all fixtures on ${date}: status ${response.status}, results: ${response.data?.results || 0}`);
 
         if (response.data && response.data.response) {
-          const allFixtures = response.data.response;
+          const dateFixtures = response.data.response;
           
           // Validate that all fixtures are for the correct date
-          const validFixtures = allFixtures.filter((fixture: any) => {
+          const validFixtures = dateFixtures.filter((fixture: any) => {
             try {
               const fixtureDate = new Date(fixture.fixture.date);
               const fixtureDateString = fixtureDate.toISOString().split('T')[0];
@@ -89,27 +109,25 @@ export const rapidApiService = {
             }
           });
           
-          console.log(`Retrieved ${allFixtures.length} fixtures, ${validFixtures.length} valid for date ${date}`);
+          console.log(`Retrieved ${dateFixtures.length} fixtures, ${validFixtures.length} valid for date ${date}`);
+          
+          // Merge with live fixtures, avoiding duplicates
+          const existingIds = new Set(allFixtures.map(f => f.fixture.id));
+          const newFixtures = validFixtures.filter((f: any) => !existingIds.has(f.fixture.id));
+          allFixtures = [...allFixtures, ...newFixtures];
           
           // Log score data sample for debugging
-          const withScores = validFixtures.filter((f: any) => f.goals.home !== null || f.goals.away !== null);
-          console.log(`Fixtures with scores: ${withScores.length}/${validFixtures.length}`);
+          const withScores = allFixtures.filter((f: any) => f.goals.home !== null || f.goals.away !== null);
+          console.log(`Total fixtures with scores: ${withScores.length}/${allFixtures.length}`);
           if (withScores.length > 0) {
             const sample = withScores[0];
             console.log(`Score sample: ${sample.teams.home.name} ${sample.goals.home}-${sample.goals.away} ${sample.teams.away.name} (${sample.fixture.status.short})`);
           }
-
-          fixturesCache.set(cacheKey, { 
-            data: validFixtures, 
-            timestamp: now 
-          });
-          return validFixtures;
         }
       } else {
-        // Original behavior - fetch only popular leagues
+        // Popular leagues behavior
         const popularLeagueIds = [2, 3, 39, 45, 140, 135, 78, 207, 219, 203];
-        let allFixtures: FixtureResponse[] = [];
-
+        
         for (const leagueId of popularLeagueIds) {
           try {
             const leagueFixtures = await this.getFixturesByLeague(leagueId, 2024);
@@ -117,37 +135,56 @@ export const rapidApiService = {
               const fixtureDate = new Date(fixture.fixture.date).toISOString().split('T')[0];
               return fixtureDate === date;
             });
-            allFixtures = [...allFixtures, ...dateFixtures];
+            
+            // Merge avoiding duplicates
+            const existingIds = new Set(allFixtures.map(f => f.fixture.id));
+            const newFixtures = dateFixtures.filter(f => !existingIds.has(f.fixture.id));
+            allFixtures = [...allFixtures, ...newFixtures];
           } catch (error) {
             console.error(`Error fetching fixtures for league ${leagueId}:`, error);
             continue;
           }
         }
 
-        // Remove duplicates
-        const uniqueFixtures = allFixtures.reduce((acc: FixtureResponse[], current) => {
-          const exists = acc.find(fixture => fixture.fixture.id === current.fixture.id);
-          if (!exists) {
-            acc.push(current);
-          }
-          return acc;
-        }, []);
-
-        console.log(`Popular leagues: ${uniqueFixtures.length} fixtures for ${date}`);
-        fixturesCache.set(cacheKey, { 
-          data: uniqueFixtures, 
-          timestamp: now 
-        });
-        return uniqueFixtures;
+        console.log(`Popular leagues: ${allFixtures.length} total fixtures for ${date}`);
       }
 
-      return [];
+      // Sort fixtures for today: Live first, then upcoming, then finished
+      if (isToday && allFixtures.length > 0) {
+        allFixtures.sort((a, b) => {
+          const aStatus = a.fixture.status.short;
+          const bStatus = b.fixture.status.short;
+          
+          // Live matches first
+          const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
+          const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
+          if (aLive && !bLive) return -1;
+          if (!aLive && bLive) return 1;
+          
+          // Then upcoming matches
+          const aUpcoming = aStatus === 'NS' && new Date(a.fixture.date) > new Date();
+          const bUpcoming = bStatus === 'NS' && new Date(b.fixture.date) > new Date();
+          if (aUpcoming && !bUpcoming) return -1;
+          if (!aUpcoming && bUpcoming) return 1;
+          
+          // Finally by time
+          return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+        });
+        
+        console.log(`Sorted ${allFixtures.length} fixtures for today - prioritizing live matches`);
+      }
+
+      fixturesCache.set(cacheKey, { 
+        data: allFixtures, 
+        timestamp: now 
+      });
+      
+      return allFixtures;
     } catch (error) {
       console.error('RapidAPI: Error fetching fixtures by date:', error);
       
       // Try B365API as fallback for current date
-      const today = new Date().toISOString().split('T')[0];
-      if (date === today) {
+      if (isToday) {
         try {
           console.log('RapidAPI failed for today, trying B365API live matches as fallback...');
           const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
