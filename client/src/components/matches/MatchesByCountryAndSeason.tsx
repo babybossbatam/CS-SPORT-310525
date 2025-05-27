@@ -29,7 +29,7 @@ interface MatchesByCountryAndSeasonProps {
 export const MatchesByCountryAndSeason: React.FC<MatchesByCountryAndSeasonProps> = ({ onMatchClick }) => {
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedSeason, setSelectedSeason] = useState<string>('2024');
-  const [selectedLeague, setSelectedLeague] = useState<string>('');
+  const [selectedLeague, setSelectedLeague] = useState<string>('__all_leagues__');
 
   // Get available countries
   const { data: countriesData, isLoading: countriesLoading } = useQuery({
@@ -49,7 +49,7 @@ export const MatchesByCountryAndSeason: React.FC<MatchesByCountryAndSeasonProps>
       
       const params = new URLSearchParams();
       if (selectedSeason) params.append('season', selectedSeason);
-      if (selectedLeague) params.append('league', selectedLeague);
+      if (selectedLeague && selectedLeague !== '__all_leagues__') params.append('league', selectedLeague);
       
       const response = await apiRequest('GET', `/api/fixtures/country/${selectedCountry}?${params.toString()}`);
       const data = await response.json();
@@ -64,7 +64,7 @@ export const MatchesByCountryAndSeason: React.FC<MatchesByCountryAndSeasonProps>
 
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
-    setSelectedLeague(''); // Reset league when country changes
+    setSelectedLeague('__all_leagues__'); // Reset league when country changes
   };
 
   const formatMatchStatus = (status: string) => {
@@ -165,7 +165,7 @@ export const MatchesByCountryAndSeason: React.FC<MatchesByCountryAndSeasonProps>
                   <SelectValue placeholder="All leagues in country..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Leagues</SelectItem>
+                  <SelectItem value="__all_leagues__">All Leagues</SelectItem>
                   {selectedCountryData.leagues.map((league) => (
                     <SelectItem key={league.id} value={league.name}>
                       <div className="flex items-center gap-2">
