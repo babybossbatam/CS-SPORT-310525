@@ -739,7 +739,6 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                     }
 
                                     // Upcoming matches (NS = Not Started, TBD = ToBe Determined)
-                                    <previous_generation>
                                     return (
                                       <>
                                         <div className="text-sm font-medium text-black">
@@ -749,7 +748,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                           <div className="text-xs text-gray-500 mt-1">Time TBD</div>
                                         )}
                                       </>
-                                                                        );
+                                    );
                                   })()}
                                 </div>
 
