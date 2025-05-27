@@ -18,7 +18,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
 
   // Fetch all fixtures for the selected date with aggressive caching
-  const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
+  const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
       console.log(`Fetching fixtures for date: ${selectedDate}`);
@@ -50,61 +50,6 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
     refetchOnMount: false, // Don't refetch on component mount if data exists
     refetchOnReconnect: false, // Don't refetch on network reconnection
-  });
-
-  // Fetch popular league fixtures with even more aggressive caching
-  const { data: popularFixtures = [], isLoading: isLoadingPopular, hasData: hasCachedPopular } = useQuery({
-    queryKey: ['popular-fixtures', selectedDate],
-    queryFn: async () => {
-      const allData = [];
-      const today = new Date();
-      const selectedDateObj = new Date(selectedDate);
-
-      // Determine date range based on selected date
-      let startDate = selectedDate;
-      let endDate = selectedDate;
-
-      if (isToday(selectedDateObj)) {
-        // For today, also get yesterday and tomorrow for context
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        startDate = format(yesterday, 'yyyy-MM-dd');
-        endDate = format(tomorrow, 'yyyy-MM-dd');
-      }
-
-      console.log(`Fetching popular league fixtures from ${startDate} to ${endDate}`);
-
-      // Fetch data for each popular league
-      for (const leagueId of POPULAR_LEAGUES) {
-        try {
-          const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
-          const leagueFixtures = await response.json();
-
-          // Filter fixtures within our date range
-          const filteredFixtures = leagueFixtures.filter((fixture: any) => {
-            const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
-            return fixtureDate >= startDate && fixtureDate <= endDate;
-          });
-
-          allData.push(...filteredFixtures);
-        } catch (error) {
-          console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-        }
-      }
-
-      console.log(`Fetched ${allData.length} popular league fixtures`);
-      return allData;
-    },
-    enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
-    staleTime: 60 * 60 * 1000, // 1 hour - very long cache time for popular fixtures
-    gcTime: 2 * 60 * 60 * 1000, // 2 hours garbage collection time
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    refetchOnMount: false, // Don't refetch on component mount if data exists
-    refetchOnReconnect: false, // Don't refetch on network reconnection
-    retry: 1, // Reduce retry attempts
   });
 
   // Start with all countries collapsed by default
@@ -144,10 +89,8 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
-  // Combine and deduplicate fixtures
-  const allFixtures = [...fixtures, ...popularFixtures].filter((fixture, index, self) => 
-    index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-  );
+  // Use only the main fixtures data
+  const allFixtures = fixtures;
 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
@@ -253,15 +196,8 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     }
   };
 
-  // Use cached data if available, even during loading
-  const cachedFixtures = hasCachedFixtures || [];
-  const cachedPopularFixtures = hasCachedPopular || [];
-  const combinedCachedData = [...cachedFixtures, ...cachedPopularFixtures].filter((fixture, index, self) => 
-    index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-  );
-
-  // Show loading only if no cached data exists and we're actually loading
-  if ((isLoading || isLoadingPopular) && combinedCachedData.length === 0) {
+  // Show loading only if we're actually loading and have no data
+  if (isLoading && !fixtures.length) {
     return (
       <Card>
         <CardHeader className="pb-4">
