@@ -1,5 +1,11 @@
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 
+// Get current UTC date string in YYYY-MM-DD format
+export const getCurrentUTCDateString = (): string => {
+  const now = new Date();
+  return format(now, 'yyyy-MM-dd');
+};
+
 // Safe substring function to handle null/undefined values
 export function safeSubstring(value: any, start: number, end?: number): string {
   // Return empty string if value is null or undefined

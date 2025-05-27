@@ -30,7 +30,7 @@ import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
 import { Trophy, Activity, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
-import { getCurrentUTCDateString } from '@/lib/dateUtils';
+import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
 import MatchesByCountry from '@/components/matches/MatchesByCountry';
