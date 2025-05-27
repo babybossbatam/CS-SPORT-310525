@@ -1,0 +1,60 @@
+react-redux.js?v=c89eecf1:1043 Selector unknown returned a different result when called with the same parameters. This can lead to unnecessary rerenders.
+Selectors that return a new reference (such as an object or an array) should be memoized: https://redux.js.org/usage/deriving-data-selectors#optimizing-selectors-with-memoization 
+Object
+selected
+: 
+(5) [2, 3, 848, 39, 45]
+selected2
+: 
+(5) [2, 3, 848, 39, 45]
+stack
+: 
+"Error\n    at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:1038:25\n    at memoizedSelector (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:31:32)\n    at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:51:24\n    at mountSyncExternalStore (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c89eecf1:11886:28)\n    at Object.useSyncExternalStore (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c89eecf1:12573:22)\n    at useSyncExternalStore (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=c89eecf1:1120:29)\n    at exports.useSyncExternalStoreWithSelector (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:60:21)\n    at useSelector2 (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=c89eecf1:1076:85)\n    at Home (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/pages/Home.tsx:82:26)\n    at renderWithHooks (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c89eecf1:11548:26)"
+state
+: 
+{user: {…}, fixtures: {…}, leagues: {…}, stats: {…}, ui: {…}, …}
+[[Prototype]]
+: 
+Object
+constructor
+: 
+ƒ Object()
+hasOwnProperty
+: 
+ƒ hasOwnProperty()
+isPrototypeOf
+: 
+ƒ isPrototypeOf()
+propertyIsEnumerable
+: 
+ƒ propertyIsEnumerable()
+toLocaleString
+: 
+ƒ toLocaleString()
+toString
+: 
+ƒ toString()
+valueOf
+: 
+ƒ valueOf()
+__defineGetter__
+: 
+ƒ __defineGetter__()
+__defineSetter__
+: 
+ƒ __defineSetter__()
+__lookupGetter__
+: 
+ƒ __lookupGetter__()
+__lookupSetter__
+: 
+ƒ __lookupSetter__()
+__proto__
+: 
+(...)
+get __proto__
+: 
+ƒ __proto__()
+set __proto__
+: 
+ƒ __proto__()
