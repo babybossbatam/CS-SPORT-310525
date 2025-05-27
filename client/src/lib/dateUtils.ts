@@ -58,3 +58,13 @@ export const safeSubstring = (value: any, start: number, end?: number): string =
   const str = String(value);
   return end !== undefined ? str.substring(start, end) : str.substring(start);
 };
+
+export const getCurrentUTCDateString = (): string => {
+  try {
+    const now = new Date();
+    return format(now, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error getting current UTC date string:', error);
+    return format(new Date(), 'yyyy-MM-dd');
+  }
+};
