@@ -95,28 +95,3 @@ const NewsSection: React.FC<NewsSectionProps> = ({ maxItems = 3, sport }) => {
 };
 
 export default NewsSection;
-import React from 'react';
-import { format } from 'date-fns';
-
-interface Props {
-  news: any[];
-}
-
-const SimpleNewsList: React.FC<Props> = ({ news }) => {
-  return (
-    <div className="space-y-3">
-      {news && news.map((item) => (
-        <div key={item.id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer">
-          <h4 className="font-medium text-sm mb-1 line-clamp-2">{item.title || 'No title available'}</h4>
-          <p className="text-xs text-gray-500 line-clamp-2 mb-2">{item.content || 'No content available'}</p>
-          <div className="flex items-center justify-between text-xs text-gray-400">
-            <span>{item.source || 'Unknown source'}</span>
-            <span>{item.publishedAt ? format(new Date(item.publishedAt), 'MMM d, HH:mm') : 'Unknown time'}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-export default SimpleNewsList;
