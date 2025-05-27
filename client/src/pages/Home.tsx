@@ -87,11 +87,12 @@ const Home = () => {
   const popularLeagues = useSelector(selectPopularLeagues);
   const fixturesByDate = useSelector(selectFixturesByDate);
   const allLeagues = useSelector(selectAllLeagues);
-  
+
   // Direct state access for simple values to avoid identity function warnings
   const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const standingsByLeague = useSelector((state: RootState) => state.stats.topScorers);
   const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
+  const leagues = useSelector((state: RootState) => state.fixtures.leagues || []);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
