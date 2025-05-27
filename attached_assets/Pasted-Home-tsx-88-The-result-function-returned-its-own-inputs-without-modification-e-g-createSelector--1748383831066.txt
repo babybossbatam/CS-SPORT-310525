@@ -1,0 +1,44 @@
+Home.tsx:88 The result function returned its own inputs without modification. e.g
+`createSelector([state => state.todos], todos => todos)`
+This could lead to inefficient memoization and unnecessary re-renders.
+Ensure transformation logic is in the result function, and extraction logic is in the input selectors. 
+{stack: 'Error\n    at Object.runIdentityFunctionCheck [as r…dules/.vite/deps/react-redux.js?v=c89eecf1:60:21)'}
+ Error Component Stack
+    at Home (Home.tsx:46:3)
+    at Route (wouter.js?v=c89eecf1:265:16)
+    at Switch (wouter.js?v=c89eecf1:321:17)
+    at Suspense (<anonymous>)
+    at Router (<anonymous>)
+    at main (<anonymous>)
+    at Provider (chunk-E7IAXTU4.js?v=c89eecf1:38:15)
+    at TooltipProvider (@radix-ui_react-tool….js?v=c89eecf1:61:5)
+    at App (App.tsx:85:3)
+    at V (next-themes.js?v=c89eecf1:44:25)
+    at J (next-themes.js?v=c89eecf1:42:18)
+    at QueryClientProvider (@tanstack_react-quer…s?v=c89eecf1:2805:3)
+    at Provider (react-redux.js?v=c89eecf1:923:11)
+overrideMethod	@	hook.js:608
+runIdentityFunctionCheck	@	@reduxjs_toolkit.js?v=c89eecf1:1060
+dependenciesChecker	@	@reduxjs_toolkit.js?v=c89eecf1:1393
+memoized	@	@reduxjs_toolkit.js?v=c89eecf1:1316
+memoized	@	react-redux.js?v=c89eecf1:1021
+memoizedSelector	@	react-redux.js?v=c89eecf1:31
+(anonymous)	@	react-redux.js?v=c89eecf1:51
+mountSyncExternalStore	@	chunk-RPCDYKBN.js?v=c89eecf1:11886
+useSyncExternalStore	@	chunk-RPCDYKBN.js?v=c89eecf1:12573
+useSyncExternalStore	@	chunk-QCHXOAYK.js?v=c89eecf1:1120
+exports.useSyncExternalStoreWithSelector	@	react-redux.js?v=c89eecf1:60
+useSelector2	@	react-redux.js?v=c89eecf1:1076
+Home	@	Home.tsx:88
+renderWithHooks	@	chunk-RPCDYKBN.js?v=c89eecf1:11548
+updateFunctionComponent	@	chunk-RPCDYKBN.js?v=c89eecf1:14582
+mountLazyComponent	@	chunk-RPCDYKBN.js?v=c89eecf1:14833
+beginWork	@	chunk-RPCDYKBN.js?v=c89eecf1:15918
+beginWork$1	@	chunk-RPCDYKBN.js?v=c89eecf1:19753
+performUnitOfWork	@	chunk-RPCDYKBN.js?v=c89eecf1:19198
+workLoopConcurrent	@	chunk-RPCDYKBN.js?v=c89eecf1:19189
+renderRootConcurrent	@	chunk-RPCDYKBN.js?v=c89eecf1:19164
+performConcurrentWorkOnRoot	@	chunk-RPCDYKBN.js?v=c89eecf1:18678
+workLoop	@	chunk-RPCDYKBN.js?v=c89eecf1:197
+flushWork	@	chunk-RPCDYKBN.js?v=c89eecf1:176
+performWorkUntilDeadline	@	chunk-RPCDYKBN.js?v=c89eecf1:384
