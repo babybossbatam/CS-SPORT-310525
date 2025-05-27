@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronDown, ChevronUp, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
@@ -12,7 +12,6 @@ interface LiveMatchForAllCountryProps {
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refreshInterval = 30000 }) => {
-  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular leagues for prioritization
@@ -37,12 +36,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     refetchOnReconnect: true,
     refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
   });
-
-  // Start with all countries collapsed by default
-  useEffect(() => {
-    // Reset to collapsed state when data changes
-    setExpandedCountries(new Set());
-  }, [fixtures]);
 
   // Enhanced country flag mapping with better null safety
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
@@ -321,15 +314,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     return countryA.localeCompare(countryB);
   });
 
-  const toggleCountry = (country: string) => {
-    const newExpanded = new Set(expandedCountries);
-    if (newExpanded.has(country)) {
-      newExpanded.delete(country);
-    } else {
-      newExpanded.add(country);
-    }
-    setExpandedCountries(newExpanded);
-  };
+  
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
@@ -385,17 +370,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       <CardContent className="p-0">
         <div className="space-y-0">
           {sortedCountries.map((countryData: any) => {
-            const isExpanded = expandedCountries.has(countryData.country);
             const totalMatches = Object.values(countryData.leagues).reduce(
               (sum: number, league: any) => sum + league.matches.length, 0
             );
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
+                {/* Country Header - non-clickable */}
+                <div className="w-full p-4 flex items-center justify-between bg-gray-50">
                   <div className="flex items-center gap-3">
                     <img
                       src={countryData.flag}
@@ -426,112 +408,106 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                       </span>
                     )}
                   </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
+                </div>
 
-                {isExpanded && (
-                  <div className="bg-gray-50 border-t border-gray-100">
-                    {/* Sort leagues - popular first */}
-                    {Object.values(countryData.leagues)
-                      .sort((a: any, b: any) => {
-                        if (a.isPopular && !b.isPopular) return -1;
-                        if (!a.isPopular && b.isPopular) return 1;
-                        return a.league.name.localeCompare(b.league.name);
-                      })
-                      .map((leagueData: any) => (
-                        <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
-                          {/* League Header */}
-                          <div className="flex items-center gap-2 mb-0 py-2 px-4 bg-gray-50 border-b border-gray-200">
-                            <img
-                              src={leagueData.league.logo}
-                              alt={leagueData.league.name}
-                              className="w-4 h-4 object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                              }}
-                            />
-                            <span className="font-medium text-sm text-gray-700">
-                              {leagueData.league.name}
+                {/* Always show matches - no collapse */}
+                <div className="bg-gray-50 border-t border-gray-100">
+                  {/* Sort leagues - popular first */}
+                  {Object.values(countryData.leagues)
+                    .sort((a: any, b: any) => {
+                      if (a.isPopular && !b.isPopular) return -1;
+                      if (!a.isPopular && b.isPopular) return 1;
+                      return a.league.name.localeCompare(b.league.name);
+                    })
+                    .map((leagueData: any) => (
+                      <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
+                        {/* League Header */}
+                        <div className="flex items-center gap-2 mb-0 py-2 px-4 bg-gray-50 border-b border-gray-200">
+                          <img
+                            src={leagueData.league.logo}
+                            alt={leagueData.league.name}
+                            className="w-4 h-4 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                            }}
+                          />
+                          <span className="font-medium text-sm text-gray-700">
+                            {leagueData.league.name}
+                          </span>
+                          {leagueData.isPopular && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
+                              Popular
                             </span>
-                            {leagueData.isPopular && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
-                                Popular
-                              </span>
-                            )}
-                          </div>
+                          )}
+                        </div>
 
-                          {/* Live Matches */}
-                          <div className="space-y-0 mt-3">
-                            {leagueData.matches.map((match: any) => (
-                              <div
-                                key={match.fixture.id}
-                                className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
-                              >
-                                <div className="flex items-center px-3 py-2">
-                                  {/* Home Team */}
-                                  <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                                    {match.teams.home.name}
+                        {/* Live Matches */}
+                        <div className="space-y-0 mt-3">
+                          {leagueData.matches.map((match: any) => (
+                            <div
+                              key={match.fixture.id}
+                              className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="flex items-center px-3 py-2">
+                                {/* Home Team */}
+                                <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                                  {match.teams.home.name}
+                                </div>
+
+                                <div className="flex-shrink-0 mx-1">
+                                  <img
+                                    src={match.teams.home.logo || '/assets/fallback-logo.png'}
+                                    alt={match.teams.home.name}
+                                    className="w-12 h-12 object-contain"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      if (target.src !== '/assets/fallback-logo.png') {
+                                        target.src = '/assets/fallback-logo.png';
+                                      }
+                                    }}
+                                  />
+                                </div>
+
+                                {/* Score/Time Center - Live matches */}
+                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                                  <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
+                                    LIVE
                                   </div>
-
-                                  <div className="flex-shrink-0 mx-1">
-                                    <img
-                                      src={match.teams.home.logo || '/assets/fallback-logo.png'}
-                                      alt={match.teams.home.name}
-                                      className="w-12 h-12 object-contain"
-                                      onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        if (target.src !== '/assets/fallback-logo.png') {
-                                          target.src = '/assets/fallback-logo.png';
-                                        }
-                                      }}
-                                    />
+                                  <div className="text-lg font-bold text-red-600 flex items-center gap-2">
+                                    <span>{match.goals.home ?? 0}</span>
+                                    <span className="text-gray-400">-</span>
+                                    <span>{match.goals.away ?? 0}</span>
                                   </div>
-
-                                  {/* Score/Time Center - Live matches */}
-                                  <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
-                                    <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
-                                      LIVE
-                                    </div>
-                                    <div className="text-lg font-bold text-red-600 flex items-center gap-2">
-                                      <span>{match.goals.home ?? 0}</span>
-                                      <span className="text-gray-400">-</span>
-                                      <span>{match.goals.away ?? 0}</span>
-                                    </div>
-                                    <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
-                                      {match.fixture.status.short === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
-                                    </div>
-                                  </div>
-
-                                  <div className="flex-shrink-0 mx-1">
-                                    <img
-                                      src={match.teams.away.logo || '/assets/fallback-logo.png'}
-                                      alt={match.teams.away.name}
-                                      className="w-12 h-12 object-contain"
-                                      onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        if (target.src !== '/assets/fallback-logo.png') {
-                                          target.src = '/assets/fallback-logo.png';
-                                        }
-                                      }}
-                                    />
-                                  </div>
-
-                                  {/* Away Team */}
-                                  <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                                    {match.teams.away.name}
+                                  <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
+                                    {match.fixture.status.short === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                   </div>
                                 </div>
+
+                                <div className="flex-shrink-0 mx-1">
+                                  <img
+                                    src={match.teams.away.logo || '/assets/fallback-logo.png'}
+                                    alt={match.teams.away.name}
+                                    className="w-12 h-12 object-contain"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      if (target.src !== '/assets/fallback-logo.png') {
+                                        target.src = '/assets/fallback-logo.png';
+                                      }
+                                    }}
+                                  />
+                                </div>
+
+                                {/* Away Team */}
+                                <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                                  {match.teams.away.name}
+                                </div>
                               </div>
-                            ))}
-                          </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                  </div>
-                )}
+                      </div>
+                    ))}
+                </div>
               </div>
             );
           })}
