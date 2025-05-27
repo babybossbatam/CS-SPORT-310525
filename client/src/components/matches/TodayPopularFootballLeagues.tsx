@@ -15,7 +15,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular leagues for prioritization
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1
 
   // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
@@ -188,8 +188,13 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         country,
         flag: getCountryFlag(country, fixture.league.flag),
         leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(leagueId)
+        hasPopularLeague: false
       };
+    }
+
+    // Update hasPopularLeague if this league is popular
+    if (POPULAR_LEAGUES.includes(leagueId)) {
+      acc[country].hasPopularLeague = true;
     }
 
     if (!acc[country].leagues[leagueId]) {
@@ -214,8 +219,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
 
-    // Include specific countries: Saudi-Arabia and Brazil
-    const includedCountries = ['Saudi-Arabia', 'Brazil', 'Argentina'];
+    // Include specific countries and regions
+    const includedCountries = ['Saudi-Arabia', 'Brazil', 'Argentina', 'Italy', 'Spain', 'Germany', 'England', 'France'];
 
     // Add null check for country before string operations
     if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
