@@ -8,22 +8,22 @@ export const exclusionTerms = [
   // Youth and development leagues
   'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
   'development', 'academy', 'primavera', 'reserves',
-  
+
   // Women's competitions
   'women', 'girls', 
-  
+
   // Lower divisions and regional competitions
-  'regional', 'division 3', 'division 4', '2. bundesliga', 'kosice', 'boys', 
-  
+  'regional', 'division 3', 'division 4', '2. bundesliga', '2 bundesliga', 'second bundesliga', 'bundesliga 2', '2nd bundesliga', 'zweite bundesliga', 'eintracht braunschweig', 'fc saarbrücken', 'kosice', 'boys',
+
   // Non-competitive matches
   'friendly', 'test', 'club friendlies', 'exhibition',
-  
+
   // Indoor/alternative formats
   'futsal', 'indoor',
-  
+
   // Minor competitions
   'national cup 3', 'cup qualifying',
-  
+
   // South American leagues we want to exclude
   'brazilian serie b', 'brazilian serie c', 'chilean primera b', 'copa chile', 
   'copa do brasil', 'copa argentina', 'copa colombia', 'copa ecuador',
@@ -37,10 +37,10 @@ function safeSubstring(value: any, start: number, end?: number): string {
   if (value == null) {
     return '';
   }
-  
+
   // Convert to string if it's not already (handles numbers, etc.)
   const str = String(value);
-  
+
   // If end is provided, use it, otherwise just use start parameter
   return end !== undefined ? str.substring(start, end) : str.substring(start);
 }
@@ -61,7 +61,7 @@ export function shouldExcludeFixture(
   const league = safeSubstring(leagueName, 0).toLowerCase();
   const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
   const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
-  
+
   // Check if any exclusion term exists in league or team names
   return exclusionTerms.some(term => 
     league.includes(term) || 
