@@ -59,3 +59,24 @@ export function parseDate(dateString: string): Date | null {
     return null;
   }
 }
+
+// Get current UTC date as string
+export function getCurrentUTCDateString(): string {
+  try {
+    const now = new Date();
+    return format(now, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error getting current UTC date string:', error);
+    return format(new Date(), 'yyyy-MM-dd');
+  }
+}
+
+// Format date as YYYY-MM-DD
+export function formatYYYYMMDD(date: Date): string {
+  try {
+    return format(date, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error formatting date to YYYY-MM-DD:', error);
+    return format(new Date(), 'yyyy-MM-dd');
+  }
+}
