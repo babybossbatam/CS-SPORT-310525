@@ -6,6 +6,7 @@ import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
 import MatchesByCountryAndSeason from './MatchesByCountryAndSeason';
+import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format, parseISO } from 'date-fns';
@@ -22,6 +23,7 @@ import { useQuery } from '@tanstack/react-query';
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [liveFilterActive, setLiveFilterActive] = useState(false);
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
@@ -170,10 +172,21 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </div>
         <div className="flex items-center justify-between px-4 pb-4 mt-[10px] text-[110.25%] h-9">
           {/* Live button */}
-          <button className="flex items-center justify-center gap-1 px-0.5 py-0.5 bg-gray-300 text-black rounded-full text-xs font-medium w-fit hover:bg-gray-400 transition-colors duration-200" style={{minWidth: 'calc(2rem + 15px)'}}>
+          <button 
+            onClick={() => {
+              setLiveFilterActive(!liveFilterActive);
+              setTimeFilterActive(false); // Reset time filter when live is activated
+            }}
+            className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
+              liveFilterActive 
+                ? 'bg-red-500 text-white hover:bg-red-600' 
+                : 'bg-gray-300 text-black hover:bg-gray-400'
+            }`} 
+            style={{minWidth: 'calc(2rem + 15px)'}}
+          >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${liveFilterActive ? 'bg-white' : 'bg-red-400'} opacity-75`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${liveFilterActive ? 'bg-white' : 'bg-red-500'}`}></span>
             </span>
             Live
           </button>
@@ -185,6 +198,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <button 
             onClick={() => {
               setTimeFilterActive(!timeFilterActive);
+              setLiveFilterActive(false); // Reset live filter when time filter is activated
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
               timeFilterActive 
@@ -198,14 +212,22 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </div>
       </Card>
 
-      <div className="space-y-4">
-        <TodayPopularFootballLeagues 
-          selectedDate={selectedDate} 
-          timeFilterActive={timeFilterActive}
-          showTop20={timeFilterActive}
-        />
-      </div>
-      <TodaysMatchesByCountry selectedDate={selectedDate} />
+      {liveFilterActive ? (
+        <div className="space-y-4">
+          <LiveMatchForAllCountry />
+        </div>
+      ) : (
+        <>
+          <div className="space-y-4">
+            <TodayPopularFootballLeagues 
+              selectedDate={selectedDate} 
+              timeFilterActive={timeFilterActive}
+              showTop20={timeFilterActive}
+            />
+          </div>
+          <TodaysMatchesByCountry selectedDate={selectedDate} />
+        </>
+      )}
     </div>
   );
 };
