@@ -267,7 +267,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
           league.name.toLowerCase().includes('fifa') ||
-          league.name.toLowerCase().includes('international') ||
           league.name.toLowerCase().includes('champions') ||
           league.name.toLowerCase().includes('conference'))) {
         const countryKey = 'Internationals';
