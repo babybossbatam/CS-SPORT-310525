@@ -152,20 +152,3 @@ export const safeSubstring = (value: any, start: number, end?: number): string =
   const str = String(value);
   return end !== undefined ? str.substring(start, end) : str.substring(start);
 };
-
-export const isToday = (date: Date): boolean => {
-  const today = new Date();
-  return date.toDateString() === today.toDateString();
-};
-
-export const isYesterday = (date: Date): boolean => {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return date.toDateString() === yesterday.toDateString();
-};
-
-export const isTomorrow = (date: Date): boolean => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return date.toDateString() === tomorrow.toDateString();
-};
