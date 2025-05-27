@@ -44,6 +44,26 @@ export function isToday(date: Date | string): boolean {
 }
 
 /**
+ * Check if date is yesterday in user's local timezone
+ */
+export function isYesterday(date: Date | string): boolean {
+  const targetDate = typeof date === 'string' ? parseISO(date) : date;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return format(targetDate, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd');
+}
+
+/**
+ * Check if date is tomorrow in user's local timezone
+ */
+export function isTomorrow(date: Date | string): boolean {
+  const targetDate = typeof date === 'string' ? parseISO(date) : date;
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return format(targetDate, 'yyyy-MM-dd') === format(tomorrow, 'yyyy-MM-dd');
+}
+
+/**
  * Check if a match date falls within the user's selected local date
  */
 export function isMatchOnDate(matchDate: string | Date, targetDate: string): boolean {
