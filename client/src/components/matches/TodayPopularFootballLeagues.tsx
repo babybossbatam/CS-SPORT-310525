@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 import LeagueCollapseToggle from './LeagueCollapseToggle';
+import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtils';
 
 // Before calling substring, check if the value exists
 function safeSubstring(value: any, start: number, end?: number): string {
