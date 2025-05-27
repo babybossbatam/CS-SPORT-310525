@@ -114,14 +114,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       // Use consistent UTC date formatting for API consistency
                       const selectedDateString = formatYYYYMMDD(date);
                       const todayString = getCurrentUTCDateString();
-                      
+
                       // Calculate yesterday and tomorrow using UTC timezone for consistency
                       const today = new Date();
                       const yesterday = new Date(today);
                       yesterday.setUTCDate(today.getUTCDate() - 1);
                       const tomorrow = new Date(today);
                       tomorrow.setUTCDate(today.getUTCDate() + 1);
-                      
+
                       const yesterdayString = formatYYYYMMDD(yesterday);
                       const tomorrowString = formatYYYYMMDD(tomorrow);
 
@@ -170,13 +170,13 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </div>
         <div className="flex items-center justify-between px-4 pb-4 mt-[10px] text-[110.25%] h-9">
           {/* Live button */}
-          <button className="flex items-center gap-1 px-0.5 py-0.5 bg-gray-300 text-black rounded-full text-xs font-medium w-fit hover:bg-gray-400 transition-colors duration-200">
+          <button className="flex items-center gap-1 px-0.5 py-0.5 bg-gray-300 text-black rounded-full text-xs font-medium w-fit hover:bg-gray-400 transition-colors duration-200" style={{minWidth: 'calc(2rem + 5px)'}}>
             Live
           </button>
-          
+
           {/* Spacer to maintain layout */}
           <div className="flex items-center gap-2"></div>
-          
+
           {/* By time button */}
           <button 
             onClick={() => {
@@ -193,7 +193,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </button>
         </div>
       </Card>
-      
+
       <div className="space-y-4">
         <TodayPopularFootballLeagues 
           selectedDate={selectedDate} 
