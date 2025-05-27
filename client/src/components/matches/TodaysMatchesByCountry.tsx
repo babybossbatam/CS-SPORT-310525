@@ -78,8 +78,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       'Faroe Islands': 'FO'
     };
 
-    const countryCode = countryCodeMap[country] || 
-      country.substring(0, 2).toUpperCase();
+    const countryCode = countryCodeMap[country] || (country && country.length >= 2 ? country.substring(0, 2).toUpperCase() : 'XX');
 
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };

@@ -138,11 +138,17 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
-  // Enhanced country flag mapping
+  // Popular countries for prioritization
+  const POPULAR_COUNTRIES = [
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Argentina', 
+    'Saudi Arabia', 'World', 'Netherlands', 'Portugal', 'Turkey'
+  ];
+
+  // Enhanced country flag mapping with null safety
   const getCountryFlag = (country: string, leagueFlag?: string) => {
     if (leagueFlag) return leagueFlag;
 
-    // Add null/undefined check for country
+    // Add comprehensive null/undefined check for country
     if (!country || typeof country !== 'string' || country.trim() === '') {
       return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
     }
@@ -172,7 +178,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'Faroe Islands': 'FO'
     };
 
-    const countryCode = countryCodeMap[cleanCountry] || (cleanCountry.length >= 2 ? cleanCountry.substring(0, 2).toUpperCase() : 'XX');
+    // Additional safety check before substring
+    const countryCode = countryCodeMap[cleanCountry] || (cleanCountry && cleanCountry.length >= 2 ? cleanCountry.substring(0, 2).toUpperCase() : 'XX');
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
@@ -233,9 +240,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Always include countries with popular leagues
     if (countryData.hasPopularLeague) return true;
 
-    // Include specific countries and regions
-    const includedCountries = ['Saudi-Arabia', 'Brazil', 'Argentina', 'Italy', 'Spain', 'Germany', 'England', 'France'];
-
     // Add null check for country before string operations
     if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
       return false;
@@ -243,17 +247,44 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     const countryName = countryData.country.trim().toLowerCase();
 
-    // Include if it's one of the specified countries (case-insensitive check)
-    return includedCountries.some(country => 
+    // Include if it's one of the popular countries (case-insensitive check)
+    return POPULAR_COUNTRIES.some(country => 
       countryName.includes(country.toLowerCase()) ||
       country.toLowerCase().includes(countryName)
     );
   });
 
-  // Sort countries - popular leagues first, then alphabetical
+  // Sort countries - popular leagues first, then popular countries, then alphabetical
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
+    // First priority: countries with popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
+
+    // Second priority: popular countries
+    const aIsPopularCountry = a.country && POPULAR_COUNTRIES.some(country => 
+      a.country.toLowerCase().includes(country.toLowerCase()) ||
+      country.toLowerCase().includes(a.country.toLowerCase())
+    );
+    const bIsPopularCountry = b.country && POPULAR_COUNTRIES.some(country => 
+      b.country.toLowerCase().includes(country.toLowerCase()) ||
+      country.toLowerCase().includes(b.country.toLowerCase())
+    );
+
+    if (aIsPopularCountry && !bIsPopularCountry) return -1;
+    if (!aIsPopularCountry && bIsPopularCountry) return 1;
+
+    // If both are popular countries, sort by POPULAR_COUNTRIES order
+    if (aIsPopularCountry && bIsPopularCountry) {
+      const aIndex = POPULAR_COUNTRIES.findIndex(country => 
+        a.country && (a.country.toLowerCase().includes(country.toLowerCase()) ||
+        country.toLowerCase().includes(a.country.toLowerCase()))
+      );
+      const bIndex = POPULAR_COUNTRIES.findIndex(country => 
+        b.country && (b.country.toLowerCase().includes(country.toLowerCase()) ||
+        country.toLowerCase().includes(b.country.toLowerCase()))
+      );
+      if (aIndex !== bIndex) return aIndex - bIndex;
+    }
 
     // Add null checks for country comparison
     const countryA = a.country || '';
