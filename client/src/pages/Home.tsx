@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, selectSelectedLeagues, selectPopularLeagues, selectFixturesByDate, selectFilteredLeagues, selectAllLeagues, selectStandingsByLeague, selectSelectedCountries, leaguesActions, fixturesActions } from '@/lib/store';
+import { RootState, selectPopularLeagues, selectFixturesByDate, selectAllLeagues, leaguesActions, fixturesActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import Header from '@/components/layout/Header';
@@ -92,7 +92,6 @@ const Home = () => {
   const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const standingsByLeague = useSelector((state: RootState) => state.stats.topScorers);
   const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
-  const leagues = useSelector((state: RootState) => state.fixtures.leagues || []);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
