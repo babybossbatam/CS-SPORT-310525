@@ -21,7 +21,6 @@ import { useQuery } from '@tanstack/react-query';
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
-  const [viewMode, setViewMode] = useState<'date' | 'country'>('date');
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
@@ -175,45 +174,13 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             Live
           </button>
           
-          {/* View Mode Buttons - mutually exclusive */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setViewMode('date');
-                setTimeFilterActive(false);
-                console.log('Switched to date view mode');
-              }}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                viewMode === 'date' && !timeFilterActive
-                  ? 'bg-gray-400 text-black hover:bg-gray-500' 
-                  : 'bg-gray-300 text-black hover:bg-gray-400'
-              }`}
-            >
-              By Date
-            </button>
-            <button
-              onClick={() => {
-                setViewMode('country');
-                setTimeFilterActive(false);
-                console.log('Switched to country view mode');
-              }}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                viewMode === 'country' && !timeFilterActive
-                  ? 'bg-gray-400 text-black hover:bg-gray-500' 
-                  : 'bg-gray-300 text-black hover:bg-gray-400'
-              }`}
-            >
-              By Country
-            </button>
-          </div>
+          {/* Spacer to maintain layout */}
+          <div className="flex items-center gap-2"></div>
           
           {/* By time button */}
           <button 
             onClick={() => {
               setTimeFilterActive(!timeFilterActive);
-              if (!timeFilterActive) {
-                setViewMode('date'); // Set to date mode when activating time filter
-              }
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
               timeFilterActive 
@@ -227,20 +194,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         </div>
       </Card>
       
-      {viewMode === 'date' ? (
-        <>
-          <div className="space-y-4">
-            <TodayPopularFootballLeagues 
-              selectedDate={selectedDate} 
-              timeFilterActive={timeFilterActive}
-              showTop20={timeFilterActive}
-            />
-          </div>
-          <TodaysMatchesByCountry selectedDate={selectedDate} />
-        </>
-      ) : (
-        <MatchesByCountryAndSeason onMatchClick={onMatchClick} />
-      )}
+      <div className="space-y-4">
+        <TodayPopularFootballLeagues 
+          selectedDate={selectedDate} 
+          timeFilterActive={timeFilterActive}
+          showTop20={timeFilterActive}
+        />
+      </div>
+      <TodaysMatchesByCountry selectedDate={selectedDate} />
     </div>
   );
 };
