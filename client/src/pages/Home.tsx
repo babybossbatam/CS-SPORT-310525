@@ -254,6 +254,11 @@ const Home = () => {
                 <HomeTopScorersList />
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-4">
+                <NewsSection maxItems={3} sport="football" />
+              </CardContent>
+            </Card>
             <LeagueStandingsFilter />
 
             {/* Popular Leagues and Teams sections */}
