@@ -310,6 +310,11 @@ const FixedScoreboard = () => {
           }
         });
 
+        // Define popular countries for additional filtering
+        const POPULAR_COUNTRIES = [
+          'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World'
+        ];
+
         // Define popular teams by ID (big teams that should be prioritized)
         // plus top standings teams we extracted above
         const manualPopularTeamIds = [
@@ -326,6 +331,16 @@ const FixedScoreboard = () => {
           return (
             uniqueTeamIds.includes(match.teams.home.id) ||
             uniqueTeamIds.includes(match.teams.away.id)
+          );
+        };
+
+        // Check if match is from a popular country
+        const isPopularCountryMatch = (match: Match) => {
+          const country = match.league?.country;
+          if (!country) return false;
+          return POPULAR_COUNTRIES.some(popularCountry => 
+            country.toLowerCase().includes(popularCountry.toLowerCase()) ||
+            popularCountry.toLowerCase().includes(country.toLowerCase())
           );
         };
 
@@ -449,10 +464,10 @@ const FixedScoreboard = () => {
         // Build the final match list with proper prioritization
         let finalMatches: Match[] = [];
 
-        // PRIORITY 1: Live matches with popular teams or finals/semifinals
+        // PRIORITY 1: Live matches with popular teams, countries, or finals/semifinals
         const livePopularMatches = liveMatches
           .filter(
-            (match) => isPopularTeamMatch(match) || isFinalOrSemifinal(match),
+            (match) => isPopularTeamMatch(match) || isPopularCountryMatch(match) || isFinalOrSemifinal(match),
           )
           .filter((match) => !shouldExcludeMatch(match));
 
@@ -475,10 +490,10 @@ const FixedScoreboard = () => {
           finalMatches = [...finalMatches, ...specialToAdd];
         }
 
-        // PRIORITY 3: Recently finished matches with popular teams
+        // PRIORITY 3: Recently finished matches with popular teams or countries
         const finishedPopularMatches = finishedMatches
           .filter(
-            (match) => isPopularTeamMatch(match) && !shouldExcludeMatch(match),
+            (match) => (isPopularTeamMatch(match) || isPopularCountryMatch(match)) && !shouldExcludeMatch(match),
           )
           .filter(
             (match) =>
@@ -493,10 +508,10 @@ const FixedScoreboard = () => {
           finalMatches = [...finalMatches, ...finishedToAdd];
         }
 
-        // PRIORITY 4: Upcoming matches with popular teams - prioritize closest ones
+        // PRIORITY 4: Upcoming matches with popular teams or countries - prioritize closest ones
         const upcomingPopularMatches = upcomingMatches
           .filter(
-            (match) => isPopularTeamMatch(match) && !shouldExcludeMatch(match),
+            (match) => (isPopularTeamMatch(match) || isPopularCountryMatch(match)) && !shouldExcludeMatch(match),
           )
           .filter(
             (match) =>
@@ -509,6 +524,18 @@ const FixedScoreboard = () => {
             6 - finalMatches.length,
           );
           finalMatches = [...finalMatches, ...upcomingToAdd];
+        }
+
+        // PRIORITY 5: Fallback to any matches from popular countries if we still need more
+        if (finalMatches.length < 6) {
+          const countryFallbackMatches = [...upcomingMatches, ...finishedMatches]
+            .filter((match) => isPopularCountryMatch(match) && !shouldExcludeMatch(match))
+            .filter((match) => !finalMatches.some((m) => m.fixture.id === match.fixture.id));
+
+          if (countryFallbackMatches.length > 0) {
+            const fallbackToAdd = countryFallbackMatches.slice(0, 6 - finalMatches.length);
+            finalMatches = [...finalMatches, ...fallbackToAdd];
+          }
         }
 
         // No need for specific match overrides - we'll use our standard filter criteria
