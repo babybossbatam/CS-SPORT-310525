@@ -22,7 +22,6 @@ function safeSubstring(value: any, start: number, end?: number): string {
 }
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
-import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
 import TeamLogo from './TeamLogo';
 import { 

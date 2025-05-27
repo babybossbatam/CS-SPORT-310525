@@ -1,11 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid, isSameDay } from 'date-fns';
+import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 import LeagueCollapseToggle from './LeagueCollapseToggle';
+
+// Before calling substring, check if the value exists
+function safeSubstring(value: any, start: number, end?: number): string {
+  // Return empty string if value is null or undefined
+  if (value == null) {
+    return '';
+  }
+
+  // Convert to string if it's not already (handles numbers, etc.)
+  const str = String(value);
+
+  // If end is provided, use it, otherwise just use start parameter
+  return end !== undefined ? str.substring(start, end) : str.substring(start);
+}
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
@@ -625,20 +639,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     return false;
   };
-
-  // Before calling substring, check if the value exists
-  function safeSubstring(value: any, start: number, end?: number) {
-    // Return empty string if value is null or undefined
-    if (value == null) {
-      return '';
-    }
-
-    // Convert to string if it's not already (handles numbers, etc.)
-    const str = String(value);
-
-    // If end is provided, use it, otherwise just use start parameter
-    return end !== undefined ? str.substring(start, end) : str.substring(start);
-  }
 
   return (
     <Card>
