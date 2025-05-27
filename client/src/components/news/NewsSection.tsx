@@ -34,13 +34,15 @@ interface NewsSectionProps {
   maxItems?: number;
   showImages?: boolean;
   compact?: boolean;
+  sport?: string;
 }
 
 const NewsSection: React.FC<NewsSectionProps> = ({ 
   title = "Live Football News",
   maxItems = 10,
   showImages = true,
-  compact = false
+  compact = false,
+  sport = "football"
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
