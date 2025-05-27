@@ -397,12 +397,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                         }
                       }}
                     />
-                    <span className="text-xs text-gray-500">({totalMatches})</span>
-
-                    {/* Live badge with animation */}
-                    <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold animate-pulse">
-                      {totalMatches} LIVE
-                    </span>
+                    
 
                     {countryData.hasPopularLeague && (
                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
