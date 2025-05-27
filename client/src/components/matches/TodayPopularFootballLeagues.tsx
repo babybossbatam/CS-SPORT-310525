@@ -783,28 +783,35 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                 isPopular={false}
                               />
                             ) : (
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                              <div className="flex items-start gap-2 mb-3 pb-2 border-b border-gray-300">
                                 <img
                                   src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                                   alt={leagueData.league.name || 'Unknown League'}
-                                  className="w-5 h-5 object-contain"
+                                  className="w-5 h-5 object-contain mt-0.5"
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                   }}
                                 />
-                                <span className="font-semibold text-sm text-gray-800">
-                                  {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
-                                </span>
-                                {leagueData.isPopularForCountry && (
-                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                    Popular Country
+                                <div className="flex flex-col">
+                                  <span className="font-semibold text-sm text-gray-800">
+                                    {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                                   </span>
-                                )}
-                                {leagueData.isPopular && !leagueData.isPopularForCountry && (
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                    Popular
+                                  <span className="text-xs text-gray-500">
+                                    {leagueData.league.country || 'Unknown Country'}
                                   </span>
-                                )}
+                                </div>
+                                <div className="flex gap-1 ml-auto">
+                                  {leagueData.isPopularForCountry && (
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                      Popular Country
+                                    </span>
+                                  )}
+                                  {leagueData.isPopular && !leagueData.isPopularForCountry && (
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                      Popular
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             )}
                           </>
