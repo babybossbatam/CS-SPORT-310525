@@ -104,9 +104,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
               const fixtureDate = parseISO(match.fixture.date);
               if (!isValid(fixtureDate)) return false;
 
-              // Get the actual local date of the match (not UTC)
+              // Get the actual local date of the match
               const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
 
+              // Strict date matching - only include matches that are exactly on the selected date
               return fixtureLocalDateString === selectedDate;
             } catch (error) {
               console.error('Error filtering match by date:', error, match);
@@ -510,7 +511,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const getHeaderTitle = () => {
     const selectedDateObj = new Date(selectedDate);
     let baseTitle = "";
-    
+
     if (isToday(selectedDateObj)) {
       baseTitle = "Today's Popular Football Leagues";
     } else if (isYesterday(selectedDateObj)) {
@@ -702,7 +703,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                             ) : (
                               <div className="flex items-start gap-2 mb-3 pb-2 border-b border-gray-300">
                                 <img
-                                  src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                                  src={leagueData.league.logo```text
+|| '/assets/fallback-logo.svg'}
                                   alt={leagueData.league.name || 'Unknown League'}
                                   className="w-5 h-5 object-contain mt-0.5"
                                   onError={(e) => {
