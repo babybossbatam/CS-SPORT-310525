@@ -842,7 +842,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 publishedAt: new Date().toISOString(),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
-              ```text
               };
             });
 
