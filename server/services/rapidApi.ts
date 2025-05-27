@@ -75,7 +75,13 @@ export const rapidApiService = {
           
           if (liveFixtures && liveFixtures.length > 0) {
             console.log(`Found ${liveFixtures.length} live fixtures for today`);
-            allFixtures = [...liveFixtures];
+            // Validate live fixtures before adding
+            const validLiveFixtures = liveFixtures.filter(fixture => 
+              fixture && fixture.fixture && fixture.league && fixture.teams &&
+              fixture.teams.home && fixture.teams.away &&
+              fixture.teams.home.name && fixture.teams.away.name
+            );
+            allFixtures = [...validLiveFixtures];
           }
         } catch (liveError) {
           console.error('Error fetching live fixtures for today:', liveError);
@@ -98,13 +104,29 @@ export const rapidApiService = {
         if (response.data && response.data.response) {
           const dateFixtures = response.data.response;
           
-          // Validate that all fixtures are for the correct date
+          // Validate that all fixtures are for the correct date and have required data
           const validFixtures = dateFixtures.filter((fixture: any) => {
             try {
+              // Check date validity
+              if (!fixture?.fixture?.date) return false;
               const fixtureDate = new Date(fixture.fixture.date);
               const fixtureDateString = fixtureDate.toISOString().split('T')[0];
-              return fixtureDateString === date;
-            } catch {
+              if (fixtureDateString !== date) return false;
+
+              // Check required data structure
+              if (!fixture.league || !fixture.league.id || !fixture.league.name) return false;
+              if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) return false;
+              if (!fixture.teams.home.name || !fixture.teams.away.name) return false;
+
+              // Set default values for missing data
+              if (!fixture.league.country) fixture.league.country = 'Unknown';
+              if (!fixture.league.logo) fixture.league.logo = 'https://media.api-sports.io/football/leagues/1.png';
+              if (!fixture.teams.home.logo) fixture.teams.home.logo = '/assets/fallback-logo.png';
+              if (!fixture.teams.away.logo) fixture.teams.away.logo = '/assets/fallback-logo.png';
+
+              return true;
+            } catch (error) {
+              console.error('Error validating fixture:', error, fixture);
               return false;
             }
           });

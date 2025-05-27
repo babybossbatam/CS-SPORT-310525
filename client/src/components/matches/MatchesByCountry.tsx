@@ -59,19 +59,23 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     }
   }, [fixtures, selectedDate]);
 
-  // Enhanced country flag mapping
-  const getCountryFlag = (country: string, leagueFlag?: string) => {
-    // Use league flag if available
-    if (leagueFlag) return leagueFlag;
-
-    // Add null/undefined check for country
-    if (!country || typeof country !== 'string') {
-      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
+  // Enhanced country flag mapping with comprehensive null safety
+  const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
+    // Use league flag if available and valid
+    if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
+      return leagueFlag;
     }
 
+    // Add comprehensive null/undefined check for country
+    if (!country || typeof country !== 'string' || country.trim() === '') {
+      return 'https://media.api-sports.io/football/leagues/1.png'; // Default football logo
+    }
+
+    const cleanCountry = country.trim();
+
     // Special handling for World/International competitions
-    if (country === 'World' || country === 'International' || country === 'Unknown') {
-      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png'; // FIFA logo for world competitions
+    if (cleanCountry === 'World' || cleanCountry === 'International' || cleanCountry === 'Unknown') {
+      return 'https://media.api-sports.io/football/leagues/1.png'; // Default football logo
     }
 
     // Country code mapping for better flag display
@@ -94,34 +98,80 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       'Faroe Islands': 'FO'
     };
 
-    const cleanCountry = country.trim();
-    const countryCode = countryCodeMap[cleanCountry] || (cleanCountry && cleanCountry.length >= 2 ? cleanCountry.substring(0, 2).toUpperCase() : 'XX');
+    // Safe substring operation
+    let countryCode = 'XX';
+    if (countryCodeMap[cleanCountry]) {
+      countryCode = countryCodeMap[cleanCountry];
+    } else if (cleanCountry.length >= 2) {
+      try {
+        countryCode = cleanCountry.substring(0, 2).toUpperCase();
+      } catch (error) {
+        console.error('Error processing country name:', cleanCountry, error);
+        countryCode = 'XX';
+      }
+    }
 
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
-  // Group fixtures by country
+  // Group fixtures by country with comprehensive validation
   const fixturesByCountry = fixtures.reduce((acc: any, fixture: any) => {
-    const country = fixture.league?.country || 'Unknown';
+    // Validate fixture structure
+    if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+      console.warn('Invalid fixture data structure:', fixture);
+      return acc;
+    }
+
+    // Validate league data
+    const league = fixture.league;
+    if (!league.id || !league.name) {
+      console.warn('Invalid league data:', league);
+      return acc;
+    }
+
+    // Validate team data
+    if (!fixture.teams.home || !fixture.teams.away || 
+        !fixture.teams.home.name || !fixture.teams.away.name) {
+      console.warn('Invalid team data:', fixture.teams);
+      return acc;
+    }
+
+    const country = league.country || 'Unknown';
+    const leagueId = league.id;
+
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlag(country, fixture.league?.flag),
+        flag: getCountryFlag(country, league.flag),
         leagues: {}
       };
     }
 
-    const leagueId = fixture.league?.id;
-    if (leagueId && !acc[country].leagues[leagueId]) {
+    if (!acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
-        league: fixture.league,
+        league: {
+          ...league,
+          logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
+        },
         matches: []
       };
     }
 
-    if (leagueId) {
-      acc[country].leagues[leagueId].matches.push(fixture);
-    }
+    // Add fixture with validated data
+    acc[country].leagues[leagueId].matches.push({
+      ...fixture,
+      teams: {
+        home: {
+          ...fixture.teams.home,
+          logo: fixture.teams.home.logo || '/assets/fallback-logo.png'
+        },
+        away: {
+          ...fixture.teams.away,
+          logo: fixture.teams.away.logo || '/assets/fallback-logo.png'
+        }
+      }
+    });
+
     return acc;
   }, {});
 

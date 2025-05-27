@@ -145,18 +145,21 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   ];
 
   // Enhanced country flag mapping with null safety
-  const getCountryFlag = (country: string, leagueFlag?: string) => {
-    if (leagueFlag) return leagueFlag;
+  const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
+    // Use league flag if available and valid
+    if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
+      return leagueFlag;
+    }
 
     // Add comprehensive null/undefined check for country
     if (!country || typeof country !== 'string' || country.trim() === '') {
-      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
+      return 'https://media.api-sports.io/football/leagues/1.png'; // Default football logo
     }
 
     const cleanCountry = country.trim();
 
-    if (cleanCountry === 'World' || cleanCountry === 'International') {
-      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/FIFA_Logo_%282010%29.svg/24px-FIFA_Logo_%282010%29.svg.png';
+    if (cleanCountry === 'World' || cleanCountry === 'International' || cleanCountry === 'Unknown') {
+      return 'https://media.api-sports.io/football/leagues/1.png'; // Default football logo
     }
 
     const countryCodeMap: { [key: string]: string } = {
@@ -178,8 +181,19 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'Faroe Islands': 'FO'
     };
 
-    // Additional safety check before substring
-    const countryCode = countryCodeMap[cleanCountry] || (cleanCountry && cleanCountry.length >= 2 ? cleanCountry.substring(0, 2).toUpperCase() : 'XX');
+    // Safe substring operation with fallback
+    let countryCode = 'XX';
+    if (countryCodeMap[cleanCountry]) {
+      countryCode = countryCodeMap[cleanCountry];
+    } else if (cleanCountry && cleanCountry.length >= 2) {
+      try {
+        countryCode = cleanCountry.substring(0, 2).toUpperCase();
+      } catch (error) {
+        console.error('Error processing country name for flag:', cleanCountry, error);
+        countryCode = 'XX';
+      }
+    }
+    
     return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
@@ -192,22 +206,25 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   // Group fixtures by country and league
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
     // Add comprehensive null checks
-    if (!fixture || !fixture.league) {
+    if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+      console.warn('Invalid fixture data:', fixture);
       return acc;
     }
 
-    const country = fixture.league.country || 'Unknown';
-    const leagueId = fixture.league.id;
-    
-    // Skip if no valid league ID
-    if (!leagueId) {
+    // Ensure league has required properties
+    const league = fixture.league;
+    if (!league.id || !league.name) {
+      console.warn('Invalid league data:', league);
       return acc;
     }
+
+    const country = league.country || 'Unknown';
+    const leagueId = league.id;
 
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlag(country, fixture.league.flag),
+        flag: getCountryFlag(country, league.flag),
         leagues: {},
         hasPopularLeague: false
       };
@@ -220,13 +237,33 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     if (!acc[country].leagues[leagueId]) {
       acc[country].leagues[leagueId] = {
-        league: fixture.league,
+        league: {
+          ...league,
+          logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
+        },
         matches: [],
         isPopular: POPULAR_LEAGUES.includes(leagueId)
       };
     }
 
-    acc[country].leagues[leagueId].matches.push(fixture);
+    // Validate team data before adding
+    if (fixture.teams.home && fixture.teams.away && 
+        fixture.teams.home.name && fixture.teams.away.name) {
+      acc[country].leagues[leagueId].matches.push({
+        ...fixture,
+        teams: {
+          home: {
+            ...fixture.teams.home,
+            logo: fixture.teams.home.logo || '/assets/fallback-logo.png'
+          },
+          away: {
+            ...fixture.teams.away,
+            logo: fixture.teams.away.logo || '/assets/fallback-logo.png'
+          }
+        }
+      });
+    }
+
     return acc;
   }, {});
 
@@ -553,9 +590,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               const aTime = aDate.getTime();
                               const bTime = bDate.getTime();
 
-                              // Check if matches involve popular teams
-                              const aHasPopularTeam = POPULAR_TEAMS.includes(a.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
-                              const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(b.teams.away.id);
+                              // Check if matches involve popular teams (with null safety)
+                              const aHasPopularTeam = (a.teams?.home?.id && POPULAR_TEAMS.includes(a.teams.home.id)) || 
+                                                     (a.teams?.away?.id && POPULAR_TEAMS.includes(a.teams.away.id));
+                              const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.home.id)) || 
+                                                     (b.teams?.away?.id && POPULAR_TEAMS.includes(b.teams.away.id));
 
                               // Prioritize popular team matches first
                               if (aHasPopularTeam && !bHasPopularTeam) return -1;
