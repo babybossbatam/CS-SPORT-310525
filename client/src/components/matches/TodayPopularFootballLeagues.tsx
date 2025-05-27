@@ -227,6 +227,31 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return acc;
     }
 
+    // Enhanced filtering for virtual/esports/non-football fixtures
+    const leagueName = (league.name || '').toLowerCase();
+    const homeTeamName = (fixture.teams?.home?.name || '').toLowerCase();
+    const awayTeamName = (fixture.teams?.away?.name || '').toLowerCase();
+    
+    // Comprehensive list of terms to exclude
+    const virtualTerms = [
+      'esoccer', 'e-soccer', 'esports', 'e-sports', 'cyber', 'virtual', 'ebet', 'e-bet',
+      'fifa', 'pes', 'pro evolution soccer', 'efootball', 'e-football',
+      'simulated', 'simulation', 'digital', 'online', 'gaming', 'gt leagues',
+      'h2h gg', 'battle', 'volta', '8 mins', '10 mins', '12 mins', '6 mins'
+    ];
+    
+    // Check if any virtual terms are present in league or team names
+    const isVirtual = virtualTerms.some(term => 
+      leagueName.includes(term) || 
+      homeTeamName.includes(term) || 
+      awayTeamName.includes(term)
+    );
+    
+    if (isVirtual) {
+      console.log(`Filtering out virtual/esports fixture: ${league.name}`);
+      return acc;
+    }
+
     const country = league.country;
 
     // Skip fixtures without a valid country, but keep World and Europe competitions
@@ -237,8 +262,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
 
-      // Check if it's a Friendlies league - add null safety for league.name
-      if (league.name && typeof league.name === 'string' && league.name.toLowerCase().includes('friendlies')) {
+      // Check if it's a Friendlies league
+      if (league.name && league.name.toLowerCase().includes('friendlies')) {
         const countryKey = 'Friendlies';
         if (!acc[countryKey]) {
           acc[countryKey] = {
@@ -263,8 +288,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         return acc;
       }
 
-      // Allow World and Europe competitions to pass through - add null safety
-      if (league.name && typeof league.name === 'string' && (
+      // Allow World and Europe competitions to pass through
+      if (league.name && (
           league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
@@ -295,12 +320,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         return acc;
       }
 
-      console.log(`Skipping fixture with invalid country: ${country}, league: ${league.name || 'Unknown League'}`);
+      console.log(`Skipping fixture with invalid country: ${country}, league: ${league.name}`);
       return acc;
     }
 
-    // Add null safety for country string operations
-    const validCountry = (country && typeof country === 'string') ? country.trim() : '';
+    const validCountry = country.trim();
 
     // Only allow valid country names, World, and Europe
     if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
@@ -309,21 +333,21 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     }
 
     const leagueId = league.id;
-    if (!acc[validCountry]) {
-      acc[validCountry] = {
-        country: validCountry,
-        flag: getCountryFlag(validCountry, league.flag),
+    if (!acc[country]) {
+      acc[country] = {
+        country,
+        flag: getCountryFlag(country, league.flag),
         leagues: {},
         hasPopularLeague: false
       };
     }
 
     if (POPULAR_LEAGUES.includes(leagueId)) {
-      acc[validCountry].hasPopularLeague = true;
+      acc[country].hasPopularLeague = true;
     }
 
-    if (!acc[validCountry].leagues[leagueId]) {
-      acc[validCountry].leagues[leagueId] = {
+    if (!acc[country].leagues[leagueId]) {
+      acc[country].leagues[leagueId] = {
         league: {
           ...league,
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
@@ -337,7 +361,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Validate team data before adding
     if (fixture.teams.home && fixture.teams.away && 
         fixture.teams.home.name && fixture.teams.away.name) {
-      acc[validCountry].leagues[leagueId].matches.push({
+      acc[country].leagues[leagueId].matches.push({
         ...fixture,
         teams: {
           home: {
@@ -391,12 +415,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
 
-    // Second priority: popular countries
-    const aIsPopularCountry = a.country && POPULAR_COUNTRIES.some(country => 
+    // Second priority: popular countries (excluding friendlies)
+    const aIsPopularCountry = !aIsFriendlies && a.country && POPULAR_COUNTRIES.some(country => 
       a.country.toLowerCase().includes(country.toLowerCase()) ||
       country.toLowerCase().includes(a.country.toLowerCase())
     );
-    const bIsPopularCountry = b.country && POPULAR_COUNTRIES.some(country => 
+    const bIsPopularCountry = !bIsFriendlies && b.country && POPULAR_COUNTRIES.some(country => 
       b.country.toLowerCase().includes(country.toLowerCase()) ||
       country.toLowerCase().includes(b.country.toLowerCase())
     );
@@ -404,9 +428,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     if (aIsPopularCountry && !bIsPopularCountry) return -1;
     if (!aIsPopularCountry && bIsPopularCountry) return 1;
 
-    // Third priority: Friendlies after popular countries but before regular countries
-    if (aIsFriendlies && !bIsFriendlies && !bIsPopularCountry) return -1;
-    if (!aIsFriendlies && bIsFriendlies && !aIsPopularCountry) return 1;
+    // Third priority: Friendlies after popular countries but before regular countries  
+    if (aIsFriendlies && !bIsFriendlies) return -1;
+    if (!aIsFriendlies && bIsFriendlies) return 1;
 
     // If both are popular countries, sort by POPULAR_COUNTRIES order
     if (aIsPopularCountry && bIsPopularCountry) {

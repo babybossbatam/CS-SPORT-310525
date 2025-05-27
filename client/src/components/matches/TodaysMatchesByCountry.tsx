@@ -66,7 +66,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     if (cleanCountry === 'World') {
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
     }
-    
+
     if (cleanCountry === 'Europe') {
       return 'https://flagsapi.com/EU/flat/24.png';
     }
@@ -265,13 +265,6 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     const validCountry = country.trim();
     if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
       console.warn('Skipping fixture with empty country name:', country, fixture);
-      return acc;
-    }
-
-    // Filter out esports leagues which have null country but keep real international competitions
-    const leagueName = (league.name && typeof league.name === 'string') ? league.name.toLowerCase() : '';
-    if (leagueName.includes('esoccer') || leagueName.includes('ebet') || leagueName.includes('cyber')) {
-      console.warn('Skipping esports fixture:', leagueName, fixture);
       return acc;
     }
 
