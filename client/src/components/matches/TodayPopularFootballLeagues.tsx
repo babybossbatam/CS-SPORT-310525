@@ -237,8 +237,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
 
-      // Check if it's a Friendlies league
-      if (league.name && league.name.toLowerCase().includes('friendlies')) {
+      // Check if it's a Friendlies league - add null safety for league.name
+      if (league.name && typeof league.name === 'string' && league.name.toLowerCase().includes('friendlies')) {
         const countryKey = 'Friendlies';
         if (!acc[countryKey]) {
           acc[countryKey] = {
@@ -263,8 +263,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         return acc;
       }
 
-      // Allow World and Europe competitions to pass through
-      if (league.name && (
+      // Allow World and Europe competitions to pass through - add null safety
+      if (league.name && typeof league.name === 'string' && (
           league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
@@ -295,11 +295,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         return acc;
       }
 
-      console.log(`Skipping fixture with invalid country: ${country}, league: ${league.name}`);
+      console.log(`Skipping fixture with invalid country: ${country}, league: ${league.name || 'Unknown League'}`);
       return acc;
     }
 
-    const validCountry = country.trim();
+    // Add null safety for country string operations
+    const validCountry = (country && typeof country === 'string') ? country.trim() : '';
 
     // Only allow valid country names, World, and Europe
     if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
@@ -308,21 +309,21 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     }
 
     const leagueId = league.id;
-    if (!acc[country]) {
-      acc[country] = {
-        country,
-        flag: getCountryFlag(country, league.flag),
+    if (!acc[validCountry]) {
+      acc[validCountry] = {
+        country: validCountry,
+        flag: getCountryFlag(validCountry, league.flag),
         leagues: {},
         hasPopularLeague: false
       };
     }
 
     if (POPULAR_LEAGUES.includes(leagueId)) {
-      acc[country].hasPopularLeague = true;
+      acc[validCountry].hasPopularLeague = true;
     }
 
-    if (!acc[country].leagues[leagueId]) {
-      acc[country].leagues[leagueId] = {
+    if (!acc[validCountry].leagues[leagueId]) {
+      acc[validCountry].leagues[leagueId] = {
         league: {
           ...league,
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
@@ -336,7 +337,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Validate team data before adding
     if (fixture.teams.home && fixture.teams.away && 
         fixture.teams.home.name && fixture.teams.away.name) {
-      acc[country].leagues[leagueId].matches.push({
+      acc[validCountry].leagues[leagueId].matches.push({
         ...fixture,
         teams: {
           home: {

@@ -161,7 +161,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
     }
 
     // Filter out esports leagues which have null country but keep real international competitions
-    const leagueName = league.name?.toLowerCase() || '';
+    const leagueName = (league.name && typeof league.name === 'string') ? league.name.toLowerCase() : '';
     if (leagueName.includes('esoccer') || leagueName.includes('ebet') || leagueName.includes('cyber')) {
       console.warn('Skipping esports fixture:', leagueName, fixture);
       return acc;
