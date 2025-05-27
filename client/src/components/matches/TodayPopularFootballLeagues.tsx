@@ -4,9 +4,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { format, parseISO, isValid, differenceInHours } from 'date-fns';
-
-import { isToday, isYesterday, isTomorrow, safeSubstring } from '@/lib/dateUtils';
+import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow } from 'date-fns';
+import { safeSubstring } from '@/lib/dateUtils';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 interface TodayPopularFootballLeaguesProps {
