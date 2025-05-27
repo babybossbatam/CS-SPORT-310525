@@ -270,16 +270,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       return acc;
     }
 
-    let leagueId = league.id;
-    let leagueName = league.name;
-    let isPopular = false;
-
-    // Group 2. Bundesliga with Bundesliga (ID 78)
-    if (league.name && league.name.includes('2. Bundesliga')) {
-      leagueId = 78; // Use Bundesliga ID
-      leagueName = 'Bundesliga';
-      isPopular = true; // Mark as popular
-    }
+    const leagueId = league.id;
 
     if (!acc[country]) {
       acc[country] = {
@@ -294,12 +285,10 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       acc[country].leagues[leagueId] = {
         league: {
           ...league,
-          id: leagueId,
-          name: leagueName,
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
         },
         matches: [],
-        isPopular: POPULAR_LEAGUES.includes(leagueId) || isPopular,
+        isPopular: POPULAR_LEAGUES.includes(leagueId)
       };
     }
 
@@ -732,7 +721,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                               <div className="text-xs text-gray-500 mt-1">
                                                 {format(fixtureDate, 'HH:mm')}
                                               </div>
-                               </>
+                                            </>
                                           );
                                         }
 
