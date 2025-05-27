@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../types';
+import { b365ApiService } from './b365Api';
 
 // Define standings type
 interface LeagueStandings {
@@ -128,7 +129,32 @@ export const rapidApiService = {
 
       return [];
     } catch (error) {
-      console.error('Error fetching fixtures by date:', error);
+      console.error('RapidAPI: Error fetching fixtures by date:', error);
+      
+      // Try B365API as fallback for current date
+      const today = new Date().toISOString().split('T')[0];
+      if (date === today) {
+        try {
+          console.log('RapidAPI failed for today, trying B365API live matches as fallback...');
+          const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+          
+          if (b365LiveMatches && b365LiveMatches.length > 0) {
+            const convertedMatches = b365LiveMatches.map(match => 
+              b365ApiService.convertToRapidApiFormat(match)
+            );
+            
+            console.log(`B365API Fallback: Retrieved ${convertedMatches.length} fixtures for today`);
+            fixturesCache.set(cacheKey, { 
+              data: convertedMatches, 
+              timestamp: now 
+            });
+            return convertedMatches;
+          }
+        } catch (b365Error) {
+          console.error('B365API Fallback also failed:', b365Error);
+        }
+      }
+      
       if (cached?.data) {
         console.log('Using cached data due to API error');
         return cached.data;
@@ -141,7 +167,7 @@ export const rapidApiService = {
   },
 
   /**
-   * Get live fixtures
+   * Get live fixtures with B365API fallback
    */
   async getLiveFixtures(): Promise<FixtureResponse[]> {
     const cacheKey = 'fixtures-live';
@@ -154,11 +180,13 @@ export const rapidApiService = {
     }
 
     try {
+      console.log('RapidAPI: Fetching live fixtures...');
       const response = await apiClient.get('/fixtures', {
         params: { live: 'all' }
       });
 
-      if (response.data && response.data.response) {
+      if (response.data && response.data.response && response.data.response.length > 0) {
+        console.log(`RapidAPI: Retrieved ${response.data.response.length} live fixtures`);
         fixturesCache.set(cacheKey, { 
           data: response.data.response, 
           timestamp: now 
@@ -166,14 +194,56 @@ export const rapidApiService = {
         return response.data.response;
       }
 
+      // If RapidAPI returns no live fixtures, try B365API as fallback
+      console.log('RapidAPI: No live fixtures found, trying B365API as fallback...');
+      const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+      
+      if (b365LiveMatches && b365LiveMatches.length > 0) {
+        // Convert B365 matches to RapidAPI format
+        const convertedMatches = b365LiveMatches.map(match => 
+          b365ApiService.convertToRapidApiFormat(match)
+        );
+        
+        console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures`);
+        fixturesCache.set(cacheKey, { 
+          data: convertedMatches, 
+          timestamp: now 
+        });
+        return convertedMatches;
+      }
+
       return [];
     } catch (error) {
-      console.error('Error fetching live fixtures:', error);
+      console.error('RapidAPI: Error fetching live fixtures:', error);
+      
+      // Try B365API as fallback when RapidAPI fails
+      try {
+        console.log('RapidAPI failed, trying B365API as fallback...');
+        const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+        
+        if (b365LiveMatches && b365LiveMatches.length > 0) {
+          const convertedMatches = b365LiveMatches.map(match => 
+            b365ApiService.convertToRapidApiFormat(match)
+          );
+          
+          console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
+          fixturesCache.set(cacheKey, { 
+            data: convertedMatches, 
+            timestamp: now 
+          });
+          return convertedMatches;
+        }
+      } catch (b365Error) {
+        console.error('B365API Fallback also failed:', b365Error);
+      }
+      
+      // Use cached data if available
       if (cached?.data) {
-        console.log('Using cached data due to API error');
+        console.log('Using cached data due to both APIs failing');
         return cached.data;
       }
-      console.error('API request failed and no cache available');
+      
+      console.error('All API requests failed and no cache available');
       return [];
     }
   },

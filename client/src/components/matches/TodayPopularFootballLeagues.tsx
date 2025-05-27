@@ -74,7 +74,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
               // Convert to local date string for comparison
               const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
-              
+
               return fixtureLocalDateString === selectedDate;
             } catch {
               return false;
@@ -415,10 +415,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               // Define status categories
                               const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
                               const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
-                              
+
                               const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
                               const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
-                              
+
                               const aUpcoming = aStatus === 'NS' && !aLive && !aFinished;
                               const bUpcoming = bStatus === 'NS' && !bLive && !bFinished;
 
@@ -446,12 +446,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                 // For live matches, show earliest start time first
                                 return aTime - bTime;
                               }
-                              
+
                               if (aUpcoming && bUpcoming) {
                                 // For upcoming matches, show earliest start time first
                                 return aTime - bTime;
                               }
-                              
+
                               if (aFinished && bFinished) {
                                 // For finished matches, show most recent first
                                 return bTime - aTime;

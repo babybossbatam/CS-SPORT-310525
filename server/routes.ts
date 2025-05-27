@@ -2,6 +2,7 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
+import { b365ApiService } from './services/b365Api';
 import { supabaseService } from "./services/supabase";
 import { 
   insertUserSchema, 
@@ -841,6 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 publishedAt: new Date().toISOString(),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
+              ```text
               };
             });
 
@@ -1033,6 +1035,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching fixtures by date:', error);
       res.status(500).json({ error: 'Failed to fetch fixtures' });
+    }
+  });
+
+    // Get live fixtures (with B365API fallback)
+  apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
+    try {
+      // Use API-Football (RapidAPI) only
+      try {
+        const fixtures = await rapidApiService.getLiveFixtures();
+        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
+
+        // Cache the live fixtures
+        for (const fixture of fixtures) {
+          try {
+            const fixtureId = fixture.fixture.id.toString();
+            const existingFixture = await storage.getCachedFixture(fixtureId);
+
+            if (existingFixture) {
+              await storage.updateCachedFixture(fixtureId, fixture);
+            } else {
+              await storage.createCachedFixture({
+                fixtureId: fixtureId,
+                date: new Date().toISOString().split('T')[0],
+                league: fixture.league.id.toString(),
+                data: fixture
+              });
+            }
+          } catch (cacheError) {
+            console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
+          }
+        }
+
+        return res.json(fixtures);
+      } catch (rapidApiError) {
+        console.error('RapidAPI error for live fixtures:', rapidApiError);
+
+                // If both APIs fail, try to return cached live fixtures from today
+        try {
+          const todayDate = new Date().toISOString().split('T')[0];
+          const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
+          const liveFixtures = cachedFixtures
+            .filter((fixture: CachedFixture) => {
+              const fixtureData = fixture.data as any;
+              return fixtureData && fixtureData.fixture && 
+                (fixtureData.fixture.status.short === 'LIVE' || 
+                fixtureData.fixture.status.short === '1H' || 
+                fixtureData.fixture.status.short === '2H' || 
+                fixtureData.fixture.status.short === 'HT');
+            })
+            .map((fixture: CachedFixture) => fixture.data);
+
+          if (liveFixtures.length > 0) {
+            console.log(`Using ${liveFixtures.length} cached live fixtures`);
+            return res.json(liveFixtures);
+          }
+        } catch (cacheError) {
+          console.error('Error retrieving cached live fixtures:', cacheError);
+        }
+
+        // If everything fails, return an empty array
+        return res.json([]);
+      }
+    } catch (error) {
+      console.error('Error fetching live fixtures:', error);
+      res.status(500).json({ message: "Failed to fetch live fixtures" });
+    }
+  });
+
+  // Get B365 live matches directly
+  apiRouter.get('/b365/live', async (req: Request, res: Response) => {
+    try {
+      const liveMatches = await b365ApiService.getLiveFootballMatches();
+      res.json(liveMatches);
+    } catch (error) {
+      console.error('Error in /api/b365/live:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch B365 live matches',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get B365 events by date
+  apiRouter.get('/b365/events/:date', async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+      const events = await b365ApiService.getEventsByDate(date);
+      res.json(events);
+    } catch (error) {
+      console.error('Error in /api/b365/events:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch B365 events',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
