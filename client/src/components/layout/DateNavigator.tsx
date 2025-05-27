@@ -69,6 +69,12 @@ const DateNavigator = () => {
     return format(parseISO(selectedDate), 'MMMM d, yyyy');
   };
 
+  // Handle today button click
+  const goToToday = () => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    dispatch(uiActions.setSelectedDate(today));
+  };
+
   // Fetch fixtures for the selected date
   useEffect(() => {
     const fetchFixtures = async () => {
@@ -111,29 +117,49 @@ const DateNavigator = () => {
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="relative flex items-center space-x-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">
-                    {isToday ? "Today's Matches" : getDateDisplayText()}
-                  </span>
-                </div>
-                <ChevronRight className="h-4 w-4 rotate-90" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="center">
-              <CalendarComponent
-                mode="single"
-                selected={parseISO(selectedDate)}
-                onSelect={handleDateSelect}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`px-3 py-1 text-sm font-medium ${
+                isToday 
+                  ? "text-blue-500 cursor-not-allowed opacity-60" 
+                  : "text-neutral-600 hover:text-blue-500 hover:bg-blue-50"
+              }`}
+              onClick={goToToday}
+              disabled={isToday}
+            >
+              Today
+            </Button>
+
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className={`relative flex items-center space-x-2 ${
+                    !isToday 
+                      ? "bg-blue-500 text-white hover:bg-blue-600" 
+                      : "text-neutral-600 hover:bg-neutral-50"
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium">
+                      {getDateDisplayText()}
+                    </span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 rotate-90" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <CalendarComponent
+                  mode="single"
+                  selected={parseISO(selectedDate)}
+                  onSelect={handleDateSelect}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
 
           <Button 
             variant="ghost" 
