@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { format, addDays, subDays, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -86,11 +85,11 @@ const DateNavigator = () => {
     const start = startOfMonth(calendarMonth);
     const end = endOfMonth(calendarMonth);
     const days = eachDayOfInterval({ start, end });
-    
+
     // Add empty cells for days before the month starts
     const startDay = getDay(start);
     const emptyDays = Array(startDay).fill(null);
-    
+
     return [...emptyDays, ...days];
   };
 
@@ -141,12 +140,11 @@ const DateNavigator = () => {
 
             <div className="flex items-center space-x-2">
               <Button
-                variant="ghost"
                 size="sm"
                 className={`px-3 py-1 text-sm font-medium ${
                   isToday 
-                    ? "text-gray-400 cursor-not-allowed opacity-60" 
-                    : "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                    ? "bg-blue-500 text-white hover:bg-blue-600" 
+                    : "bg-transparent text-blue-500 hover:text-blue-600"
                 }`}
                 onClick={goToToday}
                 disabled={isToday}
@@ -207,7 +205,7 @@ const DateNavigator = () => {
                         const dayString = format(day, 'yyyy-MM-dd');
                         const isDayToday = dayString === today;
                         const isSelected = dayString === selectedDate;
-                        
+
                         return (
                           <button
                             key={dayString}
