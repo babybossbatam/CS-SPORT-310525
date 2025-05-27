@@ -140,12 +140,11 @@ const DateNavigator = () => {
 
             <div className="flex items-center space-x-2">
               <Button
-                variant="ghost"
                 size="sm"
-                className={`px-3 py-1 text-sm font-medium transition-colors ${
+                className={`px-3 py-1 text-sm font-medium border-0 shadow-none ${
                   isToday 
                     ? "bg-blue-100 text-blue-600 hover:bg-blue-200" 
-                    : "bg-transparent text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                    : "bg-transparent text-blue-500 hover:bg-transparent hover:text-blue-600"
                 }`}
                 onClick={goToToday}
               >
