@@ -66,14 +66,17 @@ export function parseDate(dateString: string): Date | null {
   }
 }
 
-// Get current UTC date as string
-export function getCurrentUTCDateString(): string {
+// Get valid date
+export function getValidDate(dateString?: string): string {
   try {
-    const now = new Date();
-    return format(now, 'yyyy-MM-dd');
+    if (!dateString) {
+      return getCurrentUTCDateString();
+    }
+    const date = parseISO(dateString);
+    return isValid(date) ? formatYYYYMMDD(date) : getCurrentUTCDateString();
   } catch (error) {
-    console.error('Error getting current UTC date string:', error);
-    return format(new Date(), 'yyyy-MM-dd');
+    console.error('Error getting valid date:', error);
+    return getCurrentUTCDateString();
   }
 }
 

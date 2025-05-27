@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { safeSubstring } from '@/lib/dateUtils';
+import { safeSubstring } from '@/lib/dateUtilsUpdated';
 
 interface LeagueCollapseToggleProps {
   leagueName: string;

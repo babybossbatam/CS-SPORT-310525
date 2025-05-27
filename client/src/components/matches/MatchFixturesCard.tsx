@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { format, parseISO } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
-import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtils';
+import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 
 interface FixtureProps {
   fixtures: any[];

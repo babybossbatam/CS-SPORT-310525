@@ -30,7 +30,7 @@ import {
   getOpposingTeamColor,
   getTeamColor
 } from '@/lib/colorUtils';
-import { getValidDate } from '@/lib/dateUtils';
+import { getValidDate } from '@/lib/dateUtilsUpdated';
 
 // Define types locally
 interface Team {
