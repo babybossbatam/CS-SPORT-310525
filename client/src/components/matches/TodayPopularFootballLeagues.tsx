@@ -7,6 +7,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow } from 'date-fns';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { QUERY_CONFIGS } from '@/lib/cacheConfig';
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
@@ -60,7 +61,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   // Fetch all fixtures for the selected date with 24-hour caching
   const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
-    queryKey: ['all-fixtures-by-date', selectedDate],
+    ...QUERY_CONFIGS.allFixturesByDate(selectedDate, enableFetching),
     queryFn: async () => {
       console.log(`Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
@@ -68,17 +69,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
       return data;
     },
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours - data stays fresh for 24 hours
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection time
-    enabled: !!selectedDate && enableFetching,
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    refetchOnMount: false, // Don't refetch on component mount if data exists
-    refetchOnReconnect: false, // Don't refetch on network reconnection
   });
 
   // Fetch popular league fixtures with 24-hour caching
   const { data: popularFixtures = [], isLoading: isLoadingPopular, hasData: hasCachedPopular } = useQuery({
-    queryKey: ['popular-fixtures', selectedDate],
+    ...QUERY_CONFIGS.popularFixtures(selectedDate, enableFetching, POPULAR_LEAGUES),
     queryFn: async () => {
       const allData = [];
       const today = new Date();
@@ -140,13 +135,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
       return allData;
     },
-    enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours - data stays fresh for 24 hours
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection time
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    refetchOnMount: false, // Don't refetch on component mount if data exists
-    refetchOnReconnect: false, // Don't refetch on network reconnection
-    retry: 1, // Reduce retry attempts
   });
 
   // Start with all countries collapsed by default

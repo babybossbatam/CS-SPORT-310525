@@ -1,5 +1,6 @@
 import { QueryClient, QueryFunction } from '@tanstack/react-query';
 import { CACHE_STALE_TIMES } from './constants';
+import { CACHE_DURATIONS } from './cacheConfig';
 
 // Helper to throw error for non-ok responses
 async function throwIfResNotOk(res: Response) {
@@ -88,9 +89,9 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 60 * 60 * 1000, // Data stays fresh for 60 minutes
-      cacheTime: 120 * 60 * 1000, // Keep unused data in cache for 2 hours
-      gcTime: 120 * 60 * 1000, // 2 hours
+      staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
+      cacheTime: CACHE_DURATIONS.SIX_HOURS, // Keep unused data in cache for 6 hours
+      gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
       retry: 1,
       retryDelay: 2000,
       refetchOnMount: false,
