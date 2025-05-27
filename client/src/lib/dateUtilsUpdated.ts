@@ -1,4 +1,3 @@
-
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 
 // Safe substring function to handle null/undefined values

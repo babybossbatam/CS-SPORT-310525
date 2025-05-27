@@ -115,7 +115,7 @@ const initialStatsState: StatsState = {
   error: null,
 };
 
-import { getCurrentUTCDateString } from './dateUtils';
+import { getCurrentUTCDateString } from './dateUtilsUpdated';
 
 const initialUIState: UIState = {
   selectedDate: getCurrentUTCDateString(),
