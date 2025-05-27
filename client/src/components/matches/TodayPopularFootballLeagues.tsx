@@ -735,9 +735,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                             <span className="font-semibold text-sm text-gray-800">
                               {leagueData.league.name || 'Unknown League'}
                             </span>
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                              Popular
-                            </span>
+                            {leagueData.isPopular && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                Popular
+                              </span>
+                            )}
                           </div>
                         )}
                         {/* Matches - Show if league is popular, expanded, or Friendlies */}
