@@ -240,6 +240,14 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'h2h gg', 'battle', 'volta', '8 mins', '10 mins', '12 mins', '6 mins'
     ];
     
+    // Additional terms to exclude - Friendlies, Women's, and Youth leagues
+    const excludedTerms = [
+      'friendlies', 'friendly', 'women', 'womens', "women's", 'girls', 'female',
+      'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'under 15', 'under 16', 
+      'under 17', 'under 18', 'under 19', 'under 20', 'under 21', 'under 23',
+      'youth', 'junior', 'reserve', 'reserves', 'amateur', 'development', 'academy'
+    ];
+    
     // Check if any virtual terms are present in league or team names
     const isVirtual = virtualTerms.some(term => 
       leagueName.includes(term) || 
@@ -247,8 +255,20 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       awayTeamName.includes(term)
     );
     
+    // Check if any excluded terms are present in league or team names
+    const isExcluded = excludedTerms.some(term => 
+      leagueName.includes(term) || 
+      homeTeamName.includes(term) || 
+      awayTeamName.includes(term)
+    );
+    
     if (isVirtual) {
       console.log(`Filtering out virtual/esports fixture: ${league.name}`);
+      return acc;
+    }
+    
+    if (isExcluded) {
+      console.log(`Filtering out excluded fixture: ${league.name}`);
       return acc;
     }
 
@@ -262,31 +282,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
 
-      // Check if it's a Friendlies league
-      if (league.name && league.name.toLowerCase().includes('friendlies')) {
-        const countryKey = 'Friendlies';
-        if (!acc[countryKey]) {
-          acc[countryKey] = {
-            country: countryKey,
-            flag: getCountryFlag('World'), // Use World flag for Friendlies
-            leagues: {},
-            hasPopularLeague: false,
-            isFriendlies: true // Mark the entire country group as friendlies
-          };
-        }
-        const leagueId = league.id;
-
-        if (!acc[countryKey].leagues[leagueId]) {
-          acc[countryKey].leagues[leagueId] = {
-            league: { ...league, country: 'Friendlies' },
-            matches: [],
-            isPopular: false,
-            isFriendlies: true
-          };
-        }
-        acc[countryKey].leagues[leagueId].matches.push(fixture);
-        return acc;
-      }
+      // Note: Friendlies are now filtered out above, so this section is no longer needed
 
       // Allow World and Europe competitions to pass through
       if (league.name && (
@@ -397,6 +393,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return false;
     }
 
+    // Add null safety check for country name
+    if (!countryData.country || typeof countryData.country !== 'string') {
+      return false;
+    }
+    
     const countryName = countryData.country.trim().toLowerCase();
 
     // Include if it's one of the popular countries (exact match for better filtering)
@@ -415,10 +416,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
 
     // Second priority: popular countries (excluding friendlies)
-    const aIsPopularCountry = !aIsFriendlies && a.country && POPULAR_COUNTRIES.some(country => 
+    const aIsPopularCountry = !aIsFriendlies && a.country && typeof a.country === 'string' && POPULAR_COUNTRIES.some(country => 
       a.country.toLowerCase() === country.toLowerCase()
     );
-    const bIsPopularCountry = !bIsFriendlies && b.country && POPULAR_COUNTRIES.some(country => 
+    const bIsPopularCountry = !bIsFriendlies && b.country && typeof b.country === 'string' && POPULAR_COUNTRIES.some(country => 
       b.country.toLowerCase() === country.toLowerCase()
     );
 
@@ -432,10 +433,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // If both are popular countries, sort by POPULAR_COUNTRIES order
     if (aIsPopularCountry && bIsPopularCountry) {
       const aIndex = POPULAR_COUNTRIES.findIndex(country => 
-        a.country && a.country.toLowerCase() === country.toLowerCase()
+        a.country && typeof a.country === 'string' && a.country.toLowerCase() === country.toLowerCase()
       );
       const bIndex = POPULAR_COUNTRIES.findIndex(country => 
-        b.country && b.country.toLowerCase() === country.toLowerCase()
+        b.country && typeof b.country === 'string' && b.country.toLowerCase() === country.toLowerCase()
       );
       if (aIndex !== bIndex) return aIndex - bIndex;
     }
