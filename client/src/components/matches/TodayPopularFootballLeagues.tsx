@@ -7,6 +7,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 
 import { isToday, isYesterday, isTomorrow, safeSubstring } from '@/lib/dateUtils';
+import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
@@ -248,78 +249,18 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return acc;
     }
 
-    // Enhanced filtering for virtual/esports/non-football fixtures
-    const leagueName = (league.name || '').toLowerCase();
-    const homeTeamName = (fixture.teams?.home?.name || '').toLowerCase();
-    const awayTeamName = (fixture.teams?.away?.name || '').toLowerCase();
+    // Use centralized exclusion filter
+    const leagueName = league.name || '';
+    const homeTeamName = fixture.teams?.home?.name || '';
+    const awayTeamName = fixture.teams?.away?.name || '';
 
-    // Comprehensive list of terms to exclude
-    const virtualTerms = [
-      'esoccer', 'e-soccer', 'esports', 'e-sports', 'cyber', 'virtual', 'ebet', 'e-bet',
-      'fifa', 'pes', 'pro evolution soccer', 'efootball', 'e-football',
-      'simulated', 'simulation', 'digital', 'online', 'gaming', 'gt leagues',
-      'h2h gg', 'battle', 'volta', '8 mins', '10 mins', '12 mins', '6 mins'
-    ];
-
-    // Additional terms to exclude - Women's, and Youth leagues (especially U17 and U20)
-    const excludedTerms = [
-      'women', 'womens', "women's", 'girls', 'female',
-      'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'under 15', 'under 16', 
-      'under 17', 'under 18', 'under 19', 'under 20', 'under 21', 'under 23',
-      'youth', 'junior', 'reserve', 'reserves', 'amateur', 'development', 'academy',
-      'u-17', 'u-20', 'under-17', 'under-20', '17', '20', 'youth league', 'junior league',
-      'argentina', // Exclude Argentina as requested
-      'gaúcho', 'gaucho' // Exclude Gaúcho league
-    ];
-
-    // Check if any virtual terms are present in league or team names
-    const isVirtual = virtualTerms.some(term => 
-      leagueName.includes(term) || 
-      homeTeamName.includes(term) || 
-      awayTeamName.includes(term)
-    );
+    // Check if fixture should be excluded using centralized filter
+    if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
+      console.log(`Filtering out excluded fixture: ${league.name} - ${homeTeamName} vs ${awayTeamName}`);
+      return acc;
+    }
 
     const country = league.country;
-
-    // Check for friendlies but allow world tournament friendlies
-    const isFriendly = leagueName.includes('friendly') || leagueName.includes('friendlies') ||
-                      homeTeamName.includes('friendly') || awayTeamName.includes('friendly');
-    
-    // Allow friendlies if they're world tournaments (FIFA, international, world cup, etc.)
-    const isWorldTournamentFriendly = isFriendly && (
-      leagueName.includes('fifa') || 
-      leagueName.includes('world') || 
-      leagueName.includes('international') || 
-      leagueName.includes('nations') ||
-      leagueName.includes('confederation') ||
-      country === 'World' || 
-      country === 'International'
-    );
-
-    // Check if any excluded terms are present in league or team names
-    const isExcluded = excludedTerms.some(term => 
-      leagueName.includes(term) || 
-      homeTeamName.includes(term) || 
-      awayTeamName.includes(term)
-    );
-
-    // Exclude regular friendlies but allow world tournament friendlies
-    const shouldExcludeFriendly = isFriendly && !isWorldTournamentFriendly;
-
-    if (isVirtual) {
-      console.log(`Filtering out virtual/esports fixture: ${league.name}`);
-      return acc;
-    }
-
-    if (isExcluded) {
-      console.log(`Filtering out excluded fixture: ${league.name}`);
-      return acc;
-    }
-
-    if (shouldExcludeFriendly) {
-      console.log(`Filtering out regular friendly fixture: ${league.name}`);
-      return acc;
-    }
 
     // Skip fixtures without a valid country, but keep World and Europe competitions
     if (!country || 
