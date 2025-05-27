@@ -125,14 +125,19 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
 
     const country = league.country;
 
-    // Skip fixtures without a valid country - be more strict about filtering
+    // Skip fixtures without a valid country, but keep World/International competitions
     if (!country || 
         typeof country !== 'string' || 
         country.trim() === '' || 
-        country.toLowerCase() === 'unknown' ||
-        country.toLowerCase() === 'world' ||
-        country.toLowerCase() === 'international') {
+        country.toLowerCase() === 'unknown') {
       console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
+      return acc;
+    }
+
+    // Filter out esports leagues which have null country but keep real international competitions
+    const leagueName = league.name?.toLowerCase() || '';
+    if (leagueName.includes('esoccer') || leagueName.includes('ebet') || leagueName.includes('cyber')) {
+      console.warn('Skipping esports fixture:', leagueName, fixture);
       return acc;
     }
 
