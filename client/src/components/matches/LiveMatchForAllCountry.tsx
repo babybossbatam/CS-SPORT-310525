@@ -220,8 +220,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
   // Use only the live fixtures data
   const allFixtures = fixtures;
 
-  // Group live fixtures by country and league with comprehensive null checks
-  const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
+  // Group live fixtures by league with comprehensive null checks
+  const fixturesByLeague = allFixtures.reduce((acc: any, fixture: any) => {
     // Validate fixture structure
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
       console.warn('Invalid fixture data structure:', fixture);
@@ -242,50 +242,24 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       return acc;
     }
 
+    const leagueId = league.id;
     const country = league.country;
 
-    // Skip fixtures without a valid country, but keep World and Europe competitions
-    if (!country ||
-      country === null ||
-      country === undefined ||
-      typeof country !== 'string' ||
-      country.trim() === '' ||
-      country.toLowerCase() === 'unknown') {
-      console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
-      return acc;
-    }
-
-    // Only allow valid country names, World, and Europe
-    const validCountry = country.trim();
-    if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
-      console.warn('Skipping fixture with empty country name:', country, fixture);
-      return acc;
-    }
-
-    const leagueId = league.id;
-
-    if (!acc[country]) {
-      acc[country] = {
-        country,
-        flag: getCountryFlag(country, league.flag),
-        leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(leagueId)
-      };
-    }
-
-    if (!acc[country].leagues[leagueId]) {
-      acc[country].leagues[leagueId] = {
+    if (!acc[leagueId]) {
+      acc[leagueId] = {
         league: {
           ...league,
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
         },
+        country: country,
+        flag: getCountryFlag(country, league.flag),
         matches: [],
         isPopular: POPULAR_LEAGUES.includes(leagueId)
       };
     }
 
     // Add fixture with safe team data
-    acc[country].leagues[leagueId].matches.push({
+    acc[leagueId].matches.push({
       ...fixture,
       teams: {
         home: {
@@ -302,16 +276,16 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     return acc;
   }, {});
 
-  // Sort countries: those with popular leagues first, then alphabetically
-  const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
+  // Sort leagues: popular first, then alphabetically
+  const sortedLeagues = Object.values(fixturesByLeague).sort((a: any, b: any) => {
     // First sort by popular leagues
-    if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
-    if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
+    if (a.isPopular && !b.isPopular) return -1;
+    if (!a.isPopular && b.isPopular) return 1;
     
-    // Then alphabetically
-    const countryA = a.country || '';
-    const countryB = b.country || '';
-    return countryA.localeCompare(countryB);
+    // Then alphabetically by league name
+    const leagueA = a.league.name || '';
+    const leagueB = b.league.name || '';
+    return leagueA.localeCompare(leagueB);
   });
 
   
@@ -372,116 +346,111 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
-          {sortedCountries.map((countryData: any) => {
-            const totalMatches = Object.values(countryData.leagues).reduce(
-              (sum: number, league: any) => sum + league.matches.length, 0
-            );
+          {sortedLeagues.map((leagueData: any) => (
+            <div key={leagueData.league.id} className="border-b border-gray-100 last:border-b-0">
+              {/* League Header */}
+              <div className="flex items-center gap-3 py-3 px-4 bg-gray-50 border-b border-gray-200">
+                <img
+                  src={leagueData.league.logo}
+                  alt={leagueData.league.name}
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                  }}
+                />
+                <span className="font-semibold text-sm text-gray-800">
+                  {leagueData.league.name}
+                </span>
+                {leagueData.country && (
+                  <div className="flex items-center gap-1 ml-2">
+                    <img
+                      src={leagueData.flag}
+                      alt={leagueData.country}
+                      className="w-4 h-3 object-cover rounded-sm"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/assets/fallback-logo.svg';
+                      }}
+                    />
+                    <span className="text-xs text-gray-500">{leagueData.country}</span>
+                  </div>
+                )}
+                {leagueData.isPopular && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
+                    Popular
+                  </span>
+                )}
+                <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold ml-2">
+                  {leagueData.matches.length} LIVE
+                </span>
+              </div>
 
-            return (
-              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                
+              {/* Live Matches */}
+              <div className="space-y-0">
+                {leagueData.matches.map((match: any) => (
+                  <div
+                    key={match.fixture.id}
+                    className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex items-center px-4 py-3">
+                      {/* Home Team */}
+                      <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-3 truncate">
+                        {match.teams.home.name}
+                      </div>
 
-                {/* Always show matches - no collapse */}
-                <div className="bg-gray-50 border-t border-gray-100">
-                  {/* Sort leagues - popular first */}
-                  {Object.values(countryData.leagues)
-                    .sort((a: any, b: any) => {
-                      if (a.isPopular && !b.isPopular) return -1;
-                      if (!a.isPopular && b.isPopular) return 1;
-                      return a.league.name.localeCompare(b.league.name);
-                    })
-                    .map((leagueData: any) => (
-                      <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
-                        {/* League Header */}
-                        <div className="flex items-center gap-2 mb-0 py-2 px-4 bg-gray-50 border-b border-gray-200">
-                          <img
-                            src={leagueData.league.logo}
-                            alt={leagueData.league.name}
-                            className="w-4 h-4 object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                            }}
-                          />
-                          <span className="font-medium text-sm text-gray-700">
-                            {leagueData.league.name}
-                          </span>
-                          {leagueData.isPopular && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
-                              Popular
-                            </span>
-                          )}
+                      <div className="flex-shrink-0 mx-2">
+                        <img
+                          src={match.teams.home.logo || '/assets/fallback-logo.png'}
+                          alt={match.teams.home.name}
+                          className="w-10 h-10 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.png') {
+                              target.src = '/assets/fallback-logo.png';
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {/* Score/Time Center - Live matches */}
+                      <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                        <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
+                          LIVE
                         </div>
-
-                        {/* Live Matches */}
-                        <div className="space-y-0 mt-3">
-                          {leagueData.matches.map((match: any) => (
-                            <div
-                              key={match.fixture.id}
-                              className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
-                            >
-                              <div className="flex items-center px-3 py-2">
-                                {/* Home Team */}
-                                <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                                  {match.teams.home.name}
-                                </div>
-
-                                <div className="flex-shrink-0 mx-1">
-                                  <img
-                                    src={match.teams.home.logo || '/assets/fallback-logo.png'}
-                                    alt={match.teams.home.name}
-                                    className="w-12 h-12 object-contain"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      if (target.src !== '/assets/fallback-logo.png') {
-                                        target.src = '/assets/fallback-logo.png';
-                                      }
-                                    }}
-                                  />
-                                </div>
-
-                                {/* Score/Time Center - Live matches */}
-                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
-                                  <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
-                                    LIVE
-                                  </div>
-                                  <div className="text-lg font-bold text-red-600 flex items-center gap-2">
-                                    <span>{match.goals.home ?? 0}</span>
-                                    <span className="text-gray-400">-</span>
-                                    <span>{match.goals.away ?? 0}</span>
-                                  </div>
-                                  <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
-                                    {match.fixture.status.short === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
-                                  </div>
-                                </div>
-
-                                <div className="flex-shrink-0 mx-1">
-                                  <img
-                                    src={match.teams.away.logo || '/assets/fallback-logo.png'}
-                                    alt={match.teams.away.name}
-                                    className="w-12 h-12 object-contain"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      if (target.src !== '/assets/fallback-logo.png') {
-                                        target.src = '/assets/fallback-logo.png';
-                                      }
-                                    }}
-                                  />
-                                </div>
-
-                                {/* Away Team */}
-                                <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                                  {match.teams.away.name}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                        <div className="text-lg font-bold text-red-600 flex items-center gap-2">
+                          <span>{match.goals.home ?? 0}</span>
+                          <span className="text-gray-400">-</span>
+                          <span>{match.goals.away ?? 0}</span>
+                        </div>
+                        <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
+                          {match.fixture.status.short === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                         </div>
                       </div>
-                    ))}
-                </div>
+
+                      <div className="flex-shrink-0 mx-2">
+                        <img
+                          src={match.teams.away.logo || '/assets/fallback-logo.png'}
+                          alt={match.teams.away.name}
+                          className="w-10 h-10 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.png') {
+                              target.src = '/assets/fallback-logo.png';
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {/* Away Team */}
+                      <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-3 truncate">
+                        {match.teams.away.name}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
