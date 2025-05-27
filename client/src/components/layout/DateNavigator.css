@@ -1,52 +1,117 @@
-.calendar-day {
-  background: transparent;
-  color: #333;
-  /* Default black text for most dates */
-  border: none;
-  padding: 8px;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+
+/* Calendar popup container */
+.calendar-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  padding: 16px;
+  margin-top: 4px;
+  min-width: 280px;
 }
 
-/* Today's date should have blue text by default (not light blue background) */
-.calendar-day.today {
-  color: #4285f4;
-  /* Blue text for today's date */
+/* Calendar header with month/year and navigation */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
   font-weight: 600;
-  background-color: transparent;
-  /* Remove the light blue background */
+  color: #1a1a1a;
+}
+
+/* Weekday headers */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  padding: 4px;
+}
+
+/* Calendar days grid */
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+/* Individual calendar day styling */
+.calendar-day {
+  background: transparent !important;
+  color: #333 !important;
+  border: none !important;
+  padding: 8px !important;
+  border-radius: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Today's date should have blue text by default */
+.calendar-day.today {
+  color: #4285f4 !important;
+  font-weight: 600 !important;
+  background-color: transparent !important;
 }
 
 /* Hover state should be light gray background */
 .calendar-day:hover {
-  background-color: #f1f1f1;
-  /* Light gray background on hover */
+  background-color: #f1f1f1 !important;
+  color: #333 !important;
 }
 
 /* Selected date should have blue background with white text */
 .calendar-day.selected {
-  background-color: #4285f4;
-  /* Blue background for selected date */
-  color: white;
-  /* White text for selected date */
-  font-weight: 600;
+  background-color: #4285f4 !important;
+  color: white !important;
+  font-weight: 600 !important;
 }
 
 /* Keep selected styling even on hover */
 .calendar-day.selected:hover {
-  background-color: #4285f4;
-  /* Keep blue background on hover for selected date */
+  background-color: #4285f4 !important;
+  color: white !important;
 }
 
 /* If today is selected, use selected styling */
 .calendar-day.today.selected {
-  background-color: #4285f4;
-  /* When today is selected, use selected styling */
-  color: white;
-  font-weight: 600;
+  background-color: #4285f4 !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Today indicator at bottom */
+.today-indicator {
+  text-align: center;
+  margin-top: 12px;
+  padding: 8px;
+  color: #4285f4;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-top: 1px solid #e1e5e9;
+  transition: color 0.2s ease;
+}
+
+.today-indicator:hover {
+  color: #1a73e8;
 }
