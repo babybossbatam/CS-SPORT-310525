@@ -398,7 +398,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                         <div className="space-y-1 mt-3">
                           {leagueData.matches
                             .sort((a: any, b: any) => {
-                              // Sort: Live > Upcoming > Recent Finished > Old Finished
                               const aStatus = a.fixture.status.short;
                               const bStatus = b.fixture.status.short;
                               const aDate = parseISO(a.fixture.date);
@@ -413,37 +412,48 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               const aTime = aDate.getTime();
                               const bTime = bDate.getTime();
 
-                              // 1. Prioritize LIVE matches first
+                              // Define status categories
                               const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
                               const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
-
-                              if (aLive && !bLive) return -1;
-                              if (!aLive && bLive) return 1;
-
-                              // 2. Then prioritize UPCOMING matches (not started and in future)
-                              const aUpcoming = aStatus === 'NS' && aTime > now.getTime();
-                              const bUpcoming = bStatus === 'NS' && bTime > now.getTime();
-
-                              if (aUpcoming && !bUpcoming) return -1;
-                              if (!aUpcoming && bUpcoming) return 1;
-
-                              // 3. Then finished matches
+                              
                               const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
                               const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
+                              
+                              const aUpcoming = aStatus === 'NS' && !aLive && !aFinished;
+                              const bUpcoming = bStatus === 'NS' && !bLive && !bFinished;
 
-                              // Within each category, sort by time
+                              // Assign priority scores (lower = higher priority)
+                              let aPriority = 0;
+                              let bPriority = 0;
+
+                              if (aLive) aPriority = 1;
+                              else if (aUpcoming) aPriority = 2;
+                              else if (aFinished) aPriority = 3;
+                              else aPriority = 4;
+
+                              if (bLive) bPriority = 1;
+                              else if (bUpcoming) bPriority = 2;
+                              else if (bFinished) bPriority = 3;
+                              else bPriority = 4;
+
+                              // First sort by priority
+                              if (aPriority !== bPriority) {
+                                return aPriority - bPriority;
+                              }
+
+                              // If same priority, sort by time within category
                               if (aLive && bLive) {
-                                // For live matches, sort by start time (earlier matches first)
+                                // For live matches, show earliest start time first
                                 return aTime - bTime;
                               }
-
+                              
                               if (aUpcoming && bUpcoming) {
-                                // For upcoming matches, sort by start time (earliest first)
+                                // For upcoming matches, show earliest start time first
                                 return aTime - bTime;
                               }
-
+                              
                               if (aFinished && bFinished) {
-                                // For finished matches, sort by end time (most recent first)
+                                // For finished matches, show most recent first
                                 return bTime - aTime;
                               }
 
