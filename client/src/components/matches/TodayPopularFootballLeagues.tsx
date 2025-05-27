@@ -10,9 +10,15 @@ import { isToday, isYesterday, isTomorrow, safeSubstring } from '@/lib/dateUtils
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
+  timeFilterActive?: boolean;
+  showTop20?: boolean;
 }
 
-const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = ({ selectedDate }) => {
+const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = ({ 
+  selectedDate, 
+  timeFilterActive = false, 
+  showTop20 = false 
+}) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
@@ -561,16 +567,24 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   // Get header title based on selected date
   const getHeaderTitle = () => {
     const selectedDateObj = new Date(selectedDate);
+    let baseTitle = "";
 
     if (isToday(selectedDateObj)) {
-      return "Today's Popular Football Leagues";
+      baseTitle = "Today's Popular Football Leagues";
     } else if (isYesterday(selectedDateObj)) {
-      return "Yesterday's Popular Football Leagues";
+      baseTitle = "Yesterday's Popular Football Leagues";
     } else if (isTomorrow(selectedDateObj)) {
-      return "Tomorrow's Popular Football Leagues";
+      baseTitle = "Tomorrow's Popular Football Leagues";
     } else {
-      return `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
+      baseTitle = `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
     }
+
+    // Add time filter indicator
+    if (timeFilterActive && showTop20) {
+      baseTitle += " (Top 20 by Time)";
+    }
+
+    return baseTitle;
   };
 
   // Use cached data if available, even during loading
@@ -795,7 +809,32 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                         {(leagueData.isPopular || leagueData.isFriendlies || expandedLeagues.has(leagueData.league.id.toString())) && (
                           <div className="space-y-1 mt-3">
                           {leagueData.matches
+                            .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                             .sort((a: any, b: any) => {
+                              // When time filter is active, prioritize by time more strictly
+                              if (timeFilterActive) {
+                                const aDate = parseISO(a.fixture.date);
+                                const bDate = parseISO(b.fixture.date);
+                                const now = new Date();
+                                
+                                // Ensure valid dates
+                                if (!isValid(aDate) || !isValid(bDate)) {
+                                  return 0;
+                                }
+
+                                const aTime = aDate.getTime();
+                                const bTime = bDate.getTime();
+                                const nowTime = now.getTime();
+
+                                // Calculate time distance from now
+                                const aDistance = Math.abs(aTime - nowTime);
+                                const bDistance = Math.abs(bTime - nowTime);
+
+                                // Prioritize matches closest to current time
+                                return aDistance - bDistance;
+                              }
+
+                              // Original sorting logic when time filter is not active
                               const aStatus = a.fixture.status.short;
                               const bStatus = b.fixture.status.short;
                               const aDate = parseISO(a.fixture.date);

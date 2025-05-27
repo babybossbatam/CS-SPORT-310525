@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const [viewMode, setViewMode] = useState<'date' | 'country'>('date');
+  const [timeFilterActive, setTimeFilterActive] = useState(false);
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
@@ -174,7 +175,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
               Live
             </button>
-            <button className="flex items-center gap-1.5 px-2 py-0.5 hover:bg-gray-100 rounded-full text-xs font-medium w-fit">
+            <button 
+              onClick={() => setTimeFilterActive(!timeFilterActive)}
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
+                timeFilterActive 
+                  ? 'bg-blue-100 text-blue-700 shadow-sm' 
+                  : 'hover:bg-gray-100 hover:shadow-sm hover:scale-105'
+              }`}
+            >
               <Clock className="h-3.5 w-3.5" />
               By time
             </button>
@@ -209,7 +217,11 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       {viewMode === 'date' ? (
         <>
           <div className="space-y-4">
-            <TodayPopularFootballLeagues selectedDate={selectedDate} />
+            <TodayPopularFootballLeagues 
+              selectedDate={selectedDate} 
+              timeFilterActive={timeFilterActive}
+              showTop20={timeFilterActive}
+            />
           </div>
           <TodaysMatchesByCountry selectedDate={selectedDate} />
         </>
