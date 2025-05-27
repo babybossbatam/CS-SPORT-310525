@@ -221,10 +221,12 @@ const DateNavigator = () => {
                     </div>
 
                     <div 
-                      className="today-indicator"
+                      className={`today-indicator ${isToday ? 'disabled' : ''}`}
                       onClick={() => {
-                        goToToday();
-                        setIsCalendarOpen(false);
+                        if (!isToday) {
+                          goToToday();
+                          setIsCalendarOpen(false);
+                        }
                       }}
                     >
                       Today
