@@ -7,7 +7,8 @@ import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow } from 'date-fns';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
-import { QUERY_CONFIGS } from '@/lib/cacheConfig';
+import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
+import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
@@ -59,31 +60,36 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
-  // Fetch all fixtures for the selected date with 24-hour caching
-  const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
-    ...QUERY_CONFIGS.allFixturesByDate(selectedDate, enableFetching),
-    queryFn: async () => {
+  // Check if we have fresh cached data
+  const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
+  const popularQueryKey = ['popular-fixtures', selectedDate];
+  
+  const cachedFixtures = CacheManager.getCachedData(fixturesQueryKey, 30 * 60 * 1000); // 30 minutes
+  const cachedPopularFixtures = CacheManager.getCachedData(popularQueryKey, 30 * 60 * 1000);
+
+  // Fetch all fixtures for the selected date with smart caching
+  const { data: fixtures = [], isLoading, isFetching } = useCachedQuery(
+    fixturesQueryKey,
+    async () => {
       console.log(`Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
       return data;
     },
-  });
+    {
+      enabled: !!selectedDate && enableFetching,
+      maxAge: 30 * 60 * 1000, // 30 minutes
+      backgroundRefresh: true,
+    }
+  );
 
-  // Fetch popular league fixtures with 24-hour caching
-  const { data: popularFixtures = [], isLoading: isLoadingPopular, hasData: hasCachedPopular } = useQuery({
-    ...QUERY_CONFIGS.popularFixtures(selectedDate, enableFetching, POPULAR_LEAGUES),
-    queryFn: async () => {
+  // Fetch popular league fixtures with smart caching
+  const { data: popularFixtures = [], isLoading: isLoadingPopular, isFetching: isFetchingPopular } = useCachedQuery(
+    popularQueryKey,
+    async () => {
       const allData = [];
-      const today = new Date();
-      const selectedDateObj = new Date(selectedDate);
-
-      // Only fetch matches for the selected date
-      let startDate = selectedDate;
-      let endDate = selectedDate;
-
-      console.log(`Fetching popular league fixtures from ${startDate} to ${endDate}`);
+      console.log(`Fetching popular league fixtures for ${selectedDate}`);
 
       // Fetch data for each popular league
       for (const leagueId of POPULAR_LEAGUES) {
@@ -135,7 +141,12 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
       return allData;
     },
-  });
+    {
+      enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
+      maxAge: 30 * 60 * 1000, // 30 minutes
+      backgroundRefresh: true,
+    }
+  );
 
   // Start with all countries collapsed by default
   useEffect(() => {
@@ -519,9 +530,9 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   };
 
   // Use cached data if available, even during loading
-  const cachedFixtures = hasCachedFixtures || [];
-  const cachedPopularFixtures = hasCachedPopular || [];
-  const combinedCachedData = [...cachedFixtures, ...cachedPopularFixtures].filter((fixture, index, self) => 
+  const hasCachedFixtures = cachedFixtures && cachedFixtures.length > 0;
+  const hasCachedPopular = cachedPopularFixtures && cachedPopularFixtures.length > 0;
+  const combinedCachedData = [...(cachedFixtures || []), ...(cachedPopularFixtures || [])].filter((fixture, index, self) => 
     index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
   );
 

@@ -174,6 +174,68 @@ export const CACHE_KEYS = {
   news: (sport?: string) => ['news', sport || 'football'],
 } as const;
 
+// Cache freshness validation
+export const CACHE_FRESHNESS = {
+  // Check if cache is fresh (within specified duration)
+  isFresh: (timestamp: string | number, maxAge: number): boolean => {
+    const now = Date.now();
+    const cacheTime = typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp;
+    return (now - cacheTime) < maxAge;
+  },
+
+  // Get cache age in milliseconds
+  getAge: (timestamp: string | number): number => {
+    const now = Date.now();
+    const cacheTime = typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp;
+    return now - cacheTime;
+  },
+
+  // Check if cache needs refresh (30 minutes = 1800000ms)
+  needsRefresh: (timestamp: string | number, refreshInterval: number = 30 * 60 * 1000): boolean => {
+    return !CACHE_FRESHNESS.isFresh(timestamp, refreshInterval);
+  },
+} as const;
+
+// Background refresh functionality
+export const CACHE_REFRESH = {
+  // Setup automatic cache refresh for specific queries
+  setupAutoRefresh: (queryClient: any, queryKey: string[], refreshInterval: number = 30 * 60 * 1000) => {
+    return setInterval(() => {
+      const query = queryClient.getQueryData(queryKey);
+      if (query) {
+        console.log(`Auto-refreshing cache for query: ${queryKey.join('-')}`);
+        queryClient.invalidateQueries({ queryKey });
+      }
+    }, refreshInterval);
+  },
+
+  // Selective refresh based on data importance
+  refreshCriticalData: (queryClient: any) => {
+    // Refresh live fixtures
+    queryClient.invalidateQueries({ queryKey: ['live-fixtures-all-countries'] });
+    
+    // Refresh today's fixtures
+    const today = new Date().toISOString().split('T')[0];
+    queryClient.invalidateQueries({ queryKey: ['all-fixtures-by-date', today] });
+    queryClient.invalidateQueries({ queryKey: ['popular-fixtures', today] });
+    
+    console.log('Critical data refreshed');
+  },
+
+  // Smart refresh - only refresh stale data
+  refreshStaleData: (queryClient: any) => {
+    const cache = queryClient.getQueryCache();
+    const queries = cache.getAll();
+    
+    queries.forEach((query) => {
+      if (query.state.dataUpdatedAt && CACHE_FRESHNESS.needsRefresh(query.state.dataUpdatedAt)) {
+        console.log(`Refreshing stale query: ${query.queryKey.join('-')}`);
+        queryClient.invalidateQueries({ queryKey: query.queryKey });
+      }
+    });
+  },
+} as const;
+
 // Cache invalidation helpers
 export const CACHE_INVALIDATION = {
   // Invalidate all fixture-related caches
@@ -194,5 +256,17 @@ export const CACHE_INVALIDATION = {
   // Clear all caches
   all: (queryClient: any) => {
     queryClient.clear();
+  },
+
+  // Smart invalidation - only invalidate stale data
+  staleOnly: (queryClient: any, maxAge: number = 30 * 60 * 1000) => {
+    const cache = queryClient.getQueryCache();
+    const queries = cache.getAll();
+    
+    queries.forEach((query) => {
+      if (query.state.dataUpdatedAt && !CACHE_FRESHNESS.isFresh(query.state.dataUpdatedAt, maxAge)) {
+        queryClient.invalidateQueries({ queryKey: query.queryKey });
+      }
+    });
   },
 } as const;
