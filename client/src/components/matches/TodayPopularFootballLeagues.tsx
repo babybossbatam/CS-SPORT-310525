@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid, isSameDay } from 'date-fns';
+import LeagueCollapseToggle from './LeagueCollapseToggle';
 
 interface TodayPopularFootballLeaguesProps {
   selectedDate: string;
@@ -12,6 +13,7 @@ interface TodayPopularFootballLeaguesProps {
 
 const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = ({ selectedDate }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
+  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular leagues for prioritization
@@ -132,10 +134,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     retry: 1, // Reduce retry attempts
   });
 
-  // Start with all countries collapsed by default
+  // Start with all countries and leagues collapsed by default
   useEffect(() => {
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
+    setExpandedLeagues(new Set());
   }, [selectedDate]);
 
   // Popular countries for prioritization
@@ -187,7 +190,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       if (countryCodeMap[cleanCountry]) {
         countryCode = countryCodeMap[cleanCountry];
       } else if (cleanCountry && typeof cleanCountry === 'string' && cleanCountry.length >= 2) {
-        countryCode = cleanCountry.substring(0, 2).toUpperCase();
+        countryCode = cleanCountry.slice(0, 2).toUpperCase(); // Use slice instead of substring for safety
       }
     } catch (error) {
       console.error('Error processing country name for flag:', cleanCountry, error);
@@ -337,6 +340,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       newExpanded.add(country);
     }
     setExpandedCountries(newExpanded);
+  };
+
+  const toggleLeague = (leagueId: string) => {
+    const newExpanded = new Set(expandedLeagues);
+    if (newExpanded.has(leagueId)) {
+      newExpanded.delete(leagueId);
+    } else {
+      newExpanded.add(leagueId);
+    }
+    setExpandedLeagues(newExpanded);
   };
 
   // Enhanced match status logic
@@ -547,33 +560,59 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                     })
                     .map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
-                        {/* League Header */}
-                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
-                          <img
-                            src={leagueData.league.logo}
-                            alt={leagueData.league.name}
-                            className="w-5 h-5 object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                            }}
+                        {/* League Header with Collapse/Expand for Non-Popular Leagues */}
+                        {!leagueData.isPopular ? (
+                          <LeagueCollapseToggle
+                            leagueName={leagueData.league.name || 'Unknown League'}
+                            countryName={leagueData.league.country || 'Unknown Country'}
+                            leagueLogo={leagueData.league.logo}
+                            matchCount={leagueData.matches.length}
+                            liveMatches={leagueData.matches.filter((match: any) => 
+                              ['LIVE', '1H', 'HT', '2H', 'ET'].includes(match.fixture?.status?.short || '')
+                            ).length}
+                            recentMatches={leagueData.matches.filter((match: any) => {
+                              const status = match.fixture?.status?.short;
+                              if (!status || !match.fixture?.date) return false;
+                              try {
+                                const fixtureDate = parseISO(match.fixture.date);
+                                if (!isValid(fixtureDate)) return false;
+                                const hoursAgo = differenceInHours(new Date(), fixtureDate);
+                                return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAgo <= 3;
+                              } catch (error) {
+                                return false;
+                              }
+                            }).length}
+                            isExpanded={expandedLeagues.has(leagueData.league.id.toString())}
+                            onToggle={() => toggleLeague(leagueData.league.id.toString())}
+                            isPopular={false}
                           />
-                          <div className="flex flex-col">
-                            <span className="font-medium text-sm text-gray-800">
-                              {leagueData.league.name}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {leagueData.league.country}
-                            </span>
-                          </div>
-                          {leagueData.isPopular && (
+                        ) : (
+                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                            <img
+                              src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                              alt={leagueData.league.name || 'Unknown League'}
+                              className="w-5 h-5 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                              }}
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-medium text-sm text-gray-800">
+                                {leagueData.league.name || 'Unknown League'}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {leagueData.league.country || 'Unknown Country'}
+                              </span>
+                            </div>
                             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                               Popular
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
 
-                        {/* Matches */}
-                        <div className="space-y-1 mt-3">
+                        {/* Matches - Only show if league is popular or expanded */}
+                        {(leagueData.isPopular || expandedLeagues.has(leagueData.league.id.toString())) && (
+                          <div className="space-y-1 mt-3">
                           {leagueData.matches
                             .sort((a: any, b: any) => {
                               const aStatus = a.fixture.status.short;
@@ -819,7 +858,8 @@ status === 'CANC' ? 'Cancelled' :
                               </div>
                             </div>
                           ))}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                 </div>
