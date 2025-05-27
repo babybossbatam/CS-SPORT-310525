@@ -185,8 +185,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 viewMode === 'date' && !timeFilterActive
-                  ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
-                  : 'bg-[#48BB78] text-white hover:bg-[#38A169]'
+                  ? 'bg-gray-400 text-black hover:bg-gray-500' 
+                  : 'bg-gray-300 text-black hover:bg-gray-400'
               }`}
             >
               By Date
@@ -199,8 +199,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 viewMode === 'country' && !timeFilterActive
-                  ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
-                  : 'bg-[#48BB78] text-white hover:bg-[#38A169]'
+                  ? 'bg-gray-400 text-black hover:bg-gray-500' 
+                  : 'bg-gray-300 text-black hover:bg-gray-400'
               }`}
             >
               By Country
@@ -217,8 +217,8 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
               timeFilterActive 
-                ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
-                : 'bg-[#48BB78] text-white hover:bg-[#38A169]'
+                ? 'bg-gray-400 text-black hover:bg-gray-500' 
+                : 'bg-gray-300 text-black hover:bg-gray-400'
             }`}
           >
             <Clock className="h-3.5 w-3.5" />
