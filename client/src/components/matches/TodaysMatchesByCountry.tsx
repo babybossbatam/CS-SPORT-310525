@@ -327,27 +327,27 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                       .map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
                         {/* League Header */}
-                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                        <div className="flex items-center gap-2 mb-0 py-2 px-4 bg-gray-50 border-b border-gray-200">
                           <img
                             src={leagueData.league.logo}
                             alt={leagueData.league.name}
-                            className="w-5 h-5 object-contain"
+                            className="w-4 h-4 object-contain"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                             }}
                           />
-                          <span className="font-medium text-sm text-gray-800">
+                          <span className="font-medium text-sm text-gray-700">
                             {leagueData.league.name}
                           </span>
                           {leagueData.isPopular && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
                               Popular
                             </span>
                           )}
                         </div>
 
                         {/* Matches */}
-                        <div className="space-y-1 mt-3">
+                        <div className="space-y-0 mt-3">
                           {leagueData.matches
                             .sort((a: any, b: any) => {
                               // Sort: Live > Recent Finished > Upcoming > Old Finished
@@ -374,27 +374,26 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                             .map((match: any) => (
                             <div 
                               key={match.fixture.id} 
-                              className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                              className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 py-3 px-4"
                             >
-                              <div className="flex items-center px-3 py-2">
-                                {/* Home Team */}
-                                <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                                  {match.teams.home.name}
-                                </div>
-
-                                <div className="flex-shrink-0 mx-1">
+                              <div className="flex items-center justify-between">
+                                {/* Home Team - Left side */}
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
                                   <img
                                     src={match.teams.home.logo}
                                     alt={match.teams.home.name}
-                                    className="w-6 h-6 object-contain"
+                                    className="w-5 h-5 object-contain flex-shrink-0"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                     }}
                                   />
+                                  <span className="text-sm font-medium text-gray-900 truncate">
+                                    {match.teams.home.name}
+                                  </span>
                                 </div>
 
                                 {/* Score/Time Center */}
-                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                                <div className="flex items-center justify-center gap-1 mx-4 flex-shrink-0">
                                   {(() => {
                                     const status = match.fixture.status.short;
                                     const fixtureDate = new Date(match.fixture.date);
@@ -403,52 +402,35 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                     // Live matches
                                     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                       return (
-                                        <>
-                                          <div className="text-lg font-bold text-red-600 flex items-center gap-2">
-                                            <span>{match.goals.home ?? 0}</span>
-                                            <span className="text-gray-400">-</span>
-                                            <span>{match.goals.away ?? 0}</span>
-                                          </div>
-                                          <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
-                                            {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
-                                          </div>
-                                        </>
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-lg font-bold text-red-600">{match.goals.home ?? 0}</span>
+                                          <span className="text-xs text-red-600 font-semibold animate-pulse">
+                                            {status === 'HT' ? 'HT' : (match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : 'LIVE')}
+                                          </span>
+                                          <span className="text-lg font-bold text-red-600">{match.goals.away ?? 0}</span>
+                                        </div>
                                       );
                                     }
 
                                     // Finished matches
                                     if (['FT', 'AET', 'PEN'].includes(status)) {
-                                      // Check if we actually have valid score data
                                       const hasValidScore = match.goals.home !== null && match.goals.away !== null;
 
                                       if (hasValidScore) {
                                         return (
-                                          <>
-                                            <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                              <span>{match.goals.home}</span>
-                                              <span className="text-gray-400">-</span>
-                                              <span>{match.goals.away}</span>
-                                            </div>
-                                            <div className="text-xs text-gray-500 mt-1">
-                                              {status === 'FT' ? 'FT' : 
-                                               status === 'AET' ? 'AET' :
-                                               status === 'PEN' ? 'PEN' : 'Finished'}
-                                            </div>
-                                          </>
+                                          <div className="flex items-center gap-1">
+                                            <span className="text-lg font-bold text-gray-900">{match.goals.home}</span>
+                                            <span className="text-xs text-gray-500 font-medium">
+                                              {status === 'FT' ? 'FT' : status}
+                                            </span>
+                                            <span className="text-lg font-bold text-gray-900">{match.goals.away}</span>
+                                          </div>
                                         );
                                       } else {
-                                        // Match is finished but no score data available
                                         return (
-                                          <>
-                                            <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded">
-                                              Score TBD
-                                            </div>
-                                            <div className="text-xs text-gray-500 mt-1">
-                                              {status === 'FT' ? 'Finished' : 
-                                               status === 'AET' ? 'AET' :
-                                               status === 'PEN' ? 'PEN' : 'Finished'}
-                                            </div>
-                                          </>
+                                          <span className="text-xs text-orange-600 font-medium px-2 py-1 bg-orange-100 rounded">
+                                            {status === 'FT' ? 'Finished' : status}
+                                          </span>
                                         );
                                       }
                                     }
@@ -456,42 +438,36 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                     // Check for other finished statuses with score data
                                     if (hasScore) {
                                       return (
-                                        <>
-                                          <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                            <span>{match.goals.home ?? 0}</span>
-                                            <span className="text-gray-400">-</span>
-                                            <span>{match.goals.away ?? 0}</span>
-                                          </div>
-                                          <div className="text-xs text-gray-500 mt-1">
-                                            Finished
-                                          </div>
-                                        </>
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-lg font-bold text-gray-900">{match.goals.home ?? 0}</span>
+                                          <span className="text-xs text-gray-500 font-medium">FT</span>
+                                          <span className="text-lg font-bold text-gray-900">{match.goals.away ?? 0}</span>
+                                        </div>
                                       );
                                     }
 
                                     // Upcoming matches
                                     return (
-                                      <div className="text-sm font-medium text-blue-600">
+                                      <span className="text-sm font-semibold text-blue-600 px-2 py-1 bg-blue-50 rounded">
                                         {format(fixtureDate, 'HH:mm')}
-                                      </div>
+                                      </span>
                                     );
                                   })()}
                                 </div>
 
-                                <div className="flex-shrink-0 mx-1">
+                                {/* Away Team - Right side */}
+                                <div className="flex items-center gap-3 flex-1 min-w-0 justify-end">
+                                  <span className="text-sm font-medium text-gray-900 truncate text-right">
+                                    {match.teams.away.name}
+                                  </span>
                                   <img
                                     src={match.teams.away.logo}
                                     alt={match.teams.away.name}
-                                    className="w-6 h-6 object-contain"
+                                    className="w-5 h-5 object-contain flex-shrink-0"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                     }}
                                   />
-                                </div>
-
-                                {/* Away Team */}
-                                <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                                  {match.teams.away.name}
                                 </div>
                               </div>
                             </div>
