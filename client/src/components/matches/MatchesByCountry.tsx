@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { format, differenceInHours, parseISO, isValid } from 'date-fns';
+import LeagueCollapseToggle from './LeagueCollapseToggle';
+import { safeSubstring } from '@/lib/utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
-import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
 import TeamLogo from './TeamLogo';
@@ -160,7 +165,7 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       return acc;
     }
 
-    
+
 
     const leagueId = league.id;
 

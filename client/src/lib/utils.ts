@@ -7,6 +7,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Safe substring function to handle null/undefined values
+export function safeSubstring(value: any, start: number, end?: number): string {
+  // Return empty string if value is null or undefined
+  if (value == null) {
+    return '';
+  }
+
+  // Convert to string if it's not already (handles numbers, etc.)
+  const str = String(value);
+
+  // If end is provided, use it, otherwise just use start parameter
+  return end !== undefined ? str.substring(start, end) : str.substring(start);
+}
+
 // Format match date for display
 export function formatMatchDate(dateString: string | Date | number | null | undefined): string {
   if (!dateString) {

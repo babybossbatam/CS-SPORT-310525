@@ -5,6 +5,8 @@ import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid } from 'date-fns';
+import LeagueCollapseToggle from './LeagueCollapseToggle';
+import { safeSubstring } from '@/lib/utils';
 
 interface TodaysMatchesByCountryProps {
   selectedDate: string;
@@ -733,7 +735,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                           <div className="text-xs text-gray-500 mt-1">Time TBD</div>
                                         )}
                                       </>
-                                    );
+                                                                        );
                                   })()}
                                 </div>
 

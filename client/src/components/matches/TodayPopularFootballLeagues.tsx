@@ -231,7 +231,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     const leagueName = (league.name || '').toLowerCase();
     const homeTeamName = (fixture.teams?.home?.name || '').toLowerCase();
     const awayTeamName = (fixture.teams?.away?.name || '').toLowerCase();
-    
+
     // Comprehensive list of terms to exclude
     const virtualTerms = [
       'esoccer', 'e-soccer', 'esports', 'e-sports', 'cyber', 'virtual', 'ebet', 'e-bet',
@@ -239,7 +239,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'simulated', 'simulation', 'digital', 'online', 'gaming', 'gt leagues',
       'h2h gg', 'battle', 'volta', '8 mins', '10 mins', '12 mins', '6 mins'
     ];
-    
+
     // Additional terms to exclude - Friendlies, Women's, and Youth leagues
     const excludedTerms = [
       'friendlies', 'friendly', 'women', 'womens', "women's", 'girls', 'female',
@@ -247,26 +247,26 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'under 17', 'under 18', 'under 19', 'under 20', 'under 21', 'under 23',
       'youth', 'junior', 'reserve', 'reserves', 'amateur', 'development', 'academy'
     ];
-    
+
     // Check if any virtual terms are present in league or team names
     const isVirtual = virtualTerms.some(term => 
       leagueName.includes(term) || 
       homeTeamName.includes(term) || 
       awayTeamName.includes(term)
     );
-    
+
     // Check if any excluded terms are present in league or team names
     const isExcluded = excludedTerms.some(term => 
       leagueName.includes(term) || 
       homeTeamName.includes(term) || 
       awayTeamName.includes(term)
     );
-    
+
     if (isVirtual) {
       console.log(`Filtering out virtual/esports fixture: ${league.name}`);
       return acc;
     }
-    
+
     if (isExcluded) {
       console.log(`Filtering out excluded fixture: ${league.name}`);
       return acc;
@@ -388,17 +388,13 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Include Friendlies
     if (countryData.country === 'Friendlies') return true;
 
-    // Add null check for country before string operations
-    if (!countryData.country || typeof countryData.country !== 'string' || countryData.country.trim() === '') {
+    // Add null check for country before string operations with safe handling
+    const countryStr = safeSubstring(countryData.country, 0);
+    if (!countryStr || countryStr.trim() === '') {
       return false;
     }
 
-    // Add null safety check for country name
-    if (!countryData.country || typeof countryData.country !== 'string') {
-      return false;
-    }
-    
-    const countryName = countryData.country.trim().toLowerCase();
+    const countryName = countryStr.trim().toLowerCase();
 
     // Include if it's one of the popular countries (exact match for better filtering)
     return POPULAR_COUNTRIES.some(country => 
@@ -410,7 +406,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aIsFriendlies = a.country === 'Friendlies' || a.isFriendlies;
     const bIsFriendlies = b.country === 'Friendlies' || b.isFriendlies;
-  
+
     // First priority: countries with popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
@@ -629,6 +625,20 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     return false;
   };
+
+  // Before calling substring, check if the value exists
+  function safeSubstring(value: any, start: number, end?: number) {
+    // Return empty string if value is null or undefined
+    if (value == null) {
+      return '';
+    }
+
+    // Convert to string if it's not already (handles numbers, etc.)
+    const str = String(value);
+
+    // If end is provided, use it, otherwise just use start parameter
+    return end !== undefined ? str.substring(start, end) : str.substring(start);
+  }
 
   return (
     <Card>

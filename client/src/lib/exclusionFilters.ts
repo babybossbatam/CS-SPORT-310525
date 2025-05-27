@@ -31,6 +31,20 @@ export const exclusionTerms = [
   'uruguayan primera division', 'venezuelan primera division'
 ];
 
+// Safe substring function to handle null/undefined values
+function safeSubstring(value: any, start: number, end?: number): string {
+  // Return empty string if value is null or undefined
+  if (value == null) {
+    return '';
+  }
+  
+  // Convert to string if it's not already (handles numbers, etc.)
+  const str = String(value);
+  
+  // If end is provided, use it, otherwise just use start parameter
+  return end !== undefined ? str.substring(start, end) : str.substring(start);
+}
+
 /**
  * Helper function to check if a fixture should be excluded based on exclusion terms
  * @param leagueName League name (will be converted to lowercase)
@@ -43,10 +57,10 @@ export function shouldExcludeFixture(
   homeTeamName: string,
   awayTeamName: string
 ): boolean {
-  // Convert inputs to lowercase
-  const league = leagueName.toLowerCase();
-  const homeTeam = homeTeamName.toLowerCase();
-  const awayTeam = awayTeamName.toLowerCase();
+  // Convert inputs to lowercase with safe handling
+  const league = safeSubstring(leagueName, 0).toLowerCase();
+  const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
+  const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
   
   // Check if any exclusion term exists in league or team names
   return exclusionTerms.some(term => 
