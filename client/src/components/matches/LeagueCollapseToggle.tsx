@@ -1,14 +1,27 @@
-
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+
+// Before calling substring, check if the value exists
+function safeSubstring(value: any, start: number, end?: number): string {
+  // Return empty string if value is null or undefined
+  if (value == null) {
+    return '';
+  }
+
+  // Convert to string if it's not already (handles numbers, etc.)
+  const str = String(value);
+
+  // If end is provided, use it, otherwise just use start parameter
+  return end !== undefined ? str.substring(start, end) : str.substring(start);
+}
 
 interface LeagueCollapseToggleProps {
   leagueName: string;
   countryName: string;
   leagueLogo?: string;
   matchCount: number;
-  liveMatches?: number;
-  recentMatches?: number;
+  liveMatches: number;
+  recentMatches: number;
   isExpanded: boolean;
   onToggle: () => void;
   isPopular?: boolean;
@@ -34,7 +47,7 @@ const LeagueCollapseToggle: React.FC<LeagueCollapseToggleProps> = ({
         {/* League Logo */}
         <img
           src={leagueLogo || '/assets/fallback-logo.svg'}
-          alt={leagueName || 'League'}
+          alt={safeSubstring(leagueName, 0) || 'League'}
           className="w-5 h-5 object-contain"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -47,7 +60,7 @@ const LeagueCollapseToggle: React.FC<LeagueCollapseToggleProps> = ({
         {/* League Info */}
         <div className="flex flex-col items-start">
           <span className="font-medium text-sm text-gray-800">
-            {leagueName || 'Unknown League'}
+            {safeSubstring(leagueName, 0)}{countryName && countryName !== 'Unknown' ? safeSubstring(countryName, 0) : ''}
           </span>
           <span className="text-xs text-gray-500">
             {countryName || 'Unknown Country'}

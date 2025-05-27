@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, isToday, isYesterday, isTomorrow, differenceInHours, parseISO, isValid } from 'date-fns';
 import LeagueCollapseToggle from './LeagueCollapseToggle';
-import { safeSubstring } from '@/lib/utils';
+
+// Before calling substring, check if the value exists
+function safeSubstring(value: any, start: number, end?: number): string {
+  // Return empty string if value is null or undefined
+  if (value == null) {
+    return '';
+  }
+
+  // Convert to string if it's not already (handles numbers, etc.)
+  const str = String(value);
+
+  // If end is provided, use it, otherwise just use start parameter
+  return end !== undefined ? str.substring(start, end) : str.substring(start);
+}
 
 interface TodaysMatchesByCountryProps {
   selectedDate: string;
@@ -725,7 +738,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                       );
                                     }
 
-                                    // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                                    // Upcoming matches (NS = Not Started, TBD = ToBe Determined)
                                     return (
                                       <>
                                         <div className="text-sm font-medium text-black">
