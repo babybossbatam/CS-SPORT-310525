@@ -58,7 +58,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
-  // Fetch all fixtures for the selected date with aggressive caching
+  // Fetch all fixtures for the selected date with 24-hour caching
   const { data: fixtures = [], isLoading, hasData: hasCachedFixtures } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
@@ -68,15 +68,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       console.log(`Received ${data.length} fixtures for ${selectedDate}`);
       return data;
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes - longer cache time
-    gcTime: 60 * 60 * 1000, // 1 hour garbage collection time
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - data stays fresh for 24 hours
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection time
     enabled: !!selectedDate && enableFetching,
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
     refetchOnMount: false, // Don't refetch on component mount if data exists
     refetchOnReconnect: false, // Don't refetch on network reconnection
   });
 
-  // Fetch popular league fixtures with even more aggressive caching
+  // Fetch popular league fixtures with 24-hour caching
   const { data: popularFixtures = [], isLoading: isLoadingPopular, hasData: hasCachedPopular } = useQuery({
     queryKey: ['popular-fixtures', selectedDate],
     queryFn: async () => {
@@ -141,8 +141,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return allData;
     },
     enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
-    staleTime: 60 * 60 * 1000, // 1 hour - very long cache time for popular fixtures
-    gcTime: 2 * 60 * 60 * 1000, // 2 hours garbage collection time
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - data stays fresh for 24 hours
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection time
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
     refetchOnMount: false, // Don't refetch on component mount if data exists
     refetchOnReconnect: false, // Don't refetch on network reconnection
