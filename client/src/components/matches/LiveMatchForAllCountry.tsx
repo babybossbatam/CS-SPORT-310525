@@ -379,33 +379,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                {/* Country Header - non-clickable */}
-                <div className="w-full p-4 flex items-center justify-between bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={countryData.flag}
-                      alt={countryData.country}
-                      className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (countryData.country === 'World') {
-                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-                        } else if (countryData.country === 'Europe') {
-                          target.src = 'https://flagsapi.com/EU/flat/24.png';
-                        } else {
-                          target.src = '/assets/fallback-logo.svg';
-                        }
-                      }}
-                    />
-                    
-
-                    {countryData.hasPopularLeague && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                        Popular
-                      </span>
-                    )}
-                  </div>
-                </div>
+                
 
                 {/* Always show matches - no collapse */}
                 <div className="bg-gray-50 border-t border-gray-100">
