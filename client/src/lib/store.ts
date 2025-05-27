@@ -426,6 +426,36 @@ export const selectUpcomingFixtures = createSelector(
   (upcoming) => upcoming
 );
 
+export const selectSelectedLeagues = createSelector(
+  [(state: RootState) => state.leagues.popularLeagues],
+  (popularLeagues) => popularLeagues
+);
+
+export const selectPopularLeagues = createSelector(
+  [(state: RootState) => state.leagues.popularLeagues],
+  (popularLeagues) => popularLeagues.slice(0, 5)
+);
+
+export const selectFilteredLeagues = createSelector(
+  [(state: RootState) => state.leagues.list],
+  (leagues) => leagues
+);
+
+export const selectAllLeagues = createSelector(
+  [(state: RootState) => state.leagues.list],
+  (leagues) => leagues
+);
+
+export const selectStandingsByLeague = createSelector(
+  [(state: RootState) => state.stats.topScorers],
+  (topScorers) => topScorers
+);
+
+export const selectSelectedCountries = createSelector(
+  [(state: RootState) => state.user.preferences.region],
+  (region) => [region]
+);
+
 // Export types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
