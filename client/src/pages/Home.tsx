@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, selectPopularLeagues, selectFixturesByDate, selectAllLeagues, leaguesActions, fixturesActions } from '@/lib/store';
+import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import Header from '@/components/layout/Header';
@@ -83,12 +83,10 @@ const Home = () => {
     }
   });
 
-  // Use memoized selectors only where there's actual transformation
-  const popularLeagues = useSelector(selectPopularLeagues);
-  const fixturesByDate = useSelector(selectFixturesByDate);
-  const allLeagues = useSelector(selectAllLeagues);
-
-  // Direct state access for simple values to avoid identity function warnings
+  // Use direct state access to avoid identity function warnings
+  const popularLeagues = useSelector((state: RootState) => state.leagues.popularLeagues.slice(0, 5));
+  const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate);
+  const allLeagues = useSelector((state: RootState) => state.leagues.list.filter(league => league && league.league));
   const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
   const standingsByLeague = useSelector((state: RootState) => state.stats.topScorers);
   const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
