@@ -270,7 +270,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       'under 17', 'under 18', 'under 19', 'under 20', 'under 21', 'under 23',
       'youth', 'junior', 'reserve', 'reserves', 'amateur', 'development', 'academy',
       'u-17', 'u-20', 'under-17', 'under-20', '17', '20', 'youth league', 'junior league',
-      'argentina' // Exclude Argentina as requested
+      'argentina', // Exclude Argentina as requested
+      'gaúcho', 'gaucho' // Exclude Gaúcho league
     ];
 
     // Check if any virtual terms are present in league or team names
