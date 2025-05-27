@@ -256,7 +256,13 @@ const Home = () => {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <NewsSection maxItems={3} sport="football" />
+                <NewsSection 
+                  title="Live Football News"
+                  maxItems={3} 
+                  sport="football"
+                  showImages={true}
+                  compact={true}
+                />
               </CardContent>
             </Card>
             <LeagueStandingsFilter />

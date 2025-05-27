@@ -46,10 +46,11 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
   // Fetch news data
   const { data: newsArticles = [], isLoading, error } = useQuery({
-    queryKey: ['football-news'],
+    queryKey: ['news', sport || 'football'],
     queryFn: async () => {
       try {
-        const response = await apiRequest('GET', '/api/news');
+        const sportParam = sport || 'football';
+        const response = await apiRequest('GET', `/api/news?sport=${sportParam}&count=${maxItems || 10}`);
         const data = await response.json();
         
         // Transform API response to consistent format
