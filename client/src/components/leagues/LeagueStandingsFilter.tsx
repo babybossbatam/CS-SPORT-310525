@@ -61,21 +61,32 @@ const LeagueStandingsFilter = () => {
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id.toString());
   const [selectedLeagueName, setSelectedLeagueName] = useState(POPULAR_LEAGUES[0].name);
 
+  // Get today's date string for daily caching
+  const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
   const { data: standings, isLoading: standingsLoading } = useQuery({
-    queryKey: ['standings', selectedLeague],
+    queryKey: ['standings', selectedLeague, todayDateKey],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
       const data = await response.json();
       return data?.league?.standings?.[0] || [];
     },
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
+    refetchOnMount: false, // Don't refetch on mount if data exists for today
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
-    queryKey: ['fixtures', selectedLeague],
+    queryKey: ['fixtures', selectedLeague, todayDateKey],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/fixtures`);
       return response.json();
     },
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
+    refetchOnMount: false, // Don't refetch on mount if data exists for today
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
   const isLoading = standingsLoading || fixturesLoading;
