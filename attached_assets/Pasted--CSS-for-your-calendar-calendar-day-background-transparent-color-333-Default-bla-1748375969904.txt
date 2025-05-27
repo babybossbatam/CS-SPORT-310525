@@ -1,0 +1,103 @@
+// CSS for your calendar
+.calendar-day {
+  background: transparent;
+  color: #333; /* Default black text */
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.calendar-day.today {
+  color: #4285f4; /* Blue text for today's date */
+}
+
+.calendar-day:hover {
+  background-color: #f1f1f1; /* Light gray background on hover */
+}
+
+.calendar-day.selected {
+  background-color: #4285f4; /* Blue background for selected date */
+  color: white; /* White text for selected date */
+}
+
+.calendar-day.selected:hover {
+  background-color: #4285f4; /* Keep blue background on hover for selected date */
+}
+
+// JavaScript/React for handling date selection
+const handleDateSelect = (date) => {
+  // Update the selected date
+  setSelectedDate(date);
+  
+  // Format the date for display in the selector
+  const formattedDate = formatDate(date);
+  
+  // Update the input field
+  setDateInputValue(formattedDate);
+  
+  // Close the calendar
+  setCalendarOpen(false);
+};
+
+// In your render function
+return (
+  <div className="date-selector">
+    <input 
+      type="text"
+      value={dateInputValue}
+      onClick={() => setCalendarOpen(true)}
+      readOnly
+    />
+    
+    {calendarOpen && (
+      <div className="calendar-popup">
+        {/* Month navigation and header */}
+        <div className="calendar-header">
+          <button onClick={prevMonth}>{'<'}</button>
+          <div>May 2025</div>
+          <button onClick={nextMonth}>{'>'}</button>
+        </div>
+        
+        {/* Days of week header */}
+        <div className="calendar-weekdays">
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+            <div key={day}>{day}</div>
+          ))}
+        </div>
+        
+        {/* Calendar days */}
+        <div className="calendar-days">
+          {daysInMonth.map(day => {
+            const isToday = day.date === getTodayDate();
+            const isSelected = day.date === selectedDate;
+            
+            return (
+              <button
+                key={day.date}
+                className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleDateSelect(day.date)}
+              >
+                {day.dayNumber}
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Today indicator */}
+        <div className="today-indicator">Today</div>
+      </div>
+    )}
+  </div>
+);
+
+// Helper function to get today's date
+const getTodayDate = () => {
+  const today = new Date();
+  return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+};
