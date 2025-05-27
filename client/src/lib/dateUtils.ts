@@ -68,3 +68,12 @@ export const getCurrentUTCDateString = (): string => {
     return format(new Date(), 'yyyy-MM-dd');
   }
 };
+
+export const formatYYYYMMDD = (date: Date): string => {
+  try {
+    return format(date, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error formatting date to YYYY-MM-DD:', error);
+    return format(new Date(), 'yyyy-MM-dd');
+  }
+};
