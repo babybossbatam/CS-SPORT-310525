@@ -136,7 +136,19 @@ const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => 
       return acc;
     }
 
-    const country = league.country || 'Unknown';
+    const country = league.country;
+    
+    // Skip fixtures without a valid country - be more strict about filtering
+    if (!country || 
+        typeof country !== 'string' || 
+        country.trim() === '' || 
+        country.toLowerCase() === 'unknown' ||
+        country.toLowerCase() === 'world' ||
+        country.toLowerCase() === 'international') {
+      console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
+      return acc;
+    }
+    
     const leagueId = league.id;
 
     if (!acc[country]) {
