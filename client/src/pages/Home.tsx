@@ -83,15 +83,15 @@ const Home = () => {
     }
   });
 
-  // Use memoized selectors only where beneficial
+  // Use memoized selectors only where there's transformation
   const popularLeagues = useSelector(selectPopularLeagues);
   const fixturesByDate = useSelector(selectFixturesByDate);
   const allLeagues = useSelector(selectAllLeagues);
-  const standingsByLeague = useSelector(selectStandingsByLeague);
   
-  // Direct state access for simple values
-  const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
-  const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
+  // Direct state access for simple values  
+  const selectedLeagues = useSelector(selectSelectedLeagues);
+  const standingsByLeague = useSelector(selectStandingsByLeague);
+  const selectedCountries = useSelector(selectSelectedCountries);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
