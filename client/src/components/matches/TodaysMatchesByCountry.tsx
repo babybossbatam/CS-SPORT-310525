@@ -732,8 +732,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
                                             <div className="text-sm font-medium text-black">
                                               {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
                                             </div>
-                                            {status ===```text
-'TBD' && (
+                                            {status === 'TBD' && (
                                               <div className="text-xs text-gray-500 mt-1">Time TBD</div>
                                             )}
                                           </>
