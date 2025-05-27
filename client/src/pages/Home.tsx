@@ -83,14 +83,15 @@ const Home = () => {
     }
   });
 
-  // Limit to essential leagues only
-  const selectedLeagues = useSelector(selectSelectedLeagues);
+  // Use memoized selectors only where beneficial
   const popularLeagues = useSelector(selectPopularLeagues);
   const fixturesByDate = useSelector(selectFixturesByDate);
-  const filteredLeagues = useSelector(selectFilteredLeagues);
   const allLeagues = useSelector(selectAllLeagues);
   const standingsByLeague = useSelector(selectStandingsByLeague);
-  const selectedCountries = useSelector(selectSelectedCountries);
+  
+  // Direct state access for simple values
+  const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
+  const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
 
   useEffect(() => {
     // Cleanup function to handle unmounting

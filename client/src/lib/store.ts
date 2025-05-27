@@ -426,34 +426,35 @@ export const selectUpcomingFixtures = createSelector(
   (upcoming) => upcoming
 );
 
+// Properly memoized selectors with meaningful transformations
 export const selectSelectedLeagues = createSelector(
   [(state: RootState) => state.leagues.popularLeagues],
-  (popularLeagues) => popularLeagues
+  (popularLeagues) => [...popularLeagues] // Create new array reference to avoid mutation
 );
 
 export const selectPopularLeagues = createSelector(
   [(state: RootState) => state.leagues.popularLeagues],
-  (popularLeagues) => popularLeagues.slice(0, 5)
-);
-
-export const selectFilteredLeagues = createSelector(
-  [(state: RootState) => state.leagues.list],
-  (leagues) => leagues
+  (popularLeagues) => popularLeagues.slice(0, 5) // This actually transforms the data
 );
 
 export const selectAllLeagues = createSelector(
   [(state: RootState) => state.leagues.list],
-  (leagues) => leagues
+  (leagues) => leagues.filter(league => league && league.league) // Filter valid leagues
+);
+
+export const selectFilteredLeagues = createSelector(
+  [selectAllLeagues],
+  (leagues) => leagues // Use the filtered leagues from selectAllLeagues
 );
 
 export const selectStandingsByLeague = createSelector(
   [(state: RootState) => state.stats.topScorers],
-  (topScorers) => topScorers
+  (topScorers) => Object.keys(topScorers).length > 0 ? topScorers : null // Transform empty object to null
 );
 
 export const selectSelectedCountries = createSelector(
   [(state: RootState) => state.user.preferences.region],
-  (region) => [region]
+  (region) => region ? [region] : ['global'] // Provide default value transformation
 );
 
 // Export types
