@@ -27,16 +27,8 @@ interface MatchesByCountryProps {
 }
 
 const MatchesByCountry: React.FC<MatchesByCountryProps> = ({ selectedDate }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <h3 className="text-lg font-semibold">All Matches by Country</h3>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-500">Component under development</p>
-      </CardContent>
-    </Card>
-  );
+  // Hide component during development
+  return null;
 };
 
 export default MatchesByCountry;
