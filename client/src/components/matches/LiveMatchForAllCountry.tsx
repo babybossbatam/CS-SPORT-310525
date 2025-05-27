@@ -381,9 +381,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
           <Activity className="h-4 w-4 text-red-500" />
           Live Football Matches by Country
         </h3>
-        <p className="text-xs text-gray-500">
-          Auto-refreshing every 30 seconds • {allFixtures.length} live matches
-        </p>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
