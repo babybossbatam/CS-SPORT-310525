@@ -1,7 +1,7 @@
 
 .calendar-day {
   background: transparent;
-  color: #333;
+  color: #333; /* Default black text */
   border: none;
   padding: 8px;
   border-radius: 50%;
@@ -11,26 +11,23 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 400;
 }
 
 .calendar-day.today {
-  color: #4285f4;
-  font-weight: 600;
+  color: #4285f4; /* Blue text for today's date */
 }
 
 .calendar-day:hover {
-  background-color: #f1f1f1;
+  background-color: #f1f1f1; /* Light gray background on hover */
 }
 
 .calendar-day.selected {
-  background-color: #4285f4;
-  color: white;
+  background-color: #4285f4; /* Blue background for selected date */
+  color: white; /* White text for selected date */
 }
 
 .calendar-day.selected:hover {
-  background-color: #4285f4;
+  background-color: #4285f4; /* Keep blue background on hover for selected date */
 }
 
 .calendar-day:disabled {
@@ -93,4 +90,8 @@
 
 .today-indicator:hover {
   color: #1a73e8;
+}
+
+.date-selector {
+  position: relative;
 }
