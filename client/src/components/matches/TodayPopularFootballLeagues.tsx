@@ -413,7 +413,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     // Include if it's one of the popular countries (exact match for better filtering)
     return POPULAR_COUNTRIES.some(country => 
-      countryName === country.toLowerCase()
+      safeSubstring(countryName, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
     );
   });
 
@@ -428,10 +428,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
     // Second priority: popular countries (excluding friendlies)
     const aIsPopularCountry = !aIsFriendlies && a.country && typeof a.country === 'string' && POPULAR_COUNTRIES.some(country => 
-      a.country.toLowerCase() === country.toLowerCase()
+      safeSubstring(a.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
     );
     const bIsPopularCountry = !bIsFriendlies && b.country && typeof b.country === 'string' && POPULAR_COUNTRIES.some(country => 
-      b.country.toLowerCase() === country.toLowerCase()
+      safeSubstring(b.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
     );
 
     if (aIsPopularCountry && !bIsPopularCountry) return -1;
@@ -444,10 +444,10 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // If both are popular countries, sort by POPULAR_COUNTRIES order
     if (aIsPopularCountry && bIsPopularCountry) {
       const aIndex = POPULAR_COUNTRIES.findIndex(country => 
-        a.country && typeof a.country === 'string' && a.country.toLowerCase() === country.toLowerCase()
+        a.country && typeof a.country === 'string' && safeSubstring(a.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
       );
       const bIndex = POPULAR_COUNTRIES.findIndex(country => 
-        b.country && typeof b.country === 'string' && b.country.toLowerCase() === country.toLowerCase()
+        b.country && typeof b.country === 'string' && safeSubstring(b.country, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
       );
       if (aIndex !== bIndex) return aIndex - bIndex;
     }
