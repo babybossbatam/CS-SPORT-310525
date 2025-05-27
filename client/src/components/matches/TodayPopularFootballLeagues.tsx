@@ -279,6 +279,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       awayTeamName.includes(term)
     );
 
+    const country = league.country;
+
     // Check for friendlies but allow world tournament friendlies
     const isFriendly = leagueName.includes('friendly') || leagueName.includes('friendlies') ||
                       homeTeamName.includes('friendly') || awayTeamName.includes('friendly');
@@ -318,8 +320,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       console.log(`Filtering out regular friendly fixture: ${league.name}`);
       return acc;
     }
-
-    const country = league.country;
 
     // Skip fixtures without a valid country, but keep World and Europe competitions
     if (!country || 
