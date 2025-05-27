@@ -24,8 +24,11 @@ export function formatYYYYMMDD(dateInput: string | Date | null | undefined): str
  * Get current date as YYYY-MM-DD string in user's local timezone
  */
 export function getCurrentUTCDateString(): string {
-  // Use local date instead of UTC to match user's perception of "today"
-  return format(new Date(), 'yyyy-MM-dd');
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(now.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 /**
