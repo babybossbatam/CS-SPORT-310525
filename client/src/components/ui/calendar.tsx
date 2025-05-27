@@ -23,7 +23,7 @@ function Calendar({
   }
 
   return (
-    <div className="flex justify-center p-0 bg-white">
+    <div className="flex flex-col justify-center p-0 bg-white">
       <DayPicker
         showOutsideDays={showOutsideDays}
         className={cn("p-3 bg-white w-full max-w-[245px] min-w-[220px]", className)}
