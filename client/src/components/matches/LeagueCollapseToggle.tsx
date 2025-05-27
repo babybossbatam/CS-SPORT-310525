@@ -1,19 +1,6 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-
-// Before calling substring, check if the value exists
-function safeSubstring(value: any, start: number, end?: number): string {
-  // Return empty string if value is null or undefined
-  if (value == null) {
-    return '';
-  }
-
-  // Convert to string if it's not already (handles numbers, etc.)
-  const str = String(value);
-
-  // If end is provided, use it, otherwise just use start parameter
-  return end !== undefined ? str.substring(start, end) : str.substring(start);
-}
+import { safeSubstring } from '@/lib/dateUtils';
 
 interface LeagueCollapseToggleProps {
   leagueName: string;
