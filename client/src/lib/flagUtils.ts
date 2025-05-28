@@ -212,16 +212,8 @@ export function getCountryFlagWithFallback(
     return 'https://flagsapi.com/EU/flat/24.png';
   }
 
-  // Use country mapping, fallback to SportsRadar for unknown countries
-  if (countryCodeMap[cleanCountry]) {
-    const countryCode = countryCodeMap[cleanCountry];
-    return `https://flagsapi.com/${countryCode}/flat/24.png`;
-  } else {
-    console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
-    // Try SportsRadar flags API as fallback
-    const sanitizedCountry = cleanCountry.toLowerCase().replace(/\s+/g, '_');
-    return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
-  }
+  // Use SportsRadar API endpoint as primary source
+  return `/api/flags/${encodeURIComponent(cleanCountry)}`;
 }
 
 /**
@@ -232,6 +224,27 @@ export function getCountryFlagWithFallback(
 export function getSportsRadarFlag(country: string): string {
   const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
   return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
+}
+
+/**
+ * Fetch flag from SportsRadar API endpoint
+ * @param country - Country name
+ * @returns Promise<string> - Flag URL or fallback
+ */
+export async function fetchSportsRadarFlag(country: string): Promise<string> {
+  try {
+    const response = await fetch(`/api/flags/${encodeURIComponent(country)}`);
+    const data = await response.json();
+    
+    if (data.success && data.flagUrl) {
+      return data.flagUrl;
+    } else {
+      return data.fallbackUrl || '/assets/fallback-logo.svg';
+    }
+  } catch (error) {
+    console.error('Error fetching flag from SportsRadar API:', error);
+    return '/assets/fallback-logo.svg';
+  }
 }
 
 /**
