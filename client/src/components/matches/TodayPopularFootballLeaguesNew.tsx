@@ -731,10 +731,22 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     );
   });
 
-  // Enhanced sorting with geographic tier-based prioritization
+  // Enhanced sorting with Friendlies prioritization and geographic tier-based prioritization
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aCountry = a.country || '';
     const bCountry = b.country || '';
+
+    // Check if country has Friendlies leagues
+    const aHasFriendlies = Object.values(a.leagues || {}).some((league: any) => 
+      league.isFriendlies || league.league?.name?.toLowerCase().includes('friendlies')
+    );
+    const bHasFriendlies = Object.values(b.leagues || {}).some((league: any) => 
+      league.isFriendlies || league.league?.name?.toLowerCase().includes('friendlies')
+    );
+
+    // Prioritize countries with Friendlies leagues first
+    if (aHasFriendlies && !bHasFriendlies) return -1;
+    if (!aHasFriendlies && bHasFriendlies) return 1;
 
     // Determine geographic tier for each country
     const getTier = (country: string) => {
@@ -1001,6 +1013,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
+            // Prioritize Friendlies leagues first
+            if (a.isFriendlies && !b.isFriendlies) return -1;
+            if (!a.isFriendlies && b.isFriendlies) return 1;
+
             // Prioritize leagues that are popular for this specific country
             if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
             if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
