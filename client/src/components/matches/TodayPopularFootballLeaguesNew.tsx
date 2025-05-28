@@ -1271,9 +1271,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                               return (
                                 <>
-                                  <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
-                                    LIVE
-                                  </div>
                                   <div className="text-lg font-bold text-black flex items-center gap-2">
                                     <span>{match.goals.home ?? 0}</span>
                                     <span className="text-gray-400">-</span>
