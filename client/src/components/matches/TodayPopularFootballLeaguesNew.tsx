@@ -527,24 +527,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             return false;
           }
         } else {
-          // For USA, ONLY allow MLS (253) and MLS Next Pro (254) - exclude everything else
-          if (countryKey.toLowerCase() === 'usa') {
-            // STRICT filtering - only these two leagues allowed
-            const allowedUSALeagues = [253, 254]; // MLS and MLS Next Pro ONLY
-
-            if (!allowedUSALeagues.includes(leagueId)) {
-              console.log(`Filtering out non-MLS league from USA: ${fixture.league.name} (ID: ${leagueId}) - Only MLS (253) and MLS Next Pro (254) allowed`);
-              return false;
-            }
-
-            console.log(`Allowing MLS league from USA: ${fixture.league.name} (ID: ${leagueId})`);
-          } else {
-            // For other Tier 3 countries (Saudi Arabia, Egypt), be very restrictive
-            const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
-            if (!countryLeagues.includes(leagueId)) {
-              console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
-              return false;
-            }
+} else {
+          // For other Tier 3 countries (Saudi Arabia, Egypt), be very restrictive
+          const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
+          if (!countryLeagues.includes(leagueId)) {
+            console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+            return false;
           }
         }
       }
@@ -736,8 +724,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return true;
     }
 
-    // Include if it's one of the popular countries (exact match for better filtering)
-    return POPULAR_COUNTRIES_ORDER.some(country => 
+    // Include if it's one of the popular countries (exact match for better filtering)    return POPULAR_COUNTRIES_ORDER.some(country => 
       safeSubstring(countryName, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
     );
   });
