@@ -1105,8 +1105,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             // Finally alphabetical
             return a.league.name.localeCompare(b.league.name);
           })
-          .map((leagueData: any) => (
-            <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
+          .map((leagueData: any, index: number) => (
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${index === 0 ? 'mt-4' : 'mt-4'}`}>
               {/* League Header - Always show unless time filter is active */}
               {!timeFilterActive && (
                 <>
