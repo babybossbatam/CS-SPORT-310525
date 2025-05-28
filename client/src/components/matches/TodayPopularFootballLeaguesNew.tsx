@@ -915,11 +915,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             <Skeleton className="h-4 w-48" />
           </div>
           <Skeleton className="h-3 w-40" />
-          {(isLoadingPopular || isFetchingPopular) && (
-            <div className="text-xs text-blue-600 mt-2">
-              Loading popular leagues...
-            </div>
-          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
