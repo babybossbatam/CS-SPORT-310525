@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
 import { b365ApiService } from './services/b365Api';
+import { betsApiService } from './services/betsApi';
 import { supabaseService } from "./services/supabase";
 import { 
   insertUserSchema, 
@@ -844,88 +845,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sportType = req.query.sport as string || '';
       const count = parseInt(req.query.count as string || '10');
 
-      // First, try SportMonks API as primary for football news
-      if (sportType === 'football') {
-        try {
-          console.log("Using SportMonks API for football news (Primary)");
-          const apiKey = 'WXpmx7hqkHuMBp44TO35qaYQPa4n0dB6hSGR54CiYvhWOGzn1obqYJygtE2J';
-
-          // Try to fetch from the Serie A news endpoint with updated subscription
-          // Note: The API documentation shows league_id=384 for Serie A
-          const sportMonksUrl = `https://api.sportmonks.com/v3/football/news/post-match?api_token=${apiKey}&league_id=384`;
-          console.log(`Fetching Serie A football news from SportMonks API (Primary)`);
-
-          const response = await fetch(sportMonksUrl);
-          const data = await response.json();
-
-          // Print the data structure for debugging
-          const apiResponse = JSON.stringify(data);
-          console.log("SportMonks API response status:", response.status);
-          console.log("SportMonks API response structure:", apiResponse.substring(0, 500) + "...");
-
-          // Log API error if present
-          if (data.message) {
-            console.log("SportMonks API error message:", data.message);
-          }
-
-          // Check if response is valid
-          if (response.ok && data.data && Array.isArray(data.data)) {
-            console.log(`Successfully fetched ${data.data.length} football news articles from SportMonks`);
-            console.log("First article sample:", JSON.stringify(data.data[0]));
-
-            // Transform the SportMonks news data format to match our news article format
-            const articles = data.data.slice(0, count).map((article: any, index: number) => {
-              // Don't link directly to SportMonks but keep a reference to the league_id
-              // Set the URL to our own site's path 
-              const newsUrl = "/news/" + (index + 1);
-
-              return {
-                id: index + 1,
-                title: article.title || 'Serie A News Update',
-                // Use a generic content since the API doesn't provide detailed content
-                content: `Serie A ${article.type || 'match'} news: ${article.title}`,
-                // Use a default football image
-                imageUrl: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
-                source: "Serie A News",
-                url: newsUrl,
-                publishedAt: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              };
-
-            });
-
-            return res.json(articles);
-          } else {
-            console.warn("SportMonks API returned an invalid response or access denied:", data.message || "Unknown error");
-            // Log the specific error message if available
-            if (data.message) {
-              console.warn(`SportMonks error message: ${data.message}`);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching from SportMonks API:", error);
+      // Use BetsAPI as primary news source
+      try {
+        console.log("Using BetsAPI for sports news");
+        
+        let betsApiArticles = [];
+        
+        // Fetch news based on sport type
+        if (sportType === 'football') {
+          betsApiArticles = await betsApiService.getFootballNews(1, count);
+        } else if (sportType === 'basketball') {
+          betsApiArticles = await betsApiService.getBasketballNews(1, count);
+        } else if (sportType === 'tennis') {
+          betsApiArticles = await betsApiService.getTennisNews(1, count);
+        } else {
+          // Default to football/soccer news
+          betsApiArticles = await betsApiService.getSportsNews(1, 1, count);
         }
+
+        if (betsApiArticles && betsApiArticles.length > 0) {
+          // Transform BetsAPI news data format to match our news article format
+          const articles = betsApiArticles.slice(0, count).map((article, index) => 
+            betsApiService.convertToStandardFormat(article, index)
+          );
+
+          console.log(`Successfully processed ${articles.length} news articles from BetsAPI`);
+          return res.json(articles);
+        } else {
+          console.warn("BetsAPI returned no articles");
+        }
+      } catch (error) {
+        console.error("Error fetching from BetsAPI:", error);
       }
 
-      // Second, try GNews API (Secondary fallback)
+      // Fallback to GNews API if BetsAPI fails
       try {
         const apiKey = process.env.GNEWS_API_KEY;
         if (!apiKey) {
           throw new Error('GNews API key is not configured');
         }
 
-        console.log("Using GNews API for news (Secondary fallback)");
+        console.log("BetsAPI failed, using GNews API as fallback");
 
         // Build search query based on sport type
         let searchQuery = '';
         if (sportType) {
-          // Map sport types to better search terms
           let searchTerm = sportType;
 
-          // Map sport types to more specific search terms
           if (sportType === 'football') {
-            // Try to get real football/soccer news by using specific European leagues/terms
             searchTerm = '(premier league OR bundesliga OR la liga OR serie a OR champions league OR uefa OR fifa) AND (soccer OR football) -NFL -bears -chiefs -ravens -bills';
           } else if (sportType === 'basketball') {
             searchTerm = 'basketball -NFL -football';
@@ -940,12 +907,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           searchQuery = `&q=${encodeURIComponent(searchTerm)}`;
         }
 
-        // Build GNews API URL
         const gnewsUrl = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=${count}${searchQuery}&apikey=${apiKey}`;
 
         console.log(`Fetching news with URL: ${gnewsUrl.replace(apiKey, '[REDACTED]')}`);
 
-        // Fetch news from GNews API
         const response = await fetch(gnewsUrl);
         const data = await response.json();
 
@@ -953,7 +918,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           throw new Error(`GNews API error: ${data.errors[0]}`);
         }
 
-        // Transform GNews response to match our news article format
         const articles = data.articles.map((article: any, index: number) => ({
           id: index + 1,
           title: article.title,
@@ -968,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         return res.json(articles);
       } catch (gnewsError) {
-        console.error("GNews API failed:", gnewsError);
+        console.error("GNews API also failed:", gnewsError);
       }
 
       // Final fallback to local storage
@@ -1066,6 +1030,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting news article:", error);
       res.status(500).json({ message: "Failed to delete news article" });
+    }
+  });
+
+  // BetsAPI specific news endpoints
+  apiRouter.get("/news/betsapi/sports/:sportId", async (req: Request, res: Response) => {
+    try {
+      const sportId = parseInt(req.params.sportId);
+      const page = parseInt(req.query.page as string) || 1;
+      const perPage = parseInt(req.query.per_page as string) || 10;
+
+      if (isNaN(sportId)) {
+        return res.status(400).json({ message: "Invalid sport ID" });
+      }
+
+      const articles = await betsApiService.getSportsNews(sportId, page, perPage);
+      const formattedArticles = articles.map((article, index) => 
+        betsApiService.convertToStandardFormat(article, index)
+      );
+
+      res.json(formattedArticles);
+    } catch (error) {
+      console.error("Error fetching BetsAPI sports news:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch sports news from BetsAPI",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  apiRouter.get("/news/betsapi/league/:leagueId", async (req: Request, res: Response) => {
+    try {
+      const leagueId = parseInt(req.params.leagueId);
+      const page = parseInt(req.query.page as string) || 1;
+      const perPage = parseInt(req.query.per_page as string) || 10;
+
+      if (isNaN(leagueId)) {
+        return res.status(400).json({ message: "Invalid league ID" });
+      }
+
+      const articles = await betsApiService.getLeagueNews(leagueId, page, perPage);
+      const formattedArticles = articles.map((article, index) => 
+        betsApiService.convertToStandardFormat(article, index)
+      );
+
+      res.json(formattedArticles);
+    } catch (error) {
+      console.error("Error fetching BetsAPI league news:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch league news from BetsAPI",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
