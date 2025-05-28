@@ -1072,6 +1072,286 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return false;
   };
 
+  // When time filter is active, consolidate all matches into a single card
+  if (timeFilterActive) {
+    // Collect all matches from all leagues
+    const allMatches = sortedCountries.flatMap((countryData: any) =>
+      Object.values(countryData.leagues).flatMap((leagueData: any) =>
+        leagueData.matches.map((match: any) => ({
+          ...match,
+          leagueInfo: {
+            name: leagueData.league.name,
+            country: countryData.country,
+            logo: leagueData.league.logo
+          }
+        }))
+      )
+    );
+
+    // Sort all matches by priority: Live → Upcoming → Finished
+    const sortedMatches = allMatches.sort((a: any, b: any) => {
+      const aStatus = a.fixture.status.short;
+      const bStatus = b.fixture.status.short;
+      const aDate = parseISO(a.fixture.date);
+      const bDate = parseISO(b.fixture.date);
+
+      // Ensure valid dates
+      if (!isValid(aDate) || !isValid(bDate)) {
+        return 0;
+      }
+
+      const aTime = aDate.getTime();
+      const bTime = bDate.getTime();
+
+      // Define status categories
+      const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
+      const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
+
+      const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
+      const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
+
+      const aUpcoming = aStatus === 'NS' && !aLive && !aFinished;
+      const bUpcoming = bStatus === 'NS' && !bLive && !bFinished;
+
+      // PRIORITY 1: Live matches first
+      if (aLive && !bLive) return -1;
+      if (!aLive && bLive) return 1;
+
+      // PRIORITY 2: If both are live, sort by start time (earliest first)
+      if (aLive && bLive) {
+        return aTime - bTime;
+      }
+
+      // PRIORITY 3: Upcoming matches second, sorted by time (nearest first)
+      if (aUpcoming && !bUpcoming) return -1;
+      if (!aUpcoming && bUpcoming) return 1;
+
+      if (aUpcoming && bUpcoming) {
+        return aTime - bTime;
+      }
+
+      // PRIORITY 4: Finished matches last, sorted by time (most recent first)
+      if (aFinished && !bFinished) return 1;
+      if (!aFinished && bFinished) return -1;
+
+      if (aFinished && bFinished) {
+        return bTime - aTime;
+      }
+
+      // Default fallback: sort by time
+      return aTime - bTime;
+    });
+
+    return (
+      <div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 p-6 pb-4">
+          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+        </svg>
+        <div className="text-sm font-semibold text-gray-800 p-4 pb-3 -mt-6 bg-white border flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500 fill-yellow-500">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+          </svg>
+          All Matches by Time
+        </div>
+
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="space-y-0">
+              {sortedMatches
+                .slice(0, showTop20 ? 20 : undefined)
+                .map((match: any) => (
+                  <div 
+                    key={match.fixture.id} 
+                    className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex items-center px-3 py-2">
+                      {/* Home Team */}
+                      <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                        {match.teams.home.name}
+                      </div>
+
+                      <div className="flex-shrink-0 mx-1">
+                        <img
+                          src={match.teams.home.logo || '/assets/fallback-logo.svg'}
+                          alt={match.teams.home.name}
+                          className="w-12 h-12 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.svg') {
+                              target.src = '/assets/fallback-logo.svg';
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {/* Score/Time Center */}
+                      <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-14px' }}>
+                        {(() => {
+                          const status = match.fixture.status.short;
+                          const fixtureDate = parseISO(match.fixture.date);
+
+                          // Live matches
+                          if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+                            return (
+                              <>
+                                <div className="text-xs font-semibold mb-0.5">
+                                  {match.fixture.status.short === 'FT' ? (
+                                    <span className="text-gray-600">Ended</span>
+                                  ) : match.fixture.status.short === 'HT' ? (
+                                    <span className="text-red-600 animate-pulse">HT</span>
+                                  ) : (
+                                    <span className="text-red-600 animate-pulse">{match.fixture.status.elapsed || 0}'</span>
+                                  )}
+                                </div>
+                                <div className="text-lg font-bold flex items-center gap-2">
+                                  <span className="text-black">
+                                    {match.goals.home ?? 0}
+                                  </span>
+                                  <span className="text-gray-400">-</span>
+                                  <span className="text-black">
+                                    {match.goals.away ?? 0}
+                                  </span>
+                                </div>
+                              </>
+                            );
+                          }
+
+                          // All finished match statuses
+                          if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+                            // Check if we have actual numerical scores
+                            const homeScore = match.goals.home;
+                            const awayScore = match.goals.away;
+                            const hasValidScores = (homeScore !== null && homeScore !== undefined) && 
+                                                  (awayScore !== null && awayScore !== undefined) &&
+                                                  !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
+
+                            if (hasValidScores) {
+                              return (
+                                <>
+                                  <div className="text-xs text-gray-500 mb-1">
+                                    {status === 'FT' ? 'Ended' : 
+                                     status === 'AET' ? 'AET' :
+                                     status === 'PEN' ? 'PEN' :
+                                     status === 'AWD' ? 'Awarded' :
+                                     status === 'WO' ? 'Walkover' :
+                                     status === 'ABD' ? 'Abandoned' :
+                                     status === 'CANC' ? 'Cancelled' :
+                                     status === 'SUSP' ? 'Suspended' : status}
+                                  </div>
+                                  <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <span>{homeScore}</span>
+                                    <span className="text-gray-400">-</span>
+                                    <span>{awayScore}</span>
+                                  </div>
+                                </>
+                              );
+                            } else {
+                              // Match is finished but no valid score data
+                              const statusText = status === 'FT' ? 'No Score Available' : 
+                                               status === 'AET' ? 'AET - No Score' :
+                                               status === 'PEN' ? 'PEN - No Score' :
+                                               status === 'AWD' ? 'Awarded' :
+                                               status === 'WO' ? 'Walkover' :
+                                               status === 'ABD' ? 'Abandoned' :
+                                               status === 'CANC' ? 'Cancelled' :
+                                               status === 'SUSP' ? 'Suspended' : 'No Score';
+
+                              return (
+                                <>
+                                  <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded text-center">
+                                    {statusText}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {format(fixtureDate, 'HH:mm')}
+                                  </div>
+                                </>
+                              );
+                            }
+                          }
+
+                          // Postponed or delayed matches
+                          if (['PST', 'CANC', 'ABD', 'SUSP', 'AWD', 'WO'].includes(status)) {
+                            const statusText = status === 'PST' ? 'Postponed' :
+                                              status === 'CANC' ? 'Cancelled' :
+                                              status === 'ABD' ? 'Abandoned' :
+                                              status === 'SUSP' ? 'Suspended' :
+                                              status === 'AWD' ? 'Awarded' :
+                                              status === 'WO' ? 'Walkover' : status;
+
+                            return (
+                              <>
+                                <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
+                                  {statusText}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {format(fixtureDate, 'HH:mm')}
+                                </div>
+                              </>
+                            );
+                          }
+
+                          // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                          return (
+                            <>
+                              <div className="text-sm font-medium text-black">
+                                {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
+                              </div>
+                              {status === 'TBD' && (
+                                <div className="text-xs text-gray-500 mt-1">Time TBD</div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      <div className="flex-shrink-0 mx-1">
+                        <img
+                          src={match.teams.away.logo || '/assets/fallback-logo.svg'}
+                          alt={match.teams.away.name}
+                          className="w-12 h-12 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.svg') {
+                              target.src = '/assets/fallback-logo.svg';
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {/* Away Team */}
+                      <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                        {match.teams.away.name}
+                      </div>
+
+                      {/* League Info */}
+                      <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                        <img
+                          src={match.leagueInfo.logo || '/assets/fallback-logo.svg'}
+                          alt={match.leagueInfo.name}
+                          className="w-4 h-4 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.svg') {
+                              target.src = '/assets/fallback-logo.svg';
+                            }
+                          }}
+                        />
+                        <span className="text-xs text-gray-500 truncate max-w-20">
+                          {match.leagueInfo.name === 'CONMEBOL Libertadores' ? 'Libertadores' : 
+                           match.leagueInfo.name === 'CONMEBOL Sudamericana' ? 'Sudamericana' : 
+                           match.leagueInfo.name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 p-6 pb-4">
