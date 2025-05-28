@@ -853,7 +853,7 @@ const FixedScoreboard = () => {
                         className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
                         style={{
                           background: "#a00000",
-                          left: "calc(550% - 26px)",
+                          left: "calc(50% - 26px)",
                           top: "calc(50% - 26px)",
                           minWidth: "52px",
                         }}
