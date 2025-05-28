@@ -566,7 +566,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
   };
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-4 mt-4">
       <CardHeader className="pb-4">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Calendar className="h-4 w-4" />
