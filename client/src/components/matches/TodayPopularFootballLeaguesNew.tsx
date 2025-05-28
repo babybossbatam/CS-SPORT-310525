@@ -995,15 +995,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   return (
     <div className="space-y-4">
-      {/* Header Section */}
-      <Card>
-        <CardHeader className="pb-3 space-y-4" style={{ marginBottom: '0', paddingBottom: '0' }}>
-          <h3 className="text-sm font-semibold mb-4">
-            Popular Football League
-          </h3>
-        </CardHeader>
-      </Card>
-
       {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
