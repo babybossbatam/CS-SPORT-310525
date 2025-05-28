@@ -852,14 +852,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     // Use exact string comparison for accurate date matching
     if (isSelectedToday) {
-      baseTitle = "Today's Popular Football Leagues - NEW VERSION";
+      baseTitle = "Today's Popular Football League - NEW VERSION";
     } else if (isSelectedYesterday) {
-      baseTitle = "Yesterday's Popular Football Leagues - NEW VERSION";
+      baseTitle = "Yesterday's Popular Football League - NEW VERSION";
     } else if (isSelectedTomorrow) {
-      baseTitle = "Tomorrow's Popular Football Leagues - NEW VERSION";
+      baseTitle = "Tomorrow's Popular Football League - NEW VERSION";
     } else {
       const selectedDateObj = parseISO(selectedDate);
-      baseTitle = `Popular Football Leagues - NEW VERSION - ${format(selectedDateObj, 'MMM d, yyyy')}`;
+      baseTitle = `Popular Football League - NEW VERSION - ${format(selectedDateObj, 'MMM d, yyyy')}`;
     }
 
     // Add time filter indicator
