@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -307,7 +306,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     // First sort by popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
-    
+
     // Then alphabetically
     const countryA = a.country || '';
     const countryB = b.country || '';
@@ -361,9 +360,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     <div className="space-y-4">
       {/* Main Header */}
       <h3 className="text-lg font-bold text-gray-800">Live Football Scores</h3>
-      
+
       {/* Header Section */}
-      <Card>
+      <Card className="mb-0">
         <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)' }}>
           <h3 className="text-sm font-semibold flex items-center gap-2">
             Live Football Scores
@@ -371,7 +370,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
         </CardHeader>
       </Card>
 
-      {/* Create individual league cards from all countries */}
+      {/* Create individual league cards from all countries with no gap from header */}
+      <div className="-mt-4 space-y-4">
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
@@ -491,6 +491,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
             </Card>
           ))
       )}
+      </div>
     </div>
   );
 };
