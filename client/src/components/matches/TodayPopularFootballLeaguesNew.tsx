@@ -743,7 +743,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }))
   );
 
-  // Sort leagues with top priority for specific leagues and friendlies
+  // Sort leagues with priority for popular leagues, popular country badges, then alphabetical A-Z
   const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
     const aLeagueName = a.league?.name || '';
     const bLeagueName = b.league?.name || '';
@@ -789,20 +789,31 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       if (!aLeagueName.toLowerCase().includes('fifa club world cup') && 
           bLeagueName.toLowerCase().includes('fifa club world cup')) return 1;
 
-      // Other friendlies third
+      // Other friendlies fourth
       if (aLeagueName.toLowerCase().includes('friendlies') && 
           !bLeagueName.toLowerCase().includes('friendlies')) return -1;
       if (!aLeagueName.toLowerCase().includes('friendlies') && 
           bLeagueName.toLowerCase().includes('friendlies')) return 1;
 
-      // UEFA Europa Conference League fourth
+      // UEFA Europa Conference League fifth
       if (aLeagueName.toLowerCase().includes('uefa europa conference league') && 
           !bLeagueName.toLowerCase().includes('uefa europa conference league')) return -1;
       if (!aLeagueName.toLowerCase().includes('uefa europa conference league') && 
           bLeagueName.toLowerCase().includes('uefa europa conference league')) return 1;
+
+      // For same priority level, sort alphabetically
+      return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
     }
 
-    // Clean league names for better sorting of non-priority leagues
+    // For non-top priority leagues, prioritize popular country badges first
+    if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+    if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
+
+    // Then prioritize globally popular leagues
+    if (a.isPopular && !b.isPopular) return -1;
+    if (!a.isPopular && b.isPopular) return 1;
+
+    // Clean league names for better alphabetical sorting
     const cleanLeagueName = (name: string) => {
       return name
         .replace(/^(CONMEBOL|UEFA|FIFA)\s+/i, '') // Remove prefixes
@@ -813,7 +824,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const aCleanName = cleanLeagueName(aLeagueName);
     const bCleanName = cleanLeagueName(bLeagueName);
 
-    // For non-priority leagues: Alphabetical A-Z by cleaned league name
+    // Final sort: Alphabetical A-Z by cleaned league name
     const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
     
     if (alphabeticalSort !== 0) {
