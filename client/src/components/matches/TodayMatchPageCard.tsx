@@ -62,7 +62,15 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     }
   });
 
-  
+  // Deactivate live filter when date changes while live filter is active
+  useEffect(() => {
+    if (liveFilterActive) {
+      const today = getCurrentUTCDateString();
+      if (selectedDate !== today) {
+        setLiveFilterActive(false);
+      }
+    }
+  }, [selectedDate, liveFilterActive]);
 
   // Date navigation handlers
   const goToPreviousDay = () => {
