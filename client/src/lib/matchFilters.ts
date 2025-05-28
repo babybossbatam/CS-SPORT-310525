@@ -38,7 +38,7 @@ export const DEFAULT_EXCLUDE_TEAMS = [52, 76];
 // Popular countries for country-based filtering
 export const POPULAR_COUNTRIES = [
   'England', 'Spain', 'Italy', 'Germany', 'France', 
-  'Brazil', 'Argentina', 'Netherlands', 'Portugal', 'World'
+  'Brazil', 'Argentina', 'Netherlands', 'Portugal', 'World', 'International'
 ];
 
 /**
