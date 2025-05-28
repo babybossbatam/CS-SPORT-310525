@@ -723,7 +723,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return true;
     }
 
-    // Include if it's one of the popular countries (exact match for better filtering)    return POPULAR_COUNTRIES_ORDER.some(country => 
+    // Include if it's one of the popular countries (exact match for better filtering)
+    return POPULAR_COUNTRIES_ORDER.some(country => 
       safeSubstring(countryName, 0).toLowerCase() === safeSubstring(country, 0).toLowerCase()
     );
   });
