@@ -997,9 +997,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           </svg>
           <h2 className="text-xl font-bold text-gray-800">Popular Football Leagues</h2>
         </div>
-        <p className="text-sm text-gray-600 mt-1">
-          {getDateDisplayTitle()} - Top leagues and competitions worldwide
-        </p>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-4 p-4">
