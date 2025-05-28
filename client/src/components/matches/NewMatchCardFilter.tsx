@@ -24,6 +24,8 @@ const TIER_2_TOP_LEAGUES = [39, 140, 135, 78, 61]; // Premier League, La Liga, S
 const TIER_3_MAJOR_EUROPEAN = ['eredivisie', 'primeira liga', 'super lig', 'scottish premiership'];
 const TIER_4_MAJOR_CUPS = ['fa cup', 'copa del rey', 'dfb pokal', 'coppa italia', 'league cup', 'super cup'];
 const TIER_5_POPULAR_COUNTRIES = ['brazil', 'argentina', 'mexico', 'usa', 'saudi arabia'];
+const TIER_6_INTERNATIONAL = ['friendly', 'international', 'copa america', 'concacaf', 'afc', 'caf'];
+const TIER_7_MAJOR_SOUTH_AMERICAN = ['libertadores', 'copa sudamericana'];
 
 // Popular teams for boost weighting (365scores style)
 const POPULAR_TEAMS = [
@@ -72,6 +74,9 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
     const filteredMatches = matches.filter(match => {
       if (!match.league || !match.teams) return false;
 
+      const leagueName = match.league.name?.toLowerCase() || '';
+      const countryName = match.league.country?.toLowerCase() || '';
+
       // Tier 1 - Elite European Competitions (Always show)
       if (TIER_1_COMPETITIONS.includes(match.league.id)) {
         return true;
@@ -88,19 +93,33 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
 
       // Tier 3 - Other Major European Leagues
       if (TIER_3_MAJOR_EUROPEAN.some(league => 
-        match.league.name?.toLowerCase().includes(league))) {
+        leagueName.includes(league))) {
         return true;
       }
 
       // Tier 4 - Major Cups & Important Matches
       if (TIER_4_MAJOR_CUPS.some(cup => 
-        match.league.name?.toLowerCase().includes(cup))) {
+        leagueName.includes(cup))) {
         return true;
       }
 
       // Tier 5 - Popular Non-European Leagues
-      if (match.league.country && TIER_5_POPULAR_COUNTRIES.includes(
-        match.league.country.toLowerCase())) {
+      if (match.league.country && TIER_5_POPULAR_COUNTRIES.includes(countryName)) {
+        return true;
+      }
+
+      // Tier 6 - International Friendlies and Competitions
+      if (TIER_6_INTERNATIONAL.some(comp => leagueName.includes(comp))) {
+        return true;
+      }
+
+      // Tier 7 - South American Major Competitions
+      if (TIER_7_MAJOR_SOUTH_AMERICAN.some(comp => leagueName.includes(comp))) {
+        return true;
+      }
+
+      // Special case: Include live matches from any decent league
+      if (isLiveMatch(match.fixture.status.short)) {
         return true;
       }
 
@@ -180,8 +199,9 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
       });
     }
 
-    // Limit to 12 matches max (365scores style)
-    return filtered.slice(0, 12);
+    // Limit to 20 matches max (365scores style)
+    console.log(`365scores filtering: ${matches.length} total -> ${filtered.length} after filtering`);
+    return filtered.slice(0, 20);
   }, [allFixtures, liveFilterActive, timeFilterActive]);
 
   // Date navigation handlers
