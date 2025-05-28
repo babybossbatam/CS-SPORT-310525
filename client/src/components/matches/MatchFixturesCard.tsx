@@ -97,7 +97,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
   return (
     <div className="space-y-4">
-      <Card className="bg-white shadow-md w-full">
+      <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
           <button className="p-2 hover:bg-gray-100 rounded-r-full flex items-center -ml-4">
             <ChevronLeft className="h-5 w-5" />
