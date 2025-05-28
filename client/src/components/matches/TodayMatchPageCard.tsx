@@ -111,7 +111,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
       return "Tomorrow's Matches";
     } else {
       // For any other date, show the formatted date
-      return format(parseISO(selectedDate), 'MMM d, yyyy');
+      return format(parseISO(selectedDate), 'EEE, do MMM');
     }
   };
 
