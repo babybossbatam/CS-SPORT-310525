@@ -313,7 +313,7 @@ const FixedScoreboard = () => {
         console.log("Current filtering date:", now.toISOString());
 
         // Use a more lenient filtering approach for featured matches
-        
+
         // Filter matches from popular leagues first
         const popularLeagueMatches = allMatches.filter(match => {
           return DEFAULT_POPULAR_LEAGUES.includes(match.league.id) || 
@@ -329,13 +329,13 @@ const FixedScoreboard = () => {
           const bDate = new Date(b.fixture.date);
           const aStatus = a.fixture.status.short;
           const bStatus = b.fixture.status.short;
-          
+
           // Live matches first
           const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
           const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
           if (aLive && !bLive) return -1;
           if (!aLive && bLive) return 1;
-          
+
           // Upcoming matches within 24 hours
           const hoursToA = (aDate.getTime() - now.getTime()) / (1000 * 60 * 60);
           const hoursToB = (bDate.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -343,7 +343,7 @@ const FixedScoreboard = () => {
           const bUpcomingSoon = bStatus === 'NS' && hoursToB >= 0 && hoursToB <= 24;
           if (aUpcomingSoon && !bUpcomingSoon) return -1;
           if (!aUpcomingSoon && bUpcomingSoon) return 1;
-          
+
           // Recent finished matches (within last 12 hours)
           const hoursAgo = (now.getTime() - aDate.getTime()) / (1000 * 60 * 60);
           const hoursBgo = (now.getTime() - bDate.getTime()) / (1000 * 60 * 60);
@@ -351,7 +351,7 @@ const FixedScoreboard = () => {
           const bRecentFinished = bStatus === 'FT' && hoursBgo >= 0 && hoursBgo <= 12;
           if (aRecentFinished && !bRecentFinished) return -1;
           if (!aRecentFinished && bRecentFinished) return 1;
-          
+
           // Sort by date
           return Math.abs(aDate.getTime() - now.getTime()) - Math.abs(bDate.getTime() - now.getTime());
         });
@@ -360,12 +360,12 @@ const FixedScoreboard = () => {
         const featuredMatches = sortedMatches.slice(0, 8);
 
         console.log(`Filtered to ${featuredMatches.length} featured matches from popular leagues`);
-        
+
         // Log breakdown
         const live = featuredMatches.filter(m => ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(m.fixture.status.short)).length;
         const upcoming = featuredMatches.filter(m => m.fixture.status.short === 'NS').length;
         const finished = featuredMatches.filter(m => m.fixture.status.short === 'FT').length;
-        
+
         console.log(`Match breakdown - Live: ${live}, Upcoming: ${upcoming}, Finished: ${finished}`);
 
         if (featuredMatches.length > 0) {
@@ -635,15 +635,15 @@ const FixedScoreboard = () => {
 
   return (
     <>
-      <Badge
-        variant="secondary"
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
-      >
-        Featured Match
-      </Badge>
-
       <Card className="px-0 pt-0 pb-2 relative mt-0">
-        <div className="bg-gray-50 border-b p-2 -mt-4">
+        <Badge
+          variant="secondary"
+          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+        >
+          Featured Match
+        </Badge>
+
+        <div className="bg-gray-50 border-b p-2 -mt-4 relative">
             <div className="flex items-center justify-center">
               {currentMatch?.league?.logo ? (
                     <img
@@ -854,7 +854,7 @@ const FixedScoreboard = () => {
                         className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
                         style={{
                           background: "#a00000",
-                          left: "calc(50% - 26px)",
+                          left: "calc(550% - 26px)",
                           top: "calc(50% - 26px)",
                           minWidth: "52px",
                         }}
