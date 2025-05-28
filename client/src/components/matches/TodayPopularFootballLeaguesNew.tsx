@@ -416,11 +416,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return false;
       }
 
-      // Check for International matches specifically
-      if (fixture.league.country.toLowerCase().includes('international') || 
-          (fixture.league.name && fixture.league.name.toLowerCase().includes('international'))) {
-        console.log(`Found international match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-      }
+      // Allow all matches including international ones
+      console.log(`Processing match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
 
       // Filter by popular countries
       const isPopularCountry = POPULAR_COUNTRIES.some(country => 
