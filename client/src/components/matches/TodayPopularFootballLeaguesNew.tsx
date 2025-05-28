@@ -1251,12 +1251,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               if (hasValidScores) {
                                 return (
                                   <>
-                                    <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                      <span>{homeScore}</span>
-                                      <span className="text-gray-400">-</span>
-                                      <span>{awayScore}</span>
-                                    </div>
-                                    <div className="text-xs text-gray-500 mt-1">
+                                    <div className="text-xs text-gray-500 mb-1">
                                       {status === 'FT' ? 'Ended' : 
                                        status === 'AET' ? 'AET' :
                                        status === 'PEN' ? 'PEN' :
@@ -1265,6 +1260,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                        status === 'ABD' ? 'Abandoned' :
                                        status === 'CANC' ? 'Cancelled' :
                                        status === 'SUSP' ? 'Suspended' : status}
+                                    </div>
+                                    <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                      <span>{homeScore}</span>
+                                      <span className="text-gray-400">-</span>
+                                      <span>{awayScore}</span>
                                     </div>
                                   </>
                                 );
