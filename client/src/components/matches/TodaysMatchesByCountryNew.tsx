@@ -593,26 +593,59 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
                           <div className="space-y-0 mt-3">
                             {leagueData.matches
                               .sort((a: any, b: any) => {
-                                // Sort: Live > Recent Finished > Upcoming > Old Finished
+                                // Priority order: Live > Upcoming > Ended
                                 const aStatus = a.fixture.status.short;
                                 const bStatus = b.fixture.status.short;
                                 const aDate = new Date(a.fixture.date).getTime();
                                 const bDate = new Date(b.fixture.date).getTime();
 
-                                const aLive = ['LIVE', '1H', 'HT', '2H', 'ET'].includes(aStatus);
-                                const bLive = ['LIVE', '1H', 'HT', '2H', 'ET'].includes(bStatus);
+                                // Define status categories
+                                const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
+                                const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
+                                
+                                const aUpcoming = aStatus === 'NS' && !aLive;
+                                const bUpcoming = bStatus === 'NS' && !bLive;
+                                
+                                const aEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
+                                const bEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
 
-                                if (aLive && !bLive) return -1;
-                                if (!aLive && bLive) return 1;
+                                // Assign priority scores (lower = higher priority)
+                                let aPriority = 0;
+                                let bPriority = 0;
 
-                                const aFinished = ['FT', 'AET', 'PEN'].includes(aStatus);
-                                const bFinished = ['FT', 'AET', 'PEN'].includes(bStatus);
+                                if (aLive) aPriority = 1;
+                                else if (aUpcoming) aPriority = 2;
+                                else if (aEnded) aPriority = 3;
+                                else aPriority = 4; // Other statuses
 
-                                if (aFinished && bFinished) return bDate - aDate; // Most recent first
-                                if (aFinished && !bFinished) return -1;
-                                if (!aFinished && bFinished) return 1;
+                                if (bLive) bPriority = 1;
+                                else if (bUpcoming) bPriority = 2;
+                                else if (bEnded) bPriority = 3;
+                                else bPriority = 4; // Other statuses
 
-                                return aDate - bDate; // Upcoming: earliest first
+                                // First sort by priority
+                                if (aPriority !== bPriority) {
+                                  return aPriority - bPriority;
+                                }
+
+                                // If same priority, sort by time within category
+                                if (aLive && bLive) {
+                                  // For live matches, show earliest start time first
+                                  return aDate - bDate;
+                                }
+
+                                if (aUpcoming && bUpcoming) {
+                                  // For upcoming matches, show earliest start time first
+                                  return aDate - bDate;
+                                }
+
+                                if (aEnded && bEnded) {
+                                  // For ended matches, show most recent first
+                                  return bDate - aDate;
+                                }
+
+                                // Default time-based sorting
+                                return aDate - bDate;
                               })
                               .map((match: any) => (
                                 <div
