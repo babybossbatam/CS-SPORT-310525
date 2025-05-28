@@ -663,7 +663,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
   return (
     <Card>
-      <CardHeader className="pb-3 mt-[10px]">
+      <CardHeader className="pb-3">
         <h3 className="text-sm font-semibold">
           {getHeaderTitle()}
         </h3>
