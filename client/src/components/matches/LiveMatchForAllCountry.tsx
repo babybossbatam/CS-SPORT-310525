@@ -359,7 +359,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
   return (
     <div className="space-y-4">
       {/* Header Section */}
-      <Card className="mb-0">
+      <Card className="mb-0 rounded-b-none">
         <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)' }}>
           <h3 className="text-sm font-semibold flex items-center gap-2">
             Live Football Scores
@@ -380,7 +380,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
             return a.league.name.localeCompare(b.league.name);
           })
           .map((leagueData: any, globalIndex: number) => (
-            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${globalIndex > 0 ? 'mt-4' : 'mt-0'}`}>
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${globalIndex === 0 ? 'rounded-t-none' : 'mt-4'}`}>
               {/* League Header */}
               <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <img
