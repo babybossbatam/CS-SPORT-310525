@@ -1351,11 +1351,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             }
                           }}
                         />
-                        <span className="text-xs text-gray-500 truncate max-w-20">
-                          {match.leagueInfo.name === 'CONMEBOL Libertadores' ? 'Libertadores' : 
-                           match.leagueInfo.name === 'CONMEBOL Sudamericana' ? 'Sudamericana' : 
-                           match.leagueInfo.name}
-                        </span>
                       </div>
                     </div>
                   </div>
