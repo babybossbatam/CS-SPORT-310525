@@ -757,6 +757,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
 
+    // Special handling for World country - sort leagues alphabetically within World
+    if (aCountry === 'World' && bCountry === 'World') {
+      return aCountry.localeCompare(bCountry);
+    }
+
     // Within same tier and popular league status, sort by order in POPULAR_COUNTRIES_ORDER
     const getOrderIndex = (country: string) => {
       const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
@@ -1000,6 +1005,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
+            // Special handling for World country - sort alphabetically
+            if (countryData.country === 'World') {
+              return a.league.name.localeCompare(b.league.name);
+            }
+
             // Prioritize leagues that are popular for this specific country
             if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
             if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
