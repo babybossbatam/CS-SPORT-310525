@@ -407,8 +407,6 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     // Both are World/Europe - preserve original order with Europe first
     if (a.country === 'Europe' && b.country === 'World') return -1;
     if (a.country === 'World' && b.country === 'Europe') return 1;
-      return 0;
-    }
 
     // Popular countries without badge leagues come after World/Europe
     if (aIsPopularCountry && !a.hasPopularLeague && bIsWorldOrEurope) return 1;
