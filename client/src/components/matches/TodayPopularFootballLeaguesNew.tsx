@@ -436,6 +436,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       if (leagueName.includes('oberliga') || 
           leagueName.includes('usl w league') || 
           leagueName.includes('wpsl') ||
+          leagueName.includes('npsl') ||
           leagueName.includes('usl league two') ||
           leagueName.includes('usl championship') ||
           leagueName.includes('usl league one') ||
