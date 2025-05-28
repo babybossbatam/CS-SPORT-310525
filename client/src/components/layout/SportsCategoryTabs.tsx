@@ -78,19 +78,7 @@ const SportsCategoryTabs = () => {
             ))}
           </div>
 
-          {/* Fixed Esports tab on the right */}
-          <div
-            onClick={() => handleSportSelect('esports')}
-            className={cn(
-              'flex items-center justify-start gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit',
-              selectedSport === 'esports'
-                ? 'text-[#15222A]'
-                : 'text-[#6B7173] hover:text-[#15222A]'
-            )}
-          >
-            <EsportsIcon className="h-[1.1rem] w-[1.1rem]" />
-            <span className="text-[0.94rem] font-normal whitespace-nowrap">Esports</span>
-          </div>
+          
         </div>
     </Card>
   );
