@@ -27,9 +27,9 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [localSelectedDate, setLocalSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
-  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -113,21 +113,21 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
   // Date navigation handlers
   const goToPreviousDay = () => {
-    const newDate = format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
-    dispatch({ type: 'ui/setSelectedDate', payload: newDate });
+    const newDate = format(subDays(parseISO(localSelectedDate), 1), 'yyyy-MM-dd');
+    setLocalSelectedDate(newDate);
     setSelectedFilter(getRelativeDateDisplayName(newDate));
   };
 
   const goToNextDay = () => {
-    const newDate = format(addDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
-    dispatch({ type: 'ui/setSelectedDate', payload: newDate });
+    const newDate = format(addDays(parseISO(localSelectedDate), 1), 'yyyy-MM-dd');
+    setLocalSelectedDate(newDate);
     setSelectedFilter(getRelativeDateDisplayName(newDate));
   };
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       const selectedDateString = formatYYYYMMDD(date);
-      dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
+      setLocalSelectedDate(selectedDateString);
       setSelectedFilter(getRelativeDateDisplayName(selectedDateString));
       setIsCalendarOpen(false);
     }
@@ -135,7 +135,7 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
   const goToToday = () => {
     const today = getCurrentUTCDateString();
-    dispatch({ type: 'ui/setSelectedDate', payload: today });
+    setLocalSelectedDate(today);
     setSelectedFilter("Today's Matches");
     setIsCalendarOpen(false);
   };
@@ -168,7 +168,7 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-[320px]">
                 <Calendar
                   mode="single"
-                  selected={selectedDate ? parseISO(selectedDate) : new Date()}
+                  selected={localSelectedDate ? parseISO(localSelectedDate) : new Date()}
                   onSelect={handleDateSelect}
                   className="w-full"
                 />
@@ -237,11 +237,11 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       ) : (
         <>
           <TodayPopularFootballLeagues 
-            selectedDate={selectedDate} 
+            selectedDate={localSelectedDate} 
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
           />
-          <TodaysMatchesByCountry selectedDate={selectedDate} />
+          <TodaysMatchesByCountry selectedDate={localSelectedDate} />
         </>
       )}
     </>
