@@ -17,8 +17,23 @@ export const formatTodayMatchPageYYYYMMDD = (date: Date): string => {
   }
 };
 
-// Legacy function names for backward compatibility - using the same logic as shared utils
-export const getCurrentUTCDateString = (): string => {
+// Modified function to support TodayMatchPageCard's selected date pattern
+// Instead of always returning "today", this can work with the component's selectedDate state
+export const getCurrentUTCDateString = (selectedDate?: string): string => {
+  // If a selectedDate is provided (from component state), validate and return it
+  if (selectedDate) {
+    try {
+      // Validate the date format and ensure it's a valid date
+      const date = new Date(selectedDate);
+      if (!isNaN(date.getTime())) {
+        return format(date, 'yyyy-MM-dd');
+      }
+    } catch (error) {
+      console.error('Error processing selected date in TodayMatchPageCard:', error);
+    }
+  }
+  
+  // Fallback to today's date if no valid selectedDate provided
   return getTodayMatchPageCurrentUTCDateString();
 };
 
