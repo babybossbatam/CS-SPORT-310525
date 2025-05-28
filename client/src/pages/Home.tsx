@@ -33,8 +33,6 @@ import { format, addDays } from 'date-fns';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
-import MatchesByCountry from '@/components/matches/MatchesByCountry';
 import { useLocation } from "wouter";
 
 // Import the new TodayMatchCard component
@@ -452,11 +450,6 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (5 columns) */}
           <div className="lg:col-span-5 space-y-4">
-            <MatchFixturesCard
-              fixtures={fixtures}
-              onMatchClick={handleMatchClick}
-            />
-
             {/* New TodayMatchPageCard for testing */}
             <div className="mt-4">
               <TodayMatchPageCard 
@@ -464,9 +457,6 @@ const Home = () => {
                 onMatchClick={handleMatchClick}
               />
             </div>
-
-            {/* Today's Matches by Country */}
-            <MatchesByCountry selectedDate={selectedDate} />
 
             {/* Today's Matches by Country - New Version */}
             <TodaysMatchesByCountryNew selectedDate={selectedDate} />
