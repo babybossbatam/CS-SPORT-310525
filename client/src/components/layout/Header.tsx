@@ -43,7 +43,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between mr-[10%]">
         <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[150px] bg-black">
           <img 
-            src="/logo.png" 
+            src="/cs-sport-logo.png" 
             alt="CS SPORT Logo" 
             className="h-full max-h-[57px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
           />
