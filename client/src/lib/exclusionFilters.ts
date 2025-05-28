@@ -22,7 +22,7 @@ export const exclusionTerms = [
 
   // Non-competitive/exhibition matches (but allow World Friendlies)
   'test', 'exhibition', 'testimonial', 'charity',
-  
+
   // Women's specific competitions
   'friendlies women', 'women friendlies',
 
@@ -34,7 +34,7 @@ export const exclusionTerms = [
 
   // Specific lower-tier leagues to exclude
   'eintracht braunschweig', 'fc saarbrücken', 'kosice', 'boys',
-  
+
   // US lower-tier and semi-professional leagues
   'npsl', 'national premier soccer league', 'usl w league', 'wpsl',
 
@@ -46,7 +46,7 @@ export const exclusionTerms = [
 
   // Additional regional/state competitions to filter
   'catarinense', 'paulista', 'carioca', 'mineiro', 'gaucho', 'baiano', 'pernambucano',
-  'sergipano', 'alagoano', 'paraibano', 'cearense', 'potiguar', 'maranhense'
+  'sergipano', 'alagoano', 'paraibano', 'cearense', 'potiguar', 'maranhense', 'goaino', 'usl super league'
 ];
 
 // Safe substring function to handle null/undefined values
