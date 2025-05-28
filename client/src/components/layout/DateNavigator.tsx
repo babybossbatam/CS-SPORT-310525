@@ -32,27 +32,42 @@ const DateNavigator = () => {
   const goToPreviousDay = () => {
     const newDate = format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
     dispatch(uiActions.setSelectedDate(newDate));
+    fetchMatchDataForDate(newDate);
   };
 
   // Navigate to next day
   const goToNextDay = () => {
     const newDate = format(addDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
     dispatch(uiActions.setSelectedDate(newDate));
+    fetchMatchDataForDate(newDate);
   };
 
-  // Handle calendar date selection
+  // Handle calendar date selection with immediate data fetch
   const handleDateSelect = (date: string) => {
+    // Update the selected date
     dispatch(uiActions.setSelectedDate(date));
+    
+    // Close the calendar
     setIsCalendarOpen(false);
+    
+    // Fetch match data for the selected date
+    fetchMatchDataForDate(date);
   };
 
-  // Get display text for date
+  // Helper function to format date for display
+  const formatDateForDisplay = (dateString: string) => {
+    const date = parseISO(dateString);
+    return format(date, 'MMMM d, yyyy');
+  };
+
+  // Get display text for date with accurate date comparison
   const getDateDisplayText = () => {
     const currentDate = new Date();
     const todayString = format(currentDate, 'yyyy-MM-dd');
     const yesterdayString = format(subDays(currentDate, 1), 'yyyy-MM-dd');
     const tomorrowString = format(addDays(currentDate, 1), 'yyyy-MM-dd');
 
+    // Ensure exact string comparison for accurate matching
     if (selectedDate === todayString) {
       return "Today's Matches";
     }
@@ -65,13 +80,15 @@ const DateNavigator = () => {
       return "Tomorrow's Matches";
     }
 
-    return format(parseISO(selectedDate), 'MMMM d, yyyy');
+    // For other dates, show formatted date
+    return formatDateForDisplay(selectedDate);
   };
 
   // Handle today button click
   const goToToday = () => {
     const today = format(new Date(), 'yyyy-MM-dd');
     dispatch(uiActions.setSelectedDate(today));
+    fetchMatchDataForDate(today);
   };
 
   // Calendar navigation
@@ -96,33 +113,47 @@ const DateNavigator = () => {
     return [...emptyDays, ...days];
   };
 
-  // Fetch fixtures for the selected date
-  useEffect(() => {
-    const fetchFixtures = async () => {
-      try {
-        dispatch(fixturesActions.setLoadingFixtures(true));
+  // Function to fetch match data for a specific date
+  const fetchMatchDataForDate = async (date: string) => {
+    try {
+      dispatch(fixturesActions.setLoadingFixtures(true));
 
-        const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}`);
-        const data = await response.json();
-
-        dispatch(fixturesActions.setFixturesByDate({ 
-          date: selectedDate,
-          fixtures: data 
-        }));
-      } catch (error) {
-        console.error('Error fetching fixtures:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load matches for this date',
-          variant: 'destructive',
-        });
-        dispatch(fixturesActions.setFixturesError('Failed to load matches'));
-      } finally {
-        dispatch(fixturesActions.setLoadingFixtures(false));
+      // Format date for API (already in YYYY-MM-DD format)
+      const formattedDate = date;
+      
+      // Fetch data from your sports API using the selected date
+      const response = await apiRequest('GET', `/api/fixtures/date/${formattedDate}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch match data');
       }
-    };
+      
+      const data = await response.json();
+      
+      // Store the fetched data in Redux
+      dispatch(fixturesActions.setFixturesByDate({ 
+        date: formattedDate,
+        fixtures: data 
+      }));
+      
+    } catch (error) {
+      console.error('Error fetching fixtures:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load matches for this date',
+        variant: 'destructive',
+      });
+      dispatch(fixturesActions.setFixturesError('Failed to load matches'));
+    } finally {
+      dispatch(fixturesActions.setLoadingFixtures(false));
+    }
+  };
 
-    fetchFixtures();
+  // Fetch fixtures when selectedDate changes
+  useEffect(() => {
+    if (selectedDate) {
+      fetchMatchDataForDate(selectedDate);
+    }
   }, [selectedDate, dispatch, toast]);
 
   const daysInMonth = getDaysInMonth();

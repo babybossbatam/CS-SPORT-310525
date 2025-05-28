@@ -506,18 +506,24 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return 'bg-blue-100 text-blue-700';
   };
 
-  // Get header title based on selected date
+  // Get header title based on selected date with accurate date comparison
   const getHeaderTitle = () => {
-    const selectedDateObj = new Date(selectedDate);
+    const currentDate = new Date();
+    const todayString = format(currentDate, 'yyyy-MM-dd');
+    const yesterdayString = format(subDays(currentDate, 1), 'yyyy-MM-dd');
+    const tomorrowString = format(addDays(currentDate, 1), 'yyyy-MM-dd');
+    
     let baseTitle = "";
 
-    if (isToday(selectedDateObj)) {
+    // Use exact string comparison for accurate date matching
+    if (selectedDate === todayString) {
       baseTitle = "Today's Popular Football Leagues";
-    } else if (isYesterday(selectedDateObj)) {
+    } else if (selectedDate === yesterdayString) {
       baseTitle = "Yesterday's Popular Football Leagues";
-    } else if (isTomorrow(selectedDateObj)) {
+    } else if (selectedDate === tomorrowString) {
       baseTitle = "Tomorrow's Popular Football Leagues";
     } else {
+      const selectedDateObj = parseISO(selectedDate);
       baseTitle = `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
     }
 
