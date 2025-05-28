@@ -456,11 +456,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                                     )}
                                   </div>
                                   <div className="text-lg font-bold flex items-center gap-2">
-                                    <span className={match.fixture.status.short === 'FT' ? 'text-gray-700' : 'text-red-600'}>
+                                    <span className="text-black">
                                       {match.goals.home ?? 0}
                                     </span>
                                     <span className="text-gray-400">-</span>
-                                    <span className={match.fixture.status.short === 'FT' ? 'text-gray-700' : 'text-red-600'}>
+                                    <span className="text-black">
                                       {match.goals.away ?? 0}
                                     </span>
                                   </div>
