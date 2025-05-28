@@ -435,9 +435,23 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const leagueName = fixture.league.name?.toLowerCase() || '';
       if (leagueName.includes('oberliga') || 
           leagueName.includes('usl w league') || 
-          leagueName.includes('wpsl')) {
+          leagueName.includes('wpsl') ||
+          leagueName.includes('usl league two') ||
+          leagueName.includes('usl championship') ||
+          leagueName.includes('usl league one') ||
+          leagueName.includes('nwsl')) {
         console.log(`Filtering out excluded league: ${fixture.league.name}`);
         return false;
+      }
+
+      // Extra USA filtering - if it's from USA and not MLS (253) or MLS Next Pro (254), exclude it
+      if (fixture.league.country?.toLowerCase() === 'usa' || 
+          fixture.league.country?.toLowerCase() === 'united states') {
+        const allowedUSALeagues = [253, 254];
+        if (!allowedUSALeagues.includes(fixture.league.id)) {
+          console.log(`Filtering out non-MLS USA league: ${fixture.league.name} (ID: ${fixture.league.id})`);
+          return false;
+        }
       }
 
       // Skip fixtures with null or undefined country
@@ -464,7 +478,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         leagueNameLower.includes('copa sudamericana') ||
         leagueNameLower.includes('conmebol') ||
         countryName.includes('conmebol');
-      
+
       const isInternationalCompetition = 
         leagueNameLower.includes('champions league') ||
         leagueNameLower.includes('europa league') ||
@@ -493,7 +507,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Enhanced filtering based on geographic tiers
       const countryKey = matchingCountry;
-      
+
       // Tier 1 countries (England, Spain, Italy, Germany, France) - show all major leagues
       if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
@@ -502,7 +516,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           return false;
         }
       }
-      
+
       // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA) - be more permissive for Brazil
       else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         // For Brazil, allow both Serie A and Serie B
@@ -513,15 +527,17 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             return false;
           }
         } else {
-          // For USA, only allow MLS and MLS Next Pro
+          // For USA, ONLY allow MLS (253) and MLS Next Pro (254) - exclude everything else
           if (countryKey.toLowerCase() === 'usa') {
-            // Only allow specific MLS leagues: MLS (253) and MLS Next Pro (254)
-            const allowedUSALeagues = [253, 254]; // MLS and MLS Next Pro only
-            
+            // STRICT filtering - only these two leagues allowed
+            const allowedUSALeagues = [253, 254]; // MLS and MLS Next Pro ONLY
+
             if (!allowedUSALeagues.includes(leagueId)) {
-              console.log(`Filtering out non-MLS league from USA: ${fixture.league.name} (ID: ${leagueId})`);
+              console.log(`Filtering out non-MLS league from USA: ${fixture.league.name} (ID: ${leagueId}) - Only MLS (253) and MLS Next Pro (254) allowed`);
               return false;
             }
+
+            console.log(`Allowing MLS league from USA: ${fixture.league.name} (ID: ${leagueId})`);
           } else {
             // For other Tier 3 countries (Saudi Arabia, Egypt), be very restrictive
             const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
@@ -696,7 +712,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Filter to show only popular countries with badge system
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
     // Add comprehensive null checks
-    if (!countryData || typeof countryData !== 'object') {
+    if (!countryData|| typeof countryData !== 'object') {
       return false;
     }
 
@@ -730,7 +746,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aCountry = a.country || '';
     const bCountry = b.country || '';
-    
+
     // Determine geographic tier for each country
     const getTier = (country: string) => {
       if (TIER_1_COUNTRIES.includes(country)) return 1;
@@ -1111,7 +1127,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       // Check if matches involve popular teams (with null safety)
                       const aHasPopularTeam = (a.teams?.home?.id && POPULAR_TEAMS.includes(a.teams.home.id)) || 
                                              (a.teams?.away?.id && POPULAR_TEAMS.includes(a.teams.away.id));
-                      const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.away.id)) || 
+                      const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.home.id)) || 
                                              (b.teams?.away?.id && POPULAR_TEAMS.includes(b.teams.away.id));
 
                       // Prioritize popular team matches first
