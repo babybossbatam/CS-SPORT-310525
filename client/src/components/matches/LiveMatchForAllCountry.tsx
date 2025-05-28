@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -306,14 +307,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     // First sort by popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
-
+    
     // Then alphabetically
     const countryA = a.country || '';
     const countryB = b.country || '';
     return countryA.localeCompare(countryB);
   });
 
-
+  
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
@@ -378,7 +379,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-
+                
 
                 {/* Always show matches - no collapse */}
                 <div className="bg-gray-50 border-t border-gray-100">
@@ -431,8 +432,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                                     className="w-12 h-12 object-contain"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
-                                      if (target.src !== '/CSSPORT_1_updated.png') {
-                                        target.src = '/CSSPORT_1_updated.png';
+                                      if (target.src !== '/assets/fallback-logo.png') {
+                                        target.src = '/assets/fallback-logo.png';
                                       }
                                     }}
                                   />
@@ -460,8 +461,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                                     className="w-12 h-12 object-contain"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
-                                      if (target.src !== '/CSSPORT_1_updated.png') {
-                                        target.src = '/CSSPORT_1_updated.png';
+                                      if (target.src !== '/assets/fallback-logo.png') {
+                                        target.src = '/assets/fallback-logo.png';
                                       }
                                     }}
                                   />

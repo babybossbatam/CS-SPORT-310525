@@ -140,9 +140,9 @@ export function MatchScoreboard({
               if (target.src.includes('sportmonks') && teams?.home?.logo) {
                 target.src = teams.home.logo;
               } else if (teams?.home?.name) {
-                target.src = `/CSSPORT_1_updated.png`;
+                target.src = `/assets/fallback-logo.svg`;
               } else {
-                target.src = `/CSSPORT_1_updated.png`;
+                target.src = `/assets/fallback-logo.svg`;
               }
             }}
           />
