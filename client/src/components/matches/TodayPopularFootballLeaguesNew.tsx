@@ -998,7 +998,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       {/* Header Section */}
       <Card>
         <CardHeader className="pb-3 space-y-4" style={{ marginBottom: '0', paddingBottom: '0' }}>
-          <h3 className="text-sm font-semibold">
+          <h3 className="text-sm font-semibold mb-4">
             Popular Football League
           </h3>
         </CardHeader>
