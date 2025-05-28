@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
 import { b365ApiService } from './services/b365Api';
 import { betsApiService } from './services/betsApi';
+import sportsradarApi from './services/sportsradarApi';
 import { supabaseService } from "./services/supabase";
 import { 
   insertUserSchema, 
@@ -878,7 +879,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Error fetching from BetsAPI:", error);
       }
 
-      // Fallback to GNews API if BetsAPI fails
+      // Fallback to SportsRadar API if BetsAPI fails
+      try {
+        console.log("BetsAPI failed, trying SportsRadar API as fallback");
+        
+        let sportsRadarArticles = [];
+        
+        if (sportType === 'football') {
+          sportsRadarArticles = await sportsradarApi.getFootballNews();
+        } else {
+          // Try with the sport type directly
+          sportsRadarArticles = await sportsradarApi.getSportsNews(sportType || 'nfl');
+        }
+
+        if (sportsRadarArticles && sportsRadarArticles.length > 0) {
+          const articles = sportsRadarArticles.slice(0, count).map((article, index) => 
+            sportsradarApi.convertSportsRadarToStandardFormat(article, index)
+          );
+
+          console.log(`Successfully processed ${articles.length} news articles from SportsRadar`);
+          return res.json(articles);
+        } else {
+          console.warn("SportsRadar API returned no articles");
+        }
+      } catch (sportsRadarError) {
+        console.error("SportsRadar API also failed:", sportsRadarError);
+      }
+
+      // Final fallback to GNews API if both BetsAPI and SportsRadar fail
       try {
         const apiKey = process.env.GNEWS_API_KEY;
         if (!apiKey) {

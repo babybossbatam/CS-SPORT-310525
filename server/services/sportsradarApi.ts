@@ -3,7 +3,9 @@ import { RapidApiResponse, SportsradarFixture, SportsradarLeague } from '../type
 
 // Constants
 const SPORTSRADAR_API_HOST = 'sportsradar-sportsbook-api.p.rapidapi.com';
+const SPORTSRADAR_CONTENT_BASE_URL = 'https://api.sportradar.com';
 const API_KEY = process.env.RAPID_API_KEY;
+const SPORTSRADAR_API_KEY = 'ycUVvzV2yJBK1s6DBnkABLfx4cV6UzRk0yaw1kKu';
 
 // Base API configuration
 const apiClient = axios.create({
@@ -12,6 +14,15 @@ const apiClient = axios.create({
     'x-rapidapi-key': API_KEY || '',
     'x-rapidapi-host': SPORTSRADAR_API_HOST,
     'Content-Type': 'application/json'
+  }
+});
+
+// SportsRadar Content API client
+const contentApiClient = axios.create({
+  baseURL: SPORTSRADAR_CONTENT_BASE_URL,
+  headers: {
+    'accept': 'application/json',
+    'x-api-key': SPORTSRADAR_API_KEY
   }
 });
 
@@ -215,6 +226,63 @@ function isWinner(fixture: SportsradarFixture, team: 'home' | 'away'): boolean |
   return team === 'home' ? homeScore > awayScore : awayScore > homeScore;
 }
 
+// Get sports news content
+export async function getSportsNews(sport: string = 'nfl', date?: string): Promise<any[]> {
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    const [year, month, day] = targetDate.split('-');
+    
+    console.log(`Fetching SportsRadar content for ${sport} on ${year}/${month}/${day}`);
+    
+    const response = await contentApiClient.get(`/content-${sport}-t3/ap/analysis/${year}/${month}/${day}/all.json`);
+    
+    if (response.data && response.data.items) {
+      console.log(`Found ${response.data.items.length} content items from SportsRadar`);
+      return response.data.items;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error fetching SportsRadar content:', error);
+    return [];
+  }
+}
+
+// Get football/soccer news (using different sport codes)
+export async function getFootballNews(date?: string): Promise<any[]> {
+  // Try multiple sport codes for soccer/football content
+  const sportCodes = ['soccer', 'football', 'fifa'];
+  
+  for (const sport of sportCodes) {
+    try {
+      const news = await getSportsNews(sport, date);
+      if (news.length > 0) {
+        return news;
+      }
+    } catch (error) {
+      console.log(`No content found for sport code: ${sport}`);
+      continue;
+    }
+  }
+  
+  return [];
+}
+
+// Convert SportsRadar content to standard news format
+export function convertSportsRadarToStandardFormat(item: any, index: number = 0) {
+  return {
+    id: index + 1,
+    title: item.headline || item.title || 'Sports Update',
+    content: item.content || item.summary || item.description || 'Latest sports news update',
+    imageUrl: item.image || item.thumbnail || 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
+    source: "SportsRadar Content",
+    url: item.url || item.link || `/news/${index + 1}`,
+    publishedAt: item.published_at || item.date_published || new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+}
+
 export default {
   getAllSports,
   getFootballLeagues,
@@ -224,5 +292,8 @@ export default {
   getLeagueDetails,
   getTopScorers,
   getStandings,
-  mapSportsradarFixtureToInternal
+  mapSportsradarFixtureToInternal,
+  getSportsNews,
+  getFootballNews,
+  convertSportsRadarToStandardFormat
 };
