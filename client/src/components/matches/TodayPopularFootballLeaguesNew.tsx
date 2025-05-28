@@ -431,6 +431,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return false;
       }
 
+      // Additional exclusions for popular leagues card
+      const leagueName = fixture.league.name?.toLowerCase() || '';
+      if (leagueName.includes('oberliga') || 
+          leagueName.includes('usl w league') || 
+          leagueName.includes('wpsl')) {
+        console.log(`Filtering out excluded league: ${fixture.league.name}`);
+        return false;
+      }
+
       // Skip fixtures with null or undefined country
       if (!fixture.league.country) {
         console.log(`Filtering out fixture with null/undefined country: league: ${fixture.league.name}`);
