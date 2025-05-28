@@ -832,7 +832,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     // If both are popular country leagues OR both are regular leagues, sort alphabetically
     if (a.isPopularForCountry === b.isPopularForCountry) {
       const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
-      
+
       if (alphabeticalSort !== 0) {
         return alphabeticalSort;
       }
@@ -1159,10 +1159,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           {leagueData.league.country || 'Unknown Country'}
                         </span>
                       </div>
-                      <div className="flex gap-1 ml-auto">
+                      
                         {leagueData.isPopularForCountry && (
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                            Popular Country
+                            Top League
                           </span>
                         )}
                         {leagueData.isPopular && !leagueData.isPopularForCountry && (
@@ -1170,7 +1170,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             Popular
                           </span>
                         )}
-                      </div>
+                        {!leagueData.isPopular && !leagueData.isPopularForCountry && (
+                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                            Regular
+                          </span>
+                        )}
+                      
                     </div>
                   )}
                 </>
