@@ -731,24 +731,32 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     );
   });
 
-  // Enhanced sorting with geographic tier-based prioritization
+  // Enhanced sorting with domestic leagues prioritized over international competitions
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aCountry = a.country || '';
     const bCountry = b.country || '';
 
-    // Determine geographic tier for each country
+    // Determine priority tier for each country (lower number = higher priority)
     const getTier = (country: string) => {
+      // Tier 1: Major domestic leagues (highest priority)
       if (TIER_1_COUNTRIES.includes(country)) return 1;
-      if (TIER_2_INTERNATIONAL.includes(country)) return 2;
-      if (TIER_3_OTHER_POPULAR.includes(country)) return 3;
+      
+      // Tier 2: Other popular domestic leagues
+      if (TIER_3_OTHER_POPULAR.includes(country)) return 2;
+      
+      // Tier 3: International competitions (lower priority than domestic)
+      if (TIER_2_INTERNATIONAL.includes(country)) return 3;
+      
+      // Tier 4: CONMEBOL
       if (country === 'CONMEBOL') return 4;
+      
       return 999;
     };
 
     const aTier = getTier(aCountry);
     const bTier = getTier(bCountry);
 
-    // Sort by tier first
+    // Sort by tier first (domestic leagues before international)
     if (aTier !== bTier) {
       return aTier - bTier;
     }
@@ -756,11 +764,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     // Within same tier, prioritize countries with popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
-
-    // Special handling for World country - sort leagues alphabetically within World
-    if (aCountry === 'World' && bCountry === 'World') {
-      return aCountry.localeCompare(bCountry);
-    }
 
     // Within same tier and popular league status, sort by order in POPULAR_COUNTRIES_ORDER
     const getOrderIndex = (country: string) => {
@@ -1005,8 +1008,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
-            // Special handling for World country - sort alphabetically
+            // Special handling for World country - deprioritize Friendlies
             if (countryData.country === 'World') {
+              const aIsFriendlies = a.league.name.toLowerCase().includes('friendlies');
+              const bIsFriendlies = b.league.name.toLowerCase().includes('friendlies');
+              
+              // Put Friendlies at the end of World competitions
+              if (aIsFriendlies && !bIsFriendlies) return 1;
+              if (!aIsFriendlies && bIsFriendlies) return -1;
+              
               return a.league.name.localeCompare(b.league.name);
             }
 
