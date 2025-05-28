@@ -731,59 +731,62 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     );
   });
 
-  // Enhanced sorting with A-Z primary and priority fallback system
-  const sortedCountries = filteredCountries.sort((a: any, b: any) => {
-    const aCountry = a.country || '';
-    const bCountry = b.country || '';
+  // Create a flat list of all leagues with their metadata for sorting
+  const allLeaguesFlat = filteredCountries.flatMap((countryData: any) => 
+    Object.values(countryData.leagues).map((leagueData: any) => ({
+      ...leagueData,
+      country: countryData.country,
+      countryFlag: countryData.flag,
+      hasPopularLeague: countryData.hasPopularLeague
+    }))
+  );
 
-    // Try A-Z sorting first
-    try {
-      const alphabeticalSort = aCountry.localeCompare(bCountry);
-      
-      // If A-Z sorting works (both countries are valid strings), use it
-      if (aCountry && bCountry && typeof aCountry === 'string' && typeof bCountry === 'string') {
-        return alphabeticalSort;
-      }
-    } catch (error) {
-      console.warn('A-Z sorting failed, falling back to priority system:', error);
-    }
+  // Sort leagues by popularity first, then by league name
+  const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
+    // Priority 1: Popular leagues come first
+    if (a.isPopular && !b.isPopular) return -1;
+    if (!a.isPopular && b.isPopular) return 1;
 
-    // Fallback priority system when A-Z sorting fails
-    const getPriorityLevel = (countryData: any) => {
-      const country = countryData.country || '';
-      const hasPopularLeague = countryData.hasPopularLeague;
+    // Priority 2: Popular for country leagues
+    if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+    if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
 
-      // Check if country has Friendlies leagues
-      const hasFriendlies = Object.values(countryData.leagues || {}).some((league: any) => 
-        league.isFriendlies || league.league?.name?.toLowerCase().includes('friendlies')
-      );
+    // Priority 3: Friendlies go to the end
+    const aIsFriendlies = a.isFriendlies || a.league?.name?.toLowerCase().includes('friendlies');
+    const bIsFriendlies = b.isFriendlies || b.league?.name?.toLowerCase().includes('friendlies');
 
-      // Priority 1: Friendlies (Top Priority)
-      if (hasFriendlies) return 1;
+    if (aIsFriendlies && !bIsFriendlies) return 1;
+    if (!aIsFriendlies && bIsFriendlies) return -1;
 
-      // Priority 2: Popular League with badge
-      if (hasPopularLeague) return 2;
+    // Priority 4: Sort alphabetically by league name
+    const aLeagueName = a.league?.name || '';
+    const bLeagueName = b.league?.name || '';
 
-      // Priority 3: Popular Country badge
-      if (POPULAR_COUNTRIES_ORDER.some(pc => 
-        pc.toLowerCase() === country.toLowerCase()
-      )) return 3;
-
-      // Priority 4: Other leagues
-      return 4;
-    };
-
-    const aPriority = getPriorityLevel(a);
-    const bPriority = getPriorityLevel(b);
-
-    // Sort by priority level (lower number = higher priority)
-    if (aPriority !== bPriority) {
-      return aPriority - bPriority;
-    }
-
-    // Within same priority level, fall back to alphabetical
-    return aCountry.localeCompare(bCountry);
+    return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
   });
+
+  // Group sorted leagues back by country while maintaining league order
+  const sortedCountries = [];
+  const countriesMap: { [key: string]: any } = {};
+
+  sortedLeagues.forEach((leagueData: any) => {
+    const country = leagueData.country;
+
+    if (!countriesMap[country]) {
+      countriesMap[country] = {
+        country: country,
+        flag: leagueData.countryFlag,
+        leagues: {},
+        hasPopularLeague: leagueData.hasPopularLeague,
+      };
+      sortedCountries.push(countriesMap[country]);
+    }
+
+    countriesMap[country].leagues[leagueData.league.id] = leagueData;
+  });
+
+  // Now `sortedCountries` contains countries in the order of their most popular leagues
+  // and each country contains leagues in the desired order.
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
