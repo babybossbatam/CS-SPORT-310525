@@ -740,16 +740,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const getTier = (country: string) => {
       // Tier 1: Major domestic leagues (highest priority)
       if (TIER_1_COUNTRIES.includes(country)) return 1;
-      
+
       // Tier 2: Other popular domestic leagues
       if (TIER_3_OTHER_POPULAR.includes(country)) return 2;
-      
+
       // Tier 3: International competitions (lower priority than domestic)
       if (TIER_2_INTERNATIONAL.includes(country)) return 3;
-      
+
       // Tier 4: CONMEBOL
       if (country === 'CONMEBOL') return 4;
-      
+
       return 999;
     };
 
@@ -1000,19 +1000,25 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-4 p-4">
+          <div className="bg-gray-50 p-3 rounded-md border">
+            {/* Additional content div inside the main card */}
+          </div>
+          <div className="bg-blue-50 p-2 rounded border-l-4 border-blue-400">
+            {/* New div inside main content area */}
+          </div>
           {/* Create individual league cards from all countries */}
-      {sortedCountries.flatMap((countryData: any) => 
+      {sortedCountries.flatMap((countryData: any) =>
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
             // Special handling for World country - deprioritize Friendlies
             if (countryData.country === 'World') {
               const aIsFriendlies = a.league.name.toLowerCase().includes('friendlies');
               const bIsFriendlies = b.league.name.toLowerCase().includes('friendlies');
-              
+
               // Put Friendlies at the end of World competitions
               if (aIsFriendlies && !bIsFriendlies) return 1;
               if (!aIsFriendlies && bIsFriendlies) return -1;
-              
+
               return a.league.name.localeCompare(b.league.name);
             }
 
