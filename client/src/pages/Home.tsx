@@ -443,12 +443,10 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (5 columns) */}
           <div className="lg:col-span-5 space-y-4">
-            <Card className="bg-[#F4F4F6]">
-              <MatchFixturesCard
-                fixtures={fixtures}
-                onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-              />
-            </Card>
+            <MatchFixturesCard
+              fixtures={fixtures}
+              onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+            />
             <MatchesByCountry selectedDate={selectedDate} />
           </div>
 
