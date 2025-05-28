@@ -84,67 +84,63 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     }
   );
 
-  // Fetch popular league fixtures with smart caching
+  // Fetch popular league fixtures with smart caching and optimized loading
   const { data: popularFixtures = [], isLoading: isLoadingPopular, isFetching: isFetchingPopular } = useCachedQuery(
     popularQueryKey,
     async () => {
-      const allData = [];
       console.log(`Fetching popular league fixtures for ${selectedDate}`);
 
-      // Fetch data for each popular league
-      for (const leagueId of POPULAR_LEAGUES) {
-        try {
-          const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
-          const leagueFixtures = await response.json();
+      // Split leagues into smaller batches for better performance
+      const batchSize = 3;
+      const leagueBatches = [];
+      for (let i = 0; i < POPULAR_LEAGUES.length; i += batchSize) {
+        leagueBatches.push(POPULAR_LEAGUES.slice(i, i + batchSize));
+      }
 
-          // Filter fixtures for the selected date
-          const matchesFromSelectedDate = leagueFixtures.filter(match => {
-            try {
-              if (!match || !match.fixture || !match.fixture.date) return false;
+      const allData = [];
 
-              const fixtureDate = parseISO(match.fixture.date);
-              if (!isValid(fixtureDate)) return false;
+      // Process batches in parallel for better performance
+      for (const batch of leagueBatches) {
+        const batchPromises = batch.map(async (leagueId) => {
+          try {
+            const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
+            const leagueFixtures = await response.json();
 
-              // Get the actual local date of the match
-              const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
+            // Filter fixtures for the selected date with early returns for better performance
+            const matchesFromSelectedDate = leagueFixtures.filter(match => {
+              if (!match?.fixture?.date) return false;
 
-              // Strict date matching - only include matches that are exactly on the selected date
-              return fixtureLocalDateString === selectedDate;
-            } catch (error) {
-              console.error('Error filtering match by date:', error, match);
-              return false;
-            }
-          });
+              try {
+                const fixtureDate = parseISO(match.fixture.date);
+                if (!isValid(fixtureDate)) return false;
 
-          allData.push(...matchesFromSelectedDate);
-        } catch (error) {
-          console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-        }
+                const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
+                return fixtureLocalDateString === selectedDate;
+              } catch (error) {
+                return false;
+              }
+            });
+
+            return matchesFromSelectedDate;
+          } catch (error) {
+            console.error(`Error fetching fixtures for league ${leagueId}:`, error);
+            return [];
+          }
+        });
+
+        // Wait for current batch to complete before processing next batch
+        const batchResults = await Promise.all(batchPromises);
+        batchResults.forEach(matches => allData.push(...matches));
       }
 
       console.log(`Fetched ${allData.length} popular league fixtures for date ${selectedDate}`);
-
-      // Debug: Log matches by league
-      const matchesByLeague = allData.reduce((acc, match) => {
-        const leagueId = match.league?.id;
-        const leagueName = match.league?.name;
-        if (leagueId) {
-          if (!acc[leagueId]) {
-            acc[leagueId] = { name: leagueName, count: 0 };
-          }
-          acc[leagueId].count++;
-        }
-        return acc;
-      }, {});
-
-      console.log('Matches by league for', selectedDate, ':', matchesByLeague);
-
       return allData;
     },
     {
       enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
-      maxAge: 30 * 60 * 1000, // 30 minutes
+      maxAge: 45 * 60 * 1000, // Increased cache time to 45 minutes
       backgroundRefresh: true,
+      staleTime: 30 * 60 * 1000, // Don't refetch for 30 minutes unless explicitly requested
     }
   );
 
@@ -557,10 +553,15 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
             <Skeleton className="h-4 w-48" />
           </div>
           <Skeleton className="h-3 w-40" />
+          {(isLoadingPopular || isFetchingPopular) && (
+            <div className="text-xs text-blue-600 mt-2">
+              Loading popular leagues...
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="border-b border-gray-100 last:border-b-0">
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
