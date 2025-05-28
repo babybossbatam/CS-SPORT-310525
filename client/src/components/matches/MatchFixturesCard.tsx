@@ -200,18 +200,14 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
       </Card>
 
       {liveFilterActive ? (
-        <div className="space-y-4 bg-transparent">
-          <LiveMatchForAllCountry />
-        </div>
+        <LiveMatchForAllCountry />
       ) : (
         <>
-          <div className="space-y-4 bg-transparent">
-            <TodayPopularFootballLeagues 
-              selectedDate={selectedDate} 
-              timeFilterActive={timeFilterActive}
-              showTop20={timeFilterActive}
-            />
-          </div>
+          <TodayPopularFootballLeagues 
+            selectedDate={selectedDate} 
+            timeFilterActive={timeFilterActive}
+            showTop20={timeFilterActive}
+          />
           <TodaysMatchesByCountry selectedDate={selectedDate} />
         </>
       )}
