@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -77,7 +76,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
       console.log(`TodayPopularFootballLeaguesNew - Received ${data.length} fixtures for ${selectedDate}`);
-      
+
       // Debug: Check first few fixtures' dates
       if (data.length > 0) {
         data.slice(0, 3).forEach((fixture, index) => {
@@ -88,7 +87,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           }
         });
       }
-      
+
       return data;
     },
     {
@@ -130,14 +129,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                 // Use UTC date to avoid timezone issues
                 const fixtureUTCDateString = format(fixtureDate, 'yyyy-MM-dd');
-                
+
                 // Ensure we're comparing the exact date strings
                 const isMatch = fixtureUTCDateString === selectedDate;
-                
+
                 if (isMatch) {
                   console.log(`Match found for ${selectedDate}: ${match.teams?.home?.name || 'Unknown'} vs ${match.teams?.away?.name || 'Unknown'} on ${fixtureUTCDateString}`);
                 }
-                
+
                 return isMatch;
               } catch (error) {
                 return false;
@@ -360,7 +359,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const allFixtures = [...fixtures, ...popularFixtures]
     .filter((fixture, index, self) => {
       const isUnique = index === self.findIndex(f => f.fixture.id === fixture.fixture.id);
-      
+
       // Only keep fixtures that match the exact selected date
       if (isUnique && fixture?.fixture?.date) {
         try {
@@ -368,11 +367,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           if (isValid(fixtureDate)) {
             const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
             const matchesSelectedDate = fixtureDateString === selectedDate;
-            
+
             if (!matchesSelectedDate) {
               console.log(`Filtering out fixture from wrong date: ${fixtureDateString} (expected: ${selectedDate})`);
             }
-            
+
             return matchesSelectedDate;
           }
         } catch (error) {
@@ -380,9 +379,59 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           return false;
         }
       }
-      
+
       return isUnique;
     });
+
+  // Filter fixtures based on popular countries and exclusion filters
+  const filteredFixtures = useMemo(() => {
+    if (!allFixtures?.length) return [];
+
+    const filtered = allFixtures.filter(fixture => {
+      // Date filtering - ensure exact date match
+      const fixtureDate = new Date(fixture.fixture.date);
+      const expectedDate = new Date(selectedDate);
+
+      const fixtureDateStr = format(fixtureDate, 'yyyy-MM-dd');
+      const expectedDateStr = format(expectedDate, 'yyyy-MM-dd');
+
+      if (fixtureDateStr !== expectedDateStr) {
+        console.log(`Filtering out fixture from wrong date: ${fixtureDateStr} (expected: ${expectedDateStr})`);
+        return false;
+      }
+
+      // Apply exclusion filters
+      if (shouldExcludeFixture(
+        fixture.league.name,
+        fixture.teams.home.name,
+        fixture.teams.away.name
+      )) {
+        console.log(`Filtering out excluded fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+        return false;
+      }
+
+      // Check for International matches specifically
+      if (fixture.league.country.toLowerCase().includes('international') || 
+          fixture.league.name.toLowerCase().includes('international')) {
+        console.log(`Found international match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+      }
+
+      // Filter by popular countries
+      const isPopularCountry = POPULAR_COUNTRIES.some(country => 
+        fixture.league.country.toLowerCase().includes(country.toLowerCase())
+      );
+
+      if (!isPopularCountry) {
+        console.log(`Filtering out fixture from non-popular country: ${fixture.league.country}, league: ${fixture.league.name}`);
+        return false;
+      }
+
+      return true;
+    });
+
+    console.log(`Filtered to ${filtered.length} matches from popular leagues`);
+    return filtered;
+  }, [allFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
