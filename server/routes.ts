@@ -849,15 +849,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use BetsAPI as primary news source
       try {
         console.log("Using BetsAPI for sports news");
-        
+
         let betsApiArticles = [];
-        
+
         // Fetch news based on sport type
         if (sportType === 'football') {
           betsApiArticles = await betsApiService.getFootballNews(1, count);
         } else if (sportType === 'basketball') {
           betsApiArticles = await betsApiService.getBasketballNews(1, count);
-        } else if (sportType === 'tennis') {
+        }```text
+ else if (sportType === 'tennis') {
           betsApiArticles = await betsApiService.getTennisNews(1, count);
         } else {
           // Default to football/soccer news
@@ -882,7 +883,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Fallback to SportsRadar API if BetsAPI fails
       try {
         console.log("BetsAPI failed, trying SportsRadar API as fallback");
-        
+
         // SportsRadar content API is not accessible, skip this fallback
         console.log("SportsRadar content API not available, skipping to GNews fallback");
       } catch (sportsRadarError) {
@@ -1277,16 +1278,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get('/flags/:country', async (req: Request, res: Response) => {
     try {
       const { country } = req.params;
-      
+
       if (!country) {
         return res.status(400).json({ error: 'Country parameter is required' });
       }
-      
+
       console.log(`Getting flag for country: ${country}`);
-      
+
       // Try SportsRadar flag
       const sportsRadarFlag = await sportsradarApi.getCountryFlag(country);
-      
+
       if (sportsRadarFlag) {
         res.json({ 
           success: true, 
@@ -1409,4 +1410,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
   return httpServer;
+}
+
+// Utility function to get country flag with fallback chain
+async function getCountryFlag(country: string): Promise<string | null> {
+  try {
+    // Try SportsRadar flag first
+    let flagUrl = await sportsradarApi.getCountryFlag(country);
+
+    if (flagUrl) {
+      return flagUrl;
+    }
+
+    // If SportsRadar fails, try 365scores CDN
+    console.log(`SportsRadar flag not found for ${country}, trying 365scores CDN fallback`);
+    flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
+
+    // Check if the 365scores flag exists (naive check)
+    const response = await fetch(flagUrl, { method: 'HEAD' });
+    if (response.ok) {
+      return flagUrl;
+    } else {
+      console.log(`365scores CDN flag not found for ${country}`);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching country flag:', error);
+    return null;
+  }
 }

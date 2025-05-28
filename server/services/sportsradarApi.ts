@@ -226,14 +226,14 @@ function isWinner(fixture: SportsradarFixture, team: 'home' | 'away'): boolean |
   return team === 'home' ? homeScore > awayScore : awayScore > homeScore;
 }
 
-// Get country flag from SportsRadar
+// Get country flag from SportsRadar with 365scores fallback
 export async function getCountryFlag(country: string): Promise<string | null> {
   try {
     const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
-    const flagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
+    const sportsRadarFlagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
     
-    // Test if the flag exists by making a HEAD request
-    const response = await fetch(flagUrl, { 
+    // Test if the SportsRadar flag exists by making a HEAD request
+    const sportsRadarResponse = await fetch(sportsRadarFlagUrl, { 
       method: 'HEAD',
       headers: {
         'accept': 'application/json',
@@ -241,15 +241,41 @@ export async function getCountryFlag(country: string): Promise<string | null> {
       }
     });
     
-    if (response.ok) {
-      return flagUrl;
+    if (sportsRadarResponse.ok) {
+      console.log(`✅ SportsRadar flag found for country: ${country}`);
+      return sportsRadarFlagUrl;
     } else {
-      console.warn(`SportsRadar flag not found for country: ${country}`);
-      return null;
+      console.warn(`⚠️ SportsRadar flag not found for country: ${country}, trying 365scores fallback...`);
+      
+      // Try 365scores CDN as fallback
+      const scores365FlagUrl = `https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`;
+      
+      // Test if the 365scores flag exists
+      const scores365Response = await fetch(scores365FlagUrl, { 
+        method: 'HEAD'
+      });
+      
+      if (scores365Response.ok) {
+        console.log(`✅ 365scores fallback flag found for country: ${country}`);
+        return scores365FlagUrl;
+      } else {
+        console.warn(`❌ Both SportsRadar and 365scores flags not found for country: ${country}`);
+        return null;
+      }
     }
   } catch (error) {
-    console.error(`Error getting SportsRadar flag for ${country}:`, error);
-    return null;
+    console.error(`Error getting flag for ${country}:`, error);
+    
+    // As a final fallback, try 365scores without checking
+    try {
+      const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
+      const scores365FlagUrl = `https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`;
+      console.log(`🔄 Error fallback: trying 365scores for ${country}`);
+      return scores365FlagUrl;
+    } catch (fallbackError) {
+      console.error(`Final fallback also failed for ${country}:`, fallbackError);
+      return null;
+    }
   }
 }
 

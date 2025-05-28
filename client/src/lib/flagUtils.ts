@@ -212,7 +212,7 @@ export function getCountryFlagWithFallback(
     return 'https://flagsapi.com/EU/flat/24.png';
   }
 
-  // Use SportsRadar API endpoint as primary source
+  // Use SportsRadar API endpoint as primary source with 365scores fallback
   return `/api/flags/${encodeURIComponent(cleanCountry)}`;
 }
 
@@ -224,6 +224,16 @@ export function getCountryFlagWithFallback(
 export function getSportsRadarFlag(country: string): string {
   const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
   return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
+}
+
+/**
+ * Get 365scores CDN flag URL for a country
+ * @param country - Country name
+ * @returns 365scores CDN flag URL
+ */
+export function get365ScoresFlag(country: string): string {
+  const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
+  return `https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`;
 }
 
 /**
