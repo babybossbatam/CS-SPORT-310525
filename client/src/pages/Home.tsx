@@ -38,7 +38,7 @@ import MatchesByCountry from '@/components/matches/MatchesByCountry';
 import { useLocation } from "wouter";
 
 // Import the new TodayMatchCard component
-import TodayMatchCard from '@/components/matches/TodayMatchCard';
+import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -456,9 +456,9 @@ const Home = () => {
               onMatchClick={handleMatchClick}
             />
 
-            {/* New TodayMatchCard for testing */}
+            {/* New TodayMatchPageCard for testing */}
             <div className="mt-4">
-              <TodayMatchCard 
+              <TodayMatchPageCard 
                 fixtures={fixtures}
                 onMatchClick={handleMatchClick}
               />
