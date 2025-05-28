@@ -410,8 +410,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return false;
       }
 
+      // Skip fixtures with null or undefined country
+      if (!fixture.league.country) {
+        console.log(`Filtering out fixture with null/undefined country: league: ${fixture.league.name}`);
+        return false;
+      }
+
       // Check for International matches specifically
-      if ((fixture.league.country && fixture.league.country.toLowerCase().includes('international')) || 
+      if (fixture.league.country.toLowerCase().includes('international') || 
           (fixture.league.name && fixture.league.name.toLowerCase().includes('international'))) {
         console.log(`Found international match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
       }
