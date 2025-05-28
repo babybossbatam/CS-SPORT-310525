@@ -229,67 +229,21 @@ function isWinner(fixture: SportsradarFixture, team: 'home' | 'away'): boolean |
 // Get sports news content
 export async function getSportsNews(sport: string = 'nfl', date?: string): Promise<any[]> {
   try {
-    const targetDate = date || new Date().toISOString().split('T')[0];
-    const [year, month, day] = targetDate.split('-');
+    console.log(`SportsRadar getSportsNews called for sport: ${sport}, date: ${date}`);
     
-    console.log(`Fetching SportsRadar content for ${sport} on ${year}/${month}/${day}`);
-    
-    // Try multiple URL formats for SportsRadar content API
-    const possibleUrls = [
-      `/content-${sport}-t3/ap/analysis/${year}/${month}/${day}/all.json`,
-      `/soccer-t3/en/sport_events.json`, // Alternative soccer endpoint
-      `/football-t3/en/sport_events.json`, // Alternative football endpoint
-      `/nfl-t3/en/sport_events.json` // Alternative NFL endpoint
-    ];
-    
-    for (const url of possibleUrls) {
-      try {
-        console.log(`Trying SportsRadar URL: ${url}`);
-        const response = await contentApiClient.get(url);
-        
-        if (response.data && response.data.items && response.data.items.length > 0) {
-          console.log(`Found ${response.data.items.length} content items from SportsRadar`);
-          return response.data.items;
-        } else if (response.data && response.data.sport_events) {
-          // Different response format
-          console.log(`Found ${response.data.sport_events.length} sport events from SportsRadar`);
-          return response.data.sport_events;
-        }
-      } catch (urlError) {
-        console.log(`URL ${url} failed:`, urlError.response?.status || urlError.message);
-        continue;
-      }
-    }
-    
+    // SportsRadar content API endpoints are often not publicly accessible
+    // Return empty array and let the main news API handle fallback
+    console.log('SportsRadar content API endpoints are not accessible, returning empty array');
     return [];
   } catch (error) {
-    console.error('Error fetching SportsRadar content:', error);
+    console.error('Error in SportsRadar getSportsNews:', error);
     return [];
   }
 }
 
 // Get football/soccer news (using different sport codes)
 export async function getFootballNews(date?: string): Promise<any[]> {
-  // Try multiple sport codes for soccer/football content
-  const sportCodes = ['soccer', 'football', 'nfl'];
-  
-  console.log('Attempting to fetch football news from SportsRadar...');
-  
-  for (const sport of sportCodes) {
-    try {
-      console.log(`Trying sport code: ${sport}`);
-      const news = await getSportsNews(sport, date);
-      if (news.length > 0) {
-        console.log(`Successfully got ${news.length} articles for sport: ${sport}`);
-        return news;
-      }
-    } catch (error) {
-      console.log(`No content found for sport code: ${sport}`, error.response?.status || error.message);
-      continue;
-    }
-  }
-  
-  console.log('No football news found from SportsRadar, returning empty array');
+  console.log('SportsRadar getFootballNews called, returning empty array due to API limitations');
   return [];
 }
 

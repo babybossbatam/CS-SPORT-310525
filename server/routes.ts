@@ -883,30 +883,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         console.log("BetsAPI failed, trying SportsRadar API as fallback");
         
-        let sportsRadarArticles = [];
-        
-        if (sportType === 'football') {
-          sportsRadarArticles = await sportsradarApi.getFootballNews();
-        } else {
-          // Try with the sport type directly
-          sportsRadarArticles = await sportsradarApi.getSportsNews(sportType || 'nfl');
-        }
-
-        if (sportsRadarArticles && sportsRadarArticles.length > 0) {
-          const articles = sportsRadarArticles.slice(0, count).map((article, index) => 
-            sportsradarApi.convertSportsRadarToStandardFormat(article, index)
-          );
-
-          console.log(`Successfully processed ${articles.length} news articles from SportsRadar`);
-          return res.json(articles);
-        } else {
-          console.warn("SportsRadar API returned no articles or empty response");
-        }
+        // SportsRadar content API is not accessible, skip this fallback
+        console.log("SportsRadar content API not available, skipping to GNews fallback");
       } catch (sportsRadarError) {
-        const errorMessage = sportsRadarError.response?.status === 404 
-          ? "SportsRadar content endpoint not found (404)" 
-          : `SportsRadar API error: ${sportsRadarError.message}`;
-        console.error(errorMessage);
+        console.log("SportsRadar fallback skipped due to API limitations");
       }
 
       // Final fallback to GNews API if both BetsAPI and SportsRadar fail
