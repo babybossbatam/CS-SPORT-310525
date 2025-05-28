@@ -687,7 +687,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                 return a.league.name.localeCompare(b.league.name);
               })
               .map((leagueData: any) => (
-                <div key={`${countryData.country}-${leagueData.league.id}`} className="bg-stone-50 rounded-lg overflow-hidden">
+                <div key={`${countryData.country}-${leagueData.league.id}`} className="bg-stone-50 rounded-lg overflow-hidden mb-4">
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
                     <>
