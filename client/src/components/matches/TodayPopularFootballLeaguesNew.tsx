@@ -1274,7 +1274,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                   <div className="text-xs text-red-600 font-semibold animate-pulse" style={{ marginBottom: '7px' }}>
                                     {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                   </div>
-                                  <div className="text-lg font-bold text-black flex items-center gap-2">
+                                  <div className="text-lg font-bold text-black flex items-center gap-2" style={{ marginTop: '-3px' }}>
                                     <span>{match.goals.home ?? 0}</span>
                                     <span className="text-gray-400">-</span>
                                     <span>{match.goals.away ?? 0}</span>
