@@ -23,28 +23,28 @@ function Calendar({
   }
 
   return (
-    <div className="flex flex-col justify-center p-0 bg-white">
+    <div className="flex flex-col justify-center p-0 bg-white w-full">
       <DayPicker
         showOutsideDays={showOutsideDays}
-        className={cn("p-3 bg-white w-full", className)}
+        className={cn("p-4 bg-white w-full", className)}
         classNames={{
-          months: "flex flex-col sm:flex-row space-y-2 sm:space-x-2 sm:space-y-0",
-          month: "space-y-2 bg-white w-full",
-          caption: "flex justify-center pt-1 relative items-center mb-3",
-          caption_label: "text-base font-semibold text-gray-800",
+          months: "flex flex-col sm:flex-row space-y-2 sm:space-x-2 sm:space-y-0 w-full",
+          month: "space-y-3 bg-white w-full",
+          caption: "flex justify-center pt-1 relative items-center mb-4",
+          caption_label: "text-lg font-semibold text-gray-800",
           nav: "space-x-1 flex items-center",
           nav_button: cn(
-            "h-6 w-6 bg-white p-0 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-full flex items-center justify-center"
+            "h-7 w-7 bg-white p-0 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-full flex items-center justify-center"
           ),
           nav_button_previous: "absolute left-1",
           nav_button_next: "absolute right-1",
           table: "w-full border-collapse bg-white",
-          head_row: "flex mb-2",
-          head_cell: "text-gray-600 flex-1 h-8 font-medium text-sm text-center flex items-center justify-center",
-          row: "flex w-full",
-          cell: "flex-1 h-9 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+          head_row: "flex mb-3 w-full",
+          head_cell: "text-gray-600 flex-1 h-10 font-medium text-sm text-center flex items-center justify-center min-w-0",
+          row: "flex w-full mb-1",
+          cell: "flex-1 h-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20 min-w-0",
           day: cn(
-            "h-9 w-full p-0 font-normal text-gray-800 hover:bg-blue-50 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200"
+            "h-10 w-full p-0 font-normal text-gray-800 hover:bg-blue-50 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200"
           ),
           day_range_end: "day-range-end",
           day_selected: "bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600 rounded-lg font-medium",
