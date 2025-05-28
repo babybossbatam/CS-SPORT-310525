@@ -402,9 +402,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                               (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                             }}
                           />
-                          <span className="font-medium text-sm text-gray-700">
-                            {leagueData.league.name}
-                          </span>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm text-gray-700">
+                              {leagueData.league.name}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {leagueData.league.country}
+                            </span>
+                          </div>
                           {leagueData.isPopular && (
                             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
                               Popular
