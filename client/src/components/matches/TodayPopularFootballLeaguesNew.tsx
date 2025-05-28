@@ -1008,7 +1008,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-4 p-4">
-          {/* Create individual league cards from all countries */}</div_str>
+          {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
