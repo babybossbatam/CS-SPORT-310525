@@ -154,10 +154,10 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           <button 
             onClick={() => {
               if (!liveFilterActive) {
-                // Activating live filter
+                // Activating live filter - set live filter first, then date
+                setLiveFilterActive(true);
                 const today = getCurrentUTCDateString();
                 setSelectedDate(today);
-                setLiveFilterActive(true);
               } else {
                 // Deactivating live filter
                 setLiveFilterActive(false);
