@@ -70,7 +70,7 @@ const SportsCategoryTabs = () => {
                   selectedSport === id
                     ? 'text-[#15222A]'
                     : 'text-[#6B7173] hover:text-[#15222A]',
-                  index === 0 ? 'ml-5' : '' // Add 20px margin to Football (first item)
+                  index === 0 ? 'ml-10' : '' // Add 40px margin to Football (first item)
                 )}
               >
                 <Icon className="h-[1.1rem] w-[1.1rem]" />
