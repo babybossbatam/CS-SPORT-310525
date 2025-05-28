@@ -60,7 +60,7 @@ const SportsCategoryTabs = () => {
           </div>
 
           {/* Middle tabs with auto-adjusting spacing */}
-          <div className="flex-1 flex justify-between items-center px-4 ml-[5px]">
+          <div className="flex-1 flex justify-between items-center px-4">
             {sportsList.slice(1).map(({ id, icon: Icon, label }) => (
               <div
                 key={id}
