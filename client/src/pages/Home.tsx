@@ -458,8 +458,7 @@ const Home = () => {
               />
             </div>
 
-            {/* Today's Matches by Country - New Version */}
-            <TodaysMatchesByCountryNew selectedDate={selectedDate} />
+            
           </div>
 
           {/* Right column (7 columns) */}
