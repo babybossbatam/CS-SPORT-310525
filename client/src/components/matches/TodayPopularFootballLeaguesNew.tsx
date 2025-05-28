@@ -55,7 +55,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
     'World': [1, 10], // World Cup, Friendlies
-    'South America': [9], // Copa America
+    'South America': [9, 11, 13], // Copa America, Libertadores, Sudamericana
     'International': [15], // FIFA Club World Cup as separate category
   };
 
@@ -480,23 +480,38 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const isWorldFriendlies = leagueNameLower.includes('friendlies') && 
                                countryName.includes('world') && 
                                !leagueNameLower.includes('women');
+      
+      // Enhanced CONMEBOL detection
       const isCONMEBOLCompetition = 
         leagueNameLower.includes('copa america') ||
         leagueNameLower.includes('copa libertadores') ||
         leagueNameLower.includes('copa sudamericana') ||
         leagueNameLower.includes('conmebol') ||
-        countryName.includes('south america');
+        leagueNameLower.includes('libertadores') ||
+        leagueNameLower.includes('sudamericana') ||
+        countryName.includes('south america') ||
+        leagueId === 9 || leagueId === 11 || leagueId === 13; // Copa America, Libertadores, Sudamericana IDs
 
+      // Enhanced international competitions detection
       const isInternationalCompetition = 
         leagueNameLower.includes('champions league') ||
         leagueNameLower.includes('europa league') ||
         leagueNameLower.includes('conference league') ||
         leagueNameLower.includes('world cup') ||
         leagueNameLower.includes('fifa club world cup') ||
+        leagueNameLower.includes('fifa cup') ||
         leagueNameLower.includes('euro') ||
+        leagueNameLower.includes('uefa') ||
+        leagueNameLower.includes('fifa') ||
+        leagueNameLower.includes('nations league') ||
+        leagueNameLower.includes('intercontinental') ||
+        leagueNameLower.includes('super cup') ||
         isWorldFriendlies ||
         isCONMEBOLCompetition ||
-        TIER_2_INTERNATIONAL.some(region => countryName.includes(region.toLowerCase()));
+        TIER_2_INTERNATIONAL.some(region => countryName.includes(region.toLowerCase())) ||
+        countryName.includes('world') ||
+        countryName.includes('europe') ||
+        countryName.includes('international');
 
       // Allow all international competitions through
       if (isInternationalCompetition) {
