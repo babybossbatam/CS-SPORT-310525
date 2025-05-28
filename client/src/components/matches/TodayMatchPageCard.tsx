@@ -22,6 +22,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
+  const [isLiveButtonTriggered, setIsLiveButtonTriggered] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar when clicking outside
@@ -64,10 +65,14 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
 
   // Deactivate live filter when date changes externally (not from live button)
   useEffect(() => {
-    if (liveFilterActive) {
+    if (liveFilterActive && !isLiveButtonTriggered) {
       setLiveFilterActive(false);
     }
-  }, [selectedDate]);
+    // Reset the flag after the effect runs
+    if (isLiveButtonTriggered) {
+      setIsLiveButtonTriggered(false);
+    }
+  }, [selectedDate, liveFilterActive, isLiveButtonTriggered]);
 
   // Date navigation handlers
   const goToPreviousDay = () => {
@@ -159,7 +164,8 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           <button 
             onClick={() => {
               if (!liveFilterActive) {
-                // Activating live filter - set both date and live state synchronously
+                // Activating live filter - set flag first, then date and live state
+                setIsLiveButtonTriggered(true);
                 const today = getCurrentUTCDateString();
                 setSelectedDate(today);
                 setLiveFilterActive(true);
