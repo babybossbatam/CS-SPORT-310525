@@ -361,15 +361,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     <div className="space-y-4">
       {/* Main Header */}
       <h3 className="text-lg font-bold text-gray-800">Live Football Scores</h3>
-      
-      {/* Header Section */}
-      <Card>
-        <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)' }}>
-          <h3 className="text-sm font-semibold flex items-center gap-2">
-            Live Football Scores
-          </h3>
-        </CardHeader>
-      </Card>
 
       {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
@@ -384,6 +375,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
           })
           .map((leagueData: any) => (
             <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
+              {/* Embedded CardHeader */}
+              <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)' }}>
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  Live Football Scores
+                </h3>
+              </CardHeader>
+              
               {/* League Header */}
               <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <img
