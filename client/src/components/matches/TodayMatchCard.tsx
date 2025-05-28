@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
+import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import MatchesByCountryAndSeason from './MatchesByCountryAndSeason';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { useDispatch, useSelector } from 'react-redux';
@@ -242,6 +243,7 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             showTop20={timeFilterActive}
           />
           <TodaysMatchesByCountry selectedDate={localSelectedDate} />
+          <TodaysMatchesByCountryNew selectedDate={localSelectedDate} />
         </>
       )}
     </>
