@@ -992,9 +992,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         <h3 className="text-sm font-semibold">
           {getHeaderTitle()}
         </h3>
-        <div className="text-xs text-blue-600 mt-1">
-          Current filtering date: {selectedDate} (YYYY-MM-DD format)
-        </div>
       </div>
 
       {/* Create individual league cards from all countries */}
