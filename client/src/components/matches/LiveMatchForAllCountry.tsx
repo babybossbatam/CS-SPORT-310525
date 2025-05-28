@@ -367,9 +367,30 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
-            // Prioritize popular leagues first
+            // First prioritize popular leagues (Champions League, Europa League, etc.)
             if (a.isPopular && !b.isPopular) return -1;
             if (!a.isPopular && b.isPopular) return 1;
+
+            // If both or neither are popular, prioritize by league importance
+            const aLeagueName = a.league?.name?.toLowerCase() || '';
+            const bLeagueName = b.league?.name?.toLowerCase() || '';
+            
+            // Top tier leagues get highest priority
+            const topTierLeagues = [
+              'uefa champions league',
+              'uefa europa league', 
+              'premier league',
+              'la liga',
+              'serie a',
+              'bundesliga',
+              'ligue 1'
+            ];
+            
+            const aIsTopTier = topTierLeagues.some(league => aLeagueName.includes(league));
+            const bIsTopTier = topTierLeagues.some(league => bLeagueName.includes(league));
+            
+            if (aIsTopTier && !bIsTopTier) return -1;
+            if (!aIsTopTier && bIsTopTier) return 1;
 
             // Then alphabetically
             return a.league.name.localeCompare(b.league.name);
