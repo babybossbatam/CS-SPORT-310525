@@ -1257,7 +1257,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                       <span>{awayScore}</span>
                                     </div>
                                     <div className="text-xs text-gray-500 mt-1">
-                                      {status === 'FT' ? 'FT' : 
+                                      {status === 'FT' ? 'Ended' : 
                                        status === 'AET' ? 'AET' :
                                        status === 'PEN' ? 'PEN' :
                                        status === 'AWD' ? 'Awarded' :
