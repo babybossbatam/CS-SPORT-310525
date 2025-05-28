@@ -376,14 +376,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
           })
           .map((leagueData: any, index: number) => (
             <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
-              {/* Embedded CardHeader only in first card */}
-              {index === 0 && (
-                <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)' }}>
-                  <h3 className="text-sm font-semibold flex items-center gap-2">
-                    Live Football Scores
-                  </h3>
-                </CardHeader>
-              )}
+              
 
               {/* League Header */}
               <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
