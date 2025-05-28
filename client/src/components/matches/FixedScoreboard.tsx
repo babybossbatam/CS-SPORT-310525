@@ -312,26 +312,68 @@ const FixedScoreboard = () => {
         console.log(`Total matches fetched: ${allMatches.length}`);
         console.log("Current filtering date:", now.toISOString());
 
-        // Use the extracted filtering logic
-        const filterResult = filterPopularLeagueMatches(allMatches, topTeamIds, {
-          maxMatches: 6
+        // Use a more lenient filtering approach for featured matches
+        const now = new Date();
+        
+        // Filter matches from popular leagues first
+        const popularLeagueMatches = allMatches.filter(match => {
+          return DEFAULT_POPULAR_LEAGUES.includes(match.league.id) || 
+                 match.league.id === 848 || // UEFA Conference League
+                 match.league.id === 1;     // FIFA World Cup
         });
 
-        console.log(
-          `Filtered to ${filterResult.matches.length} matches from popular leagues`,
-        );
-        console.log(
-          `Match breakdown from popular leagues - Live: ${filterResult.breakdown.live}, Upcoming: ${filterResult.breakdown.upcoming}, Finished: ${filterResult.breakdown.finished}`,
-        );
-        console.log(`Displaying ${filterResult.matches.length} matches`);
+        console.log(`Found ${popularLeagueMatches.length} matches from popular leagues`);
 
-        if (filterResult.matches.length > 0) {
-          console.log(
-            `First match: ${filterResult.matches[0].teams.home.name} vs ${filterResult.matches[0].teams.away.name}`,
-          );
+        // Sort matches by priority: Live > Upcoming within 24 hours > Recent finished > Other upcoming
+        const sortedMatches = popularLeagueMatches.sort((a, b) => {
+          const aDate = new Date(a.fixture.date);
+          const bDate = new Date(b.fixture.date);
+          const aStatus = a.fixture.status.short;
+          const bStatus = b.fixture.status.short;
+          
+          // Live matches first
+          const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
+          const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
+          if (aLive && !bLive) return -1;
+          if (!aLive && bLive) return 1;
+          
+          // Upcoming matches within 24 hours
+          const hoursToA = (aDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+          const hoursToB = (bDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+          const aUpcomingSoon = aStatus === 'NS' && hoursToA >= 0 && hoursToA <= 24;
+          const bUpcomingSoon = bStatus === 'NS' && hoursToB >= 0 && hoursToB <= 24;
+          if (aUpcomingSoon && !bUpcomingSoon) return -1;
+          if (!aUpcomingSoon && bUpcomingSoon) return 1;
+          
+          // Recent finished matches (within last 12 hours)
+          const hoursAgo = (now.getTime() - aDate.getTime()) / (1000 * 60 * 60);
+          const hoursBgo = (now.getTime() - bDate.getTime()) / (1000 * 60 * 60);
+          const aRecentFinished = aStatus === 'FT' && hoursAgo >= 0 && hoursAgo <= 12;
+          const bRecentFinished = bStatus === 'FT' && hoursBgo >= 0 && hoursBgo <= 12;
+          if (aRecentFinished && !bRecentFinished) return -1;
+          if (!aRecentFinished && bRecentFinished) return 1;
+          
+          // Sort by date
+          return Math.abs(aDate.getTime() - now.getTime()) - Math.abs(bDate.getTime() - now.getTime());
+        });
+
+        // Take the top 8 matches
+        const featuredMatches = sortedMatches.slice(0, 8);
+
+        console.log(`Filtered to ${featuredMatches.length} featured matches from popular leagues`);
+        
+        // Log breakdown
+        const live = featuredMatches.filter(m => ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(m.fixture.status.short)).length;
+        const upcoming = featuredMatches.filter(m => m.fixture.status.short === 'NS').length;
+        const finished = featuredMatches.filter(m => m.fixture.status.short === 'FT').length;
+        
+        console.log(`Match breakdown - Live: ${live}, Upcoming: ${upcoming}, Finished: ${finished}`);
+
+        if (featuredMatches.length > 0) {
+          console.log(`First match: ${featuredMatches[0].teams.home.name} vs ${featuredMatches[0].teams.away.name}`);
         }
 
-        setMatches(filterResult.matches);
+        setMatches(featuredMatches);
       } catch (error) {
         console.error("Error fetching matches:", error);
         setError(error as Error);
