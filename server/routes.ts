@@ -248,12 +248,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cacheKey = all === 'true' ? `date-all:${date}` : `date:${date}`;
       const cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
       if (cachedFixtures && cachedFixtures.length > 0) {
-        // Check if cache is fresh (less than 30 minutes old)
+        // Check if cache is fresh (less than 2 hours old)
         const now = new Date();
         const cacheTime = new Date(cachedFixtures[0].timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        if (cacheAge < 30 * 60 * 1000) { // 30 minutes
+        if (cacheAge < 2 * 60 * 60 * 1000) { // 2 hours (increased from 30 minutes)
           console.log(`Returning ${cachedFixtures.length} cached fixtures for date ${date} (all=${all})`);
           return res.json(cachedFixtures.map(fixture => fixture.data));
         }
@@ -346,12 +346,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cachedFixture = await storage.getCachedFixture(id.toString());
 
       if (cachedFixture) {
-        // Check if cache is fresh (less than 5 minutes old)
+        // Check if cache is fresh (less than 1 hour old)
         const now = new Date();
         const cacheTime = new Date(cachedFixture.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        if (cacheAge < 5 * 60 * 1000) { // 5 minutes
+        if (cacheAge < 60 * 60 * 1000) { // 1 hour (increased from 5 minutes)
           return res.json(cachedFixture.data);
         }
       }
@@ -509,12 +509,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cachedLeague = await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
-        // Check if cache is fresh (less than 1 hour old)
+        // Check if cache is fresh (less than 4 hours old)
         const now = new Date();
         const cacheTime = new Date(cachedLeague.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        if (cacheAge < 60 * 60 * 1000) { // 1 hour
+        if (cacheAge < 4 * 60 * 60 * 1000) { // 4 hours (increased from 1 hour)
           return res.json(cachedLeague.data);
         }
       }

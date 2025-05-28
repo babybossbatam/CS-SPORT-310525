@@ -1,4 +1,3 @@
-
 import { UseQueryOptions } from '@tanstack/react-query';
 
 // Cache durations in milliseconds
@@ -10,6 +9,7 @@ export const CACHE_DURATIONS = {
   THIRTY_MINUTES: 30 * 60 * 1000,
   FIVE_MINUTES: 5 * 60 * 1000,
   THIRTY_SECONDS: 30 * 1000,
+  FOUR_HOURS: 4 * 60 * 60 * 1000,
 } as const;
 
 // Cache presets for different data types
@@ -27,7 +27,7 @@ export const CACHE_PRESETS = {
   // For match fixtures and schedules
   FIXTURES: {
     staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2, // Keep in memory for 48 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -36,8 +36,8 @@ export const CACHE_PRESETS = {
 
   // For league standings and static data
   STANDINGS: {
-    staleTime: CACHE_DURATIONS.SIX_HOURS,
-    gcTime: CACHE_DURATIONS.TWELVE_HOURS,
+    staleTime: CACHE_DURATIONS.TWELVE_HOURS, // Increased from 6 hours
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -65,7 +65,7 @@ export const CACHE_PRESETS = {
   // For popular fixtures with 24-hour cache
   POPULAR_FIXTURES: {
     staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2, // Keep in memory for 48 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -74,8 +74,8 @@ export const CACHE_PRESETS = {
 
   // For moderate caching (league data, team info)
   MODERATE: {
-    staleTime: CACHE_DURATIONS.ONE_HOUR,
-    gcTime: CACHE_DURATIONS.SIX_HOURS,
+    staleTime: CACHE_DURATIONS.FOUR_HOURS, // Increased from 1 hour
+    gcTime: CACHE_DURATIONS.TWELVE_HOURS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -213,12 +213,12 @@ export const CACHE_REFRESH = {
   refreshCriticalData: (queryClient: any) => {
     // Refresh live fixtures
     queryClient.invalidateQueries({ queryKey: ['live-fixtures-all-countries'] });
-    
+
     // Refresh today's fixtures
     const today = new Date().toISOString().split('T')[0];
     queryClient.invalidateQueries({ queryKey: ['all-fixtures-by-date', today] });
     queryClient.invalidateQueries({ queryKey: ['popular-fixtures', today] });
-    
+
     console.log('Critical data refreshed');
   },
 
@@ -226,7 +226,7 @@ export const CACHE_REFRESH = {
   refreshStaleData: (queryClient: any) => {
     const cache = queryClient.getQueryCache();
     const queries = cache.getAll();
-    
+
     queries.forEach((query) => {
       if (query.state.dataUpdatedAt && CACHE_FRESHNESS.needsRefresh(query.state.dataUpdatedAt)) {
         console.log(`Refreshing stale query: ${query.queryKey.join('-')}`);
@@ -262,7 +262,7 @@ export const CACHE_INVALIDATION = {
   staleOnly: (queryClient: any, maxAge: number = 30 * 60 * 1000) => {
     const cache = queryClient.getQueryCache();
     const queries = cache.getAll();
-    
+
     queries.forEach((query) => {
       if (query.state.dataUpdatedAt && !CACHE_FRESHNESS.isFresh(query.state.dataUpdatedAt, maxAge)) {
         queryClient.invalidateQueries({ queryKey: query.queryKey });
