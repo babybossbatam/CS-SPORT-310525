@@ -1462,7 +1462,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
               <CardContent className="p-0">
                 <div className="space-y-0">
                   {leagueData.matches
-                    .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                     .sort((a: any, b: any) => {
                       const aStatus = a.fixture.status.short;
                       const bStatus = b.fixture.status.short;
@@ -1487,7 +1486,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       const aUpcoming = aStatus === 'NS' && !aLive && !aFinished;
                       const bUpcoming = bStatus === 'NS' && !bLive && !bFinished;
 
-                      // PRIORITY 1: Always show live matches first
+                      // PRIORITY 1: Always show live matches first within each league
                       if (aLive && !bLive) return -1;
                       if (!aLive && bLive) return 1;
 
@@ -1515,6 +1514,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       // Default fallback: sort by time
                       return aTime - bTime;
                     })
+                    .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                     .map((match: any) => (
                     <div 
                       key={match.fixture.id} 
