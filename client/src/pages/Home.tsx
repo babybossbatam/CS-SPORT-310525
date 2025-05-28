@@ -252,7 +252,7 @@ const Home = () => {
                       <Skeleton className="h-8 w-48" />
                       <Skeleton className="h-8 w-8" />
                     </div>
-                    
+
                     {/* Match cards skeleton */}
                     {[1, 2, 3, 4].map((i) => (
                       <div key={i} className="border-b border-gray-100 last:border-b-0 pb-4">
@@ -285,7 +285,7 @@ const Home = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* Matches by country skeleton */}
               <Card>
                 <CardHeader className="pb-4">
@@ -439,7 +439,7 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <Card className="my-4 bg-[#FDFBF7]" style={{ marginLeft: '150px', marginRight: '150px' }}>
+      <div className="my-4 bg-[#FDFBF7] rounded-lg" style={{ marginLeft: '150px', marginRight: '150px' }}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left column (5 columns) */}
           <div className="lg:col-span-5 space-y-4">
@@ -483,7 +483,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       <RegionModal />
     </>
