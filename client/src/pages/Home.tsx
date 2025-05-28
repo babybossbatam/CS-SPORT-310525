@@ -58,8 +58,8 @@ const Home = () => {
   // Ensure selectedDate is properly initialized
   useEffect(() => {
     if (!selectedDate) {
-      const today = getCurrentUTCDateString();
-      dispatch({ type: 'ui/setSelectedDate', payload: today });
+      const today = format(new Date(), 'yyyy-MM-dd');
+      dispatch(uiActions.setSelectedDate(today));
     }
   }, [selectedDate, dispatch]);
 
@@ -146,38 +146,46 @@ const Home = () => {
         // Check if we already have leagues data in the store
         if (allLeagues.length > 0) {
           console.log(`Using cached leagues data (${allLeagues.length} leagues)`);
-          return; // Skip API call if we already have data
+          dispatch(leaguesActions.setLoadingLeagues(false)); // Ensure loading is false
+          return;
         }
 
         dispatch(leaguesActions.setLoadingLeagues(true));
 
-        const response = await apiRequest('GET', '/api/leagues');
-        const data = await response.json();
+        try {
+          const response = await apiRequest('GET', '/api/leagues');
+          const data = await response.json();
 
-        if (data && data.length > 0) {
-          console.log(`Loaded ${data.length} leagues from API`);
-          dispatch(leaguesActions.setLeagues(data));
-        } else {
-          console.warn('No leagues data found from API');
-          // If no global leagues are found, at least load the direct ones we need
-          await Promise.all(
-            popularLeagues.map(async (leagueId) => {
-              try {
-                const leagueResponse = await apiRequest('GET', `/api/leagues/${leagueId}`);
-                const leagueData = await leagueResponse.json();
-
-                if (leagueData && leagueData.league) {
-                  console.log(`Directly loaded league: ${leagueData.league.name}`);
-                  dispatch(leaguesActions.setLeagues([...allLeagues, leagueData]));
-                }
-              } catch (err) {
-                console.error(`Error loading league ${leagueId}:`, err);
-              }
-            })
-          );
+          if (data && data.length > 0) {
+            console.log(`Loaded ${data.length} leagues from API`);
+            dispatch(leaguesActions.setLeagues(data));
+          } else {
+            console.warn('No leagues data found from API, loading individual leagues');
+            // Load minimal league data to prevent infinite loading
+            const minimalLeagues = [
+              { league: { id: 39, name: 'Premier League' }, country: { name: 'England' } },
+              { league: { id: 140, name: 'La Liga' }, country: { name: 'Spain' } },
+              { league: { id: 78, name: 'Bundesliga' }, country: { name: 'Germany' } },
+              { league: { id: 135, name: 'Serie A' }, country: { name: 'Italy' } },
+              { league: { id: 2, name: 'UEFA Champions League' }, country: { name: 'World' } }
+            ];
+            dispatch(leaguesActions.setLeagues(minimalLeagues));
+          }
+        } catch (apiError) {
+          console.error('API error, using fallback data:', apiError);
+          // Set minimal data to prevent infinite loading
+          const fallbackLeagues = [
+            { league: { id: 39, name: 'Premier League' }, country: { name: 'England' } },
+            { league: { id: 140, name: 'La Liga' }, country: { name: 'Spain' } }
+          ];
+          dispatch(leaguesActions.setLeagues(fallbackLeagues));
         }
       } catch (error) {
         console.error('Error fetching leagues:', error);
+        // Even on error, set some data to prevent infinite loading
+        dispatch(leaguesActions.setLeagues([
+          { league: { id: 39, name: 'Premier League' }, country: { name: 'England' } }
+        ]));
         toast({
           title: 'Error',
           description: 'Failed to load leagues information',
@@ -189,7 +197,7 @@ const Home = () => {
     };
 
     fetchLeagues();
-  }, [dispatch, toast, popularLeagues]); // Removed allLeagues from dependencies
+  }, [dispatch, toast]); // Simplified dependencies
 
   // Fetch upcoming fixtures for tomorrow to display in the scoreboard when no live matches
   useEffect(() => {
@@ -215,9 +223,12 @@ const Home = () => {
     fetchUpcomingFixtures();
   }, [dispatch]);
 
-  const loading = useSelector((state: RootState) => state.leagues.loading || state.fixtures.loading);
+  const leaguesLoading = useSelector((state: RootState) => state.leagues.loading);
+  const fixturesLoading = useSelector((state: RootState) => state.fixtures.loading);
+  const isInitialLoad = useSelector((state: RootState) => state.leagues.list.length === 0);
 
-  if (loading) {
+  // Only show loading if we're in initial load state and actually loading
+  if (isInitialLoad && (leaguesLoading || fixturesLoading)) {
     return (
       <>
         <Header />

@@ -17,11 +17,11 @@ const DateNavigator = () => {
 
   // Always ensure today's date is set as default on component mount
   useEffect(() => {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    // Set to today's date when component mounts
-    dispatch(uiActions.setSelectedDate(today));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!selectedDate) {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      dispatch(uiActions.setSelectedDate(today));
+    }
+  }, [selectedDate, dispatch]);
 
   // Format the selected date for display
   const formattedDate = selectedDate;
