@@ -200,7 +200,7 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
     }
 
     // Limit to 20 matches max (365scores style)
-    console.log(`365scores filtering: ${matches.length} total -> ${filtered.length} after filtering`);
+    console.log(`365scores filtering: ${allFixtures.length} total -> ${filtered.length} after filtering`);
     return filtered.slice(0, 20);
   }, [allFixtures, liveFilterActive, timeFilterActive]);
 
