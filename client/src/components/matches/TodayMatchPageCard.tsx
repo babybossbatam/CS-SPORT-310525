@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -86,9 +85,22 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     setIsCalendarOpen(false);
   };
 
-  // Get display name for the current selected date
-  const getDateDisplayName = () => {
-    return getRelativeDateDisplayName(selectedDate);
+  // Dedicated date display function for TodayMatchPageCard
+  const getTodayMatchPageDisplayName = () => {
+    const today = getCurrentUTCDateString();
+    const yesterday = format(subDays(parseISO(today), 1), 'yyyy-MM-dd');
+    const tomorrow = format(addDays(parseISO(today), 1), 'yyyy-MM-dd');
+
+    if (selectedDate === today) {
+      return "Today's Matches";
+    } else if (selectedDate === yesterday) {
+      return "Yesterday's Matches";
+    } else if (selectedDate === tomorrow) {
+      return "Tomorrow's Matches";
+    } else {
+      // For any other date, show the formatted date
+      return format(parseISO(selectedDate), 'MMM d, yyyy');
+    }
   };
 
   // Debug logging
@@ -111,10 +123,10 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
               onClick={() => setIsCalendarOpen(!isCalendarOpen)}
               className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
             >
-              <span className="font-medium">{getDateDisplayName()}</span>
+              <span className="font-medium">{getTodayMatchPageDisplayName()}</span>
               <ChevronDown className={`h-4 w-4 transition-transform ${isCalendarOpen ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {isCalendarOpen && (
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-[320px]">
                 <Calendar
