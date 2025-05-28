@@ -1046,7 +1046,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       />
                       <div className="flex flex-col">
                         <span className="font-semibold text-base text-gray-800">
-                          {safeSubstring(leagueData.league.name, 0) === 'CONMEBOL Libertadores' ? 'Libertadores' : safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
+                          {safeSubstring(leagueData.league.name, 0) === 'CONMEBOL Libertadores' ? 'Libertadores' : 
+                           safeSubstring(leagueData.league.name, 0) === 'CONMEBOL Sudamericana' ? 'Sudamericana' : 
+                           safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                         </span>
                         <span className="text-xs text-gray-600">
                           {leagueData.league.country || 'Unknown Country'}
