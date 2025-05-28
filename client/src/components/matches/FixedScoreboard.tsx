@@ -643,7 +643,7 @@ const FixedScoreboard = () => {
       </Badge>
 
       <Card className="px-0 pt-0 pb-2 relative mt-0">
-        <div className="bg-gray-50 border-b p-2 mt-0">
+        <div className="bg-gray-50 border-b p-2 -mt-4">
             <div className="flex items-center justify-center">
               {currentMatch?.league?.logo ? (
                     <img
