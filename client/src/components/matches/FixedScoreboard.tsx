@@ -313,7 +313,6 @@ const FixedScoreboard = () => {
         console.log("Current filtering date:", now.toISOString());
 
         // Use a more lenient filtering approach for featured matches
-        const now = new Date();
         
         // Filter matches from popular leagues first
         const popularLeagueMatches = allMatches.filter(match => {
