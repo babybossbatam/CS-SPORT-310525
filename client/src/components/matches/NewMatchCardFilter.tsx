@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -53,9 +52,11 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
     const fetchFixtures = async () => {
       try {
         setLoading(true);
-        const response = await apiRequest('GET', `/api/fixtures/date/${localSelectedDate}`);
+        // Use the existing date endpoint with all=true to get ALL fixtures
+        const response = await apiRequest('GET', `/api/fixtures/date/${localSelectedDate}?all=true`);
         const data = await response.json();
-        setAllFixtures(data);
+        console.log(`Received ${data.length} ALL fixtures for ${localSelectedDate}`);
+        console.log('Sample fixtures:', data.slice(0, 3));
       } catch (error) {
         console.error('Error fetching fixtures:', error);
       } finally {
@@ -309,7 +310,7 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          
+
           <div className="relative h-full flex items-center">
             <button
               onClick={() => setIsCalendarOpen(!isCalendarOpen)}
@@ -318,7 +319,7 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
               <span className="font-medium">{selectedFilter}</span>
               <ChevronDown className={`h-4 w-4 transition-transform ${isCalendarOpen ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {isCalendarOpen && (
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-[320px]">
                 <Calendar
@@ -338,7 +339,7 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
               </div>
             )}
           </div>
-          
+
           <button 
             onClick={goToNextDay}
             className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4"
@@ -346,7 +347,7 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
-        
+
         <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
           {/* Live button */}
           <button 
@@ -403,7 +404,7 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
             </span>
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           {loading ? (
             <div className="p-4 text-center text-gray-500">Loading matches...</div>
