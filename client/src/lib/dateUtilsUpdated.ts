@@ -89,3 +89,65 @@ export function formatYYYYMMDD(date: Date): string {
     return format(new Date(), 'yyyy-MM-dd');
   }
 }
+
+// Get date range for a selected date (covers 00:01 to 23:59 of that day)
+export function getDateTimeRange(dateString: string) {
+  try {
+    const date = parseISO(dateString);
+    if (!isValid(date)) {
+      throw new Error('Invalid date string');
+    }
+
+    // Start of day: 00:01 AM
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 1, 0, 0);
+
+    // End of day: 23:59 PM
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return {
+      start: startOfDay,
+      end: endOfDay,
+      startTimestamp: Math.floor(startOfDay.getTime() / 1000),
+      endTimestamp: Math.floor(endOfDay.getTime() / 1000)
+    };
+  } catch (error) {
+    console.error('Error getting date time range:', error);
+    // Fallback to current date
+    const now = new Date();
+    return getDateTimeRange(formatYYYYMMDD(now));
+  }
+}
+
+// Check if a date string represents today
+export function isDateStringToday(dateString: string): boolean {
+  const actualToday = getCurrentUTCDateString();
+  return dateString === actualToday;
+}
+
+// Check if a date string represents yesterday
+export function isDateStringYesterday(dateString: string): boolean {
+  const actualYesterday = formatYYYYMMDD(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  return dateString === actualYesterday;
+}
+
+// Check if a date string represents tomorrow
+export function isDateStringTomorrow(dateString: string): boolean {
+  const actualTomorrow = formatYYYYMMDD(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  return dateString === actualTomorrow;
+}
+
+// Get relative date display name
+export function getRelativeDateDisplayName(dateString: string): string {
+  if (isDateStringToday(dateString)) return "Today's Matches";
+  if (isDateStringYesterday(dateString)) return "Yesterday's Matches";
+  if (isDateStringTomorrow(dateString)) return "Tomorrow's Matches";
+  
+  try {
+    const date = parseISO(dateString);
+    return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : dateString;
+  } catch {
+    return dateString;
+  }
+}

@@ -62,21 +62,21 @@ const DateNavigator = () => {
 
   // Get display text for date with accurate date comparison
   const getDateDisplayText = () => {
-    const currentDate = new Date();
-    const todayString = format(currentDate, 'yyyy-MM-dd');
-    const yesterdayString = format(subDays(currentDate, 1), 'yyyy-MM-dd');
-    const tomorrowString = format(addDays(currentDate, 1), 'yyyy-MM-dd');
+    const actualCurrentDate = new Date();
+    const actualTodayString = format(actualCurrentDate, 'yyyy-MM-dd');
+    const actualYesterdayString = format(subDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+    const actualTomorrowString = format(addDays(actualCurrentDate, 1), 'yyyy-MM-dd');
 
     // Ensure exact string comparison for accurate matching
-    if (selectedDate === todayString) {
+    if (selectedDate === actualTodayString) {
       return "Today's Matches";
     }
 
-    if (selectedDate === yesterdayString) {
+    if (selectedDate === actualYesterdayString) {
       return "Yesterday's Matches";
     }
 
-    if (selectedDate === tomorrowString) {
+    if (selectedDate === actualTomorrowString) {
       return "Tomorrow's Matches";
     }
 

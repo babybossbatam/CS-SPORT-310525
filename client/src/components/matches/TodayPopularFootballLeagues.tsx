@@ -63,7 +63,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   // Check if we have fresh cached data
   const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
   const popularQueryKey = ['popular-fixtures', selectedDate];
-  
+
   const cachedFixtures = CacheManager.getCachedData(fixturesQueryKey, 30 * 60 * 1000); // 30 minutes
   const cachedPopularFixtures = CacheManager.getCachedData(popularQueryKey, 30 * 60 * 1000);
 
@@ -506,21 +506,28 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     return 'bg-blue-100 text-blue-700';
   };
 
+  // Calculate date strings for comparison - use actual current date for reference
+  const actualCurrentDate = new Date();
+  const actualTodayString = format(actualCurrentDate, 'yyyy-MM-dd');
+  const actualYesterdayString = format(subDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+  const actualTomorrowString = format(addDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+
   // Get header title based on selected date with accurate date comparison
   const getHeaderTitle = () => {
-    const currentDate = new Date();
-    const todayString = format(currentDate, 'yyyy-MM-dd');
-    const yesterdayString = format(subDays(currentDate, 1), 'yyyy-MM-dd');
-    const tomorrowString = format(addDays(currentDate, 1), 'yyyy-MM-dd');
-    
+
+    // Determine what type of matches to show based on selected date
+    const isSelectedToday = selectedDate === actualTodayString;
+    const isSelectedYesterday = selectedDate === actualYesterdayString;
+    const isSelectedTomorrow = selectedDate === actualTomorrowString;
+
     let baseTitle = "";
 
     // Use exact string comparison for accurate date matching
-    if (selectedDate === todayString) {
+    if (isSelectedToday) {
       baseTitle = "Today's Popular Football Leagues";
-    } else if (selectedDate === yesterdayString) {
+    } else if (isSelectedYesterday) {
       baseTitle = "Yesterday's Popular Football Leagues";
-    } else if (selectedDate === tomorrowString) {
+    } else if (isSelectedTomorrow) {
       baseTitle = "Tomorrow's Popular Football Leagues";
     } else {
       const selectedDateObj = parseISO(selectedDate);
@@ -533,6 +540,26 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     }
 
     return baseTitle;
+  };
+
+  // Get display title based on selected date
+  const getDateDisplayTitle = () => {
+    // Determine what type of matches to show based on selected date
+    const isSelectedToday = selectedDate === actualTodayString;
+    const isSelectedYesterday = selectedDate === actualYesterdayString;
+    const isSelectedTomorrow = selectedDate === actualTomorrowString;
+
+    if (isSelectedToday) return "Today's Matches";
+    if (isSelectedYesterday) return "Yesterday's Matches";
+    if (isSelectedTomorrow) return "Tomorrow's Matches";
+
+    // For other dates, show formatted date
+    try {
+      const date = parseISO(selectedDate);
+      return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
+    } catch {
+      return selectedDate;
+    }
   };
 
   // Use cached data if available, even during loading
@@ -687,8 +714,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                     .map((leagueData: any) => (
                       <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
                         {/* League Header - Hide when time filter is active */}
-                        {!timeFilterActive && (
-                          <>
+                        {!timeFilterActive && (<>
                             {leagueData.isFriendlies ? (
                               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
                                 <img

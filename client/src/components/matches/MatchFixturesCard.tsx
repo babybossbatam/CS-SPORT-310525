@@ -115,27 +115,26 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                     if (date) {
                       // Use consistent UTC date formatting for API consistency
                       const selectedDateString = formatYYYYMMDD(date);
-                      const todayString = getCurrentUTCDateString();
-
-                      // Calculate yesterday and tomorrow using consistent date formatting
-                      const currentDate = new Date();
-                      const yesterdayString = formatYYYYMMDD(subDays(currentDate, 1));
-                      const tomorrowString = formatYYYYMMDD(addDays(currentDate, 1));
+                      
+                      // Get the actual current date for comparison
+                      const actualToday = getCurrentUTCDateString();
+                      const actualYesterday = formatYYYYMMDD(subDays(new Date(), 1));
+                      const actualTomorrow = formatYYYYMMDD(addDays(new Date(), 1));
 
                       // Update Redux store with selected date
                       dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
 
                       console.log('Date selected:', selectedDateString);
-                      console.log('Today:', todayString);
-                      console.log('Yesterday:', yesterdayString);
-                      console.log('Tomorrow:', tomorrowString);
+                      console.log('Actual Today:', actualToday);
+                      console.log('Actual Yesterday:', actualYesterday);
+                      console.log('Actual Tomorrow:', actualTomorrow);
 
-                      // Compare date strings for accurate filtering
-                      if (selectedDateString === todayString) {
+                      // Compare with actual dates to determine the filter label
+                      if (selectedDateString === actualToday) {
                         setSelectedFilter("Today's Matches");
-                      } else if (selectedDateString === yesterdayString) {
+                      } else if (selectedDateString === actualYesterday) {
                         setSelectedFilter("Yesterday's Matches");
-                      } else if (selectedDateString === tomorrowString) {
+                      } else if (selectedDateString === actualTomorrow) {
                         setSelectedFilter("Tomorrow's Matches");
                       } else {
                         setSelectedFilter(format(date, 'MMM d, yyyy'));
