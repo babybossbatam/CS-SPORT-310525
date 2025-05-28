@@ -39,6 +39,7 @@ import { useLocation } from "wouter";
 
 // Import the new TodayMatchCard component
 import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
+import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -463,8 +464,12 @@ const Home = () => {
                 onMatchClick={handleMatchClick}
               />
             </div>
-            
+
+            {/* Today's Matches by Country */}
             <MatchesByCountry selectedDate={selectedDate} />
+
+            {/* Today's Matches by Country - New Version */}
+            <TodaysMatchesByCountryNew selectedDate={selectedDate} />
           </div>
 
           {/* Right column (7 columns) */}
