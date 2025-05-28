@@ -996,9 +996,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   return (
     <div className="space-y-4">
       {/* Header Section */}
-      <h3 className="text-sm font-semibold">
-        Popular Football League
-      </h3>
+      <div className="flex items-center gap-2 mb-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+        </svg>
+        <h3 className="text-lg font-semibold text-gray-800">
+          Popular Football Leagues
+        </h3>
+      </div>
 
       {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
