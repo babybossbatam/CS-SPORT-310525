@@ -577,7 +577,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-4">
-        <div className="space-y-0">
+        <div className="space-y-4"></div>
           {sortedCountries.map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
             const totalMatches = Object.values(countryData.leagues).reduce(
