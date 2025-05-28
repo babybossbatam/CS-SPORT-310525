@@ -741,12 +741,59 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }))
   );
 
-  // Sort leagues alphabetically by league name (A-Z)
+  // Sort leagues with top priority for specific leagues and friendlies
   const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
     const aLeagueName = a.league?.name || '';
     const bLeagueName = b.league?.name || '';
 
-    // Clean league names for better sorting
+    // Define top priority leagues and friendlies
+    const topPriorityLeagues = [
+      'club friendly',
+      'fifa cup',
+      'friendlies',
+      'uefa europa conference league'
+    ];
+
+    // Check if leagues are in top priority list
+    const aIsTopPriority = topPriorityLeagues.some(priority => 
+      aLeagueName.toLowerCase().includes(priority)
+    );
+    const bIsTopPriority = topPriorityLeagues.some(priority => 
+      bLeagueName.toLowerCase().includes(priority)
+    );
+
+    // Top priority leagues come first
+    if (aIsTopPriority && !bIsTopPriority) return -1;
+    if (!aIsTopPriority && bIsTopPriority) return 1;
+
+    // If both are top priority, sort by specific order
+    if (aIsTopPriority && bIsTopPriority) {
+      // Club Friendly FIFA Cup first
+      if (aLeagueName.toLowerCase().includes('club friendly') && 
+          !bLeagueName.toLowerCase().includes('club friendly')) return -1;
+      if (!aLeagueName.toLowerCase().includes('club friendly') && 
+          bLeagueName.toLowerCase().includes('club friendly')) return 1;
+
+      // FIFA Cup second
+      if (aLeagueName.toLowerCase().includes('fifa cup') && 
+          !bLeagueName.toLowerCase().includes('fifa cup')) return -1;
+      if (!aLeagueName.toLowerCase().includes('fifa cup') && 
+          bLeagueName.toLowerCase().includes('fifa cup')) return 1;
+
+      // Other friendlies third
+      if (aLeagueName.toLowerCase().includes('friendlies') && 
+          !bLeagueName.toLowerCase().includes('friendlies')) return -1;
+      if (!aLeagueName.toLowerCase().includes('friendlies') && 
+          bLeagueName.toLowerCase().includes('friendlies')) return 1;
+
+      // UEFA Europa Conference League fourth
+      if (aLeagueName.toLowerCase().includes('uefa europa conference league') && 
+          !bLeagueName.toLowerCase().includes('uefa europa conference league')) return -1;
+      if (!aLeagueName.toLowerCase().includes('uefa europa conference league') && 
+          bLeagueName.toLowerCase().includes('uefa europa conference league')) return 1;
+    }
+
+    // Clean league names for better sorting of non-priority leagues
     const cleanLeagueName = (name: string) => {
       return name
         .replace(/^(CONMEBOL|UEFA|FIFA)\s+/i, '') // Remove prefixes
@@ -757,7 +804,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const aCleanName = cleanLeagueName(aLeagueName);
     const bCleanName = cleanLeagueName(bLeagueName);
 
-    // Primary sort: Alphabetical A-Z by cleaned league name
+    // For non-priority leagues: Alphabetical A-Z by cleaned league name
     const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
     
     if (alphabeticalSort !== 0) {
