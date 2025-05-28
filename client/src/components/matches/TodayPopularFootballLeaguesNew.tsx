@@ -53,7 +53,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Egypt': [233], // Egyptian Premier League (only major league)
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'World': [1, 10, 9, 11, 13], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana
+    'World': [1, 10, 9, 11, 13, 15], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana, FIFA Club World Cup
     'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
   };
 
@@ -486,6 +486,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         leagueNameLower.includes('europa league') ||
         leagueNameLower.includes('conference league') ||
         leagueNameLower.includes('world cup') ||
+        leagueNameLower.includes('fifa club world cup') ||
         leagueNameLower.includes('euro') ||
         isWorldFriendlies ||
         isCONMEBOLCompetition ||
@@ -589,6 +590,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
           league.name.toLowerCase().includes('fifa') ||
+          league.name.toLowerCase().includes('fifa club world cup') ||
           league.name.toLowerCase().includes('champions') ||
           league.name.toLowerCase().includes('conference') ||
           league.name.toLowerCase().includes('friendlies') ||
@@ -750,6 +752,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const topPriorityLeagues = [
       'club friendly',
       'fifa cup',
+      'fifa club world cup',
       'friendlies',
       'uefa europa conference league'
     ];
@@ -779,6 +782,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           !bLeagueName.toLowerCase().includes('fifa cup')) return -1;
       if (!aLeagueName.toLowerCase().includes('fifa cup') && 
           bLeagueName.toLowerCase().includes('fifa cup')) return 1;
+
+      // FIFA Club World Cup third
+      if (aLeagueName.toLowerCase().includes('fifa club world cup') && 
+          !bLeagueName.toLowerCase().includes('fifa club world cup')) return -1;
+      if (!aLeagueName.toLowerCase().includes('fifa club world cup') && 
+          bLeagueName.toLowerCase().includes('fifa club world cup')) return 1;
 
       // Other friendlies third
       if (aLeagueName.toLowerCase().includes('friendlies') && 
