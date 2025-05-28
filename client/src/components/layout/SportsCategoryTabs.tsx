@@ -60,7 +60,7 @@ const SportsCategoryTabs = () => {
           </div>
 
           {/* Other tabs with 5px spacing between them */}
-          <div className="flex items-center ml-[90px]" style={{ gap: '5px' }}>
+          <div className="flex items-center ml-[5px]" style={{ gap: '5px' }}>
             {sportsList.slice(1).map(({ id, icon: Icon, label }, index) => (
               <div
                 key={id}
@@ -69,8 +69,7 @@ const SportsCategoryTabs = () => {
                   'flex items-center justify-start gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit',
                   selectedSport === id
                     ? 'text-[#15222A]'
-                    : 'text-[#6B7173] hover:text-[#15222A]',
-                  index === 0 ? 'ml-5' : '' // Add 20px margin to Football (first item)
+                    : 'text-[#6B7173] hover:text-[#15222A]'
                 )}
               >
                 <Icon className="h-[1.1rem] w-[1.1rem]" />
