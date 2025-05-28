@@ -123,14 +123,6 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
                   onSelect={handleDateSelect}
                   className="w-full"
                 />
-                <div className="flex justify-center pt-3 border-t mt-3">
-                  <button
-                    onClick={goToToday}
-                    className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors px-4 py-1 hover:bg-blue-50 rounded"
-                  >
-                    Today
-                  </button>
-                </div>
               </div>
             )}
           </div>
