@@ -424,14 +424,27 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       // Allow all matches including international ones
       console.log(`Processing match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
 
-      // Filter by popular countries
-      const isPopularCountry = POPULAR_COUNTRIES.some(country => 
-        fixture.league.country.toLowerCase().includes(country.toLowerCase())
+      // Filter by popular countries and their major leagues only
+      const countryName = fixture.league.country.toLowerCase();
+      const leagueId = fixture.league.id;
+
+      // Check if it's a popular country
+      const matchingCountry = POPULAR_COUNTRIES.find(country => 
+        countryName.includes(country.toLowerCase())
       );
 
-      if (!isPopularCountry) {
+      if (!matchingCountry) {
         console.log(`Filtering out fixture from non-popular country: ${fixture.league.country}, league: ${fixture.league.name}`);
         return false;
+      }
+
+      // For Brazil, Saudi Arabia, and Egypt - only show major leagues
+      if (['brazil', 'saudi arabia', 'egypt'].includes(matchingCountry.toLowerCase())) {
+        const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[matchingCountry] || [];
+        if (!countryLeagues.includes(leagueId)) {
+          console.log(`Filtering out non-major league from ${matchingCountry}: ${fixture.league.name} (ID: ${leagueId})`);
+          return false;
+        }
       }
 
       return true;
@@ -492,7 +505,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           league.name.toLowerCase().includes('copa america') ||
           league.name.toLowerCase().includes('copa libertadores') ||
           league.name.toLowerCase().includes('copa sudamericana'))) {
-        
+
         // Determine the appropriate country key
         let countryKey = 'World';
         if (league.name.toLowerCase().includes('conmebol') ||
@@ -506,7 +519,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                    league.name.toLowerCase().includes('conference')) {
           countryKey = 'Europe';
         }
-        
+
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
