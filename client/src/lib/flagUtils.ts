@@ -239,21 +239,24 @@ export function get365ScoresFlag(country: string): string {
 /**
  * Fetch flag from SportsRadar API endpoint
  * @param country - Country name
- * @returns Promise<string> - Flag URL or fallback
+ * @returns Promise<string | null> - Flag URL, fallback, or null if should be excluded
  */
-export async function fetchSportsRadarFlag(country: string): Promise<string> {
+export async function fetchSportsRadarFlag(country: string): Promise<string | null> {
   try {
     const response = await fetch(`/api/flags/${encodeURIComponent(country)}`);
     const data = await response.json();
     
     if (data.success && data.flagUrl) {
       return data.flagUrl;
+    } else if (data.shouldExclude) {
+      console.warn(`Country ${country} should be excluded due to missing flag from both sources`);
+      return null; // Return null to indicate this country should be excluded
     } else {
       return data.fallbackUrl || '/assets/fallback-logo.svg';
     }
   } catch (error) {
     console.error('Error fetching flag from SportsRadar API:', error);
-    return '/assets/fallback-logo.svg';
+    return null; // Return null on error to exclude problematic countries
   }
 }
 

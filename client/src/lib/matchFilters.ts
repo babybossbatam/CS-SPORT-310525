@@ -1,6 +1,6 @@
-
 import { parseISO } from "date-fns";
 import type { Match } from "@/types/fixtures";
+import { shouldExcludeFixture } from './exclusionFilters';
 
 export interface FilterOptions {
   popularLeagues?: number[];
@@ -114,54 +114,54 @@ export const filterByPopularCountries = (
  */
 export const categorizeMatches = (matches: Match[], currentTime: Date = new Date()) => {
   const now = currentTime;
-  
+
   const liveMatches = matches.filter(match => isLiveMatch(match.fixture.status.short));
-  
+
   const upcomingMatches = matches
     .filter(match => {
       if (match.fixture.status.short !== "NS") return false;
-      
+
       const matchDate = new Date(match.fixture.date);
       const timeDiffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
       const timeDiffDays = timeDiffHours / 24;
-      
+
       if (timeDiffHours < 0) return false;
-      
+
       // For finals/semifinals, give more leeway
       if (isFinalOrSemifinal(match) && timeDiffDays <= 5) return true;
-      
+
       return timeDiffDays <= 30;
     })
     .sort((a, b) => {
       const aIsFinal = isFinalOrSemifinal(a);
       const bIsFinal = isFinalOrSemifinal(b);
-      
+
       if (aIsFinal && !bIsFinal) return -1;
       if (!aIsFinal && bIsFinal) return 1;
-      
+
       return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
     });
-  
+
   const finishedMatches = matches
     .filter(match => {
       if (!["FT", "AET", "PEN"].includes(match.fixture.status.short)) return false;
-      
+
       const matchDate = new Date(match.fixture.date);
       const matchEndTime = new Date(matchDate.getTime() + 2 * 60 * 60 * 1000);
       const hoursSinceCompletion = (now.getTime() - matchEndTime.getTime()) / (1000 * 60 * 60);
-      
+
       return hoursSinceCompletion >= 0 && hoursSinceCompletion <= 8;
     })
     .sort((a, b) => {
       const aIsFinal = isFinalOrSemifinal(a);
       const bIsFinal = isFinalOrSemifinal(b);
-      
+
       if (aIsFinal && !bIsFinal) return -1;
       if (!aIsFinal && bIsFinal) return 1;
-      
+
       return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
     });
-  
+
   return { liveMatches, upcomingMatches, finishedMatches };
 };
 
@@ -177,60 +177,60 @@ export const applyPriorityFiltering = (
     excludeTeamIds = DEFAULT_EXCLUDE_TEAMS,
     maxMatches = 6
   } = options;
-  
+
   const currentTime = new Date();
   const { liveMatches, upcomingMatches, finishedMatches } = categorizeMatches(matches, currentTime);
-  
+
   let finalMatches: Match[] = [];
-  
+
   // PRIORITY 1: Live matches with popular teams or finals/semifinals
   const livePopularMatches = liveMatches
     .filter(match => 
       isPopularTeamMatch(match, popularTeamIds) || isFinalOrSemifinal(match)
     )
     .filter(match => !shouldExcludeMatch(match, excludeTeamIds));
-  
+
   if (livePopularMatches.length > 0) {
     finalMatches = [...livePopularMatches];
   }
-  
+
   // PRIORITY 2: Finals or semifinals (upcoming or just finished)
   const specialMatches = [...upcomingMatches, ...finishedMatches]
     .filter(match => isFinalOrSemifinal(match))
     .filter(match => !shouldExcludeMatch(match, excludeTeamIds));
-  
+
   if (specialMatches.length > 0 && finalMatches.length < maxMatches) {
     const specialToAdd = specialMatches
       .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id))
       .slice(0, maxMatches - finalMatches.length);
     finalMatches = [...finalMatches, ...specialToAdd];
   }
-  
+
   // PRIORITY 3: Recently finished matches with popular teams
   const finishedPopularMatches = finishedMatches
     .filter(match => isPopularTeamMatch(match, popularTeamIds))
     .filter(match => !shouldExcludeMatch(match, excludeTeamIds))
     .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
-  
+
   if (finishedPopularMatches.length > 0 && finalMatches.length < maxMatches) {
     const finishedToAdd = finishedPopularMatches.slice(0, maxMatches - finalMatches.length);
     finalMatches = [...finalMatches, ...finishedToAdd];
   }
-  
+
   // PRIORITY 4: Upcoming matches with popular teams
   const upcomingPopularMatches = upcomingMatches
     .filter(match => isPopularTeamMatch(match, popularTeamIds))
     .filter(match => !shouldExcludeMatch(match, excludeTeamIds))
     .filter(match => !finalMatches.some(m => m.fixture.id === match.fixture.id));
-  
+
   if (upcomingPopularMatches.length > 0 && finalMatches.length < maxMatches) {
     const upcomingToAdd = upcomingPopularMatches.slice(0, maxMatches - finalMatches.length);
     finalMatches = [...finalMatches, ...upcomingToAdd];
   }
-  
+
   // Ensure we don't exceed max matches
   finalMatches = finalMatches.slice(0, maxMatches);
-  
+
   return {
     matches: finalMatches,
     breakdown: {
@@ -254,15 +254,15 @@ export const filterPopularLeagueMatches = (
     popularLeagues = DEFAULT_POPULAR_LEAGUES,
     maxMatches = 6
   } = options;
-  
+
   // Filter to popular leagues only
   const popularLeagueMatches = filterByPopularLeagues(allMatches, popularLeagues);
-  
+
   // Combine manual popular teams with top teams from standings
   const combinedPopularTeams = Array.from(
     new Set([...DEFAULT_POPULAR_TEAMS, ...topTeamIds])
   );
-  
+
   // Apply priority filtering
   return applyPriorityFiltering(popularLeagueMatches, {
     ...options,
@@ -282,10 +282,10 @@ export const filterPopularCountryMatches = (
     prioritizeCountries = POPULAR_COUNTRIES,
     maxMatches = 6
   } = options;
-  
+
   // Filter matches from popular countries
   const countryMatches = filterByPopularCountries(allMatches, prioritizeCountries);
-  
+
   // Apply priority filtering
   return applyPriorityFiltering(countryMatches, {
     ...options,
@@ -303,7 +303,7 @@ export const getMatchesWithinTimeWindow = (
 ): Match[] => {
   return matches.filter(match => {
     if (match.fixture.status.short !== "NS") return false;
-    
+
     try {
       const matchDate = parseISO(match.fixture.date);
       const hoursToMatch = (matchDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
@@ -313,3 +313,25 @@ export const getMatchesWithinTimeWindow = (
     }
   });
 };
+
+/**
+ * Filter fixtures based on exclusion criteria
+ * @param fixtures Array of fixture objects
+ * @returns Filtered array of fixtures
+ */
+export function filterMatchesByExclusion(fixtures: any[]): any[] {
+  return fixtures.filter(fixture => {
+    // Validate fixture structure
+    if (!fixture || !fixture.league || !fixture.teams) {
+      return false;
+    }
+
+    const leagueName = fixture.league.name || '';
+    const homeTeamName = fixture.teams.home?.name || '';
+    const awayTeamName = fixture.teams.away?.name || '';
+    const country = fixture.league.country || null;
+
+    // Use the shouldExcludeFixture function - return true to keep the fixture
+    return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName, country);
+  });
+}

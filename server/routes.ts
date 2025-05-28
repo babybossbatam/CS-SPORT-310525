@@ -1292,13 +1292,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ 
           success: true, 
           flagUrl: sportsRadarFlag,
-          source: 'SportsRadar'
+          source: sportsRadarFlag.includes('365scores') ? '365scores' : 'SportsRadar'
         });
       } else {
+        console.warn(`🚫 Country ${country} will be excluded due to missing flag from both sources`);
         res.json({ 
           success: false, 
-          message: 'Flag not found',
-          fallbackUrl: '/assets/fallback-logo.svg'
+          message: 'Flag not found in both SportsRadar and 365scores - country will be excluded',
+          fallbackUrl: '/assets/fallback-logo.svg',
+          shouldExclude: true
         });
       }
     } catch (error) {
@@ -1306,7 +1308,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch flag',
-        fallbackUrl: '/assets/fallback-logo.svg'
+        fallbackUrl: '/assets/fallback-logo.svg',
+        shouldExclude: true
       });
     }
   });

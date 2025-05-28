@@ -50,13 +50,20 @@ function safeSubstring(value: any, start: number, end?: number): string {
  * @param leagueName League name (will be converted to lowercase)
  * @param homeTeamName Home team name (will be converted to lowercase) 
  * @param awayTeamName Away team name (will be converted to lowercase)
+ * @param country Optional country name to check for null/invalid values
  * @returns true if fixture should be excluded, false if it should be kept
  */
 export function shouldExcludeFixture(
   leagueName: string,
   homeTeamName: string,
-  awayTeamName: string
+  awayTeamName: string,
+  country?: string | null
 ): boolean {
+  // Exclude fixtures with null, undefined, or invalid country values
+  if (country !== undefined && (!country || country === null || country.trim() === '' || country.toLowerCase() === 'unknown')) {
+    return true;
+  }
+
   // Convert inputs to lowercase with safe handling
   const league = safeSubstring(leagueName, 0).toLowerCase();
   const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();

@@ -259,23 +259,14 @@ export async function getCountryFlag(country: string): Promise<string | null> {
         console.log(`✅ 365scores fallback flag found for country: ${country}`);
         return scores365FlagUrl;
       } else {
-        console.warn(`❌ Both SportsRadar and 365scores flags not found for country: ${country}`);
+        console.warn(`❌ Both SportsRadar and 365scores flags not found for country: ${country} - will be added to exclusion list`);
         return null;
       }
     }
   } catch (error) {
     console.error(`Error getting flag for ${country}:`, error);
-    
-    // As a final fallback, try 365scores without checking
-    try {
-      const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
-      const scores365FlagUrl = `https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`;
-      console.log(`🔄 Error fallback: trying 365scores for ${country}`);
-      return scores365FlagUrl;
-    } catch (fallbackError) {
-      console.error(`Final fallback also failed for ${country}:`, fallbackError);
-      return null;
-    }
+    console.warn(`🚫 Final fallback failed for ${country} - will be added to exclusion list`);
+    return null;
   }
 }
 
