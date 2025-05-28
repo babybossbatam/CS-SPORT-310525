@@ -446,9 +446,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
 
                                 {/* Score/Time Center - Live matches */}
                                 <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
-                                  <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
-                                    LIVE
-                                  </div>
                                   <div className="text-lg font-bold text-red-600 flex items-center gap-2">
                                     <span>{match.goals.home ?? 0}</span>
                                     <span className="text-gray-400">-</span>
