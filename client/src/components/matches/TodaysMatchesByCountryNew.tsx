@@ -576,7 +576,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
           Current filtering date: {getCurrentUTCDateString(selectedDate)} (showing date only, not timestamp)
         </div>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 pt-4">
         <div className="space-y-0">
           {sortedCountries.map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
