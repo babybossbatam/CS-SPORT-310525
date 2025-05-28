@@ -527,7 +527,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             return false;
           }
         } else {
-} else {
           // For other Tier 3 countries (Saudi Arabia, Egypt), be very restrictive
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
