@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, selectFixturesByDate, selectStandingsByLeague } from '@/lib/store';
 import { format, parseISO, addDays, subDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
-import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
+import { formatYYYYMMDD, getCurrentUTCDateString, getRelativeDateDisplayName } from '@/lib/dateUtilsUpdated';
 
 interface FixtureProps {
   fixtures: any[];
@@ -20,13 +20,33 @@ interface FixtureProps {
 }
 
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 
 export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setIsCalendarOpen(false);
+      }
+    };
+
+    if (isCalendarOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isCalendarOpen]);
 
   // Get standings from league data
   const { data: leagueStandings } = useQuery({
@@ -91,6 +111,35 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     </div>
   );
 
+  // Date navigation handlers
+  const goToPreviousDay = () => {
+    const newDate = format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
+    dispatch({ type: 'ui/setSelectedDate', payload: newDate });
+    setSelectedFilter(getRelativeDateDisplayName(newDate));
+  };
+
+  const goToNextDay = () => {
+    const newDate = format(addDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
+    dispatch({ type: 'ui/setSelectedDate', payload: newDate });
+    setSelectedFilter(getRelativeDateDisplayName(newDate));
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      const selectedDateString = formatYYYYMMDD(date);
+      dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
+      setSelectedFilter(getRelativeDateDisplayName(selectedDateString));
+      setIsCalendarOpen(false);
+    }
+  };
+
+  const goToToday = () => {
+    const today = getCurrentUTCDateString();
+    dispatch({ type: 'ui/setSelectedDate', payload: today });
+    setSelectedFilter("Today's Matches");
+    setIsCalendarOpen(false);
+  };
+
   // Debug logging to check what data we have
   console.log('TodayMatchCard - selected filter:', selectedFilter);
   console.log('TodayMatchCard - fixtures length:', fixtures?.length || 0);
@@ -100,13 +149,44 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     <>
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
-          <button className="p-2 hover:bg-gray-100 rounded-r-full flex items-center -ml-4">
+          <button 
+            onClick={goToPreviousDay}
+            className="p-2 hover:bg-gray-100 rounded-r-full flex items-center -ml-4"
+          >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <div className="relative h-full flex items-center">
-            <span className="font-medium">{selectedFilter}</span>
+          <div className="relative h-full flex items-center" ref={calendarRef}>
+            <button
+              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
+            >
+              <span className="font-medium">{selectedFilter}</span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${isCalendarOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isCalendarOpen && (
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-[320px]">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate ? parseISO(selectedDate) : new Date()}
+                  onSelect={handleDateSelect}
+                  className="w-full"
+                />
+                <div className="flex justify-center pt-3 border-t mt-3">
+                  <button
+                    onClick={goToToday}
+                    className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors px-4 py-1 hover:bg-blue-50 rounded"
+                  >
+                    Today
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-          <button className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4">
+          <button 
+            onClick={goToNextDay}
+            className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4"
+          >
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
