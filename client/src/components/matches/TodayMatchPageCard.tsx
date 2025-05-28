@@ -62,7 +62,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     }
   });
 
-  // Deactivate live filter when selected date changes
+  // Deactivate live filter when date changes externally (not from live button)
   useEffect(() => {
     if (liveFilterActive) {
       setLiveFilterActive(false);
@@ -159,7 +159,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           <button 
             onClick={() => {
               if (!liveFilterActive) {
-                // Activating live filter - always set date to today
+                // Activating live filter - set both date and live state synchronously
                 const today = getCurrentUTCDateString();
                 setSelectedDate(today);
                 setLiveFilterActive(true);
