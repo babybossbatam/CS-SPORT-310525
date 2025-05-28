@@ -900,10 +900,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`Successfully processed ${articles.length} news articles from SportsRadar`);
           return res.json(articles);
         } else {
-          console.warn("SportsRadar API returned no articles");
+          console.warn("SportsRadar API returned no articles or empty response");
         }
       } catch (sportsRadarError) {
-        console.error("SportsRadar API also failed:", sportsRadarError);
+        const errorMessage = sportsRadarError.response?.status === 404 
+          ? "SportsRadar content endpoint not found (404)" 
+          : `SportsRadar API error: ${sportsRadarError.message}`;
+        console.error(errorMessage);
       }
 
       // Final fallback to GNews API if both BetsAPI and SportsRadar fail

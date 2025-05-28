@@ -234,11 +234,31 @@ export async function getSportsNews(sport: string = 'nfl', date?: string): Promi
     
     console.log(`Fetching SportsRadar content for ${sport} on ${year}/${month}/${day}`);
     
-    const response = await contentApiClient.get(`/content-${sport}-t3/ap/analysis/${year}/${month}/${day}/all.json`);
+    // Try multiple URL formats for SportsRadar content API
+    const possibleUrls = [
+      `/content-${sport}-t3/ap/analysis/${year}/${month}/${day}/all.json`,
+      `/soccer-t3/en/sport_events.json`, // Alternative soccer endpoint
+      `/football-t3/en/sport_events.json`, // Alternative football endpoint
+      `/nfl-t3/en/sport_events.json` // Alternative NFL endpoint
+    ];
     
-    if (response.data && response.data.items) {
-      console.log(`Found ${response.data.items.length} content items from SportsRadar`);
-      return response.data.items;
+    for (const url of possibleUrls) {
+      try {
+        console.log(`Trying SportsRadar URL: ${url}`);
+        const response = await contentApiClient.get(url);
+        
+        if (response.data && response.data.items && response.data.items.length > 0) {
+          console.log(`Found ${response.data.items.length} content items from SportsRadar`);
+          return response.data.items;
+        } else if (response.data && response.data.sport_events) {
+          // Different response format
+          console.log(`Found ${response.data.sport_events.length} sport events from SportsRadar`);
+          return response.data.sport_events;
+        }
+      } catch (urlError) {
+        console.log(`URL ${url} failed:`, urlError.response?.status || urlError.message);
+        continue;
+      }
     }
     
     return [];
@@ -251,33 +271,44 @@ export async function getSportsNews(sport: string = 'nfl', date?: string): Promi
 // Get football/soccer news (using different sport codes)
 export async function getFootballNews(date?: string): Promise<any[]> {
   // Try multiple sport codes for soccer/football content
-  const sportCodes = ['soccer', 'football', 'fifa'];
+  const sportCodes = ['soccer', 'football', 'nfl'];
+  
+  console.log('Attempting to fetch football news from SportsRadar...');
   
   for (const sport of sportCodes) {
     try {
+      console.log(`Trying sport code: ${sport}`);
       const news = await getSportsNews(sport, date);
       if (news.length > 0) {
+        console.log(`Successfully got ${news.length} articles for sport: ${sport}`);
         return news;
       }
     } catch (error) {
-      console.log(`No content found for sport code: ${sport}`);
+      console.log(`No content found for sport code: ${sport}`, error.response?.status || error.message);
       continue;
     }
   }
   
+  console.log('No football news found from SportsRadar, returning empty array');
   return [];
 }
 
 // Convert SportsRadar content to standard news format
 export function convertSportsRadarToStandardFormat(item: any, index: number = 0) {
+  // Handle different SportsRadar response formats
+  const title = item.headline || item.title || item.name || `Sports Update ${index + 1}`;
+  const content = item.content || item.summary || item.description || item.brief || 'Latest sports news update';
+  const imageUrl = item.image || item.thumbnail || item.logo || 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg';
+  const publishedDate = item.published_at || item.date_published || item.scheduled || new Date().toISOString();
+  
   return {
     id: index + 1,
-    title: item.headline || item.title || 'Sports Update',
-    content: item.content || item.summary || item.description || 'Latest sports news update',
-    imageUrl: item.image || item.thumbnail || 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
-    source: "SportsRadar Content",
+    title: title,
+    content: content,
+    imageUrl: imageUrl,
+    source: "SportsRadar",
     url: item.url || item.link || `/news/${index + 1}`,
-    publishedAt: item.published_at || item.date_published || new Date().toISOString(),
+    publishedAt: publishedDate,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
