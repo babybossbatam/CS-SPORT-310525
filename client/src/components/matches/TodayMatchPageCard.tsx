@@ -5,6 +5,7 @@ import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodayPopularFootballLeaguesNew from './TodayPopularFootballLeaguesNew';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
+import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { format, parseISO, addDays, subDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
@@ -197,6 +198,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
           />
+          <TodaysMatchesByCountryNew selectedDate={selectedDate} />
         </>
       )}
     </>
