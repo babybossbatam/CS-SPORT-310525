@@ -61,7 +61,7 @@ const Header = () => {
 
         <LeagueTabs />
         <LeagueTabs />
-        <div className="flex items-center gap-[1.05rem] mr-[105px]">
+        <div className="flex items-center gap-[1.05rem] mr-[110px]">
           <div 
             className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
