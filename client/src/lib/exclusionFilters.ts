@@ -16,7 +16,7 @@ export const exclusionTerms = [
   'regional', 'division 3', 'division 4', 'division 5', 'third division', 'fourth division',
   '2. bundesliga', '2 bundesliga', 'second bundesliga', 'bundesliga 2', '2nd bundesliga', 'zweite bundesliga',
   'serie b', 'serie c', 'serie d', 'segunda division', 'tercera division',
-  'championship', 'league one', 'league two', 'non-league',
+  'championship', 'league one', 'league two', 'non-league', 'oberliga',
 
   // Non-competitive/exhibition matches (but allow World Friendlies)
   'test', 'exhibition', 'testimonial', 'charity',
