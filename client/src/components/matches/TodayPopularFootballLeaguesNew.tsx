@@ -368,7 +368,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   };
 
   // Combine and deduplicate fixtures with better logging
-  const allFixtures = [...fixtures, ...popularFixtures]
+  const allFixtures = [...(fixtures || []), ...(popularFixtures || [])]
     .filter((fixture, index, self) => {
       const isUnique = index === self.findIndex(f => f.fixture.id === fixture.fixture.id);
 
@@ -523,7 +523,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   }, [allFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
-  const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
+  const fixturesByCountry = (allFixtures || []).reduce((acc: any, fixture: any) => {
     // Add comprehensive null checks
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
       console.warn('Invalid fixture data:', fixture);
