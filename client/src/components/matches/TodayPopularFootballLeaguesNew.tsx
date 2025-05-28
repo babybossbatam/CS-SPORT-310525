@@ -44,7 +44,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Italy': [135, 137], // Serie A, Coppa Italia
     'Germany': [78, 81], // Bundesliga, DFB Pokal
     'France': [61, 66], // Ligue 1, Coupe de France
-    'Brazil': [71], // Serie A Brazil (only major league)
+    'Brazil': [71, 72], // Serie A Brazil, Serie B Brazil
     'Saudi Arabia': [307], // Saudi Pro League (only major league)
     'Egypt': [233], // Egyptian Premier League (only major league)
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
@@ -435,63 +435,69 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name?.toLowerCase() || '';
 
-      // Check if it's a popular country with geographic preferences
-      const matchingCountry = POPULAR_COUNTRIES.find(country => 
-        countryName.includes(country.toLowerCase())
-      );
-
-      // Check for international competitions that might not have proper country assignment
+      // Check for international competitions first (more permissive)
+      const isWorldFriendlies = leagueName.includes('friendlies') && countryName.includes('world');
+      const isCONMEBOLCompetition = 
+        leagueName.includes('copa america') ||
+        leagueName.includes('copa libertadores') ||
+        leagueName.includes('copa sudamericana') ||
+        leagueName.includes('conmebol') ||
+        countryName.includes('conmebol');
+      
       const isInternationalCompetition = 
         leagueName.includes('champions league') ||
         leagueName.includes('europa league') ||
         leagueName.includes('conference league') ||
         leagueName.includes('world cup') ||
         leagueName.includes('euro') ||
-        leagueName.includes('copa america') ||
-        leagueName.includes('copa libertadores') ||
-        leagueName.includes('copa sudamericana') ||
-        leagueName.includes('conmebol') ||
+        isWorldFriendlies ||
+        isCONMEBOLCompetition ||
         TIER_2_INTERNATIONAL.some(region => countryName.includes(region.toLowerCase()));
 
-      if (!matchingCountry && !isInternationalCompetition) {
+      // Allow all international competitions through
+      if (isInternationalCompetition) {
+        console.log(`Allowing international competition: ${fixture.league.name} (ID: ${leagueId})`);
+        return true;
+      }
+
+      // Check if it's a popular country with geographic preferences
+      const matchingCountry = POPULAR_COUNTRIES.find(country => 
+        countryName.includes(country.toLowerCase())
+      );
+
+      if (!matchingCountry) {
         console.log(`Filtering out fixture from non-popular country: ${fixture.league.country}, league: ${fixture.league.name}`);
         return false;
       }
 
       // Enhanced filtering based on geographic tiers
-      if (matchingCountry) {
-        const countryKey = matchingCountry;
-        
-        // Tier 1 countries (England, Spain, Italy, Germany, France) - show all major leagues
-        if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
-          const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
-          if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
-            console.log(`Filtering out non-major league from Tier 1 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+      const countryKey = matchingCountry;
+      
+      // Tier 1 countries (England, Spain, Italy, Germany, France) - show all major leagues
+      if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
+        const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
+        if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
+          console.log(`Filtering out non-major league from Tier 1 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+          return false;
+        }
+      }
+      
+      // Tier 3 countries (Brazil, Saudi Arabia, Egypt) - be more permissive for Brazil
+      else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
+        // For Brazil, allow both Serie A and Serie B
+        if (countryKey.toLowerCase() === 'brazil') {
+          const brazilLeagues = [71, 72]; // Serie A and Serie B
+          if (!brazilLeagues.includes(leagueId)) {
+            console.log(`Filtering out non-major league from Brazil: ${fixture.league.name} (ID: ${leagueId})`);
             return false;
           }
-        }
-        
-        // Tier 3 countries (Brazil, Saudi Arabia, Egypt) - only show top-tier leagues
-        else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
+        } else {
+          // For other Tier 3 countries, stick to original logic
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
             console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
             return false;
           }
-        }
-      }
-
-      // International competitions - allow through with league ID validation
-      if (isInternationalCompetition) {
-        const internationalLeagues = [
-          ...POPULAR_LEAGUES_BY_COUNTRY['Europe'] || [],
-          ...POPULAR_LEAGUES_BY_COUNTRY['World'] || [],
-          ...POPULAR_LEAGUES_BY_COUNTRY['CONMEBOL'] || []
-        ];
-        
-        if (internationalLeagues.length > 0 && !internationalLeagues.includes(leagueId)) {
-          console.log(`Filtering out non-major international competition: ${fixture.league.name} (ID: ${leagueId})`);
-          return false;
         }
       }
 
