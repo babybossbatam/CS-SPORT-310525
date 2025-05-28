@@ -45,7 +45,7 @@ const Header = () => {
           <img 
             src="/new-cs-sport-logo.png" 
             alt="CS SPORT Logo" 
-            className="h-full max-h-[57px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
+            className="h-full max-h-[57px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
           />
           <span className="flex items-center gap-2 whitespace-nowrap">
             <span className="text-amber-400 font-bold text-[clamp(1.313rem,2vw,1.563rem)] transition-all duration-200 hover:text-white hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
