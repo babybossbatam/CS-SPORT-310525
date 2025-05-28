@@ -383,7 +383,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
             return a.league.name.localeCompare(b.league.name);
           })
           .map((leagueData: any, globalIndex: number) => (
-            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${globalIndex > 0 ? 'mt-4' : 'mt-0'}`}
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${globalIndex > 0 ? 'mt-4' : 'mt-0'}`}>
               {/* League Header */}
               <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <img
