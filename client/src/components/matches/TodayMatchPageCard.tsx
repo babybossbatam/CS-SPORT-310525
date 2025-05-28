@@ -158,6 +158,17 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           {/* Live button */}
           <button 
             onClick={() => {
+              // If activating live filter and selected date is not today, change to today
+              if (!liveFilterActive) {
+                const today = getCurrentUTCDateString();
+                const yesterday = format(subDays(parseISO(today), 1), 'yyyy-MM-dd');
+                const tomorrow = format(addDays(parseISO(today), 1), 'yyyy-MM-dd');
+                
+                if (selectedDate === yesterday || selectedDate === tomorrow) {
+                  setSelectedDate(today);
+                }
+              }
+              
               setLiveFilterActive(!liveFilterActive);
               setTimeFilterActive(false); // Reset time filter when live is activated
             }}
