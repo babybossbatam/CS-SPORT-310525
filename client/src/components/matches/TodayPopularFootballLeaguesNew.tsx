@@ -731,56 +731,57 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     );
   });
 
-  // Enhanced sorting with domestic leagues prioritized over international competitions
+  // Enhanced sorting with A-Z primary and priority fallback system
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aCountry = a.country || '';
     const bCountry = b.country || '';
 
-    // Determine priority tier for each country (lower number = higher priority)
-    const getTier = (country: string) => {
-      // Tier 1: Major domestic leagues (highest priority)
-      if (TIER_1_COUNTRIES.includes(country)) return 1;
-
-      // Tier 2: Other popular domestic leagues
-      if (TIER_3_OTHER_POPULAR.includes(country)) return 2;
-
-      // Tier 3: International competitions (lower priority than domestic)
-      if (TIER_2_INTERNATIONAL.includes(country)) return 3;
-
-      // Tier 4: CONMEBOL
-      if (country === 'CONMEBOL') return 4;
-
-      return 999;
-    };
-
-    const aTier = getTier(aCountry);
-    const bTier = getTier(bCountry);
-
-    // Sort by tier first (domestic leagues before international)
-    if (aTier !== bTier) {
-      return aTier - bTier;
+    // Try A-Z sorting first
+    try {
+      const alphabeticalSort = aCountry.localeCompare(bCountry);
+      
+      // If A-Z sorting works (both countries are valid strings), use it
+      if (aCountry && bCountry && typeof aCountry === 'string' && typeof bCountry === 'string') {
+        return alphabeticalSort;
+      }
+    } catch (error) {
+      console.warn('A-Z sorting failed, falling back to priority system:', error);
     }
 
-    // Within same tier, prioritize countries with popular leagues
-    if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
-    if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
+    // Fallback priority system when A-Z sorting fails
+    const getPriorityLevel = (countryData: any) => {
+      const country = countryData.country || '';
+      const hasPopularLeague = countryData.hasPopularLeague;
 
-    // Within same tier and popular league status, sort by order in POPULAR_COUNTRIES_ORDER
-    const getOrderIndex = (country: string) => {
-      const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
-        pc.toLowerCase() === country.toLowerCase()
+      // Check if country has Friendlies leagues
+      const hasFriendlies = Object.values(countryData.leagues || {}).some((league: any) => 
+        league.isFriendlies || league.league?.name?.toLowerCase().includes('friendlies')
       );
-      return index === -1 ? 999 : index;
+
+      // Priority 1: Friendlies (Top Priority)
+      if (hasFriendlies) return 1;
+
+      // Priority 2: Popular League with badge
+      if (hasPopularLeague) return 2;
+
+      // Priority 3: Popular Country badge
+      if (POPULAR_COUNTRIES_ORDER.some(pc => 
+        pc.toLowerCase() === country.toLowerCase()
+      )) return 3;
+
+      // Priority 4: Other leagues
+      return 4;
     };
 
-    const aOrderIndex = getOrderIndex(aCountry);
-    const bOrderIndex = getOrderIndex(bCountry);
+    const aPriority = getPriorityLevel(a);
+    const bPriority = getPriorityLevel(b);
 
-    if (aOrderIndex !== bOrderIndex) {
-      return aOrderIndex - bOrderIndex;
+    // Sort by priority level (lower number = higher priority)
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
     }
 
-    // Default to alphabetical sorting
+    // Within same priority level, fall back to alphabetical
     return aCountry.localeCompare(bCountry);
   });
 
