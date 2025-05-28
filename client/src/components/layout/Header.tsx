@@ -39,7 +39,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-black text-white shadow-md h-[77px]">
+    <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[77px]">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between mr-[10%]">
         <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[150px] bg-black">
           <img 
@@ -65,7 +65,6 @@ const Header = () => {
           <div 
             className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer ml-5"
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
-            style={{ marginLeft: '30px' }}
           >
             <Star className="h-4 w-4 mr-1 fill-current" />
             <span>My Scores</span>
@@ -125,4 +124,3 @@ const Header = () => {
 };
 
 export default Header;
-`
