@@ -411,8 +411,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       }
 
       // Check for International matches specifically
-      if (fixture.league.country.toLowerCase().includes('international') || 
-          fixture.league.name.toLowerCase().includes('international')) {
+      if ((fixture.league.country && fixture.league.country.toLowerCase().includes('international')) || 
+          (fixture.league.name && fixture.league.name.toLowerCase().includes('international'))) {
         console.log(`Found international match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
       }
 
