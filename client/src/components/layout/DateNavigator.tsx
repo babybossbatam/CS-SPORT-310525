@@ -141,10 +141,10 @@ const DateNavigator = () => {
             <div className="flex items-center space-x-2">
               <Button
                 size="sm"
-                className={`px-3 py-1 text-sm font-medium border-0 shadow-none ${
+                className={`px-3 py-1 text-sm font-semibold border-none shadow-none ${
                   isToday 
                     ? "bg-blue-500 text-white hover:bg-blue-600" 
-                    : "bg-transparent text-blue-500 hover:bg-transparent hover:text-blue-600"
+                    : "bg-transparent text-blue-500 hover:bg-blue-50 hover:text-blue-600"
                 }`}
                 onClick={goToToday}
               >
@@ -154,15 +154,15 @@ const DateNavigator = () => {
               <div className="relative">
                 <Button 
                   variant="ghost" 
-                  className={`relative flex items-center space-x-2 ${
+                  className={`relative flex items-center space-x-2 border-none shadow-none ${
                     !isToday 
                       ? "bg-blue-500 text-white hover:bg-blue-600" 
-                      : "text-gray-600 hover:bg-gray-50"
+                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                   }`}
                   onClick={() => setIsCalendarOpen(!isCalendarOpen)}
                 >
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-semibold">
                       {getDateDisplayText()}
                     </span>
                   </div>

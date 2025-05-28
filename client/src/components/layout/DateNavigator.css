@@ -5,10 +5,10 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: #f8f9fa;
-  border: 1px solid #e1e5e9;
+  background: #ffffff;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   z-index: 50;
   padding: 20px;
   margin-top: 4px;
@@ -100,43 +100,49 @@
 
 /* Selected date should have blue background with white text */
 .calendar-day.selected {
-  background-color: #007bff !important;
+  background-color: #3b82f6 !important;
   color: white !important;
   font-weight: 600 !important;
+  transform: scale(1.05) !important;
 }
 
 /* Keep selected styling even on hover */
 .calendar-day.selected:hover {
-  background-color: #0056b3 !important;
+  background-color: #2563eb !important;
   color: white !important;
+  transform: scale(1.05) !important;
 }
 
 /* If today is selected, use selected styling */
 .calendar-day.today.selected {
-  background-color: #007bff !important;
+  background-color: #3b82f6 !important;
   color: white !important;
   font-weight: 600 !important;
+  transform: scale(1.05) !important;
 }
 
 .calendar-day.today.selected:hover {
-  background-color: #0056b3 !important;
+  background-color: #2563eb !important;
   color: white !important;
+  transform: scale(1.05) !important;
 }
 
 /* Today indicator at bottom */
 .today-indicator {
   text-align: center;
   margin-top: 16px;
-  padding: 8px;
-  color: #007bff;
+  padding: 10px;
+  color: #3b82f6;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  border-top: 1px solid #dee2e6;
-  transition: color 0.2s ease;
+  border-top: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
   background-color: transparent;
+  border-radius: 8px;
 }
 
 .today-indicator:hover {
-  color: #0056b3;
+  color: #2563eb;
+  background-color: #f3f4f6;
 }
