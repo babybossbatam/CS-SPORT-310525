@@ -635,7 +635,7 @@ const FixedScoreboard = () => {
 
   return (
     <>
-      <Card className="px-0 pt-0 pb-2 relative mt-6">
+      <Card className="px-0 pt-0 pb-2 relative mt-5">
         <div className="bg-gray-50 border-b p-2 mt-6 relative">
             <Badge
               variant="secondary"
