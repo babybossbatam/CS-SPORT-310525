@@ -55,7 +55,7 @@ const Header = () => {
             }}
           />
           <span className="flex items-center gap-2 whitespace-nowrap">
-            <span className="text-amber-400 font-bold text-[clamp(1.313rem,2vw,1.563rem)] transition-all duration-200 hover:text-white hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
+            <span className="text-yellow-500 font-bold text-[clamp(1.313rem,2vw,1.563rem)] transition-all duration-200 hover:text-white hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
           </span>
         </Link>
 
