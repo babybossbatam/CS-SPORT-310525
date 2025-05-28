@@ -73,10 +73,22 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const { data: fixtures = [], isLoading, isFetching } = useCachedQuery(
     fixturesQueryKey,
     async () => {
-      console.log(`Fetching fixtures for date: ${selectedDate}`);
+      console.log(`TodayPopularFootballLeaguesNew - Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
-      console.log(`Received ${data.length} fixtures for ${selectedDate}`);
+      console.log(`TodayPopularFootballLeaguesNew - Received ${data.length} fixtures for ${selectedDate}`);
+      
+      // Debug: Check first few fixtures' dates
+      if (data.length > 0) {
+        data.slice(0, 3).forEach((fixture, index) => {
+          if (fixture?.fixture?.date) {
+            const fixtureDate = parseISO(fixture.fixture.date);
+            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+            console.log(`Fixture ${index + 1} date: ${fixtureDateString} (expected: ${selectedDate})`);
+          }
+        });
+      }
+      
       return data;
     },
     {
@@ -116,8 +128,17 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                 const fixtureDate = parseISO(match.fixture.date);
                 if (!isValid(fixtureDate)) return false;
 
-                const fixtureLocalDateString = format(fixtureDate, 'yyyy-MM-dd');
-                return fixtureLocalDateString === selectedDate;
+                // Use UTC date to avoid timezone issues
+                const fixtureUTCDateString = format(fixtureDate, 'yyyy-MM-dd');
+                
+                // Ensure we're comparing the exact date strings
+                const isMatch = fixtureUTCDateString === selectedDate;
+                
+                if (isMatch) {
+                  console.log(`Match found for ${selectedDate}: ${match.teams?.home?.name || 'Unknown'} vs ${match.teams?.away?.name || 'Unknown'} on ${fixtureUTCDateString}`);
+                }
+                
+                return isMatch;
               } catch (error) {
                 return false;
               }
@@ -335,11 +356,33 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
   };
 
-  // Combine and deduplicate fixtures
+  // Combine and deduplicate fixtures with better logging
   const allFixtures = [...fixtures, ...popularFixtures]
-    .filter((fixture, index, self) => 
-      index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-    );
+    .filter((fixture, index, self) => {
+      const isUnique = index === self.findIndex(f => f.fixture.id === fixture.fixture.id);
+      
+      // Only keep fixtures that match the exact selected date
+      if (isUnique && fixture?.fixture?.date) {
+        try {
+          const fixtureDate = parseISO(fixture.fixture.date);
+          if (isValid(fixtureDate)) {
+            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+            const matchesSelectedDate = fixtureDateString === selectedDate;
+            
+            if (!matchesSelectedDate) {
+              console.log(`Filtering out fixture from wrong date: ${fixtureDateString} (expected: ${selectedDate})`);
+            }
+            
+            return matchesSelectedDate;
+          }
+        } catch (error) {
+          console.error('Error parsing fixture date:', error);
+          return false;
+        }
+      }
+      
+      return isUnique;
+    });
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
