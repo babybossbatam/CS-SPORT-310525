@@ -32,6 +32,9 @@ export const exclusionTerms = [
 
   // Specific lower-tier leagues to exclude
   'eintracht braunschweig', 'fc saarbrücken', 'kosice', 'boys',
+  
+  // US lower-tier and semi-professional leagues
+  'npsl', 'national premier soccer league', 'usl w league', 'wpsl',
 
   // South American lower divisions (exclude unless major competition)
   'brazilian serie b', 'brazilian serie c', 'chilean primera b', 'copa chile', 
