@@ -670,104 +670,81 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
       </CardHeader>
       <CardContent className="p-0">
-        <div className="space-y-0">
-          {sortedCountries.map((countryData: any) => {
-            const totalMatches = Object.values(countryData.leagues).reduce(
-              (sum: number, league: any) => sum + league.matches.length, 0
-            );
+        <div className="space-y-4">
+          {/* Create individual league cards from all countries */}
+          {sortedCountries.flatMap((countryData: any) => 
+            Object.values(countryData.leagues)
+              .sort((a: any, b: any) => {
+                // Prioritize leagues that are popular for this specific country
+                if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+                if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
 
-            // Count live and recent matches for badge
-            const liveMatches = Object.values(countryData.leagues).reduce((count: number, league: any) => {
-              return count + league.matches.filter((match: any) => 
-                ['LIVE', '1H', 'HT', '2H', 'ET'].includes(match.fixture.status.short)
-              ).length;
-            }, 0);
+                // Then globally popular leagues
+                if (a.isPopular && !b.isPopular) return -1;
+                if (!a.isPopular && b.isPopular) return 1;
 
-            const recentMatches = Object.values(countryData.leagues).reduce((count: number, league: any) => {
-              return count + league.matches.filter((match: any) => {
-                const status = match.fixture.status.short;
-                const fixtureDate = parseISO(match.fixture.date);
-                if (!isValid(fixtureDate)) return false;
-                const localFixtureDate = new Date(fixtureDate.getTime());
-                const hoursAgo = differenceInHours(new Date(), localFixtureDate);
-                return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAgo <= 3;
-              }).length;
-            }, 0);
-
-            return (
-              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                <div className="bg-gray-50 space-y-4">
-                  {/* Sort leagues - country-specific popular first, then globally popular, then alphabetical */}
-                  {Object.values(countryData.leagues)
-                    .sort((a: any, b: any) => {
-                      // Prioritize leagues that are popular for this specific country
-                      if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
-                      if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-
-                      // Then globally popular leagues
-                      if (a.isPopular && !b.isPopular) return -1;
-                      if (!a.isPopular && b.isPopular) return 1;
-
-                      // Finally alphabetical
-                      return a.league.name.localeCompare(b.league.name);
-                    })
-                    .map((leagueData: any) => (
-                      <div key={leagueData.league.id} className="mb-4 last:mb-0 bg-white rounded-lg border border-gray-200 overflow-hidden">
-                        {/* League Header - Hide when time filter is active */}
-                        {!timeFilterActive && (<>
-                            {leagueData.isFriendlies ? (
-                              <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
-                                <img
-                                  src={leagueData.league.logo || '/assets/fallback-logo.svg'}
-                                  alt={leagueData.league.name || 'Unknown League'}
-                                  className="w-5 h-5 object-contain"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';                              }}
-                                />
-                                <span className="font-medium text-sm text-blue-800">
-                                  {leagueData.league.name || 'Unknown League'}
-                                </span>
-                                <span className="text-xs text-blue-600">
-                                  {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                                <img
-                                  src={leagueData.league.logo || '/assets/fallback-logo.svg'}
-                                  alt={leagueData.league.name || 'Unknown League'}
-                                  className="w-6 h-6 object-contain mt-0.5"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                                  }}
-                                />
-                                <div className="flex flex-col">
-                                  <span className="font-semibold text-base text-gray-800">
-                                    {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
-                                  </span>
-                                  <span className="text-xs text-gray-600">
-                                    {leagueData.league.country || 'Unknown Country'}
-                                  </span>
-                                </div>
-                                <div className="flex gap-1 ml-auto">
-                                  {leagueData.isPopularForCountry && (
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                                      Popular Country
-                                    </span>
-                                  )}
-                                  {leagueData.isPopular && !leagueData.isPopularForCountry && (
-                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                                      Popular
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                // Finally alphabetical
+                return a.league.name.localeCompare(b.league.name);
+              })
+              .map((leagueData: any) => (
+                <div key={`${countryData.country}-${leagueData.league.id}`} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  {/* League Header - Always show unless time filter is active */}
+                  {!timeFilterActive && (
+                    <>
+                      {leagueData.isFriendlies ? (
+                        <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                          <img
+                            src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                            alt={leagueData.league.name || 'Unknown League'}
+                            className="w-5 h-5 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                            }}
+                          />
+                          <span className="font-medium text-sm text-blue-800">
+                            {leagueData.league.name || 'Unknown League'}
+                          </span>
+                          <span className="text-xs text-blue-600">
+                            {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                          <img
+                            src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                            alt={leagueData.league.name || 'Unknown League'}
+                            className="w-6 h-6 object-contain mt-0.5"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                            }}
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-base text-gray-800">
+                              {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
+                            </span>
+                            <span className="text-xs text-gray-600">
+                              {leagueData.league.country || 'Unknown Country'}
+                            </span>
+                          </div>
+                          <div className="flex gap-1 ml-auto">
+                            {leagueData.isPopularForCountry && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                                Popular Country
+                              </span>
                             )}
-                          </>
-                        )}
-                        {/* Matches - Show for all leagues */}
-                        {(
-                          <div className="space-y-0">
+                            {leagueData.isPopular && !leagueData.isPopularForCountry && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                Popular
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  
+                  {/* Matches - Show for all leagues */}
+                  <div className="space-y-0">
                           {leagueData.matches
                             .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                             .sort((a: any, b: any) => {
@@ -1038,14 +1015,10 @@ status === 'CANC' ? 'Cancelled' :
                               </div>
                             </div>
                           ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              ))
+          )}
         </div>
       </CardContent>
     </Card>
