@@ -62,6 +62,13 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     }
   });
 
+  // Deactivate live filter when selected date changes
+  useEffect(() => {
+    if (liveFilterActive) {
+      setLiveFilterActive(false);
+    }
+  }, [selectedDate]);
+
   // Date navigation handlers
   const goToPreviousDay = () => {
     const newDate = format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
