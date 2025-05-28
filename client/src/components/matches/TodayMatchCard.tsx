@@ -25,7 +25,6 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
@@ -106,66 +105,10 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           </button>
           <div className="relative h-full flex items-center">
             <Select>
-              <SelectTrigger 
-                className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent"
-                onClick={() => setCalendarOpen(!calendarOpen)}
-              >
+              <SelectTrigger className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent">
                 <span className="font-medium">{selectedFilter}</span>
                 <ChevronDown className="h-4 w-4" />
               </SelectTrigger>
-              {calendarOpen && (
-                <SelectContent align="start" className="w-[350px] p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <span className="font-medium">May 2025</span>
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-7 gap-1 text-sm">
-                    {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-                      <div key={day} className="p-2 text-center text-gray-500 font-medium">
-                        {day}
-                      </div>
-                    ))}
-                    
-                    {/* Calendar days */}
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                      <button
-                        key={day}
-                        className={`p-2 text-center hover:bg-gray-100 rounded transition-colors ${
-                          day === 28 ? 'bg-blue-500 text-white hover:bg-blue-600' : ''
-                        }`}
-                        onClick={() => {
-                          const selectedDateString = `2025-05-${day.toString().padStart(2, '0')}`;
-                          dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
-                          setSelectedFilter(day === 28 ? "Today's Matches" : `May ${day}, 2025`);
-                          setCalendarOpen(false);
-                        }}
-                      >
-                        {day}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t">
-                    <button 
-                      className="w-full text-center text-blue-500 hover:text-blue-600 font-medium"
-                      onClick={() => {
-                        const today = getCurrentUTCDateString();
-                        dispatch({ type: 'ui/setSelectedDate', payload: today });
-                        setSelectedFilter("Today's Matches");
-                        setCalendarOpen(false);
-                      }}
-                    >
-                      Today
-                    </button>
-                  </div>
-                </SelectContent>
-              )}
             </Select>
           </div>
           <button className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4">
