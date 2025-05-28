@@ -743,7 +743,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }))
   );
 
-  // Sort leagues with priority for popular leagues, popular country badges, then alphabetical A-Z
+  // Sort leagues with priority: Popular Country leagues (A-Z), then Regular leagues (A-Z)
   const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
     const aLeagueName = a.league?.name || '';
     const bLeagueName = b.league?.name || '';
@@ -805,13 +805,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
     }
 
-    // For non-top priority leagues, prioritize popular country badges first
+    // For non-top priority leagues: Popular Country leagues first, then Regular leagues
     if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
     if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-
-    // Then prioritize globally popular leagues
-    if (a.isPopular && !b.isPopular) return -1;
-    if (!a.isPopular && b.isPopular) return 1;
 
     // Clean league names for better alphabetical sorting
     const cleanLeagueName = (name: string) => {
@@ -824,15 +820,20 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const aCleanName = cleanLeagueName(aLeagueName);
     const bCleanName = cleanLeagueName(bLeagueName);
 
-    // Final sort: Alphabetical A-Z by cleaned league name
-    const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
-    
-    if (alphabeticalSort !== 0) {
-      return alphabeticalSort;
+    // If both are popular country leagues OR both are regular leagues, sort alphabetically
+    if (a.isPopularForCountry === b.isPopularForCountry) {
+      const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
+      
+      if (alphabeticalSort !== 0) {
+        return alphabeticalSort;
+      }
+
+      // Fallback: If cleaned names are the same, use full original names
+      return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
     }
 
-    // Fallback: If cleaned names are the same, use full original names
-    return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
+    // This should not be reached due to the earlier checks, but added for completeness
+    return 0;
   });
 
   // Group sorted leagues back by country while maintaining league order
