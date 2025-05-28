@@ -451,26 +451,26 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       const countryName = fixture.league.country?.toLowerCase() || '';
       const leagueId = fixture.league.id;
-      const leagueName = fixture.league.name?.toLowerCase() || '';
+      const leagueNameLower = fixture.league.name?.toLowerCase() || '';
 
       // Check for international competitions first (more permissive)
       // Prioritize men's international friendlies (exclude women's friendlies)
-      const isWorldFriendlies = leagueName.includes('friendlies') && 
+      const isWorldFriendlies = leagueNameLower.includes('friendlies') && 
                                countryName.includes('world') && 
-                               !leagueName.includes('women');
+                               !leagueNameLower.includes('women');
       const isCONMEBOLCompetition = 
-        leagueName.includes('copa america') ||
-        leagueName.includes('copa libertadores') ||
-        leagueName.includes('copa sudamericana') ||
-        leagueName.includes('conmebol') ||
+        leagueNameLower.includes('copa america') ||
+        leagueNameLower.includes('copa libertadores') ||
+        leagueNameLower.includes('copa sudamericana') ||
+        leagueNameLower.includes('conmebol') ||
         countryName.includes('conmebol');
       
       const isInternationalCompetition = 
-        leagueName.includes('champions league') ||
-        leagueName.includes('europa league') ||
-        leagueName.includes('conference league') ||
-        leagueName.includes('world cup') ||
-        leagueName.includes('euro') ||
+        leagueNameLower.includes('champions league') ||
+        leagueNameLower.includes('europa league') ||
+        leagueNameLower.includes('conference league') ||
+        leagueNameLower.includes('world cup') ||
+        leagueNameLower.includes('euro') ||
         isWorldFriendlies ||
         isCONMEBOLCompetition ||
         TIER_2_INTERNATIONAL.some(region => countryName.includes(region.toLowerCase()));
