@@ -32,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
 import MatchesByCountry from '@/components/matches/MatchesByCountry';
 import { useLocation } from "wouter";
@@ -233,9 +234,198 @@ const Home = () => {
       <>
         <Header />
         <SportsCategoryTabs />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-gray-500">Loading matches...</p>
-        </div>
+        <TournamentHeader 
+          title="UEFA Champions League - Semi Finals" 
+          icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
+        />
+
+        <Card className="my-4 bg-[#FDFBF7]" style={{ marginLeft: '150px', marginRight: '150px' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* Left column skeleton */}
+            <div className="lg:col-span-5 space-y-4">
+              <Card className="bg-[#F4F4F6]">
+                <CardContent className="p-4">
+                  <div className="space-y-4">
+                    {/* Date navigator skeleton */}
+                    <div className="flex items-center justify-between mb-4">
+                      <Skeleton className="h-8 w-8" />
+                      <Skeleton className="h-8 w-48" />
+                      <Skeleton className="h-8 w-8" />
+                    </div>
+                    
+                    {/* Match cards skeleton */}
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="border-b border-gray-100 last:border-b-0 pb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-4 w-4 rounded" />
+                            <Skeleton className="h-4 w-32" />
+                          </div>
+                          <Skeleton className="h-4 w-16" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 w-5/12">
+                            <div className="text-right w-full">
+                              <Skeleton className="h-4 w-20 ml-auto mb-1" />
+                            </div>
+                            <Skeleton className="h-8 w-8 rounded" />
+                          </div>
+                          <div className="flex items-center justify-center w-2/12">
+                            <Skeleton className="h-6 w-12" />
+                          </div>
+                          <div className="flex items-center gap-3 w-5/12">
+                            <Skeleton className="h-8 w-8 rounded" />
+                            <div className="w-full">
+                              <Skeleton className="h-4 w-20 mb-1" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Matches by country skeleton */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-4 w-52" />
+                  </div>
+                  <Skeleton className="h-3 w-44" />
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="space-y-0">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="border-b border-gray-100 last:border-b-0">
+                        <div className="p-4 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="w-6 h-4 rounded-sm" />
+                            <Skeleton className="h-4 w-28" />
+                            <Skeleton className="h-4 w-8" />
+                            <Skeleton className="h-5 w-12 rounded-full" />
+                          </div>
+                          <Skeleton className="h-4 w-4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right column skeleton */}
+            <div className="lg:col-span-7 space-y-4">
+              {/* Featured match skeleton */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center mb-4">
+                    <Skeleton className="h-6 w-48 mx-auto mb-2" />
+                    <Skeleton className="h-4 w-32 mx-auto" />
+                  </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col items-center">
+                      <Skeleton className="h-16 w-16 rounded mb-2" />
+                      <Skeleton className="h-5 w-24" />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <Skeleton className="h-8 w-16 mb-2" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <Skeleton className="h-16 w-16 rounded mb-2" />
+                      <Skeleton className="h-5 w-24" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top scorers skeleton */}
+              <Card>
+                <CardContent className="p-4">
+                  <Skeleton className="h-6 w-32 mb-4" />
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-8 w-8 rounded" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-4 w-8" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* News skeleton */}
+              <Card>
+                <CardContent className="p-4">
+                  <Skeleton className="h-6 w-40 mb-4" />
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="border-b border-gray-100 last:border-b-0 pb-4 mb-4">
+                      <div className="flex gap-3">
+                        <Skeleton className="w-20 h-16 rounded-lg flex-shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-3/4" />
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-3 w-16" />
+                            <Skeleton className="h-3 w-12" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* League standings skeleton */}
+              <Card>
+                <CardContent className="p-4">
+                  <Skeleton className="h-6 w-40 mb-4" />
+                  <div className="space-y-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="h-6 w-6" />
+                          <Skeleton className="h-6 w-6 rounded" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                        <Skeleton className="h-4 w-8" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Popular leagues and teams skeleton */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <Skeleton className="h-5 w-32 mb-3" />
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-2 py-1">
+                        <Skeleton className="h-6 w-6 rounded" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <Skeleton className="h-5 w-28 mb-3" />
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-2 py-1">
+                        <Skeleton className="h-6 w-6 rounded" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </Card>
       </>
     );
   }
