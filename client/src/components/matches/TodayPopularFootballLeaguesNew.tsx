@@ -1000,6 +1000,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-4 p-4">
+          <div className="bg-gray-50 p-3 rounded-md border">
+            {/* Additional content div inside the main card */}
+          </div>
           {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
