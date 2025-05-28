@@ -15,12 +15,14 @@ interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
   timeFilterActive?: boolean;
   showTop20?: boolean;
+  useSportsRadar?: boolean;
 }
 
 const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewProps> = ({ 
   selectedDate, 
   timeFilterActive = false, 
-  showTop20 = false 
+  showTop20 = false,
+  useSportsRadar = false
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
@@ -82,33 +84,22 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const cachedPopularFixtures = CacheManager.getCachedData(popularQueryKey, 30 * 60 * 1000);
 
   // Fetch all fixtures for the selected date with smart caching
-  const { data: fixtures = [], isLoading, isFetching } = useCachedQuery(
-    fixturesQueryKey,
-    async () => {
-      console.log(`TodayPopularFootballLeaguesNew - Fetching fixtures for date: ${selectedDate}`);
-      const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
+  const { data: fixtures, error, isLoading } = useQuery({
+    queryKey: ['fixtures', selectedDate, useSportsRadar ? 'sportsradar' : 'rapidapi'],
+    queryFn: async () => {
+      console.log(`Fetching fixtures for date: ${selectedDate} using ${useSportsRadar ? 'SportsRadar' : 'RapidAPI'}`);
+      const endpoint = useSportsRadar 
+        ? `/api/sportsradar/fixtures/date/${selectedDate}`
+        : `/api/fixtures/date/${selectedDate}`;
+      const response = await apiRequest('GET', endpoint);
       const data = await response.json();
-      console.log(`TodayPopularFootballLeaguesNew - Received ${data.length} fixtures for ${selectedDate}`);
-
-      // Debug: Check first few fixtures' dates
-      if (data.length > 0) {
-        data.slice(0, 3).forEach((fixture, index) => {
-          if (fixture?.fixture?.date) {
-            const fixtureDate = parseISO(fixture.fixture.date);
-            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
-            console.log(`Fixture ${index + 1} date: ${fixtureDateString} (expected: ${selectedDate})`);
-          }
-        });
-      }
-
+      console.log(`Total matches fetched from ${useSportsRadar ? 'SportsRadar' : 'RapidAPI'}: ${data?.length || 0}`);
       return data;
     },
-    {
-      enabled: !!selectedDate && enableFetching,
-      maxAge: 30 * 60 * 1000, // 30 minutes
-      backgroundRefresh: true,
-    }
-  );
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false
+  });
 
   // Fetch popular league fixtures with smart caching and optimized loading
   const { data: popularFixtures = [], isLoading: isLoadingPopular, isFetching: isFetchingPopular } = useCachedQuery(
@@ -455,7 +446,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         leagueName.includes('copa sudamericana') ||
         leagueName.includes('conmebol') ||
         countryName.includes('conmebol');
-      
+
       const isInternationalCompetition = 
         leagueName.includes('champions league') ||
         leagueName.includes('europa league') ||
@@ -484,7 +475,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Enhanced filtering based on geographic tiers
       const countryKey = matchingCountry;
-      
+
       // Tier 1 countries (England, Spain, Italy, Germany, France) - show all major leagues
       if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
@@ -493,7 +484,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           return false;
         }
       }
-      
+
       // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA) - be more permissive for Brazil
       else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         // For Brazil, allow both Serie A and Serie B
@@ -508,7 +499,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           if (countryKey.toLowerCase() === 'usa') {
             // Only allow specific MLS leagues: MLS (253) and MLS Next Pro (254)
             const allowedUSALeagues = [253, 254]; // MLS and MLS Next Pro only
-            
+
             if (!allowedUSALeagues.includes(leagueId)) {
               console.log(`Filtering out non-MLS league from USA: ${fixture.league.name} (ID: ${leagueId})`);
               return false;
@@ -721,7 +712,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
     const aCountry = a.country || '';
     const bCountry = b.country || '';
-    
+
     // Determine geographic tier for each country
     const getTier = (country: string) => {
       if (TIER_1_COUNTRIES.includes(country)) return 1;
