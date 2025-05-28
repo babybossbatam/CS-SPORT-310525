@@ -51,7 +51,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Brazil': [71, 72], // Serie A Brazil, Serie B Brazil
     'Saudi Arabia': [307], // Saudi Pro League (only major league)
     'Egypt': [233], // Egyptian Premier League (only major league)
-    'USA': [253, 254, 255, 256], // Major League Soccer (MLS), MLS Next Pro, and related MLS competitions
+    'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
     'World': [1, 10, 9, 11, 13], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana
     'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
@@ -504,15 +504,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             return false;
           }
         } else {
-          // For USA, be more permissive with MLS-related leagues
+          // For USA, only allow MLS and MLS Next Pro
           if (countryKey.toLowerCase() === 'usa') {
-            // Allow all MLS-related leagues (league names containing 'mls' or being in our approved list)
-            const isMLSRelated = 
-              leagueName.includes('mls') || 
-              leagueName.includes('major league soccer') ||
-              [253, 254, 255, 256].includes(leagueId);
+            // Only allow specific MLS leagues: MLS (253) and MLS Next Pro (254)
+            const allowedUSALeagues = [253, 254]; // MLS and MLS Next Pro only
             
-            if (!isMLSRelated) {
+            if (!allowedUSALeagues.includes(leagueId)) {
               console.log(`Filtering out non-MLS league from USA: ${fixture.league.name} (ID: ${leagueId})`);
               return false;
             }
