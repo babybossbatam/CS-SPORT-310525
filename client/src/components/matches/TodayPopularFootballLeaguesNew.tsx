@@ -994,18 +994,21 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header Section */}
-      <div className="flex items-center gap-2 mb-4">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
-          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
-        </svg>
-        <h3 className="text-lg font-semibold text-gray-800">
-          Popular Football Leagues
-        </h3>
-      </div>
-
-      {/* Create individual league cards from all countries */}
+    <Card className="mb-6">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+          </svg>
+          <h2 className="text-xl font-bold text-gray-800">Popular Football Leagues</h2>
+        </div>
+        <p className="text-sm text-gray-600 mt-1">
+          {getDateDisplayTitle()} - Top leagues and competitions worldwide
+        </p>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="space-y-4 p-4">
+          {/* Create individual league cards from all countries */}</div_str>
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
@@ -1358,8 +1361,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
               </CardContent>
             </Card>
           ))
-      )}
-    </div>
+        )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
