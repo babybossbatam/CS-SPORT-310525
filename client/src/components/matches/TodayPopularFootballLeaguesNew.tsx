@@ -34,12 +34,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'International', // FIFA Club World Cup first
     'World', // Men's international friendlies and other World competitions
     'Europe', // UEFA Europa Conference League and other European competitions
+    'South America', // CONMEBOL competitions
     'Egypt', // Egypt Premier League
     'USA', // USA MLS league
     ...TIER_1_COUNTRIES.filter(c => c !== 'England' && c !== 'Spain' && c !== 'Italy' && c !== 'Germany' && c !== 'France'), // Remove duplicates if any
     'England', 'Spain', 'Italy', 'Germany', 'France', // Other European countries
     ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt'), // Other popular countries except Egypt (already listed)
-    'CONMEBOL'
   ];
 
   // Enhanced leagues by country with tier-based filtering
@@ -54,8 +54,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Egypt': [233], // Egyptian Premier League (only major league)
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'World': [1, 10, 9, 11, 13], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana
-    'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
+    'World': [1, 10], // World Cup, Friendlies
+    'South America': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
     'International': [15], // FIFA Club World Cup as separate category
   };
 
@@ -218,7 +218,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return 'https://flagsapi.com/EU/flat/24.png';
     }
 
-    if (cleanCountry === 'CONMEBOL') {
+    if (cleanCountry === 'South America') {
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzAwN2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZmZmZmZmIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
     }
 
@@ -485,7 +485,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         leagueNameLower.includes('copa libertadores') ||
         leagueNameLower.includes('copa sudamericana') ||
         leagueNameLower.includes('conmebol') ||
-        countryName.includes('conmebol');
+        countryName.includes('south america');
 
       const isInternationalCompetition = 
         leagueNameLower.includes('champions league') ||
@@ -614,7 +614,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             league.name.toLowerCase().includes('copa america') ||
             league.name.toLowerCase().includes('copa libertadores') ||
             league.name.toLowerCase().includes('copa sudamericana')) {
-          countryKey = 'CONMEBOL';
+          countryKey = 'South America';
         } else if (league.name.toLowerCase().includes('uefa') ||
                    league.name.toLowerCase().includes('europe') ||
                    league.name.toLowerCase().includes('champions') ||
