@@ -27,7 +27,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World'
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World', 'CONMEBOL'
   ];
 
   // Popular leagues by country for better filtering
@@ -41,7 +41,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Saudi Arabia': [307], // Saudi Pro League
     'Egypt': [233], // Egyptian Premier League
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'World': [2, 3, 848], // International competitions
+    'World': [1, 10], // World Cup, Friendlies (including international friendlies)
+    'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
   };
 
   // Flatten popular leagues for backward compatibility
@@ -201,6 +202,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     if (cleanCountry === 'Europe') {
       return 'https://flagsapi.com/EU/flat/24.png';
+    }
+
+    if (cleanCountry === 'CONMEBOL') {
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzAwN2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZmZmZmZmIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
     }
 
     // Comprehensive country code mapping
@@ -474,19 +479,38 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Note: Friendlies are now filtered out above, so this section is no longer needed
 
-      // Allow World and Europe competitions to pass through
+      // Allow World competitions, CONMEBOL, and Friendlies to pass through
       if (league.name && (
           league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
           league.name.toLowerCase().includes('fifa') ||
           league.name.toLowerCase().includes('champions') ||
-          league.name.toLowerCase().includes('conference'))) {
-        const countryKey = 'World';
+          league.name.toLowerCase().includes('conference') ||
+          league.name.toLowerCase().includes('friendlies') ||
+          league.name.toLowerCase().includes('conmebol') ||
+          league.name.toLowerCase().includes('copa america') ||
+          league.name.toLowerCase().includes('copa libertadores') ||
+          league.name.toLowerCase().includes('copa sudamericana'))) {
+        
+        // Determine the appropriate country key
+        let countryKey = 'World';
+        if (league.name.toLowerCase().includes('conmebol') ||
+            league.name.toLowerCase().includes('copa america') ||
+            league.name.toLowerCase().includes('copa libertadores') ||
+            league.name.toLowerCase().includes('copa sudamericana')) {
+          countryKey = 'CONMEBOL';
+        } else if (league.name.toLowerCase().includes('uefa') ||
+                   league.name.toLowerCase().includes('europe') ||
+                   league.name.toLowerCase().includes('champions') ||
+                   league.name.toLowerCase().includes('conference')) {
+          countryKey = 'Europe';
+        }
+        
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
-            flag: getCountryFlag(countryKey), // Use the new flag logic for World
+            flag: getCountryFlag(countryKey),
             leagues: {},
             hasPopularLeague: true
           };
@@ -495,10 +519,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
         if (!acc[countryKey].leagues[leagueId]) {
           acc[countryKey].leagues[leagueId] = {
-            league: { ...league, country: 'World' },
+            league: { ...league, country: countryKey },
             matches: [],
             isPopular: POPULAR_LEAGUES.includes(leagueId),
-            isFriendlies: false
+            isFriendlies: league.name.toLowerCase().includes('friendlies')
           };
         }
         acc[countryKey].leagues[leagueId].matches.push(fixture);
