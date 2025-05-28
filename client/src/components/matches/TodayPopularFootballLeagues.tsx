@@ -36,7 +36,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     'Italy': [135, 137], // Serie A, Coppa Italia
     'Germany': [78, 81], // Bundesliga, DFB Pokal
     'France': [61, 66], // Ligue 1, Coupe de France
-    'Brazil': [71], // Serie A Brazil
+    'Brazil': [71, 72, 73, 74], // Serie A Brazil, Serie B Brazil, Serie C Brazil, Serie D Brazil
     'Saudi Arabia': [307], // Saudi Pro League
     'Egypt': [233], // Egyptian Premier League
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League

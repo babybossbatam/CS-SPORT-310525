@@ -48,7 +48,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Italy': [135, 137], // Serie A, Coppa Italia
     'Germany': [78, 81], // Bundesliga, DFB Pokal
     'France': [61, 66], // Ligue 1, Coupe de France
-    'Brazil': [71, 72], // Serie A Brazil, Serie B Brazil
+    'Brazil': [71, 72, 73, 74], // Serie A Brazil, Serie B Brazil, Serie C Brazil, Serie D Brazil
     'Saudi Arabia': [307], // Saudi Pro League (only major league)
     'Egypt': [233], // Egyptian Premier League (only major league)
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
@@ -521,9 +521,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA) - be more permissive for Brazil
       else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
-        // For Brazil, allow both Serie A and Serie B
+        // For Brazil, allow Serie A, Serie B, Serie C, and Serie D
         if (countryKey.toLowerCase() === 'brazil') {
-          const brazilLeagues = [71, 72]; // Serie A and Serie B
+          const brazilLeagues = [71, 72, 73, 74]; // Serie A, Serie B, Serie C, Serie D
           if (!brazilLeagues.includes(leagueId)) {
             console.log(`Filtering out non-major league from Brazil: ${fixture.league.name} (ID: ${leagueId})`);
             return false;
