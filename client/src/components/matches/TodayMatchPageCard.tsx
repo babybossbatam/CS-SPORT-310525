@@ -140,7 +140,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
             </button>
 
             {isCalendarOpen && (
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white rounded-lg shadow-lg p-4 w-[380px]">
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white rounded-lg shadow-lg p-4 w-[450px]">
                 <Calendar
                   mode="single"
                   selected={selectedDate ? parseISO(selectedDate) : new Date()}
