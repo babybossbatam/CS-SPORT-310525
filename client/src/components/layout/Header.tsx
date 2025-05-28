@@ -43,13 +43,29 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between mr-[10%]">
         <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[150px] bg-black">
           <img 
-            src="/CSSPORT_1_updated.png" 
+            src="/cs-sport-logo.png" 
             alt="CS SPORT Logo" 
             className="h-full max-h-[57px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.includes('cs-sport-logo.png')) {
+                target.src = '/logo.png';
+              } else if (target.src.includes('logo.png')) {
+                target.src = '/CSSPORT_1_updated.png';
+              } else {
+                // Last fallback - create a text-based logo
+                target.style.display = 'none';
+                const textLogo = target.parentElement?.querySelector('.text-logo') as HTMLElement;
+                if (textLogo) {
+                  textLogo.style.display = 'block';
+                }
+              }
+            }}
           />
-          <span className="flex items-center gap-2 whitespace-nowrap">
-            <span className="text-amber-400 font-bold text-[clamp(1.313rem,2vw,1.563rem)] transition-all duration-200 hover:text-white hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">CSSPORT</span>
-          </span>
+          <div className="text-logo hidden">
+            <span className="text-amber-400 font-bold text-2xl">CS</span>
+            <span className="text-white font-bold text-2xl">SPORT</span>
+          </div>
         </Link>
 
         <LeagueTabs />
