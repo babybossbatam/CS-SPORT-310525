@@ -778,7 +778,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           {getHeaderTitle()}
         </h3>
         <div className="text-xs text-blue-600 mt-1">
-          Current filtering date: {getCurrentUTCDateString(selectedDate)} (showing date only, not timestamp)
+          Current filtering date: {selectedDate} (YYYY-MM-DD format)
         </div>
       </div>
 
