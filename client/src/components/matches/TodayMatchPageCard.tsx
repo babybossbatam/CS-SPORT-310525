@@ -197,7 +197,6 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
           />
-          <TodaysMatchesByCountry selectedDate={selectedDate} />
         </>
       )}
     </>
