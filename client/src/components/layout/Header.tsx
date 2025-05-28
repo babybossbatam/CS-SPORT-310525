@@ -49,8 +49,8 @@ const Header = () => {
             onError={(e) => {
               console.log('Logo failed to load, trying fallback');
               const target = e.target as HTMLImageElement;
-              if (target.src !== '/logo.png') {
-                target.src = '/logo.png';
+              if (target.src !== '/cs-sport-logo.png') {
+                target.src = '/cs-sport-logo.png';
               }
             }}
           />
