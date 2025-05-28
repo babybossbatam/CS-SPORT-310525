@@ -62,12 +62,19 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     }
   });
 
-  // Deactivate live filter when selected date changes
+  // Track if the date change was caused by the live button
+  const [dateChangedByLive, setDateChangedByLive] = useState(false);
+
+  // Deactivate live filter when selected date changes (but not when changed by live button)
   useEffect(() => {
-    if (liveFilterActive) {
+    if (liveFilterActive && !dateChangedByLive) {
       setLiveFilterActive(false);
     }
-  }, [selectedDate]);
+    // Reset the flag after processing
+    if (dateChangedByLive) {
+      setDateChangedByLive(false);
+    }
+  }, [selectedDate, liveFilterActive, dateChangedByLive]);
 
   // Date navigation handlers
   const goToPreviousDay = () => {
@@ -165,6 +172,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
                 const tomorrow = format(addDays(parseISO(today), 1), 'yyyy-MM-dd');
                 
                 if (selectedDate === yesterday || selectedDate === tomorrow) {
+                  setDateChangedByLive(true); // Set flag before changing date
                   setSelectedDate(today);
                 }
               }
