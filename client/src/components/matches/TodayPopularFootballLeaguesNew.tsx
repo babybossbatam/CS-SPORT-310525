@@ -1079,7 +1079,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         </svg>
         <div className="text-sm font-semibold text-gray-800 p-4 pb-3 mt-4">Popular Football Leagues</div>
           {/* Create individual league cards from all countries */}
-      <div className="space-y-4 p-4">
         {sortedCountries.flatMap((countryData: any, countryIndex: number) =>
           Object.values(countryData.leagues)
             .sort((a: any, b: any) => {
@@ -1398,7 +1397,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
               );
             })
         )}
-      </div>
     </>
   );
 };
