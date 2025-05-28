@@ -157,7 +157,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex items-center justify-between px-4 pb-4 mt-[10px] text-[110.25%] h-9">
+        <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
           {/* Live button */}
           <button 
             onClick={() => {
