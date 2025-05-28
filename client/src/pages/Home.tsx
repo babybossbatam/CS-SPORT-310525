@@ -37,6 +37,10 @@ import MatchFixturesCard from '@/components/matches/MatchFixturesCard';
 import MatchesByCountry from '@/components/matches/MatchesByCountry';
 import { useLocation } from "wouter";
 
+// Import the new TodayMatchCard component
+import TodayMatchCard from '@/components/matches/TodayMatchCard';
+import TodayMatchPage from '@/components/pages/TodayMatchPage';
+
 // Cleanup any stale video references
 const cleanupFrames = () => {
   const iframes = document.querySelectorAll('iframe');
@@ -227,6 +231,11 @@ const Home = () => {
   const leaguesLoading = useSelector((state: RootState) => state.leagues.loading);
   const fixturesLoading = useSelector((state: RootState) => state.fixtures.loading);
   const isInitialLoad = useSelector((state: RootState) => state.leagues.list.length === 0);
+
+    const handleMatchClick = (matchId: number) => {
+        navigate(`/match/${matchId}`);
+    };
+
 
   // Only show loading if we're in initial load state and actually loading
   if (isInitialLoad && (leaguesLoading || fixturesLoading)) {
@@ -445,8 +454,16 @@ const Home = () => {
           <div className="lg:col-span-5 space-y-4">
             <MatchFixturesCard
               fixtures={fixtures}
-              onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+              onMatchClick={handleMatchClick}
             />
+
+            {/* New TodayMatchCard for testing */}
+            <div className="mt-6">
+              <TodayMatchCard 
+                fixtures={fixtures}
+                onMatchClick={handleMatchClick}
+              />
+            </div>
             <MatchesByCountry selectedDate={selectedDate} />
           </div>
 
