@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -307,14 +306,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
     // First sort by popular leagues
     if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
     if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
-    
+
     // Then alphabetically
     const countryA = a.country || '';
     const countryB = b.country || '';
     return countryA.localeCompare(countryB);
   });
 
-  
+
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
@@ -379,10 +378,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                
+
 
                 {/* Always show matches - no collapse */}
-                <div className="bg-gray-50 border-t border-gray-100">
+                <div className="space-y-4">
                   {/* Sort leagues - popular first */}
                   {Object.values(countryData.leagues)
                     .sort((a: any, b: any) => {
@@ -391,7 +390,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                       return a.league.name.localeCompare(b.league.name);
                     })
                     .map((leagueData: any) => (
-                      <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
+                      <Card key={leagueData.league.id} className="border border-gray-200">
                         {/* League Header */}
                         <div className="flex items-center gap-2 mb-0 py-2 px-4 bg-gray-50 border-b border-gray-200">
                           <img
@@ -445,7 +444,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                                 </div>
 
                                 {/* Score/Time Center - Live matches */}
-                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-9px' }}>
                                   <div className="text-xs font-semibold mb-1">
                                     {match.fixture.status.short === 'FT' ? (
                                       <span className="text-gray-600">Ended</span>
@@ -456,11 +455,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                                     )}
                                   </div>
                                   <div className="text-lg font-bold flex items-center gap-2">
-                                    <span className={match.fixture.status.short === 'FT' ? 'text-gray-700' : 'text-red-600'}>
+                                    <span className="text-black">
                                       {match.goals.home ?? 0}
                                     </span>
                                     <span className="text-gray-400">-</span>
-                                    <span className={match.fixture.status.short === 'FT' ? 'text-gray-700' : 'text-red-600'}>
+                                    <span className="text-black">
                                       {match.goals.away ?? 0}
                                     </span>
                                   </div>
@@ -488,7 +487,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </Card>
                     ))}
                 </div>
               </div>
