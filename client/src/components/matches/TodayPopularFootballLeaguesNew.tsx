@@ -741,27 +741,30 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }))
   );
 
-  // Sort leagues by popularity first, then by league name
+  // Sort leagues alphabetically by league name (A-Z)
   const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
-    // Priority 1: Popular leagues come first
-    if (a.isPopular && !b.isPopular) return -1;
-    if (!a.isPopular && b.isPopular) return 1;
-
-    // Priority 2: Popular for country leagues
-    if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
-    if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-
-    // Priority 3: Friendlies go to the end
-    const aIsFriendlies = a.isFriendlies || a.league?.name?.toLowerCase().includes('friendlies');
-    const bIsFriendlies = b.isFriendlies || b.league?.name?.toLowerCase().includes('friendlies');
-
-    if (aIsFriendlies && !bIsFriendlies) return 1;
-    if (!aIsFriendlies && bIsFriendlies) return -1;
-
-    // Priority 4: Sort alphabetically by league name
     const aLeagueName = a.league?.name || '';
     const bLeagueName = b.league?.name || '';
 
+    // Clean league names for better sorting
+    const cleanLeagueName = (name: string) => {
+      return name
+        .replace(/^(CONMEBOL|UEFA|FIFA)\s+/i, '') // Remove prefixes
+        .replace(/\s+(League|Cup|Championship|Liga|Serie|Bundesliga)$/i, '') // Remove common suffixes for comparison
+        .trim();
+    };
+
+    const aCleanName = cleanLeagueName(aLeagueName);
+    const bCleanName = cleanLeagueName(bLeagueName);
+
+    // Primary sort: Alphabetical A-Z by cleaned league name
+    const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
+    
+    if (alphabeticalSort !== 0) {
+      return alphabeticalSort;
+    }
+
+    // Fallback: If cleaned names are the same, use full original names
     return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
   });
 
