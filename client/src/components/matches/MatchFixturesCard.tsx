@@ -9,7 +9,7 @@ import MatchesByCountryAndSeason from './MatchesByCountryAndSeason';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, selectFixturesByDate, selectStandingsByLeague } from '@/lib/store';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addDays, subDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 
@@ -117,32 +117,20 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
                       const selectedDateString = formatYYYYMMDD(date);
                       const todayString = getCurrentUTCDateString();
 
-                      // Calculate yesterday and tomorrow using UTC timezone for consistency
-                      const today = new Date();
-                      const yesterday = new Date(today);
-                      yesterday.setUTCDate(today.getUTCDate() - 1);
-                      const tomorrow = new Date(today);
-                      tomorrow.setUTCDate(today.getUTCDate() + 1);
-
-                      const yesterdayString = formatYYYYMMDD(yesterday);
-                      const tomorrowString = formatYYYYMMDD(tomorrow);
+                      // Calculate yesterday and tomorrow using consistent date formatting
+                      const currentDate = new Date();
+                      const yesterdayString = formatYYYYMMDD(subDays(currentDate, 1));
+                      const tomorrowString = formatYYYYMMDD(addDays(currentDate, 1));
 
                       // Update Redux store with selected date
                       dispatch({ type: 'ui/setSelectedDate', payload: selectedDateString });
 
-                      console.log('Date selected (Local):', selectedDateString);
-                      console.log('Today (Local):', todayString);
-                      console.log('Yesterday (Local):', yesterdayString);
-                      console.log('Tomorrow (Local):', tomorrowString);
+                      console.log('Date selected:', selectedDateString);
+                      console.log('Today:', todayString);
+                      console.log('Yesterday:', yesterdayString);
+                      console.log('Tomorrow:', tomorrowString);
 
                       // Compare date strings for accurate filtering
-                      console.log('Date comparison:', {
-                        selected: selectedDateString,
-                        today: todayString,
-                        yesterday: yesterdayString,
-                        tomorrow: tomorrowString
-                      });
-
                       if (selectedDateString === todayString) {
                         setSelectedFilter("Today's Matches");
                       } else if (selectedDateString === yesterdayString) {

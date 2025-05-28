@@ -48,17 +48,20 @@ const DateNavigator = () => {
 
   // Get display text for date
   const getDateDisplayText = () => {
-    if (isToday) {
+    const currentDate = new Date();
+    const todayString = format(currentDate, 'yyyy-MM-dd');
+    const yesterdayString = format(subDays(currentDate, 1), 'yyyy-MM-dd');
+    const tomorrowString = format(addDays(currentDate, 1), 'yyyy-MM-dd');
+
+    if (selectedDate === todayString) {
       return "Today's Matches";
     }
 
-    const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
-    if (formattedDate === yesterday) {
+    if (selectedDate === yesterdayString) {
       return "Yesterday's Matches";
     }
 
-    const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-    if (formattedDate === tomorrow) {
+    if (selectedDate === tomorrowString) {
       return "Tomorrow's Matches";
     }
 
