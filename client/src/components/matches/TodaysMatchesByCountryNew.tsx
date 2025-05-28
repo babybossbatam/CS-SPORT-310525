@@ -50,6 +50,87 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
+  // Country code to full name mapping
+  const getCountryDisplayName = (country: string | null | undefined): string => {
+    if (!country || typeof country !== 'string' || country.trim() === '') {
+      return 'Unknown';
+    }
+
+    const countryNameMap: { [key: string]: string } = {
+      'au': 'Australia',
+      'us': 'United States',
+      'uk': 'United Kingdom',
+      'de': 'Germany',
+      'fr': 'France',
+      'it': 'Italy',
+      'es': 'Spain',
+      'pt': 'Portugal',
+      'nl': 'Netherlands',
+      'be': 'Belgium',
+      'ch': 'Switzerland',
+      'at': 'Austria',
+      'pl': 'Poland',
+      'tr': 'Turkey',
+      'ru': 'Russia',
+      'ua': 'Ukraine',
+      'se': 'Sweden',
+      'no': 'Norway',
+      'dk': 'Denmark',
+      'fi': 'Finland',
+      'gr': 'Greece',
+      'hr': 'Croatia',
+      'rs': 'Serbia',
+      'ro': 'Romania',
+      'bg': 'Bulgaria',
+      'hu': 'Hungary',
+      'si': 'Slovenia',
+      'sk': 'Slovakia',
+      'lt': 'Lithuania',
+      'lv': 'Latvia',
+      'ee': 'Estonia',
+      'ie': 'Ireland',
+      'is': 'Iceland',
+      'lu': 'Luxembourg',
+      'mt': 'Malta',
+      'cy': 'Cyprus',
+      'jp': 'Japan',
+      'cn': 'China',
+      'in': 'India',
+      'ca': 'Canada',
+      'mx': 'Mexico',
+      'br': 'Brazil',
+      'ar': 'Argentina',
+      'co': 'Colombia',
+      'pe': 'Peru',
+      'cl': 'Chile',
+      'uy': 'Uruguay',
+      'py': 'Paraguay',
+      'bo': 'Bolivia',
+      've': 'Venezuela',
+      'ec': 'Ecuador',
+      'ng': 'Nigeria',
+      'gh': 'Ghana',
+      'sn': 'Senegal',
+      'ma': 'Morocco',
+      'tn': 'Tunisia',
+      'dz': 'Algeria',
+      'eg': 'Egypt',
+      'cm': 'Cameroon',
+      'ke': 'Kenya',
+      'et': 'Ethiopia',
+      'za': 'South Africa',
+      'kr': 'South Korea',
+      'cz': 'Czech Republic',
+      'ae': 'United Arab Emirates',
+      'ba': 'Bosnia & Herzegovina',
+      'mk': 'North Macedonia',
+      'sa': 'Saudi Arabia'
+    };
+
+    const cleanCountry = country.trim().toLowerCase();
+    return countryNameMap[cleanCountry] || country;
+  };
+
   // Enhanced country flag mapping with SportsRadar fallback
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
     // Use league flag if available and valid
@@ -256,6 +337,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     }
 
     const country = league.country;
+    const displayCountry = getCountryDisplayName(country);
 
     // Skip fixtures without a valid country, but keep World and Europe competitions
     if (!country ||
@@ -277,17 +359,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
 
     const leagueId = league.id;
 
-    if (!acc[country]) {
-      acc[country] = {
-        country,
+    if (!acc[displayCountry]) {
+      acc[displayCountry] = {
+        country: displayCountry,
         flag: getCountryFlag(country, league.flag),
         leagues: {},
         hasPopularLeague: POPULAR_LEAGUES.includes(leagueId)
       };
     }
 
-    if (!acc[country].leagues[leagueId]) {
-      acc[country].leagues[leagueId] = {
+    if (!acc[displayCountry].leagues[leagueId]) {
+      acc[displayCountry].leagues[leagueId] = {
         league: {
           ...league,
           logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
@@ -298,7 +380,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     }
 
     // Add fixture with safe team data
-    acc[country].leagues[leagueId].matches.push({
+    acc[displayCountry].leagues[leagueId].matches.push({
       ...fixture,
       teams: {
         home: {
