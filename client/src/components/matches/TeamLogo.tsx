@@ -57,8 +57,8 @@ const TeamLogo: React.FC<TeamLogoProps> = ({
         return;
       }
       
-      // Fallback to generic logo
-      imgElement.src = '/assets/fallback-logo.png';
+      // Fallback to new CSSPORT logo
+      imgElement.src = '/CSSPORT_1_updated.png';
     }
   };
 

@@ -784,9 +784,9 @@ const FixedScoreboard = () => {
                               ) {
                                 target.src = currentMatch.teams.home.logo;
                               } else if (
-                                target.src !== "/assets/fallback-logo.svg"
+                                target.src !== "/CSSPORT_1_updated.png"
                               ) {
-                                target.src = "/assets/fallback-logo.svg";
+                                target.src = "/CSSPORT_1_updated.png";
                               }
                             }}
                           />
@@ -896,7 +896,7 @@ const FixedScoreboard = () => {
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
+                          e.currentTarget.src = "/CSSPORT_1_updated.png";
                         }}
                       />
                     </div>

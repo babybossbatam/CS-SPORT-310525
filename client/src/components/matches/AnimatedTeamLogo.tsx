@@ -100,7 +100,7 @@ const AnimatedTeamLogo: React.FC<AnimatedTeamLogoProps> = ({
           onError={(e) => {
             if (!imageFailed) {
               setImageFailed(true);
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=Team';
+              (e.target as HTMLImageElement).src = '/CSSPORT_1_updated.png';
             }
           }}
           style={{ cursor: onClick ? 'pointer' : 'default' }}

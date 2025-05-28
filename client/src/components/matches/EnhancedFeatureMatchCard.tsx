@@ -410,7 +410,7 @@ const EnhancedFeatureMatchCard = () => {
                           if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
                             target.src = currentMatch.teams.home.logo;
                           } else {
-                            target.src = `/assets/fallback-logo.png`;
+                            target.src = `/CSSPORT_1_updated.png`;
                           }
                         }}
                       />
