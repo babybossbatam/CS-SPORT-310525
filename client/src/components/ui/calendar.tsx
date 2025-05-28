@@ -65,14 +65,6 @@ function Calendar({
         }}
         {...props}
       />
-      <div className="flex justify-center pb-2 pt-0.5 bg-white">
-        <button
-          onClick={handleTodayClick}
-          className="text-blue-500 text-xs font-medium hover:text-blue-600 transition-colors bg-white cursor-pointer px-0.5 py-0.5"
-        >
-          Today
-        </button>
-      </div>
     </div>
   )
 }
