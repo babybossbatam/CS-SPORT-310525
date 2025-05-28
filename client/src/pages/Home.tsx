@@ -444,12 +444,10 @@ const Home = () => {
           {/* Left column (5 columns) */}
           <div className="lg:col-span-5 space-y-4">
             <Card className="bg-[#F4F4F6]">
-              <CardContent className="p-0">
-                <MatchFixturesCard
-                  fixtures={fixtures}
-                  onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
-                />
-              </CardContent>
+              <MatchFixturesCard
+                fixtures={fixtures}
+                onMatchClick={(matchId) => navigate(`/match/${matchId}`)}
+              />
             </Card>
             <MatchesByCountry selectedDate={selectedDate} />
           </div>
