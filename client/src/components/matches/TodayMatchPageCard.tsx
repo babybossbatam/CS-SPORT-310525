@@ -122,7 +122,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
 
   return (
     <>
-      <Card className="shadow-md w-full">
+      <Card className="shadow-md w-full mt-4">
         <div className="flex items-center justify-between h-9 p-4">
           <button 
             onClick={goToPreviousDay}
