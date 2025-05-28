@@ -7,7 +7,7 @@ import TodaysMatchesByCountry from './TodaysMatchesByCountry';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { format, parseISO, addDays, subDays } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
-import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
+import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 import { useQuery } from '@tanstack/react-query';
 
 interface TodayMatchPageCardProps {

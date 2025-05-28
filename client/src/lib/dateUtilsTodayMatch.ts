@@ -16,3 +16,12 @@ export const formatTodayMatchPageYYYYMMDD = (date: Date): string => {
     return format(new Date(), 'yyyy-MM-dd');
   }
 };
+
+// Legacy function names for backward compatibility - using the same logic as shared utils
+export const getCurrentUTCDateString = (): string => {
+  return getTodayMatchPageCurrentUTCDateString();
+};
+
+export const formatYYYYMMDD = (date: Date): string => {
+  return formatTodayMatchPageYYYYMMDD(date);
+};
