@@ -65,6 +65,7 @@ const Header = () => {
           <div 
             className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer ml-5"
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
+            style={{ marginLeft: '30px' }}
           >
             <Star className="h-4 w-4 mr-1 fill-current" />
             <span>My Scores</span>
