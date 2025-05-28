@@ -28,12 +28,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Geographic/Regional preferences with priority tiers
   const TIER_1_COUNTRIES = ['England', 'Spain', 'Italy', 'Germany', 'France']; // Top priority European countries
   const TIER_2_INTERNATIONAL = ['World', 'Europe']; // International competitions
-  const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt']; // Other popular countries
+  const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'USA']; // Other popular countries
 
   const POPULAR_COUNTRIES_ORDER = [
-    ...TIER_1_COUNTRIES,
-    ...TIER_2_INTERNATIONAL, 
-    ...TIER_3_OTHER_POPULAR,
+    'World', // Men's international friendlies and other World competitions first
+    'Europe', // UEFA Europa Conference League and other European competitions
+    'Egypt', // Egypt Premier League
+    'USA', // USA MLS league
+    ...TIER_1_COUNTRIES.filter(c => c !== 'England' && c !== 'Spain' && c !== 'Italy' && c !== 'Germany' && c !== 'France'), // Remove duplicates if any
+    'England', 'Spain', 'Italy', 'Germany', 'France', // Other European countries
+    ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt'), // Other popular countries except Egypt (already listed)
     'CONMEBOL'
   ];
 
@@ -47,6 +51,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Brazil': [71, 72], // Serie A Brazil, Serie B Brazil
     'Saudi Arabia': [307], // Saudi Pro League (only major league)
     'Egypt': [233], // Egyptian Premier League (only major league)
+    'USA': [253], // Major League Soccer (MLS)
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
     'World': [1, 10, 9, 11, 13], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana
     'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
@@ -213,6 +218,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     if (cleanCountry === 'CONMEBOL') {
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzAwN2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZmZmZmZmIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+    }
+
+    if (cleanCountry === 'USA') {
+      return 'https://flagsapi.com/US/flat/24.png';
     }
 
     // Comprehensive country code mapping
@@ -436,7 +445,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const leagueName = fixture.league.name?.toLowerCase() || '';
 
       // Check for international competitions first (more permissive)
-      const isWorldFriendlies = leagueName.includes('friendlies') && countryName.includes('world');
+      // Prioritize men's international friendlies (exclude women's friendlies)
+      const isWorldFriendlies = leagueName.includes('friendlies') && 
+                               countryName.includes('world') && 
+                               !leagueName.includes('women');
       const isCONMEBOLCompetition = 
         leagueName.includes('copa america') ||
         leagueName.includes('copa libertadores') ||
@@ -482,7 +494,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         }
       }
       
-      // Tier 3 countries (Brazil, Saudi Arabia, Egypt) - be more permissive for Brazil
+      // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA) - be more permissive for Brazil
       else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         // For Brazil, allow both Serie A and Serie B
         if (countryKey.toLowerCase() === 'brazil') {
@@ -492,7 +504,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             return false;
           }
         } else {
-          // For other Tier 3 countries, stick to original logic
+          // For other Tier 3 countries (Saudi Arabia, Egypt, USA), stick to original logic
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
             console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
