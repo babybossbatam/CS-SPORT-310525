@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, leaguesActions, fixturesActions } from '@/lib/store';
+import { RootState, leaguesActions, fixturesActions, uiActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import Header from '@/components/layout/Header';
@@ -39,7 +39,6 @@ import { useLocation } from "wouter";
 
 // Import the new TodayMatchCard component
 import TodayMatchCard from '@/components/matches/TodayMatchCard';
-import TodayMatchPage from '@/components/pages/TodayMatchPage';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -458,12 +457,13 @@ const Home = () => {
             />
 
             {/* New TodayMatchCard for testing */}
-            <div className="mt-6">
+            <div className="mt-4">
               <TodayMatchCard 
                 fixtures={fixtures}
                 onMatchClick={handleMatchClick}
               />
             </div>
+            
             <MatchesByCountry selectedDate={selectedDate} />
           </div>
 
