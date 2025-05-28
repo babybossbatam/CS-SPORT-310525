@@ -857,8 +857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           betsApiArticles = await betsApiService.getFootballNews(1, count);
         } else if (sportType === 'basketball') {
           betsApiArticles = await betsApiService.getBasketballNews(1, count);
-        }```text
- else if (sportType === 'tennis') {
+        } else if (sportType === 'tennis') {
           betsApiArticles = await betsApiService.getTennisNews(1, count);
         } else {
           // Default to football/soccer news
@@ -1295,14 +1294,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           source: sportsRadarFlag.includes('365scores') ? '365scores' : 'SportsRadar'
         });
       } else {
-        console.warn(`🚫 Country ${country} will be excluded due to missing flag from both sources`);
-        res.json({ 
-          success: false, 
-          message: 'Flag not found in both SportsRadar and 365scores - country will be excluded',
-          fallbackUrl: '/assets/fallback-logo.svg',
-          shouldExclude: true
-        });
-      }
+          console.warn(`🚫 Country ${country} will be excluded due to missing flag from both sources`);
+          res.json({ 
+            success: false, 
+            message: 'Flag not found in both SportsRadar and 365scores - country will be excluded',
+            fallbackUrl: '/assets/fallback-logo.svg',
+            shouldExclude: true
+          });
+        }
     } catch (error) {
       console.error('Error fetching flag:', error);
       res.status(500).json({ 
