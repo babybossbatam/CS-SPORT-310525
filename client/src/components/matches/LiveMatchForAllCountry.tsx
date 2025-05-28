@@ -382,7 +382,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                 
 
                 {/* Always show matches - no collapse */}
-                <div className="bg-gray-50 border-t border-gray-100">
+                <div className="bg-gray-50 border-t border-gray-100 space-y-4">
                   {/* Sort leagues - popular first */}
                   {Object.values(countryData.leagues)
                     .sort((a: any, b: any) => {
