@@ -636,14 +636,13 @@ const FixedScoreboard = () => {
   return (
     <>
       <Card className="px-0 pt-0 pb-2 relative mt-0">
-        <Badge
-          variant="secondary"
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
-        >
-          Featured Match
-        </Badge>
-
         <div className="bg-gray-50 border-b p-2 -mt-4 relative">
+            <Badge
+              variant="secondary"
+              className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute -top-2 -right-2 z-10 pointer-events-none"
+            >
+              Featured Match
+            </Badge>
             <div className="flex items-center justify-center">
               {currentMatch?.league?.logo ? (
                     <img
