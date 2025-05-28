@@ -696,7 +696,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                <div className="bg-gray-50">
+                <div className="bg-gray-50 space-y-4">
                   {/* Sort leagues - country-specific popular first, then globally popular, then alphabetical */}
                   {Object.values(countryData.leagues)
                     .sort((a: any, b: any) => {
