@@ -1251,16 +1251,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               if (hasValidScores) {
                                 return (
                                   <>
-                                    <div className="text-xs text-gray-600 font-semibold mb-1">
-                                      {status === 'FT' ? 'ENDED' : 
-                                       status === 'AET' ? 'AFTER EXTRA TIME' :
-                                       status === 'PEN' ? 'PENALTIES' :
-                                       status === 'AWD' ? 'AWARDED' :
-                                       status === 'WO' ? 'WALKOVER' :
-                                       status === 'ABD' ? 'ABANDONED' :
-                                       status === 'CANC' ? 'CANCELLED' :
-                                       status === 'SUSP' ? 'SUSPENDED' : status}
-                                    </div>
                                     <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                       <span>{homeScore}</span>
                                       <span className="text-gray-400">-</span>
