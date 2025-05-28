@@ -96,7 +96,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   console.log('MatchFixturesCard - league standings:', leagueStandings);
 
   return (
-    <div className="space-y-4">
+    <>
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
           <button className="p-2 hover:bg-gray-100 rounded-r-full flex items-center -ml-4">
@@ -211,7 +211,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
           <TodaysMatchesByCountry selectedDate={selectedDate} />
         </>
       )}
-    </div>
+    </>
   );
 };
 
