@@ -191,10 +191,10 @@ export const rapidApiService = {
           }
         }
       } else {
-        // Popular leagues behavior
-        const popularLeagueIds = [2, 3, 848, 39, 45, 140, 135, 78, 207, 219, 203];
+        // Define popular leagues - matches core leagues
+        const popularLeagues = [2, 3, 15, 39, 140, 135, 78]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga
 
-        for (const leagueId of popularLeagueIds) {
+        for (const leagueId of popularLeagues) {
           try {
             const leagueFixtures = await this.getFixturesByLeague(leagueId, 2024);
             const dateFixtures = leagueFixtures.filter(fixture => {

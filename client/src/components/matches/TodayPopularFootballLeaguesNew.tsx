@@ -31,7 +31,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'USA']; // Other popular countries
 
   const POPULAR_COUNTRIES_ORDER = [
-    'World', // Men's international friendlies and other World competitions first
+    'International', // FIFA Club World Cup first
+    'World', // Men's international friendlies and other World competitions
     'Europe', // UEFA Europa Conference League and other European competitions
     'Egypt', // Egypt Premier League
     'USA', // USA MLS league
@@ -55,6 +56,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
     'World': [1, 10, 9, 11, 13, 15], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana, FIFA Club World Cup
     'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
+    'International': [15], // FIFA Club World Cup as separate category
   };
 
   // Flatten popular leagues for backward compatibility
@@ -218,6 +220,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     if (cleanCountry === 'CONMEBOL') {
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzAwN2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZmZmZmZmIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMwMDdmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+    }
+
+    if (cleanCountry === 'International') {
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iI2ZmZDcwMCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSIjZmZmZmZmIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiNmZmQ3MDAiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiNmZmQ3MDAiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
     }
 
     if (cleanCountry === 'USA') {
@@ -601,7 +607,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
         // Determine the appropriate country key
         let countryKey = 'World';
-        if (league.name.toLowerCase().includes('conmebol') ||
+        if (league.name.toLowerCase().includes('fifa club world cup')) {
+          countryKey = 'International';
+        } else if (league.name.toLowerCase().includes('conmebol') ||
             league.name.toLowerCase().includes('copa america') ||
             league.name.toLowerCase().includes('copa libertadores') ||
             league.name.toLowerCase().includes('copa sudamericana')) {
