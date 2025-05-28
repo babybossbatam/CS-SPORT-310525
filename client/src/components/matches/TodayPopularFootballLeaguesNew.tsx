@@ -25,23 +25,30 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
-  // Popular countries prioritization with new requirements
+  // Geographic/Regional preferences with priority tiers
+  const TIER_1_COUNTRIES = ['England', 'Spain', 'Italy', 'Germany', 'France']; // Top priority European countries
+  const TIER_2_INTERNATIONAL = ['World', 'Europe']; // International competitions
+  const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt']; // Other popular countries
+
   const POPULAR_COUNTRIES_ORDER = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World', 'CONMEBOL'
+    ...TIER_1_COUNTRIES,
+    ...TIER_2_INTERNATIONAL, 
+    ...TIER_3_OTHER_POPULAR,
+    'CONMEBOL'
   ];
 
-  // Popular leagues by country for better filtering
+  // Enhanced leagues by country with tier-based filtering
   const POPULAR_LEAGUES_BY_COUNTRY = {
     'England': [39, 45, 48], // Premier League, FA Cup, EFL Cup
     'Spain': [140, 143], // La Liga, Copa del Rey
     'Italy': [135, 137], // Serie A, Coppa Italia
     'Germany': [78, 81], // Bundesliga, DFB Pokal
     'France': [61, 66], // Ligue 1, Coupe de France
-    'Brazil': [71], // Serie A Brazil
-    'Saudi Arabia': [307], // Saudi Pro League
-    'Egypt': [233], // Egyptian Premier League
+    'Brazil': [71], // Serie A Brazil (only major league)
+    'Saudi Arabia': [307], // Saudi Pro League (only major league)
+    'Egypt': [233], // Egyptian Premier League (only major league)
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'World': [1, 10], // World Cup, Friendlies (including international friendlies)
+    'World': [1, 10, 9, 11, 13], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana
     'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
   };
 
@@ -421,28 +428,69 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return false;
       }
 
-      // Allow all matches including international ones
+      // Enhanced geographic/regional filtering logic
       console.log(`Processing match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
 
-      // Filter by popular countries and their major leagues only
-      const countryName = fixture.league.country.toLowerCase();
+      const countryName = fixture.league.country?.toLowerCase() || '';
       const leagueId = fixture.league.id;
+      const leagueName = fixture.league.name?.toLowerCase() || '';
 
-      // Check if it's a popular country
+      // Check if it's a popular country with geographic preferences
       const matchingCountry = POPULAR_COUNTRIES.find(country => 
         countryName.includes(country.toLowerCase())
       );
 
-      if (!matchingCountry) {
+      // Check for international competitions that might not have proper country assignment
+      const isInternationalCompetition = 
+        leagueName.includes('champions league') ||
+        leagueName.includes('europa league') ||
+        leagueName.includes('conference league') ||
+        leagueName.includes('world cup') ||
+        leagueName.includes('euro') ||
+        leagueName.includes('copa america') ||
+        leagueName.includes('copa libertadores') ||
+        leagueName.includes('copa sudamericana') ||
+        leagueName.includes('conmebol') ||
+        TIER_2_INTERNATIONAL.some(region => countryName.includes(region.toLowerCase()));
+
+      if (!matchingCountry && !isInternationalCompetition) {
         console.log(`Filtering out fixture from non-popular country: ${fixture.league.country}, league: ${fixture.league.name}`);
         return false;
       }
 
-      // For Brazil, Saudi Arabia, and Egypt - only show major leagues
-      if (['brazil', 'saudi arabia', 'egypt'].includes(matchingCountry.toLowerCase())) {
-        const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[matchingCountry] || [];
-        if (!countryLeagues.includes(leagueId)) {
-          console.log(`Filtering out non-major league from ${matchingCountry}: ${fixture.league.name} (ID: ${leagueId})`);
+      // Enhanced filtering based on geographic tiers
+      if (matchingCountry) {
+        const countryKey = matchingCountry;
+        
+        // Tier 1 countries (England, Spain, Italy, Germany, France) - show all major leagues
+        if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
+          const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
+          if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
+            console.log(`Filtering out non-major league from Tier 1 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+            return false;
+          }
+        }
+        
+        // Tier 3 countries (Brazil, Saudi Arabia, Egypt) - only show top-tier leagues
+        else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
+          const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
+          if (!countryLeagues.includes(leagueId)) {
+            console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+            return false;
+          }
+        }
+      }
+
+      // International competitions - allow through with league ID validation
+      if (isInternationalCompetition) {
+        const internationalLeagues = [
+          ...POPULAR_LEAGUES_BY_COUNTRY['Europe'] || [],
+          ...POPULAR_LEAGUES_BY_COUNTRY['World'] || [],
+          ...POPULAR_LEAGUES_BY_COUNTRY['CONMEBOL'] || []
+        ];
+        
+        if (internationalLeagues.length > 0 && !internationalLeagues.includes(leagueId)) {
+          console.log(`Filtering out non-major international competition: ${fixture.league.name} (ID: ${leagueId})`);
           return false;
         }
       }
@@ -640,57 +688,49 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     );
   });
 
-  // Sort countries with popular country badge leagues first, then world/Europe competitions
+  // Enhanced sorting with geographic tier-based prioritization
   const sortedCountries = filteredCountries.sort((a: any, b: any) => {
-    // Get popular country indices from our priority order
-    const getPopularCountryIndex = (country: string) => {
-      if (!country) return 999;
+    const aCountry = a.country || '';
+    const bCountry = b.country || '';
+    
+    // Determine geographic tier for each country
+    const getTier = (country: string) => {
+      if (TIER_1_COUNTRIES.includes(country)) return 1;
+      if (TIER_2_INTERNATIONAL.includes(country)) return 2;
+      if (TIER_3_OTHER_POPULAR.includes(country)) return 3;
+      if (country === 'CONMEBOL') return 4;
+      return 999;
+    };
+
+    const aTier = getTier(aCountry);
+    const bTier = getTier(bCountry);
+
+    // Sort by tier first
+    if (aTier !== bTier) {
+      return aTier - bTier;
+    }
+
+    // Within same tier, prioritize countries with popular leagues
+    if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
+    if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
+
+    // Within same tier and popular league status, sort by order in POPULAR_COUNTRIES_ORDER
+    const getOrderIndex = (country: string) => {
       const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
-        safeSubstring(country, 0).toLowerCase() === safeSubstring(pc, 0).toLowerCase()
+        pc.toLowerCase() === country.toLowerCase()
       );
       return index === -1 ? 999 : index;
     };
 
-    const aPopularIndex = getPopularCountryIndex(a.country);
-    const bPopularIndex = getPopularCountryIndex(b.country);
+    const aOrderIndex = getOrderIndex(aCountry);
+    const bOrderIndex = getOrderIndex(bCountry);
 
-    const aIsPopularCountry = aPopularIndex !== 999;
-    const bIsPopularCountry = bPopularIndex !== 999;
-
-    // Check if countries are World or Europe (International competitions)
-    const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe';
-    const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe';
-
-    // Priority order: Popular countries with badge leagues first
-    if (aIsPopularCountry && a.hasPopularLeague && (!bIsPopularCountry || !b.hasPopularLeague)) return -1;
-    if (bIsPopularCountry && b.hasPopularLeague && (!aIsPopularCountry || !a.hasPopularLeague)) return 1;
-
-    // Both are popular countries with badge leagues - sort by priority order
-    if (aIsPopularCountry && a.hasPopularLeague && bIsPopularCountry && b.hasPopularLeague) {
-      return aPopularIndex - bPopularIndex;
+    if (aOrderIndex !== bOrderIndex) {
+      return aOrderIndex - bOrderIndex;
     }
 
-    // World/Europe competitions come after popular country badge leagues
-    if (!aIsPopularCountry && aIsWorldOrEurope && bIsPopularCountry && b.hasPopularLeague) return 1;
-    if (aIsPopularCountry && a.hasPopularLeague && !bIsPopularCountry && bIsWorldOrEurope) return -1;
-
-    // Both are World/Europe - preserve original order with Europe first
-    if (a.country === 'Europe' && b.country === 'World') return -1;
-    if (a.country === 'World' && b.country === 'Europe') return 1;
-
-    // Popular countries without badge leagues come after World/Europe
-    if (aIsPopularCountry && !a.hasPopularLeague && bIsWorldOrEurope) return 1;
-    if (aIsWorldOrEurope && bIsPopularCountry && !b.hasPopularLeague) return -1;
-
-    // Both are popular countries without badge leagues - sort by priority order
-    if (aIsPopularCountry && bIsPopularCountry) {
-      return aPopularIndex - bPopularIndex;
-    }
-
-    // Default to alphabetical sorting for other cases
-    const countryA = a.country || '';
-    const countryB = b.country || '';
-    return countryA.localeCompare(countryB);
+    // Default to alphabetical sorting
+    return aCountry.localeCompare(bCountry);
   });
 
   const toggleCountry = (country: string) => {
