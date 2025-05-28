@@ -358,6 +358,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
 
   return (
     <div className="space-y-4">
+      {/* Main Header */}
+      <h3 className="text-lg font-bold text-gray-800">Live Football Scores</h3>
+
       {/* Header Section */}
       <Card className="mb-0">
         <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)' }}>
