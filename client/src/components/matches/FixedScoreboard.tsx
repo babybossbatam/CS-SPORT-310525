@@ -52,8 +52,11 @@ const FixedScoreboard = () => {
         const day3Date = "2025-05-21";
         const day4Date = "2025-05-22";
 
+        // Include UEFA Conference League (848) and FIFA World Cup (1) with other popular leagues
+        const leaguesWithConferenceAndWorldCup = [...DEFAULT_POPULAR_LEAGUES, 848, 1];
+
         // Fetch fixtures for popular leagues for latest season with better error handling
-        const leaguePromises = DEFAULT_POPULAR_LEAGUES.map(async (leagueId) => {
+        const leaguePromises = leaguesWithConferenceAndWorldCup.map(async (leagueId) => {
           try {
             const response = await apiRequest(
               "GET",
@@ -227,7 +230,7 @@ const FixedScoreboard = () => {
         })();
 
         // Fetch standings for popular leagues to identify top teams
-        const standingsPromises = DEFAULT_POPULAR_LEAGUES.map(async (leagueId) => {
+        const standingsPromises = leaguesWithConferenceAndWorldCup.map(async (leagueId) => {
           try {
             const response = await apiRequest(
               "GET",
