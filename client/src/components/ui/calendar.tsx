@@ -26,7 +26,7 @@ function Calendar({
     <div className="flex flex-col justify-center p-0 bg-white">
       <DayPicker
         showOutsideDays={showOutsideDays}
-        className={cn("p-3 bg-white w-full max-w-[245px] min-w-[220px]", className)}
+        className={cn("p-3 bg-white w-full", className)}
         classNames={{
           months: "flex flex-col sm:flex-row space-y-2 sm:space-x-2 sm:space-y-0",
           month: "space-y-2 bg-white w-full",
@@ -38,7 +38,7 @@ function Calendar({
           ),
           nav_button_previous: "absolute left-1",
           nav_button_next: "absolute right-1",
-          table: "w-full border-collapse bg-white min-w-[196px]",
+          table: "w-full border-collapse bg-white",
           head_row: "flex mb-2",
           head_cell: "text-gray-600 flex-1 h-6 font-medium text-xs text-center flex items-center justify-center min-w-[29px]",
           row: "flex w-full",
