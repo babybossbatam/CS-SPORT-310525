@@ -712,11 +712,11 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                       return a.league.name.localeCompare(b.league.name);
                     })
                     .map((leagueData: any) => (
-                      <div key={leagueData.league.id} className="p-3 border-b border-gray-200 last:border-b-0">
+                      <div key={leagueData.league.id} className="mb-4 last:mb-0 bg-white rounded-lg border border-gray-200 overflow-hidden">
                         {/* League Header - Hide when time filter is active */}
                         {!timeFilterActive && (<>
                             {leagueData.isFriendlies ? (
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-300">
+                              <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
                                 <img
                                   src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                                   alt={leagueData.league.name || 'Unknown League'}
@@ -724,39 +724,39 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';                              }}
                                 />
-                                <span className="font-medium text-sm text-gray-700">
+                                <span className="font-medium text-sm text-blue-800">
                                   {leagueData.league.name || 'Unknown League'}
                                 </span>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-blue-600">
                                   {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
                                 </span>
                               </div>
                             ) : (
-                              <div className="flex items-start gap-2 mb-3 pb-2 border-b border-gray-300">
+                              <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                                 <img
                                   src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                                   alt={leagueData.league.name || 'Unknown League'}
-                                  className="w-5 h-5 object-contain mt-0.5"
+                                  className="w-6 h-6 object-contain mt-0.5"
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                                   }}
                                 />
                                 <div className="flex flex-col">
-                                  <span className="font-semibold text-sm text-gray-800">
+                                  <span className="font-semibold text-base text-gray-800">
                                     {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                                   </span>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-gray-600">
                                     {leagueData.league.country || 'Unknown Country'}
                                   </span>
                                 </div>
                                 <div className="flex gap-1 ml-auto">
                                   {leagueData.isPopularForCountry && (
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
                                       Popular Country
                                     </span>
                                   )}
                                   {leagueData.isPopular && !leagueData.isPopularForCountry && (
-                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
                                       Popular
                                     </span>
                                   )}
@@ -767,7 +767,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                         )}
                         {/* Matches - Show for all leagues */}
                         {(
-                          <div className="space-y-1 mt-3">
+                          <div className="space-y-0">
                           {leagueData.matches
                             .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                             .sort((a: any, b: any) => {
