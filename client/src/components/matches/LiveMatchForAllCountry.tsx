@@ -359,7 +359,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-lg font-bold text-gray-800 mt-4 mb-0 ml-[15px]">Live Football Scores</h3>
+      <h3 className="text-lg font-bold text-gray-800 mt-4 mb-0 ml-[15px] bg-white border border-gray-200 p-3 rounded-lg">Live Football Scores</h3>
 
       
 
