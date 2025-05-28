@@ -361,14 +361,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       {/* Main Header */}
       <h3 className="text-lg font-bold text-gray-800">Live Football Scores</h3>
 
-      {/* Header Section */}
-      <Card>
-        <CardHeader className="pb-3 space-y-4 mb-0" style={{ height: 'calc(100% - 5px)', marginTop: '-5px', marginBottom: '-5px' }}>
-          <h3 className="text-sm font-semibold flex items-center gap-2">
-            Live Football Scores
-          </h3>
-        </CardHeader>
-      </Card>
+      
 
       {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
