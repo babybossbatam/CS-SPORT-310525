@@ -1271,7 +1271,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                               return (
                                 <>
-                                  <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
+                                  <div className="text-xs text-red-600 font-semibold animate-pulse" style={{ marginBottom: '7px' }}>
                                     {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                   </div>
                                   <div className="text-lg font-bold text-black flex items-center gap-2">
