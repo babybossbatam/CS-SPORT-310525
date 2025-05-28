@@ -1115,7 +1115,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
               const isFirstCard = countryIndex === 0 && leagueIndex === 0;
               
               return (
-                <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? 'first:-mt-4' : ''}`}>
+                <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? '-mt-4' : ''}`}>
               {/* League Header - Always show unless time filter is active */}
               {!timeFilterActive && (
                 <>
