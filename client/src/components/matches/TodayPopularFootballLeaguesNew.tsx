@@ -1262,7 +1262,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         </div>
 
                         {/* Score/Time Center */}
-                        <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                        <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-14px' }}>
                           {(() => {
                             const status = match.fixture.status.short;
                             const fixtureDate = parseISO(match.fixture.date);
@@ -1271,13 +1271,23 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                               return (
                                 <>
-                                  <div className="text-xs text-red-600 font-semibold animate-pulse" style={{ marginBottom: '7px' }}>
-                                    {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                  <div className="text-xs font-semibold mb-0.5">
+                                    {match.fixture.status.short === 'FT' ? (
+                                      <span className="text-gray-600">Ended</span>
+                                    ) : match.fixture.status.short === 'HT' ? (
+                                      <span className="text-red-600 animate-pulse">HT</span>
+                                    ) : (
+                                      <span className="text-red-600 animate-pulse">{match.fixture.status.elapsed || 0}'</span>
+                                    )}
                                   </div>
-                                  <div className="text-lg font-bold text-black flex items-center gap-2" style={{ marginTop: '-3px' }}>
-                                    <span>{match.goals.home ?? 0}</span>
+                                  <div className="text-lg font-bold flex items-center gap-2">
+                                    <span className="text-black">
+                                      {match.goals.home ?? 0}
+                                    </span>
                                     <span className="text-gray-400">-</span>
-                                    <span>{match.goals.away ?? 0}</span>
+                                    <span className="text-black">
+                                      {match.goals.away ?? 0}
+                                    </span>
                                   </div>
                                 </>
                               );
