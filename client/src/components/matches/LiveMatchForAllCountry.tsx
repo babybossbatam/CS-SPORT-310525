@@ -445,7 +445,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                                 </div>
 
                                 {/* Score/Time Center - Live matches */}
-                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 -mt-1">
+                                <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-9px' }}>
                                   <div className="text-xs font-semibold mb-1">
                                     {match.fixture.status.short === 'FT' ? (
                                       <span className="text-gray-600">Ended</span>
