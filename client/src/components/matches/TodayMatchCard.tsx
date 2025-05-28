@@ -104,12 +104,7 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="relative h-full flex items-center">
-            <Select>
-              <SelectTrigger className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full border-0 bg-transparent">
-                <span className="font-medium">{selectedFilter}</span>
-                <ChevronDown className="h-4 w-4" />
-              </SelectTrigger>
-            </Select>
+            <span className="font-medium">{selectedFilter}</span>
           </div>
           <button className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4">
             <ChevronRight className="h-5 w-5" />
