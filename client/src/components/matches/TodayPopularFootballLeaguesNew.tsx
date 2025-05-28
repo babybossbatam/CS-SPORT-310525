@@ -54,7 +54,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Egypt': [233], // Egyptian Premier League (only major league)
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'World': [1, 10, 9, 11, 13, 15], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana, FIFA Club World Cup
+    'World': [1, 10, 9, 11, 13], // World Cup, Friendlies, Copa America, Copa Libertadores, Copa Sudamericana
     'CONMEBOL': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
     'International': [15], // FIFA Club World Cup as separate category
   };
@@ -607,7 +607,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
         // Determine the appropriate country key
         let countryKey = 'World';
-        if (league.name.toLowerCase().includes('fifa club world cup')) {
+        if (league.name.toLowerCase().includes('fifa club world cup') || 
+            league.name.toLowerCase().includes('club world cup')) {
           countryKey = 'International';
         } else if (league.name.toLowerCase().includes('conmebol') ||
             league.name.toLowerCase().includes('copa america') ||
