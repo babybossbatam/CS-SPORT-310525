@@ -364,7 +364,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       
 
       {/* Create individual league cards from all countries */}
-      {sortedCountries.flatMap((countryData: any) => 
+      {sortedCountries.flatMap((countryData: any, countryIndex: number) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
             // First prioritize popular leagues (Champions League, Europa League, etc.)
@@ -395,8 +395,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
             // Then alphabetically
             return a.league.name.localeCompare(b.league.name);
           })
-          .map((leagueData: any, index: number) => (
-            <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
+          .map((leagueData: any, leagueIndex: number) => {
+            // Calculate if this is the very first card across all countries
+            const isFirstCard = countryIndex === 0 && leagueIndex === 0;
+            
+            return (
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? '' : 'mt-4'}`}>
               
 
               {/* League Header */}
@@ -504,7 +508,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
                 </div>
               </CardContent>
             </Card>
-          ))
+            );
+          })
       )}
     </div>
   );
