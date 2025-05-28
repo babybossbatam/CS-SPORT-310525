@@ -205,16 +205,16 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
       'Tajikistan': 'TJ'
     };
 
-    // Use country mapping, fallback to 'XX' for unknown countries
+    // Use country mapping, fallback to SportsRadar for unknown countries
     let countryCode = 'XX';
     if (countryCodeMap[cleanCountry]) {
       countryCode = countryCodeMap[cleanCountry];
+      return `https://flagsapi.com/${countryCode}/flat/24.png`;
     } else {
-      console.warn('Unknown country for flag mapping:', cleanCountry);
-      countryCode = 'XX'; // Will show a default flag
+      console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
+      // Try SportsRadar flags API as fallback
+      return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, '_')}/flag_24x24.png`;
     }
-
-    return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
   // Use only the live fixtures data

@@ -157,7 +157,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Enhanced country flag mapping with null safety
+  // Enhanced country flag mapping with SportsRadar fallback
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
     // Use league flag if available and valid
     if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
@@ -185,35 +185,16 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
       return 'https://flagsapi.com/EU/flat/24.png';
     }
 
-    // Comprehensive country code mapping (prioritizing popular countries)
-    const countryCodeMap: { [key: string]: string } = {
-      'England': 'GB-ENG', 'Scotland': 'GB-SCT', 'Wales': 'GB-WLS', 'Northern Ireland': 'GB-NIR',
-      'United States': 'US', 'South Korea': 'KR', 'Czech Republic': 'CZ', 'United Arab Emirates': 'AE',
-      'Bosnia & Herzegovina': 'BA', 'North Macedonia': 'MK', 'Trinidad & Tobago': 'TT', 'Ivory Coast': 'CI',
-      'Cape Verde': 'CV', 'Democratic Republic of Congo': 'CD', 'Curacao': 'CW', 'Faroe Islands': 'FO',
-      'Saudi Arabia': 'SA', 'South Africa': 'ZA', 'Costa Rica': 'CR', 'El Salvador': 'SV', 'Puerto Rico': 'PR',
-      'New Zealand': 'NZ', 'Dominican Republic': 'DO', 'Brazil': 'BR', 'Germany': 'DE',
-      'France': 'FR', 'Italy': 'IT', 'Spain': 'ES', 'Portugal': 'PT', 'Netherlands': 'NL', 'Belgium': 'BE',
-      'Switzerland': 'CH', 'Austria': 'AT', 'Poland': 'PL', 'Turkey': 'TR', 'Russia': 'RU', 'Ukraine': 'UA',
-      'Sweden': 'SE', 'Norway': 'NO', 'Denmark': 'DK', 'Finland': 'FI', 'Greece': 'GR', 'Croatia': 'HR',
-      'Serbia': 'RS', 'Romania': 'RO', 'Bulgaria': 'BG', 'Hungary': 'HU', 'Slovenia': 'SI', 'Slovakia': 'SK',
-      'Ireland': 'IE', 'Iceland': 'IS', 'Japan': 'JP', 'China': 'CN', 'India': 'IN', 'Australia': 'AU',
-      'Canada': 'CA', 'Mexico': 'MX', 'Colombia': 'CO', 'Peru': 'PE', 'Chile': 'CL', 'Uruguay': 'UY',
-      'Nigeria': 'NG', 'Ghana': 'GH', 'Senegal': 'SN', 'Morocco': 'MA', 'Tunisia': 'TN', 'Algeria': 'DZ',
-      'Egypt': 'EG', 'Cameroon': 'CM', 'Israel': 'IL', 'Jordan': 'JO', 'Iran': 'IR', 'Thailand': 'TH',
-      'Vietnam': 'VN', 'Malaysia': 'MY', 'Singapore': 'SG', 'Indonesia': 'ID', 'Philippines': 'PH'
-    };
-
-    // Use country mapping, fallback to 'XX' for unknown countries
+    // Use country mapping, fallback to SportsRadar for unknown countries
     let countryCode = 'XX';
     if (countryCodeMap[cleanCountry]) {
       countryCode = countryCodeMap[cleanCountry];
+      return `https://flagsapi.com/${countryCode}/flat/24.png`;
     } else {
-      console.warn('Unknown country for flag mapping:', cleanCountry);
-      countryCode = 'XX'; // Will show a default flag
+      console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
+      // Try SportsRadar flags API as fallback
+      return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, '_')}/flag_24x24.png`;
     }
-
-    return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
   // Combine and deduplicate fixtures
@@ -424,9 +405,8 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
     if (aIsPopularCountry && a.hasPopularLeague && !bIsPopularCountry && bIsWorldOrEurope) return -1;
 
     // Both are World/Europe - preserve original order with Europe first
-    if (aIsWorldOrEurope && bIsWorldOrEurope) {
-      if (a.country === 'Europe' && b.country === 'World') return -1;
-      if (a.country === 'World' && b.country === 'Europe') return 1;
+    if (a.country === 'Europe' && b.country === 'World') return -1;
+    if (a.country === 'World' && b.country === 'Europe') return 1;
       return 0;
     }
 
@@ -669,7 +649,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
           {getHeaderTitle()}
         </h3>
       </div>
-      
+
       {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
@@ -741,7 +721,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                   )}
                 </>
               )}
-              
+
               {/* Matches - Show for all leagues */}
               <CardContent className="p-0">
                 <div className="space-y-0">
@@ -789,7 +769,7 @@ const TodayPopularFootballLeagues: React.FC<TodayPopularFootballLeaguesProps> = 
                               // Check if matches involve popular teams (with null safety)
                               const aHasPopularTeam = (a.teams?.home?.id && POPULAR_TEAMS.includes(a.teams.home.id)) || 
                                                      (a.teams?.away?.id && POPULAR_TEAMS.includes(a.teams.away.id));
-                              const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.home.id)) || 
+                              const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.away.id)) || 
                                                      (b.teams?.away?.id && POPULAR_TEAMS.includes(b.teams.away.id));
 
                               // Prioritize popular team matches first

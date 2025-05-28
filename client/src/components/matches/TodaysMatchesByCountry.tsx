@@ -48,7 +48,7 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
-  // Enhanced country flag mapping with better null safety
+  // Enhanced country flag mapping with SportsRadar fallback
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
     // Use league flag if available and valid
     if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
@@ -216,16 +216,16 @@ const TodaysMatchesByCountry: React.FC<TodaysMatchesByCountryProps> = ({ selecte
       'Tajikistan': 'TJ'
     };
 
-    // Use country mapping, fallback to 'XX' for unknown countries
+    // Use country mapping, fallback to SportsRadar for unknown countries
     let countryCode = 'XX';
     if (countryCodeMap[cleanCountry]) {
       countryCode = countryCodeMap[cleanCountry];
+      return `https://flagsapi.com/${countryCode}/flat/24.png`;
     } else {
-      console.warn('Unknown country for flag mapping:', cleanCountry);
-      countryCode = 'XX'; // Will show a default flag
+      console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
+      // Try SportsRadar flags API as fallback
+      return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, '_')}/flag_24x24.png`;
     }
-
-    return `https://flagsapi.com/${countryCode}/flat/24.png`;
   };
 
   // Use only the main fixtures data

@@ -226,6 +226,33 @@ function isWinner(fixture: SportsradarFixture, team: 'home' | 'away'): boolean |
   return team === 'home' ? homeScore > awayScore : awayScore > homeScore;
 }
 
+// Get country flag from SportsRadar
+export async function getCountryFlag(country: string): Promise<string | null> {
+  try {
+    const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
+    const flagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
+    
+    // Test if the flag exists by making a HEAD request
+    const response = await fetch(flagUrl, { 
+      method: 'HEAD',
+      headers: {
+        'accept': 'application/json',
+        'x-api-key': SPORTSRADAR_API_KEY
+      }
+    });
+    
+    if (response.ok) {
+      return flagUrl;
+    } else {
+      console.warn(`SportsRadar flag not found for country: ${country}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error getting SportsRadar flag for ${country}:`, error);
+    return null;
+  }
+}
+
 // Get sports news content
 export async function getSportsNews(sport: string = 'nfl', date?: string): Promise<any[]> {
   try {
@@ -280,5 +307,6 @@ export default {
   mapSportsradarFixtureToInternal,
   getSportsNews,
   getFootballNews,
-  convertSportsRadarToStandardFormat
+  convertSportsRadarToStandardFormat,
+  getCountryFlag
 };

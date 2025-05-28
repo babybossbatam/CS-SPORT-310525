@@ -1273,6 +1273,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get country flag with SportsRadar fallback
+  apiRouter.get('/flags/:country', async (req: Request, res: Response) => {
+    try {
+      const { country } = req.params;
+      
+      if (!country) {
+        return res.status(400).json({ error: 'Country parameter is required' });
+      }
+      
+      console.log(`Getting flag for country: ${country}`);
+      
+      // Try SportsRadar flag
+      const sportsRadarFlag = await sportsradarApi.getCountryFlag(country);
+      
+      if (sportsRadarFlag) {
+        res.json({ 
+          success: true, 
+          flagUrl: sportsRadarFlag,
+          source: 'SportsRadar'
+        });
+      } else {
+        res.json({ 
+          success: false, 
+          message: 'Flag not found',
+          fallbackUrl: '/assets/fallback-logo.svg'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching flag:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch flag',
+        fallbackUrl: '/assets/fallback-logo.svg'
+      });
+    }
+  });
+
   // Get available countries and their seasons
   apiRouter.get('/countries', async (req: Request, res: Response) => {
     try {
