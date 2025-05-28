@@ -1079,34 +1079,39 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         </svg>
         <h3 className="text-base font-bold text-gray-800 p-6 pb-4">Popular Football Leagues</h3>
           {/* Create individual league cards from all countries */}
-      {sortedCountries.flatMap((countryData: any) =>
-        Object.values(countryData.leagues)
-          .sort((a: any, b: any) => {
-            // Special handling for World country - deprioritize Friendlies
-            if (countryData.country === 'World') {
-              const aIsFriendlies = a.league.name.toLowerCase().includes('friendlies');
-              const bIsFriendlies = b.league.name.toLowerCase().includes('friendlies');
+      <div className="space-y-4 p-4">
+        {sortedCountries.flatMap((countryData: any, countryIndex: number) =>
+          Object.values(countryData.leagues)
+            .sort((a: any, b: any) => {
+              // Special handling for World country - deprioritize Friendlies
+              if (countryData.country === 'World') {
+                const aIsFriendlies = a.league.name.toLowerCase().includes('friendlies');
+                const bIsFriendlies = b.league.name.toLowerCase().includes('friendlies');
 
-              // Put Friendlies at the end of World competitions
-              if (aIsFriendlies && !bIsFriendlies) return 1;
-              if (!aIsFriendlies && bIsFriendlies) return -1;
+                // Put Friendlies at the end of World competitions
+                if (aIsFriendlies && !bIsFriendlies) return 1;
+                if (!aIsFriendlies && bIsFriendlies) return -1;
 
+                return a.league.name.localeCompare(b.league.name);
+              }
+
+              // Prioritize leagues that are popular for this specific country
+              if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+              if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
+
+              // Then globally popular leagues
+              if (a.isPopular && !b.isPopular) return -1;
+              if (!a.isPopular && b.isPopular) return 1;
+
+              // Finally alphabetical
               return a.league.name.localeCompare(b.league.name);
-            }
-
-            // Prioritize leagues that are popular for this specific country
-            if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
-            if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-
-            // Then globally popular leagues
-            if (a.isPopular && !b.isPopular) return -1;
-            if (!a.isPopular && b.isPopular) return 1;
-
-            // Finally alphabetical
-            return a.league.name.localeCompare(b.league.name);
-          })
-          .map((leagueData: any, index: number) => (
-            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${index === 0 ? 'mt-4' : 'mt-4'}`}>
+            })
+            .map((leagueData: any, leagueIndex: number) => {
+              // Calculate if this is the very first card across all countries
+              const isFirstCard = countryIndex === 0 && leagueIndex === 0;
+              
+              return (
+                <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? 'first:-mt-4' : ''}`}>
               {/* League Header - Always show unless time filter is active */}
               {!timeFilterActive && (
                 <>
@@ -1389,9 +1394,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                   ))}
                 </div>
               </CardContent>
-            </Card>
-          ))
+                </Card>
+              );
+            })
         )}
+      </div>
     </Card>
   );
 };
