@@ -55,7 +55,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
     'World': [1, 10], // World Cup, Friendlies
-    'South America': [9, 11, 13], // Copa America, Copa Libertadores, Copa Sudamericana
+    'South America': [9], // Copa America
     'International': [15], // FIFA Club World Cup as separate category
   };
 
