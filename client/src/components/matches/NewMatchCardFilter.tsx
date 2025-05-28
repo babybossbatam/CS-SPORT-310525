@@ -57,8 +57,10 @@ export const NewMatchCardFilter = ({ fixtures, onMatchClick }: NewMatchCardFilte
         const data = await response.json();
         console.log(`Received ${data.length} ALL fixtures for ${localSelectedDate}`);
         console.log('Sample fixtures:', data.slice(0, 3));
+        setAllFixtures(data); // This was missing!
       } catch (error) {
         console.error('Error fetching fixtures:', error);
+        setAllFixtures([]); // Set empty array on error
       } finally {
         setLoading(false);
       }
