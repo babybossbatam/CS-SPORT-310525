@@ -59,8 +59,8 @@ const SportsCategoryTabs = () => {
             <span className="text-[0.94rem] font-normal whitespace-nowrap">TV</span>
           </div>
 
-          {/* Other tabs with consistent spacing based on TV-Football gap */}
-          <div className="flex items-center ml-[90px]" style={{ gap: '90px' }}>
+          {/* Other tabs with 5px spacing between them */}
+          <div className="flex items-center ml-[90px]" style={{ gap: '5px' }}>
             {sportsList.slice(1).map(({ id, icon: Icon, label }, index) => (
               <div
                 key={id}
