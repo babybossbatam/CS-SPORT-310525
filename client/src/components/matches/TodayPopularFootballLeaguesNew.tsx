@@ -180,7 +180,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
   );
 
-  
+
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
@@ -677,7 +677,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     // Check if this is a popular league for this country
     const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
-    const isPopularForCountry = countryPopularLeagues.includes(leagueId);
+    const isPopularForCountry```text
+ = countryPopularLeagues.includes(leagueId);
     const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
     if (isPopularForCountry || isGloballyPopular) {
@@ -771,48 +772,73 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     // Define priority categories: Friendlies > UEFA > FIFA > Popular Leagues > Premier League > Serie A > Major League > Regular League
     const getPriority = (leagueName: string, leagueId: number) => {
       const name = leagueName.toLowerCase();
-      
+
       // 1. Friendlies (highest priority)
-      if (name.includes('friendlies') || name.includes('club friendly')) {
+      if (name.includes('friendlies') || name.includes('club friendly') || leagueId === 10) {
         return 1;
       }
-      
+
       // 2. UEFA competitions
       if (name.includes('uefa') || name.includes('champions league') || 
-          name.includes('europa league') || name.includes('conference league')) {
+          name.includes('europa league') || name.includes('conference league') ||
+          leagueId === 2 || leagueId === 3 || leagueId === 848) {
         return 2;
       }
-      
+
       // 3. FIFA competitions
       if (name.includes('fifa') || name.includes('world cup') || 
-          name.includes('club world cup')) {
+          name.includes('club world cup') || leagueId === 1 || leagueId === 15) {
         return 3;
       }
-      
-      // 4. Popular Leagues (CONMEBOL, etc.)
-      if (name.includes('conmebol') || name.includes('libertadores') || 
-          name.includes('sudamericana') || name.includes('copa america')) {
+
+      // 4. Popular Country Leagues
+      // Premier League (England) 
+      if (leagueId === 39 || (name.includes('premier league') && name.includes('england'))) {
         return 4;
       }
-      
-      // 5. Premier League (England) 
-      if (leagueId === 39 || (name.includes('premier league') && !name.includes('egypt'))) {
+      // La Liga (Spain)
+      if (leagueId === 140 || (name.includes('la liga') && name.includes('spain'))) {
+        return 4;
+      }
+      // Serie A (Italy)
+      if (leagueId === 135 || (name.includes('serie a') && name.includes('italy'))) {
+        return 4;
+      }
+      // Bundesliga (Germany)
+      if (leagueId === 78 || (name.includes('bundesliga') && name.includes('germany'))) {
+        return 4;
+      }
+      // Ligue 1 (France)
+      if (leagueId === 61 || (name.includes('ligue 1') && name.includes('france'))) {
+        return 4;
+      }
+      // Serie A (Brazil)
+      if (leagueId === 71 || (name.includes('serie a') && name.includes('brazil'))) {
+        return 4;
+      }
+      // Saudi Pro League
+      if (leagueId === 307 || name.includes('saudi pro league') || name.includes('saudi professional league')) {
+        return 4;
+      }
+      // Egypt Premier League
+      if (leagueId === 233 || (name.includes('premier league') && name.includes('egypt'))) {
+        return 4;
+      }
+      // Major League Soccer (USA)
+      if (leagueId === 253 || leagueId === 254 || name.includes('major league soccer') || 
+          (name.includes('mls') && !name.includes('next'))) {
+        return 4;
+      }
+
+      // 5. CONMEBOL competitions
+      if (name.includes('conmebol') || name.includes('libertadores') || 
+          name.includes('sudamericana') || name.includes('copa america') ||
+          leagueId === 9 || leagueId === 11 || leagueId === 13) {
         return 5;
       }
-      
-      // 6. Serie A (Italy)
-      if (leagueId === 135 || (name.includes('serie a') && !name.includes('brazil'))) {
-        return 6;
-      }
-      
-      // 7. Major League Soccer (USA)
-      if (leagueId === 253 || leagueId === 254 || name.includes('major league soccer') || 
-          name.includes('mls')) {
-        return 7;
-      }
-      
-      // 8. Regular leagues (everything else)
-      return 8;
+
+      // 6. Regular leagues (everything else)
+      return 6;
     };
 
     const aPriority = getPriority(aLeagueName, aLeagueId);
@@ -828,7 +854,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const uefaOrder = ['champions league', 'europa league', 'conference league'];
       const aUefaIndex = uefaOrder.findIndex(comp => aLeagueName.toLowerCase().includes(comp));
       const bUefaIndex = uefaOrder.findIndex(comp => bLeagueName.toLowerCase().includes(comp));
-      
+
       if (aUefaIndex !== -1 && bUefaIndex !== -1) {
         return aUefaIndex - bUefaIndex;
       }
@@ -863,7 +889,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Now `sortedCountries` contains countries in the order of their most popular leagues
   // and each country contains leagues in the desired order.
 
-  
+
 
   // Enhanced match status logic
   const getMatchStatus = (fixture: any) => {
@@ -1408,9 +1434,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                     </div>
                                   </>
                                 );
-                              }
-
-                              // All finished match statuses
+                              }// All finished match statuses
                               if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
                                 // Check if we have actual numerical scores
                                 const homeScore = match.goals.home;
