@@ -27,8 +27,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Use current date if not provided
   const currentDate = selectedDate || getCurrentUTCDateString();
 
-  // Popular leagues for featured matches - updated to exclude CONMEBOL and MLS, add regional leagues
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 1, 10, 61, 233, 307, 301]; // Removed: 9, 11, 13, 15 (CONMEBOL), 71 (Brazil Serie A), 253, 254 (MLS), Added: 10 (Friendlies), 61 (Ligue 1)
+  // Popular leagues for featured matches - include UAE/Egypt/Saudi, exclude CONMEBOL/MLS
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 848, 1, 233, 307, 301]; // UEFA competitions, Top 5 European leagues, Regional popular leagues
 
   // Popular teams for prioritization
   const POPULAR_TEAMS = [
@@ -46,17 +46,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Popular leagues configuration with priority levels
   const POPULAR_LEAGUES_CONFIG = {
-    // Tier 1: International competitions (highest priority) - excluding CONMEBOL
-    international: [2, 3, 848, 10], // Champions League, Europa League, Conference League, Friendlies
+    // Tier 1: UEFA competitions (highest priority)
+    uefa: [2, 3, 848], // Champions League, Europa League, Conference League
 
     // Tier 2: Top European leagues
     topEuropean: [39, 140, 135, 78, 61], // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
 
-    // Tier 3: Regional popular leagues
-    regionalPopular: [233, 307, 301] // Egypt Premier League, Saudi Pro League, UAE Pro League
+    // Tier 3: Regional popular leagues (UAE, Egypt, Saudi Arabia)
+    regionalPopular: [233, 307, 301], // Egypt Premier League, Saudi Pro League, UAE Pro League
+
+    // Tier 4: International friendlies and other competitions
+    other: [1] // FIFA World Cup and other international competitions
   };
 
-  // Popular countries for filtering - focused on selected regions
+  // Popular countries for filtering
   const POPULAR_COUNTRIES = [
     'World', 'Europe', 'International',
     'England', 'Spain', 'Italy', 'Germany', 'France',
@@ -140,12 +143,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return false;
       }
 
+      // Filter by popular countries (filterByPopularCountry=true)
+      const leagueCountry = fixture.league?.country;
+      if (!POPULAR_COUNTRIES.includes(leagueCountry)) {
+        console.log(`Filtering out fixture from non-popular country: ${leagueCountry}, league: ${fixture.league.name}`);
+        return false;
+      }
+
+      // Exclude CONMEBOL leagues (IDs: 9, 11, 13, 15)
+      if ([9, 11, 13, 15].includes(fixture.league.id)) {
+        console.log(`Filtering out CONMEBOL league: ${fixture.league.name} (ID: ${fixture.league.id})`);
+        return false;
+      }
+
+      // Exclude MLS leagues (IDs: 253, 254)
+      if ([253, 254].includes(fixture.league.id)) {
+        console.log(`Filtering out MLS league: ${fixture.league.name} (ID: ${fixture.league.id})`);
+        return false;
+      }
+
       // Validate team data
       return fixture.teams.home && fixture.teams.away && 
              fixture.teams.home.name && fixture.teams.away.name;
     });
 
-    // Prioritize matches: Featured → Live → Upcoming (24h) → Other Upcoming → Recent Finished
+    console.log(`Filtered to ${filtered.length} matches from popular leagues`);
+
+    // Smart Match Prioritization with League Priority
     const prioritized = filtered.sort((a, b) => {
       const aStatus = a.fixture.status.short;
       const bStatus = b.fixture.status.short;
@@ -153,40 +177,70 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const bDate = parseISO(b.fixture.date);
       const now = new Date();
 
+      // Get league priority levels
+      const getLeaguePriority = (leagueId: number) => {
+        if (POPULAR_LEAGUES_CONFIG.uefa.includes(leagueId)) return 1; // UEFA competitions
+        if (POPULAR_LEAGUES_CONFIG.topEuropean.includes(leagueId)) return 2; // Top European
+        if (POPULAR_LEAGUES_CONFIG.regionalPopular.includes(leagueId)) return 3; // Regional
+        if (POPULAR_LEAGUES_CONFIG.other.includes(leagueId)) return 4; // Other
+        return 5; // Lowest priority
+      };
+
+      const aLeaguePriority = getLeaguePriority(a.league.id);
+      const bLeaguePriority = getLeaguePriority(b.league.id);
+
       // Check if teams are popular
       const aHasPopularTeam = POPULAR_TEAMS.includes(a.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
-      const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
+      const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(b.teams.away.id);
 
-      // Priority 1: Popular teams first
-      if (aHasPopularTeam && !bHasPopularTeam) return -1;
-      if (!aHasPopularTeam && bHasPopularTeam) return 1;
-
-      // Priority 2: Live matches
+      // Define match status categories
       const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
       const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
 
+      const aUpcoming = aStatus === 'NS' && aDate > now;
+      const bUpcoming = bStatus === 'NS' && bDate > now;
+      const aWithin24h = aUpcoming && differenceInHours(aDate, now) <= 24 && differenceInHours(aDate, now) >= 0;
+      const bWithin24h = bUpcoming && differenceInHours(bDate, now) <= 24 && differenceInHours(bDate, now) >= 0;
+      const aWithin4days = aUpcoming && differenceInHours(aDate, now) <= 96 && differenceInHours(aDate, now) > 24;
+      const bWithin4days = bUpcoming && differenceInHours(bDate, now) <= 96 && differenceInHours(bDate, now) > 24;
+
+      const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
+      const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
+
+      // Priority 1: Featured matches (UEFA + Top European leagues with popular teams)
+      const aFeatured = (aLeaguePriority <= 2) && aHasPopularTeam;
+      const bFeatured = (bLeaguePriority <= 2) && bHasPopularTeam;
+
+      if (aFeatured && !bFeatured) return -1;
+      if (!aFeatured && bFeatured) return 1;
+
+      // Priority 2: Live matches
       if (aLive && !bLive) return -1;
       if (!aLive && bLive) return 1;
 
-      // Priority 3: Upcoming matches within 24 hours
-      const aUpcoming = aStatus === 'NS' && aDate > now;
-      const bUpcoming = bStatus === 'NS' && bDate > now;
-      const aWithin24h = differenceInHours(aDate, now) <= 24 && differenceInHours(aDate, now) >= 0;
-      const bWithin24h = differenceInHours(bDate, now) <= 24 && differenceInHours(bDate, now) >= 0;
+      // Priority 3: Upcoming within 24 hours
+      if (aWithin24h && !bWithin24h) return -1;
+      if (!aWithin24h && bWithin24h) return 1;
 
-      if (aUpcoming && aWithin24h && !(bUpcoming && bWithin24h)) return -1;
-      if (bUpcoming && bWithin24h && !(aUpcoming && aWithin24h)) return 1;
+      // Priority 4: Other upcoming within 4 days
+      if (aWithin4days && !bWithin4days) return -1;
+      if (!aWithin4days && bWithin4days) return 1;
 
-      // Priority 4: Recent finished matches (within 2 hours)
-      const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
-      const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
-      const aRecent = aFinished && differenceInHours(now, aDate) <= 2;
-      const bRecent = bFinished && differenceInHours(now, bDate) <= 2;
+      // Priority 5: League priority (for same category matches)
+      if (aLeaguePriority !== bLeaguePriority) {
+        return aLeaguePriority - bLeaguePriority;
+      }
 
-      if (aRecent && !bRecent) return -1;
-      if (!aRecent && bRecent) return 1;
+      // Priority 6: Popular teams
+      if (aHasPopularTeam && !bHasPopularTeam) return -1;
+      if (!aHasPopularTeam && bHasPopularTeam) return 1;
 
-      // Default: sort by date (upcoming first, then recent)
+      // Priority 7: Recent finished matches (last)
+      if (aFinished && bFinished) {
+        return bDate.getTime() - aDate.getTime(); // Most recent first
+      }
+
+      // Default: sort by date
       if (aUpcoming && bUpcoming) return aDate.getTime() - bDate.getTime();
       if (aFinished && bFinished) return bDate.getTime() - aDate.getTime();
 
