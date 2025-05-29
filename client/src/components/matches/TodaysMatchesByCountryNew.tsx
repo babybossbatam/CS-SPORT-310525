@@ -613,7 +613,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
             }, 0);
 
             return (
-              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0 first:mt-0 mt-4">
+              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0"></div>
                 <button
                   onClick={() => toggleCountry(countryData.country)}
                   className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
