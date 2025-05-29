@@ -206,25 +206,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const aWithin4days = aUpcoming && hoursToA <= 96 && hoursToA > 24;
       const bWithin4days = bUpcoming && hoursToB <= 96 && hoursToB > 24;
 
-      // Check if any UEFA matches exist in the dataset to determine prioritization strategy
-      const hasUEFAMatches = filtered.some(match => POPULAR_LEAGUES_CONFIG.uefa.includes(match.league.id));
-
-      // Priority 1: UEFA competitions get absolute priority when they exist
-      if (hasUEFAMatches) {
-        if (aIsUEFA && !bIsUEFA) return -1;
-        if (!aIsUEFA && bIsUEFA) return 1;
-
-        // Within UEFA matches, prioritize by status: Live > Upcoming > Finished
-        if (aIsUEFA && bIsUEFA) {
-          if (aLive && !bLive) return -1;
-          if (!aLive && bLive) return 1;
-          
-          if (aUpcoming && !bUpcoming) return -1;
-          if (!aUpcoming && bUpcoming) return 1;
-        }
-      }
-
-      // Priority 2: Live UEFA competitions (when UEFA exists)
       const aLiveUEFA = aLive && aIsUEFA;
       const bLiveUEFA = bLive && bIsUEFA;
 
