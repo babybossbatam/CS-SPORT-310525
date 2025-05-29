@@ -768,9 +768,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const aLeagueId = a.league?.id;
     const bLeagueId = b.league?.id;
 
-    // Define priority categories: Friendlies > UEFA > FIFA > Popular Leagues > Premier League > Serie A > Major League > Regular League
-    const getPriority = (leagueName: string, leagueId: number) => {
+    // Define priority categories: Friendlies > UEFA > FIFA > Popular Country Leagues > CONMEBOL > Regular League
+    const getPriority = (leagueName: string, leagueId: number, country: string) => {
       const name = leagueName.toLowerCase();
+      const countryLower = country.toLowerCase();
 
       // 1. Friendlies (highest priority)
       if (name.includes('friendlies') || name.includes('club friendly') || leagueId === 10) {
@@ -790,49 +791,53 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return 3;
       }
 
-      // 4. Popular Country Leagues
-      // Premier League (England) 
-      if (leagueId === 39 || (name.includes('premier league') && name.includes('england'))) {
-        return 4;
-      }
-      // La Liga (Spain)
-      if (leagueId === 140 || (name.includes('la liga') && name.includes('spain'))) {
-        return 4;
-      }
-      // Serie A (Italy)
-      if (leagueId === 135 || (name.includes('serie a') && name.includes('italy'))) {
-        return 4;
-      }
-      // Bundesliga (Germany)
-      if (leagueId === 78 || (name.includes('bundesliga') && name.includes('germany'))) {
-        return 4;
-      }
-      // Ligue 1 (France)
-      if (leagueId === 61 || (name.includes('ligue 1') && name.includes('france'))) {
-        return 4;
-      }
-      // Serie A (Brazil)
-      if (leagueId === 71 || (name.includes('serie a') && name.includes('brazil'))) {
-        return 4;
-      }
-      // Saudi Pro League
-      if (leagueId === 307 || name.includes('saudi pro league') || name.includes('saudi professional league')) {
-        return 4;
-      }
-      // Egypt Premier League
-      if (leagueId === 233 || (name.includes('premier league') && name.includes('egypt'))) {
-        return 4;
-      }
-      // Major League Soccer (USA)
-      if (leagueId === 253 || leagueId === 254 || name.includes('major league soccer') || 
-          (name.includes('mls') && !name.includes('next'))) {
+      // 4. Popular Country Leagues (Top domestic leagues from major countries)
+      const popularCountryLeagues = [
+        // England Premier League
+        { id: 39, country: 'england' },
+        // Spain La Liga
+        { id: 140, country: 'spain' },
+        // Italy Serie A
+        { id: 135, country: 'italy' },
+        // Germany Bundesliga
+        { id: 78, country: 'germany' },
+        // France Ligue 1
+        { id: 61, country: 'france' },
+        // Brazil Serie A
+        { id: 71, country: 'brazil' },
+        // Saudi Pro League
+        { id: 307, country: 'saudi arabia' },
+        // Egypt Premier League
+        { id: 233, country: 'egypt' },
+        // Major League Soccer (USA)
+        { id: 253, country: 'usa' },
+        { id: 254, country: 'usa' }
+      ];
+
+      const isPopularCountryLeague = popularCountryLeagues.some(league => 
+        league.id === leagueId || 
+        (countryLower.includes(league.country) && (
+          (league.country === 'england' && name.includes('premier league')) ||
+          (league.country === 'spain' && name.includes('la liga')) ||
+          (league.country === 'italy' && name.includes('serie a')) ||
+          (league.country === 'germany' && name.includes('bundesliga')) ||
+          (league.country === 'france' && name.includes('ligue 1')) ||
+          (league.country === 'brazil' && name.includes('serie a')) ||
+          (league.country === 'saudi arabia' && (name.includes('saudi pro league') || name.includes('saudi professional league'))) ||
+          (league.country === 'egypt' && name.includes('premier league')) ||
+          (league.country === 'usa' && (name.includes('major league soccer') || name.includes('mls')))
+        ))
+      );
+
+      if (isPopularCountryLeague) {
         return 4;
       }
 
       // 5. CONMEBOL competitions
       if (name.includes('conmebol') || name.includes('libertadores') || 
           name.includes('sudamericana') || name.includes('copa america') ||
-          leagueId === 9 || leagueId === 11 || leagueId === 13) {
+          leagueId === 9 || leagueId === 11 || leagueId === 13 ||
+          countryLower.includes('south america')) {
         return 5;
       }
 
@@ -840,8 +845,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return 6;
     };
 
-    const aPriority = getPriority(aLeagueName, aLeagueId);
-    const bPriority = getPriority(bLeagueName, bLeagueId);
+    const aPriority = getPriority(aLeagueName, aLeagueId, a.country || '');
+    const bPriority = getPriority(bLeagueName, bLeagueId, b.country || '');
 
     // Sort by priority first
     if (aPriority !== bPriority) {
