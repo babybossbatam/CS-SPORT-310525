@@ -1569,16 +1569,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
                         </div>
                       </div>
-                    ))
-                  }
+                    ))}
+                  </div>
                 </div>
-              ))
-            }
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      ))
-    }
-  </div>
+      ))}
+    </div>
 );
 };
 
