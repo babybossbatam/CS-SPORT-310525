@@ -323,12 +323,22 @@ const FixedScoreboard = () => {
 
         console.log(`Found ${popularLeagueMatches.length} matches from popular leagues`);
 
-        // Sort matches by priority: Live > Upcoming within 24 hours > Recent finished > Other upcoming
+        // Sort matches by priority: Featured match first, then Live > Upcoming Within 24hours > Other Upcoming > Recent Finished
         const sortedMatches = popularLeagueMatches.sort((a, b) => {
           const aDate = new Date(a.fixture.date);
           const bDate = new Date(b.fixture.date);
           const aStatus = a.fixture.status.short;
           const bStatus = b.fixture.status.short;
+
+          // Check for featured match (PSG vs Inter)
+          const aIsFeatured = (a.teams.home.name === 'Paris Saint Germain' && a.teams.away.name === 'Inter') ||
+                             (a.teams.home.name === 'Inter' && a.teams.away.name === 'Paris Saint Germain');
+          const bIsFeatured = (b.teams.home.name === 'Paris Saint Germain' && b.teams.away.name === 'Inter') ||
+                             (b.teams.home.name === 'Inter' && b.teams.away.name === 'Paris Saint Germain');
+
+          // Featured match always comes first
+          if (aIsFeatured && !bIsFeatured) return -1;
+          if (!aIsFeatured && bIsFeatured) return 1;
 
           // Live matches first
           const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
@@ -344,6 +354,12 @@ const FixedScoreboard = () => {
           if (aUpcomingSoon && !bUpcomingSoon) return -1;
           if (!aUpcomingSoon && bUpcomingSoon) return 1;
 
+          // Other upcoming matches (beyond 24 hours)
+          const aOtherUpcoming = aStatus === 'NS' && hoursToA > 24;
+          const bOtherUpcoming = bStatus === 'NS' && hoursToB > 24;
+          if (aOtherUpcoming && !bOtherUpcoming) return -1;
+          if (!aOtherUpcoming && bOtherUpcoming) return 1;
+
           // Recent finished matches (within last 12 hours)
           const hoursAgo = (now.getTime() - aDate.getTime()) / (1000 * 60 * 60);
           const hoursBgo = (now.getTime() - bDate.getTime()) / (1000 * 60 * 60);
@@ -352,7 +368,7 @@ const FixedScoreboard = () => {
           if (aRecentFinished && !bRecentFinished) return -1;
           if (!aRecentFinished && bRecentFinished) return 1;
 
-          // Sort by date
+          // Sort by date within same category
           return Math.abs(aDate.getTime() - now.getTime()) - Math.abs(bDate.getTime() - now.getTime());
         });
 
