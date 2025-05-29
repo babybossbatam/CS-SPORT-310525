@@ -761,97 +761,83 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }))
   );
 
-  // Sort leagues with priority: Popular Country leagues (A-Z), then Regular leagues (A-Z)
+  // Sort leagues with priority: Friendlies > UEFA > FIFA > Popular Leagues > Premier League > Serie A > Major League > Regular League
   const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
     const aLeagueName = a.league?.name || '';
     const bLeagueName = b.league?.name || '';
+    const aLeagueId = a.league?.id;
+    const bLeagueId = b.league?.id;
 
-    // Define top priority leagues and friendlies
-    const topPriorityLeagues = [
-      'club friendly',
-      'fifa cup',
-      'fifa club world cup',
-      'friendlies',
-      'uefa europa conference league'
-    ];
-
-    // Check if leagues are in top priority list
-    const aIsTopPriority = topPriorityLeagues.some(priority => 
-      aLeagueName.toLowerCase().includes(priority)
-    );
-    const bIsTopPriority = topPriorityLeagues.some(priority => 
-      bLeagueName.toLowerCase().includes(priority)
-    );
-
-    // Top priority leagues come first
-    if (aIsTopPriority && !bIsTopPriority) return -1;
-    if (!aIsTopPriority && bIsTopPriority) return 1;
-
-    // If both are top priority, sort by specific order
-    if (aIsTopPriority && bIsTopPriority) {
-      // Club Friendly FIFA Cup first
-      if (aLeagueName.toLowerCase().includes('club friendly') && 
-          !bLeagueName.toLowerCase().includes('club friendly')) return -1;
-      if (!aLeagueName.toLowerCase().includes('club friendly') && 
-          bLeagueName.toLowerCase().includes('club friendly')) return 1;
-
-      // FIFA Cup second
-      if (aLeagueName.toLowerCase().includes('fifa cup') && 
-          !bLeagueName.toLowerCase().includes('fifa cup')) return -1;
-      if (!aLeagueName.toLowerCase().includes('fifa cup') && 
-          bLeagueName.toLowerCase().includes('fifa cup')) return 1;
-
-      // FIFA Club World Cup third
-      if (aLeagueName.toLowerCase().includes('fifa club world cup') && 
-          !bLeagueName.toLowerCase().includes('fifa club world cup')) return -1;
-      if (!aLeagueName.toLowerCase().includes('fifa club world cup') && 
-          bLeagueName.toLowerCase().includes('fifa club world cup')) return 1;
-
-      // Other friendlies fourth
-      if (aLeagueName.toLowerCase().includes('friendlies') && 
-          !bLeagueName.toLowerCase().includes('friendlies')) return -1;
-      if (!aLeagueName.toLowerCase().includes('friendlies') && 
-          bLeagueName.toLowerCase().includes('friendlies')) return 1;
-
-      // UEFA Europa Conference League fifth
-      if (aLeagueName.toLowerCase().includes('uefa europa conference league') && 
-          !bLeagueName.toLowerCase().includes('uefa europa conference league')) return -1;
-      if (!aLeagueName.toLowerCase().includes('uefa europa conference league') && 
-          bLeagueName.toLowerCase().includes('uefa europa conference league')) return 1;
-
-      // For same priority level, sort alphabetically
-      return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
-    }
-
-    // For non-top priority leagues: Popular Country leagues first, then Regular leagues
-    if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
-    if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-
-    // Clean league names for better alphabetical sorting
-    const cleanLeagueName = (name: string) => {
-      return name
-        .replace(/^(CONMEBOL|UEFA|FIFA)\s+/i, '') // Remove prefixes
-        .replace(/\s+(League|Cup|Championship|Liga|Serie|Bundesliga)$/i, '') // Remove common suffixes for comparison
-        .trim();
+    // Define priority categories
+    const getPriority = (leagueName: string, leagueId: number) => {
+      const name = leagueName.toLowerCase();
+      
+      // 1. Friendlies (highest priority)
+      if (name.includes('friendlies') || name.includes('club friendly')) {
+        return 1;
+      }
+      
+      // 2. UEFA competitions
+      if (name.includes('uefa') || name.includes('champions league') || 
+          name.includes('europa league') || name.includes('conference league')) {
+        return 2;
+      }
+      
+      // 3. FIFA competitions
+      if (name.includes('fifa') || name.includes('world cup') || 
+          name.includes('club world cup')) {
+        return 3;
+      }
+      
+      // 4. Popular Leagues (CONMEBOL, etc.)
+      if (name.includes('conmebol') || name.includes('libertadores') || 
+          name.includes('sudamericana') || name.includes('copa america')) {
+        return 4;
+      }
+      
+      // 5. Premier League (England)
+      if (leagueId === 39 || (name.includes('premier league') && name.includes('england'))) {
+        return 5;
+      }
+      
+      // 6. Serie A (Italy)
+      if (leagueId === 135 || (name.includes('serie a') && !name.includes('brazil'))) {
+        return 6;
+      }
+      
+      // 7. Major League Soccer (USA)
+      if (leagueId === 253 || leagueId === 254 || name.includes('major league soccer') || 
+          name.includes('mls')) {
+        return 7;
+      }
+      
+      // 8. Regular leagues (everything else)
+      return 8;
     };
 
-    const aCleanName = cleanLeagueName(aLeagueName);
-    const bCleanName = cleanLeagueName(bLeagueName);
+    const aPriority = getPriority(aLeagueName, aLeagueId);
+    const bPriority = getPriority(bLeagueName, bLeagueId);
 
-    // If both are popular country leagues OR both are regular leagues, sort alphabetically
-    if (a.isPopularForCountry === b.isPopularForCountry) {
-      const alphabeticalSort = aCleanName.toLowerCase().localeCompare(bCleanName.toLowerCase());
-
-      if (alphabeticalSort !== 0) {
-        return alphabeticalSort;
-      }
-
-      // Fallback: If cleaned names are the same, use full original names
-      return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
+    // Sort by priority first
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
     }
 
-    // This should not be reached due to the earlier checks, but added for completeness
-    return 0;
+    // Within same priority, sort by specific order for UEFA competitions
+    if (aPriority === 2 && bPriority === 2) {
+      const uefaOrder = ['champions league', 'europa league', 'conference league'];
+      const aUefaIndex = uefaOrder.findIndex(comp => aLeagueName.toLowerCase().includes(comp));
+      const bUefaIndex = uefaOrder.findIndex(comp => bLeagueName.toLowerCase().includes(comp));
+      
+      if (aUefaIndex !== -1 && bUefaIndex !== -1) {
+        return aUefaIndex - bUefaIndex;
+      }
+      if (aUefaIndex !== -1) return -1;
+      if (bUefaIndex !== -1) return 1;
+    }
+
+    // Within same priority, sort alphabetically
+    return aLeagueName.toLowerCase().localeCompare(bLeagueName.toLowerCase());
   });
 
   // Group sorted leagues back by country while maintaining league order
