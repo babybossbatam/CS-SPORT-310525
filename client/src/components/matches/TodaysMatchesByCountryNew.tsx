@@ -125,6 +125,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
       'in': 'India',
       'india': 'India',
       'ae': 'United Arab Emirates',
+      'united arab emirates': 'United Arab Emirates',
+      'uae': 'United Arab Emirates',
       'ba': 'Bosnia & Herzegovina',
       'mk': 'North Macedonia',
       'sa': 'Saudi Arabia'
@@ -182,6 +184,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
       'Curacao': 'CW',
       'Faroe Islands': 'FO',
       'Saudi Arabia': 'SA',
+      'United Arab Emirates': 'AE',
       'South Africa': 'ZA',
       'Costa Rica': 'CR',
       'El Salvador': 'SV',
