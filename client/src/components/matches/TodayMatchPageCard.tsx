@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '../ui/card';
+import { ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
+import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
-import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodayPopularFootballLeaguesNew from './TodayPopularFootballLeaguesNew';
-import TodaysMatchesByCountry from './TodaysMatchesByCountry';
 import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { format, parseISO, addDays, subDays } from 'date-fns';
-import { apiRequest } from '@/lib/queryClient';
 import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
-import { useQuery } from '@tanstack/react-query';
 
 interface TodayMatchPageCardProps {
   fixtures: any[];
@@ -43,19 +39,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
 
   
 
-      for (const leagueId of leagues) {
-        const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
-        const data = await response.json();
-        if (data?.league?.standings?.[0]) {
-          standingsData[leagueId] = {
-            league: data.league,
-            standings: data.league.standings[0]
-          };
-        }
-      }
-      return standingsData;
-    }
-  });
+      
 
   // Deactivate live filter when date changes while live filter is active
   useEffect(() => {
@@ -110,9 +94,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     }
   };
 
-  // Debug logging
-  console.log('TodayMatchPageCard - selected date:', selectedDate);
-  console.log('TodayMatchPageCard - fixtures length:', fixtures?.length || 0);
+  
 
   return (
     <>

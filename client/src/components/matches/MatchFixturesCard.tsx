@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '../ui/card';
+import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Card } from '../ui/card';
 import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
-import MatchesByCountryAndSeason from './MatchesByCountryAndSeason';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, selectFixturesByDate, selectStandingsByLeague } from '@/lib/store';
+import { RootState } from '@/lib/store';
 import { format, parseISO, addDays, subDays } from 'date-fns';
-import { apiRequest } from '@/lib/queryClient';
 import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 
 interface FixtureProps {
@@ -18,7 +16,7 @@ interface FixtureProps {
   onMatchClick: (matchId: number) => void;
 }
 
-import { useQuery } from '@tanstack/react-query';
+
 
 export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
@@ -29,52 +27,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
 
   
 
-  const renderStandings = (standings: any) => (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-gray-500 border-b">
-            <th className="py-2 text-left pl-4">Pos</th>
-            <th className="py-2 text-left">Team</th>
-            <th className="py-2 text-center">P</th>
-            <th className="py-2 text-center">W</th>
-            <th className="py-2 text-center">D</th>
-            <th className="py-2 text-center">L</th>
-            <th className="py-2 text-center">GD</th>
-            <th className="py-2 text-center">Pts</th>
-          </tr>
-        </thead>
-        <tbody>
-          {standings.map((team: any) => (
-            <tr key={team.team.id} className="hover:bg-gray-50 border-b last:border-b-0">
-              <td className="py-2 pl-4">{team.rank}</td>
-              <td className="py-2">
-                <div className="flex items-center space-x-2">
-                  <img 
-                    src={team.team.logo} 
-                    alt={team.team.name}
-                    className="h-5 w-5 object-contain"
-                  />
-                  <span>{team.team.name}</span>
-                </div>
-              </td>
-              <td className="text-center">{team.all.played}</td>
-              <td className="text-center">{team.all.win}</td>
-              <td className="text-center">{team.all.draw}</td>
-              <td className="text-center">{team.all.lose}</td>
-              <td className="text-center">{team.goalsDiff}</td>
-              <td className="text-center font-semibold">{team.points}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
-  // Debug logging to check what data we have
-  console.log('MatchFixturesCard - selected filter:', selectedFilter);
-  console.log('MatchFixturesCard - fixtures length:', fixtures?.length || 0);
-  console.log('MatchFixturesCard - league standings:', leagueStandings);
+  
 
   return (
     <>

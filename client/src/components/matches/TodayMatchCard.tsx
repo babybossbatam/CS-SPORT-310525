@@ -1,36 +1,24 @@
 
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Star, ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '../ui/card';
-import { Select, SelectContent, SelectTrigger } from '../ui/select';
+import { ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
+import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
 import TodaysMatchesByCountry from './TodaysMatchesByCountry';
 import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
-import MatchesByCountryAndSeason from './MatchesByCountryAndSeason';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, selectFixturesByDate, selectStandingsByLeague } from '@/lib/store';
 import { format, parseISO, addDays, subDays } from 'date-fns';
-import { apiRequest } from '@/lib/queryClient';
 import { formatYYYYMMDD, getCurrentUTCDateString, getRelativeDateDisplayName } from '@/lib/dateUtilsUpdated';
 
-interface FixtureProps {
-  fixtures: any[];
-  onMatchClick: (matchId: number) => void;
-}
-
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
-export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
+export const TodayMatchCard = () => {
   const [selectedFilter, setSelectedFilter] = useState("Today's Matches");
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [localSelectedDate, setLocalSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch();
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -82,9 +70,7 @@ export const TodayMatchCard = ({ fixtures, onMatchClick }: FixtureProps) => {
     setIsCalendarOpen(false);
   };
 
-  // Debug logging to check what data we have
-  console.log('TodayMatchCard - selected filter:', selectedFilter);
-  console.log('TodayMatchCard - fixtures length:', fixtures?.length || 0);
+  
 
   return (
     <>
