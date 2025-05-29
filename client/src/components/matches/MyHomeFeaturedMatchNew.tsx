@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
+import { format, parseISO } from 'date-fns';
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -22,8 +23,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     {
       fixture: {
         id: 1,
-        date: '2025-05-29T20:00:00Z',
-        status: { short: 'NS' }
+        date: '2025-06-01T03:00:00Z',
+        status: { short: 'NS' },
+        venue: { name: 'Allianz Arena' }
       },
       league: {
         id: 2,
@@ -51,7 +53,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       fixture: {
         id: 2,
         date: '2025-05-29T18:00:00Z',
-        status: { short: 'LIVE' }
+        status: { short: 'LIVE' },
+        venue: { name: 'Old Trafford' }
       },
       league: {
         id: 39,
@@ -203,10 +206,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Match date and time */}
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
-                <span className="text-gray-600">
-                  Thursday, May 29 | 01:00
-                </span>
-                <div className="mt-2 text-sm text-gray-600 font-medium text-center">
+                <div className="text-sm text-gray-600 font-medium text-center">
                   {(() => {
                     try {
                       const matchDate = parseISO(currentMatch.fixture.date);
