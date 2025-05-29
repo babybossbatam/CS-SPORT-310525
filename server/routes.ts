@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
 import { b365ApiService } from './services/b365Api';
-import { betsApiService } from './services/betsApi';
+
 import sportsradarApi from './services/sportsradarApi';
 import { supabaseService } from "./services/supabase";
 import { 
@@ -846,42 +846,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sportType = req.query.sport as string || '';
       const count = parseInt(req.query.count as string || '10');
 
-      // Use BetsAPI as primary news source
+      // Use SportsRadar API as primary news source
       try {
-        console.log("Using BetsAPI for sports news");
-
-        let betsApiArticles = [];
-
-        // Fetch news based on sport type
-        if (sportType === 'football') {
-          betsApiArticles = await betsApiService.getFootballNews(1, count);
-        } else if (sportType === 'basketball') {
-          betsApiArticles = await betsApiService.getBasketballNews(1, count);
-        } else if (sportType === 'tennis') {
-          betsApiArticles = await betsApiService.getTennisNews(1, count);
-        } else {
-          // Default to football/soccer news
-          betsApiArticles = await betsApiService.getSportsNews(1, 1, count);
-        }
-
-        if (betsApiArticles && betsApiArticles.length > 0) {
-          // Transform BetsAPI news data format to match our news article format
-          const articles = betsApiArticles.slice(0, count).map((article, index) => 
-            betsApiService.convertToStandardFormat(article, index)
-          );
-
-          console.log(`Successfully processed ${articles.length} news articles from BetsAPI`);
-          return res.json(articles);
-        } else {
-          console.warn("BetsAPI returned no articles");
-        }
-      } catch (error) {
-        console.error("Error fetching from BetsAPI:", error);
-      }
-
-      // Fallback to SportsRadar API if BetsAPI fails
-      try {
-        console.log("BetsAPI failed, trying SportsRadar API as fallback");
+        console.log("Using SportsRadar API for sports news");
 
         // SportsRadar content API is not accessible, skip this fallback
         console.log("SportsRadar content API not available, skipping to GNews fallback");
