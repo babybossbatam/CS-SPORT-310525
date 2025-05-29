@@ -1342,21 +1342,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     <div>
       {sortedCountries.map((countryData: any) => (
         <div key={countryData.country} className="mb-4">
-          <div className="flex items-center p-3 bg-white rounded-md shadow-sm">
-            <img
-              src={countryData.flag}
-              alt={countryData.country}
-              className="w-6 h-6 rounded-full mr-2 object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (target.src !== '/assets/fallback-logo.svg') {
-                  target.src = '/assets/fallback-logo.svg';
-                }
-              }}
-            />
-            <h2 className="text-md font-semibold text-gray-800">{countryData.country}</h2>
-          </div>
-
           <div className="mt-2">
             {Object.values(countryData.leagues).map((leagueData: any) => (
                 <div key={leagueData.league.id} className="mb-3">
