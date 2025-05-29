@@ -203,7 +203,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             </div>
 
-            
+            {/* Score display */}
+            <div className="text-center mb-4">
+              {['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentMatch.fixture.status.short) || 
+               ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) ? (
+                <div className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
+                  <span>{currentMatch.goals.home ?? 0}</span>
+                  <span className="text-gray-400">-</span>
+                  <span>{currentMatch.goals.away ?? 0}</span>
+                </div>
+              ) : (
+                <div className="text-lg font-medium text-gray-600">
+                  VS
+                </div>
+              )}
+            </div>
 
             {/* Main match display */}
             <div className="relative">
