@@ -190,7 +190,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       // Match status categories
       const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
       const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
-      
+
       const aLive = liveStatuses.includes(aStatus);
       const bLive = liveStatuses.includes(bStatus);
       const aUpcoming = aStatus === 'NS' && hoursToA > 0;
@@ -206,28 +206,35 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const aWithin4days = aUpcoming && hoursToA <= 96 && hoursToA > 24;
       const bWithin4days = bUpcoming && hoursToB <= 96 && hoursToB > 24;
 
-      // Priority 1: Live matches for popular leagues and popular teams
+      // Priority 1: Live UEFA competitions (highest priority)
+      const aLiveUEFA = aLive && aIsUEFA;
+      const bLiveUEFA = bLive && bIsUEFA;
+
+      if (aLiveUEFA && !bLiveUEFA) return -1;
+      if (!aLiveUEFA && bLiveUEFA) return 1;
+
+      // Priority 2: Live matches for popular leagues and popular teams
       const aLivePopular = aLive && ((aIsUEFA || aIsTopEuropean) || aHasPopularTeam);
       const bLivePopular = bLive && ((bIsUEFA || bIsTopEuropean) || bHasPopularTeam);
-      
+
       if (aLivePopular && !bLivePopular) return -1;
       if (!aLivePopular && bLivePopular) return 1;
 
-      // Priority 2: Featured matches (UEFA + Top European leagues with popular teams)
+      // Priority 3: UEFA competitions within 5 days (prioritized over all non-UEFA)
+      const aUEFAWithin5days = aWithin5days && aIsUEFA;
+      const bUEFAWithin5days = bWithin5days && bIsUEFA;
+
+      if (aUEFAWithin5days && !bUEFAWithin5days) return -1;
+      if (!aUEFAWithin5days && bUEFAWithin5days) return 1;
+
+      // Priority 4: Featured matches (UEFA + Top European leagues with popular teams)
       const aFeatured = (aIsUEFA || aIsTopEuropean) && aHasPopularTeam;
       const bFeatured = (bIsUEFA || bIsTopEuropean) && bHasPopularTeam;
 
       if (aFeatured && !bFeatured) return -1;
       if (!aFeatured && bFeatured) return 1;
 
-      // Priority 3: UEFA competitions within 5 days (prioritized over non-UEFA within 4 days)
-      const aUEFAWithin5days = aWithin5days && aIsUEFA;
-      const bUEFAWithin5days = bWithin5days && bIsUEFA;
-
-      if (aUEFAWithin5days && !bUEFAWithin5days && !bWithin24h) return -1;
-      if (!aUEFAWithin5days && bUEFAWithin5days && !aWithin24h) return 1;
-
-      // Priority 4: Upcoming within 24 hours (UEFA matches first)
+      // Priority 5: Upcoming within 24 hours (UEFA matches first)
       if (aWithin24h && !bWithin24h) return -1;
       if (!aWithin24h && bWithin24h) return 1;
 
@@ -237,11 +244,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (!aIsUEFA && bIsUEFA) return 1;
       }
 
-      // Priority 5: Other upcoming within 4 days
+      // Priority 6: Other upcoming within 4 days
       if (aWithin4days && !bWithin4days) return -1;
       if (!aWithin4days && bWithin4days) return 1;
 
-      // Priority 6: League priority (UEFA > Top European > Regional > Other)
+      // Priority 7: League priority (UEFA > Top European > Regional > Other)
       const getLeaguePriority = (leagueId: number) => {
         if (POPULAR_LEAGUES_CONFIG.uefa.includes(leagueId)) return 1;
         if (POPULAR_LEAGUES_CONFIG.topEuropean.includes(leagueId)) return 2;
@@ -257,26 +264,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return aLeaguePriority - bLeaguePriority;
       }
 
-      // Priority 7: Popular teams within same league priority
+      // Priority 8: Popular teams within same league priority
       if (aHasPopularTeam && !bHasPopularTeam) return -1;
       if (!aHasPopularTeam && bHasPopularTeam) return 1;
 
-      // Priority 8: Other live matches
+      // Priority 9: Other live matches
       if (aLive && !bLive) return -1;
       if (!aLive && bLive) return 1;
 
-      // Priority 9: Recent finished matches (within last 2 hours first)
+      // Priority 10: Recent finished matches (within last 2 hours first)
       if (aFinished && bFinished) {
         const aHoursAgo = Math.abs(hoursToA);
         const bHoursAgo = Math.abs(hoursToB);
-        
+
         // Prioritize very recent matches (within 2 hours)
         const aRecent = aHoursAgo <= 2;
         const bRecent = bHoursAgo <= 2;
-        
+
         if (aRecent && !bRecent) return -1;
         if (!aRecent && bRecent) return 1;
-        
+
         // Among finished matches, most recent first
         return aHoursAgo - bHoursAgo;
       }
