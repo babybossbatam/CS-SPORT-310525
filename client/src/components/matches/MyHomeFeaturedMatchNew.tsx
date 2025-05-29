@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO, isValid, differenceInHours } from 'date-fns';
-import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
-import { apiRequest } from '@/lib/queryClient';
-import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
-import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -22,310 +16,89 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [enableFetching, setEnableFetching] = useState(true);
 
-  // Use current date if not provided
-  const currentDate = selectedDate || getCurrentUTCDateString();
-
-  // Popular leagues for featured matches - include UAE/Egypt/Saudi, exclude CONMEBOL/MLS
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 848, 1, 233, 307, 301]; // UEFA competitions, Top 5 European leagues, Regional popular leagues
-
-  // Popular teams for prioritization
-  const POPULAR_TEAMS = [
-    // Premier League
-    33, 40, 42, 50, 47, 49, // Manchester United, Liverpool, Arsenal, Manchester City, Tottenham, Chelsea
-    // La Liga
-    529, 541, 530, 548, 727, // Barcelona, Real Madrid, Atletico Madrid, Real Sociedad, Athletic Bilbao
-    // Serie A
-    489, 492, 496, 500, 502, 505, // AC Milan, Napoli, Juventus, Inter, Fiorentina, Lazio
-    // Bundesliga
-    157, 165, 168, 173, 192, // Bayern Munich, Borussia Dortmund, Bayer Leverkusen, RB Leipzig, Eintracht Frankfurt
-    // Champions League popular teams
-    85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
-  ];
-
-  // Popular leagues configuration with priority levels
-  const POPULAR_LEAGUES_CONFIG = {
-    // Tier 1: UEFA competitions (highest priority)
-    uefa: [2, 3, 848], // Champions League, Europa League, Conference League
-
-    // Tier 2: Top European leagues
-    topEuropean: [39, 140, 135, 78, 61], // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-
-    // Tier 3: Regional popular leagues (UAE, Egypt, Saudi Arabia)
-    regionalPopular: [233, 307, 301], // Egypt Premier League, Saudi Pro League, UAE Pro League
-
-    // Tier 4: International friendlies and other competitions
-    other: [1] // FIFA World Cup and other international competitions
-  };
-
-  // Popular countries for filtering
-  const POPULAR_COUNTRIES = [
-    'World', 'Europe', 'International',
-    'England', 'Spain', 'Italy', 'Germany', 'France',
-    'Egypt', 'Saudi Arabia', 'United Arab Emirates'
-  ];
-
-  const getAllowedLeagues = (): number[] => {
-    return POPULAR_LEAGUES;
-  };
-
-  // Fetch popular league fixtures using the same logic as TodayPopularLeaguesNew
-  const { data: popularFixtures = [], isLoading, isFetching } = useCachedQuery(
-    ['featured-matches', currentDate],
-    async () => {
-      console.log(`MyHomeFeaturedMatchNew - Fetching fixtures for ${currentDate}`);
-
-      // Split leagues into smaller batches for better performance
-      const batchSize = 3;
-      const leagueBatches = [];
-      for (let i = 0; i < POPULAR_LEAGUES.length; i += batchSize){
-        leagueBatches.push(POPULAR_LEAGUES.slice(i, i + batchSize));
+  // Mock data for design purposes
+  const mockMatches = [
+    {
+      fixture: {
+        id: 1,
+        date: '2025-05-29T20:00:00Z',
+        status: { short: 'NS' }
+      },
+      league: {
+        id: 2,
+        name: 'UEFA Champions League',
+        logo: '/assets/fallback-logo.svg'
+      },
+      teams: {
+        home: {
+          id: 529,
+          name: 'Barcelona',
+          logo: '/assets/fallback-logo.svg'
+        },
+        away: {
+          id: 541,
+          name: 'Real Madrid',
+          logo: '/assets/fallback-logo.svg'
+        }
+      },
+      goals: {
+        home: null,
+        away: null
       }
-
-      const allData = [];
-
-      // Process batches in parallel for better performance
-      for (const batch of leagueBatches) {
-        const batchPromises = batch.map(async (leagueId) => {
-          try {
-            const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
-            const leagueFixtures = await response.json();
-
-            // Filter fixtures for the selected date
-            const matchesFromSelectedDate = leagueFixtures.filter(match => {
-              if (!match?.fixture?.date) return false;
-
-              try {
-                const fixtureDate = parseISO(match.fixture.date);
-                if (!isValid(fixtureDate)) return false;
-
-                const fixtureUTCDateString = format(fixtureDate, 'yyyy-MM-dd');
-                return fixtureUTCDateString === currentDate;
-              } catch (error) {
-                return false;
-              }
-            });
-
-            return matchesFromSelectedDate;
-          } catch (error) {
-            console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-            return [];
-          }
-        });
-
-        const batchResults = await Promise.all(batchPromises);
-        batchResults.forEach(matches => allData.push(...matches));
-      }
-
-      console.log(`MyHomeFeaturedMatchNew - Fetched ${allData.length} fixtures for ${currentDate}`);
-      return allData;
     },
     {
-      enabled: POPULAR_LEAGUES.length > 0 && !!currentDate && enableFetching,
-      maxAge: 30 * 60 * 1000, // 30 minutes cache
-      backgroundRefresh: true,
-      staleTime: 15 * 60 * 1000, // Don't refetch for 15 minutes
+      fixture: {
+        id: 2,
+        date: '2025-05-29T18:00:00Z',
+        status: { short: 'LIVE' }
+      },
+      league: {
+        id: 39,
+        name: 'Premier League',
+        logo: '/assets/fallback-logo.svg'
+      },
+      teams: {
+        home: {
+          id: 33,
+          name: 'Manchester United',
+          logo: '/assets/fallback-logo.svg'
+        },
+        away: {
+          id: 40,
+          name: 'Liverpool',
+          logo: '/assets/fallback-logo.svg'
+        }
+      },
+      goals: {
+        home: 2,
+        away: 1
+      }
     }
-  );
-
-  // Filter and prioritize matches for featured display
-  const featuredMatches = useMemo(() => {
-    if (!popularFixtures?.length) return [];
-
-    const filtered = popularFixtures.filter(fixture => {
-      // Apply exclusion filters
-      if (shouldExcludeFixture(
-        fixture.league.name,
-        fixture.teams.home.name,
-        fixture.teams.away.name
-      )) {
-        return false;
-      }
-
-      // Filter by popular countries (filterByPopularCountry=true)
-      const leagueCountry = fixture.league?.country;
-      if (!POPULAR_COUNTRIES.includes(leagueCountry)) {
-        console.log(`Filtering out fixture from non-popular country: ${leagueCountry}, league: ${fixture.league.name}`);
-        return false;
-      }
-
-      // Exclude CONMEBOL leagues (IDs: 9, 11, 13, 15)
-      if ([9, 11, 13, 15].includes(fixture.league.id)) {
-        console.log(`Filtering out CONMEBOL league: ${fixture.league.name} (ID: ${fixture.league.id})`);
-        return false;
-      }
-
-      // Exclude MLS leagues (IDs: 253, 254)
-      if ([253, 254].includes(fixture.league.id)) {
-        console.log(`Filtering out MLS league: ${fixture.league.name} (ID: ${fixture.league.id})`);
-        return false;
-      }
-
-      // Validate team data
-      return fixture.teams.home && fixture.teams.away && 
-             fixture.teams.home.name && fixture.teams.away.name;
-    });
-
-    console.log(`Filtered to ${filtered.length} matches from popular leagues`);
-
-    // Optimized Match Prioritization with clear hierarchy
-    const prioritized = filtered.sort((a, b) => {
-      const aStatus = a.fixture.status.short;
-      const bStatus = b.fixture.status.short;
-      const aDate = parseISO(a.fixture.date);
-      const bDate = parseISO(b.fixture.date);
-      const now = new Date();
-      const hoursToA = differenceInHours(aDate, now);
-      const hoursToB = differenceInHours(bDate, now);
-
-      // Pre-compute all match categories for better performance
-      const aIsUEFA = POPULAR_LEAGUES_CONFIG.uefa.includes(a.league.id);
-      const bIsUEFA = POPULAR_LEAGUES_CONFIG.uefa.includes(b.league.id);
-      const aIsTopEuropean = POPULAR_LEAGUES_CONFIG.topEuropean.includes(a.league.id);
-      const bIsTopEuropean = POPULAR_LEAGUES_CONFIG.topEuropean.includes(b.league.id);
-      const aHasPopularTeam = POPULAR_TEAMS.includes(a.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
-      const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(b.teams.away.id);
-
-      // Match status categories
-      const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-      const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
-
-      const aLive = liveStatuses.includes(aStatus);
-      const bLive = liveStatuses.includes(bStatus);
-      const aUpcoming = aStatus === 'NS' && hoursToA > 0;
-      const bUpcoming = bStatus === 'NS' && hoursToB > 0;
-      const aFinished = finishedStatuses.includes(aStatus);
-      const bFinished = finishedStatuses.includes(bStatus);
-
-      // Time-based categories (optimized checks)
-      const aWithin24h = aUpcoming && hoursToA <= 24;
-      const bWithin24h = bUpcoming && hoursToB <= 24;
-      const aWithin5days = aUpcoming && hoursToA <= 120;
-      const bWithin5days = bUpcoming && hoursToB <= 120;
-      const aWithin4days = aUpcoming && hoursToA <= 96 && hoursToA > 24;
-      const bWithin4days = bUpcoming && hoursToB <= 96 && hoursToB > 24;
-
-      const aLiveUEFA = aLive && aIsUEFA;
-      const bLiveUEFA = bLive && bIsUEFA;
-
-      if (aLiveUEFA && !bLiveUEFA) return -1;
-      if (!aLiveUEFA && bLiveUEFA) return 1;
-
-      // Priority 3: Live matches for popular leagues and popular teams
-      const aLivePopular = aLive && ((aIsUEFA || aIsTopEuropean) || aHasPopularTeam);
-      const bLivePopular = bLive && ((bIsUEFA || bIsTopEuropean) || bHasPopularTeam);
-
-      if (aLivePopular && !bLivePopular) return -1;
-      if (!aLivePopular && bLivePopular) return 1;
-
-      // Priority 4: UEFA competitions within 5 days (prioritized over all non-UEFA)
-      const aUEFAWithin5days = aWithin5days && aIsUEFA;
-      const bUEFAWithin5days = bWithin5days && bIsUEFA;
-
-      if (aUEFAWithin5days && !bUEFAWithin5days) return -1;
-      if (!aUEFAWithin5days && bUEFAWithin5days) return 1;
-
-      // Priority 5: Featured matches (UEFA + Top European leagues with popular teams)
-      const aFeatured = (aIsUEFA || aIsTopEuropean) && aHasPopularTeam;
-      const bFeatured = (bIsUEFA || bIsTopEuropean) && bHasPopularTeam;
-
-      if (aFeatured && !bFeatured) return -1;
-      if (!aFeatured && bFeatured) return 1;
-
-      // Priority 6: Upcoming within 24 hours (UEFA matches first)
-      if (aWithin24h && !bWithin24h) return -1;
-      if (!aWithin24h && bWithin24h) return 1;
-
-      // Within 24h matches, prioritize UEFA competitions
-      if (aWithin24h && bWithin24h) {
-        if (aIsUEFA && !bIsUEFA) return -1;
-        if (!aIsUEFA && bIsUEFA) return 1;
-      }
-
-      // Priority 7: Other upcoming within 4 days
-      if (aWithin4days && !bWithin4days) return -1;
-      if (!aWithin4days && bWithin4days) return 1;
-
-      // Priority 8: League priority (UEFA > Top European > Regional > Other)
-      const getLeaguePriority = (leagueId: number) => {
-        if (POPULAR_LEAGUES_CONFIG.uefa.includes(leagueId)) return 1;
-        if (POPULAR_LEAGUES_CONFIG.topEuropean.includes(leagueId)) return 2;
-        if (POPULAR_LEAGUES_CONFIG.regionalPopular.includes(leagueId)) return 3;
-        if (POPULAR_LEAGUES_CONFIG.other.includes(leagueId)) return 4;
-        return 5;
-      };
-
-      const aLeaguePriority = getLeaguePriority(a.league.id);
-      const bLeaguePriority = getLeaguePriority(b.league.id);
-
-      if (aLeaguePriority !== bLeaguePriority) {
-        return aLeaguePriority - bLeaguePriority;
-      }
-
-      // Priority 9: Popular teams within same league priority
-      if (aHasPopularTeam && !bHasPopularTeam) return -1;
-      if (!aHasPopularTeam && bHasPopularTeam) return 1;
-
-      // Priority 10: Other live matches
-      if (aLive && !bLive) return -1;
-      if (!aLive && bLive) return 1;
-
-      // Priority 11: Recent finished matches (within last 2 hours first)
-      if (aFinished && bFinished) {
-        const aHoursAgo = Math.abs(hoursToA);
-        const bHoursAgo = Math.abs(hoursToB);
-
-        // Prioritize very recent matches (within 2 hours)
-        const aRecent = aHoursAgo <= 2;
-        const bRecent = bHoursAgo <= 2;
-
-        if (aRecent && !bRecent) return -1;
-        if (!aRecent && bRecent) return 1;
-
-        // Among finished matches, most recent first
-        return aHoursAgo - bHoursAgo;
-      }
-
-      // Default: sort by date (upcoming matches by start time, finished by recency)
-      if (aUpcoming && bUpcoming) return hoursToA - hoursToB;
-      if (aFinished && bFinished) return Math.abs(hoursToA) - Math.abs(hoursToB);
-
-      // Mixed status: prioritize upcoming over finished
-      if (aUpcoming && bFinished) return -1;
-      if (aFinished && bUpcoming) return 1;
-
-      return hoursToA - hoursToB;
-    });
-
-    return prioritized.slice(0, maxMatches);
-  }, [popularFixtures, maxMatches]);
+  ];
 
   // Handle navigation
   const handlePrevious = () => {
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : featuredMatches.length - 1));
+    setCurrentIndex(prev => (prev > 0 ? prev - 1 : mockMatches.length - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex(prev => (prev < featuredMatches.length - 1 ? prev + 1 : 0));
+    setCurrentIndex(prev => (prev < mockMatches.length - 1 ? prev + 1 : 0));
   };
 
   const handleMatchClick = () => {
-    if (featuredMatches[currentIndex]) {
-      const match = featuredMatches[currentIndex];
+    if (mockMatches[currentIndex]) {
+      const match = mockMatches[currentIndex];
       navigate(`/matches/${match.fixture.id}`);
     }
   };
 
   // Get current match
-  const currentMatch = featuredMatches[currentIndex];
+  const currentMatch = mockMatches[currentIndex];
 
   // Get match status for display
   const getMatchStatus = (fixture: any) => {
     const status = fixture.fixture.status.short;
-    const fixtureDate = new Date(fixture.fixture.date);
-    const now = new Date();
-    const hoursAgo = differenceInHours(now, fixtureDate);
 
     // Live matches
     if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
@@ -334,14 +107,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Finished matches
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
-      if (hoursAgo <= 2) return 'Just Finished';
-      if (hoursAgo <= 24) return 'Recent';
-      return status;
-    }
-
-    // Upcoming matches
-    if (fixtureDate < now && status === 'NS') {
-      return 'Delayed';
+      return 'Recent';
     }
 
     return 'Scheduled';
@@ -352,38 +118,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const colors = ['#6f7c93', '#8b0000', '#1d3557', '#2a9d8f', '#e63946'];
     return colors[teamId % colors.length];
   };
-
-  // Loading state
-  if (isLoading && featuredMatches.length === 0) {
-    return (
-      <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
-        <Badge 
-          variant="secondary" 
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
-        >
-          Featured Match
-        </Badge>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Skeleton className="w-5 h-5 rounded-full" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-          <Skeleton className="h-6 w-48 mx-auto mb-4" />
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex flex-col items-center">
-              <Skeleton className="h-16 w-16 rounded mb-2" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-            <Skeleton className="h-8 w-16" />
-            <div className="flex flex-col items-center">
-              <Skeleton className="h-16 w-16 rounded mb-2" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   // No matches state
   if (!currentMatch) {
@@ -412,7 +146,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         Featured Match
       </Badge>
 
-      {featuredMatches.length > 1 && (
+      {mockMatches.length > 1 && (
         <>
           <button
             onClick={handlePrevious}
@@ -470,7 +204,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <div className="text-lg font-semibold text-center mb-3">
               <div className="flex flex-col items-center mb-[5px]">
                 <span className="text-gray-600">
-                  {format(parseISO(currentMatch.fixture.date), 'EEEE, MMM d')} | {format(parseISO(currentMatch.fixture.date), 'HH:mm')}
+                  Thursday, May 29 | 01:00
                 </span>
               </div>
             </div>
@@ -626,9 +360,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Carousel indicators */}
-            {featuredMatches.length > 1 && (
+            {mockMatches.length > 1 && (
               <div className="flex justify-center gap-2 mt-4">
-                {featuredMatches.map((_, index) => (
+                {mockMatches.map((_, index) => (
                   <button
                     key={index}
                     className={`w-2 h-2 rounded-full transition-all duration-200 ${
