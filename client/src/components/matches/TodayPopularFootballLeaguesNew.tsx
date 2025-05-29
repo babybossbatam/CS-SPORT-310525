@@ -538,7 +538,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         }
       }
 
-      // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA) - be more permissive for Brazil
+      // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA, United Arab Emirates) - be more permissive for Brazil and Egypt
       else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         // For Brazil, allow Serie A, Serie B, Serie C, and Serie D
         if (countryKey.toLowerCase() === 'brazil') {
@@ -547,8 +547,25 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             console.log(`Filtering out non-major league from Brazil: ${fixture.league.name} (ID: ${leagueId})`);
             return false;
           }
-        } else {
-          // For other Tier 3 countries (Saudi Arabia, Egypt), be very restrictive
+        } 
+        // For Egypt, allow all Premier League matches (ID: 233)
+        else if (countryKey.toLowerCase() === 'egypt') {
+          const egyptLeagues = [233]; // Egyptian Premier League
+          if (!egyptLeagues.includes(leagueId)) {
+            console.log(`Filtering out non-major league from Egypt: ${fixture.league.name} (ID: ${leagueId})`);
+            return false;
+          }
+        }
+        // For United Arab Emirates, allow UAE Pro League (ID: 301)
+        else if (countryKey.toLowerCase() === 'united arab emirates') {
+          const uaeLeagues = [301]; // UAE Pro League
+          if (!uaeLeagues.includes(leagueId)) {
+            console.log(`Filtering out non-major league from UAE: ${fixture.league.name} (ID: ${leagueId})`);
+            return false;
+          }
+        }
+        else {
+          // For other Tier 3 countries (Saudi Arabia), be very restrictive
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
             console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);

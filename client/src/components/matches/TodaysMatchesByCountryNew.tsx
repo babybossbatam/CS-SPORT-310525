@@ -342,6 +342,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
       return acc;
     }
 
+    // Apply exclusion filters only for non-Egypt matches
+    const leagueName = league.name || '';
+    const homeTeamName = fixture.teams?.home?.name || '';
+    const awayTeamName = fixture.teams?.away?.name || '';
+    
+    // Skip exclusion filter for Egypt matches to ensure all Egypt matches are shown
+    if (league.country?.toLowerCase() !== 'egypt') {
+      if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
+        console.log(`Filtering out excluded fixture: ${league.name} - ${homeTeamName} vs ${awayTeamName}`);
+        return acc;
+      }
+    }
+
     const country = league.country;
     const displayCountry = getCountryDisplayName(country);
 
