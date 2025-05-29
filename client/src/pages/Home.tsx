@@ -38,6 +38,7 @@ import { useLocation } from "wouter";
 // Import the new TodayMatchCard component
 import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
 import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
+import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -464,6 +465,13 @@ const Home = () => {
           {/* Right column (7 columns) */}
           <div className="lg:col-span-7 space-y-4">
             <FeaturedMatch />
+            
+            {/* New optimized featured match component for testing */}
+            <MyHomeFeaturedMatchNew 
+              selectedDate={selectedDate} 
+              maxMatches={8}
+            />
+            
             <Card>
               <CardContent>
                 <HomeTopScorersList />
