@@ -1068,10 +1068,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     );
   }
 
-  // Format the time for display
+  // Format the time for display - using same format as TodaysMatchesByCountryNew
   const formatMatchTime = (dateString: string | null | undefined) => {
+    if (!dateString || typeof dateString !== 'string') return '--:--';
+
     try {
-      if (!dateString) return '--:--';
       const date = new Date(dateString);
       return format(date, 'HH:mm');
     } catch (error) {
