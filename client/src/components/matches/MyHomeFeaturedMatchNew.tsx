@@ -206,8 +206,25 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <span className="text-gray-600">
                   Thursday, May 29 | 01:00
                 </span>
-                <div className="mt-2 text-sm text-gray-500">
-                  Additional content below date
+                <div className="mt-2 text-sm text-gray-600 font-medium text-center">
+                  {(() => {
+                    try {
+                      const matchDate = parseISO(currentMatch.fixture.date);
+                      const formattedDate = format(matchDate, "EEEE, do MMM");
+                      const timeOnly = format(matchDate, "HH:mm");
+
+                      return (
+                        <>
+                          {formattedDate} | {timeOnly}
+                          {currentMatch.fixture.venue?.name
+                            ? ` | ${currentMatch.fixture.venue.name}`
+                            : ""}
+                        </>
+                      );
+                    } catch (e) {
+                      return currentMatch.fixture.venue?.name || "Match Information";
+                    }
+                  })()}
                 </div>
               </div>
             </div>
