@@ -203,6 +203,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const bWithin24h = bUpcoming && differenceInHours(bDate, now) <= 24 && differenceInHours(bDate, now) >= 0;
       const aWithin4days = aUpcoming && differenceInHours(aDate, now) <= 96 && differenceInHours(aDate, now) > 24;
       const bWithin4days = bUpcoming && differenceInHours(bDate, now) <= 96 && differenceInHours(bDate, now) > 24;
+      const aWithin5days = aUpcoming && differenceInHours(aDate, now) <= 120 && differenceInHours(aDate, now) >= 0;
+      const bWithin5days = bUpcoming && differenceInHours(bDate, now) <= 120 && differenceInHours(bDate, now) >= 0;
 
       const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
       const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
@@ -218,9 +220,25 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       if (aLive && !bLive) return -1;
       if (!aLive && bLive) return 1;
 
-      // Priority 3: Upcoming within 24 hours
+      // Priority 3: Upcoming within 24 hours (UEFA matches first)
       if (aWithin24h && !bWithin24h) return -1;
       if (!aWithin24h && bWithin24h) return 1;
+
+      // Within upcoming 24h matches, prioritize UEFA competitions
+      if (aWithin24h && bWithin24h) {
+        const aIsUEFA = POPULAR_LEAGUES_CONFIG.uefa.includes(a.league.id);
+        const bIsUEFA = POPULAR_LEAGUES_CONFIG.uefa.includes(b.league.id);
+
+        if (aIsUEFA && !bIsUEFA) return -1;
+        if (!aIsUEFA && bIsUEFA) return 1;
+      }
+
+      // Priority 3.5: UEFA competitions within 5 days over non-UEFA within 4 days
+      const aIsUEFAWithin5days = aWithin5days && POPULAR_LEAGUES_CONFIG.uefa.includes(a.league.id);
+      const bIsUEFAWithin5days = bWithin5days && POPULAR_LEAGUES_CONFIG.uefa.includes(b.league.id);
+
+      if (aIsUEFAWithin5days && !bIsUEFAWithin5days && !bWithin24h) return -1;
+      if (!aIsUEFAWithin5days && bIsUEFAWithin5days && !aWithin24h) return 1;
 
       // Priority 4: Other upcoming within 4 days
       if (aWithin4days && !bWithin4days) return -1;
