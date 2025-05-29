@@ -841,84 +841,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // News Article Routes
   apiRouter.get("/news", async (req: Request, res: Response) => {
     try {
-      // Get optional query parameters
-      const category = req.query.category as string || 'sports';
-      const sportType = req.query.sport as string || '';
-      const count = parseInt(req.query.count as string || '10');
-
-      // Use SportsRadar API as primary news source
-      try {
-        console.log("Using SportsRadar API for sports news");
-
-        // SportsRadar content API is not accessible, skip this fallback
-        console.log("SportsRadar content API not available, skipping to GNews fallback");
-      } catch (sportsRadarError) {
-        console.log("SportsRadar fallback skipped due to API limitations");
-      }
-
-      // Final fallback to GNews API if both BetsAPI and SportsRadar fail
-      try {
-        const apiKey = process.env.GNEWS_API_KEY;
-        if (!apiKey) {
-          throw new Error('GNews API key is not configured');
-        }
-
-        console.log("BetsAPI failed, using GNews API as fallback");
-
-        // Build search query based on sport type
-        let searchQuery = '';
-        if (sportType) {
-          let searchTerm = sportType;
-
-          if (sportType === 'football') {
-            searchTerm = '(premier league OR bundesliga OR la liga OR serie a OR champions league OR uefa OR fifa) AND (soccer OR football) -NFL -bears -chiefs -ravens -bills';
-          } else if (sportType === 'basketball') {
-            searchTerm = 'basketball -NFL -football';
-          } else if (sportType === 'baseball') {
-            searchTerm = 'baseball -NFL -football -basketball';
-          } else if (sportType === 'tennis') {
-            searchTerm = 'tennis -NFL -football -basketball';
-          } else if (sportType === 'hockey') {
-            searchTerm = 'hockey -NFL -football -basketball';
-          }
-
-          searchQuery = `&q=${encodeURIComponent(searchTerm)}`;
-        }
-
-        const gnewsUrl = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=${count}${searchQuery}&apikey=${apiKey}`;
-
-        console.log(`Fetching news with URL: ${gnewsUrl.replace(apiKey, '[REDACTED]')}`);
-
-        const response = await fetch(gnewsUrl);
-        const data = await response.json();
-
-        if (data.errors) {
-          throw new Error(`GNews API error: ${data.errors[0]}`);
-        }
-
-        const articles = data.articles.map((article: any, index: number) => ({
-          id: index + 1,
-          title: article.title,
-          content: article.description,
-          imageUrl: article.image || 'https://images.pexels.com/photos/47343/the-ball-stadion-football-the-pitch-47343.jpeg',
-          source: article.source.name,
-          url: article.url,
-          publishedAt: article.publishedAt,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }));
-
-        return res.json(articles);
-      } catch (gnewsError) {
-        console.error("GNews API also failed:", gnewsError);
-      }
-
-      // Final fallback to local storage
-      console.log("All external APIs failed, using local storage fallback");
-      const articles = await storage.getAllNewsArticles();
-      res.json(articles);
+      console.log("News API disabled - returning empty array");
+      
+      // Return empty array instead of making any external API calls
+      res.json([]);
     } catch (error) {
-      console.error("Error fetching news articles:", error);
+      console.error("Error in news endpoint:", error);
       res.status(500).json({ message: "Failed to fetch news articles" });
     }
   });
