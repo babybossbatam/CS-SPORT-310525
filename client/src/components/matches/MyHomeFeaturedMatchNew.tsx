@@ -177,7 +177,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             transition={{ type: "tween", duration: 0.2 }}
           >
             {/* Header with league info and status */}
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex items-center justify-center gap-2 mb-2 mb-4">
               <div className="flex items-center gap-2">
                 <img
                   src={currentMatch.league.logo || '/assets/fallback-logo.svg'}
