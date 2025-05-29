@@ -677,8 +677,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     // Check if this is a popular league for this country
     const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
-    const isPopularForCountry```text
- = countryPopularLeagues.includes(leagueId);
+    const isPopularForCountry = countryPopularLeagues.includes(leagueId);
     const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
     if (isPopularForCountry || isGloballyPopular) {
