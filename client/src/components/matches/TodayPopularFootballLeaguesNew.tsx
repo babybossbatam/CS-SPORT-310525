@@ -1358,7 +1358,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           }
                         }}
                       />
-                      <h3 className="text-sm font-medium text-gray-700">{leagueData.league.name}</h3>
+                      <div className="flex flex-col">
+                        <h3 className="text-sm font-medium text-gray-700">{leagueData.league.name}</h3>
+                        <span className="text-xs text-gray-500">{leagueData.league.country}</span>
+                      </div>
                     </div>
 
                     {leagueData.matches.map((match: any) => (
