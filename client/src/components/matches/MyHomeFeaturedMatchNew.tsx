@@ -220,7 +220,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       if (aLive && !bLive) return -1;
       if (!aLive && bLive) return 1;
 
-      // Priority 3: Upcoming within 24 hours (UEFA matches first)
+      // Priority 3: UEFA competitions within 5 days (prioritized over non-UEFA within 4 days)
+      const aIsUEFAWithin5days = aWithin5days && POPULAR_LEAGUES_CONFIG.uefa.includes(a.league.id);
+      const bIsUEFAWithin5days = bWithin5days && POPULAR_LEAGUES_CONFIG.uefa.includes(b.league.id);
+
+      if (aIsUEFAWithin5days && !bIsUEFAWithin5days) return -1;
+      if (!aIsUEFAWithin5days && bIsUEFAWithin5days) return 1;
+
+      // Priority 4: Upcoming within 24 hours (UEFA matches first)
       if (aWithin24h && !bWithin24h) return -1;
       if (!aWithin24h && bWithin24h) return 1;
 
@@ -233,14 +240,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (!aIsUEFA && bIsUEFA) return 1;
       }
 
-      // Priority 3.5: UEFA competitions within 5 days over non-UEFA within 4 days
-      const aIsUEFAWithin5days = aWithin5days && POPULAR_LEAGUES_CONFIG.uefa.includes(a.league.id);
-      const bIsUEFAWithin5days = bWithin5days && POPULAR_LEAGUES_CONFIG.uefa.includes(b.league.id);
-
-      if (aIsUEFAWithin5days && !bIsUEFAWithin5days && !bWithin24h) return -1;
-      if (!aIsUEFAWithin5days && bIsUEFAWithin5days && !aWithin24h) return 1;
-
-      // Priority 4: Other upcoming within 4 days
+      // Priority 5: Other upcoming within 4 days
       if (aWithin4days && !bWithin4days) return -1;
       if (!aWithin4days && bWithin4days) return 1;
 
