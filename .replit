@@ -50,6 +50,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx --no-restart server/index.ts"
 
+[[workflows.workflow]]
+name = "Start Dev Server (No Watch)"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' node -r tsx/esm server/index.ts"
+
 [[ports]]
 localPort = 5000
 externalPort = 80
