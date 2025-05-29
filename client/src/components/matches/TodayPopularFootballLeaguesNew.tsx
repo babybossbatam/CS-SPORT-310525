@@ -1558,9 +1558,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               }}
                             />
                           </div>
+
                           {/* League Info */}
                           <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                           </div>
+
                           {/* Away Team */}
                           <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
                             {match.teams.away.name}
