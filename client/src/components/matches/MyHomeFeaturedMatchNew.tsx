@@ -203,31 +203,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             </div>
 
-            {/* Match date and time */}
-            <div className="text-lg font-semibold text-center mb-3">
-              <div className="flex flex-col items-center mb-[5px]">
-                <div className="text-sm text-gray-600 font-medium text-center">
-                  {(() => {
-                    try {
-                      const matchDate = parseISO(currentMatch.fixture.date);
-                      const formattedDate = format(matchDate, "EEEE, do MMM");
-                      const timeOnly = format(matchDate, "HH:mm");
-
-                      return (
-                        <>
-                          {formattedDate} | {timeOnly}
-                          {currentMatch.fixture.venue?.name
-                            ? ` | ${currentMatch.fixture.venue.name}`
-                            : ""}
-                        </>
-                      );
-                    } catch (e) {
-                      return currentMatch.fixture.venue?.name || "Match Information";
-                    }
-                  })()}
-                </div>
-              </div>
-            </div>
+            
 
             {/* Main match display */}
             <div className="relative">
@@ -291,6 +267,42 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     ) : (
                       <span className="vs-text font-bold">VS</span>
                     )}
+                  </div>
+
+                  {/* Match date, time and venue - centered below VS */}
+                  <div
+                    className="absolute text-center text-xs text-black font-medium"
+                    style={{
+                      fontSize: "0.875rem",
+                      whiteSpace: "nowrap",
+                      overflow: "visible",
+                      textAlign: "center",
+                      position: "absolute",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      bottom: "-25px",
+                      width: "max-content",
+                      fontFamily: "'Inter', system-ui, sans-serif",
+                    }}
+                  >
+                    {(() => {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const formattedDate = format(matchDate, "EEEE, do MMM");
+                        const timeOnly = format(matchDate, "HH:mm");
+
+                        return (
+                          <>
+                            {formattedDate} | {timeOnly}
+                            {currentMatch.fixture.venue?.name
+                              ? ` | ${currentMatch.fixture.venue.name}`
+                              : ""}
+                          </>
+                        );
+                      } catch (e) {
+                        return currentMatch.fixture.venue?.name || "";
+                      }
+                    })()}
                   </div>
 
                   {/* Away team colored bar and logo */}
