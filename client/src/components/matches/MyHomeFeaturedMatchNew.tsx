@@ -213,7 +213,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <span>{currentMatch.goals.away ?? 0}</span>
                 </div>
               ) : (
-                <div className="text-lg font-medium text-gray-600">
+                <div className="text-lg font-medium text-gray-600 mb-4">
                   VS
                 </div>
               )}
