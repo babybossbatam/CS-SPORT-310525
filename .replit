@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Start Dev Server (No Auto Restart)"
+runButton = "Start Dev Server (Fixed)"
 
 [[workflows.workflow]]
 name = "Project"
@@ -58,6 +58,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' node -r tsx/esm server/index.ts"
+
+[[workflows.workflow]]
+name = "Start Dev Server (Fixed)"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server/index.ts"
 
 [[ports]]
 localPort = 5000
