@@ -474,13 +474,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     const selectedDateObj = new Date(selectedDate);
 
     if (isToday(selectedDateObj)) {
-      return "Today's Football Matches by Country - NEW VERSION";
+      return "Today's Football Matches by Country";
     } else if (isYesterday(selectedDateObj)) {
-      return "Yesterday's Football Results by Country - NEW VERSION";
+      return "Yesterday's Football Results by Country";
     } else if (isTomorrow(selectedDateObj)) {
-      return "Tomorrow's Football Matches by Country - NEW VERSION";
+      return "Tomorrow's Football Matches by Country";
     } else {
-      return `Football Matches - NEW VERSION - ${format(selectedDateObj, 'MMM d, yyyy')}`;
+      return `Football Matches - ${format(selectedDateObj, 'MMM d, yyyy')}`;
     }
   };
 
