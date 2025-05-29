@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow, subDays, addDays } from 'date-fns';
@@ -22,7 +22,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   timeFilterActive = false, 
   showTop20 = false 
 }) => {
-  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Geographic/Regional preferences with priority tiers
@@ -181,11 +180,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
   );
 
-  // Start with all countries collapsed by default
-  useEffect(() => {
-    // Reset to collapsed state when selected date changes
-    setExpandedCountries(new Set());
-  }, [selectedDate]);
+  
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
@@ -882,15 +877,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Now `sortedCountries` contains countries in the order of their most popular leagues
   // and each country contains leagues in the desired order.
 
-  const toggleCountry = (country: string) => {
-    const newExpanded = new Set(expandedCountries);
-    if (newExpanded.has(country)) {
-      newExpanded.delete(country);
-    } else {
-      newExpanded.add(country);
-    }
-    setExpandedCountries(newExpanded);
-  };
+  
 
   // Enhanced match status logic
   const getMatchStatus = (fixture: any) => {
@@ -1355,34 +1342,23 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     <div>
       {sortedCountries.map((countryData: any) => (
         <div key={countryData.country} className="mb-4">
-          <div
-            className="flex items-center justify-between p-3 bg-white rounded-md shadow-sm cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-            onClick={() => toggleCountry(countryData.country)}
-          >
-            <div className="flex items-center">
-              <img
-                src={countryData.flag}
-                alt={countryData.country}
-                className="w-6 h-6 rounded-full mr-2 object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (target.src !== '/assets/fallback-logo.svg') {
-                    target.src = '/assets/fallback-logo.svg';
-                  }
-                }}
-              />
-              <h2 className="text-md font-semibold text-gray-800">{countryData.country}</h2>
-            </div>
-            {expandedCountries.has(countryData.country) ? (
-              <ChevronUp className="w-5 h-5 text-gray-500" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-gray-500" />
-            )}
+          <div className="flex items-center p-3 bg-white rounded-md shadow-sm">
+            <img
+              src={countryData.flag}
+              alt={countryData.country}
+              className="w-6 h-6 rounded-full mr-2 object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== '/assets/fallback-logo.svg') {
+                  target.src = '/assets/fallback-logo.svg';
+                }
+              }}
+            />
+            <h2 className="text-md font-semibold text-gray-800">{countryData.country}</h2>
           </div>
 
-          {expandedCountries.has(countryData.country) && (
-            <div className="mt-2">
-              {Object.values(countryData.leagues).map((leagueData: any) => (
+          <div className="mt-2">
+            {Object.values(countryData.leagues).map((leagueData: any) => (
                 <div key={leagueData.league.id} className="mb-3">
                   <div className="bg-white rounded-md shadow-sm overflow-hidden">
                     <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
@@ -1574,7 +1550,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                 </div>
               ))}
             </div>
-          )}
         </div>
       ))}
     </div>
