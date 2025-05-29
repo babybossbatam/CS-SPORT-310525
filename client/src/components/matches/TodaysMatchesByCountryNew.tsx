@@ -575,9 +575,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
           <Calendar className="h-4 w-4" />
           {getHeaderTitle()}
         </h3>
-        <div className="text-xs text-blue-600 mt-1">
-          Current filtering date: {getCurrentUTCDateString(selectedDate)} (showing date only, not timestamp)
-        </div>
       </CardHeader>
       <CardContent className="p-0 pt-4">
         <div>
