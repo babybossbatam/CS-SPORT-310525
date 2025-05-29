@@ -27,8 +27,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Use current date if not provided
   const currentDate = selectedDate || getCurrentUTCDateString();
 
-  // Popular leagues for featured matches (same as TodayPopularLeaguesNew)
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 1, 9, 11, 13, 15, 71, 233, 253, 254, 307, 301];
+  // Popular leagues for featured matches - updated to exclude CONMEBOL and MLS, add regional leagues
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 1, 10, 61, 233, 307, 301]; // Removed: 9, 11, 13, 15 (CONMEBOL), 71 (Brazil Serie A), 253, 254 (MLS), Added: 10 (Friendlies), 61 (Ligue 1)
 
   // Popular teams for prioritization
   const POPULAR_TEAMS = [
@@ -56,7 +56,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     regionalPopular: [233, 307, 301] // Egypt Premier League, Saudi Pro League, UAE Pro League
   };
 
-  // Popular countries for filtering
+  // Popular countries for filtering - focused on selected regions
   const POPULAR_COUNTRIES = [
     'World', 'Europe', 'International',
     'England', 'Spain', 'Italy', 'Germany', 'France',
@@ -64,11 +64,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   ];
 
   const getAllowedLeagues = (): number[] => {
-    return [
-      ...POPULAR_LEAGUES_CONFIG.international,
-      ...POPULAR_LEAGUES_CONFIG.topEuropean,
-      ...POPULAR_LEAGUES_CONFIG.regionalPopular
-    ];
+    return POPULAR_LEAGUES;
   };
 
   // Fetch popular league fixtures using the same logic as TodayPopularLeaguesNew
