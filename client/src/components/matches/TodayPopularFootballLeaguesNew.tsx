@@ -27,7 +27,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Geographic/Regional preferences with priority tiers
   const TIER_1_COUNTRIES = ['England', 'Spain', 'Italy', 'Germany', 'France']; // Top priority European countries
   const TIER_2_INTERNATIONAL = ['World', 'Europe']; // International competitions
-  const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'USA']; // Other popular countries
+  const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'USA', 'United Arab Emirates']; // Other popular countries
 
   const POPULAR_COUNTRIES_ORDER = [
     'International', // FIFA Club World Cup first
@@ -36,9 +36,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'South America', // CONMEBOL competitions
     'Egypt', // Egypt Premier League
     'USA', // USA MLS league
+    'United Arab Emirates', // UAE Pro League
     ...TIER_1_COUNTRIES.filter(c => c !== 'England' && c !== 'Spain' && c !== 'Italy' && c !== 'Germany' && c !== 'France'), // Remove duplicates if any
     'England', 'Spain', 'Italy', 'Germany', 'France', // Other European countries
-    ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt'), // Other popular countries except Egypt (already listed)
+    ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt' && c !== 'United Arab Emirates'), // Other popular countries except those already listed
   ];
 
   // Enhanced leagues by country with tier-based filtering
@@ -52,6 +53,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Saudi Arabia': [307], // Saudi Pro League (only major league)
     'Egypt': [233], // Egyptian Premier League (only major league)
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
+    'United Arab Emirates': [301], // UAE Pro League
     'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
     'World': [1, 10], // World Cup, Friendlies
     'South America': [9, 11, 13], // Copa America, Libertadores, Sudamericana
