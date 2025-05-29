@@ -451,7 +451,7 @@ const Home = () => {
           {/* Left column (5 columns) */}
           <div className="lg:col-span-5 space-y-4">
             {/* New TodayMatchPageCard for testing */}
-            <div className="mt-4">
+            <div className="mt-4" style={{ marginTop: '5px' }}>
               <TodayMatchPageCard 
                 fixtures={fixtures}
                 onMatchClick={handleMatchClick}
