@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +44,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
+  // Popular leagues configuration with priority levels
+  const POPULAR_LEAGUES_CONFIG = {
+    // Tier 1: International competitions (highest priority) - excluding CONMEBOL
+    international: [2, 3, 848, 10], // Champions League, Europa League, Conference League, Friendlies
+
+    // Tier 2: Top European leagues
+    topEuropean: [39, 140, 135, 78, 61], // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+
+    // Tier 3: Regional popular leagues
+    regionalPopular: [233, 307, 301] // Egypt Premier League, Saudi Pro League, UAE Pro League
+  };
+
+  // Popular countries for filtering
+  const POPULAR_COUNTRIES = [
+    'World', 'Europe', 'International',
+    'England', 'Spain', 'Italy', 'Germany', 'France',
+    'Egypt', 'Saudi Arabia', 'United Arab Emirates'
+  ];
+
+  const getAllowedLeagues = (): number[] => {
+    return [
+      ...POPULAR_LEAGUES_CONFIG.international,
+      ...POPULAR_LEAGUES_CONFIG.topEuropean,
+      ...POPULAR_LEAGUES_CONFIG.regionalPopular
+    ];
+  };
+
   // Fetch popular league fixtures using the same logic as TodayPopularLeaguesNew
   const { data: popularFixtures = [], isLoading, isFetching } = useCachedQuery(
     ['featured-matches', currentDate],
@@ -54,7 +80,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       // Split leagues into smaller batches for better performance
       const batchSize = 3;
       const leagueBatches = [];
-      for (let i = 0; i < POPULAR_LEAGUES.length; i += batchSize) {
+      for (let i = 0; i < POPULAR_LEAGUES.length; i += batchSize){
         leagueBatches.push(POPULAR_LEAGUES.slice(i, i + batchSize));
       }
 
@@ -133,7 +159,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       // Check if teams are popular
       const aHasPopularTeam = POPULAR_TEAMS.includes(a.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
-      const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(b.teams.away.id);
+      const bHasPopularTeam = POPULAR_TEAMS.includes(b.teams.home.id) || POPULAR_TEAMS.includes(a.teams.away.id);
 
       // Priority 1: Popular teams first
       if (aHasPopularTeam && !bHasPopularTeam) return -1;
