@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -93,7 +92,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
       'lu': 'Luxembourg',
       'mt': 'Malta',
       'cy': 'Cyprus',
-      'jp': 'Japan',
       'cn': 'China',
       'in': 'India',
       'ca': 'Canada',
@@ -173,7 +171,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
       'United States': 'US',
       'South Korea': 'KR',
       'Czech Republic': 'CZ',
-      'United Arab Emirates': 'AE',
       'Bosnia & Herzegovina': 'BA',
       'North Macedonia': 'MK',
       'Trinidad & Tobago': 'TT',
@@ -344,7 +341,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     const leagueName = league.name || '';
     const homeTeamName = fixture.teams?.home?.name || '';
     const awayTeamName = fixture.teams?.away?.name || '';
-    
+
     // Skip exclusion filter for Egypt matches to ensure all Egypt matches are shown
     if (league.country?.toLowerCase() !== 'egypt') {
       if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
@@ -698,10 +695,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
                                 // Define status categories
                                 const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
                                 const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
-                                
+
                                 const aUpcoming = aStatus === 'NS' && !aLive;
                                 const bUpcoming = bStatus === 'NS' && !bLive;
-                                
+
                                 const aEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
                                 const bEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
 
