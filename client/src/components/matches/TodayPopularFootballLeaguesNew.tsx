@@ -1020,7 +1020,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Use cached data if available, even during loading
   const hasCachedFixtures = cachedFixtures && cachedFixtures.length > 0;
-  const hasCachedPopular = cachedPopularFixtures && cachedPopularPopularFixtures.length > 0;
+  const hasCachedPopular = cachedPopularFixtures && cachedPopularFixtures.length > 0;
   const combinedCachedData = [...(cachedFixtures || []), ...(cachedPopularFixtures || [])].filter((fixture, index, self) => 
     index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
   );
