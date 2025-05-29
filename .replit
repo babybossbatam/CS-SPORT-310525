@@ -70,14 +70,15 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server
 
 [[ports]]
 localPort = 5000
-externalPort = 3000
+externalPort = 5173
 
 [[ports]]
 localPort = 5001
-externalPort = 3001
+externalPort = 3000
 
 [[ports]]
 localPort = 5002
+externalPort = 3001
 
 [[ports]]
 localPort = 5003

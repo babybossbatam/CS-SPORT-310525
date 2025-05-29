@@ -206,6 +206,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <span className="text-gray-600">
                   Thursday, May 29 | 01:00
                 </span>
+                <div className="mt-2 text-sm text-gray-500">
+                  Additional content below date
+                </div>
               </div>
             </div>
 
