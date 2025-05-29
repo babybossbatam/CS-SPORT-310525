@@ -1362,9 +1362,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       {sortedCountries.map((countryData: any) => (
         <div key={countryData.country} className="mb-4">
           <div className="mt-2">
-            {Object.values(countryData.leagues).map((leagueData: any) => (
-                <div key={leagueData.league.id} className="mb-3">
-                  <div className="bg-white rounded-md shadow-sm overflow-hidden">
+            {Object.values(countryData.leagues).map((leagueData: any, leagueIndex: number) => (
+                <div key={leagueData.league.id} className={`mb-3 ${leagueIndex === 0 ? '-mt-4' : ''}`}>
+                  <div className="bg-white rounded-md shadow-sm overflow-hidden"></div>
                     <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
                       <img
                         src={leagueData.league.logo}
