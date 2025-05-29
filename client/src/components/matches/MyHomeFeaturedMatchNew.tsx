@@ -193,10 +193,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <span className="text-sm font-medium">{currentMatch.league.name}</span>
               </div>
 
-              <div className="text-xs text-gray-500 mt-1 text-center">
-                Additional league information
-              </div>
-
               <span className="text-gray-400">-</span>
 
               <div className="flex items-center gap-2">
