@@ -2,7 +2,7 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
-import { b365ApiService } from './services/b365Api';
+
 
 import sportsradarApi from './services/sportsradarApi';
 import { supabaseService } from "./services/supabase";
@@ -1211,34 +1211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get B365 live matches directly
-  apiRouter.get('/b365/live', async (req: Request, res: Response) => {
-    try {
-      const liveMatches = await b365ApiService.getLiveFootballMatches();
-      res.json(liveMatches);
-    } catch (error) {
-      console.error('Error in /api/b365/live:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch B365 live matches',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // Get B365 events by date
-  apiRouter.get('/b365/events/:date', async (req: Request, res: Response) => {
-    try {
-      const { date } = req.params;
-      const events = await b365ApiService.getEventsByDate(date);
-      res.json(events);
-    } catch (error) {
-      console.error('Error in /api/b365/events:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch B365 events',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
+  
 
   // Get country flag with SportsRadar fallback
   apiRouter.get('/flags/:country', async (req: Request, res: Response) => {

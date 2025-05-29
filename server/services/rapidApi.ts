@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { FixtureResponse, LeagueResponse, PlayerStatistics } from '../types';
-import { b365ApiService } from './b365Api';
+//import { b365ApiService } from './b365Api'; // Removed B365 API import
 
 // Define standings type
 interface LeagueStandings {
@@ -251,6 +251,7 @@ export const rapidApiService = {
 
       // Try B365API as fallback for current date
       if (isToday) {
+        /* Removed B365 Fallback
         try {
           console.log('RapidAPI failed for today, trying B365API live matches as fallback...');
           const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
@@ -270,6 +271,7 @@ export const rapidApiService = {
         } catch (b365Error) {
           console.error('B365API Fallback also failed:', b365Error);
         }
+        */
       }
 
       if (cached?.data) {
@@ -350,6 +352,7 @@ export const rapidApiService = {
         return filteredLiveFixtures;
       }
 
+      /*  Removed B365 API fallback
       // If RapidAPI returns no live fixtures, try B365API as fallback
       console.log('RapidAPI: No live fixtures found, trying B365API as fallback...');
       const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
@@ -367,11 +370,13 @@ export const rapidApiService = {
         });
         return convertedMatches;
       }
+      */
 
       return [];
     } catch (error) {
       console.error('RapidAPI: Error fetching live fixtures:', error);
 
+      /* Removed B365 API fallback
       // Try B365API as fallback when RapidAPI fails
       try {
         console.log('RapidAPI failed, trying B365API as fallback...');
@@ -392,6 +397,7 @@ export const rapidApiService = {
       } catch (b365Error) {
         console.error('B365API Fallback also failed:', b365Error);
       }
+      */
 
       // Use cached data if available
       if (cached?.data) {
