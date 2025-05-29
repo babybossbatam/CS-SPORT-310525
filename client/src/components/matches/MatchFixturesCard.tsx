@@ -27,26 +27,7 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
-  // Get standings from league data
-  const { data: leagueStandings } = useQuery({
-    queryKey: ['standings', selectedFilter],
-    queryFn: async () => {
-      const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
-      const standingsData = {};
-
-      for (const leagueId of leagues) {
-        const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
-        const data = await response.json();
-        if (data?.league?.standings?.[0]) {
-          standingsData[leagueId] = {
-            league: data.league,
-            standings: data.league.standings[0]
-          };
-        }
-      }
-      return standingsData;
-    }
-  });
+  
 
   const renderStandings = (standings: any) => (
     <div className="overflow-x-auto">

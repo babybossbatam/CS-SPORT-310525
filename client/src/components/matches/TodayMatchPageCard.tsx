@@ -41,12 +41,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     };
   }, [isCalendarOpen]);
 
-  // Get standings from league data
-  const { data: leagueStandings } = useQuery({
-    queryKey: ['standings', selectedDate],
-    queryFn: async () => {
-      const leagues = [39, 140, 78, 135, 2, 3]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL
-      const standingsData = {};
+  
 
       for (const leagueId of leagues) {
         const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
@@ -118,7 +113,6 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
   // Debug logging
   console.log('TodayMatchPageCard - selected date:', selectedDate);
   console.log('TodayMatchPageCard - fixtures length:', fixtures?.length || 0);
-  console.log('TodayMatchPageCard - league standings:', leagueStandings);
 
   return (
     <>
