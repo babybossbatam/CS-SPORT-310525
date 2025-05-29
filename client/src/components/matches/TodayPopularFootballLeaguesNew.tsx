@@ -768,7 +768,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const aLeagueId = a.league?.id;
     const bLeagueId = b.league?.id;
 
-    // Define priority categories
+    // Define priority categories: Friendlies > UEFA > FIFA > Popular Leagues > Premier League > Serie A > Major League > Regular League
     const getPriority = (leagueName: string, leagueId: number) => {
       const name = leagueName.toLowerCase();
       
@@ -795,8 +795,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return 4;
       }
       
-      // 5. Premier League (England)
-      if (leagueId === 39 || (name.includes('premier league') && name.includes('england'))) {
+      // 5. Premier League (England) 
+      if (leagueId === 39 || (name.includes('premier league') && !name.includes('egypt'))) {
         return 5;
       }
       
