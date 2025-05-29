@@ -1361,10 +1361,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       </div>
       {sortedCountries.map((countryData: any) => (
         <div key={countryData.country} className="mb-4">
-          <div className="mt-2">
+          
+<div className="mt-2">
             {Object.values(countryData.leagues).map((leagueData: any, leagueIndex: number) => (
                 <div key={leagueData.league.id} className={`mb-3 ${leagueIndex === 0 ? '-mt-4' : ''}`}>
-                  <div className="bg-white rounded-md shadow-sm overflow-hidden"></div>
+                  <div className="bg-white rounded-md shadow-sm overflow-hidden">
                     <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
                       <img
                         src={leagueData.league.logo}
@@ -1425,7 +1426,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                         <span className="text-red-600 animate-pulse">HT</span>
                                       ) : (
                                         <span className="text-red-600 animate-pulse">{match.fixture.status.elapsed || 0}'</span>
-                                      )}
+                                                                            )}
                                     </div>
                                     <div className="text-lg font-bold flex items-center gap-2">
                                       <span className="text-black">
