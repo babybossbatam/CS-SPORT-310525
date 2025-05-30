@@ -64,7 +64,7 @@ const Header = () => {
         <div className="flex items-center gap-[1.05rem]">
           {isAuthenticated && (
             <>
-              <div className="text-sm">{username}</div>
+              <div className="text-xl font-semibold">{username}</div>
               <div 
                 className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
                 onClick={handleLogout}
