@@ -252,10 +252,17 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches 
-        <LiveMatchForAllCountry />
+        <LiveMatchForAllCountry 
+          liveFilterActive={liveFilterActive}
+          timeFilterActive={timeFilterActive}
+        />
       ) : liveFilterActive && !timeFilterActive ? (
         // Live only - show LiveMatchForAllCountry
-        <LiveMatchForAllCountry isTimeFilterActive={false} />
+        <LiveMatchForAllCountry 
+          isTimeFilterActive={false}
+          liveFilterActive={liveFilterActive}
+          timeFilterActive={timeFilterActive}
+        />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only
         <TodayPopularFootballLeaguesNew 
