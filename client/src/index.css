@@ -1,12 +1,11 @@
 @tailwind base;
 @tailwind components;
-
-
-
-
 @tailwind utilities;
 
-
+/* Disable card hover when button is hovered */
+.group.button-hovered:hover {
+  background-color: white !important;
+}
 
 .text-shadow {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
