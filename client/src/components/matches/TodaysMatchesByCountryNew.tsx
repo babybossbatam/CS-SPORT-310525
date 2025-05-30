@@ -11,7 +11,7 @@ import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtilsUpdated';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, fixturesActions, selectFixturesByDate, selectSelectedLeagues } from '@/lib/store';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
-import { getCountryFlagWithFallback } from '@/lib/flagUtils';
+import { getCountryFlagWithFallbackSync } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -142,7 +142,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Use centralized flag utilities
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
-    return getCountryFlagWithFallback(country, leagueFlag);
+    return getCountryFlagWithFallbackSync(country, leagueFlag);
   };
 
   // Use only the main fixtures data

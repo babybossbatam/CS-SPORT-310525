@@ -14,7 +14,7 @@ import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
 import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
-import { getCountryFlagWithFallback } from '../../lib/flagUtils';
+import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
 import { DEFAULT_POPULAR_TEAMS, isPopularTeamMatch, applyPriorityFiltering } from '@/lib/matchFilters';
 
@@ -218,7 +218,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
     // Add comprehensive null checks
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-      console.warn('Invalid fixture data:', fixture);
       return acc;
     }
 
@@ -284,7 +283,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         if (!acc[countryKey]) {
           acc[countryKey] = {
             country: countryKey,
-            flag: getCountryFlagWithFallback(countryKey),
+            flag: getCountryFlagWithFallbackSync(countryKey),
             leagues: {},
             hasPopularLeague: true
           };
@@ -303,7 +302,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return acc;
       }
 
-      console.log(`Skipping fixture with invalid country: ${country}, league: ${league.name}`);
       return acc;
     }
 
@@ -311,7 +309,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     // Only allow valid country names, World, and Europe
     if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
-      console.warn('Skipping fixture with empty country name:', country, fixture);
       return acc;
     }
 
@@ -319,7 +316,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     if (!acc[country]) {
       acc[country] = {
         country,
-        flag: getCountryFlagWithFallback(country, league.flag),
+        flag: getCountryFlagWithFallbackSync(country, league.flag),
         leagues: {},
         hasPopularLeague: false
       };
