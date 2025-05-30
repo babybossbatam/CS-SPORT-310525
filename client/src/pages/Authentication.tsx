@@ -162,7 +162,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       <div className="container mx-auto px-4 py-8 max-w-md mt-16">
         <Card className="w-full p-2">
           <CardHeader className="pt-0">
-            <CardTitle className="text-2xl text-center">CS SPORT</CardTitle>
+            <CardTitle className="text-2xl text-center mt-4">CS SPORT</CardTitle>
             <CardDescription className="text-center">
               {activeTab === 'login'
                 ? 'Sign in to your account to access your favorites'
