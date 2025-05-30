@@ -1204,12 +1204,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     <div className="flex items-center px-3 py-2">
                       {/* Star icon with hover slide effect */}
                       <div className="absolute left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
-                        <button className="p-1 hover:bg-yellow-100 transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
+                        <button className="py-2 px-1 hover:bg-blue-50 transition-colors duration-200 bg-white border border-blue-500 shadow-sm h-10">
                           <svg 
-                            className="w-4 h-4 text-yellow-500 fill-current hover:text-yellow-600" 
+                            className="w-4 h-4 text-blue-500 stroke-current fill-none hover:text-blue-600" 
                             viewBox="0 0 24 24"
+                            strokeWidth="2"
                           >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2,9.27l6.91-1.01L12 2z"/>
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                           </svg>
                         </button>
                       </div>
@@ -1422,10 +1423,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         <div className="flex items-center px-3 py-2">
                           {/* Star icon with hover slide effect */}
                           <div className="absolute left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
-                            <button className="p-1 hover:bg-yellow-100 transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
+                            <button className="py-2 px-1 hover:bg-blue-50 transition-colors duration-200 bg-white border border-blue-500 shadow-sm h-10">
                               <svg 
-                                className="w-4 h-4 text-yellow-500 fill-current hover:text-yellow-600" 
+                                className="w-4 h-4 text-blue-500 stroke-current fill-none hover:text-blue-600" 
                                 viewBox="0 0 24 24"
+                                strokeWidth="2"
                               >
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                               </svg>
