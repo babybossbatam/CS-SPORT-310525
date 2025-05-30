@@ -278,13 +278,9 @@ const FixedScoreboard = () => {
           ).values(),
         );
 
-        console.log(`Total matches fetched: ${allMatches.length}`);
-
         // Use a date that matches our fixture data to ensure we show matches within 8 hours
         // When using the real API, this will be 'new Date()' to always show recent matches
         const now = new Date();
-
-        console.log("Current filtering date:", now.toISOString());
 
         // Extract top 10 teams from standings for each league
         let topTeamIds: number[] = [];
@@ -309,9 +305,6 @@ const FixedScoreboard = () => {
           }
         });
 
-        console.log(`Total matches fetched: ${allMatches.length}`);
-        console.log("Current filtering date:", now.toISOString());
-
         // Use a more lenient filtering approach for featured matches
 
         // Filter matches from popular leagues first
@@ -320,8 +313,6 @@ const FixedScoreboard = () => {
                  match.league.id === 848 || // UEFA Conference League
                  match.league.id === 1;     // FIFA World Cup
         });
-
-        console.log(`Found ${popularLeagueMatches.length} matches from popular leagues`);
 
         // Sort matches by priority: Featured match first, then Live > Upcoming Within 24hours > Other Upcoming > Recent Finished
         const sortedMatches = popularLeagueMatches.sort((a, b) => {
@@ -333,7 +324,7 @@ const FixedScoreboard = () => {
           // Check for featured match (PSG vs Inter)
           const aIsFeatured = (a.teams.home.name === 'Paris Saint Germain' && a.teams.away.name === 'Inter') ||
                              (a.teams.home.name === 'Inter' && a.teams.away.name === 'Paris Saint Germain');
-          const bIsFeatured = (b.teams.home.name === 'Paris Saint Germain' && b.teams.away.name === 'Inter') ||
+          const bIsFeatured = (b.teams.home.name === 'Paris Saint Germain' && a.teams.away.name === 'Inter') ||
                              (b.teams.home.name === 'Inter' && b.teams.away.name === 'Paris Saint Germain');
 
           // Featured match always comes first
@@ -374,19 +365,6 @@ const FixedScoreboard = () => {
 
         // Take the top 8 matches
         const featuredMatches = sortedMatches.slice(0, 8);
-
-        console.log(`Filtered to ${featuredMatches.length} featured matches from popular leagues`);
-
-        // Log breakdown
-        const live = featuredMatches.filter(m => ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(m.fixture.status.short)).length;
-        const upcoming = featuredMatches.filter(m => m.fixture.status.short === 'NS').length;
-        const finished = featuredMatches.filter(m => m.fixture.status.short === 'FT').length;
-
-        console.log(`Match breakdown - Live: ${live}, Upcoming: ${upcoming}, Finished: ${finished}`);
-
-        if (featuredMatches.length > 0) {
-          console.log(`First match: ${featuredMatches[0].teams.home.name} vs ${featuredMatches[0].teams.away.name}`);
-        }
 
         setMatches(featuredMatches);
       } catch (error) {
@@ -651,7 +629,7 @@ const FixedScoreboard = () => {
 
   return (
     <>
-      <Card className="px-0 pt-0 pb-2 relative">
+      <Card className="px-0 pt-0 pb-2 relative shadow-md">
         <Badge
           variant="secondary"
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -842,8 +820,7 @@ const FixedScoreboard = () => {
                                 currentMatch.teams.home.logo
                               ) {
                                 target.src = currentMatch.teams.home.logo;
-                              } else```text
-if (
+                              } else if (
                                 target.src !== "/assets/fallback-logo.svg"
                               ) {
                                 target.src = "/assets/fallback-logo.svg";
@@ -872,7 +849,8 @@ if (
                           background: "#a00000",
                           left: "calc(50% - 26px)",
                           top: "calc(50% - 26px)",
-                          minWidth: "52px",
+                          ```text
+minWidth: "52px",
                         }}
                       >
                         <span className="vs-text font-bold">VS</span>

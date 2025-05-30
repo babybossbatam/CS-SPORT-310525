@@ -472,12 +472,12 @@ const Home = () => {
               maxMatches={8}
             />
             
-            <Card>
+            <Card className="shadow-md">
               <CardContent>
                 <HomeTopScorersList />
               </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-md">
               <CardContent className="p-4">
                 <NewsSection 
                   title="Live Football News"
@@ -493,7 +493,7 @@ const Home = () => {
             {/* Popular Leagues and Teams sections */}
             <div className="grid grid-cols-2 gap-4">
               <PopularLeaguesList />
-              <Card className="w-full">
+              <Card className="w-full shadow-md">
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
                   <PopularTeamsList />

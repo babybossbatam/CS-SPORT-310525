@@ -88,10 +88,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const { data: fixtures = [], isLoading, isFetching } = useCachedQuery(
     fixturesQueryKey,
     async () => {
-      console.log(`TodayPopularFootballLeaguesNew - Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
-      console.log(`TodayPopularFootballLeaguesNew - Received ${data.length} fixtures for ${selectedDate}`);
 
       // Debug: Check first few fixtures' dates
       if (data.length > 0) {
@@ -99,7 +97,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           if (fixture?.fixture?.date) {
             const fixtureDate = parseISO(fixture.fixture.date);
             const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
-            console.log(`Fixture ${index + 1} date: ${fixtureDateString} (expected: ${selectedDate})`);
           }
         });
       }
@@ -117,7 +114,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const { data: popularFixtures = [], isLoading: isLoadingPopular, isFetching: isFetchingPopular } = useCachedQuery(
     popularQueryKey,
     async () => {
-      console.log(`Fetching popular league fixtures for ${selectedDate}`);
 
       // Split leagues into smaller batches for better performance
       const batchSize = 3;
@@ -167,7 +163,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         batchResults.forEach(matches => allData.push(...matches));
       }
 
-      console.log(`Fetched ${allData.length} popular league fixtures for date ${selectedDate}`);
       return allData;
     },
     {
@@ -389,7 +384,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             const matchesSelectedDate = fixtureDateString === selectedDate;
 
             if (!matchesSelectedDate) {
-              
+
             }
 
             return matchesSelectedDate;
@@ -416,7 +411,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const expectedDateStr = format(expectedDate, 'yyyy-MM-dd');
 
       if (fixtureDateStr !== expectedDateStr) {
-        
+
         return false;
       }
 
@@ -426,7 +421,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         fixture.teams.home.name,
         fixture.teams.away.name
       )) {
-        
+
         return false;
       }
 
@@ -504,7 +499,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Allow all international competitions through
       if (isInternationalCompetition) {
-        
+
         return true;
       }
 
@@ -514,7 +509,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       );
 
       if (!matchingCountry) {
-        
+
         return false;
       }
 
@@ -525,7 +520,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
         if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
-          
+
           return false;
         }
       }
@@ -536,7 +531,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         if (countryKey.toLowerCase() === 'brazil') {
           const brazilLeagues = [71, 72, 73, 74]; // Serie A, Serie B, Serie C, Serie D
           if (!brazilLeagues.includes(leagueId)) {
-            
+
             return false;
           }
         } 
@@ -544,7 +539,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         else if (countryKey.toLowerCase() === 'egypt') {
           const egyptLeagues = [233]; // Egyptian Premier League
           if (!egyptLeagues.includes(leagueId)) {
-            
+
             return false;
           }
         }
@@ -552,7 +547,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         else if (countryKey.toLowerCase() === 'united arab emirates') {
           const uaeLeagues = [301]; // UAE Pro League
           if (!uaeLeagues.includes(leagueId)) {
-            
+
             return false;
           }
         }
@@ -560,7 +555,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           // For other Tier 3 countries (Saudi Arabia), be very restrictive
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
-            
+
             return false;
           }
         }
@@ -569,7 +564,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return true;
     });
 
-    
+
     return filtered;
   }, [allFixtures, selectedDate]);
 
@@ -595,7 +590,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     // Check if fixture should be excluded using centralized filter
     if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
-      
+
       return acc;
     }
 
@@ -1387,7 +1382,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
 <div className="space-y-4">
             {Object.values(countryData.leagues).map((leagueData: any, leagueIndex: number) => (
-                <Card key={leagueData.league.id} className={`overflow-hidden ${leagueIndex === 0 ? '-mt-4' : ''}`}>
+                <Card key={leagueData.league.id} className={`overflow-hidden shadow-md ${leagueIndex === 0 ? '-mt-4' : ''}`}>
                   <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <img
                         src={leagueData.league.logo}
@@ -1435,8 +1430,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             )}
                           </div>
 
-                          <div className="flex-shrink-0 mx-1">
-                            <img
+                          <div className="flex-shrink-0 mx-1                            <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
@@ -1538,7 +1532,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                       {statusText}
                                     </div>
                                     <div className="text-xs text-gray-500 mt-1">
-                                      {format(fixtureDate, 'HH:mm')}
+                                        {format(fixtureDate, 'HH:mm')}
                                     </div>
                                   </>
                                 );
