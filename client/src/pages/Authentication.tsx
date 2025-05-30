@@ -160,7 +160,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       <SportsCategoryTabs />
 
       <div className="container mx-auto px-4 py-8 max-w-md mt-16">
-        <Card className="w-full p-2" style={{ marginTop: '5px' }}>
+        <Card className="w-full p-2">
           <CardHeader>
             <CardTitle className="text-2xl text-center">CS SPORT</CardTitle>
             <CardDescription className="text-center">
