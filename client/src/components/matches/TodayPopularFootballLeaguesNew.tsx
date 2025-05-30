@@ -1443,21 +1443,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               }}
                             />
                           </div>
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (target.src !== '/assets/fallback-logo.svg') {
-                                  target.src = '/assets/fallback-logo.svg';
-                                }
-                              }}
-                            />
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (target.src !== '/assets/fallback-logo.svg') {
-                                  target.src = '/assets/fallback-logo.svg';
-                                }
-                              }}
-                            />
-                          </div>
 
                           {/* Score/Time Center */}
                           <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
