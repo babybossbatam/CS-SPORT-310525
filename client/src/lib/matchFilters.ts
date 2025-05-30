@@ -1,6 +1,7 @@
 import { parseISO } from "date-fns";
 import type { Match } from "@/types/fixtures";
 import { shouldExcludeFixture } from './exclusionFilters';
+import { debugLogger } from './debugLogger';
 
 export interface FilterOptions {
   popularLeagues?: number[];
@@ -320,18 +321,35 @@ export const getMatchesWithinTimeWindow = (
  * @returns Filtered array of fixtures
  */
 export function filterMatchesByExclusion(fixtures: any[]): any[] {
-  return fixtures.filter(fixture => {
+  const filteredFixtures = fixtures.filter(fixture => {
     // Validate fixture structure
     if (!fixture || !fixture.league || !fixture.teams) {
       return false;
     }
 
     const leagueName = fixture.league.name || '';
-    const homeTeamName = fixture.teams.home?.name || '';
-    const awayTeamName = fixture.teams.away?.name || '';
+    const homeTeam = fixture.teams.home?.name || '';
+    const awayTeam = fixture.teams.away?.name || '';
     const country = fixture.league.country || null;
+    const leagueId = fixture.league.id || null;
+
+    debugLogger.matchFilterLog(`Processing match: ${leagueName} (${country}) - ${homeTeam} vs ${awayTeam}`);
+
+    // Exclude international competitions unless explicitly allowed
+    if (country === 'World' || country === 'International') {
+      debugLogger.matchFilterLog(`Allowing international competition: ${leagueName} (ID: ${leagueId})`);
+      return true;
+    }
+
+    if (!POPULAR_COUNTRIES.map(c => c.toLowerCase()).includes(country?.toLowerCase() || '')) {
+      debugLogger.matchFilterLog(`Filtering out fixture from non-popular country: ${country}, league: ${leagueName}`);
+      return false;
+    }
 
     // Use the shouldExcludeFixture function - return true to keep the fixture
-    return !shouldExcludeFixture(leagueName, homeTeamName, awayTeamName, country);
+    return !shouldExcludeFixture(leagueName, homeTeam, awayTeam, country);
   });
+
+  debugLogger.matchFilterLog(`Filtered to ${filteredFixtures.length} matches from popular leagues`);
+  return filteredFixtures;
 }
