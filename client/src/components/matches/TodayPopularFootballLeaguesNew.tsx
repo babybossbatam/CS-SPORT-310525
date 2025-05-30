@@ -10,6 +10,8 @@ import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
 import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
+import { getCountryFlagWithFallback } from '../../lib/flagUtils';
+import { createFallbackHandler } from '../../lib/MyAPIFallback';
 
 
 interface TodayPopularFootballLeaguesNewProps {
@@ -1443,12 +1445,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
-                                  onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (target.src !== '/assets/fallback-logo.svg') {
-                                  target.src = '/assets/fallback-logo.svg';
-                                }
-                              }}
+                                  onError={createFallbackHandler({
+                                    teamId: match.teams.home.id,
+                                    teamName: match.teams.home.name,
+                                    originalUrl: match.teams.home.logo,
+                                    size: 'medium'
+                                  })}
                             />
                           </div>
 
@@ -1566,12 +1568,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className="w-12 h-12 object-contain"
-                              onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            if (target.src !== '/assets/fallback-logo.svg') {
-                              target.src = '/assets/fallback-logo.svg';
-                            }
-                          }}
+                              onError={createFallbackHandler({
+                                teamId: match.teams.away.id,
+                                teamName: match.teams.away.name,
+                                originalUrl: match.teams.away.logo,
+                                size: 'medium'
+                              })}
                             />
                           </div>
 
