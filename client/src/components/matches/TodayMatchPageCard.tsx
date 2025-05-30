@@ -183,9 +183,17 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
                   setTimeFilterActive(false);
                 }
               } else {
-                // Deactivating live filter - activate by time function
+                // Deactivating live filter
                 setLiveFilterActive(false);
-                setTimeFilterActive(true); // Show by time function when live is deactivated
+                // Only activate time filter if it was already active (combined state)
+                // Otherwise return to default view
+                if (!timeFilterActive) {
+                  // Return to default view (TodayPopularFootballLeaguesNew)
+                  setTimeFilterActive(false);
+                } else {
+                  // Keep time filter active if it was already active
+                  setTimeFilterActive(true);
+                }
               }
             }}
             className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
