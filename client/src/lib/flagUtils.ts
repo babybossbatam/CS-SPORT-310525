@@ -1,6 +1,4 @@
 
-<file_path>client/src/lib/flagUtils.ts</file_path>
-<line_number>1</line_number>
 // Flag utility functions with SportsRadar fallback support
 
 // Country code mapping for FlagsAPI
