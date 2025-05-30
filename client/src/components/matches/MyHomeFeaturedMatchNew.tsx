@@ -125,7 +125,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // No matches state
   if (!currentMatch) {
     return (
-      <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
+      <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge 
           variant="secondary" 
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
@@ -141,7 +141,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }
 
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-6 overflow-hidden relative">
+    <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
       <Badge 
         variant="secondary" 
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
