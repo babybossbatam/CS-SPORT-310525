@@ -1,7 +1,7 @@
 import { parseISO } from "date-fns";
 import type { Match } from "@/types/fixtures";
 import { shouldExcludeFixture } from './exclusionFilters';
-import { debugLogger } from './debugLogger';
+
 
 export interface FilterOptions {
   popularLeagues?: number[];
