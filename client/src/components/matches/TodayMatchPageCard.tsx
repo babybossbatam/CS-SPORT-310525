@@ -6,6 +6,7 @@ import TodayPopularFootballLeaguesNew from './TodayPopularFootballLeaguesNew';
 import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import LiveMatchByTime from './LiveMatchByTime';
+import TodayMatchByTime from './TodayMatchByTime';
 import { format, parseISO, addDays, subDays } from 'date-fns';
 import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 
@@ -265,11 +266,11 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           timeFilterActive={timeFilterActive}
         />
       ) : timeFilterActive && !liveFilterActive ? (
-        // Time only
-        <TodayPopularFootballLeaguesNew 
+        // Time only - show new TodayMatchByTime component
+        <TodayMatchByTime 
           selectedDate={selectedDate} 
           timeFilterActive={timeFilterActive}
-          showTop20={timeFilterActive}
+          liveFilterActive={liveFilterActive}
         />
       ) : (
         // Neither filter active - show default view
