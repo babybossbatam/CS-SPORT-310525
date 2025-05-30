@@ -155,7 +155,7 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
         return false;
       }
 
-      // Filter by popular countries if enabled
+      // Use geographic filtering (#1) and league-specific filtering (#2)
       if (filterByPopularCountry) {
         const leagueCountry = fixture.league?.country;
         if (!POPULAR_COUNTRIES.includes(leagueCountry)) {

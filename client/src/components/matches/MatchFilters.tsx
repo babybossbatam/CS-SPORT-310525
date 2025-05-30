@@ -34,50 +34,11 @@ const MatchFilters = () => {
     const filteredMatches = matches.filter(match => {
       if (!match.league || !match.teams) return false;
 
-      // Tier 1 - Elite European Competitions (Always show)
-      const eliteCompetitions = ['2', '3']; // Champions League, Europa League
-      if (eliteCompetitions.includes(String(match.league.id))) {
-        return true;
-      }
-
-      // Tier 2 - Top 5 Leagues (High priority)
-      // English Premier League has ID 39 and must be from England
-      if (match.league.id === 39 && match.league.country.toLowerCase() === 'england') {
-        return true;
-      }
-
-      // Other top leagues
-      const otherTopLeagues = ['140', '135', '78', '61']; // La Liga, Serie A, Bundesliga, Ligue 1
-      if (otherTopLeagues.includes(String(match.league.id))) {
-        return true;
-      }
-
-      // Tier 3 - Other Major European Leagues
-      const majorEuropeanLeagues = [
-        'eredivisie', 'primeira liga', 'super lig', 'scottish premiership'
-      ];
-      if (majorEuropeanLeagues.some(league => match.league.name.toLowerCase().includes(league))) {
-        return true;
-      }
-
-      // Tier 4 - Major Cups & Important Matches
-      const majorCups = [
-        'fa cup', 'copa del rey', 'dfb pokal', 'coppa italia',
-        'league cup', 'super cup'
-      ];
-      if (majorCups.some(cup => match.league.name.toLowerCase().includes(cup))) {
-        return true;
-      }
-
-      // Tier 5 - Popular Non-European Leagues
-      const popularCountries = [
-        'brazil', 'argentina', 'mexico', 'usa', 'saudi arabia'
-      ];
-      if (popularCountries.includes(match.league.country.toLowerCase())) {
-        return true;
-      }
-
-      return false;
+      // Use existing filtering mechanisms instead of duplicating logic:
+      // - Geographic filtering (#1) already handles country inclusion
+      // - League-specific filtering (#2) already handles league inclusion by country
+      // - Priority system (#6) already handles match importance
+      return true; // Let the existing filtering mechanisms handle this
     });
 
     // Sort matches by priority

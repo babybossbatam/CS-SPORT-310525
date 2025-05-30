@@ -33,9 +33,6 @@ export const DEFAULT_POPULAR_TEAMS = [
   33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165
 ];
 
-// Teams to exclude by default
-export const DEFAULT_EXCLUDE_TEAMS = [52, 76];
-
 // Popular countries for country-based filtering
 export const POPULAR_COUNTRIES = [
   'England', 'Spain', 'Italy', 'Germany', 'France', 
@@ -74,7 +71,7 @@ export const isPopularTeamMatch = (match: Match, popularTeamIds: number[]): bool
 /**
  * Check if match should be excluded
  */
-export const shouldExcludeMatch = (match: Match, excludeTeamIds: number[]): boolean => {
+export const shouldExcludeMatch = (match: Match, excludeTeamIds: number[] = []): boolean => {
   return (
     excludeTeamIds.includes(match.teams.home.id) ||
     excludeTeamIds.includes(match.teams.away.id)
@@ -175,7 +172,7 @@ export const applyPriorityFiltering = (
 ): FilterResult => {
   const {
     popularTeamIds = DEFAULT_POPULAR_TEAMS,
-    excludeTeamIds = DEFAULT_EXCLUDE_TEAMS,
+    excludeTeamIds = [],
     maxMatches = 6
   } = options;
 
@@ -331,18 +328,9 @@ export function filterMatchesByExclusion(fixtures: any[]): any[] {
     const homeTeam = fixture.teams.home?.name || '';
     const awayTeam = fixture.teams.away?.name || '';
     const country = fixture.league.country || null;
-    const leagueId = fixture.league.id || null;
 
-    // Check international competitions first
-    if (country === 'World' || country === 'International') {
-      return true;
-    }
-
-    if (!POPULAR_COUNTRIES.map(c => c.toLowerCase()).includes(country?.toLowerCase() || '')) {
-      return false;
-    }
-
-    // Use the shouldExcludeFixture function - return true to keep the fixture
+    // Geographic filtering (#1) and league-specific filtering (#2) already handle country/league inclusion
+    // This function only handles exclusion criteria (#3)
     return !shouldExcludeFixture(leagueName, homeTeam, awayTeam, country);
   });
 
