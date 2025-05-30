@@ -134,3 +134,19 @@ export function shouldExcludeFixture(
     awayTeam.includes(term)
   );
 }
+```
+
+```typescript
+export const isExcludedFixture = (fixture: Fixture): boolean => {
+  const leagueName = fixture.league.name;
+  const country = fixture.league.country;
+
+  // Check against excluded leagues
+  for (const excludedLeague of EXCLUDED_LEAGUES) {
+    if (leagueName.toLowerCase().includes(excludedLeague.toLowerCase())) {
+      return true;
+    }
+  }
+
+  return false;
+};
