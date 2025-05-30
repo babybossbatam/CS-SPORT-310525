@@ -1381,11 +1381,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       {sortedCountries.map((countryData: any) => (
         <div key={countryData.country} className="mb-4">
 
-<div className="mt-2">
+<div className="space-y-4">
             {Object.values(countryData.leagues).map((leagueData: any, leagueIndex: number) => (
-                <div key={leagueData.league.id} className={`mb-3 ${leagueIndex === 0 ? '-mt-4' : ''}`}>
-                  <div className="bg-white rounded-md shadow-sm overflow-hidden">
-                    <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
+                <Card key={leagueData.league.id} className={`overflow-hidden ${leagueIndex === 0 ? '-mt-4' : ''}`}>
+                  <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <img
                         src={leagueData.league.logo}
                         alt={leagueData.league.name}
@@ -1406,7 +1405,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     {leagueData.matches.map((match: any) => (
                       <div
                         key={match.fixture.id}
-                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-300 last:border-b-0"
                       >
                         <div className="flex items-center px-3 py-2">
                           {/* Home Team */}
@@ -1572,8 +1571,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         </div>
                       </div>
                     ))}
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
         </div>
