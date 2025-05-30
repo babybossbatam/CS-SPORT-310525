@@ -902,7 +902,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     countriesMap[country].leagues[leagueData.league.id] = leagueData;
   });
 
-  // Now `sortedCountries` contains countries in the order of their most popular leagues
+  // Now sortedCountries contains countries in the order of their most popular leagues
   // and each country contains leagues in the desired order.
 
 
