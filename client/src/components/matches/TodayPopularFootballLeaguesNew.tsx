@@ -12,6 +12,7 @@ import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 import { getCountryFlagWithFallback } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
+import { DEFAULT_POPULAR_TEAMS, isPopularTeamMatch, applyPriorityFiltering } from '@/lib/matchFilters';
 
 
 interface TodayPopularFootballLeaguesNewProps {
@@ -68,19 +69,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Flatten popular leagues for backward compatibility
   const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
-  // Popular teams for match prioritization
-  const POPULAR_TEAMS = [
-    // Premier League
-    33, 40, 42, 50, 47, 49, // Manchester United, Liverpool, Arsenal, Manchester City, Tottenham, Chelsea
-    // La Liga
-    529, 541, 530, 548, 727, // Barcelona, Real Madrid, Atletico Madrid, Real Sociedad, Athletic Bilbao
-    // Serie A
-    489, 492, 496, 500, 502, 505, // AC Milan, Napoli, Juventus, Inter, Fiorentina, Lazio
-    // Bundesliga
-    157, 165, 168, 173, 192, // Bayern Munich, Borussia Dortmund, Bayer Leverkusen, RB Leipzig, Eintracht Frankfurt
-    // Champions League popular teams
-    85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
-  ];
+  // Use existing filtering system instead of hardcoded teams
+  // Import popular teams from existing matchFilters
+  const POPULAR_TEAMS = [];
 
   // Check if we have fresh cached data
   const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
