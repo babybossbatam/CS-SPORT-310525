@@ -251,17 +251,8 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
       </Card>
 
       {liveFilterActive && timeFilterActive ? (
-        // Combined state: Show live matches with special header
-        <>
-          <div className="text-sm font-semibold text-gray-800 p-4 pb-3 bg-white border flex items-center gap-2">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-            </span>
-            Popular Football Live Score
-          </div>
-          <LiveMatchForAllCountry />
-        </>
+        // Combined state: Show live matches 
+        <LiveMatchForAllCountry />
       ) : liveFilterActive && !timeFilterActive ? (
         // Live only - show LiveMatchForAllCountry
         <LiveMatchForAllCountry isTimeFilterActive={false} />
