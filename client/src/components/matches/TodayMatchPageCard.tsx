@@ -37,19 +37,24 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     };
   }, [isCalendarOpen]);
 
-  
 
-      
 
-  // Deactivate live filter when date changes while live filter is active
+
+
+  // Handle button state changes when date changes
   useEffect(() => {
-    if (liveFilterActive) {
-      const today = getCurrentUTCDateString();
-      if (selectedDate !== today) {
-        setLiveFilterActive(false);
-      }
+    const today = getCurrentUTCDateString();
+
+    // If both buttons are active and date changes, activate by time and deactivate live
+    if (liveFilterActive && timeFilterActive && selectedDate !== today) {
+      setLiveFilterActive(false);
+      // timeFilterActive remains true
     }
-  }, [selectedDate, liveFilterActive]);
+    // If only live filter is active and date changes from today, deactivate live
+    else if (liveFilterActive && !timeFilterActive && selectedDate !== today) {
+      setLiveFilterActive(false);
+    }
+  }, [selectedDate, liveFilterActive, timeFilterActive]);
 
   // Date navigation handlers
   const goToPreviousDay = () => {
@@ -94,7 +99,7 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
     }
   };
 
-  
+
 
   return (
     <>
@@ -169,15 +174,20 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           <button 
             onClick={() => {
               if (!liveFilterActive) {
-                // Activating live filter - set live filter first, then date
+                // Activating live filter
                 setLiveFilterActive(true);
                 const today = getCurrentUTCDateString();
                 setSelectedDate(today);
+                // If time filter is active, keep it active for combined state
+                // Otherwise reset it
+                if (!timeFilterActive) {
+                  setTimeFilterActive(false);
+                }
               } else {
-                // Deactivating live filter
+                // Deactivating live filter - activate by time function
                 setLiveFilterActive(false);
+                setTimeFilterActive(true); // Show by time function when live is deactivated
               }
-              setTimeFilterActive(false); // Reset time filter when live is activated
             }}
             className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
               liveFilterActive 
@@ -199,8 +209,21 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           {/* By time button */}
           <button 
             onClick={() => {
-              setTimeFilterActive(!timeFilterActive);
-              setLiveFilterActive(false); // Reset live filter when time filter is activated
+              if (!timeFilterActive) {
+                // Activating by time filter
+                setTimeFilterActive(true);
+                // If live filter is active, keep it active for combined state
+                // Otherwise reset it
+                if (!liveFilterActive) {
+                  setLiveFilterActive(false);
+                }
+              } else {
+                // Deactivating by time filter - activate live button function
+                setTimeFilterActive(false);
+                setLiveFilterActive(true); // Show live function when by time is deactivated
+                const today = getCurrentUTCDateString();
+                setSelectedDate(today); // Set to today when activating live
+              }
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
               timeFilterActive 
@@ -214,9 +237,26 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
         </div>
       </Card>
 
-      {liveFilterActive ? (
+      {liveFilterActive && timeFilterActive ? (
+        // Combined state: Show live matches in time-sorted order
+        <TodayPopularFootballLeaguesNew 
+          selectedDate={selectedDate} 
+          timeFilterActive={true}
+          showTop20={true}
+          liveFilterActive={true}
+        />
+      ) : liveFilterActive && !timeFilterActive ? (
+        // Live only
         <LiveMatchForAllCountry />
+      ) : timeFilterActive && !liveFilterActive ? (
+        // Time only
+        <TodayPopularFootballLeaguesNew 
+          selectedDate={selectedDate} 
+          timeFilterActive={timeFilterActive}
+          showTop20={timeFilterActive}
+        />
       ) : (
+        // Neither filter active - show default view
         <>
           <TodayPopularFootballLeaguesNew 
             selectedDate={selectedDate} 

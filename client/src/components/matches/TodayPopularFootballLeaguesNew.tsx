@@ -18,12 +18,14 @@ interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
   timeFilterActive?: boolean;
   showTop20?: boolean;
+  liveFilterActive?: boolean;
 }
 
 const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewProps> = ({ 
   selectedDate, 
   timeFilterActive = false, 
-  showTop20 = false 
+  showTop20 = false,
+  liveFilterActive = false 
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
 
@@ -961,6 +963,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Get header title based on selected date with accurate date comparison
   const getHeaderTitle = () => {
+    // Check for combined filter state first
+    if (liveFilterActive && timeFilterActive) {
+      return "Popular Football Live Score";
+    }
+    
     // Determine what type of matches to show based on selected date
     const isSelectedToday = selectedDate === actualTodayString;
     const isSelectedYesterday = selectedDate === actualYesterdayString;
@@ -1099,7 +1106,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return false;
   };
 
-  // When time filter is active, consolidate all matches into a single card
+  // When time filter is active (including combined state), consolidate all matches into a single card
   if (timeFilterActive) {
     // Collect all matches from all leagues
     const allMatches = sortedCountries.flatMap((countryData: any) =>
@@ -1115,8 +1122,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       )
     );
 
+    // Filter for live matches only when both filters are active
+    const filteredMatches = liveFilterActive && timeFilterActive 
+      ? allMatches.filter((match: any) => {
+          const status = match.fixture.status.short;
+          return ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
+        })
+      : allMatches;
+
     // Sort all matches by priority: Live → Upcoming → Finished
-    const sortedMatches = allMatches.sort((a: any, b: any) => {
+    const sortedMatches = filteredMatches.sort((a: any, b: any) => {
       const aStatus = a.fixture.status.short;
       const bStatus = b.fixture.status.short;
       const aDate = parseISO(a.fixture.date);
@@ -1175,10 +1190,22 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
         </svg>
         <div className="text-sm font-semibold text-gray-800 p-4 pb-3 -mt-6 bg-white border flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500 fill-yellow-500">
-            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
-          </svg>
-          All Matches by Time
+          {liveFilterActive && timeFilterActive ? (
+            <>
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+              </span>
+              Popular Football Live Score
+            </>
+          ) : (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500 fill-yellow-500">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+              </svg>
+              All Matches by Time
+            </>
+          )}
         </div>
 
         <Card className="overflow-hidden">
