@@ -27,27 +27,38 @@ const checkRateLimit = (key: string) => {
   return true;
 };
 
-// API request helper
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined
-): Promise<Response> {
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: data ? { "Content-Type": "application/json" } : {},
-      body: data ? JSON.stringify(data) : undefined,
-      credentials: "include"
-    });
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://0.0.0.0:5000' : '');
 
-    await throwIfResNotOk(res);
-    return res;
+// API request helper
+export const apiRequest = async (method: string, endpoint: string, data?: any) => {
+  const url = `${API_BASE_URL}/api${endpoint}`;
+
+  const config: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  if (data) {
+    config.body = JSON.stringify(data);
+  }
+
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API Error: ${response.status} ${response.statusText}`, errorText);
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response;
   } catch (error) {
-    console.error(`API request error for ${method} ${url}:`, error);
+    console.error(`Fetch error for ${url}:`, error);
     throw error;
   }
-}
+};
 
 // Query function type
 type UnauthorizedBehavior = "returnNull" | "throw";
