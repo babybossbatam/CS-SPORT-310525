@@ -1442,6 +1442,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 }
                               }}
                             />
+                          </div>
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== '/assets/fallback-logo.svg') {
+                                  target.src = '/assets/fallback-logo.svg';
+                                }
+                              }}
+                            />
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
