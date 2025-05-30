@@ -61,9 +61,9 @@ const Header = () => {
 
         <LeagueTabs />
         <LeagueTabs />
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-[1.05rem]">
           {isAuthenticated && (
-            <div className="flex items-center gap-2">
+            <>
               <div className="text-sm">{username}</div>
               <div 
                 className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
@@ -71,31 +71,29 @@ const Header = () => {
               >
                 <span>Logout</span>
               </div>
-            </div>
+            </>
           )}
 
-          <div className="flex items-center gap-[1.05rem]">
-            <div 
-              className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
-              onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
-            >
-              <Star className="h-4 w-4 mr-1 fill-current" />
-              <span>My Scores</span>
-            </div>
+          <div 
+            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
+          >
+            <Star className="h-4 w-4 mr-1 fill-current" />
+            <span>My Scores</span>
+          </div>
 
-            <div 
-              className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4" />
-            </div>
+          <div 
+            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            onClick={() => setSearchOpen(true)}
+          >
+            <Search className="h-4 w-4" />
+          </div>
 
-            <div 
-              className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
-              onClick={() => navigate('/settings')}
-            >
-              <Settings className="h-4 w-4" />
-            </div>
+          <div 
+            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="h-4 w-4" />
           </div>
         </div>
       </div>
