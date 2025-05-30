@@ -42,7 +42,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const dispatch = useDispatch();
-  
+
   // Login form
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -51,7 +51,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       password: ''
     }
   });
-  
+
   // Register form
   const registerForm = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -63,26 +63,26 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       fullName: ''
     }
   });
-  
+
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
-    
+
     try {
       const response = await apiRequest('POST', '/api/auth/login', data);
       const userData = await response.json();
-      
+
       dispatch(userActions.setUser({
         id: userData.id,
         username: userData.username,
         email: userData.email
       }));
-      
+
       // Get user preferences
       try {
         const prefsResponse = await apiRequest('GET', `/api/user/${userData.id}/preferences`);
         const prefsData = await prefsResponse.json();
-        
+
         dispatch(userActions.setUserPreferences({
           favoriteTeams: prefsData.favoriteTeams || [],
           favoriteLeagues: prefsData.favoriteLeagues || [],
@@ -92,12 +92,12 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       } catch (error) {
         console.error('Failed to fetch user preferences:', error);
       }
-      
+
       toast({
         title: 'Login Successful',
         description: `Welcome back, ${userData.username}!`
       });
-      
+
       navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
@@ -110,24 +110,24 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       setIsLoading(false);
     }
   };
-  
+
   // Handle register submission
   const onRegisterSubmit = async (data: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
-    
+
     // Remove passwordConfirm as it's not part of the API model
     const { passwordConfirm, ...userData } = data;
-    
+
     try {
       const response = await apiRequest('POST', '/api/auth/register', userData);
       const newUser = await response.json();
-      
+
       dispatch(userActions.setUser({
         id: newUser.id,
         username: newUser.username,
         email: newUser.email
       }));
-      
+
       // Set default preferences
       dispatch(userActions.setUserPreferences({
         favoriteTeams: [],
@@ -135,12 +135,12 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
         favoriteMatches: [],
         region: 'global'
       }));
-      
+
       toast({
         title: 'Registration Successful',
         description: `Welcome to 365Scores, ${newUser.username}!`
       });
-      
+
       navigate('/');
     } catch (error) {
       console.error('Registration failed:', error);
@@ -153,14 +153,14 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <>
       <Header />
       <SportsCategoryTabs />
-      
+
       <div className="container mx-auto px-4 py-8 max-w-md mt-20">
-        <Card className="w-full">
+        <Card className="w-full mt-4 p-2">
           <CardHeader>
             <CardTitle className="text-2xl text-center">CS SPORT</CardTitle>
             <CardDescription className="text-center">
@@ -176,7 +176,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="register">Register</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="login">
                 <Form {...loginForm}>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
@@ -193,7 +193,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={loginForm.control}
                       name="password"
@@ -207,14 +207,14 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <Button type="submit" className="w-full bg-[#3182CE]" disabled={isLoading}>
                       {isLoading ? 'Signing in...' : 'Sign In'}
                     </Button>
                   </form>
                 </Form>
               </TabsContent>
-              
+
               <TabsContent value="register">
                 <Form {...registerForm}>
                   <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
@@ -234,7 +234,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={registerForm.control}
                       name="email"
@@ -248,7 +248,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={registerForm.control}
                       name="fullName"
@@ -262,7 +262,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={registerForm.control}
                       name="password"
@@ -279,7 +279,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={registerForm.control}
                       name="passwordConfirm"
@@ -293,7 +293,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <Button type="submit" className="w-full bg-[#3182CE]" disabled={isLoading}>
                       {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>
