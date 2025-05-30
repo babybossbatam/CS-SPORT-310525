@@ -5,6 +5,7 @@ import { Calendar } from '../ui/calendar';
 import TodayPopularFootballLeaguesNew from './TodayPopularFootballLeaguesNew';
 import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
+import LiveMatchByTime from './LiveMatchByTime';
 import { format, parseISO, addDays, subDays } from 'date-fns';
 import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 
@@ -251,8 +252,8 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
       </Card>
 
       {liveFilterActive && timeFilterActive ? (
-        // Combined state: Show live matches 
-        <LiveMatchForAllCountry 
+        // Combined state: Show live matches grouped by time
+        <LiveMatchByTime 
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
         />
