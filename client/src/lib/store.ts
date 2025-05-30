@@ -119,7 +119,7 @@ import { getCurrentUTCDateString } from './dateUtilsUpdated';
 
 const initialUIState: UIState = {
   selectedDate: getCurrentUTCDateString(),
-  selectedFilter: 'all',
+  selectedFilter: 'all' as 'all' | 'live' | 'time' | 'live+time',
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League
   showRegionModal: false,

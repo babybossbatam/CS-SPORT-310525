@@ -44,15 +44,14 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
   // Handle button state changes when date changes
   useEffect(() => {
     const today = getCurrentUTCDateString();
-
-    // If both buttons are active and date changes, activate by time and deactivate live
     if (liveFilterActive && timeFilterActive && selectedDate !== today) {
+      // If both filters are active and date changes from today, activate time filter and deactivate live
       setLiveFilterActive(false);
-      // timeFilterActive remains true
-    }
-    // If only live filter is active and date changes from today, deactivate live
-    else if (liveFilterActive && !timeFilterActive && selectedDate !== today) {
+      setTimeFilterActive(true);
+    } else if (liveFilterActive && selectedDate !== today) {
+      // If only live filter is active but date is not today, switch to time filter
       setLiveFilterActive(false);
+      setTimeFilterActive(true);
     }
   }, [selectedDate, liveFilterActive, timeFilterActive]);
 
@@ -250,8 +249,8 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
           <LiveMatchForAllCountry />
         </>
       ) : liveFilterActive && !timeFilterActive ? (
-        // Live only
-        <LiveMatchForAllCountry />
+        // Live only - show LiveMatchForAllCountry
+        <LiveMatchForAllCountry isTimeFilterActive={false} />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only
         <TodayPopularFootballLeaguesNew 

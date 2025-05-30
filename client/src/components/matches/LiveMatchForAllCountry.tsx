@@ -8,9 +8,10 @@ import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
+  isTimeFilterActive?: boolean;
 }
 
-const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refreshInterval = 30000 }) => {
+const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refreshInterval = 30000, isTimeFilterActive = false }) => {
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular leagues for prioritization
@@ -359,7 +360,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({ refresh
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-base font-bold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 rounded-lg">Live Football Scores</h3>
+      <h3 className="text-base font-bold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 rounded-lg">
+        {isTimeFilterActive ? "Popular Football Live Score" : "Live Football Scores"}
+      </h3>
 
       
 

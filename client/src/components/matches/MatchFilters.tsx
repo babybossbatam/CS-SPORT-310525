@@ -26,6 +26,10 @@ const MatchFilters = () => {
   const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate[selectedDate] || []);
   const upcomingFixtures = useSelector((state: RootState) => state.fixtures.upcoming);
 
+  // Track individual filter states
+  const [liveFilterActive, setLiveFilterActive] = useState(selectedFilter === 'live' || selectedFilter === 'live+time');
+  const [timeFilterActive, setTimeFilterActive] = useState(selectedFilter === 'time' || selectedFilter === 'live+time');
+
   // Function to filter and prioritize matches using 365scores-style logic
   const getPrioritizedMatches = (matches: FixtureResponse[]): FixtureResponse[] => {
     const currentTime = Math.floor(Date.now() / 1000);
@@ -94,18 +98,54 @@ const MatchFilters = () => {
     fetchFixturesByDate();
   }, [selectedDate, dispatch, toast]);
 
-  // Toggle live filter
+  // Toggle live filter with smart logic
   const toggleLiveFilter = () => {
-    dispatch(uiActions.setSelectedFilter(
-      selectedFilter === 'live' ? 'all' : 'live'
-    ));
+    if (!liveFilterActive) {
+      // Activating live filter
+      setLiveFilterActive(true);
+      if (timeFilterActive) {
+        // Both active - combined state
+        dispatch(uiActions.setSelectedFilter('live+time'));
+      } else {
+        // Only live active
+        dispatch(uiActions.setSelectedFilter('live'));
+      }
+    } else {
+      // Deactivating live filter
+      setLiveFilterActive(false);
+      if (timeFilterActive) {
+        // Activate by time function
+        dispatch(uiActions.setSelectedFilter('time'));
+      } else {
+        // No filters active
+        dispatch(uiActions.setSelectedFilter('all'));
+      }
+    }
   };
 
-  // Toggle time filter
+  // Toggle time filter with smart logic
   const toggleTimeFilter = () => {
-    dispatch(uiActions.setSelectedFilter(
-      selectedFilter === 'time' ? 'all' : 'time'
-    ));
+    if (!timeFilterActive) {
+      // Activating time filter
+      setTimeFilterActive(true);
+      if (liveFilterActive) {
+        // Both active - combined state
+        dispatch(uiActions.setSelectedFilter('live+time'));
+      } else {
+        // Only time active
+        dispatch(uiActions.setSelectedFilter('time'));
+      }
+    } else {
+      // Deactivating time filter
+      setTimeFilterActive(false);
+      if (liveFilterActive) {
+        // Activate live function
+        dispatch(uiActions.setSelectedFilter('live'));
+      } else {
+        // No filters active
+        dispatch(uiActions.setSelectedFilter('all'));
+      }
+    }
   };
 
   if (!mounted) return null;
@@ -114,16 +154,16 @@ const MatchFilters = () => {
     <div className="bg-white shadow-sm rounded-lg">
       <div className="flex justify-between items-center p-4 border-b">
         <Button
-          variant={selectedFilter === 'live' ? 'default' : 'outline'}
+          variant={liveFilterActive ? 'default' : 'outline'}
           size="sm"
           className={`rounded-full text-xs px-3 py-1 ${
-            selectedFilter === 'live' 
+            liveFilterActive 
               ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
           onClick={toggleLiveFilter}
         >
-          {selectedFilter === 'live' && (
+          {liveFilterActive && (
             <span className="relative flex h-2 w-2 mr-1">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
@@ -133,9 +173,13 @@ const MatchFilters = () => {
         </Button>
 
         <Button
-          variant="outline"
+          variant={timeFilterActive ? 'default' : 'outline'}
           size="sm"
-          className="rounded-full text-xs px-3 py-1 bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-1"
+          className={`rounded-full text-xs px-3 py-1 flex items-center gap-1 ${
+            timeFilterActive 
+              ? 'bg-[#48BB78] text-white hover:bg-[#38A169]' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
           onClick={toggleTimeFilter}
         >
           <Clock className="h-3 w-3" />
