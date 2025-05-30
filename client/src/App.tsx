@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Suspense, lazy, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { debugLogger } from "./lib/debugLogger";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -93,6 +94,15 @@ function App() {
     return () => {
       cleanupCacheRefresh();
     };
+  }, []);
+
+  // Setup global error handlers and debug logger
+  React.useEffect(() => {
+    // Disable all debugging by default
+    debugLogger.disableAll();
+
+    // Make debugLogger available globally for console access
+    (window as any).debugLogger = debugLogger;
   }, []);
 
   return (
