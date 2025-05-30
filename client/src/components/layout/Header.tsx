@@ -86,7 +86,7 @@ const Header = () => {
         </div>
 
         {isAuthenticated && (
-          <div className="flex items-center ml-2">
+          <div className="flex items-center ml-2 mx-16">
             <div className="text-sm mr-2">{username}</div>
             <Button 
               variant="ghost" 
