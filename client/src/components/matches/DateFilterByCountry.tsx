@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '../ui/card';
 import { format, parseISO, isValid } from 'date-fns';
@@ -112,7 +111,7 @@ export const DateFilterByCountry: React.FC<DateFilterByCountryProps> = ({
 
     fixtures.forEach(fixture => {
       const country = fixture.league.country || 'Unknown';
-      
+
       if (!countryGroups.has(country)) {
         countryGroups.set(country, {
           country,
@@ -150,10 +149,10 @@ export const DateFilterByCountry: React.FC<DateFilterByCountryProps> = ({
     if (isDateStringToday(selectedDate)) return "Today's Matches";
     if (isDateStringYesterday(selectedDate)) return "Yesterday's Matches";
     if (isDateStringTomorrow(selectedDate)) return "Tomorrow's Matches";
-    
+
     try {
       const date = parseISO(selectedDate);
-      return isValid(date) ? format(date, 'EEEE, MMMM do') + ' Matches' : selectedDate;
+      return isValid(date) ? format(date, 'EEE, do MMM') + ' Matches' : selectedDate;
     } catch {
       return selectedDate;
     }
@@ -248,7 +247,7 @@ export const DateFilterByCountry: React.FC<DateFilterByCountryProps> = ({
           <MapPin className="h-5 w-5" />
           {getDateDisplayName()} by Country
         </h2>
-        
+
         <div className="space-y-6">
           {groupedByCountry.map((countryGroup) => (
             <div key={countryGroup.country} className="border rounded-lg p-4">
@@ -325,7 +324,7 @@ export const DateFilterByCountry: React.FC<DateFilterByCountryProps> = ({
                       <span className="text-xs text-gray-500 min-w-[50px] text-center">
                         {getMatchStatus(match)}
                       </span>
-                      
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

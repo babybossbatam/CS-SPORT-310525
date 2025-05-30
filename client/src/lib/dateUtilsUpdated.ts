@@ -146,7 +146,7 @@ export function getRelativeDateDisplayName(dateString: string): string {
   
   try {
     const date = parseISO(dateString);
-    return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : dateString;
+    return isValid(date) ? format(date, 'EEE, do MMM') + ' Matches' : dateString;
   } catch {
     return dateString;
   }
