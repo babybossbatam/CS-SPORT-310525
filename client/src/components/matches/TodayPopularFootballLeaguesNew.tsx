@@ -1221,12 +1221,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                           alt={match.teams.home.name}
                           className="w-12 h-12 object-contain"
-                              onError={(e) => handleImageErrorWithFallback(e, {
-                                teamId: match.teams.home.id,
-                                teamName: match.teams.home.name,
-                                originalUrl: match.teams.home.logo,
-                                finalFallback: '/assets/fallback-logo.svg'
-                              })}
+                          onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== '/assets/fallback-logo.svg') {
+                                  target.src = '/assets/fallback-logo.svg';
+                                }
+                              }}
                         />
                       </div>
 
@@ -1344,12 +1344,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                           alt={match.teams.away.name}
                           className="w-12 h-12 object-contain"
-                          onError={(e) => handleImageErrorWithFallback(e, {
-                            teamId: match.teams.away.id,
-                            teamName: match.teams.away.name,
-                            originalUrl: match.teams.away.logo,
-                            finalFallback: '/assets/fallback-logo.svg'
-                          })}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.svg') {
+                              target.src = '/assets/fallback-logo.svg';
+                            }
+                          }}
                         />
                       </div>
 
@@ -1443,12 +1443,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
-                                  onError={(e) => handleImageErrorWithFallback(e, {
-                                    teamId: match.teams.home.id,
-                                    teamName: match.teams.home.name,
-                                    originalUrl: match.teams.home.logo,
-                                    finalFallback: '/assets/fallback-logo.svg'
-                                  })}
+                                  onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== '/assets/fallback-logo.svg') {
+                                  target.src = '/assets/fallback-logo.svg';
+                                }
+                              }}
                             />
                           </div>
 
@@ -1566,12 +1566,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className="w-12 h-12 object-contain"
-                              onError={(e) => handleImageErrorWithFallback(e, {
-                                teamId: match.teams.away.id,
-                                teamName: match.teams.away.name,
-                                originalUrl: match.teams.away.logo,
-                                finalFallback: '/assets/fallback-logo.svg'
-                              })}
+                              onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== '/assets/fallback-logo.svg') {
+                              target.src = '/assets/fallback-logo.svg';
+                            }
+                          }}
                             />
                           </div>
 
