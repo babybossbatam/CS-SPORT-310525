@@ -273,8 +273,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       'Kenya': 'KE',
       'Ethiopia': 'ET',
       'South Africa': 'ZA',
-      'South Korea': 'KR',
-      'Czech Republic': 'CZ',
       'czech republic': 'Czech-Republic',
       'india': 'India',
       'ae': 'United Arab Emirates',
