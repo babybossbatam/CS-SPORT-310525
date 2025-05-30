@@ -41,7 +41,7 @@ const Header = () => {
   return (
     <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[77px]">
       <div className="container mx-auto px-16 py-3 flex items-center justify-between">
-        <Link href="/" className="flex-shrink-0 flex items-center h-full ml-[150px] bg-black">
+        <Link href="/" className="flex-shrink-0 flex items-center h-full bg-black">
           <img 
             src="/CSSPORT_1_updated.png" 
             alt="CS SPORT Logo" 
