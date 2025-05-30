@@ -665,7 +665,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           acc[countryKey].leagues[leagueId] = {
             league: { ...league, country: countryKey },
             matches: [],
-            isPopular: POPULAR_LEAGUES.includes(leagueId),
+            ```text
+isPopular: POPULAR_LEAGUES.includes(leagueId),
             isFriendlies: league.name.toLowerCase().includes('friendlies')
           };
         }
@@ -1199,17 +1200,17 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                 .map((match: any) => (
                   <div 
                     key={match.fixture.id} 
-                    className="bg-white hover:bg-gray-400 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group relative"
+                    className="bg-white hover:bg-stone-100 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group relative"
                   >
                     <div className="flex items-center px-3 py-2">
                       {/* Star icon with hover slide effect */}
                       <div className="absolute left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
-                        <button className="p-1 hover:bg-yellow-100 rounded-full transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
+                        <button className="p-1 hover:bg-yellow-100 transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
                           <svg 
                             className="w-4 h-4 text-yellow-500 fill-current hover:text-yellow-600" 
                             viewBox="0 0 24 24"
                           >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2,9.27l6.91-1.01L12 2z"/>
                           </svg>
                         </button>
                       </div>
@@ -1402,8 +1403,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         className="w-5 h-5 rounded object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (target.src !== '/assets/fallback-logo.svg') {
-                            target.src = '/assets/fallback-logo.svg';
+                          if (target.src !== '/assets/fallback-logo.svg') {target.src = '/assets/fallback-logo.svg';
                           }
                         }}
                       />
@@ -1418,12 +1418,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     {leagueData.matches.map((match: any) => (
                       <div
                         key={match.fixture.id}
-                        className="bg-white hover:bg-gray-400 transition-all duration-200 cursor-pointer border-b border-gray-300 last:border-b-0 group relative"
+                        className="bg-white hover:bg-stone-100 transition-all duration-200 cursor-pointer border-b border-gray-300 last:border-b-0 group relative"
                       >
                         <div className="flex items-center px-3 py-2">
                           {/* Star icon with hover slide effect */}
                           <div className="absolute left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
-                            <button className="p-1 hover:bg-yellow-100 rounded-full transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
+                            <button className="p-1 hover:bg-yellow-100 transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
                               <svg 
                                 className="w-4 h-4 text-yellow-500 fill-current hover:text-yellow-600" 
                                 viewBox="0 0 24 24"
