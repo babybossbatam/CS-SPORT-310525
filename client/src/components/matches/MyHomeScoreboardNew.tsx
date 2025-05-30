@@ -57,7 +57,7 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
   const { data: allFixtures = [], isLoading, isFetching } = useCachedQuery(
     ['scoreboard-matches', currentDate, filterByPopularCountry],
     async () => {
-      console.log(`MyHomeScoreboardNew - Fetching fixtures for ${currentDate}`);
+      
 
       // Generate date range
       const today = new Date();

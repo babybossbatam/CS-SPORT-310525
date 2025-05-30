@@ -34,11 +34,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
-      console.log(`Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
 
-      console.log(`Received ${data.length} fixtures for ${selectedDate} - no additional filtering applied`);
       // Trust the API to return correct fixtures for the date - don't double filter
       return data;
     },
