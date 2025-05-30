@@ -55,7 +55,7 @@ const Header = () => {
             }}
           />
           <span className="flex items-center gap-2 whitespace-nowrap">
-            <span className="bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-400 bg-clip-text text-transparent font-bold text-[clamp(2.219rem,2.6vw,2.642rem)] transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" style={{fontFamily: 'Roboto Condensed, sans-serif', fontStretch: 'condensed', letterSpacing: '-0.05em'}}>CSSPORT</span>
+            <span className="bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-[clamp(2.219rem,2.6vw,2.642rem)] transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" style={{fontFamily: 'Roboto Condensed, sans-serif', fontStretch: 'condensed', letterSpacing: '-0.05em'}}>CSSPORT</span>
           </span>
         </Link>
 
