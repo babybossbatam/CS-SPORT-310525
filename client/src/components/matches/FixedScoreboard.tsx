@@ -849,7 +849,7 @@ const FixedScoreboard = () => {
                           background: "#a00000",
                           left: "calc(50% - 26px)",
                           top: "calc(50% - 26px)",
-                          minWidth: "52px",
+                          minWidth: ""52px",
                         }}
                       >
                         <span className="vs-text font-bold">VS</span>
