@@ -1573,6 +1573,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         </div>
                       </div>
                     ))}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
