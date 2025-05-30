@@ -369,15 +369,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Cache the fixture
-      if (cachedFixture) {
-        await storage.updateCachedFixture(id.toString(), fixture);
-      } else {
-        await storage.createCachedFixture({
-          fixtureId: id.toString(),
-          data: fixture,
-          league: fixture.league.id.toString(),
-          date: new Date(fixture.fixture.date).toISOString().split('T')[0]
-        });
+      try {
+        if (cachedFixture) {
+          await storage.updateCachedFixture(id.toString(), fixture);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: id.toString(),
+            data: fixture,
+            league: fixture.league.id.toString(),
+            date: new Date(fixture.fixture.date).toISOString().split('T')[0]
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching fixture ${id}:`, cacheError);
+        // Continue even if caching fails to avoid breaking the API response
       }
 
       res.json(fixture);
@@ -532,13 +537,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Cache the league
-      if (cachedLeague) {
-        await storage.updateCachedLeague(id.toString(), league);
-      } else {
-        await storage.createCachedLeague({
-          leagueId: id.toString(),
-          data: league
-        });
+      try {
+        if (cachedLeague) {
+          await storage.updateCachedLeague(id.toString(), league);
+        } else {
+          await storage.createCachedLeague({
+            leagueId: id.toString(),
+            data: league
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching league ${id}:`, cacheError);
+        // Continue even if caching fails to avoid breaking the API response
       }
 
       res.json(league);
