@@ -10,7 +10,7 @@ import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
 import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
-import { handleImageErrorWithFallback } from '@/lib/MyAPIFallback'; // Import the fallback function
+
 
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
