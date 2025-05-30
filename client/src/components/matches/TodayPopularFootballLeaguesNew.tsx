@@ -767,37 +767,32 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }))
   );
 
-  // Sort leagues with priority: Friendlies > UEFA > FIFA > Popular Leagues > Premier League > Serie A > Major League > Regular League
+  // Sort leagues with priority: UEFA > FIFA > Popular Leagues > Friendlies > CONMEBOL > Regular League
   const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
     const aLeagueName = a.league?.name || '';
     const bLeagueName = b.league?.name || '';
     const aLeagueId = a.league?.id;
     const bLeagueId = b.league?.id;
 
-    // Define priority categories: Friendlies > UEFA > FIFA > Popular Country Leagues > CONMEBOL > Regular League
+    // Define priority categories: UEFA > FIFA > Popular Country Leagues > Friendlies > CONMEBOL > Regular League
     const getPriority = (leagueName: string, leagueId: number, country: string) => {
       const name = leagueName.toLowerCase();
       const countryLower = country.toLowerCase();
 
-      // 1. Friendlies (highest priority)
-      if (name.includes('friendlies') || name.includes('club friendly') || leagueId === 10) {
-        return 1;
-      }
-
-      // 2. UEFA competitions
+      // 1. UEFA competitions (highest priority)
       if (name.includes('uefa') || name.includes('champions league') || 
           name.includes('europa league') || name.includes('conference league') ||
           leagueId === 2 || leagueId === 3 || leagueId === 848) {
+        return 1;
+      }
+
+      // 2. FIFA competitions
+      if (name.includes('fifa') || name.includes('world cup') || 
+          name.includes('club world cup') || leagueId === 1 || leagueId === 15) {
         return 2;
       }
 
-      // 3. FIFA competitions
-      if (name.includes('fifa') || name.includes('world cup') || 
-          name.includes('club world cup') || leagueId === 1 || leagueId === 15) {
-        return 3;
-      }
-
-      // 4. Popular Country Leagues (Top domestic leagues from major countries)
+      // 3. Popular Country Leagues (Top domestic leagues from major countries)
       const popularCountryLeagues = [
         // England Premier League
         { id: 39, country: 'england' },
@@ -836,6 +831,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       );
 
       if (isPopularCountryLeague) {
+        return 3;
+      }
+
+      // 4. Friendlies
+      if (name.includes('friendlies') || name.includes('club friendly') || leagueId === 10) {
         return 4;
       }
 
