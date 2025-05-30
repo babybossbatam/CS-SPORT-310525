@@ -11,6 +11,7 @@ import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtilsUpdated';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, fixturesActions, selectFixturesByDate, selectSelectedLeagues } from '@/lib/store';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
+import { getCountryFlagWithFallback } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -139,160 +140,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryNameMap[cleanCountry] || country;
   };
 
-  // Enhanced country flag mapping with SportsRadar fallback
+  // Use centralized flag utilities
   const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
-    // Use league flag if available and valid
-    if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
-      return leagueFlag;
-    }
-
-    // Add comprehensive null/undefined check for country
-    if (!country || typeof country !== 'string' || country.trim() === '') {
-      return '/assets/fallback-logo.png'; // Default football logo
-    }
-
-    const cleanCountry = country.trim();
-
-    // Special handling for Unknown country only
-    if (cleanCountry === 'Unknown') {
-      return '/assets/fallback-logo.png'; // Default football logo
-    }
-
-    // Special cases for international competitions
-    if (cleanCountry === 'World') {
-      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-    }
-
-    if (cleanCountry === 'Europe') {
-      return 'https://flagsapi.com/EU/flat/24.png';
-    }
-
-    // Comprehensive country code mapping
-    const countryCodeMap: { [key: string]: string } = {
-      // Major football countries
-      'England': 'GB-ENG',
-      'Scotland': 'GB-SCT',
-      'Wales': 'GB-WLS',
-      'Northern Ireland': 'GB-NIR',
-      'United States': 'US',
-      'South Korea': 'KR',
-      'Czech Republic': 'CZ',
-      'Bosnia & Herzegovina': 'BA',
-      'North Macedonia': 'MK',
-      'Trinidad & Tobago': 'TT',
-      'Ivory Coast': 'CI',
-      'Cape Verde': 'CV',
-      'Democratic Republic of Congo': 'CD',
-      'Curacao': 'CW',
-      'Faroe Islands': 'FO',
-      'Saudi Arabia': 'SA',
-      'South Africa': 'ZA',
-      'Costa Rica': 'CR',
-      'El Salvador': 'SV',
-      'Puerto Rico': 'PR',
-      'New Zealand': 'NZ',
-      'Dominican Republic': 'DO',
-      'Sierra Leone': 'SL',
-      'Burkina Faso': 'BF',
-      'Guinea-Bissau': 'GW',
-      'Equatorial Guinea': 'GQ',
-      'Central African Republic': 'CF',
-      'Papua New Guinea': 'PG',
-      'Solomon Islands': 'SB',
-      'Marshall Islands': 'MH',
-      'Cook Islands': 'CK',
-      'American Samoa': 'AS',
-      'British Virgin Islands': 'VG',
-      'Cayman Islands': 'KY',
-      'Turks and Caicos Islands': 'TC',
-      'Saint Kitts and Nevis': 'KN',
-      'Saint Vincent and the Grenadines': 'VC',
-      'Antigua and Barbuda': 'AG',
-      'São Tomé and Príncipe': 'ST',
-      'North Korea': 'KP',
-      'East Timor': 'TL',
-      'Vatican City': 'VA',
-      // Common countries that might appear
-      'Brazil': 'BR',
-      'Argentina': 'AR',
-      'Germany': 'DE',
-      'France': 'FR',
-      'Italy': 'IT',
-      'Spain': 'ES',
-      'Portugal': 'PT',
-      'Netherlands': 'NL',
-      'Belgium': 'BE',
-      'Switzerland': 'CH',
-      'Austria': 'AT',
-      'Poland': 'PL',
-      'Turkey': 'TR',
-      'Russia': 'RU',
-      'Ukraine': 'UA',
-      'Sweden': 'SE',
-      'Norway': 'NO',
-      'Denmark': 'DK',
-      'Finland': 'FI',
-      'Greece': 'GR',
-      'Croatia': 'HR',
-      'Serbia': 'RS',
-      'Romania': 'RO',
-      'Bulgaria': 'BG',
-      'Hungary': 'HU',
-      'Slovenia': 'SI',
-      'Slovakia': 'SK',
-      'Lithuania': 'LT',
-      'Latvia': 'LV',
-      'Estonia': 'EE',
-      'Ireland': 'IE',
-      'Iceland': 'IS',
-      'Luxembourg': 'LU',
-      'Malta': 'MT',
-      'Cyprus': 'CY',
-      'Japan': 'JP',
-      'China': 'CN',
-      'India': 'IN',
-      'Australia': 'AU',
-      'Canada': 'CA',
-      'Mexico': 'MX',
-      'Colombia': 'CO',
-      'Peru': 'PE',
-      'Chile': 'CL',
-      'Uruguay': 'UY',
-      'Paraguay': 'PY',
-      'Bolivia': 'BO',
-      'Venezuela': 'VE',
-      'Ecuador': 'EC',
-      'Nigeria': 'NG',
-      'Ghana': 'GH',
-      'Senegal': 'SN',
-      'Morocco': 'MA',
-      'Tunisia': 'TN',
-      'Algeria': 'DZ',
-      'Egypt': 'EG',
-      'Cameroon': 'CM',
-      'Kenya': 'KE',
-      'Ethiopia': 'ET',
-      'South Africa': 'ZA',
-      'czech republic': 'Czech-Republic',
-      'india': 'India',
-      'ae': 'United Arab Emirates',
-      'united arab emirates': 'United Arab Emirates',
-      'uae': 'United Arab Emirates',
-      'ba': 'Bosnia & Herzegovina',
-      'mk': 'North Macedonia',
-      'sa': 'Saudi Arabia'
-    };
-
-    // Use country mapping, fallback to SportsRadar for unknown countries
-    let countryCode = 'XX';
-    if (countryCodeMap[cleanCountry]) {
-      countryCode = countryCodeMap[cleanCountry];
-      return `https://flagsapi.com/${countryCode}/flat/24.png`;
-    } else {
-      console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
-      // Try SportsRadar flags API as fallback
-      return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, '_')}/flag_24x24.png`;
-    }
+    return getCountryFlagWithFallback(country, leagueFlag);
   };
 
   // Use only the main fixtures data
@@ -469,7 +319,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     } else if (!liveFilterActive && timeFilterActive) {
       return "All Matches by Time";
     }
-    
+
     // Default behavior based on selected date
     const selectedDateObj = new Date(selectedDate);
 
