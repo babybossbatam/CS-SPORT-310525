@@ -2,8 +2,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, Star } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, userActions } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow, subDays, addDays } from 'date-fns';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
@@ -30,6 +33,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
+  
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+  const favoriteTeams = useSelector((state: RootState) => state.user.favoriteTeams);
 
   // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
@@ -483,6 +490,38 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     setExpandedCountries(newExpanded);
   };
 
+  // Favorite team functionality
+  const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
+    try {
+      const isFavorite = favoriteTeams.some(team => team.id === teamId);
+      
+      if (isFavorite) {
+        dispatch(userActions.removeFavoriteTeam(teamId));
+        toast({
+          title: "Removed from favorites",
+          description: `${teamName} has been removed from your favorites.`,
+        });
+      } else {
+        dispatch(userActions.addFavoriteTeam({ id: teamId, name: teamName }));
+        toast({
+          title: "Added to favorites",
+          description: `${teamName} has been added to your favorites.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling favorite team:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorites. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isTeamFavorite = (teamId: number) => {
+    return favoriteTeams.some(team => team.id === teamId);
+  };
+
   // Start with all countries collapsed by default
   useEffect(() => {
     // Reset to collapsed state when selected date changes
@@ -768,8 +807,26 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       >
                         <div className="flex items-center px-3 py-2">
                           {/* Home Team */}
-                          <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                            {match.teams.home.name}
+                          <div className="flex items-center flex-1 min-w-0">
+                            <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                              {match.teams.home.name}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavoriteTeam(match.teams.home.id, match.teams.home.name);
+                              }}
+                              className="ml-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 group"
+                              title={isTeamFavorite(match.teams.home.id) ? 'Remove from favorites' : 'Add to favorites'}
+                            >
+                              <Star 
+                                className={`h-3 w-3 transition-colors duration-200 ${
+                                  isTeamFavorite(match.teams.home.id) 
+                                    ? 'text-yellow-400 fill-yellow-400' 
+                                    : 'text-gray-300 group-hover:text-yellow-400'
+                                }`} 
+                              />
+                            </button>
                           </div>
 
                           <div className="flex-shrink-0 mx-1">
@@ -924,8 +981,26 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Away Team */}
-                          <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                            {match.teams.away.name}
+                          <div className="flex items-center flex-1 min-w-0">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavoriteTeam(match.teams.away.id, match.teams.away.name);
+                              }}
+                              className="mr-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 group"
+                              title={isTeamFavorite(match.teams.away.id) ? 'Remove from favorites' : 'Add to favorites'}
+                            >
+                              <Star 
+                                className={`h-3 w-3 transition-colors duration-200 ${
+                                  isTeamFavorite(match.teams.away.id) 
+                                    ? 'text-yellow-400 fill-yellow-400' 
+                                    : 'text-gray-300 group-hover:text-yellow-400'
+                                }`} 
+                              />
+                            </button>
+                            <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                              {match.teams.away.name}
+                            </div>
                           </div>
                         </div>
                       </div>
