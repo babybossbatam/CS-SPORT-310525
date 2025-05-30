@@ -71,10 +71,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Check if we have fresh cached data
   const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
-  const popularQueryKey = ['popular-fixtures', selectedDate];
 
   const cachedFixtures = CacheManager.getCachedData(fixturesQueryKey, 30 * 60 * 1000); // 30 minutes
-  const cachedPopularFixtures = CacheManager.getCachedData(popularQueryKey, 30 * 60 * 1000);
 
   // Fetch all fixtures for the selected date with smart caching
   const { data: fixtures = [], isLoading, isFetching } = useCachedQuery(
@@ -102,68 +100,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
   );
 
-  // Fetch popular league fixtures with smart caching and optimized loading
-  const { data: popularFixtures = [], isLoading: isLoadingPopular, isFetching: isFetchingPopular } = useCachedQuery(
-    popularQueryKey,
-    async () => {
-
-      // Split leagues into smaller batches for better performance
-      const batchSize = 3;
-      const leagueBatches = [];
-      for (let i = 0; i < POPULAR_LEAGUES.length; i += batchSize) {
-        leagueBatches.push(POPULAR_LEAGUES.slice(i, i + batchSize));
-      }
-
-      const allData = [];
-
-      // Process batches in parallel for better performance
-      for (const batch of leagueBatches) {
-        const batchPromises = batch.map(async (leagueId) => {
-          try {
-            const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
-            const leagueFixtures = await response.json();
-
-            // Filter fixtures for the selected date with early returns for better performance
-            const matchesFromSelectedDate = leagueFixtures.filter(match => {
-              if (!match?.fixture?.date) return false;
-
-              try {
-                const fixtureDate = parseISO(match.fixture.date);
-                if (!isValid(fixtureDate)) return false;
-
-                // Use UTC date to avoid timezone issues
-                const fixtureUTCDateString = format(fixtureDate, 'yyyy-MM-dd');
-
-                // Ensure we're comparing the exact date strings
-                const isMatch = fixtureUTCDateString === selectedDate;
-
-                return isMatch;
-              } catch (error) {
-                return false;
-              }
-            });
-
-            return matchesFromSelectedDate;
-          } catch (error) {
-            console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-            return [];
-          }
-        });
-
-        // Wait for current batch to complete before processing next batch
-        const batchResults = await Promise.all(batchPromises);
-        batchResults.forEach(matches => allData.push(...matches));
-      }
-
-      return allData;
-    },
-    {
-      enabled: POPULAR_LEAGUES.length > 0 && !!selectedDate && enableFetching,
-      maxAge: 45 * 60 * 1000, // Increased cache time to 45 minutes
-      backgroundRefresh: true,
-      staleTime: 30 * 60 * 1000, // Don't refetch for 30 minutes unless explicitly requested
-    }
-  );
+  // Use only main fixtures query - no separate popular fixtures query needed
 
 
 
@@ -172,13 +109,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
 
 
-  // Combine and deduplicate fixtures with better logging
-  const allFixtures = [...fixtures, ...popularFixtures]
+  // Use only main fixtures and filter client-side for popular leagues
+  const allFixtures = fixtures
     .filter((fixture, index, self) => {
+      // Ensure unique fixtures
       const isUnique = index === self.findIndex(f => f.fixture.id === fixture.fixture.id);
+      if (!isUnique) return false;
 
       // Only keep fixtures that match the exact selected date
-      if (isUnique && fixture?.fixture?.date) {
+      if (fixture?.fixture?.date) {
         try {
           const fixtureDate = parseISO(fixture.fixture.date);
           if (isValid(fixtureDate)) {
@@ -186,10 +125,39 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             const matchesSelectedDate = fixtureDateString === selectedDate;
 
             if (!matchesSelectedDate) {
-
+              return false;
             }
 
-            return matchesSelectedDate;
+            // Client-side filtering for popular leagues and countries
+            const leagueId = fixture.league?.id;
+            const country = fixture.league?.country?.toLowerCase() || '';
+            
+            // Check if it's a popular league
+            const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+            
+            // Check if it's from a popular country
+            const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(popularCountry => 
+              country.includes(popularCountry.toLowerCase())
+            );
+
+            // Check if it's an international competition
+            const leagueName = fixture.league?.name?.toLowerCase() || '';
+            const isInternationalCompetition = 
+              leagueName.includes('champions league') ||
+              leagueName.includes('europa league') ||
+              leagueName.includes('conference league') ||
+              leagueName.includes('world cup') ||
+              leagueName.includes('fifa') ||
+              leagueName.includes('uefa') ||
+              leagueName.includes('conmebol') ||
+              leagueName.includes('libertadores') ||
+              leagueName.includes('sudamericana') ||
+              leagueName.includes('friendlies') ||
+              country.includes('world') ||
+              country.includes('europe') ||
+              country.includes('international');
+
+            return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
           }
         } catch (error) {
           console.error('Error parsing fixture date:', error);
@@ -197,7 +165,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         }
       }
 
-      return isUnique;
+      return false;
     });
 
   // Filter fixtures based on popular countries and exclusion filters
@@ -804,13 +772,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Use cached data if available, even during loading
   const hasCachedFixtures = cachedFixtures && cachedFixtures.length > 0;
-  const hasCachedPopular = cachedPopularFixtures && cachedPopularFixtures.length > 0;
-  const combinedCachedData = [...(cachedFixtures || []), ...(cachedPopularFixtures || [])].filter((fixture, index, self) => 
-    index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-  );
 
   // Show loading only if no cached data exists and we're actually loading
-  if ((isLoading || isLoadingPopular) && combinedCachedData.length === 0) {
+  if (isLoading && cachedFixtures.length === 0) {
     return (
       <Card>
         <CardHeader className="pb-4">
