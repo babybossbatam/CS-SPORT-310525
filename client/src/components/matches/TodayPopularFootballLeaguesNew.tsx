@@ -727,7 +727,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
 
     return acc;
-  }, {});
+  },```text
+{}
 
   // Filter to show only popular countries with badge system
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
@@ -967,7 +968,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     if (liveFilterActive && timeFilterActive) {
       return "Popular Football Live Score";
     }
-    
+
     // Determine what type of matches to show based on selected date
     const isSelectedToday = selectedDate === actualTodayString;
     const isSelectedYesterday = selectedDate === actualYesterdayString;
