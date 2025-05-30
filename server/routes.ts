@@ -856,7 +856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Return empty array instead of making any external API calls
       res.json([]);
     } catch (error) {
-      console.error("Error in news endpoint:", error);```text
+      console.error("Error in news endpoint:", error);
       res.status(500).json({ message: "Failed to fetch news articles" });
     }
   });
