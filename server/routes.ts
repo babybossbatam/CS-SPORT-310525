@@ -269,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`Got ${fixtures.length} fixtures from ALL countries/leagues for date ${date}`);
         } else {
           // Define popular leagues - matches core leagues
-          const popularLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+          const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
           // Use only API-Football (RapidAPI) with filtering
           fixtures = await rapidApiService.getFixturesByDate(date, false);
@@ -852,11 +852,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/news", async (req: Request, res: Response) => {
     try {
       console.log("News API disabled - returning empty array");
-      
+
       // Return empty array instead of making any external API calls
       res.json([]);
     } catch (error) {
-      console.error("Error in news endpoint:", error);
+      console.error("Error in news endpoint:", error);```text
       res.status(500).json({ message: "Failed to fetch news articles" });
     }
   });
@@ -1149,7 +1149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  
+
 
   // Get country flag with SportsRadar fallback
   apiRouter.get('/flags/:country', async (req: Request, res: Response) => {

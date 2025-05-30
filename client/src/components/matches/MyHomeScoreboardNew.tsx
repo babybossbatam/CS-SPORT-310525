@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,8 +28,8 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
   // Use current date for fetching
   const currentDate = getCurrentUTCDateString();
 
-  // Popular leagues for featured matches
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 848, 1];
+  // Popular leagues for enhanced filtering
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
 
   // Popular countries for filtering
   const POPULAR_COUNTRIES = [
@@ -57,7 +56,7 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
   const { data: allFixtures = [], isLoading, isFetching } = useCachedQuery(
     ['scoreboard-matches', currentDate, filterByPopularCountry],
     async () => {
-      
+
 
       // Generate date range
       const today = new Date();
@@ -408,7 +407,7 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
         >
           {filterByPopularCountry ? 'Popular Countries' : 'Featured Match'}
         </Badge>
-        
+
         <div className="bg-gray-50 border-b p-2 mt-0">
           <div className="flex items-center justify-center">
             <Skeleton className="h-5 w-5 rounded-full mr-2" />
@@ -454,7 +453,7 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
         >
           {filterByPopularCountry ? 'Popular Countries' : 'Featured Match'}
         </Badge>
-        
+
         <div className="flex justify-center items-center py-14 text-gray-500">
           <span>No matches available</span>
         </div>

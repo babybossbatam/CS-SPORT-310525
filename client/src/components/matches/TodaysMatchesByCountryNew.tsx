@@ -28,7 +28,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [enableFetching, setEnableFetching] = useState(true);
 
   // Popular leagues for prioritization
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+  const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
   // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading } = useQuery({

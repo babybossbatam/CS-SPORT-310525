@@ -1,4 +1,3 @@
-
 import { parseISO, format, isValid } from 'date-fns';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
@@ -40,7 +39,8 @@ const POPULAR_LEAGUES_BY_COUNTRY = {
 };
 
 // Flatten popular leagues for backward compatibility
-const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
+// Enhanced popular leagues with FIFA Club World Cup and more tournaments
+const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
 // Popular teams for match prioritization
 const POPULAR_TEAMS = [

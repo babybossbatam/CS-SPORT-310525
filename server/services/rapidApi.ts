@@ -185,7 +185,7 @@ export const rapidApiService = {
         }
       } else {
         // Define popular leagues - matches core leagues
-        const popularLeagues = [2, 3, 15, 39, 140, 135, 78]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga
+        const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
         for (const leagueId of popularLeagues) {
           try {
