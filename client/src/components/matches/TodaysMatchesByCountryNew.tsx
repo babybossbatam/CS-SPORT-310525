@@ -14,9 +14,15 @@ import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
+  liveFilterActive?: boolean;
+  timeFilterActive?: boolean;
 }
 
-const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ selectedDate }) => {
+const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ 
+  selectedDate, 
+  liveFilterActive = false, 
+  timeFilterActive = false 
+}) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
@@ -455,8 +461,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     return 'bg-blue-100 text-blue-700';
   };
 
-  // Get header title based on selected date
+  // Get header title based on button states and selected date
   const getHeaderTitle = () => {
+    // Check for different button states first
+    if (liveFilterActive && timeFilterActive) {
+      return "Popular Football Live Score";
+    } else if (liveFilterActive && !timeFilterActive) {
+      return "Live Football Scores";
+    } else if (!liveFilterActive && timeFilterActive) {
+      return "All Matches by Time";
+    }
+    
+    // Default behavior based on selected date
     const selectedDateObj = new Date(selectedDate);
 
     if (isToday(selectedDateObj)) {
