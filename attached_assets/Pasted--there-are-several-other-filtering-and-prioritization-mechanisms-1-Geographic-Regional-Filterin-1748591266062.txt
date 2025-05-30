@@ -1,0 +1,95 @@
+ there are several other filtering and prioritization mechanisms:
+
+1. Geographic/Regional Filtering System
+Tier-based Country Prioritization:
+
+Tier 1 Countries: England, Spain, Italy, Germany, France (highest priority)
+Tier 2 International: World, Europe (international competitions)
+Tier 3 Other Popular: Brazil, Saudi Arabia, Egypt, USA, United Arab Emirates
+Country Order Priority:
+
+const POPULAR_COUNTRIES_ORDER = [
+  'International', // FIFA Club World Cup first
+  'World', // Men's international friendlies
+  'Europe', // UEFA competitions
+  'South America', // CONMEBOL competitions
+  'Egypt', 'USA', 'United Arab Emirates',
+  'England', 'Spain', 'Italy', 'Germany', 'France',
+  // Other countries...
+];
+2. League-Specific Filtering by Country
+Each country has specific allowed leagues:
+
+England: Premier League (39), FA Cup (45), EFL Cup (48)
+Spain: La Liga (140), Copa del Rey (143)
+Italy: Serie A (135), Coppa Italia (137)
+Germany: Bundesliga (78), DFB Pokal (81)
+France: Ligue 1 (61), Coupe de France (66)
+Brazil: Serie A-D (71, 72, 73, 74)
+USA: Only MLS (253) and MLS Next Pro (254)
+3. Exclusion Filtering System
+Centralized Exclusion Filter (shouldExcludeFixture):
+
+Filters out unwanted leagues like Oberliga, USL W League, WPSL, NPSL, etc.
+Excludes women's competitions and youth leagues
+Removes lower-tier domestic competitions
+Additional Popular League Exclusions:
+
+// Extra filtering for popular leagues card
+if (leagueName.includes('oberliga') || 
+    leagueName.includes('usl w league') || 
+    leagueName.includes('wpsl') ||
+    leagueName.includes('npsl') ||
+    // ... more exclusions
+   ) {
+  return false;
+}
+4. USA-Specific Filtering
+Very restrictive filtering for USA leagues:
+
+if (fixture.league.country?.toLowerCase() === 'usa') {
+  const allowedUSALeagues = [253, 254]; // Only MLS and MLS Next Pro
+  if (!allowedUSALeagues.includes(fixture.league.id)) {
+    return false;
+  }
+}
+5. International Competition Detection
+Multiple layers of international competition identification:
+
+World Friendlies: Men's international friendlies (excludes women's)
+CONMEBOL: Copa America, Libertadores, Sudamericana
+UEFA: Champions League, Europa League, Conference League
+FIFA: World Cup, Club World Cup
+6. Date-Based Filtering
+Strict date matching to ensure only matches from the selected date are shown:
+
+const fixtureDate = parseISO(fixture.fixture.date);
+const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+const matchesSelectedDate = fixtureDateString === selectedDate;
+7. Time Filter Mode
+When timeFilterActive is true, the component consolidates all matches into a single time-ordered list with different sorting:
+
+Live matches first (sorted by start time)
+Upcoming matches second (sorted by nearest time)
+Finished matches last (sorted by most recent)
+8. Country-Specific Permissiveness
+Different filtering strictness by country tier:
+
+Tier 1: Show all major leagues for the country
+Tier 3 Brazil/Egypt: More permissive (multiple divisions allowed)
+Other Tier 3: Very restrictive (only specific leagues)
+9. Popular Team Consideration
+The component defines popular teams for potential match prioritization:
+
+const POPULAR_TEAMS = [
+  // Premier League teams
+  33, 40, 42, 50, 47, 49, // Man United, Liverpool, Arsenal, etc.
+  // La Liga teams  
+  529, 541, 530, 548, 727, // Barcelona, Real Madrid, etc.
+  // Serie A, Bundesliga teams...
+];
+10. Caching and Performance Filters
+Smart caching with 30-45 minute cache times
+Batch processing of league requests (3 leagues per batch)
+Background refresh for better UX
+Deduplication of fixtures across different data sources
