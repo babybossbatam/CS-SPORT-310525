@@ -27,49 +27,27 @@ const checkRateLimit = (key: string) => {
   return true;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : '');
-
 // API request helper
-export const apiRequest = async (method: string, endpoint: string, data?: any) => {
-  // In development, use relative URLs to automatically use the current host/port
-  const url = import.meta.env.DEV ? `/api${endpoint}` : `${API_BASE_URL}/api${endpoint}`;
-
-  const config: RequestInit = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-  };
-
-  if (data) {
-    config.body = JSON.stringify(data);
-  }
-
+export async function apiRequest(
+  method: string,
+  url: string,
+  data?: unknown | undefined
+): Promise<Response> {
   try {
-    const response = await fetch(url, config);
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include"
+    });
 
-    if (!response.ok) {
-      let errorText = '';
-      try {
-        errorText = await response.text();
-      } catch (textError) {
-        errorText = `Status: ${response.status} ${response.statusText}`;
-      }
-      console.error(`API Error: ${response.status} ${response.statusText}`, errorText);
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return response;
+    await throwIfResNotOk(res);
+    return res;
   } catch (error) {
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      console.error(`Network error for ${url}:`, error);
-      throw new Error('Network connection failed. Please check your internet connection.');
-    }
-    console.error(`Fetch error for ${url}:`, error);
+    console.error(`API request error for ${method} ${url}:`, error);
     throw error;
   }
-};
+}
 
 // Query function type
 type UnauthorizedBehavior = "returnNull" | "throw";
