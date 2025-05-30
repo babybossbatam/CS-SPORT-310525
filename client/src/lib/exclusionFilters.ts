@@ -17,6 +17,7 @@ export const exclusionTerms = [
   '2. bundesliga', '2 bundesliga', 'second bundesliga', 'bundesliga 2', '2nd bundesliga', 'zweite bundesliga',
   'serie b', 'serie c', 'serie d', 'segunda division', 'tercera division',
   'championship', 'league one', 'league two', 'non-league',
+  'amazonenense', 'segunda division', 'tercera division',
   'oberliga', 'oberliga -', 'oberliga westfalen', 'oberliga baden', 'oberliga bayern', 'oberliga hessen',
   'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 'oberliga thüringen',
 
