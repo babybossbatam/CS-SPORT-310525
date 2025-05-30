@@ -1382,10 +1382,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         <div key={countryData.country} className="mb-4">
 
 <div className="space-y-4">
-            {Object.values(countryData.leagues).map((leagueData: any, leagueIndex: number) => {
-              const isFirstCard = leagueIndex === 0;
-              return (
-                <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? '' : 'mt-4'}`}>
+            {Object.values(countryData.leagues).map((leagueData: any, leagueIndex: number) => (
+                <Card key={leagueData.league.id} className={`overflow-hidden ${leagueIndex === 0 ? '-mt-4' : ''}`}>
                   <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <img
                         src={leagueData.league.logo}
@@ -1578,8 +1576,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })}
+              ))}
             </div>
         </div>
       ))}
