@@ -266,38 +266,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
       'Cameroon': 'CM',
       'Kenya': 'KE',
       'Ethiopia': 'ET',
-      'South Sudan': 'SS',
-      'Mali': 'ML',
-      'Niger': 'NE',
-      'Chad': 'TD',
-      'Libya': 'LY',
-      'Sudan': 'SD',
-      'Israel': 'IL',
-      'Jordan': 'JO',
-      'Lebanon': 'LB',
-      'Syria': 'SY',
-      'Iraq': 'IQ',
-      'Iran': 'IR',
-      'Afghanistan': 'AF',
-      'Pakistan': 'PK',
-      'Bangladesh': 'BD',
-      'Sri Lanka': 'LK',
-      'Myanmar': 'MM',
-      'Thailand': 'TH',
-      'Vietnam': 'VN',
-      'Cambodia': 'KH',
-      'Laos': 'LA',
-      'Malaysia': 'MY',
-      'Singapore': 'SG',
-      'Indonesia': 'ID',
-      'Philippines': 'PH',
-      'Brunei': 'BN',
-      'Mongolia': 'MN',
-      'Kazakhstan': 'KZ',
-      'Uzbekistan': 'UZ',
-      'Turkmenistan': 'TM',
-      'Kyrgyzstan': 'KG',
-      'Tajikistan': 'TJ'
+      'South Africa': 'ZA',
+      'South Korea': 'KR',
+      'Czech Republic': 'CZ',
+      'czech republic': 'Czech-Republic',
+      'india': 'India',
+      'ae': 'United Arab Emirates',
+      'united arab emirates': 'United Arab Emirates',
+      'uae': 'United Arab Emirates',
+      'ba': 'Bosnia & Herzegovina',
+      'mk': 'North Macedonia',
+      'sa': 'Saudi Arabia'
     };
 
     // Use country mapping, fallback to SportsRadar for unknown countries
@@ -345,7 +324,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
     // Skip exclusion filter for Egypt matches to ensure all Egypt matches are shown
     if (league.country?.toLowerCase() !== 'egypt') {
       if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
-        console.log(`Filtering out excluded fixture: ${league.name} - ${homeTeamName} vs ${awayTeamName}`);
         return acc;
       }
     }
@@ -770,7 +748,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ s
                                       {(() => {
                                         const status = match.fixture.status.short;
                                         const fixtureDate = parseISO(match.fixture.date);
-                                        const matchDate = safeSubstring(match.fixture?.date, 0, 10);
+                                        const matchDate = safeSubstring(match.fixture.date, 0, 10);
 
                                         // Live matches
                                         if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {

@@ -149,10 +149,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                 // Ensure we're comparing the exact date strings
                 const isMatch = fixtureUTCDateString === selectedDate;
 
-                if (isMatch) {
-                  console.log(`Match found for ${selectedDate}: ${match.teams?.home?.name || 'Unknown'} vs ${match.teams?.away?.name || 'Unknown'} on ${fixtureUTCDateString}`);
-                }
-
                 return isMatch;
               } catch (error) {
                 return false;
@@ -393,7 +389,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             const matchesSelectedDate = fixtureDateString === selectedDate;
 
             if (!matchesSelectedDate) {
-              console.log(`Filtering out fixture from wrong date: ${fixtureDateString} (expected: ${selectedDate})`);
+              
             }
 
             return matchesSelectedDate;
@@ -420,7 +416,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const expectedDateStr = format(expectedDate, 'yyyy-MM-dd');
 
       if (fixtureDateStr !== expectedDateStr) {
-        console.log(`Filtering out fixture from wrong date: ${fixtureDateStr} (expected: ${expectedDateStr})`);
+        
         return false;
       }
 
@@ -430,7 +426,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         fixture.teams.home.name,
         fixture.teams.away.name
       )) {
-        console.log(`Filtering out excluded fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+        
         return false;
       }
 
@@ -508,7 +504,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Allow all international competitions through
       if (isInternationalCompetition) {
-        console.log(`Allowing international competition: ${fixture.league.name} (ID: ${leagueId})`);
+        
         return true;
       }
 
@@ -518,7 +514,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       );
 
       if (!matchingCountry) {
-        console.log(`Filtering out fixture from non-popular country: ${fixture.league.country}, league: ${fixture.league.name}`);
+        
         return false;
       }
 
@@ -529,7 +525,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
         if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
-          console.log(`Filtering out non-major league from Tier 1 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+          
           return false;
         }
       }
@@ -540,7 +536,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         if (countryKey.toLowerCase() === 'brazil') {
           const brazilLeagues = [71, 72, 73, 74]; // Serie A, Serie B, Serie C, Serie D
           if (!brazilLeagues.includes(leagueId)) {
-            console.log(`Filtering out non-major league from Brazil: ${fixture.league.name} (ID: ${leagueId})`);
+            
             return false;
           }
         } 
@@ -548,7 +544,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         else if (countryKey.toLowerCase() === 'egypt') {
           const egyptLeagues = [233]; // Egyptian Premier League
           if (!egyptLeagues.includes(leagueId)) {
-            console.log(`Filtering out non-major league from Egypt: ${fixture.league.name} (ID: ${leagueId})`);
+            
             return false;
           }
         }
@@ -556,7 +552,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         else if (countryKey.toLowerCase() === 'united arab emirates') {
           const uaeLeagues = [301]; // UAE Pro League
           if (!uaeLeagues.includes(leagueId)) {
-            console.log(`Filtering out non-major league from UAE: ${fixture.league.name} (ID: ${leagueId})`);
+            
             return false;
           }
         }
@@ -564,7 +560,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           // For other Tier 3 countries (Saudi Arabia), be very restrictive
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
-            console.log(`Filtering out non-major league from Tier 3 country ${countryKey}: ${fixture.league.name} (ID: ${leagueId})`);
+            
             return false;
           }
         }
@@ -573,7 +569,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return true;
     });
 
-    console.log(`Filtered to ${filtered.length} matches from popular leagues`);
+    
     return filtered;
   }, [allFixtures, selectedDate]);
 
@@ -599,7 +595,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     // Check if fixture should be excluded using centralized filter
     if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
-      console.log(`Filtering out excluded fixture: ${league.name} - ${homeTeamName} vs ${awayTeamName}`);
+      
       return acc;
     }
 

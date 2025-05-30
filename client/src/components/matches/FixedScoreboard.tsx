@@ -842,7 +842,8 @@ const FixedScoreboard = () => {
                                 currentMatch.teams.home.logo
                               ) {
                                 target.src = currentMatch.teams.home.logo;
-                              } else if (
+                              } else```text
+if (
                                 target.src !== "/assets/fallback-logo.svg"
                               ) {
                                 target.src = "/assets/fallback-logo.svg";
