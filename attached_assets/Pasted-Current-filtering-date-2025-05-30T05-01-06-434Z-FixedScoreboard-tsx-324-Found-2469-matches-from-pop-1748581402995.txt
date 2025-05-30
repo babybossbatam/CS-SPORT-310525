@@ -1,0 +1,250 @@
+Current filtering date: 2025-05-30T05:01:06.434Z
+FixedScoreboard.tsx:324 Found 2469 matches from popular leagues
+FixedScoreboard.tsx:378 Filtered to 8 featured matches from popular leagues
+FixedScoreboard.tsx:385 Match breakdown - Live: 0, Upcoming: 1, Finished: 7
+FixedScoreboard.tsx:388 First match: Paris Saint Germain vs Inter
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Reims vs Metz on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Ferroviária vs Botafogo SP on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: El Geish vs Future FC on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Al Ittihad vs Enppi on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Masr vs Smouha SC on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Ghazl El Mehalla vs Ismaily SC on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Gremio vs Sportivo Luqueno on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Godoy Cruz vs Atletico Grau on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Fluminense vs Once Caldas on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Atletico-MG vs Cienciano on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Union Espanola vs Gualberto Villarroel SJ on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Caracas FC vs Deportes Iquique on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: St. Vincent / Grenadines vs British Virgin Islands on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Saudi Arabia vs Jordan on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Olimpia vs San Antonio Bulo Bulo on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Penarol vs Velez Sarsfield on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Racing Club vs Fortaleza EC on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:153 Match found for 2025-05-30: Colo Colo vs Bucaramanga on 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:174 Fetched 18 popular league fixtures for date 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Serie B - Ferroviária vs Botafogo SP
+2TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: Friendlies (ID: 10)
+6TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: CONMEBOL Sudamericana (ID: 11)
+4TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: CONMEBOL Libertadores (ID: 13)
+TodayPopularFootballLeaguesNew.tsx:576 Filtered to 17 matches from popular leagues
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Serie B - Ferroviária vs Botafogo SP
+TodayPopularFootballLeaguesNew.tsx:94 TodayPopularFootballLeaguesNew - Received 289 fixtures for 2025-05-30
+TodayPopularFootballLeaguesNew.tsx:102 Fixture 1 date: 2025-05-30 (expected: 2025-05-30)
+TodayPopularFootballLeaguesNew.tsx:102 Fixture 2 date: 2025-05-30 (expected: 2025-05-30)
+TodayPopularFootballLeaguesNew.tsx:102 Fixture 3 date: 2025-05-30 (expected: 2025-05-30)
+173TodayPopularFootballLeaguesNew.tsx:396 Filtering out fixture from wrong date: 2025-05-31 (expected: 2025-05-30)
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Friendlies Women - Papua New Guinea W vs Fiji W
+4TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: New-Zealand, league: National League - Northern
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: New-Zealand, league: Chatham Cup
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: 1. Liga U19 - Opava U19 vs Viktoria Plzeň U19
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Capital Territory NPL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Northern Territory Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Ukraine, league: Druha Liga
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Victoria NPL 2
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Victoria NPL
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Queensland NPL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Victoria NPL
+4TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Ukraine, league: Persha Liga
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Northern NSW NPL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: South Australia NPL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: NNSW League 1
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Friendlies Women - Australia W vs Argentina W
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Friendlies Women - Thailand W vs Nepal W
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Friendlies Women - South Korea W vs Colombia W
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Victoria NPL
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Brisbane Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Ukraine, league: Druha Liga
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: South Australia NPL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Vietnam, league: V.League 1
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Australia, league: Northern Territory Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Macao, league: Primeira Divisão
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: III Liga - Group 4
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: UEFA Nations League - Women - Kazakhstan W vs Liechtenstein W
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Ethiopia, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Turkmenistan, league: Ýokary Liga
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Tajikistan, league: Vysshaya Liga
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Cearense U20 - Anjos do Céu U20 vs Pague Menos U20
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Turkmenistan, league: Ýokary Liga
+5TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Syria, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: III Liga - Group 3
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Norway, league: 3. Division - Girone 1
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Kazakhstan, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Macao, league: Primeira Divisão
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Uruguay, league: Segunda División
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: III Liga - Group 3
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Kazakhstan, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Mineiro U20 - XV de Novembro U20 vs Inter de Minas U20
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: II Liga - East
+6TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: United-Arab-Emirates, league: Division 1
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: UEFA Nations League - Women - Azerbaijan W vs Lithuania W
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: 1. Division - ABFF U19 vs Baranovichi
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Mauritius, league: Mauritian League
+TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: Friendlies (ID: 10)
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: II Liga - East
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: III Liga - Group 1
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: III Liga - Group 3
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: UEFA Nations League - Women - Romania W vs Bosnia-Herzegovina W
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: UEFA Nations League - Women - Czech Republic W vs Croatia W
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: UEFA Nations League - Women - Slovakia W vs Gibraltar W
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: UEFA Nations League - Women - Estonia W vs Israel W
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Bulgaria, league: Third League - Southwest
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Ethiopia, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Latvia, league: Virsliga
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Kazakhstan, league: Premier League
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Lithuania, league: 1 Lyga
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Bosnia, league: Premijer Liga
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Friendlies Women - Tanzania W vs Congo DR W
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Czech-Republic, league: 4. liga - Divizie D
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Czech-Republic, league: 3. liga - MSFL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Poland, league: III Liga - Group 4
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Croatia, league: First NL
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Gambia, league: GFA League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Ghana, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Liga Pro Serie B - Chacaritas vs Cumbayá
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL W League - Rochester W vs Sioux Falls City
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL League Two - St. Croix vs River Light
+TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: Friendlies (ID: 10)
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Friendlies Women - Panama W vs Bolivia W
+2TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: CONMEBOL Libertadores (ID: 13)
+4TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: CONMEBOL Sudamericana (ID: 11)
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: NPSL - Fort Worth Vaqueros vs Arkansas Wolves
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL League Two - Denton Diablos vs Hattiesburg
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL League Two - McKinney Chupacabras vs Mississippi Brilla
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Colombia, league: Primera B
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: Serie B - Ferroviária vs Botafogo SP
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL W League - Oakland Soul vs Pleasanton Rage
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL League Two - Colorado ISA vs Utah United
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: WPSL - Colorado Blizzard vs Indios Denver
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL League Two - Ventura County Fusion vs Seahorses
+TodayPopularFootballLeaguesNew.tsx:433 Filtering out excluded fixture: USL League Two - Midlakes United vs Ballard
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Mongolia, league: Premier League
+TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: United-Arab-Emirates, league: Division 1
+2TodayPopularFootballLeaguesNew.tsx:521 Filtering out fixture from non-popular country: Libya, league: Premier League
+2TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: CONMEBOL Sudamericana (ID: 11)
+2TodayPopularFootballLeaguesNew.tsx:511 Allowing international competition: CONMEBOL Libertadores (ID: 13)
+TodayPopularFootballLeaguesNew.tsx:576 Filtered to 17 matches from popular leagues
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Friendlies Women - Papua New Guinea W vs Fiji W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: 1. Liga U19 - Opava U19 vs Viktoria Plzeň U19
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Friendlies Women - Australia W vs Argentina W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Friendlies Women - Thailand W vs Nepal W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Friendlies Women - South Korea W vs Colombia W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: UEFA Nations League - Women - Kazakhstan W vs Liechtenstein W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Cearense U20 - Anjos do Céu U20 vs Pague Menos U20
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Mineiro U20 - XV de Novembro U20 vs Inter de Minas U20
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: UEFA Nations League - Women - Azerbaijan W vs Lithuania W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: 1. Division - ABFF U19 vs Baranovichi
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: UEFA Nations League - Women - Romania W vs Bosnia-Herzegovina W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: UEFA Nations League - Women - Czech Republic W vs Croatia W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: UEFA Nations League - Women - Slovakia W vs Gibraltar W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: UEFA Nations League - Women - Estonia W vs Israel W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Friendlies Women - Tanzania W vs Congo DR W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Liga Pro Serie B - Chacaritas vs Cumbayá
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL W League - Rochester W vs Sioux Falls City
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL League Two - St. Croix vs River Light
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Friendlies Women - Panama W vs Bolivia W
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: NPSL - Fort Worth Vaqueros vs Arkansas Wolves
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL League Two - Denton Diablos vs Hattiesburg
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL League Two - McKinney Chupacabras vs Mississippi Brilla
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: Serie B - Ferroviária vs Botafogo SP
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL W League - Oakland Soul vs Pleasanton Rage
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL League Two - Colorado ISA vs Utah United
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: WPSL - Colorado Blizzard vs Indios Denver
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL League Two - Ventura County Fusion vs Seahorses
+TodayPopularFootballLeaguesNew.tsx:602 Filtering out excluded fixture: USL League Two - Midlakes United vs Ballard
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - Papua New Guinea W vs Fiji W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: 1. Liga U19 - Opava U19 vs Viktoria Plzeň U19
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - Australia W vs Argentina W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - Thailand W vs Nepal W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - South Korea W vs Colombia W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Kazakhstan W vs Liechtenstein W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Cearense U20 - Anjos do Céu U20 vs Pague Menos U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Mineiro U20 - XV de Novembro U20 vs Inter de Minas U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Azerbaijan W vs Lithuania W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: 1. Division - ABFF U19 vs Baranovichi
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Romania W vs Bosnia-Herzegovina W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Czech Republic W vs Croatia W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Slovakia W vs Gibraltar W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Estonia W vs Israel W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - Tanzania W vs Congo DR W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Regionalliga - Ost - Fach-Donaufeld vs Favoritner AC
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: U21 League 1 - El Bayadh U21 vs Olympique Akbou U21
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Slovenia W vs Greece W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Latvia W vs North Macedonia
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Italy W vs Sweden W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Regionalliga - Ost - Mauerwerk vs Leobendorf
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Regionalliga - Ost - Siegendorf vs Austria Vienna (Am)
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Regionalliga - Ost - Gloggnitz vs Mannsdorf-Großenzersdorf
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Turkey W vs Republic of Ireland
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Serbia W vs Hungary W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Ukraine W vs Albania W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Moldova W vs Faroe Islands W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Andorra W vs Georgia W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Malta W vs Cyprus W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Luxembourg W vs Armenia W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: CONCACAF Women U20 - United States U20 W vs Guyana U20 W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Denmark W vs Wales W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Regionalliga - Ost - Traiskirchen vs Oberwart
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Regionalliga - Ost - Wiener SC vs Neusiedl
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Oberliga - Mittelrhein - Bonner SC vs Bonn-Endenich
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: 2. Liga Interregional - Group 3 - Locarno vs Cham II
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Norway W vs Iceland W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Northern Ireland W vs Poland W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Belarus W vs Finland W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - EC São Bernardo U20 vs Taubaté U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Inter Limeira U20 vs Ferroviária U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Sfera U20 vs Novorizontino U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Aguai U20 vs Osasco Audax U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - São Caetano U20 vs São José EC U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Referencia U20 vs Santo André U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Sertãozinho U20 vs Jabaquara U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - União Suzano U20 vs Rio Claro SP U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - União São João U20 vs Araçatuba U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Capivariano U20 vs Desportivo Brasil U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Comercial de Tietê U20 vs XV de Piracicaba U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Guarani U20 vs Portuguesa Santista U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Mauá U20 vs AC Guaratinguetá U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Oeste U20 vs XV de Jaú U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Tanabi SP U20 vs Gremio Prudente U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Corinthians U20 vs Ituano U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: 2. Liga Interregional - Group 1 - Martigny Sports vs Concordia Lausanne
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Germany W vs Netherlands W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Belgium W vs Spain W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Campionato Primavera - 1 - Fiorentina U20 vs Internazionale U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - Scotland W vs Austria W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - England W vs Portugal W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - Côte d'Ivoire vs Ghana W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: UEFA Nations League - Women - France W vs Switzerland W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: CONCACAF Women U20 - Costa Rica U20 W vs Puerto Rico W U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Copa Colombia - Orsomarso vs Envigado
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Copa Colombia - Fortaleza FC vs Bogota FC
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Mineiro U20 - Futgol U20 vs Uberaba U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Serie B - Vila Nova vs Novorizontino
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Serie D - Iguatu vs Maranhão
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista - U20 - Velo Clube U20 vs Juventus U20
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Paulista Série B - Assisense vs Santacruzense
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL W League - Pittsburgh Riveters vs Flower City 1872
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL W League - River Light W vs Minnesota Aurora
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL W League - Lexington II vs Dayton Dutch Lions W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: NPSL - Syracuse FC vs Buffalo Stallions
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - FC Pride vs Lou Fusz Athletic
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Real Central NJ vs Fever
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Force New York vs STA
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Reading United W vs PA Classics
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Hershey vs Keystone
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Gulf Coast Dutch Lions vs West Florida Flames
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Decatur vs UFA Gunners
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Chattanooga W vs Georgia Impact
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Copa Ecuador - Deportivo Ibarra vs San Antonio
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Liga Pro Serie B - Chacaritas vs Cumbayá
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL W League - Rochester W vs Sioux Falls City
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL League Two - St. Croix vs River Light
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Friendlies Women - Panama W vs Bolivia W
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: NPSL - Fort Worth Vaqueros vs Arkansas Wolves
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL League Two - Denton Diablos vs Hattiesburg
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL League Two - McKinney Chupacabras vs Mississippi Brilla
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: Serie B - Ferroviária vs Botafogo SP
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL W League - Oakland Soul vs Pleasanton Rage
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL League Two - Colorado ISA vs Utah United
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: WPSL - Colorado Blizzard vs Indios Denver
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL League Two - Ventura County Fusion vs Seahorses
+TodaysMatchesByCountryNew.tsx:348 Filtering out excluded fixture: USL League Two - Midlakes United vs Ballard
