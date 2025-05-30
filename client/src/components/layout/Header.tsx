@@ -64,7 +64,7 @@ const Header = () => {
         <div className="flex items-center gap-[1.05rem]">
           {isAuthenticated && (
             <>
-              <div className="text-xl font-semibold">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
+              <div className="text-xl font-semibold hover:text-amber-400 hover:bg-gray-800 hover:underline transition-colors duration-200 cursor-pointer px-2 py-1 rounded">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
               <div 
                 className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
                 onClick={handleLogout}
