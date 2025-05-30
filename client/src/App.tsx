@@ -95,7 +95,7 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <main className="pt-[125px] bg-stone-50 min-h-screen">
+      <main className="pt-[202px] bg-stone-50">
         <Router />
       </main>
     </TooltipProvider>
