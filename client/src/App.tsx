@@ -61,22 +61,18 @@ function Router() {
 
 // Mock functions for cache refresh and preloading (replace with actual implementation)
 const setupCacheRefresh = () => {
-  console.log("Cache refresh system initialized.");
   // Implement your cache refresh logic here, e.g., using setInterval
   // Example:
   // setInterval(() => {
-  //   console.log("Refreshing cache...");
   //   // Call functions to refetch data for components
   // }, 30 * 60 * 1000); // Every 30 minutes
 };
 
 const cleanupCacheRefresh = () => {
-  console.log("Cache refresh system cleaned up.");
   // Implement cleanup logic, e.g., clearInterval
 };
 
 const preloadData = () => {
-    console.log("Preloading data...");
     // Implement logic to preload data for components
 }
 
