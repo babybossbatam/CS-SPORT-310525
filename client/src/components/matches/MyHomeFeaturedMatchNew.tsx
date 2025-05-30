@@ -285,7 +285,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   {/* Match date, time and venue - centered below VS */}
                   <div
-                    className="absolute text-center text-xs text-black font-medium mt-8"
+                    className="absolute text-center text-xs text-black font-medium"
                     style={{
                       fontSize: "0.875rem",
                       whiteSpace: "nowrap",
@@ -294,7 +294,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       position: "absolute",
                       left: "50%",
                       transform: "translateX(-50%)",
-                      bottom: "-25px",
+                      bottom: "-57px",
                       width: "max-content",
                       fontFamily: "'Inter', system-ui, sans-serif",
                     }}
