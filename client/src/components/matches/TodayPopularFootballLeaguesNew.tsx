@@ -1442,6 +1442,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 }
                               }}
                             />
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== '/assets/fallback-logo.svg') {
+                                  target.src = '/assets/fallback-logo.svg';
+                                }
+                              }}
+                            />
                           </div>
 
                           {/* Score/Time Center */}
