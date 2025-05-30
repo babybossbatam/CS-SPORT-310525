@@ -1375,7 +1375,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   return (
     <div>
-      <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+      <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4 mt-4">
         <h2 className="text-lg font-semibold text-gray-800">Popular Football Leagues</h2>
       </div>
       {sortedCountries.map((countryData: any) => (
