@@ -1191,7 +1191,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     <div className="flex items-center px-3 py-2">
                       {/* Star icon with hover slide effect */}
                       <div className="absolute left-0 top-0 bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
-                        <button className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white border border-blue-500 shadow-sm flex items-center justify-center">
+                        <button className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white shadow-sm flex items-center justify-center">
                           <svg 
                             className="w-4 h-4 text-blue-500 stroke-current fill-none hover:text-blue-600" 
                             viewBox="0 0 24 24"
@@ -1410,7 +1410,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         <div className="flex items-center px-3 py-2">
                           {/* Star icon with hover slide effect */}
                           <div className="absolute left-0 top-0 bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
-                            <button className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white border border-blue-500 shadow-sm flex items-center justify-center">
+                            <button className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white shadow-sm flex items-center justify-center">
                               <svg 
                                 className="w-4 h-4 text-blue-500 stroke-current fill-none hover:text-blue-600" 
                                 viewBox="0 0 24 24"
