@@ -1402,6 +1402,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       </div>
                     </div>
 
+                  <CardContent className="p-0">
+                    <div className="space-y-0">
                     {leagueData.matches.map((match: any) => (
                       <div
                         key={match.fixture.id}
