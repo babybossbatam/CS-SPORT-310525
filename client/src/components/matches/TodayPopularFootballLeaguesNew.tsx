@@ -493,7 +493,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Favorite team functionality
   const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
     try {
-      const isFavorite = favoriteTeams.some(team => team.id === teamId);
+      const isFavorite = favoriteTeams?.some(team => team.id === teamId) || false;
       
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
@@ -519,7 +519,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   };
 
   const isTeamFavorite = (teamId: number) => {
-    return favoriteTeams.some(team => team.id === teamId);
+    return favoriteTeams?.some(team => team.id === teamId) || false;
   };
 
   // Start with all countries collapsed by default
