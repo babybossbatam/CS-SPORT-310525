@@ -146,47 +146,26 @@ export async function findWorkingLogoUrl(options: TeamLogoOptions): Promise<stri
 }
 
 /**
- * React hook for progressive logo loading
+ * Get progressive logo loading state (non-React version)
  */
-export function useProgressiveLogoLoading(options: TeamLogoOptions) {
-  const [currentUrl, setCurrentUrl] = React.useState<string>('/assets/fallback-logo.svg');
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [failedSources, setFailedSources] = React.useState<string[]>([]);
-
-  React.useEffect(() => {
-    let isMounted = true;
-    
-    async function loadLogo() {
-      setIsLoading(true);
-      const sources = generateLogoSources(options);
-      
-      for (const source of sources) {
-        if (!isMounted) return;
-        
-        const isWorking = await testImageUrl(source.url);
-        if (isWorking && isMounted) {
-          setCurrentUrl(source.url);
-          setIsLoading(false);
-          return;
-        } else {
-          setFailedSources(prev => [...prev, source.url]);
-        }
-      }
-      
-      if (isMounted) {
-        setCurrentUrl('/assets/fallback-logo.svg');
-        setIsLoading(false);
-      }
+export async function getProgressiveLogoState(options: TeamLogoOptions) {
+  const sources = generateLogoSources(options);
+  const failedSources: string[] = [];
+  
+  for (const source of sources) {
+    const isWorking = await testImageUrl(source.url);
+    if (isWorking) {
+      return { currentUrl: source.url, isLoading: false, failedSources };
+    } else {
+      failedSources.push(source.url);
     }
-
-    loadLogo();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [options.teamId, options.teamName, options.originalUrl]);
-
-  return { currentUrl, isLoading, failedSources };
+  }
+  
+  return { 
+    currentUrl: '/assets/fallback-logo.svg', 
+    isLoading: false, 
+    failedSources 
+  };
 }
 
 /**
@@ -196,7 +175,7 @@ export function createFallbackHandler(options: TeamLogoOptions) {
   const sources = generateLogoSources(options);
   let currentIndex = 0;
 
-  return function handleImageError(event: React.SyntheticEvent<HTMLImageElement>) {
+  return function handleImageError(event: any) {
     const img = event.currentTarget;
     currentIndex++;
 
@@ -214,38 +193,11 @@ export function createFallbackHandler(options: TeamLogoOptions) {
 /**
  * Enhanced image component with built-in fallback logic
  */
-export interface EnhancedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+export interface EnhancedImageProps {
   teamId?: number | string;
   teamName?: string;
   fallbackOptions?: TeamLogoOptions;
-}
-
-export function EnhancedTeamImage({ 
-  teamId, 
-  teamName, 
-  src, 
-  fallbackOptions,
-  onError,
-  ...props 
-}: EnhancedImageProps) {
-  const options: TeamLogoOptions = {
-    teamId,
-    teamName,
-    originalUrl: src,
-    ...fallbackOptions
-  };
-
-  const fallbackHandler = createFallbackHandler(options);
-
-  const handleError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    fallbackHandler(event);
-    onError?.(event);
-  };
-
-  return <img {...props} src={src} onError={handleError} />;
-}
-
-// Export for React import
-declare global {
-  const React: typeof import('react');
+  src?: string;
+  onError?: (event: any) => void;
+  [key: string]: any;
 }
