@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow, subDays, addDays } from 'date-fns';
@@ -28,24 +28,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   showTop20 = false,
   liveFilterActive = false 
 }) => {
+  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
-  // Geographic/Regional preferences with priority tiers
-  const TIER_1_COUNTRIES = ['England', 'Spain', 'Italy', 'Germany', 'France']; // Top priority European countries
-  const TIER_2_INTERNATIONAL = ['World', 'Europe']; // International competitions
-  const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'USA', 'United Arab Emirates']; // Other popular countries
-
+  // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
-    'International', // FIFA Club World Cup first
-    'World', // Men's international friendlies and other World competitions
-    'Europe', // UEFA Europa Conference League and other European competitions
-    'South America', // CONMEBOL competitions
-    'Egypt', // Egypt Premier League
-    'USA', // USA MLS league
-    'United Arab Emirates', // UAE Pro League
-    ...TIER_1_COUNTRIES.filter(c => c !== 'England' && c !== 'Spain' && c !== 'Italy' && c !== 'Germany' && c !== 'France'), // Remove duplicates if any
-    'England', 'Spain', 'Italy', 'Germany', 'France', // Other European countries
-    ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt' && c !== 'United Arab Emirates'), // Other popular countries except those already listed
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World'
   ];
 
   // Enhanced leagues by country with tier-based filtering
@@ -69,6 +57,20 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Flatten popular leagues for backward compatibility
   const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
+  // Popular teams for match prioritization
+  const POPULAR_TEAMS = [
+    // Premier League
+    33, 40, 42, 50, 47, 49, // Manchester United, Liverpool, Arsenal, Manchester City, Tottenham, Chelsea
+    // La Liga
+    529, 541, 530, 548, 727, // Barcelona, Real Madrid, Atletico Madrid, Real Sociedad, Athletic Bilbao
+    // Serie A
+    489, 492, 496, 500, 502, 505, // AC Milan, Napoli, Juventus, Inter, Fiorentina, Lazio
+    // Bundesliga
+    157, 165, 168, 173, 192, // Bayern Munich, Borussia Dortmund, Bayer Leverkusen, RB Leipzig, Eintracht Frankfurt
+    // Champions League popular teams
+    85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
+  ];
+
   // Check if we have fresh cached data
   const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
 
@@ -80,17 +82,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     async () => {
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
-
-      // Debug: Check first few fixtures' dates
-      if (data.length > 0) {
-        data.slice(0, 3).forEach((fixture, index) => {
-          if (fixture?.fixture?.date) {
-            const fixtureDate = parseISO(fixture.fixture.date);
-            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
-          }
-        });
-      }
-
       return data;
     },
     {
@@ -103,14 +94,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Use only main fixtures and filter client-side for popular leagues
-  const allFixtures = fixtures
-    .filter((fixture, index, self) => {
-      // Ensure unique fixtures
-      const isUnique = index === self.findIndex(f => f.fixture.id === fixture.fixture.id);
-      if (!isUnique) return false;
+  // Filter fixtures based on popular countries and exclusion filters
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length) return [];
 
-      // Only keep fixtures that match the exact selected date
+    const filtered = fixtures.filter(fixture => {
+      // Date filtering - ensure exact date match
       if (fixture?.fixture?.date) {
         try {
           const fixtureDate = parseISO(fixture.fixture.date);
@@ -162,22 +151,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return false;
     });
 
-  // Filter fixtures based on popular countries and exclusion filters
-  const filteredFixtures = useMemo(() => {
-    if (!allFixtures?.length) return [];
-
-    const filtered = allFixtures.filter(fixture => {
-      // Date filtering - ensure exact date match
-      const fixtureDate = new Date(fixture.fixture.date);
-      const expectedDate = new Date(selectedDate);
-
-      const fixtureDateStr = format(fixtureDate, 'yyyy-MM-dd');
-      const expectedDateStr = format(expectedDate, 'yyyy-MM-dd');
-
-      if (fixtureDateStr !== expectedDateStr) {
-        return false;
-      }
-
+    return filtered.filter(fixture => {
       // Apply exclusion filters
       if (shouldExcludeFixture(
         fixture.league.name,
@@ -187,57 +161,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return false;
       }
 
-      // Additional exclusions for popular leagues card
-      const leagueName = fixture.league.name?.toLowerCase() || '';
-      if (leagueName.includes('oberliga') || 
-          leagueName.includes('usl w league') || 
-          leagueName.includes('wpsl') ||
-          leagueName.includes('npsl') ||
-          leagueName.includes('national premier soccer league') ||
-          leagueName.includes('usl league two') ||
-          leagueName.includes('usl championship') ||
-          leagueName.includes('usl league one') ||
-          leagueName.includes('nwsl')) {
-        return false;
-      }
-
-      // Extra USA filtering - if it's from USA and not MLS (253) or MLS Next Pro (254), exclude it
-      if (fixture.league.country?.toLowerCase() === 'usa' || 
-          fixture.league.country?.toLowerCase() === 'united states') {
-        const allowedUSALeagues = [253, 254];
-        if (!allowedUSALeagues.includes(fixture.league.id)) {
-          return false;
-        }
-      }
-
       // Skip fixtures with null or undefined country
       if (!fixture.league.country) {
         return false;
       }
 
-      // Enhanced geographic/regional filtering logic
       const countryName = fixture.league.country?.toLowerCase() || '';
       const leagueId = fixture.league.id;
       const leagueNameLower = fixture.league.name?.toLowerCase() || '';
 
-      // Check for international competitions first (more permissive)
-      // Prioritize men's international friendlies (exclude women's friendlies)
-      const isWorldFriendlies = leagueNameLower.includes('friendlies') && 
-                               countryName.includes('world') && 
-                               !leagueNameLower.includes('women');
-
-      // Enhanced CONMEBOL detection
-      const isCONMEBOLCompetition = 
-        leagueNameLower.includes('copa america') ||
-        leagueNameLower.includes('copa libertadores') ||
-        leagueNameLower.includes('copa sudamericana') ||
-        leagueNameLower.includes('conmebol') ||
-        leagueNameLower.includes('libertadores') ||
-        leagueNameLower.includes('sudamericana') ||
-        countryName.includes('south america') ||
-        leagueId === 9 || leagueId === 11 || leagueId === 13; // Copa America, Libertadores, Sudamericana IDs
-
-      // Enhanced international competitions detection
+      // Check for international competitions first
       const isInternationalCompetition = 
         leagueNameLower.includes('champions league') ||
         leagueNameLower.includes('europa league') ||
@@ -248,12 +181,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         leagueNameLower.includes('euro') ||
         leagueNameLower.includes('uefa') ||
         leagueNameLower.includes('fifa') ||
-        leagueNameLower.includes('nations league') ||
-        leagueNameLower.includes('intercontinental') ||
-        leagueNameLower.includes('super cup') ||
-        isWorldFriendlies ||
-        isCONMEBOLCompetition ||
-        TIER_2_INTERNATIONAL.some(region => countryName.includes(region.toLowerCase())) ||
+        leagueNameLower.includes('conmebol') ||
+        leagueNameLower.includes('libertadores') ||
+        leagueNameLower.includes('sudamericana') ||
+        leagueNameLower.includes('friendlies') ||
         countryName.includes('world') ||
         countryName.includes('europe') ||
         countryName.includes('international');
@@ -263,7 +194,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return true;
       }
 
-      // Check if it's a popular country with geographic preferences
+      // Check if it's a popular country
       const matchingCountry = POPULAR_COUNTRIES.find(country => 
         countryName.includes(country.toLowerCase())
       );
@@ -272,54 +203,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         return false;
       }
 
-      // Enhanced filtering based on geographic tiers
-      const countryKey = matchingCountry;
-
-      // Tier 1 countries (England, Spain, Italy, Germany, France) - show all major leagues
-      if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
-        const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
-        if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
-          return false;
-        }
-      }
-
-      // Tier 3 countries (Brazil, Saudi Arabia, Egypt, USA, United Arab Emirates) - be more permissive for Brazil and Egypt
-      else if (TIER_3_OTHER_POPULAR.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
-        // For Brazil, allow Serie A, Serie B, Serie C, and Serie D
-        if (countryKey.toLowerCase() === 'brazil') {
-          const brazilLeagues = [71, 72, 73, 74]; // Serie A, Serie B, Serie C, Serie D
-          if (!brazilLeagues.includes(leagueId)) {
-            return false;
-          }
-        } 
-        // For Egypt, allow all Premier League matches (ID: 233)
-        else if (countryKey.toLowerCase() === 'egypt') {
-          const egyptLeagues = [233]; // Egyptian Premier League
-          if (!egyptLeagues.includes(leagueId)) {
-            return false;
-          }
-        }
-        // For United Arab Emirates, allow UAE Pro League (ID: 301)
-        else if (countryKey.toLowerCase() === 'united arab emirates') {
-          const uaeLeagues = [301]; // UAE Pro League
-          if (!uaeLeagues.includes(leagueId)) {
-            return false;
-          }
-        }
-        else {
-          // For other Tier 3 countries (Saudi Arabia), be very restrictive
-          const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
-          if (!countryLeagues.includes(leagueId)) {
-            return false;
-          }
-        }
-      }
-
       return true;
     });
-
-    return filtered;
-  }, [allFixtures, selectedDate]);
+  }, [fixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
@@ -483,19 +369,37 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Sort countries by the POPULAR_COUNTRIES_ORDER
   const sortedCountries = useMemo(() => {
     return filteredCountries.sort((a: any, b: any) => {
-      const indexA = POPULAR_COUNTRIES_ORDER.findIndex(country => country === a.country);
-      const indexB = POPULAR_COUNTRIES_ORDER.findIndex(country => country === b.country);
-      
-      // Prioritize items found in POPULAR_COUNTRIES_ORDER
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB;
-      } else if (indexA !== -1) {
-        return -1; // a comes before b
-      } else if (indexB !== -1) {
-        return 1; // b comes before a
-      } else {
-        return 0; // a and b are equally sorted
+      const getPopularCountryIndex = (country: string) => {
+        if (!country) return 999;
+        const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
+          safeSubstring(country, 0).toLowerCase() === safeSubstring(pc, 0).toLowerCase()
+        );
+        return index === -1 ? 999 : index;
+      };
+
+      const aPopularIndex = getPopularCountryIndex(a.country);
+      const bPopularIndex = getPopularCountryIndex(b.country);
+
+      const aIsPopularCountry = aPopularIndex !== 999;
+      const bIsPopularCountry = bPopularIndex !== 999;
+
+      // Check if countries are World or Europe (International competitions)
+      const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe';
+      const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe';
+
+      // Priority order: Popular countries with badge leagues first
+      if (aIsPopularCountry && a.hasPopularLeague && (!bIsPopularCountry || !b.hasPopularLeague)) return -1;
+      if (bIsPopularCountry && b.hasPopularLeague && (!aIsPopularCountry || !a.hasPopularLeague)) return 1;
+
+      // Both are popular countries with badge leagues - sort by priority order
+      if (aIsPopularCountry && a.hasPopularLeague && bIsPopularCountry && b.hasPopularLeague) {
+        return aPopularIndex - bPopularIndex;
       }
+
+      // Default to alphabetical sorting for other cases
+      const countryA = a.country || '';
+      const countryB = b.country || '';
+      return countryA.localeCompare(countryB);
     });
   }, [filteredCountries]);
 
@@ -569,164 +473,469 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return liveFilteredCountries.slice(0, 20);
   }, [liveFilteredCountries, showTop20]);
 
+  const toggleCountry = (country: string) => {
+    const newExpanded = new Set(expandedCountries);
+    if (newExpanded.has(country)) {
+      newExpanded.delete(country);
+    } else {
+      newExpanded.add(country);
+    }
+    setExpandedCountries(newExpanded);
+  };
+
+  // Start with all countries collapsed by default
+  useEffect(() => {
+    // Reset to collapsed state when selected date changes
+    setExpandedCountries(new Set());
+  }, [selectedDate]);
+
   if (isLoading || isFetching) {
     return (
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <div>
-              <Skeleton className="h-4 w-[200px]" />
-            </div>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-48" />
           </div>
+          <Skeleton className="h-3 w-40" />
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[300px]" />
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[350px]" />
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  const getDisplayTitle = () => {
-    if (isToday(parseISO(selectedDate))) {
-      return "Today's Popular Leagues";
-    } else if (isYesterday(parseISO(selectedDate))) {
-      return "Yesterday's Popular Leagues";
-    } else if (isTomorrow(parseISO(selectedDate))) {
-      return "Tomorrow's Popular Leagues";
+  if (!filteredFixtures.length) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No matches available for this date</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Calculate date strings for comparison - use actual current date for reference
+  const actualCurrentDate = new Date();
+  const actualTodayString = format(actualCurrentDate, 'yyyy-MM-dd');
+  const actualYesterdayString = format(subDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+  const actualTomorrowString = format(addDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+
+  // Get header title based on selected date with accurate date comparison
+  const getHeaderTitle = () => {
+    // Determine what type of matches to show based on selected date
+    const isSelectedToday = selectedDate === actualTodayString;
+    const isSelectedYesterday = selectedDate === actualYesterdayString;
+    const isSelectedTomorrow = selectedDate === actualTomorrowString;
+
+    let baseTitle = "";
+
+    // Use exact string comparison for accurate date matching
+    if (isSelectedToday) {
+      baseTitle = "Today's Popular Football Leagues";
+    } else if (isSelectedYesterday) {
+      baseTitle = "Yesterday's Popular Football Leagues";
+    } else if (isSelectedTomorrow) {
+      baseTitle = "Tomorrow's Popular Football Leagues";
+    } else {
+      const selectedDateObj = parseISO(selectedDate);
+      baseTitle = `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
     }
-    
-    // For other dates, show formatted date
+
+    // Add time filter indicator
+    if (timeFilterActive && showTop20) {
+      baseTitle += " (Top 20 by Time)";
+    }
+
+    return baseTitle;
+  };
+
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
     try {
-      const date = parseISO(selectedDate);
-      return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
-    } catch {
-      return selectedDate;
+      if (!dateString) return '--:--';
+      const date = new Date(dateString);
+      return format(date, 'HH:mm');
+    } catch (error) {
+      console.error('Error formatting match time:', error);
+      return '--:--';
     }
   };
 
   return (
-    <>
-      {top20FilteredCountries.map((countryData: any) => (
-        <div key={countryData.country} className="mb-4">
-          <Card className="shadow-sm border border-neutral-200">
-            <CardHeader className="border-b border-neutral-100 bg-neutral-50/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={countryData.flag}
-                    alt={`${countryData.country} Flag`}
-                    className="h-6 w-6 rounded-full object-cover"
-                    onError={(e: any) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
-                  />
-                  <h2 className="text-lg font-semibold text-neutral-800">{countryData.country}</h2>
-                  {countryData.hasPopularLeague && (
-                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                      Popular
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-neutral-500">
-                  {Object.values(countryData.leagues).reduce((total: number, league: any) => total + league.matches.length, 0)} matches
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              {Object.entries(countryData.leagues).map(([leagueId, leagueData]: any) => (
-                <div key={leagueId} className="border-b border-neutral-100 last:border-b-0">
-                  <div className="p-4 bg-neutral-50/30">
-                    <div className="flex items-center gap-3 mb-3">
+    <div className="space-y-4">
+      {/* Header Section */}
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold">
+          {getHeaderTitle()}
+        </h3>
+      </div>
+
+      {/* Create individual league cards from all countries */}
+      {top20FilteredCountries.flatMap((countryData: any) => 
+        Object.values(countryData.leagues)
+          .sort((a: any, b: any) => {
+            // Prioritize leagues that are popular for this specific country
+            if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+            if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
+
+            // Then globally popular leagues
+            if (a.isPopular && !b.isPopular) return -1;
+            if (!a.isPopular && b.isPopular) return 1;
+
+            // Finally alphabetical
+            return a.league.name.localeCompare(b.league.name);
+          })
+          .map((leagueData: any) => (
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
+              {/* League Header - Always show unless time filter is active */}
+              {!timeFilterActive && (
+                <>
+                  {leagueData.isFriendlies ? (
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
                       <img
-                        src={leagueData.league.logo}
-                        alt={`${leagueData.league.name} Logo`}
-                        className="h-6 w-6 rounded object-contain"
-                        onError={(e: any) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
+                        src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                        alt={leagueData.league.name || 'Unknown League'}
+                        className="w-5 h-5 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
                       />
-                      <h3 className="text-md font-medium text-neutral-800">{leagueData.league.name}</h3>
-                      {leagueData.isPopular && (
-                        <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded">
-                          ⭐ Popular
-                        </span>
-                      )}
-                      {leagueData.isFriendlies && (
-                        <span className="px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
-                          Friendlies
-                        </span>
-                      )}
+                      <span className="font-medium text-sm text-blue-800">
+                        {leagueData.league.name || 'Unknown League'}
+                      </span>
+                      <span className="text-xs text-blue-600">
+                        {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
+                      </span>
                     </div>
-                    <div className="space-y-2">
-                      {leagueData.matches.map((match: any) => (
-                        <div 
-                          key={match.fixture.id} 
-                          className="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-100 hover:border-neutral-200 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="flex items-center gap-2 w-5/12">
-                              <img
-                                src={match.teams.home.logo}
-                                alt={match.teams.home.name}
-                                className="h-6 w-6 rounded object-contain"
-                                onError={(e: any) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = "/assets/fallback-logo.svg";
-                                }}
-                              />
-                              <span className="text-sm font-medium text-neutral-800 truncate">
-                                {match.teams.home.name}
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center justify-center w-2/12">
-                              <span className="text-xs font-medium text-neutral-500 px-2">vs</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 w-5/12 justify-end">
-                              <span className="text-sm font-medium text-neutral-800 truncate">
-                                {match.teams.away.name}
-                              </span>
-                              <img
-                                src={match.teams.away.logo}
-                                alt={match.teams.away.name}
-                                className="h-6 w-6 rounded object-contain"
-                                onError={(e: any) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = "/assets/fallback-logo.svg";
-                                }}
-                              />
-                            </div>
+                  ) : (
+                    <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                      <img
+                        src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                        alt={leagueData.league.name || 'Unknown League'}
+                        className="w-6 h-6 object-contain mt-0.5"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                        }}
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-base text-gray-800">
+                          {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          {leagueData.league.country || 'Unknown Country'}
+                        </span>
+                      </div>
+                      <div className="flex gap-1 ml-auto">
+                        {leagueData.isPopularForCountry && (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                            Popular Country
+                          </span>
+                        )}
+                        {leagueData.isPopular && !leagueData.isPopularForCountry && (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                            Popular
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Matches - Show for all leagues */}
+              <CardContent className="p-0">
+                <div className="space-y-0">
+                  {leagueData.matches
+                    .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
+                    .sort((a: any, b: any) => {
+                      // When time filter is active, prioritize by time more strictly
+                      if (timeFilterActive) {
+                        const aDate = parseISO(a.fixture.date);
+                        const bDate = parseISO(b.fixture.date);
+                        const now = new Date();
+
+                        // Ensure valid dates
+                        if (!isValid(aDate) || !isValid(bDate)) {
+                          return 0;
+                        }
+
+                        const aTime = aDate.getTime();
+                        const bTime = bDate.getTime();
+                        const nowTime = now.getTime();
+
+                        // Calculate time distance from now
+                        const aDistance = Math.abs(aTime - nowTime);
+                        const bDistance = Math.abs(bTime - nowTime);
+
+                        // Prioritize matches closest to current time
+                        return aDistance - bDistance;
+                      }
+
+                      // Original sorting logic when time filter is not active
+                      const aStatus = a.fixture.status.short;
+                      const bStatus = b.fixture.status.short;
+                      const aDate = parseISO(a.fixture.date);
+                      const bDate = parseISO(b.fixture.date);
+
+                      // Ensure valid dates
+                      if (!isValid(aDate) || !isValid(bDate)) {
+                        return 0;
+                      }
+
+                      const now = new Date();
+                      const aTime = aDate.getTime();
+                      const bTime = bDate.getTime();
+
+                      // Check if matches involve popular teams (with null safety)
+                      const aHasPopularTeam = (a.teams?.home?.id && POPULAR_TEAMS.includes(a.teams.home.id)) || 
+                                             (a.teams?.away?.id && POPULAR_TEAMS.includes(a.teams.away.id));
+                      const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.home.id)) || 
+                                             (b.teams?.away?.id && POPULAR_TEAMS.includes(b.teams.away.id));
+
+                      // Prioritize popular team matches first
+                      if (aHasPopularTeam && !bHasPopularTeam) return -1;
+                      if (!aHasPopularTeam && bHasPopularTeam) return 1;
+
+                      // Define status categories
+                      const aLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
+                      const bLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
+
+                      const aFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(aStatus);
+                      const bFinished = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(bStatus);
+
+                      const aUpcoming = aStatus === 'NS' && !aLive && !aFinished;
+                      const bUpcoming = bStatus === 'NS' && !bLive && !bFinished;
+
+                      // Assign priority scores (lower = higher priority)
+                      let aPriority = 0;
+                      let bPriority = 0;
+
+                      if (aLive) aPriority = 1;
+                      else if (aUpcoming) aPriority = 2;
+                      else if (aFinished) aPriority = 3;
+                      else aPriority = 4;
+
+                      if (bLive) bPriority = 1;
+                      else if (bUpcoming) bPriority = 2;
+                      else if (bFinished) bPriority = 3;
+                      else bPriority = 4;
+
+                      // Second sort by match status priority
+                      if (aPriority !== bPriority) {
+                        return aPriority - bPriority;
+                      }
+
+                      // If same priority, sort by time within category
+                      if (aLive && bLive) {
+                        // For live matches, show earliest start time first
+                        return aTime - bTime;
+                      }
+
+                      if (aUpcoming && bUpcoming) {
+                        // For upcoming matches, show earliest start time first
+                        return aTime - bTime;
+                      }
+
+                      if (aFinished && bFinished) {
+                        // For finished matches, show most recent first
+                        return bTime - aTime;
+                      }
+
+                      // Default time-based sorting
+                      return aTime - bTime;
+                    })
+                    .map((match: any) => (
+                      <div 
+                        key={match.fixture.id} 
+                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="flex items-center px-3 py-2">
+                          {/* Home Team */}
+                          <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                            {match.teams.home.name}
                           </div>
-                          
-                          <div className="flex items-center gap-2 ml-4">
-                            <span className="text-sm font-medium text-neutral-600">
-                              {format(parseISO(match.fixture.date), 'HH:mm')}
-                            </span>
-                            {match.fixture.status.short === 'LIVE' && (
-                              <span className="px-2 py-1 text-xs font-bold bg-red-500 text-white rounded">
-                                LIVE
-                              </span>
-                            )}
+
+                          <div className="flex-shrink-0 mx-1">
+                            <img
+                              src={match.teams.home.logo || '/assets/fallback-logo.svg'}
+                              alt={match.teams.home.name}
+                              className="w-12 h-12 object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== '/assets/fallback-logo.svg') {
+                                  target.src = '/assets/fallback-logo.svg';
+                                }
+                              }}
+                            />
+                          </div>
+
+                          {/* Score/Time Center */}
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                            {(() => {
+                              const status = match.fixture.status.short;
+                              const fixtureDate = parseISO(match.fixture.date);
+
+                              // Live matches
+                              if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+                                return (
+                                  <>
+                                    <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
+                                      LIVE
+                                    </div>
+                                    <div className="text-lg font-bold text-red-600 flex items-center gap-2">
+                                      <span>{match.goals.home ?? 0}</span>
+                                      <span className="text-gray-400">-</span>
+                                      <span>{match.goals.away ?? 0}</span>
+                                    </div>
+                                    <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
+                                      {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                    </div>
+                                  </>
+                                );
+                              }
+
+                              // All finished match statuses
+                              if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+                                // Check if we have actual numerical scores
+                                const homeScore = match.goals.home;
+                                const awayScore = match.goals.away;
+                                const hasValidScores = (homeScore !== null && homeScore !== undefined) && 
+                                                      (awayScore !== null && awayScore !== undefined) &&
+                                                      !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
+
+                                if (hasValidScores) {
+                                  return (
+                                    <>
+                                      <div className="text-xs text-gray-600 font-semibold mb-1">
+                                        {status === 'FT' ? 'ENDED' : 
+                                         status === 'AET' ? 'AFTER EXTRA TIME' :
+                                         status === 'PEN' ? 'PENALTIES' :
+                                         status === 'AWD' ? 'AWARDED' :
+                                         status === 'WO' ? 'WALKOVER' :
+                                         status === 'ABD' ? 'ABANDONED' :
+                                         status === 'CANC' ? 'CANCELLED' :
+                                         status === 'SUSP' ? 'SUSPENDED' : status}
+                                      </div>
+                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <span>{homeScore}</span>
+                                        <span className="text-gray-400">-</span>
+                                        <span>{awayScore}</span>
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {status === 'FT' ? 'FT' : 
+                                         status === 'AET' ? 'AET' :
+                                         status === 'PEN' ? 'PEN' :
+                                         status === 'AWD' ? 'Awarded' :
+                                         status === 'WO' ? 'Walkover' :
+                                         status === 'ABD' ? 'Abandoned' :
+                                         status === 'CANC' ? 'Cancelled' :
+                                         status === 'SUSP' ? 'Suspended' : status}
+                                      </div>
+                                    </>
+                                  );
+                                } else {
+                                  // Match is finished but no valid score data
+                                  const statusText = status === 'FT' ? 'No Score Available' : 
+                                                   status === 'AET' ? 'AET - No Score' :
+                                                   status === 'PEN' ? 'PEN - No Score' :
+                                                   status === 'AWD' ? 'Awarded' :
+                                                   status === 'WO' ? 'Walkover' :
+                                                   status === 'ABD' ? 'Abandoned' :
+                                                   status === 'CANC' ? 'Cancelled' :
+                                                   status === 'SUSP' ? 'Suspended' : 'No Score';
+
+                                  return (
+                                    <>
+                                      <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded text-center">
+                                        {statusText}
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {format(fixtureDate, 'HH:mm')}
+                                      </div>
+                                    </>
+                                  );
+                                }
+                              }
+
+                              // Postponed or delayed matches
+                              if (['PST', 'CANC', 'ABD', 'SUSP', 'AWD', 'WO'].includes(status)) {
+                                const statusText = status === 'PST' ? 'Postponed' :
+                                                  status === 'CANC' ? 'Cancelled' :
+                                                  status === 'ABD' ? 'Abandoned' :
+                                                  status === 'SUSP' ? 'Suspended' :
+                                                  status === 'AWD' ? 'Awarded' :
+                                                  status === 'WO' ? 'Walkover' : status;
+
+                                return (
+                                  <>
+                                    <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
+                                      {statusText}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {format(fixtureDate, 'HH:mm')}
+                                    </div>
+                                  </>
+                                );
+                              }
+
+                              // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                              return (
+                                <>
+                                  <div className="text-sm font-medium text-black">
+                                    {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
+                                  </div>
+                                  {status === 'TBD' && (
+                                    <div className="text-xs text-gray-500 mt-1">Time TBD</div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+
+                          <div className="flex-shrink-0 mx-1">
+                            <img
+                              src={match.teams.away.logo || '/assets/fallback-logo.svg'}
+                              alt={match.teams.away.name}
+                              className="w-12 h-12 object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== '/assets/fallback-logo.svg') {
+                                  target.src = '/assets/fallback-logo.svg';
+                                }
+                              }}
+                            />
+                          </div>
+
+                          {/* Away Team */}
+                          <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                            {match.teams.away.name}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                    ))}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      ))}
-    </>
+              </CardContent>
+            </Card>
+          ))
+      )}
+    </div>
   );
 };
 
