@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,7 +14,6 @@ import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 import { getCountryFlagWithFallback } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
 import { DEFAULT_POPULAR_TEAMS, isPopularTeamMatch, applyPriorityFiltering } from '@/lib/matchFilters';
-
 
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
@@ -100,14 +100,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
   );
 
-  // Use only main fixtures query - no separate popular fixtures query needed
-
-
-
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
-
-
 
   // Use only main fixtures and filter client-side for popular leagues
   const allFixtures = fixtures
@@ -181,7 +175,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       const expectedDateStr = format(expectedDate, 'yyyy-MM-dd');
 
       if (fixtureDateStr !== expectedDateStr) {
-
         return false;
       }
 
@@ -191,7 +184,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         fixture.teams.home.name,
         fixture.teams.away.name
       )) {
-
         return false;
       }
 
@@ -224,7 +216,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       }
 
       // Enhanced geographic/regional filtering logic
-
       const countryName = fixture.league.country?.toLowerCase() || '';
       const leagueId = fixture.league.id;
       const leagueNameLower = fixture.league.name?.toLowerCase() || '';
@@ -269,7 +260,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Allow all international competitions through
       if (isInternationalCompetition) {
-
         return true;
       }
 
@@ -279,7 +269,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       );
 
       if (!matchingCountry) {
-
         return false;
       }
 
@@ -290,7 +279,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       if (TIER_1_COUNTRIES.map(c => c.toLowerCase()).includes(countryKey.toLowerCase())) {
         const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
         if (countryLeagues.length > 0 && !countryLeagues.includes(leagueId)) {
-
           return false;
         }
       }
@@ -301,7 +289,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         if (countryKey.toLowerCase() === 'brazil') {
           const brazilLeagues = [71, 72, 73, 74]; // Serie A, Serie B, Serie C, Serie D
           if (!brazilLeagues.includes(leagueId)) {
-
             return false;
           }
         } 
@@ -309,7 +296,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         else if (countryKey.toLowerCase() === 'egypt') {
           const egyptLeagues = [233]; // Egyptian Premier League
           if (!egyptLeagues.includes(leagueId)) {
-
             return false;
           }
         }
@@ -317,7 +303,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         else if (countryKey.toLowerCase() === 'united arab emirates') {
           const uaeLeagues = [301]; // UAE Pro League
           if (!uaeLeagues.includes(leagueId)) {
-
             return false;
           }
         }
@@ -325,7 +310,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           // For other Tier 3 countries (Saudi Arabia), be very restrictive
           const countryLeagues = POPULAR_LEAGUES_BY_COUNTRY[countryKey] || [];
           if (!countryLeagues.includes(leagueId)) {
-
             return false;
           }
         }
@@ -515,7 +499,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     });
   }, [filteredCountries]);
 
-
   // Apply time filters
   const timeFilteredCountries = useMemo(() => {
     if (!timeFilterActive) return sortedCountries;
@@ -586,7 +569,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return liveFilteredCountries.slice(0, 20);
   }, [liveFilteredCountries, showTop20]);
 
-
   if (isLoading || isFetching) {
     return (
       <Card>
@@ -608,7 +590,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       </Card>
     );
   }
-
 
   const getDisplayTitle = () => {
     if (isToday(parseISO(selectedDate))) {
