@@ -137,10 +137,10 @@ const FixedScoreboardFilterByPopularCountry = () => {
           ).values(),
         );
 
-        console.log(`Total matches fetched: ${allMatches.length}`);
+        
 
         const now = new Date();
-        console.log("Current filtering date:", now.toISOString());
+        
 
         // Filter matches by popular countries
         const popularCountryMatches = allMatches.filter((match) => {
@@ -148,7 +148,7 @@ const FixedScoreboardFilterByPopularCountry = () => {
           return POPULAR_COUNTRIES.includes(leagueCountry) || POPULAR_LEAGUES.includes(match.league.id);
         });
 
-        console.log(`Filtered to ${popularCountryMatches.length} matches from popular countries only`);
+        
 
         // Extract top teams from standings
         let topTeamIds: number[] = [];

@@ -795,7 +795,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       }
 
                       // If same priority, sort by time within category
-                      if (aLive && bLive) {// Removing console logs to disable client-side debugging messages.
+                      if (aLive && bLive) {
                         // For live matches, show earliest start time first
                         return aTime - bTime;
                       }

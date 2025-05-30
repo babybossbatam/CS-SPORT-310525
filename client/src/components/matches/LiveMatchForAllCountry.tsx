@@ -218,7 +218,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       countryCode = countryCodeMap[cleanCountry];
       return `https://flagsapi.com/${countryCode}/flat/24.png`;
     } else {
-      console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
+      
       // Try SportsRadar flags API as fallback
       return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, '_')}/flag_24x24.png`;
     }
@@ -231,21 +231,21 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
     // Validate fixture structure
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-      console.warn('Invalid fixture data structure:', fixture);
+      
       return acc;
     }
 
     // Validate league data
     const league = fixture.league;
     if (!league.id || !league.name) {
-      console.warn('Invalid league data:', league);
+      
       return acc;
     }
 
     // Validate team data
     if (!fixture.teams.home || !fixture.teams.away ||
       !fixture.teams.home.name || !fixture.teams.away.name) {
-      console.warn('Invalid team data:', fixture.teams);
+      
       return acc;
     }
 

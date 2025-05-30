@@ -63,17 +63,10 @@ const FixedScoreboard = () => {
               `/api/leagues/${leagueId}/fixtures?season=${currentSeason}`,
             );
             if (!response.ok) {
-              console.log(
-                `Error fetching league ${leagueId} fixtures: ${response.status}`,
-              );
               return [];
             }
             return await response.json();
           } catch (error) {
-            console.error(
-              `Error processing league ${leagueId} fixtures:`,
-              error,
-            );
             return [];
           }
         });
@@ -94,9 +87,6 @@ const FixedScoreboard = () => {
               `/api/fixtures/date/${todayDate}`,
             );
             if (!response.ok) {
-              console.log(
-                `Error fetching today's fixtures: ${response.status}`,
-              );
               return [];
             }
 
@@ -104,7 +94,6 @@ const FixedScoreboard = () => {
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
           } catch (error) {
-            console.error("Error processing today's fixtures:", error);
             return [];
           }
         })();
@@ -125,9 +114,6 @@ const FixedScoreboard = () => {
               `/api/fixtures/date/${tomorrowDate}`,
             );
             if (!response.ok) {
-              console.log(
-                `Error fetching tomorrow's fixtures: ${response.status}`,
-              );
               return [];
             }
 
@@ -135,7 +121,6 @@ const FixedScoreboard = () => {
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
           } catch (error) {
-            console.error("Error processing tomorrow's fixtures:", error);
             return [];
           }
         })();
@@ -156,9 +141,6 @@ const FixedScoreboard = () => {
               `/api/fixtures/date/${yesterdayDate}`,
             );
             if (!response.ok) {
-              console.log(
-                `Error fetching yesterday's fixtures: ${response.status}`,
-              );
               return [];
             }
 
@@ -166,7 +148,6 @@ const FixedScoreboard = () => {
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
           } catch (error) {
-            console.error("Error processing yesterday's fixtures:", error);
             return [];
           }
         })();
@@ -187,7 +168,6 @@ const FixedScoreboard = () => {
               `/api/fixtures/date/${day3Date}`,
             );
             if (!response.ok) {
-              console.log(`Error fetching day 3 fixtures: ${response.status}`);
               return [];
             }
 
@@ -195,7 +175,6 @@ const FixedScoreboard = () => {
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
           } catch (error) {
-            console.error("Error processing day 3 fixtures:", error);
             return [];
           }
         })();
@@ -216,7 +195,6 @@ const FixedScoreboard = () => {
               `/api/fixtures/date/${day4Date}`,
             );
             if (!response.ok) {
-              console.log(`Error fetching day 4 fixtures: ${response.status}`);
               return [];
             }
 
@@ -224,7 +202,6 @@ const FixedScoreboard = () => {
             localStorage.setItem(cacheKey, JSON.stringify(data)); // Store in localStorage
             return data;
           } catch (error) {
-            console.error("Error processing day 4 fixtures:", error);
             return [];
           }
         })();
@@ -237,17 +214,10 @@ const FixedScoreboard = () => {
               `/api/leagues/${leagueId}/standings`,
             );
             if (!response.ok) {
-              console.log(
-                `Error fetching league ${leagueId} standings: ${response.status}`,
-              );
               return null;
             }
             return await response.json();
           } catch (error) {
-            console.error(
-              `Error processing league ${leagueId} standings:`,
-              error,
-            );
             return null;
           }
         });
@@ -368,7 +338,6 @@ const FixedScoreboard = () => {
 
         setMatches(featuredMatches);
       } catch (error) {
-        console.error("Error fetching matches:", error);
         setError(error as Error);
         toast({
           title: "Error",
@@ -428,9 +397,6 @@ const FixedScoreboard = () => {
     // If we found a match within 8 hours, display it
     if (upcomingMatchIndex !== -1) {
       setCurrentIndex(upcomingMatchIndex);
-      console.log(
-        `Found match with countdown: ${matches[upcomingMatchIndex].teams.home.name} vs ${matches[upcomingMatchIndex].teams.away.name}`,
-      );
     }
   }, [matches]);
 

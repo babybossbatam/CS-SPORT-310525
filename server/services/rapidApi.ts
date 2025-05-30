@@ -149,7 +149,6 @@ export const rapidApiService = {
               );
 
               if (isEsports) {
-                console.log(`Filtering out esports fixture: ${fixture.league.name} - ${homeTeamName} vs ${awayTeamName}`);
                 return false;
               }
 
@@ -182,13 +181,7 @@ export const rapidApiService = {
           const newFixtures = validFixtures.filter((f: any) => !existingIds.has(f.fixture.id));
           allFixtures = [...allFixtures, ...newFixtures];
 
-          // Log score data sample for debugging
-          const withScores = allFixtures.filter((f: any) => f.goals.home !== null || f.goals.away !== null);
-          console.log(`Total fixtures with scores: ${withScores.length}/${allFixtures.length}`);
-          if (withScores.length > 0) {
-            const sample = withScores[0];
-            console.log(`Score sample: ${sample.teams.home.name} ${sample.goals.home}-${sample.goals.away} ${sample.teams.away.name} (${sample.fixture.status.short})`);
-          }
+          
         }
       } else {
         // Define popular leagues - matches core leagues
