@@ -728,7 +728,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   }, {});
 
   // Filter to show only popular countries with badge system
-  const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
+  const filteredCountries =```
+Object.values(fixturesByCountry).filter((countryData: any) => {
     // Add comprehensive null checks
     if (!countryData || typeof countryData !== 'object') {
       return false;
@@ -1428,7 +1429,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 strokeWidth="2"
                               >
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                              </svg>Completing the integration of MyAPIFallback for comprehensive image handling in TodayPopularFootballLeaguesNew.tsx.                              </button>
+                              </svg>
+                        </button>
                           </div>
                           {/* Home Team */}
                           <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 pl-3 truncate">
