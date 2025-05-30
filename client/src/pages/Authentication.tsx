@@ -159,7 +159,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       <Header />
       <SportsCategoryTabs />
       
-      <div className="container mx-auto px-4 py-8 max-w-md">
+      <div className="container mx-auto px-4 py-8 max-w-md mt-24">
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl text-center">CS SPORT</CardTitle>
