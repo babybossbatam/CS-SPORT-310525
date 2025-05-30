@@ -85,7 +85,7 @@ const Header = () => {
           </div>
 
           {isAuthenticated && (
-            <div className="flex items-center ml-2 mx-16">
+            <div className="flex items-center ml-2 ml-16">
               <div className="text-sm mr-2">{username}</div>
               <div 
                 className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
