@@ -217,11 +217,17 @@ export const TodayMatchPageCard = ({ fixtures, onMatchClick }: TodayMatchPageCar
                   setLiveFilterActive(false);
                 }
               } else {
-                // Deactivating by time filter - activate live button function
+                // Deactivating by time filter
                 setTimeFilterActive(false);
-                setLiveFilterActive(true); // Show live function when by time is deactivated
-                const today = getCurrentUTCDateString();
-                setSelectedDate(today); // Set to today when activating live
+                // Only activate live if it wasn't already active
+                if (!liveFilterActive) {
+                  // Return to default view (TodayPopularFootballLeaguesNew)
+                  setLiveFilterActive(false);
+                } else {
+                  // Keep live active if it was already active
+                  const today = getCurrentUTCDateString();
+                  setSelectedDate(today);
+                }
               }
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
