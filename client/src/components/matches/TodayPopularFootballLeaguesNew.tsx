@@ -445,7 +445,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           leagueName.includes('usl championship') ||
           leagueName.includes('usl league one') ||
           leagueName.includes('nwsl')) {
-        console.log(`Filtering out excluded league: ${fixture.league.name}`);
         return false;
       }
 
@@ -454,19 +453,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           fixture.league.country?.toLowerCase() === 'united states') {
         const allowedUSALeagues = [253, 254];
         if (!allowedUSALeagues.includes(fixture.league.id)) {
-          console.log(`Filtering out non-MLS USA league: ${fixture.league.name} (ID: ${fixture.league.id})`);
           return false;
         }
       }
 
       // Skip fixtures with null or undefined country
       if (!fixture.league.country) {
-        console.log(`Filtering out fixture with null/undefined country: league: ${fixture.league.name}`);
         return false;
       }
 
       // Enhanced geographic/regional filtering logic
-      console.log(`Processing match: ${fixture.league.name} (${fixture.league.country}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
 
       const countryName = fixture.league.country?.toLowerCase() || '';
       const leagueId = fixture.league.id;

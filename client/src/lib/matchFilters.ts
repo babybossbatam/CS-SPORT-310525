@@ -333,16 +333,12 @@ export function filterMatchesByExclusion(fixtures: any[]): any[] {
     const country = fixture.league.country || null;
     const leagueId = fixture.league.id || null;
 
-    debugLogger.matchFilterLog(`Processing match: ${leagueName} (${country}) - ${homeTeam} vs ${awayTeam}`);
-
-    // Exclude international competitions unless explicitly allowed
+    // Check international competitions first
     if (country === 'World' || country === 'International') {
-      debugLogger.matchFilterLog(`Allowing international competition: ${leagueName} (ID: ${leagueId})`);
       return true;
     }
 
     if (!POPULAR_COUNTRIES.map(c => c.toLowerCase()).includes(country?.toLowerCase() || '')) {
-      debugLogger.matchFilterLog(`Filtering out fixture from non-popular country: ${country}, league: ${leagueName}`);
       return false;
     }
 
@@ -350,6 +346,5 @@ export function filterMatchesByExclusion(fixtures: any[]): any[] {
     return !shouldExcludeFixture(leagueName, homeTeam, awayTeam, country);
   });
 
-  debugLogger.matchFilterLog(`Filtered to ${filteredFixtures.length} matches from popular leagues`);
   return filteredFixtures;
 }
