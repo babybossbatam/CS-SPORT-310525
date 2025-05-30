@@ -726,7 +726,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Filter to show only popular countries with badge system
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
-        // Add comprehensive null checks
+    // Add comprehensive null checks
     if (!countryData || typeof countryData !== 'object') {
       return false;
     }
@@ -1217,38 +1217,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                       <div className="flex-shrink-0 mx-1">
                         <img
+                          src={match.teams.home.logo || '/assets/fallback-logo.svg'}
+                          alt={match.teams.home.name}
                           className="w-12 h-12 object-contain"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            const teamId = match.teams.home.id;
-
-                            if (target.src.includes('/assets/fallback-logo.png')) {
-                              // Final fallback already reached
-                              return;
-                            } else if (target.src.includes('/assets/fallback-logo.svg')) {
-                              // Try PNG fallback if SVG fails
-                              target.src = '/assets/fallback-logo.png';
-                            } else if (target.src.includes('api.sportradar.com') || target.src.includes('sportradar')) {
-                              // SportsRadar failed, try SVG fallback
+                            if (target.src !== '/assets/fallback-logo.svg') {
                               target.src = '/assets/fallback-logo.svg';
-                            } else if (target.src.includes('365scores.com') || target.src.includes('imagecache.365scores.com')) {
-                              // 365scores failed, try SportsRadar
-                              if (teamId) {
-                                target.src = `https://api.sportradar.com/soccer/production/v4/teams/${teamId}/logo.png`;
-                              } else {
-                                target.src = '/assets/fallback-logo.svg';
-                              }
-                            } else {
-                              // Original API failed, try 365scores CDN
-                              if (teamId) {
-                                target.src = `https://imagecache.365scores.com/image/upload/f_png,w_48,h_48,c_limit,q_auto:eco,dpr_2/v5/Competitors/${teamId}`;
-                              } else {
-                                target.src = '/assets/fallback-logo.svg';
-                              }
                             }
                           }}
-                          src={match.teams.home.logo || '/assets/fallback-logo.svg'}
-                          alt={match.teams.home.name}
                         />
                       </div>
 
@@ -1363,38 +1340,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                       <div className="flex-shrink-0 mx-1">
                         <img
+                          src={match.teams.away.logo || '/assets/fallback-logo.svg'}
+                          alt={match.teams.away.name}
                           className="w-12 h-12 object-contain"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            const teamId = match.teams.away.id;
-
-                            if (target.src.includes('/assets/fallback-logo.png')) {
-                              // Final fallback already reached
-                              return;
-                            } else if (target.src.includes('/assets/fallback-logo.svg')) {
-                              // Try PNG fallback if SVG fails
-                              target.src = '/assets/fallback-logo.png';
-                            } else if (target.src.includes('api.sportradar.com') || target.src.includes('sportradar')) {
-                              // SportsRadar failed, try SVG fallback
+                            if (target.src !== '/assets/fallback-logo.svg') {
                               target.src = '/assets/fallback-logo.svg';
-                            } else if (target.src.includes('365scores.com') || target.src.includes('imagecache.365scores.com')) {
-                              // 365scores failed, try SportsRadar
-                              if (teamId) {
-                                target.src = `https://api.sportradar.com/soccer/production/v4/teams/${teamId}/logo.png`;
-                              } else {
-                                target.src = '/assets/fallback-logo.svg';
-                              }
-                            } else {
-                              // Original API failed, try 365scores CDN
-                              if (teamId) {
-                                target.src = `https://imagecache.365scores.com/image/upload/f_png,w_48,h_48,c_limit,q_auto:eco,dpr_2/v5/Competitors/${teamId}`;
-                              } else {
-                                target.src = '/assets/fallback-logo.svg';
-                              }
                             }
                           }}
-                          src={match.teams.away.logo || '/assets/fallback-logo.svg'}
-                          alt={match.teams.away.name}
                         />
                       </div>
 
@@ -1486,38 +1440,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           <div className="flex-shrink-0 mx-1">
                             <img
+                              src={match.teams.home.logo || '/assets/fallback-logo.svg'}
+                              alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                const teamId = match.teams.home.id;
-
-                                if (target.src.includes('/assets/fallback-logo.png')) {
-                                  // Final fallback already reached
-                                  return;
-                                } else if (target.src.includes('/assets/fallback-logo.svg')) {
-                                  // Try PNG fallback if SVG fails
-                                  target.src = '/assets/fallback-logo.png';
-                                } else if (target.src.includes('api.sportradar.com') || target.src.includes('sportradar')) {
-                                  // SportsRadar failed, try SVG fallback
+                                if (target.src !== '/assets/fallback-logo.svg') {
                                   target.src = '/assets/fallback-logo.svg';
-                                } else if (target.src.includes('365scores.com') || target.src.includes('imagecache.365scores.com')) {
-                                  // 365scores failed, try SportsRadar
-                                  if (teamId) {
-                                    target.src = `https://api.sportradar.com/soccer/production/v4/teams/${teamId}/logo.png`;
-                                  } else {
-                                    target.src = '/assets/fallback-logo.svg';
-                                  }
-                                } else {
-                                  // Original API failed, try 365scores CDN
-                                  if (teamId) {
-                                    target.src = `https://imagecache.365scores.com/image/upload/f_png,w_48,h_48,c_limit,q_auto:eco,dpr_2/v5/Competitors/${teamId}`;
-                                  } else {
-                                    target.src = '/assets/fallback-logo.svg';
-                                  }
                                 }
                               }}
-                              src={match.teams.home.logo || '/assets/fallback-logo.svg'}
-                              alt={match.teams.home.name}
                             />
                           </div>
 
@@ -1632,38 +1563,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           <div className="flex-shrink-0 mx-1">
                             <img
+                              src={match.teams.away.logo || '/assets/fallback-logo.svg'}
+                              alt={match.teams.away.name}
                               className="w-12 h-12 object-contain"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                const teamId = match.teams.away.id;
-
-                                if (target.src.includes('/assets/fallback-logo.png')) {
-                                  // Final fallback already reached
-                                  return;
-                                } else if (target.src.includes('/assets/fallback-logo.svg')) {
-                                  // Try PNG fallback if SVG fails
-                                  target.src = '/assets/fallback-logo.png';
-                                } else if (target.src.includes('api.sportradar.com') || target.src.includes('sportradar')) {
-                                  // SportsRadar failed, try SVG fallback
+                                if (target.src !== '/assets/fallback-logo.svg') {
                                   target.src = '/assets/fallback-logo.svg';
-                                } else if (target.src.includes('365scores.com') || target.src.includes('imagecache.365scores.com')) {
-                                  // 365scores failed, try SportsRadar
-                                  if (teamId) {
-                                    target.src = `https://api.sportradar.com/soccer/production/v4/teams/${teamId}/logo.png`;
-                                  } else {
-                                    target.src = '/assets/fallback-logo.svg';
-                                  }
-                                } else {
-                                  // Original API failed, try 365scores CDN
-                                  if (teamId) {
-                                    target.src = `https://imagecache.365scores.com/image/upload/f_png,w_48,h_48,c_limit,q_auto:eco,dpr_2/v5/Competitors/${teamId}`;
-                                  } else {
-                                    target.src = '/assets/fallback-logo.svg';
-                                  }
                                 }
                               }}
-                              src={match.teams.away.logo || '/assets/fallback-logo.svg'}
-                              alt={match.teams.away.name}
                             />
                           </div>
 
