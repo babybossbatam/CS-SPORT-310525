@@ -62,18 +62,6 @@ const Header = () => {
         <LeagueTabs />
         <LeagueTabs />
         <div className="flex items-center gap-[1.05rem]">
-          {isAuthenticated && (
-            <>
-              <div className="text-lg font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
-              <div 
-                className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
-                onClick={handleLogout}
-              >
-                <span>Logout</span>
-              </div>
-            </>
-          )}
-
           <div 
             className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
@@ -95,6 +83,18 @@ const Header = () => {
           >
             <Settings className="h-4 w-4" />
           </div>
+
+          {isAuthenticated && (
+            <>
+              <div className="text-lg font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
+              <div 
+                className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+                onClick={handleLogout}
+              >
+                <span>Logout</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
