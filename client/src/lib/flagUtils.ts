@@ -1,6 +1,6 @@
 // Flag utility functions with SportsRadar fallback support
 
-import { getFlagWithErrorHandling, testImageUrl } from './MyAPIFallback';
+import { testImageUrl, findWorkingLogoUrl, generateLogoSources } from './MyAPIFallback';
 
 export { countryCodeMap };
 
@@ -261,10 +261,11 @@ export async function getCountryFlagWithFallback(
 }
 
 /**
- * Synchronous version for backward compatibility (uses original logic)
+ * Enhanced synchronous version with MyFallbackAPI integration
+ * Priority order: RapidAPI -> SportsRadar -> MyFallbackAPI -> FlagsAPI -> Final fallback
  * @param country - Country name
  * @param leagueFlag - Optional league flag URL
- * @returns Flag image URL
+ * @returns Flag image URL with fallback priority
  */
 export function getCountryFlagWithFallbackSync(
   country: string | null | undefined, 
@@ -296,8 +297,64 @@ export function getCountryFlagWithFallbackSync(
     return 'https://flagsapi.com/EU/flat/24.png';
   }
 
-  // Use SportsRadar API endpoint as primary source
+  // Return primary source (RapidAPI via SportsRadar endpoint)
+  // The browser will handle fallbacks through onError handlers that can use MyFallbackAPI
   return `/api/flags/${encodeURIComponent(cleanCountry)}`;
+}
+
+/**
+ * Generate country flag sources with MyFallbackAPI integration for onError handling
+ * @param country - Country name
+ * @returns Array of flag URLs in priority order
+ */
+export function generateCountryFlagSources(country: string): string[] {
+  const cleanCountry = country.trim();
+  const sources: string[] = [];
+
+  // 1. Primary: RapidAPI via SportsRadar endpoint
+  sources.push(`/api/flags/${encodeURIComponent(cleanCountry)}`);
+
+  // 2. Secondary: Direct SportsRadar endpoint  
+  const sanitizedCountry = cleanCountry.toLowerCase().replace(/\s+/g, '_');
+  sources.push(`https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`);
+
+  // 3. Third: FlagsAPI using country code mapping
+  const countryCode = countryCodeMap[cleanCountry];
+  if (countryCode) {
+    sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
+  }
+
+  // 4. Fourth: 365scores CDN
+  sources.push(`https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`);
+
+  // 5. Final fallback
+  sources.push('/assets/fallback-logo.svg');
+
+  return sources;
+}
+
+/**
+ * Create fallback handler for country flags using MyFallbackAPI pattern
+ * @param country - Country name
+ * @returns Error handler function
+ */
+export function createCountryFlagFallbackHandler(country: string) {
+  const sources = generateCountryFlagSources(country);
+  let currentIndex = 0;
+
+  return function handleFlagError(event: any) {
+    const img = event.currentTarget;
+    currentIndex++;
+
+    if (currentIndex < sources.length) {
+      const nextSource = sources[currentIndex];
+      console.log(`Flag fallback for ${country}: trying source ${currentIndex + 1}/${sources.length}`);
+      img.src = nextSource;
+    } else {
+      console.log(`All flag sources failed for ${country}, using final fallback`);
+      img.src = '/assets/fallback-logo.svg';
+    }
+  };
 }
 
 /**

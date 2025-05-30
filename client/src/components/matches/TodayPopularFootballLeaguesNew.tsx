@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,6 +16,7 @@ import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
 import { DEFAULT_POPULAR_TEAMS, isPopularTeamMatch, applyPriorityFiltering } from '@/lib/matchFilters';
+import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
 
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
@@ -33,7 +33,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
-  
+
   const dispatch = useDispatch();
   const { toast } = useToast();
   const favoriteTeams = useSelector((state: RootState) => state.user.favoriteTeams);
@@ -491,7 +491,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
     try {
       const isFavorite = favoriteTeams?.some(team => team.id === teamId) || false;
-      
+
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
@@ -516,8 +516,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   };
 
   const isTeamFavorite = (teamId: number) => {
-    return favoriteTeams?.some(team => team.id === teamId) || false;
-  };
+      return favoriteTeams?.some(team => team.id === teamId) || false;
+    };
 
   // Start with all countries collapsed by default
   useEffect(() => {
@@ -613,6 +613,22 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return '--:--';
     }
   };
+
+    const addFavoriteTeam = (team: any) => {
+      dispatch(userActions.addFavoriteTeam(team));
+      toast({
+        title: "Added to favorites",
+        description: `${team.name} has been added to your favorites.`,
+      });
+    };
+
+    const removeFavoriteTeam = (teamId: number) => {
+      dispatch(userActions.removeFavoriteTeam(teamId));
+      toast({
+        title: "Removed from favorites",
+        description: `Team has been removed from your favorites.`,
+      });
+    };
 
   return (
     <div className="space-y-4">

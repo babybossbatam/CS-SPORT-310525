@@ -11,7 +11,7 @@ import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtilsUpdated';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, fixturesActions, selectFixturesByDate, selectSelectedLeagues } from '@/lib/store';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
-import { getCountryFlagWithFallbackSync } from '@/lib/flagUtils';
+import { getCountryFlagWithFallbackSync, createCountryFlagFallbackHandler } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -460,16 +460,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       src={countryData.flag}
                       alt={countryData.country}
                       className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (countryData.country === 'World') {
-                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-                        } else if (countryData.country === 'Europe') {
-                          target.src = 'https://flagsapi.com/EU/flat/24.png';
-                        } else {
-                          target.src = '/assets/fallback-logo.svg';
-                        }
-                      }}
+                      onError={createCountryFlagFallbackHandler(countryData.country)}
                     />
                     <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
                     <span className="text-xs text-gray-500">({totalMatches})</span>
