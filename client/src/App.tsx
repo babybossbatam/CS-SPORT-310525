@@ -97,7 +97,7 @@ function App() {
   }, []);
 
   // Setup global error handlers and debug logger
-  React.useEffect(() => {
+  useEffect(() => {
     // Disable all debugging by default
     debugLogger.disableAll();
 
