@@ -170,7 +170,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  
+
 
   // Combine and deduplicate fixtures with better logging
   const allFixtures = [...fixtures, ...popularFixtures]
@@ -366,9 +366,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return true;
     });
 
-
-    return filtered;
-  }, [allFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
@@ -798,7 +795,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     // For other dates, show formatted date
     try {
       const date = parseISO(selectedDate);
-      return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
+      return isValid(date)```text
+ ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
     } catch {
       return selectedDate;
     }
@@ -895,7 +893,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return false;
   };
 
-  
+
 
   return (
     <div>
