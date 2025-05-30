@@ -334,6 +334,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return true;
     });
 
+    return filtered;
+  }, [allFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
@@ -491,3 +493,177 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Filter to show only popular countries with badge system
   const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
+    return countryData.hasPopularLeague;
+  });
+
+  // Sort countries by the POPULAR_COUNTRIES_ORDER
+  const sortedCountries = useMemo(() => {
+    return filteredCountries.sort((a: any, b: any) => {
+      const indexA = POPULAR_COUNTRIES_ORDER.findIndex(country => country === a.country);
+      const indexB = POPULAR_COUNTRIES_ORDER.findIndex(country => country === b.country);
+      
+      // Prioritize items found in POPULAR_COUNTRIES_ORDER
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      } else if (indexA !== -1) {
+        return -1; // a comes before b
+      } else if (indexB !== -1) {
+        return 1; // b comes before a
+      } else {
+        return 0; // a and b are equally sorted
+      }
+    });
+  }, [filteredCountries]);
+
+
+  // Apply time filters
+  const timeFilteredCountries = useMemo(() => {
+    if (!timeFilterActive) return sortedCountries;
+
+    return sortedCountries.map(countryData => {
+      const updatedLeagues = Object.entries(countryData.leagues).reduce((acc: any, [leagueId, leagueData]: any) => {
+        const updatedMatches = leagueData.matches.filter((match: any) => {
+          if (!match?.fixture?.date) return false;
+
+          try {
+            const fixtureDate = parseISO(match.fixture.date);
+            if (!isValid(fixtureDate)) return false;
+
+            const now = new Date();
+            const hoursDifference = differenceInHours(fixtureDate, now);
+            return hoursDifference >= -2 && hoursDifference <= 12;
+          } catch (error) {
+            console.error("Error parsing or comparing fixture date:", error);
+            return false;
+          }
+        });
+
+        if (updatedMatches.length > 0) {
+          acc[leagueId] = {
+            ...leagueData,
+            matches: updatedMatches
+          };
+        }
+        return acc;
+      }, {});
+
+      return {
+        ...countryData,
+        leagues: updatedLeagues
+      };
+    }).filter(countryData => Object.keys(countryData.leagues).length > 0);
+  }, [sortedCountries, timeFilterActive]);
+
+  // Apply live filters
+  const liveFilteredCountries = useMemo(() => {
+    if (!liveFilterActive) return timeFilteredCountries;
+
+    return timeFilteredCountries.map(countryData => {
+      const updatedLeagues = Object.entries(countryData.leagues).reduce((acc: any, [leagueId, leagueData]: any) => {
+        const updatedMatches = leagueData.matches.filter((match: any) => {
+          return match.fixture.status.short === 'LIV' || match.fixture.status.short === 'HT';
+        });
+
+        if (updatedMatches.length > 0) {
+          acc[leagueId] = {
+            ...leagueData,
+            matches: updatedMatches
+          };
+        }
+        return acc;
+      }, {});
+
+      return {
+        ...countryData,
+        leagues: updatedLeagues
+      };
+    }).filter(countryData => Object.keys(countryData.leagues).length > 0);
+  }, [timeFilteredCountries, liveFilterActive]);
+
+  // Apply top 20 filters (by default)
+  const top20FilteredCountries = useMemo(() => {
+    if (!showTop20) return liveFilteredCountries;
+    return liveFilteredCountries.slice(0, 20);
+  }, [liveFilteredCountries, showTop20]);
+
+
+  if (isLoading || isFetching) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <div>
+              <Skeleton className="h-4 w-[200px]" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[300px]" />
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[350px]" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+
+  return (
+    <>
+      {top20FilteredCountries.map((countryData: any) => (
+        <div key={countryData.country} className="mb-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <img
+                  src={countryData.flag}
+                  alt={`${countryData.country} Flag`}
+                  className="h-6 w-6 rounded-full"
+                  onError={(e: any) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "/assets/fallback-logo.svg";
+                  }}
+                />
+                <h2 className="text-lg font-semibold">{countryData.country}</h2>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {Object.entries(countryData.leagues).map(([leagueId, leagueData]: any) => (
+                <div key={leagueId} className="mb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <img
+                      src={leagueData.league.logo}
+                      alt={`${leagueData.league.name} Logo`}
+                      className="h-5 w-5 rounded"
+                      onError={(e: any) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                    <h3 className="text-md font-semibold">{leagueData.league.name}</h3>
+                  </div>
+                  <ul>
+                    {leagueData.matches.map((match: any) => (
+                      <li key={match.fixture.id} className="mb-1">
+                        <div className="flex items-center justify-between">
+                          <span>
+                            {match.teams.home.name} vs {match.teams.away.name}
+                          </span>
+                          <span>{format(parseISO(match.fixture.date), 'HH:mm')}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      ))}
+    </>
+  );
+};
+
+export default TodayPopularFootballLeaguesNew;
