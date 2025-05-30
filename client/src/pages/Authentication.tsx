@@ -159,10 +159,9 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       <Header />
       <SportsCategoryTabs />
       
-      <div className="container mx-auto px-4 py-8 max-w-md mt-16">
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">CS SPORT</CardTitle>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">CS SPORT</CardTitle>
             <CardDescription className="text-center">
               {activeTab === 'login'
                 ? 'Sign in to your account to access your favorites'
@@ -318,7 +317,6 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
             </p>
           </CardFooter>
         </Card>
-      </div>
     </>
   );
 };
