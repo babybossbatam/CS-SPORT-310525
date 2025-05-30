@@ -610,52 +610,135 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   }
 
 
+  const getDisplayTitle = () => {
+    if (isToday(parseISO(selectedDate))) {
+      return "Today's Popular Leagues";
+    } else if (isYesterday(parseISO(selectedDate))) {
+      return "Yesterday's Popular Leagues";
+    } else if (isTomorrow(parseISO(selectedDate))) {
+      return "Tomorrow's Popular Leagues";
+    }
+    
+    // For other dates, show formatted date
+    try {
+      const date = parseISO(selectedDate);
+      return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
+    } catch {
+      return selectedDate;
+    }
+  };
+
   return (
     <>
       {top20FilteredCountries.map((countryData: any) => (
         <div key={countryData.country} className="mb-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <img
-                  src={countryData.flag}
-                  alt={`${countryData.country} Flag`}
-                  className="h-6 w-6 rounded-full"
-                  onError={(e: any) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-                <h2 className="text-lg font-semibold">{countryData.country}</h2>
+          <Card className="shadow-sm border border-neutral-200">
+            <CardHeader className="border-b border-neutral-100 bg-neutral-50/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={countryData.flag}
+                    alt={`${countryData.country} Flag`}
+                    className="h-6 w-6 rounded-full object-cover"
+                    onError={(e: any) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                    }}
+                  />
+                  <h2 className="text-lg font-semibold text-neutral-800">{countryData.country}</h2>
+                  {countryData.hasPopularLeague && (
+                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                      Popular
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-neutral-500">
+                  {Object.values(countryData.leagues).reduce((total: number, league: any) => total + league.matches.length, 0)} matches
+                </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {Object.entries(countryData.leagues).map(([leagueId, leagueData]: any) => (
-                <div key={leagueId} className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <img
-                      src={leagueData.league.logo}
-                      alt={`${leagueData.league.name} Logo`}
-                      className="h-5 w-5 rounded"
-                      onError={(e: any) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = "/assets/fallback-logo.svg";
-                      }}
-                    />
-                    <h3 className="text-md font-semibold">{leagueData.league.name}</h3>
-                  </div>
-                  <ul>
-                    {leagueData.matches.map((match: any) => (
-                      <li key={match.fixture.id} className="mb-1">
-                        <div className="flex items-center justify-between">
-                          <span>
-                            {match.teams.home.name} vs {match.teams.away.name}
-                          </span>
-                          <span>{format(parseISO(match.fixture.date), 'HH:mm')}</span>
+                <div key={leagueId} className="border-b border-neutral-100 last:border-b-0">
+                  <div className="p-4 bg-neutral-50/30">
+                    <div className="flex items-center gap-3 mb-3">
+                      <img
+                        src={leagueData.league.logo}
+                        alt={`${leagueData.league.name} Logo`}
+                        className="h-6 w-6 rounded object-contain"
+                        onError={(e: any) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/assets/fallback-logo.svg";
+                        }}
+                      />
+                      <h3 className="text-md font-medium text-neutral-800">{leagueData.league.name}</h3>
+                      {leagueData.isPopular && (
+                        <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded">
+                          ⭐ Popular
+                        </span>
+                      )}
+                      {leagueData.isFriendlies && (
+                        <span className="px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                          Friendlies
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      {leagueData.matches.map((match: any) => (
+                        <div 
+                          key={match.fixture.id} 
+                          className="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-100 hover:border-neutral-200 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="flex items-center gap-2 w-5/12">
+                              <img
+                                src={match.teams.home.logo}
+                                alt={match.teams.home.name}
+                                className="h-6 w-6 rounded object-contain"
+                                onError={(e: any) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "/assets/fallback-logo.svg";
+                                }}
+                              />
+                              <span className="text-sm font-medium text-neutral-800 truncate">
+                                {match.teams.home.name}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center justify-center w-2/12">
+                              <span className="text-xs font-medium text-neutral-500 px-2">vs</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 w-5/12 justify-end">
+                              <span className="text-sm font-medium text-neutral-800 truncate">
+                                {match.teams.away.name}
+                              </span>
+                              <img
+                                src={match.teams.away.logo}
+                                alt={match.teams.away.name}
+                                className="h-6 w-6 rounded object-contain"
+                                onError={(e: any) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "/assets/fallback-logo.svg";
+                                }}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 ml-4">
+                            <span className="text-sm font-medium text-neutral-600">
+                              {format(parseISO(match.fixture.date), 'HH:mm')}
+                            </span>
+                            {match.fixture.status.short === 'LIVE' && (
+                              <span className="px-2 py-1 text-xs font-bold bg-red-500 text-white rounded">
+                                LIVE
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ))}
             </CardContent>
