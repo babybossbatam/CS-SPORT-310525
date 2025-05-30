@@ -1203,8 +1203,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                   >
                     <div className="flex items-center px-3 py-2">
                       {/* Star icon with hover slide effect */}
-                      <div className="absolute left-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-4 group-hover:translate-x-0 z-10">
-                        <button className="p-1 hover:bg-yellow-100 rounded-full transition-colors duration-200">
+                      <div className="absolute left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
+                        <button className="p-1 hover:bg-yellow-100 rounded-full transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
                           <svg 
                             className="w-4 h-4 text-yellow-500 fill-current hover:text-yellow-600" 
                             viewBox="0 0 24 24"
@@ -1214,7 +1214,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         </button>
                       </div>
                       {/* Home Team */}
-                        <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 pl-6 truncate">
+                        <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 pl-3 truncate">
                           <div>{match.teams.home.name}</div>
                           {['NS', 'TBD'].includes(match.fixture.status.short) && (
                             <div className="text-xs text-gray-500 mt-0.5">
@@ -1422,8 +1422,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       >
                         <div className="flex items-center px-3 py-2">
                           {/* Star icon with hover slide effect */}
-                          <div className="absolute left-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-4 group-hover:translate-x-0 z-10">
-                            <button className="p-1 hover:bg-yellow-100 rounded-full transition-colors duration-200">
+                          <div className="absolute left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-6 group-hover:translate-x-0 z-10">
+                            <button className="p-1 hover:bg-yellow-100 rounded-full transition-colors duration-200 bg-white border-r border-gray-300 shadow-sm">
                               <svg 
                                 className="w-4 h-4 text-yellow-500 fill-current hover:text-yellow-600" 
                                 viewBox="0 0 24 24"
@@ -1433,7 +1433,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             </button>
                           </div>
                           {/* Home Team */}
-                          <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 pl-6 truncate">
+                          <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 pl-3 truncate">
                             <div>{match.teams.home.name}</div>
                             {['NS', 'TBD'].includes(match.fixture.status.short) && (
                               <div className="text-xs text-gray-500 mt-0.5">
