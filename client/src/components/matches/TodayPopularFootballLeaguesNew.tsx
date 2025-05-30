@@ -1430,7 +1430,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             )}
                           </div>
 
-                          <div className="flex-shrink-0 mx-1                            <img
+                          <div className="flex-shrink-0 mx-1">
+                            <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
