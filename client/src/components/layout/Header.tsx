@@ -83,20 +83,20 @@ const Header = () => {
           >
             <Settings className="h-4 w-4" />
           </div>
-        </div>
 
-        {isAuthenticated && (
-          <div className="flex items-center ml-2 mx-16">
-            <div className="text-sm mr-2">{username}</div>
-            <Button 
-              variant="ghost" 
-              className="text-sm text-gray-300 hover:text-white"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </div>
-        )}
+          {isAuthenticated && (
+            <div className="flex items-center ml-2 mx-16">
+              <div className="text-sm mr-2">{username}</div>
+              <Button 
+                variant="ghost" 
+                className="text-sm text-gray-300 hover:text-white"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Search Dialog */}
