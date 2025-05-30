@@ -3,8 +3,8 @@ import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Card } from '../ui/card';
 import { Select, SelectContent, SelectTrigger } from '../ui/select';
 import { Calendar } from '../ui/calendar';
-import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
-import TodaysMatchesByCountry from './TodaysMatchesByCountry';
+import TodayPopularFootballLeaguesNew from './TodayPopularFootballLeaguesNew';
+import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
@@ -137,12 +137,12 @@ export const MatchFixturesCard = ({ fixtures, onMatchClick }: FixtureProps) => {
         <LiveMatchForAllCountry />
       ) : (
         <>
-          <TodayPopularFootballLeagues 
+          <TodayPopularFootballLeaguesNew 
             selectedDate={selectedDate} 
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
           />
-          <TodaysMatchesByCountry selectedDate={selectedDate} />
+          <TodaysMatchesByCountryNew selectedDate={selectedDate} />
         </>
       )}
     </>

@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
-import TodayPopularFootballLeagues from './TodayPopularFootballLeagues';
-import TodaysMatchesByCountry from './TodaysMatchesByCountry';
+import TodayPopularFootballLeaguesNew from './TodayPopularFootballLeaguesNew';
+
 import TodaysMatchesByCountryNew from './TodaysMatchesByCountryNew';
 import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import { format, parseISO, addDays, subDays } from 'date-fns';
@@ -163,12 +163,11 @@ export const TodayMatchCard = () => {
         <LiveMatchForAllCountry />
       ) : (
         <>
-          <TodayPopularFootballLeagues 
+          <TodayPopularFootballLeaguesNew 
             selectedDate={localSelectedDate} 
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
           />
-          <TodaysMatchesByCountry selectedDate={localSelectedDate} />
           <TodaysMatchesByCountryNew selectedDate={localSelectedDate} />
         </>
       )}
