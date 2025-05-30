@@ -665,8 +665,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           acc[countryKey].leagues[leagueId] = {
             league: { ...league, country: countryKey },
             matches: [],
-            ```text
-isPopular: POPULAR_LEAGUES.includes(leagueId),
+            isPopular: POPULAR_LEAGUES.includes(leagueId),
             isFriendlies: league.name.toLowerCase().includes('friendlies')
           };
         }
