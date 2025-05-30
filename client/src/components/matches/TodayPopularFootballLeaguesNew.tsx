@@ -728,8 +728,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   }, {});
 
   // Filter to show only popular countries with badge system
-  const filteredCountries =```
-Object.values(fixturesByCountry).filter((countryData: any) => {
+  const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
     // Add comprehensive null checks
     if (!countryData || typeof countryData !== 'object') {
       return false;
