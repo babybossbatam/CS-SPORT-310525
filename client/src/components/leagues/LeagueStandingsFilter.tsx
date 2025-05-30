@@ -186,7 +186,7 @@ const LeagueStandingsFilter = () => {
                             alt={standing.team.name}
                             className="mr-2 h-5 w-5 rounded-full"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
+                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                             }}
                           />
                           <span className="text-[0.9em]">{standing.team.name}</span>
@@ -237,7 +237,7 @@ const LeagueStandingsFilter = () => {
                               )?.team.name}`}
                               className="w-4 h-4 hover:scale-110 transition-transform"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/16?text=N';
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                               }}
                             />
                             <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
