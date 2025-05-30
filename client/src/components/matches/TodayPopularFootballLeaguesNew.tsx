@@ -131,10 +131,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             // Client-side filtering for popular leagues and countries
             const leagueId = fixture.league?.id;
             const country = fixture.league?.country?.toLowerCase() || '';
-            
+
             // Check if it's a popular league
             const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-            
+
             // Check if it's from a popular country
             const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(popularCountry => 
               country.includes(popularCountry.toLowerCase())
@@ -336,7 +336,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
 
   // Group fixtures by country and league, with special handling for Friendlies
-  const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
+  const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
     // Add comprehensive null checks
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
       console.warn('Invalid fixture data:', fixture);
@@ -763,8 +763,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     // For other dates, show formatted date
     try {
       const date = parseISO(selectedDate);
-      return isValid(date)```text
- ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
+      return isValid(date) ? format(date, 'MMMM d, yyyy') + ' Matches' : selectedDate;
     } catch {
       return selectedDate;
     }
