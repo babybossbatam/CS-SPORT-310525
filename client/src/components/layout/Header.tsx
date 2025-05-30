@@ -55,7 +55,7 @@ const Header = () => {
             }}
           />
           <span className="flex items-center gap-2 whitespace-nowrap">
-            <span className="bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-[clamp(2.441rem,2.86vw,2.906rem)] transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" style={{fontFamily: 'Roboto Condensed, sans-serif', fontStretch: 'condensed', letterSpacing: '-0.1em'}}>CS SPORT</span>
+            <span className="bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-[clamp(2.685rem,3.146vw,3.197rem)] transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" style={{fontFamily: 'Roboto Condensed, sans-serif', fontStretch: 'condensed', letterSpacing: '-0.08em'}}>CS SPORT</span>
           </span>
         </Link>
 
@@ -64,7 +64,7 @@ const Header = () => {
         <div className="flex items-center gap-[1.05rem]">
           {isAuthenticated && (
             <>
-              <div className="text-xl font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
+              <div className="text-lg font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
               <div 
                 className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
                 onClick={handleLogout}
