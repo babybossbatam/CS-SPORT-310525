@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Start Dev Server (Fixed)"
+runButton = "Start Dev Server (No Auto Restart)"
 
 [[workflows.workflow]]
 name = "Project"
@@ -70,11 +70,10 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server
 
 [[ports]]
 localPort = 5000
-externalPort = 3000
+externalPort = 3001
 
 [[ports]]
 localPort = 5001
-externalPort = 3001
 
 [[ports]]
 localPort = 5002
