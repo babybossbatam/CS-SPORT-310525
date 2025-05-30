@@ -27,17 +27,19 @@ const checkRateLimit = (key: string) => {
   return true;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://0.0.0.0:5000' : '');
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : '');
 
 // API request helper
 export const apiRequest = async (method: string, endpoint: string, data?: any) => {
-  const url = `${API_BASE_URL}/api${endpoint}`;
+  // In development, use relative URLs to automatically use the current host/port
+  const url = import.meta.env.DEV ? `/api${endpoint}` : `${API_BASE_URL}/api${endpoint}`;
 
   const config: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   };
 
   if (data) {
@@ -48,13 +50,22 @@ export const apiRequest = async (method: string, endpoint: string, data?: any) =
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const errorText = await response.text();
+      let errorText = '';
+      try {
+        errorText = await response.text();
+      } catch (textError) {
+        errorText = `Status: ${response.status} ${response.statusText}`;
+      }
       console.error(`API Error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
     return response;
   } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error(`Network error for ${url}:`, error);
+      throw new Error('Network connection failed. Please check your internet connection.');
+    }
     console.error(`Fetch error for ${url}:`, error);
     throw error;
   }
