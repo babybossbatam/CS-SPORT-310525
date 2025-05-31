@@ -39,6 +39,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
+  // Store validation result but don't return early to avoid hooks order violation
+  const isValidDate = !!selectedDate;
+
   // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],

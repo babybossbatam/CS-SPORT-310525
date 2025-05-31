@@ -64,14 +64,19 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
 
   // 2. Alternative API-Sports endpoints
   if (teamId) {
+    // Extract team ID from original URL if it contains a full URL
+    const extractedTeamId = typeof teamId === 'string' && teamId.includes('football/teams/') 
+      ? teamId.match(/football\/teams\/(\d+)/)?.[1] || teamId
+      : teamId;
+    
     sources.push(
       {
-        url: `https://media.api-sports.io/football/teams/${teamId}.png`,
+        url: `https://media.api-sports.io/football/teams/${extractedTeamId}.png`,
         source: 'api-sports-direct',
         priority: 2
       },
       {
-        url: `https://media.api-sports.io/football/teams/${teamId}/${currentSize.apisports}.png`,
+        url: `https://media.api-sports.io/football/teams/${extractedTeamId}/${currentSize.apisports}.png`,
         source: 'api-sports-sized',
         priority: 3
       }
