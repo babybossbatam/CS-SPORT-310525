@@ -263,51 +263,93 @@ export async function getCountryFlagWithFallback(
  * @param leagueFlag - Optional league flag URL
  * @returns Flag image URL with single fallback
  */
-export function getCountryFlagWithFallbackSync(
-  country: string | null | undefined, 
-  leagueFlag?: string | null
-): string {
-  // Use league flag if available and valid
-  if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
+// Enhanced flag utility with intelligent fallback and preloading
+import { imagePreloader } from './imagePreloader';
+
+// Primary RapidAPI flag service
+const RAPIDAPI_FLAG_URL = 'https://flagsapi.com/{country}/flat/32.png';
+
+// Fallback flag services
+const FALLBACK_FLAG_SERVICES = [
+  'https://flagpedia.net/data/flags/emoji/{country}.png',
+  'https://flagsapi.com/{country}/flat/24.png',
+  'https://raw.githubusercontent.com/hampusborgos/country-flags/main/png100px/{country}.png'
+];
+
+// Final fallback SVG
+const createFallbackSVG = (countryCode: string) => {
+  const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
+  const color = colors[countryCode.charCodeAt(0) % colors.length];
+
+  return `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="32" height="24" viewBox="0 0 32 24" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="${color}" rx="2"/>
+      <text x="16" y="15" text-anchor="middle" fill="white" font-family="Arial" font-size="10" font-weight="bold">
+        ${countryCode.slice(0, 2).toUpperCase()}
+      </text>
+    </svg>
+  `)}`;
+};
+export const getCountryFlagWithFallbackSync = (country: string | null | undefined, leagueFlag?: string | null): string => {
+  if (!country) {
+    return createFallbackSVG('UN');
+  }
+
+  const cleanCountry = normalizeCountryCode(country);
+
+  // Check image preloader cache first
+  const primaryUrl = RAPIDAPI_FLAG_URL.replace('{country}', cleanCountry.toUpperCase());
+  if (imagePreloader.isImageCached(primaryUrl)) {
+    return primaryUrl;
+  }
+
+  // Check localStorage cache
+  const cacheKey = `flag_${cleanCountry}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    // Start preloading the cached URL
+    imagePreloader.preloadImage(cached).catch(() => {});
+    return cached;
+  }
+
+  // Use league flag if available and country is generic
+  if (leagueFlag && ['world', 'europe', 'international'].includes(cleanCountry.toLowerCase())) {
+    imagePreloader.preloadImage(leagueFlag).catch(() => {});
     return leagueFlag;
   }
 
-  // Add comprehensive null/undefined check for country
-  if (!country || typeof country !== 'string' || country.trim() === '') {
-    return '/assets/fallback-logo.svg';
-  }
+  // Start preloading primary URL and background validation
+  imagePreloader.preloadImage(primaryUrl).catch(() => {});
+  validateFlagUrl(primaryUrl, cleanCountry).catch(() => {
+    // Silently handle validation failures
+  });
 
-  const cleanCountry = country.trim();
-
-  // Special handling for Unknown country
-  if (cleanCountry === 'Unknown') {
-    return '/assets/fallback-logo.svg';
-  }
-
-  // Special cases for international competitions
-  if (cleanCountry === 'World') {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-  }
-
-  if (cleanCountry === 'Europe') {
-    return 'https://flagsapi.com/EU/flat/24.png';
-  }
-
-  // Use country code mapping first for most reliable flags
-  const countryCode = countryCodeMap[cleanCountry];
-  if (countryCode) {
-    return `https://flagsapi.com/${countryCode}/flat/24.png`;
-  }
-
-  // Fallback to API endpoint for unmapped countries
-  return `/api/flags/${encodeURIComponent(cleanCountry)}`;
-}
+  return primaryUrl;
+};
 
 /**
  * Generate country flag sources with MyFallbackAPI integration for onError handling
- * @param country - Country name
- * @returns Array of flag URLs in priority order
  */
+const normalizeCountryCode = (country: string) => {
+  return country.replace(/\s+/g, '').toLowerCase();
+};
+
+const validateFlagUrl = async (url: string, countryCode: string) => {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    if (!response.ok) {
+      const fallbackUrl = FALLBACK_FLAG_SERVICES[0].replace('{country}', countryCode);
+      localStorage.setItem(`flag_${countryCode}`, fallbackUrl);
+      imagePreloader.preloadImage(fallbackUrl).catch(() => {});
+      throw new Error(`Failed to load ${url}`);
+    } else {
+      localStorage.setItem(`flag_${countryCode}`, url);
+      imagePreloader.preloadImage(url).catch(() => {});
+    }
+  } catch (error: any) {
+    console.error(`Flag validation failed for ${countryCode}: ${error.message}`);
+  }
+};
 export function generateCountryFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
   const sources: string[] = [];
@@ -343,7 +385,7 @@ export function createCountryFlagFallbackHandler(country: string) {
 
   return function handleFlagError(event: any) {
     const img = event.currentTarget;
-    
+
     // Prevent rapid consecutive fallback attempts
     if (isHandling) return;
     isHandling = true;
@@ -359,7 +401,7 @@ export function createCountryFlagFallbackHandler(country: string) {
         console.log(`All flag sources failed for ${country}, using final fallback`);
         img.src = '/assets/fallback-logo.svg';
       }
-      
+
       isHandling = false;
     }, 100); // Small delay to prevent flickering
   };
@@ -472,7 +514,7 @@ export const createImageFallbackHandler = (
 
   return (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const img = event.currentTarget;
-    
+
     // Prevent multiple fallback attempts
     if (hasFallbackRun) return;
     hasFallbackRun = true;

@@ -19,6 +19,7 @@ import {
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
 import { getCountryFlagWithFallbackSync, createCountryFlagFallbackHandler } from '@/lib/flagUtils';
+import { useImagePreloader } from '@/lib/imagePreloader';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -33,6 +34,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
+  const { preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos } = useImagePreloader();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
@@ -60,6 +62,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
   }, [selectedDate]);
+
+  // Preload images when fixtures data changes
+  useEffect(() => {
+    if (fixtures && fixtures.length > 0) {
+      // Extract unique countries for flag preloading
+      const countries = [...new Set(fixtures
+        .map((fixture: any) => fixture.league?.country)
+        .filter(Boolean)
+      )];
+
+      // Extract team logos for preloading
+      const teamLogos = fixtures.flatMap((fixture: any) => [
+        fixture.teams?.home?.logo,
+        fixture.teams?.away?.logo
+      ]).filter(Boolean);
+
+      // Extract league logos for preloading
+      const leagueLogos = fixtures
+        .map((fixture: any) => fixture.league?.logo)
+        .filter(Boolean);
+
+      // Start preloading in background
+      preloadCountryFlags(countries).catch(() => {});
+      preloadTeamLogos(teamLogos).catch(() => {});
+      preloadLeagueLogos(leagueLogos).catch(() => {});
+    }
+  }, [fixtures, preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos]);
 
   // Country code to full name mapping
   const getCountryDisplayName = (country: string | null | undefined): string => {
