@@ -16,7 +16,7 @@ export const handleImageError = (
   // Try provided fallback first, then default
   if (fallbackUrl && !target.src.includes(fallbackUrl)) {
     target.src = fallbackUrl;
-    // Don't reset errorHandled to prevent infinite loops
+    target.dataset.errorHandled = 'false'; // Allow one more try
   } else {
     target.src = '/assets/fallback-logo.png';
   }

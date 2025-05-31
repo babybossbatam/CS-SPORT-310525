@@ -407,13 +407,8 @@ const EnhancedFeatureMatchCard = () => {
                         onClick={handleMatchClick}
                         onError={(e) => {
                           const target = e.currentTarget;
-                          // Prevent infinite loops
-                          if (target.dataset.errorHandled === 'true') return;
-                          target.dataset.errorHandled = 'true';
-                          
                           if (target.src.includes('sportmonks') && currentMatch.teams.home.logo) {
                             target.src = currentMatch.teams.home.logo;
-                            target.dataset.errorHandled = 'false'; // Allow one more try
                           } else {
                             target.src = `/assets/fallback-logo.png`;
                           }
@@ -468,13 +463,8 @@ const EnhancedFeatureMatchCard = () => {
                       onClick={handleMatchClick}
                       onError={(e) => {
                         const target = e.currentTarget;
-                        // Prevent infinite loops
-                        if (target.dataset.errorHandled === 'true') return;
-                        target.dataset.errorHandled = 'true';
-                        
                         if (target.src.includes('sportmonks') && currentMatch.teams.away.logo) {
                           target.src = currentMatch.teams.away.logo;
-                          target.dataset.errorHandled = 'false'; // Allow one more try
                         } else {
                           target.src = `/assets/fallback-logo.png`;
                         }
