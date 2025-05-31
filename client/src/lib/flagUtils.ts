@@ -410,20 +410,21 @@ export function createCountryFlagFallbackHandler(country: string) {
     if (isHandling) return;
     isHandling = true;
 
+    currentIndex++;
+
+    if (currentIndex < sources.length) {
+      const nextSource = sources[currentIndex];
+      console.log(`Flag fallback for ${country}: trying source ${currentIndex + 1}/${sources.length}`);
+      img.src = nextSource;
+    } else {
+      console.log(`All flag sources failed for ${country}, using final fallback`);
+      img.src = '/assets/fallback-logo.svg';
+    }
+
+    // Reset handling flag after a delay
     setTimeout(() => {
-      currentIndex++;
-
-      if (currentIndex < sources.length) {
-        const nextSource = sources[currentIndex];
-        console.log(`Flag fallback for ${country}: trying source ${currentIndex + 1}/${sources.length}`);
-        img.src = nextSource;
-      } else {
-        console.log(`All flag sources failed for ${country}, using final fallback`);
-        img.src = '/assets/fallback-logo.svg';
-      }
-
       isHandling = false;
-    }, 100); // Small delay to prevent flickering
+    }, 100);
   };
 }
 
