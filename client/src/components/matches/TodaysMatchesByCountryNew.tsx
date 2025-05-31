@@ -10,7 +10,13 @@ import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtilsUpdated';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, fixturesActions, selectFixturesByDate, selectSelectedLeagues } from '@/lib/store';
-import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
+import { 
+  formatYYYYMMDD, 
+  getCurrentUTCDateString, 
+  isDateTimeStringToday,
+  isDateTimeStringTomorrow,
+  getDateTimeRange
+} from '@/lib/dateUtilsUpdated';
 import { getCountryFlagWithFallbackSync, createCountryFlagFallbackHandler } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
@@ -33,7 +39,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
-    queryFn: async () => {
+    queryFn: async ()=> {
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
 
@@ -321,11 +327,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Default behavior based on selected date
     const selectedDateObj = new Date(selectedDate);
 
-    if (isToday(selectedDateObj)) {
+    if (isDateTimeStringToday(selectedDate)) {
       return "Today's Football Matches by Country";
-    } else if (isYesterday(selectedDateObj)) {
+    } else if (isDateTimeStringTomorrow(selectedDate)) {
       return "Yesterday's Football Results by Country";
-    } else if (isTomorrow(selectedDateObj)) {
+    } else if (isDateTimeStringTomorrow(selectedDate)) {
       return "Tomorrow's Football Matches by Country";
     } else {
       return `Football Matches - ${format(selectedDateObj, 'MMM d, yyyy')}`;
