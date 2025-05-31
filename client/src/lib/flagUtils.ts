@@ -326,6 +326,23 @@ export const getCountryFlagWithFallbackSync = (country: string | null | undefine
 };
 
 /**
+ * Background validation function (non-blocking)
+ */
+const validateFlagUrlBackground = (url: string, countryName: string): void => {
+  // Perform background validation without blocking
+  fetch(url, { method: 'HEAD' })
+    .then(response => {
+      if (!response.ok) {
+        console.warn(`Flag validation failed for ${countryName}: ${url}`);
+      }
+    })
+    .catch(() => {
+      // Silently handle validation failures
+      console.warn(`Flag network error for ${countryName}: ${url}`);
+    });
+};
+
+/**
  * Generate country flag sources with MyFallbackAPI integration for onError handling
  */
 const normalizeCountryCode = (country: string) => {

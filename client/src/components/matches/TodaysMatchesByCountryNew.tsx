@@ -35,6 +35,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
 
+  // Image preloading hook - must be called before any conditional returns
+  const { preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos } = useImagePreloader();
+
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
@@ -61,9 +64,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
   }, [selectedDate]);
-
-  // Image preloading hook - preload images when fixtures are available
-  const { preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos } = useImagePreloader();
 
   // Preload images when fixtures changes
   useEffect(() => {
