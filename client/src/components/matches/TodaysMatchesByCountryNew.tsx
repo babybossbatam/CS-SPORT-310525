@@ -33,6 +33,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
+  // Define state for storing fetched flags - moved to top to maintain hook order
+  const [flagMap, setFlagMap] = useState<{ [country: string]: string }>({});
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
@@ -459,9 +461,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return false;
   };
-
-  // Define state for storing fetched flags - moved to top to maintain hook order
-  const [flagMap, setFlagMap] = useState<{ [country: string]: string }>({});
 
   // Fetch flags for all countries in the list
   const getCountryFlagWithFallbackSync = (country: string) => {
