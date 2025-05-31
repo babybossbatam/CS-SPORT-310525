@@ -9,7 +9,7 @@ import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtilsUpdated';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, fixturesActions, selectFixturesByDate, selectSelectedLeagues } from '@/lib/store';
+import { RootState, fixturesActions, selectFixturesByDate } from '@/lib/store';
 import { 
   formatYYYYMMDD, 
   getCurrentUTCDateString, 
@@ -307,6 +307,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryA.localeCompare(countryB);
   });
 
+  // Move useEffect here to maintain hook order - always called
+  useEffect(() => {
+    const fetchFlags = async () => {
+      // Only proceed if we have countries to fetch flags for
+      if (sortedCountries.length === 0) return;
+      
+      const countriesToFetch = sortedCountries.filter((countryData: any) => 
+        !flagMap[countryData.country]
+      );
+
+      if (countriesToFetch.length === 0) return;
+
+      const flagPromises = countriesToFetch.map(async (countryData: any) => {
+        const country = countryData.country;
+        try {
+          const flag = await getCountryFlagWithFallback(country);
+          return { country, flag };
+        } catch (error) {
+          console.error(`Failed to fetch flag for ${country}:`, error);
+          return { country, flag: getCountryFlagWithFallbackSync(country) };
+        }
+      });
+
+      const results = await Promise.all(flagPromises);
+      const newFlags = results.reduce((acc, result) => {
+        if (result) {
+          acc[result.country] = result.flag;
+        }
+        return acc;
+      }, {} as { [country: string]: string });
+
+      if (Object.keys(newFlags).length > 0) {
+        setFlagMap(prev => ({ ...prev, ...newFlags }));
+      }
+    };
+
+    fetchFlags();
+  }, [sortedCountries.map((c: any) => c.country).join(','), flagMap]); // Use stable dependency
+
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
     if (newExpanded.has(country)) {
@@ -485,42 +524,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return flag
   }
 
-  useEffect(() => {
-    const fetchFlags = async () => {
-      const countriesToFetch = sortedCountries.filter((countryData: any) => 
-        !flagMap[countryData.country]
-      );
 
-      if (countriesToFetch.length === 0) return;
-
-      const flagPromises = countriesToFetch.map(async (countryData: any) => {
-        const country = countryData.country;
-        try {
-          const flag = await getCountryFlagWithFallback(country);
-          return { country, flag };
-        } catch (error) {
-          console.error(`Failed to fetch flag for ${country}:`, error);
-          return { country, flag: getCountryFlagWithFallbackSync(country) };
-        }
-      });
-
-      const results = await Promise.all(flagPromises);
-      const newFlags = results.reduce((acc, result) => {
-        if (result) {
-          acc[result.country] = result.flag;
-        }
-        return acc;
-      }, {} as { [country: string]: string });
-
-      if (Object.keys(newFlags).length > 0) {
-        setFlagMap(prev => ({ ...prev, ...newFlags }));
-      }
-    };
-
-    if (sortedCountries.length > 0) {
-      fetchFlags();
-    }
-  }, [sortedCountries.map(c => c.country).join(',')]); // Use stable dependency
 
   return (
     <Card className="mt-4">
