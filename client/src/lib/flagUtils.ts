@@ -258,11 +258,10 @@ export async function getCountryFlagWithFallback(
 }
 
 /**
- * Enhanced synchronous version with MyFallbackAPI integration
- * Priority order: RapidAPI -> MyFallbackAPI -> FlagsAPI -> Final fallback
+ * Simplified synchronous version to reduce flickering
  * @param country - Country name
  * @param leagueFlag - Optional league flag URL
- * @returns Flag image URL with fallback priority
+ * @returns Flag image URL with single fallback
  */
 export function getCountryFlagWithFallbackSync(
   country: string | null | undefined, 
@@ -294,8 +293,13 @@ export function getCountryFlagWithFallbackSync(
     return 'https://flagsapi.com/EU/flat/24.png';
   }
 
-  // Return primary source (RapidAPI via SportsRadar endpoint)
-  // The browser will handle fallbacks through onError handlers that can use MyFallbackAPI
+  // Use country code mapping first for most reliable flags
+  const countryCode = countryCodeMap[cleanCountry];
+  if (countryCode) {
+    return `https://flagsapi.com/${countryCode}/flat/24.png`;
+  }
+
+  // Fallback to API endpoint for unmapped countries
   return `/api/flags/${encodeURIComponent(cleanCountry)}`;
 }
 
@@ -328,26 +332,36 @@ export function generateCountryFlagSources(country: string): string[] {
 }
 
 /**
- * Create fallback handler for country flags using MyFallbackAPI pattern
+ * Create fallback handler for country flags with flickering prevention
  * @param country - Country name
  * @returns Error handler function
  */
 export function createCountryFlagFallbackHandler(country: string) {
   const sources = generateCountryFlagSources(country);
   let currentIndex = 0;
+  let isHandling = false; // Prevent multiple rapid fallback attempts
 
   return function handleFlagError(event: any) {
     const img = event.currentTarget;
-    currentIndex++;
+    
+    // Prevent rapid consecutive fallback attempts
+    if (isHandling) return;
+    isHandling = true;
 
-    if (currentIndex < sources.length) {
-      const nextSource = sources[currentIndex];
-      console.log(`Flag fallback for ${country}: trying source ${currentIndex + 1}/${sources.length}`);
-      img.src = nextSource;
-    } else {
-      console.log(`All flag sources failed for ${country}, using final fallback`);
-      img.src = '/assets/fallback-logo.svg';
-    }
+    setTimeout(() => {
+      currentIndex++;
+
+      if (currentIndex < sources.length) {
+        const nextSource = sources[currentIndex];
+        console.log(`Flag fallback for ${country}: trying source ${currentIndex + 1}/${sources.length}`);
+        img.src = nextSource;
+      } else {
+        console.log(`All flag sources failed for ${country}, using final fallback`);
+        img.src = '/assets/fallback-logo.svg';
+      }
+      
+      isHandling = false;
+    }, 100); // Small delay to prevent flickering
   };
 }
 
@@ -449,42 +463,21 @@ const getFallbackSVG = (countryName: string) => {
   `)}`;
 };
 
-// Comprehensive fallback handler for images (teams, leagues, countries)
+// Simplified fallback handler to prevent loops and flickering
 export const createImageFallbackHandler = (
   itemName: string,
   itemType: 'team' | 'league' | 'country' = 'team'
 ) => {
+  let hasFallbackRun = false; // Prevent multiple fallback attempts
+
   return (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const img = event.currentTarget;
-    const currentSrc = img.src;
+    
+    // Prevent multiple fallback attempts
+    if (hasFallbackRun) return;
+    hasFallbackRun = true;
 
-    // Avoid infinite loop
-    if (currentSrc.startsWith('data:image/svg+xml')) {
-      return;
-    }
-
-    // Fallback hierarchy based on item type
-    if (itemType === 'country') {
-      // For countries, use our flag fallback system
-      img.src = getFlagUrl(itemName);
-    } else if (itemType === 'team') {
-      // For teams, try MyFallbackAPI first, then generate SVG
-      const fallbackUrl = `https://myfallbackapi.example.com/teams/${encodeURIComponent(itemName)}/logo`;
-
-      // Check if we've already tried the fallback API
-      if (!currentSrc.includes('myfallbackapi')) {
-        img.src = fallbackUrl;
-
-        // If fallback API also fails, use SVG
-        img.onerror = () => {
-          img.src = getFallbackSVG(itemName);
-        };
-      } else {
-        img.src = getFallbackSVG(itemName);
-      }
-    } else {
-      // For leagues and other items, generate SVG directly
-      img.src = getFallbackSVG(itemName);
-    }
+    // Direct fallback to SVG to prevent loops
+    img.src = getFallbackSVG(itemName);
   };
 };

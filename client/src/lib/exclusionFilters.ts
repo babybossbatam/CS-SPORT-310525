@@ -9,8 +9,9 @@ export const exclusionTerms = [
   'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
   'development', 'academy', 'primavera', 'reserves', 'juvenil', 'cadete', 'infantil',
 
-  // Women's competitions (filter unless specifically requested)
+  // Women's competitions (comprehensive exclusion)
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
+  'women\'s', "women's", 'friendlies women', 'women friendlies',
 
   // Lower divisions and regional competitions
   'regional', 'division 3', 'division 4', 'division 5', 'third division', 'fourth division',
@@ -23,9 +24,6 @@ export const exclusionTerms = [
 
   // Non-competitive/exhibition matches (but allow World Friendlies)
   'test', 'exhibition', 'testimonial', 'charity',
-
-  // Women's specific competitions
-  'friendlies women', 'women friendlies',
 
   // Indoor/alternative formats
   'futsal', 'indoor', 'beach', 'arena',
