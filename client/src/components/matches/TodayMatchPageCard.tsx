@@ -8,7 +8,7 @@ import LiveMatchForAllCountry from './LiveMatchForAllCountry';
 import LiveMatchByTime from './LiveMatchByTime';
 import TodayMatchByTime from './TodayMatchByTime';
 import { format, parseISO, addDays, subDays } from 'date-fns';
-import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
+import { formatYYYYMMDD, getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
 
 interface TodayMatchPageCardProps {
   fixtures: any[];
