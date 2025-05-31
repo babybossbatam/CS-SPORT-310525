@@ -11,7 +11,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiRequest } from '@/lib/queryClient';
-import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
+import { getPopularLeagues } from '@/lib/leagueDataCache';
+import { usePopularLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import {
   Table,
   TableBody,
@@ -58,7 +59,7 @@ const LeagueStandingsFilter = () => {
         setLeaguesLoading(true);
         const leagues = await getPopularLeagues();
         setPopularLeagues(leagues);
-        
+
         // Set default selection to first league
         if (leagues.length > 0) {
           setSelectedLeague(leagues[0].id.toString());

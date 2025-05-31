@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,7 +6,6 @@ import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, addDays } from "date-fns";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import FixedMatchTimer from "./FixedMatchTimer";
 
@@ -24,6 +22,8 @@ import {
   POPULAR_COUNTRIES,
   type FilterOptions
 } from "@/lib/matchFilters";
+import { apiRequest } from "@/lib/utils";
+import { standingsUtils } from "@/lib/MyStandingsCachedNew";
 
 const FixedScoreboardFilterByPopularCountry = () => {
   const [, navigate] = useLocation();
@@ -137,10 +137,10 @@ const FixedScoreboardFilterByPopularCountry = () => {
           ).values(),
         );
 
-        
+
 
         const now = new Date();
-        
+
 
         // Filter matches by popular countries
         const popularCountryMatches = allMatches.filter((match) => {
@@ -148,7 +148,7 @@ const FixedScoreboardFilterByPopularCountry = () => {
           return POPULAR_COUNTRIES.includes(leagueCountry) || POPULAR_LEAGUES.includes(match.league.id);
         });
 
-        
+
 
         // Extract top teams from standings
         let topTeamIds: number[] = [];

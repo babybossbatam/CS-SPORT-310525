@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import LeagueStatsPanel from './LeagueStatsPanel';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,10 +88,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
   const [, navigate] = useLocation();
   const [view, setView] = useState<'overall' | 'home' | 'away'>('overall');
 
-  const { data, isLoading } = useQuery<StandingsResponse>({
-    queryKey: [`/api/leagues/${leagueId}/standings`, { season }],
-    staleTime: 60 * 60 * 1000, // 1 hour
-  });
+  const { data, isLoading } = useLeagueStandings(leagueId, season);
 
   if (isLoading) {
     return (

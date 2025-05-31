@@ -15,6 +15,7 @@ import {
   DEFAULT_POPULAR_LEAGUES,
   type FilterOptions
 } from "@/lib/matchFilters";
+import { standingsUtils } from "@/lib/MyStandingsCachedNew";
 
 import {
   type Team,
@@ -859,7 +860,7 @@ const FixedScoreboard = () => {
                           } catch (e) {
                             return currentMatch.fixture.venue?.name || "";
                           }
-                        })()}
+                                                })()}
                       </div>
 
                       {/* Away team colored bar and logo */}
