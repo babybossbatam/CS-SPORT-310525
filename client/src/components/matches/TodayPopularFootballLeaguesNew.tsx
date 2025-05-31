@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Star } from 'lucide-react';
@@ -109,9 +109,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Filter fixtures based on popular countries and exclusion filters
+  // Memoize expensive filtering operations
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
+
+    console.log(`Processing ${fixtures.length} fixtures for filtering`);
+    const startTime = Date.now();
 
     const filtered = fixtures.filter(fixture => {
       // Date filtering - ensure exact date match
@@ -175,7 +178,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return false;
     });
 
-    return filtered.filter(fixture => {
+    const finalFiltered = filtered.filter(fixture => {
       // Apply exclusion filters
       if (shouldExcludeFixture(
         fixture.league.name,
@@ -237,6 +240,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       return true;
     });
+
+    const endTime = Date.now();
+    console.log(`Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`);
+    
+    return finalFiltered;
   }, [fixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
@@ -503,15 +511,17 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return liveFilteredCountries.slice(0, 20);
   }, [liveFilteredCountries, showTop20]);
 
-  const toggleCountry = (country: string) => {
-    const newExpanded = new Set(expandedCountries);
-    if (newExpanded.has(country)) {
-      newExpanded.delete(country);
-    } else {
-      newExpanded.add(country);
-    }
-    setExpandedCountries(newExpanded);
-  };
+  const toggleCountry = useCallback((country: string) => {
+    setExpandedCountries(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
+      }
+      return newExpanded;
+    });
+  }, []);
 
   // Favorite team functionality
   const toggleFavoriteTeam = async (teamId: number, teamName: string) => {

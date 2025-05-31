@@ -1,4 +1,3 @@
-
 /**
  * MyAPIFallback - Comprehensive image fallback utility
  * Handles multiple logo sources with intelligent fallback logic
@@ -20,6 +19,22 @@ export interface TeamLogoOptions {
 import { teamLogoCache, getTeamLogoCacheKey, validateLogoUrl } from './logoCache';
 
 /**
+ * Validates if a URL is properly formatted and not already processed
+ */
+function isValidUrl(url: string): boolean {
+  try {
+    // Check if URL is already processed (contains nested URLs)
+    if (url.includes('https://media.api-sports.io/football/teams/https://')) {
+      return false;
+    }
+    new URL(url);
+    return url.startsWith('http://') || url.startsWith('https://');
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Generate multiple logo sources for a team with caching support
  */
 export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
@@ -35,10 +50,13 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
 
   const currentSize = sizeMap[size];
 
-  // 1. Original API-Sports logo (highest priority)
-  if (originalUrl && originalUrl.trim() !== '') {
+  // Validate and clean the original URL
+  const cleanUrl = originalUrl?.trim();
+
+  // 1. Original URL if valid and not already nested
+  if (cleanUrl && isValidUrl(cleanUrl) && !cleanUrl.includes('/https://')) {
     sources.push({
-      url: originalUrl,
+      url: cleanUrl,
       source: 'api-sports-original',
       priority: 1
     });
@@ -60,18 +78,16 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
     );
   }
 
-  // 3. Removed 365scores CDN fallback
-
-  // 4. SportsRadar fallback (server-side, no CORS)
-  if (teamId) {
+  // 3. Sportsradar fallback (only for valid original URLs)
+  if (cleanUrl && isValidUrl(cleanUrl) && !cleanUrl.includes('/https://')) {
     sources.push({
-      url: `/api/sportsradar/teams/${teamId}/logo`,
+      url: `/api/sportsradar/teams/${encodeURIComponent(cleanUrl)}/logo`,
       source: 'sportsradar-server',
       priority: 5
     });
   }
 
-  // 5. Generic team logo fallback
+  // 4. Generic team logo fallback
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
@@ -86,7 +102,7 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
  */
 export async function getCachedTeamLogo(teamId: number | string, teamName?: string, originalUrl?: string): Promise<string> {
   const cacheKey = getTeamLogoCacheKey(teamId, teamName);
-  
+
   // Check cache first
   const cached = teamLogoCache.getCached(cacheKey);
   if (cached) {
@@ -95,19 +111,19 @@ export async function getCachedTeamLogo(teamId: number | string, teamName?: stri
   }
 
   console.log(`Team logo cache miss for ${teamName || teamId}, fetching...`);
-  
+
   const sources = generateLogoSources({ teamId, teamName, originalUrl });
-  
+
   for (const source of sources) {
     try {
       console.log(`Trying team logo source: ${source.source} - ${source.url}`);
-      
+
       // For local assets, return immediately
       if (source.url.startsWith('/assets/')) {
         teamLogoCache.setCached(cacheKey, source.url, source.source, true);
         return source.url;
       }
-      
+
       // For external URLs, validate before caching
       const isValid = await validateLogoUrl(source.url);
       if (isValid) {
@@ -159,7 +175,7 @@ export function testImageUrl(url: string): Promise<boolean> {
  */
 export async function findWorkingLogoUrl(options: TeamLogoOptions): Promise<string> {
   const sources = generateLogoSources(options);
-  
+
   for (const source of sources) {
     const isWorking = await testImageUrl(source.url);
     if (isWorking) {
@@ -178,7 +194,7 @@ export async function findWorkingLogoUrl(options: TeamLogoOptions): Promise<stri
 export async function getProgressiveLogoState(options: TeamLogoOptions) {
   const sources = generateLogoSources(options);
   const failedSources: string[] = [];
-  
+
   for (const source of sources) {
     const isWorking = await testImageUrl(source.url);
     if (isWorking) {
@@ -187,7 +203,7 @@ export async function getProgressiveLogoState(options: TeamLogoOptions) {
       failedSources.push(source.url);
     }
   }
-  
+
   return { 
     currentUrl: '/assets/fallback-logo.svg', 
     isLoading: false, 

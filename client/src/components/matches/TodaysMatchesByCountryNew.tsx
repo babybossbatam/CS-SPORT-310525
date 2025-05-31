@@ -464,53 +464,48 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>({});
 
   // Fetch flags for all countries in the list
+  const getCountryFlagWithFallbackSync = (country: string) => {
+    return `https://flagsapi.com/${country}/flat/64.png`
+  }
+
+  const getCountryFlagWithFallback = async (country: string) => {
+    const flag = await getCachedFlag(country)
+    return flag
+  }
+
   useEffect(() => {
     const fetchFlags = async () => {
-      const uniqueCountries = [...new Set(sortedCountries.map((match: any) => match.country))];
+      const flagPromises = sortedCountries.map(async (countryData: any) => {
+        const country = countryData.country;
+        if (!flagMap[country]) {
+          try {
+            const flag = await getCountryFlagWithFallback(country);
+            return { country, flag };
+          } catch (error) {
+            console.error(`Failed to fetch flag for ${country}:`, error);
+            return { country, flag: getCountryFlagWithFallbackSync(country) };
+          }
+        }
+        return null;
+      });
 
-      const flagPromises = uniqueCountries.map(country =>
-        getCountryFlag(country).then(flagUrl => ({ country, flagUrl }))
-      );
+      const results = await Promise.all(flagPromises);
+      const newFlags = results.reduce((acc, result) => {
+        if (result) {
+          acc[result.country] = result.flag;
+        }
+        return acc;
+      }, {} as { [country: string]: string });
 
-      const flagResults = await Promise.all(flagPromises);
-      const newFlagMap = Object.fromEntries(flagResults.map(({ country, flagUrl }) => [country, flagUrl]));
-      setFlagMap(newFlagMap);
+      if (Object.keys(newFlags).length > 0) {
+        setFlagMap(prev => ({ ...prev, ...newFlags }));
+      }
     };
 
-    // Call the flag fetcher
-    fetchFlags();
-  }, [sortedCountries]);
-
-  // Map fixtures to the structure required for rendering
-  const processedMatches = sortedCountries.map((countryData: any) => {
-    const totalMatches = Object.values(countryData.leagues).reduce(
-      (sum: number, league: any) => sum + league.matches.length, 0
-    );
-
-    // Count live and recent matches for badge
-    const liveMatches = Object.values(countryData.leagues).reduce((count: number, league: any) => {
-      return count + league.matches.filter((match: any) =>
-        ['LIVE', '1H', 'HT', '2H', 'ET'].includes(match.fixture.status.short)
-      ).length;
-    }, 0);
-
-    const recentMatches = Object.values(countryData.leagues).reduce((count: number, league: any) => {
-      return count + league.matches.filter((match: any) => {
-        const status = match.fixture.status.short;
-        const hoursAgo = differenceInHours(new Date(), new Date(match.fixture.date));
-        return ['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 3;
-      }).length;
-    }, 0);
-
-    return {
-      name: countryData.country,
-      flag: flagMap[countryData.country] || '', // Use flag from map
-      matches: Object.values(countryData.leagues).flatMap((league: any) => league.matches),
-      totalMatches,
-      liveMatches,
-      recentMatches,
-    };
-  });
+    if (sortedCountries.length > 0) {
+      fetchFlags();
+    }
+  }, [sortedCountries]); // Remove flagMap from dependencies to prevent infinite loops
 
   return (
     <Card className="mt-4">
