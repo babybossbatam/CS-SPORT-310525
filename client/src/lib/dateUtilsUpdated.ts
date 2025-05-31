@@ -31,6 +31,27 @@ export function isDateTimeStringToday(dateTimeString: string): boolean {
   }
 }
 
+// Enhanced date comparison for yesterday with time consideration
+export function isDateTimeStringYesterday(dateTimeString: string): boolean {
+  try {
+    const matchDate = parseISO(dateTimeString);
+    if (!isValid(matchDate)) return false;
+    
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const yesterdayStart = new Date(yesterday);
+    yesterdayStart.setHours(0, 0, 0, 0);
+    
+    const yesterdayEnd = new Date(yesterday);
+    yesterdayEnd.setHours(23, 59, 59, 999);
+    
+    return matchDate >= yesterdayStart && matchDate <= yesterdayEnd;
+  } catch {
+    return false;
+  }
+}
+
 // Enhanced date comparison for tomorrow with time consideration
 export function isDateTimeStringTomorrow(dateTimeString: string): boolean {
   try {

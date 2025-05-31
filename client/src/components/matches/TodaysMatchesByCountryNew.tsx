@@ -14,6 +14,7 @@ import {
   formatYYYYMMDD, 
   getCurrentUTCDateString, 
   isDateTimeStringToday,
+  isDateTimeStringYesterday,
   isDateTimeStringTomorrow,
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
@@ -149,8 +150,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return getCountryFlagWithFallbackSync(country, leagueFlag);
   };
 
-  // Use only the main fixtures data
-  const allFixtures = fixtures;
+  // Filter fixtures to ensure they belong to the selected date
+  // This handles edge cases where LIVE matches span across midnight
+  const allFixtures = fixtures.filter((fixture: any) => {
+    if (!fixture?.fixture?.date) return false;
+    
+    try {
+      const fixtureDate = parseISO(fixture.fixture.date);
+      if (!isValid(fixtureDate)) return false;
+      
+      const selectedDateObj = parseISO(selectedDate);
+      if (!isValid(selectedDateObj)) return false;
+      
+      // For LIVE matches, be more lenient - allow matches that started within 6 hours of the selected date
+      const status = fixture.fixture.status?.short;
+      const isLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
+      
+      if (isLive) {
+        const hoursDiff = Math.abs(differenceInHours(fixtureDate, selectedDateObj));
+        // Allow live matches that started within 6 hours of the selected date
+        return hoursDiff <= 6;
+      }
+      
+      // For non-live matches, be strict about date matching
+      return format(fixtureDate, 'yyyy-MM-dd') === format(selectedDateObj, 'yyyy-MM-dd');
+    } catch (error) {
+      console.warn('Date validation error for fixture:', fixture.fixture.id, error);
+      return false;
+    }
+  });
 
   // Group fixtures by country and league with comprehensive null checks
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
@@ -329,7 +357,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     if (isDateTimeStringToday(selectedDate)) {
       return "Today's Football Matches by Country";
-    } else if (isDateTimeStringTomorrow(selectedDate)) {
+    } else if (isDateTimeStringYesterday(selectedDate)) {
       return "Yesterday's Football Results by Country";
     } else if (isDateTimeStringTomorrow(selectedDate)) {
       return "Tomorrow's Football Matches by Country";
