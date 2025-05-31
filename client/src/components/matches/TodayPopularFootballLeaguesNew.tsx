@@ -799,7 +799,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         return aPriority - bPriority;
                       }
 
-                      // If same priority, sort by time within category                      if (aLive && bLive) {
+                      // If same priority, sort by time within category
+                      if (aLive && bLive) {
                         // For live matches, show earliest start time first
                         return aTime - bTime;
                       }
