@@ -1,34 +1,46 @@
 
-interface CacheItem {
+/**
+ * Enhanced Logo Cache System
+ * Handles caching for team logos, league logos, and country flags
+ */
+
+interface CachedItem {
   url: string;
-  timestamp: number;
   source: string;
-  isValid: boolean;
+  timestamp: number;
+  verified: boolean;
+  retryCount: number;
 }
 
 interface LogoCacheConfig {
   maxAge: number; // Cache duration in milliseconds
   maxSize: number; // Maximum number of cached items
   cleanupInterval: number; // Cleanup interval in milliseconds
+  maxRetries: number; // Maximum retry attempts for failed URLs
 }
 
+const DEFAULT_CONFIG: LogoCacheConfig = {
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  maxSize: 1000, // Cache up to 1000 items
+  cleanupInterval: 60 * 60 * 1000, // Cleanup every hour
+  maxRetries: 3
+};
+
 class LogoCache {
-  private cache = new Map<string, CacheItem>();
+  private cache = new Map<string, CachedItem>();
   private config: LogoCacheConfig;
   private cleanupTimer: NodeJS.Timeout | null = null;
 
   constructor(config: Partial<LogoCacheConfig> = {}) {
-    this.config = {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours default
-      maxSize: 1000, // 1000 items max
-      cleanupInterval: 60 * 60 * 1000, // 1 hour cleanup
-      ...config
-    };
-
+    this.config = { ...DEFAULT_CONFIG, ...config };
     this.startCleanupTimer();
   }
 
   private startCleanupTimer() {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+    }
+    
     this.cleanupTimer = setInterval(() => {
       this.cleanup();
     }, this.config.cleanupInterval);
@@ -36,117 +48,151 @@ class LogoCache {
 
   private cleanup() {
     const now = Date.now();
-    const itemsToRemove: string[] = [];
+    const expired: string[] = [];
 
     for (const [key, item] of this.cache.entries()) {
       if (now - item.timestamp > this.config.maxAge) {
-        itemsToRemove.push(key);
+        expired.push(key);
       }
     }
 
-    itemsToRemove.forEach(key => this.cache.delete(key));
+    expired.forEach(key => this.cache.delete(key));
 
-    // If still over max size, remove oldest items
+    // If cache is still too large, remove oldest items
     if (this.cache.size > this.config.maxSize) {
-      const sortedEntries = Array.from(this.cache.entries())
-        .sort(([,a], [,b]) => a.timestamp - b.timestamp);
+      const entries = Array.from(this.cache.entries())
+        .sort((a, b) => a[1].timestamp - b[1].timestamp);
       
-      const toRemove = sortedEntries.slice(0, this.cache.size - this.config.maxSize);
+      const toRemove = entries.slice(0, this.cache.size - this.config.maxSize);
       toRemove.forEach(([key]) => this.cache.delete(key));
     }
 
-    console.log(`Logo cache cleanup: ${itemsToRemove.length} expired items removed, ${this.cache.size} items remaining`);
+    console.log(`Logo cache cleanup: ${expired.length} expired, ${this.cache.size} remaining`);
   }
 
-  getCached(key: string): string | null {
+  setCached(key: string, url: string, source: string, verified: boolean = false) {
+    this.cache.set(key, {
+      url,
+      source,
+      timestamp: Date.now(),
+      verified,
+      retryCount: 0
+    });
+  }
+
+  getCached(key: string): CachedItem | null {
     const item = this.cache.get(key);
     if (!item) return null;
 
-    const now = Date.now();
-    if (now - item.timestamp > this.config.maxAge) {
+    // Check if expired
+    if (Date.now() - item.timestamp > this.config.maxAge) {
       this.cache.delete(key);
       return null;
     }
 
-    return item.isValid ? item.url : null;
+    return item;
   }
 
-  setCached(key: string, url: string, source: string, isValid: boolean = true) {
-    this.cache.set(key, {
-      url,
-      timestamp: Date.now(),
-      source,
-      isValid
-    });
-  }
-
-  markInvalid(key: string) {
+  markAsVerified(key: string) {
     const item = this.cache.get(key);
     if (item) {
-      item.isValid = false;
+      item.verified = true;
+      item.timestamp = Date.now(); // Refresh timestamp
     }
   }
 
-  getStats() {
-    return {
-      size: this.cache.size,
-      maxSize: this.config.maxSize,
-      maxAge: this.config.maxAge
-    };
+  incrementRetry(key: string): boolean {
+    const item = this.cache.get(key);
+    if (item) {
+      item.retryCount++;
+      return item.retryCount < this.config.maxRetries;
+    }
+    return true;
   }
 
   clear() {
     this.cache.clear();
   }
 
-  destroy() {
-    if (this.cleanupTimer) {
-      clearInterval(this.cleanupTimer);
-      this.cleanupTimer = null;
-    }
-    this.clear();
+  getStats() {
+    const verified = Array.from(this.cache.values()).filter(item => item.verified).length;
+    return {
+      total: this.cache.size,
+      verified,
+      unverified: this.cache.size - verified
+    };
   }
 }
 
-// Create global cache instances
-export const teamLogoCache = new LogoCache({
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours for team logos
-  maxSize: 500
-});
+// Create cache instances
+export const teamLogoCache = new LogoCache();
+export const leagueLogoCache = new LogoCache();
+export const flagCache = new LogoCache();
 
-export const leagueLogoCache = new LogoCache({
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days for league logos
-  maxSize: 100
-});
-
-export const flagCache = new LogoCache({
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days for flags
-  maxSize: 200
-});
-
-// Helper functions
-export function getTeamLogoCacheKey(teamId: number | string, teamName?: string): string {
-  return `team_${teamId}_${teamName?.toLowerCase().replace(/\s+/g, '_') || 'unknown'}`;
+// Cache key generators
+export function getTeamLogoCacheKey(teamId?: number | string, teamName?: string): string {
+  return `team_${teamId || 'unknown'}_${teamName || 'unknown'}`;
 }
 
-export function getLeagueLogoCacheKey(leagueId: number | string, leagueName?: string): string {
-  return `league_${leagueId}_${leagueName?.toLowerCase().replace(/\s+/g, '_') || 'unknown'}`;
+export function getLeagueLogoCacheKey(leagueId?: number | string, leagueName?: string): string {
+  return `league_${leagueId || 'unknown'}_${leagueName || 'unknown'}`;
 }
 
-export function getFlagCacheKey(country: string): string {
-  return `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+export function getFlagCacheKey(countryCode?: string, countryName?: string): string {
+  return `flag_${countryCode || 'unknown'}_${countryName || 'unknown'}`;
 }
 
-// Logo validation function
+// URL validation function
 export async function validateLogoUrl(url: string): Promise<boolean> {
   try {
+    // Use HEAD request to check if image exists without downloading it
     const response = await fetch(url, { 
       method: 'HEAD',
-      signal: AbortSignal.timeout(5000) // 5 second timeout
+      mode: 'no-cors' // Avoid CORS issues
     });
-    return response.ok && response.headers.get('content-type')?.startsWith('image/');
+    return response.ok;
   } catch (error) {
-    console.warn(`Logo validation failed for ${url}:`, error);
+    console.warn(`Failed to validate URL: ${url}`, error);
     return false;
   }
 }
+
+// Progressive image loading function
+export async function getOptimalLogoUrl(
+  sources: Array<{ url: string; source: string; priority: number }>,
+  cacheKey: string,
+  cache: LogoCache
+): Promise<string> {
+  // Check cache first
+  const cached = cache.getCached(cacheKey);
+  if (cached && cached.verified) {
+    console.log(`Using cached logo: ${cached.source}`);
+    return cached.url;
+  }
+
+  // Sort sources by priority
+  const sortedSources = sources.sort((a, b) => a.priority - b.priority);
+
+  // Try each source in order
+  for (const source of sortedSources) {
+    try {
+      const isValid = await validateLogoUrl(source.url);
+      if (isValid) {
+        cache.setCached(cacheKey, source.url, source.source, true);
+        console.log(`Logo loaded from ${source.source}: ${source.url}`);
+        return source.url;
+      }
+    } catch (error) {
+      console.warn(`Failed to load from ${source.source}:`, error);
+      continue;
+    }
+  }
+
+  // If all fail, use fallback and cache it
+  const fallbackUrl = '/assets/fallback-logo.svg';
+  cache.setCached(cacheKey, fallbackUrl, 'fallback', true);
+  console.warn(`All logo sources failed, using fallback`);
+  return fallbackUrl;
+}
+
+export default { teamLogoCache, leagueLogoCache, flagCache };
