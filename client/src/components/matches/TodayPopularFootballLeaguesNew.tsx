@@ -7,15 +7,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { format, parseISO, isValid, differenceInHours, isToday, isYesterday, isTomorrow, subDays, addDays } from 'date-fns';
+import { format, parseISO, isValid, differenceInHours, subDays, addDays } from 'date-fns';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
 import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
-import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
+import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
+import { POPULAR_LEAGUES } from '@/lib/constants';
+import { 
+  DEFAULT_POPULAR_TEAMS, 
+  DEFAULT_POPULAR_LEAGUES,
+  POPULAR_COUNTRIES,
+  isLiveMatch
+} from '@/lib/matchFilters';
 import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
-import { DEFAULT_POPULAR_TEAMS, isPopularTeamMatch, applyPriorityFiltering } from '@/lib/matchFilters';
 import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
 
 interface TodayPopularFootballLeaguesNewProps {
@@ -793,8 +799,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         return aPriority - bPriority;
                       }
 
-                      // If same priority, sort by time within category
-                      if (aLive && bLive) {
+                      // If same priority, sort by time within category                      if (aLive && bLive) {
                         // For live matches, show earliest start time first
                         return aTime - bTime;
                       }

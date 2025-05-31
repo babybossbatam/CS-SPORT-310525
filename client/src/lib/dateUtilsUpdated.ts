@@ -6,6 +6,52 @@ export const getCurrentUTCDateString = (): string => {
   return format(now, 'yyyy-MM-dd');
 };
 
+// Get current UTC date string with time in YYYY-MM-DD-HH:mm:ss format
+export const getCurrentUTCDateTimeString = (): string => {
+  const now = new Date();
+  return format(now, 'yyyy-MM-dd-HH:mm:ss');
+};
+
+// Enhanced date comparison that considers time for midnight matches
+export function isDateTimeStringToday(dateTimeString: string): boolean {
+  try {
+    const matchDate = parseISO(dateTimeString);
+    if (!isValid(matchDate)) return false;
+    
+    const today = new Date();
+    const todayStart = new Date(today);
+    todayStart.setHours(0, 0, 0, 0);
+    
+    const todayEnd = new Date(today);
+    todayEnd.setHours(23, 59, 59, 999);
+    
+    return matchDate >= todayStart && matchDate <= todayEnd;
+  } catch {
+    return false;
+  }
+}
+
+// Enhanced date comparison for tomorrow with time consideration
+export function isDateTimeStringTomorrow(dateTimeString: string): boolean {
+  try {
+    const matchDate = parseISO(dateTimeString);
+    if (!isValid(matchDate)) return false;
+    
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const tomorrowStart = new Date(tomorrow);
+    tomorrowStart.setHours(0, 0, 0, 0);
+    
+    const tomorrowEnd = new Date(tomorrow);
+    tomorrowEnd.setHours(23, 59, 59, 999);
+    
+    return matchDate >= tomorrowStart && matchDate <= tomorrowEnd;
+  } catch {
+    return false;
+  }
+}
+
 // Safe substring function to handle null/undefined values
 export function safeSubstring(value: any, start: number, end?: number): string {
   // Return empty string if value is null or undefined

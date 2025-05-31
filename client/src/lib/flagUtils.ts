@@ -432,3 +432,59 @@ export async function getFlagWithErrorHandling(
     img.src = primaryUrl;
   });
 }
+
+// Final fallback SVG
+const getFallbackSVG = (countryName: string) => {
+  const initials = countryName
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .join('')
+    .substring(0, 2);
+
+  return `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="24" height="16" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="16" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+      <text x="12" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#666">${initials}</text>
+    </svg>
+  `)}`;
+};
+
+// Comprehensive fallback handler for images (teams, leagues, countries)
+export const createImageFallbackHandler = (
+  itemName: string,
+  itemType: 'team' | 'league' | 'country' = 'team'
+) => {
+  return (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const img = event.currentTarget;
+    const currentSrc = img.src;
+
+    // Avoid infinite loop
+    if (currentSrc.startsWith('data:image/svg+xml')) {
+      return;
+    }
+
+    // Fallback hierarchy based on item type
+    if (itemType === 'country') {
+      // For countries, use our flag fallback system
+      img.src = getFlagUrl(itemName);
+    } else if (itemType === 'team') {
+      // For teams, try MyFallbackAPI first, then generate SVG
+      const fallbackUrl = `https://myfallbackapi.example.com/teams/${encodeURIComponent(itemName)}/logo`;
+
+      // Check if we've already tried the fallback API
+      if (!currentSrc.includes('myfallbackapi')) {
+        img.src = fallbackUrl;
+
+        // If fallback API also fails, use SVG
+        img.onerror = () => {
+          img.src = getFallbackSVG(itemName);
+        };
+      } else {
+        img.src = getFallbackSVG(itemName);
+      }
+    } else {
+      // For leagues and other items, generate SVG directly
+      img.src = getFallbackSVG(itemName);
+    }
+  };
+};
