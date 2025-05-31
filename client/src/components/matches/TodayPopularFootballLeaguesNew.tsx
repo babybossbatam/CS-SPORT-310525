@@ -46,7 +46,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Europe', 'World'
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Colombia', 'Europe', 'World'
   ];
 
   // Enhanced leagues by country with tier-based filtering
@@ -59,11 +59,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     'Brazil': [71, 72, 73, 74], // Serie A Brazil, Serie B Brazil, Serie C Brazil, Serie D Brazil
     'Saudi Arabia': [307], // Saudi Pro League (only major league)
     'Egypt': [233], // Egyptian Premier League (only major league)
+    'Colombia': [239], // Liga BetPlay (Colombian Primera A)
     'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     'United Arab Emirates': [301], // UAE Pro League
-    'Europe': [2, 3, 848], // Champions League, Europa League, Conference League
-    'World': [1, 10], // World Cup, Friendlies
-    'South America': [9, 11, 13], // Copa America, Libertadores, Sudamericana
+    'Europe': [2, 3, 848], // UEFA Champions League, Europa League, Conference League
+    'World': [1, 10], // World Cup, Men's International Friendlies (excludes women's)
+    'South America': [9, 11, 13], // CONMEBOL: Copa America, Libertadores, Sudamericana
     'International': [15], // FIFA Club World Cup as separate category
   };
 
@@ -139,16 +140,25 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             // Check if it's an international competition
             const leagueName = fixture.league?.name?.toLowerCase() || '';
             const isInternationalCompetition = 
+              // UEFA competitions
               leagueName.includes('champions league') ||
               leagueName.includes('europa league') ||
               leagueName.includes('conference league') ||
-              leagueName.includes('world cup') ||
-              leagueName.includes('fifa') ||
               leagueName.includes('uefa') ||
+              // FIFA competitions
+              leagueName.includes('world cup') ||
+              leagueName.includes('fifa club world cup') ||
+              leagueName.includes('fifa') ||
+              // CONMEBOL competitions
               leagueName.includes('conmebol') ||
+              leagueName.includes('copa america') ||
+              leagueName.includes('copa libertadores') ||
+              leagueName.includes('copa sudamericana') ||
               leagueName.includes('libertadores') ||
               leagueName.includes('sudamericana') ||
-              leagueName.includes('friendlies') ||
+              // Men's International Friendlies (excludes women's)
+              (leagueName.includes('friendlies') && !leagueName.includes('women')) ||
+              (leagueName.includes('international') && !leagueName.includes('women')) ||
               country.includes('world') ||
               country.includes('europe') ||
               country.includes('international');
@@ -185,19 +195,27 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       // Check for international competitions first
       const isInternationalCompetition = 
+        // UEFA competitions
         leagueNameLower.includes('champions league') ||
         leagueNameLower.includes('europa league') ||
         leagueNameLower.includes('conference league') ||
+        leagueNameLower.includes('uefa') ||
+        leagueNameLower.includes('euro') ||
+        // FIFA competitions
         leagueNameLower.includes('world cup') ||
         leagueNameLower.includes('fifa club world cup') ||
         leagueNameLower.includes('fifa cup') ||
-        leagueNameLower.includes('euro') ||
-        leagueNameLower.includes('uefa') ||
         leagueNameLower.includes('fifa') ||
+        // CONMEBOL competitions
         leagueNameLower.includes('conmebol') ||
+        leagueNameLower.includes('copa america') ||
+        leagueNameLower.includes('copa libertadores') ||
+        leagueNameLower.includes('copa sudamericana') ||
         leagueNameLower.includes('libertadores') ||
         leagueNameLower.includes('sudamericana') ||
-        leagueNameLower.includes('friendlies') ||
+        // Men's International Friendlies (excludes women's)
+        (leagueNameLower.includes('friendlies') && !leagueNameLower.includes('women')) ||
+        (leagueNameLower.includes('international') && !leagueNameLower.includes('women')) ||
         countryName.includes('world') ||
         countryName.includes('europe') ||
         countryName.includes('international');
@@ -254,7 +272,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         country.trim() === '' || 
         country.toLowerCase() === 'unknown') {
 
-      // Allow World competitions, CONMEBOL, and Friendlies to pass through
+      // Allow World competitions, CONMEBOL, UEFA, and FIFA competitions to pass through
       if (league.name && (
           league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
@@ -263,7 +281,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           league.name.toLowerCase().includes('fifa club world cup') ||
           league.name.toLowerCase().includes('champions') ||
           league.name.toLowerCase().includes('conference') ||
-          league.name.toLowerCase().includes('friendlies') ||
+          // Men's International Friendlies only (excludes women's)
+          (league.name.toLowerCase().includes('friendlies') && !league.name.toLowerCase().includes('women')) ||
+          (league.name.toLowerCase().includes('international') && !league.name.toLowerCase().includes('women')) ||
           league.name.toLowerCase().includes('conmebol') ||
           league.name.toLowerCase().includes('copa america') ||
           league.name.toLowerCase().includes('copa libertadores') ||

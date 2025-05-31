@@ -5,7 +5,7 @@ import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 // Geographic/Regional preferences with priority tiers
 const TIER_1_COUNTRIES = ['England', 'Spain', 'Italy', 'Germany', 'France']; // Top priority European countries
 const TIER_2_INTERNATIONAL = ['World', 'Europe']; // International competitions
-const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'USA', 'United Arab Emirates']; // Other popular countries
+const TIER_3_OTHER_POPULAR = ['Brazil', 'Saudi Arabia', 'Egypt', 'Colombia', 'USA', 'United Arab Emirates']; // Other popular countries
 
 const POPULAR_COUNTRIES_ORDER = [
   'International', // FIFA Club World Cup first
@@ -13,11 +13,12 @@ const POPULAR_COUNTRIES_ORDER = [
   'Europe', // UEFA Europa Conference League and other European competitions
   'South America', // CONMEBOL competitions
   'Egypt', // Egypt Premier League
+  'Colombia', // Liga BetPlay
   'USA', // USA MLS league
   'United Arab Emirates', // UAE Pro League
   ...TIER_1_COUNTRIES.filter(c => c !== 'England' && c !== 'Spain' && c !== 'Italy' && c !== 'Germany' && c !== 'France'), // Remove duplicates if any
   'England', 'Spain', 'Italy', 'Germany', 'France', // Other European countries
-  ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt' && c !== 'United Arab Emirates'), // Other popular countries except those already listed
+  ...TIER_3_OTHER_POPULAR.filter(c => c !== 'Egypt' && c !== 'Colombia' && c !== 'United Arab Emirates'), // Other popular countries except those already listed
 ];
 
 // Enhanced leagues by country with tier-based filtering
@@ -389,6 +390,13 @@ export const applyPriorityFiltering = (allFixtures: any[], selectedDate: string)
       else if (countryKey.toLowerCase() === 'egypt') {
         const egyptLeagues = [233]; // Egyptian Premier League
         if (!egyptLeagues.includes(leagueId)) {
+          return false;
+        }
+      }
+      // For Colombia, allow Liga BetPlay (ID: 239)
+      else if (countryKey.toLowerCase() === 'colombia') {
+        const colombiaLeagues = [239]; // Liga BetPlay (Colombian Primera A)
+        if (!colombiaLeagues.includes(leagueId)) {
           return false;
         }
       }

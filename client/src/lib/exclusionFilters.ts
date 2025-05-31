@@ -89,7 +89,7 @@ export function getGeographicPriority(country: string, leagueName: string): numb
   }
 
   // Tier 3: Other popular countries (only major leagues)
-  const tier3Countries = ['brazil', 'saudi arabia', 'egypt'];
+  const tier3Countries = ['brazil', 'saudi arabia', 'egypt', 'colombia'];
   if (tier3Countries.some(c => countryLower.includes(c))) {
     return 3;
   }
