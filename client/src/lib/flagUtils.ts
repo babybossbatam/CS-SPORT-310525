@@ -195,14 +195,19 @@ export function generateFlagSources(country: string): string[] {
     return ['https://flagsapi.com/EU/flat/24.png'];
   }
 
-  // 1. Primary: FlagsAPI using country code mapping
+  // 1. Primary: FlagsAPI using country code mapping (most reliable)
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
     sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
   }
 
-  // 3. Final fallback: SportsRadar (no CORS issues since it's server-side)
-  sources.push(`/api/sportsradar/flags/${encodeURIComponent(cleanCountry)}`);
+  // 2. Secondary: Alternative reliable sources
+  if (countryCode && countryCode.length === 2) {
+    sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
+  }
+
+  // 3. Skip SportsRadar for now due to server issues
+  // sources.push(`/api/sportsradar/flags/${encodeURIComponent(cleanCountry)}`);
 
   // 4. Ultimate fallback
   sources.push('/assets/fallback-logo.svg');
@@ -211,45 +216,47 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback
+ * Get cached flag or fetch with fallback - Enhanced cache-first approach
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = getFlagCacheKey(country);
 
-  // Check cache first
+  // Check cache first - return immediately if found
   const cached = flagCache.getCached(cacheKey);
-  if (cached) {
-    console.log(`Flag cache hit for ${country}: ${cached}`);
-    return cached;
+  if (cached && cached.verified) {
+    return cached.url;
   }
 
-  console.log(`Flag cache miss for ${country}, fetching...`);
+  // If cached but not verified, check if it's been long enough to retry
+  if (cached && !cached.verified && Date.now() - cached.timestamp < 300000) { // 5 minutes
+    return cached.url; // Return cached even if not verified to prevent repeated failures
+  }
 
   const sources = generateFlagSources(country);
 
+  // Try sources with reduced logging for better performance
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
 
     try {
-      console.log(`Flag fallback for ${country}: trying source ${i + 1}/${sources.length}`);
-
       // For data URLs or local assets, return immediately
       if (source.startsWith('data:') || source.startsWith('/assets/')) {
         flagCache.setCached(cacheKey, source, `fallback-${i}`, true);
         return source;
       }
 
+      // Skip SportsRadar API for now due to failures - go directly to FlagsAPI
+      if (source.includes('/api/sportsradar/flags/')) {
+        continue;
+      }
+
       // For external URLs, validate before caching
       const isValid = await validateLogoUrl(source);
       if (isValid) {
-        console.log(`✅ Valid flag found for ${country}: ${source}`);
         flagCache.setCached(cacheKey, source, `source-${i}`, true);
         return source;
-      } else {
-        console.warn(`❌ Invalid flag for ${country}: ${source}`);
       }
     } catch (error) {
-      console.warn(`Flag validation error for ${country} (source ${i + 1}):`, error);
       continue;
     }
   }
@@ -257,7 +264,6 @@ export async function getCachedFlag(country: string): Promise<string> {
   // If all sources fail, return fallback and cache it
   const fallbackUrl = '/assets/fallback-logo.svg';
   flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
-  console.warn(`All flag sources failed for ${country}, using fallback`);
   return fallbackUrl;
 }
 
