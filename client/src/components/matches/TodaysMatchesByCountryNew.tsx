@@ -154,24 +154,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // This handles edge cases where LIVE matches span across midnight
   const allFixtures = fixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date) return false;
-    
+
     try {
       const fixtureDate = parseISO(fixture.fixture.date);
       if (!isValid(fixtureDate)) return false;
-      
+
       const selectedDateObj = parseISO(selectedDate);
       if (!isValid(selectedDateObj)) return false;
-      
+
       // For LIVE matches, be more lenient - allow matches that started within 6 hours of the selected date
       const status = fixture.fixture.status?.short;
       const isLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
-      
+
       if (isLive) {
         const hoursDiff = Math.abs(differenceInHours(fixtureDate, selectedDateObj));
         // Allow live matches that started within 6 hours of the selected date
         return hoursDiff <= 6;
       }
-      
+
       // For non-live matches, be strict about date matching
       return format(fixtureDate, 'yyyy-MM-dd') === format(selectedDateObj, 'yyyy-MM-dd');
     } catch (error) {
