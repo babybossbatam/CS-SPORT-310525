@@ -23,10 +23,14 @@ import { teamLogoCache, getTeamLogoCacheKey, validateLogoUrl } from './logoCache
  */
 function isValidUrl(url: string): boolean {
   try {
-    // Check if URL is already processed (contains nested URLs)
-    if (url.includes('https://media.api-sports.io/football/teams/https://')) {
+    // Check for malformed URLs with nested protocols
+    if (url.includes('https://media.api-sports.io/football/teams/https://') || 
+        url.includes('undefined') || 
+        url.includes('null') ||
+        url.includes('//')) {
       return false;
     }
+    
     new URL(url);
     return url.startsWith('http://') || url.startsWith('https://');
   } catch {
@@ -41,73 +45,56 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
   const { teamId, teamName, originalUrl, size = 'medium' } = options;
   const sources: LogoSource[] = [];
 
-  // Size mapping for different APIs
-  const sizeMap = {
-    small: { apisports: '64', sportmonks: '64' },
-    medium: { apisports: '128', sportmonks: '128' },
-    large: { apisports: '256', sportmonks: '256' }
-  };
+  // Extract team ID from various sources
+  let cleanTeamId: string | number | null = null;
+  
+  if (teamId) {
+    if (typeof teamId === 'number') {
+      cleanTeamId = teamId;
+    } else if (typeof teamId === 'string') {
+      // Extract team ID from URL if it's a URL string
+      const urlMatch = teamId.match(/\/teams\/(\d+)/);
+      if (urlMatch && urlMatch[1]) {
+        cleanTeamId = urlMatch[1];
+      } else if (/^\d+$/.test(teamId)) {
+        cleanTeamId = teamId;
+      }
+    }
+  }
 
-  const currentSize = sizeMap[size];
+  // Try to extract team ID from original URL if we don't have one
+  if (!cleanTeamId && originalUrl) {
+    const urlMatch = originalUrl.match(/\/teams\/(\d+)/);
+    if (urlMatch && urlMatch[1]) {
+      cleanTeamId = urlMatch[1];
+    }
+  }
 
-  // Validate and clean the original URL
-  const cleanUrl = originalUrl?.trim();
-
-  // 1. Original URL if valid and not already nested
-  if (cleanUrl && isValidUrl(cleanUrl) && !cleanUrl.includes('/https://')) {
+  // 1. Original URL if valid and properly formatted
+  if (originalUrl && isValidUrl(originalUrl) && !originalUrl.includes('undefined') && !originalUrl.includes('null')) {
     sources.push({
-      url: cleanUrl,
+      url: originalUrl,
       source: 'api-sports-original',
       priority: 1
     });
   }
 
-  // 2. Alternative API-Sports endpoints
-  if (teamId) {
-    // Extract team ID from original URL if it contains a full URL
-    const extractedTeamId = typeof teamId === 'string' && teamId.includes('football/teams/') 
-      ? teamId.match(/football\/teams\/(\d+)/)?.[1] || teamId
-      : teamId;
-    
+  // 2. API-Sports direct URLs if we have a team ID
+  if (cleanTeamId) {
     sources.push(
       {
-        url: `https://media.api-sports.io/football/teams/${extractedTeamId}.png`,
+        url: `https://media.api-sports.io/football/teams/${cleanTeamId}.png`,
         source: 'api-sports-direct',
         priority: 2
-      },
-      {
-        url: `https://media.api-sports.io/football/teams/${extractedTeamId}/${currentSize.apisports}.png`,
-        source: 'api-sports-sized',
-        priority: 3
       }
     );
   }
 
-  // 3. Sportsradar fallback (extract team ID from URL if possible)
-  if (teamId && (typeof teamId === 'number' || (typeof teamId === 'string' && /^\d+$/.test(teamId)))) {
-    // Use numeric team ID directly
-    sources.push({
-      url: `/api/sportsradar/teams/${teamId}/logo`,
-      source: 'sportsradar-server',
-      priority: 5
-    });
-  } else if (cleanUrl && isValidUrl(cleanUrl)) {
-    // Try to extract team ID from the original URL
-    const teamIdMatch = cleanUrl.match(/\/teams\/(\d+)\.png/);
-    if (teamIdMatch && teamIdMatch[1]) {
-      sources.push({
-        url: `/api/sportsradar/teams/${teamIdMatch[1]}/logo`,
-        source: 'sportsradar-server',
-        priority: 5
-      });
-    }
-  }
-
-  // 4. Generic team logo fallback
+  // 3. Fallback logo
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
-    priority: 6
+    priority: 9
   });
 
   return sources.sort((a, b) => a.priority - b.priority);
@@ -122,35 +109,27 @@ export async function getCachedTeamLogo(teamId: number | string, teamName?: stri
   // Check cache first
   const cached = teamLogoCache.getCached(cacheKey);
   if (cached) {
-    console.log(`Team logo cache hit for ${teamName || teamId}: ${cached}`);
     return cached;
   }
-
-  console.log(`Team logo cache miss for ${teamName || teamId}, fetching...`);
 
   const sources = generateLogoSources({ teamId, teamName, originalUrl });
 
   for (const source of sources) {
     try {
-      console.log(`Trying team logo source: ${source.source} - ${source.url}`);
-
       // For local assets, return immediately
       if (source.url.startsWith('/assets/')) {
         teamLogoCache.setCached(cacheKey, source.url, source.source, true);
         return source.url;
       }
 
-      // For external URLs, validate before caching
+      // For external URLs, do a quick validation
       const isValid = await validateLogoUrl(source.url);
       if (isValid) {
-        console.log(`✅ Valid team logo found for ${teamName || teamId}: ${source.url}`);
         teamLogoCache.setCached(cacheKey, source.url, source.source, true);
         return source.url;
-      } else {
-        console.warn(`❌ Invalid team logo for ${teamName || teamId}: ${source.url}`);
       }
     } catch (error) {
-      console.warn(`Team logo validation error for ${teamName || teamId}:`, error);
+      // Continue to next source on error
       continue;
     }
   }
@@ -158,7 +137,6 @@ export async function getCachedTeamLogo(teamId: number | string, teamName?: stri
   // If all sources fail, return fallback and cache it
   const fallbackUrl = '/assets/fallback-logo.svg';
   teamLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
-  console.warn(`All team logo sources failed for ${teamName || teamId}, using fallback`);
   return fallbackUrl;
 }
 
