@@ -460,7 +460,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  // Define state for storing fetched flags
+  // Define state for storing fetched flags - moved to top to maintain hook order
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>({});
 
   // Fetch flags for all countries in the list
@@ -475,18 +475,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   useEffect(() => {
     const fetchFlags = async () => {
-      const flagPromises = sortedCountries.map(async (countryData: any) => {
+      const countriesToFetch = sortedCountries.filter((countryData: any) => 
+        !flagMap[countryData.country]
+      );
+
+      if (countriesToFetch.length === 0) return;
+
+      const flagPromises = countriesToFetch.map(async (countryData: any) => {
         const country = countryData.country;
-        if (!flagMap[country]) {
-          try {
-            const flag = await getCountryFlagWithFallback(country);
-            return { country, flag };
-          } catch (error) {
-            console.error(`Failed to fetch flag for ${country}:`, error);
-            return { country, flag: getCountryFlagWithFallbackSync(country) };
-          }
+        try {
+          const flag = await getCountryFlagWithFallback(country);
+          return { country, flag };
+        } catch (error) {
+          console.error(`Failed to fetch flag for ${country}:`, error);
+          return { country, flag: getCountryFlagWithFallbackSync(country) };
         }
-        return null;
       });
 
       const results = await Promise.all(flagPromises);
@@ -505,7 +508,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (sortedCountries.length > 0) {
       fetchFlags();
     }
-  }, [sortedCountries]); // Remove flagMap from dependencies to prevent infinite loops
+  }, [sortedCountries.map(c => c.country).join(',')]); // Use stable dependency
 
   return (
     <Card className="mt-4">
