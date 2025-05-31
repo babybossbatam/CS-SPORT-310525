@@ -130,6 +130,51 @@ export async function getCachedTeamLogo(teamId: number | string, teamName?: stri
   return fallbackUrl;
 }
 
+  // 3. Sportmonks CDN alternatives
+  if (teamId) {
+    sources.push(
+      {
+        url: `https://cdn.sportmonks.com/images/soccer/teams/${teamId}.png`,
+        source: 'sportmonks-primary',
+        priority: 4
+      },
+      {
+        url: `https://cdn.sportmonks.com/images/soccer/teams/${teamId}/${currentSize.sportmonks}.png`,
+        source: 'sportmonks-sized',
+        priority: 5
+      }
+    );
+  }
+
+  // 4. Alternative CDN sources
+  if (teamId) {
+    sources.push({
+      url: `https://images.fotmob.com/image_resources/logo/teamlogo/${teamId}.png`,
+      source: 'fotmob',
+      priority: 6
+    });
+  }
+
+  // 5. Generic fallback based on team name
+  if (teamName) {
+    const encodedName = encodeURIComponent(teamName.toLowerCase().replace(/\s+/g, '-'));
+    sources.push({
+      url: `https://via.placeholder.com/128x128/333333/ffffff?text=${encodedName.substring(0, 2).toUpperCase()}`,
+      source: 'placeholder-named',
+      priority: 7
+    });
+  }
+
+  // 6. Final fallback
+  sources.push({
+    url: '/assets/fallback-logo.svg',
+    source: 'local-fallback',
+    priority: 8
+  });
+
+  return sources.sort((a, b) => a.priority - b.priority);
+}
+
 /**
  * Test if an image URL is valid and accessible
  */
