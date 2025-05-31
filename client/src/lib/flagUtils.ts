@@ -369,26 +369,7 @@ const normalizeCountryCode = (country: string) => {
   return country.replace(/\s+/g, '').toLowerCase();
 };
 
-const validateFlagUrlBackground = (url: string, countryCode: string) => {
-  // Non-blocking background validation
-  setTimeout(async () => {
-    try {
-      const response = await fetch(url, { method: 'HEAD' });
-      if (!response.ok) {
-        const fallbackUrl = FALLBACK_FLAG_SERVICES[0].replace('{country}', countryCode);
-        localStorage.setItem(`flag_${countryCode}`, fallbackUrl);
-        imagePreloader.preloadImage(fallbackUrl).catch(() => {});
-      } else {
-        localStorage.setItem(`flag_${countryCode}`, url);
-      }
-    } catch (error: any) {
-      // Silent background validation - don't log errors to avoid console spam
-      const fallbackUrl = FALLBACK_FLAG_SERVICES[0].replace('{country}', countryCode);
-      localStorage.setItem(`flag_${countryCode}`, fallbackUrl);
-      imagePreloader.preloadImage(fallbackUrl).catch(() => {});
-    }
-  }, 100);
-};
+
 export function generateCountryFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
   const sources: string[] = [];
