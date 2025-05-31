@@ -60,15 +60,7 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
     );
   }
 
-  // 3. 365scores CDN fallback
-  if (teamName) {
-    const sanitizedName = teamName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-    sources.push({
-      url: `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default.png/v5/Competitors/${sanitizedName}`,
-      source: '365scores-name',
-      priority: 4
-    });
-  }
+  // 3. Removed 365scores CDN fallback
 
   // 4. SportsRadar fallback (server-side, no CORS)
   if (teamId) {

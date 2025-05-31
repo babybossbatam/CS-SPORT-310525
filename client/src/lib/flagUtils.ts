@@ -205,13 +205,10 @@ export function generateFlagSources(country: string): string[] {
     sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
   }
 
-  // 3. Third: Alternative 365scores format
-  sources.push(`https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${cleanCountry.toLowerCase()}`);
-
-  // 4. Final fallback: SportsRadar (no CORS issues since it's server-side)
+  // 3. Final fallback: SportsRadar (no CORS issues since it's server-side)
   sources.push(`/api/sportsradar/flags/${encodeURIComponent(cleanCountry)}`);
 
-  // 5. Ultimate fallback
+  // 4. Ultimate fallback
   sources.push('/assets/fallback-logo.svg');
 
   return sources;
