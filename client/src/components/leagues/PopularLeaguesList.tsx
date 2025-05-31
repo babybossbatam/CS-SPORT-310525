@@ -6,26 +6,31 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-
-// Define our popular leagues data
-const leagueData = [
-  { id: 137, name: 'Coppa Italia', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/137.png' },
-  { id: 2, name: 'UEFA Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
-  { id: 3, name: 'UEFA Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' },
-  { id: 39, name: 'Premier League', country: 'England', logo: 'https://media.api-sports.io/football/leagues/39.png' },
-  { id: 45, name: 'FA Cup', country: 'England', logo: 'https://media.api-sports.io/football/leagues/45.png' },
-  { id: 140, name: 'La Liga', country: 'Spain', logo: 'https://media.api-sports.io/football/leagues/140.png' },
-  { id: 135, name: 'Serie A', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/135.png' },
-  { id: 40, name: 'Community Shield', country: 'England', logo: 'https://media.api-sports.io/football/leagues/40.png' },
-  { id: 48, name: 'EFL Cup', country: 'England', logo: 'https://media.api-sports.io/football/leagues/48.png' },
-  { id: 78, name: 'Bundesliga', country: 'Germany', logo: 'https://media.api-sports.io/football/leagues/78.png' }
-];
+import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
+  const [leagueData, setLeagueData] = useState<LeagueData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadLeagues = async () => {
+      try {
+        setIsLoading(true);
+        const leagues = await getPopularLeagues();
+        setLeagueData(leagues);
+      } catch (error) {
+        console.error('Failed to load league data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLeagues();
+  }, []);
 
   const toggleFavorite = (leagueId: number) => {
     if (!user.isAuthenticated) {
@@ -61,6 +66,27 @@ const PopularLeaguesList = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Card className="w-full bg-white shadow-sm">
+        <CardContent className="p-4">
+          <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
+          <div className="space-y-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center py-1.5 px-2 animate-pulse">
+                <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                <div className="ml-3 flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full bg-white shadow-sm">
       <CardContent className="p-4">
@@ -80,7 +106,7 @@ const PopularLeaguesList = () => {
                   alt={league.name}
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=L';
+                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                   }}
                 />
                 <div className="ml-3 flex-1">

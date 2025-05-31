@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiRequest } from '@/lib/queryClient';
+import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
 import {
   Table,
   TableBody,
@@ -21,18 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-// Using existing popular leagues from LeagueFilter
-const POPULAR_LEAGUES = [
-  { id: 2, name: 'Champions League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/2.png' },
-  { id: 39, name: 'Premier League', country: 'England', logo: 'https://media.api-sports.io/football/leagues/39.png' },
-  { id: 140, name: 'La Liga', country: 'Spain', logo: 'https://media.api-sports.io/football/leagues/140.png' },
-  { id: 135, name: 'Serie A', country: 'Italy', logo: 'https://media.api-sports.io/football/leagues/135.png' },
-  { id: 78, name: 'Bundesliga', country: 'Germany', logo: 'https://media.api-sports.io/football/leagues/78.png' },
-  { id: 3, name: 'Europa League', country: 'Europe', logo: 'https://media.api-sports.io/football/leagues/3.png' },
-  { id: 307, name: 'Saudi League', country: 'Saudi Arabia', logo: 'https://media.api-sports.io/football/leagues/307.png' },
-  { id: 233, name: 'Premier League', country: 'Egypt', logo: 'https://media.api-sports.io/football/leagues/233.png' }
-];
 
 interface Standing {
   rank: number;
@@ -58,8 +47,32 @@ interface Standing {
 }
 
 const LeagueStandingsFilter = () => {
-  const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id.toString());
-  const [selectedLeagueName, setSelectedLeagueName] = useState(POPULAR_LEAGUES[0].name);
+  const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
+  const [selectedLeague, setSelectedLeague] = useState('');
+  const [selectedLeagueName, setSelectedLeagueName] = useState('');
+  const [leaguesLoading, setLeaguesLoading] = useState(true);
+
+  useEffect(() => {
+    const loadLeagues = async () => {
+      try {
+        setLeaguesLoading(true);
+        const leagues = await getPopularLeagues();
+        setPopularLeagues(leagues);
+        
+        // Set default selection to first league
+        if (leagues.length > 0) {
+          setSelectedLeague(leagues[0].id.toString());
+          setSelectedLeagueName(leagues[0].name);
+        }
+      } catch (error) {
+        console.error('Failed to load league data:', error);
+      } finally {
+        setLeaguesLoading(false);
+      }
+    };
+
+    loadLeagues();
+  }, []);
 
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -89,7 +102,7 @@ const LeagueStandingsFilter = () => {
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
-  const isLoading = standingsLoading || fixturesLoading;
+  const isLoading = standingsLoading || fixturesLoading || leaguesLoading;
 
   if (isLoading) {
     return (
@@ -115,7 +128,7 @@ const LeagueStandingsFilter = () => {
           value={selectedLeague} 
           onValueChange={(value) => {
             setSelectedLeague(value);
-            const league = POPULAR_LEAGUES.find(l => l.id.toString() === value);
+            const league = popularLeagues.find(l => l.id.toString() === value);
             if (league) {
               setSelectedLeagueName(league.name);
             }
@@ -125,7 +138,7 @@ const LeagueStandingsFilter = () => {
             <SelectValue>
               <div className="flex items-center gap-2">
                 <img
-                  src={POPULAR_LEAGUES.find(l => l.id.toString() === selectedLeague)?.logo}
+                  src={popularLeagues.find(l => l.id.toString() === selectedLeague)?.logo}
                   alt={selectedLeagueName}
                   className="h-5 w-5 object-contain"
                   onError={(e) => {
@@ -137,7 +150,7 @@ const LeagueStandingsFilter = () => {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {POPULAR_LEAGUES.map((league) => (
+            {popularLeagues.map((league) => (
               <SelectItem key={league.id} value={league.id.toString()}>
                 <div className="flex items-center gap-2">
                   <img

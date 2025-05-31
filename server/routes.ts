@@ -397,6 +397,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for cached leagues first
       const cachedLeagues = await storage.getAllCachedLeagues();
 
+  // Popular leagues endpoint
+  apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
+    try {
+      // Try to get from cached leagues first
+      const allLeagues = await storage.getAllCachedLeagues();
+
+      // Define popular league IDs with priorities
+      const popularLeagueIds = [
+        { id: 2, priority: 1 }, // Champions League
+        { id: 39, priority: 2 }, // Premier League
+        { id: 140, priority: 3 }, // La Liga
+        { id: 135, priority: 4 }, // Serie A
+        { id: 78, priority: 5 }, // Bundesliga
+        { id: 3, priority: 6 }, // Europa League
+        { id: 137, priority: 7 }, // Coppa Italia
+        { id: 45, priority: 8 }, // FA Cup
+        { id: 40, priority: 9 }, // Community Shield
+        { id: 48, priority: 10 } // EFL Cup
+      ];
+
+      // Filter and sort popular leagues
+      const popularLeagues = popularLeagueIds
+        .map(({ id, priority }) => {
+          const league = allLeagues.find(l => l.data.league.id === id);
+          return league ? { ...league.data, priority } : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.priority - b.priority);
+
+      res.json(popularLeagues);
+    } catch (error) {
+      console.error('Error fetching popular leagues:', error);
+      res.status(500).json({ error: 'Failed to fetch popular leagues' });
+    }
+  });
+
       if (cachedLeagues && cachedLeagues.length > 0) {
         // Transform to the expected format
         const leagues = cachedLeagues.map(league => league.data);
@@ -1005,10 +1041,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { country } = req.params;
       const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
-      
+
       // SportsRadar flag URL
       const flagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
-      
+
       // Fetch the flag image
       const response = await fetch(flagUrl, {
         headers: {
@@ -1020,7 +1056,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (response.ok) {
         const contentType = response.headers.get('content-type') || 'image/png';
         const buffer = await response.arrayBuffer();
-        
+
         res.set('Content-Type', contentType);
         res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
         res.send(Buffer.from(buffer));
@@ -1038,7 +1074,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
     try {
       const { teamId } = req.params;
-      
+
       // Try multiple SportsRadar logo formats
       const logoUrls = [
         `https://api.sportradar.com/soccer/production/v4/en/competitors/${teamId}/profile.png`,
@@ -1058,7 +1094,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (response.ok) {
             const contentType = response.headers.get('content-type') || 'image/png';
             const buffer = await response.arrayBuffer();
-            
+
             res.set('Content-Type', contentType);
             res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
             res.send(Buffer.from(buffer));
