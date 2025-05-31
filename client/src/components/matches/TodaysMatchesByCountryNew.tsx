@@ -34,7 +34,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
-  const { preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos } = useImagePreloader();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
@@ -63,32 +62,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
-  // Preload images when fixtures data changes
+  // Image preloading hook - preload images when fixtures are available
+  const { preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos } = useImagePreloader();
+
+  // Preload images when allFixtures changes
   useEffect(() => {
-    if (fixtures && fixtures.length > 0) {
+    if (allFixtures.length > 0) {
       // Extract unique countries for flag preloading
-      const countries = [...new Set(fixtures
+      const countries = [...new Set(allFixtures
         .map((fixture: any) => fixture.league?.country)
         .filter(Boolean)
       )];
 
       // Extract team logos for preloading
-      const teamLogos = fixtures.flatMap((fixture: any) => [
+      const teamLogos = allFixtures.flatMap((fixture: any) => [
         fixture.teams?.home?.logo,
         fixture.teams?.away?.logo
       ]).filter(Boolean);
 
       // Extract league logos for preloading
-      const leagueLogos = fixtures
+      const leagueLogos = allFixtures
         .map((fixture: any) => fixture.league?.logo)
         .filter(Boolean);
 
-      // Start preloading in background
+      // Start preloading in background (don't wait for completion)
       preloadCountryFlags(countries).catch(() => {});
       preloadTeamLogos(teamLogos).catch(() => {});
       preloadLeagueLogos(leagueLogos).catch(() => {});
     }
-  }, [fixtures, preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos]);
+  }, [allFixtures, preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos]);
 
   // Country code to full name mapping
   const getCountryDisplayName = (country: string | null | undefined): string => {
