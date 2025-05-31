@@ -1073,7 +1073,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // SportsRadar team logo endpoint (server-side to avoid CORS)
   apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
     try {
-      const { teamId } = req.params;
+      let { teamId } = req.params;
+
+      // If teamId contains a URL, extract the actual team ID
+      if (teamId.includes('http')) {
+        const urlDecoded = decodeURIComponent(teamId);
+        const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
+        if (teamIdMatch && teamIdMatch[1]) {
+          teamId = teamIdMatch[1];
+        } else {
+          console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
+          return res.status(400).json({ error: 'Invalid team ID format' });
+        }
+      }
+
+      // Validate that teamId is numeric
+      if (!/^\d+$/.test(teamId)) {
+        console.warn(`Invalid team ID format: ${teamId}`);
+        return res.status(400).json({ error: 'Team ID must be numeric' });
+      }
+
+      console.log(`SportsRadar: Fetching logo for team ID: ${teamId}`);
 
       // Try multiple SportsRadar logo formats
       const logoUrls = [

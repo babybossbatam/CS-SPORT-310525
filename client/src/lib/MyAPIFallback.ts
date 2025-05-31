@@ -83,13 +83,24 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
     );
   }
 
-  // 3. Sportsradar fallback (only for valid original URLs)
-  if (cleanUrl && isValidUrl(cleanUrl) && !cleanUrl.includes('/https://')) {
+  // 3. Sportsradar fallback (extract team ID from URL if possible)
+  if (teamId && (typeof teamId === 'number' || (typeof teamId === 'string' && /^\d+$/.test(teamId)))) {
+    // Use numeric team ID directly
     sources.push({
-      url: `/api/sportsradar/teams/${encodeURIComponent(cleanUrl)}/logo`,
+      url: `/api/sportsradar/teams/${teamId}/logo`,
       source: 'sportsradar-server',
       priority: 5
     });
+  } else if (cleanUrl && isValidUrl(cleanUrl)) {
+    // Try to extract team ID from the original URL
+    const teamIdMatch = cleanUrl.match(/\/teams\/(\d+)\.png/);
+    if (teamIdMatch && teamIdMatch[1]) {
+      sources.push({
+        url: `/api/sportsradar/teams/${teamIdMatch[1]}/logo`,
+        source: 'sportsradar-server',
+        priority: 5
+      });
+    }
   }
 
   // 4. Generic team logo fallback
