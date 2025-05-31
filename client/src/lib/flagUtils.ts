@@ -195,11 +195,7 @@ export function generateFlagSources(country: string): string[] {
     return ['https://flagsapi.com/EU/flat/24.png'];
   }
 
-  // 1. Primary: 365scores CDN (reliable and fast)
-  const sanitizedCountry = cleanCountry.toLowerCase().replace(/\s+/g, '_');
-  sources.push(`https://imagecache.365scores.com/image/upload/f_png,w_24,h_24,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`);
-
-  // 2. Secondary: FlagsAPI using country code mapping
+  // 1. Primary: FlagsAPI using country code mapping
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
     sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);

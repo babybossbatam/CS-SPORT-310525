@@ -1247,7 +1247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ 
           success: true, 
           flagUrl: sportsRadarFlag,
-          source: sportsRadarFlag.includes('365scores') ? '365scores' : 'SportsRadar'
+          source: 'SportsRadar'
         });
       } else {
           console.warn(`🚫 Country ${country} will be excluded due to missing flag from both sources`);
