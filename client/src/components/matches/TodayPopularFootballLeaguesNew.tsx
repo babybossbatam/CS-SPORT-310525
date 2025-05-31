@@ -880,7 +880,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           <div className="flex-shrink-0 mx-1">
                             <img
-                              src={getCachedTeamLogo(match.teams.home.id, match.teams.home.name, match.teams.home.logo) || '/assets/fallback-logo.svg'}
+                              src={getCachedTeamLogo(match.teams.home.logo) || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
                               onError={(e) => {
@@ -1017,7 +1017,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           <div className="flex-shrink-0 mx-1">
                             <img
-                              src={getCachedTeamLogo(match.teams.away.id, match.teams.away.name, match.teams.away.logo) || '/assets/fallback-logo.svg'}
+                              src={getCachedTeamLogo(match.teams.away.logo) || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className="w-12 h-12 object-contain"
                               onError={(e) => {
