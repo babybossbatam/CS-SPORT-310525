@@ -23,6 +23,7 @@ import {
 import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
 import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
+import { useImagePreloader } from '@/lib/imagePreloader';
 
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
@@ -654,6 +655,62 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         description: `Team has been removed from your favorites.`,
       });
     };
+
+    const [fixtures, setFixtures] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [, navigate] = useLocation();
+    const { preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos } = useImagePreloader();
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
+          const data = await response.json();
+  
+          const filteredFixtures = applyExclusionFilters(data);
+          setFixtures(filteredFixtures);
+          console.log(`Applied exclusion filters. Remaining fixtures: ${filteredFixtures.length}`);
+  
+          // Preload images to prevent flickering
+          if (filteredFixtures.length > 0) {
+            // Extract unique countries for flag preloading
+            const countries = [...new Set(filteredFixtures
+              .map((fixture: any) => fixture.league?.country)
+              .filter(Boolean)
+            )];
+  
+            // Extract team logos for preloading
+            const teamLogos = filteredFixtures.flatMap((fixture: any) => [
+              fixture.teams?.home?.logo,
+              fixture.teams?.away?.logo
+            ]).filter(Boolean);
+  
+            // Extract league logos for preloading
+            const leagueLogos = filteredFixtures
+              .map((fixture: any) => fixture.league?.logo)
+              .filter(Boolean);
+  
+            // Start preloading in background (don't wait for completion)
+            preloadCountryFlags(countries).catch(() => {});
+            preloadTeamLogos(teamLogos).catch(() => {});
+            preloadLeagueLogos(leagueLogos).catch(() => {});
+          }
+        } catch (err: any) {
+          setError(err.message || 'Failed to fetch fixtures');
+          console.error('Error fetching fixtures:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      // Call the fetch data function only when selectedDate is valid
+      if (selectedDate) {
+        fetchData();
+      }
+    }, [selectedDate, preloadCountryFlags, preloadTeamLogos, preloadLeagueLogos]);
 
   return (
     <div className="space-y-4">
