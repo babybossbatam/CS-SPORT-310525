@@ -23,6 +23,7 @@ import {
 import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
 import { createFallbackHandler } from '../../lib/MyAPIFallback';
 import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
+import { getCachedTeamLogo } from '../../lib/MyAPIFallback';
 
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
@@ -869,7 +870,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           <div className="flex-shrink-0 mx-1">
                             <img
-                              src={match.teams.home.logo || '/assets/fallback-logo.svg'}
+                              src={getCachedTeamLogo(match.teams.home.logo) || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-12 h-12 object-contain"
                               onError={(e) => {
@@ -1006,7 +1007,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           <div className="flex-shrink-0 mx-1">
                             <img
-                              src={match.teams.away.logo || '/assets/fallback-logo.svg'}
+                              src={getCachedTeamLogo(match.teams.away.logo) || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className="w-12 h-12 object-contain"
                               onError={(e) => {

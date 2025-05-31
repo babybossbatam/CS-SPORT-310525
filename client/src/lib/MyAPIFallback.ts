@@ -17,8 +17,10 @@ export interface TeamLogoOptions {
   size?: 'small' | 'medium' | 'large';
 }
 
+import { teamLogoCache, getTeamLogoCacheKey, validateLogoUrl } from './logoCache';
+
 /**
- * Generate multiple logo sources for a team
+ * Generate multiple logo sources for a team with caching support
  */
 export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
   const { teamId, teamName, originalUrl, size = 'medium' } = options;
@@ -57,6 +59,84 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
       }
     );
   }
+
+  // 3. 365scores CDN fallback
+  if (teamName) {
+    const sanitizedName = teamName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    sources.push({
+      url: `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default.png/v5/Competitors/${sanitizedName}`,
+      source: '365scores-name',
+      priority: 4
+    });
+  }
+
+  // 4. SportsRadar fallback (server-side, no CORS)
+  if (teamId) {
+    sources.push({
+      url: `/api/sportsradar/teams/${teamId}/logo`,
+      source: 'sportsradar-server',
+      priority: 5
+    });
+  }
+
+  // 5. Generic team logo fallback
+  sources.push({
+    url: '/assets/fallback-logo.svg',
+    source: 'fallback',
+    priority: 6
+  });
+
+  return sources.sort((a, b) => a.priority - b.priority);
+}
+
+/**
+ * Get cached team logo or fetch with intelligent fallback
+ */
+export async function getCachedTeamLogo(teamId: number | string, teamName?: string, originalUrl?: string): Promise<string> {
+  const cacheKey = getTeamLogoCacheKey(teamId, teamName);
+  
+  // Check cache first
+  const cached = teamLogoCache.getCached(cacheKey);
+  if (cached) {
+    console.log(`Team logo cache hit for ${teamName || teamId}: ${cached}`);
+    return cached;
+  }
+
+  console.log(`Team logo cache miss for ${teamName || teamId}, fetching...`);
+  
+  const sources = generateLogoSources({ teamId, teamName, originalUrl });
+  
+  for (const source of sources) {
+    try {
+      console.log(`Trying team logo source: ${source.source} - ${source.url}`);
+      
+      // For local assets, return immediately
+      if (source.url.startsWith('/assets/')) {
+        teamLogoCache.setCached(cacheKey, source.url, source.source, true);
+        return source.url;
+      }
+      
+      // For external URLs, validate before caching
+      const isValid = await validateLogoUrl(source.url);
+      if (isValid) {
+        console.log(`✅ Valid team logo found for ${teamName || teamId}: ${source.url}`);
+        teamLogoCache.setCached(cacheKey, source.url, source.source, true);
+        return source.url;
+      } else {
+        console.warn(`❌ Invalid team logo for ${teamName || teamId}: ${source.url}`);
+      }
+    } catch (error) {
+      console.warn(`Team logo validation error for ${teamName || teamId}:`, error);
+      continue;
+    }
+  }
+
+  // If all sources fail, return fallback and cache it
+  const fallbackUrl = '/assets/fallback-logo.svg';
+  teamLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+  console.warn(`All team logo sources failed for ${teamName || teamId}, using fallback`);
+  return fallbackUrl;
+}
 
   // 3. Sportmonks CDN alternatives
   if (teamId) {

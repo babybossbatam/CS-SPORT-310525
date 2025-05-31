@@ -1000,6 +1000,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SportsRadar flag endpoint (server-side to avoid CORS)
+  apiRouter.get('/sportsradar/flags/:country', async (req: Request, res: Response) => {
+    try {
+      const { country } = req.params;
+      const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
+      
+      // SportsRadar flag URL
+      const flagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
+      
+      // Fetch the flag image
+      const response = await fetch(flagUrl, {
+        headers: {
+          'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      if (response.ok) {
+        const contentType = response.headers.get('content-type') || 'image/png';
+        const buffer = await response.arrayBuffer();
+        
+        res.set('Content-Type', contentType);
+        res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+        res.send(Buffer.from(buffer));
+      } else {
+        console.warn(`SportsRadar flag not found for country: ${country}`);
+        res.status(404).json({ error: 'Flag not found' });
+      }
+    } catch (error) {
+      console.error(`Error fetching SportsRadar flag for ${req.params.country}:`, error);
+      res.status(500).json({ error: 'Failed to fetch flag' });
+    }
+  });
+
+  // SportsRadar team logo endpoint (server-side to avoid CORS)
+  apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
+    try {
+      const { teamId } = req.params;
+      
+      // Try multiple SportsRadar logo formats
+      const logoUrls = [
+        `https://api.sportradar.com/soccer/production/v4/en/competitors/${teamId}/profile.png`,
+        `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
+        `https://imagecache.sportradar.com/production/soccer/competitors/${teamId}/logo.png`
+      ];
+
+      for (const logoUrl of logoUrls) {
+        try {
+          const response = await fetch(logoUrl, {
+            headers: {
+              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
+              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get('content-type') || 'image/png';
+            const buffer = await response.arrayBuffer();
+            
+            res.set('Content-Type', contentType);
+            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+            res.send(Buffer.from(buffer));
+            return;
+          }
+        } catch (error) {
+          console.warn(`SportsRadar logo URL failed: ${logoUrl}`, error);
+          continue;
+        }
+      }
+
+      console.warn(`SportsRadar team logo not found for team: ${teamId}`);
+      res.status(404).json({ error: 'Team logo not found' });
+    } catch (error) {
+      console.error(`Error fetching SportsRadar team logo for ${req.params.teamId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch team logo' });
+    }
+  });
+
   // Get fixtures by country and season
   apiRouter.get('/fixtures/country/:country', async (req: Request, res: Response) => {
     try {

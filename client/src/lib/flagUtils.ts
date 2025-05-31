@@ -177,8 +177,10 @@ const countryCodeMap: { [key: string]: string } = {
   'Gambia': 'GM'
 };
 
+import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
+
 /**
- * Generate multiple flag sources for a country
+ * Generate multiple flag sources for a country with SportsRadar fallback
  */
 export function generateFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
@@ -193,23 +195,77 @@ export function generateFlagSources(country: string): string[] {
     return ['https://flagsapi.com/EU/flat/24.png'];
   }
 
-  // 1. Primary: RapidAPI flags via SportsRadar endpoint
-  sources.push(`/api/flags/${encodeURIComponent(cleanCountry)}`);
+  // 1. Primary: 365scores CDN (reliable and fast)
+  const sanitizedCountry = cleanCountry.toLowerCase().replace(/\s+/g, '_');
+  sources.push(`https://imagecache.365scores.com/image/upload/f_png,w_24,h_24,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${sanitizedCountry}`);
 
-  // 2. Secondary: MyFallbackAPI sources
-  const fallbackSources = generateLogoSources(cleanCountry, 'flag');
-  sources.push(...fallbackSources);
-
-  // 3. Third: FlagsAPI using country code mapping
+  // 2. Secondary: FlagsAPI using country code mapping
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
     sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
   }
 
-  // 4. Final fallback
+  // 3. Third: Alternative 365scores format
+  sources.push(`https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/${cleanCountry.toLowerCase()}`);
+
+  // 4. Final fallback: SportsRadar (no CORS issues since it's server-side)
+  sources.push(`/api/sportsradar/flags/${encodeURIComponent(cleanCountry)}`);
+
+  // 5. Ultimate fallback
   sources.push('/assets/fallback-logo.svg');
 
   return sources;
+}
+
+/**
+ * Get cached flag or fetch with fallback
+ */
+export async function getCachedFlag(country: string): Promise<string> {
+  const cacheKey = getFlagCacheKey(country);
+  
+  // Check cache first
+  const cached = flagCache.getCached(cacheKey);
+  if (cached) {
+    console.log(`Flag cache hit for ${country}: ${cached}`);
+    return cached;
+  }
+
+  console.log(`Flag cache miss for ${country}, fetching...`);
+  
+  const sources = generateFlagSources(country);
+  
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i];
+    
+    try {
+      console.log(`Flag fallback for ${country}: trying source ${i + 1}/${sources.length}`);
+      
+      // For data URLs or local assets, return immediately
+      if (source.startsWith('data:') || source.startsWith('/assets/')) {
+        flagCache.setCached(cacheKey, source, `fallback-${i}`, true);
+        return source;
+      }
+      
+      // For external URLs, validate before caching
+      const isValid = await validateLogoUrl(source);
+      if (isValid) {
+        console.log(`✅ Valid flag found for ${country}: ${source}`);
+        flagCache.setCached(cacheKey, source, `source-${i}`, true);
+        return source;
+      } else {
+        console.warn(`❌ Invalid flag for ${country}: ${source}`);
+      }
+    } catch (error) {
+      console.warn(`Flag validation error for ${country} (source ${i + 1}):`, error);
+      continue;
+    }
+  }
+
+  // If all sources fail, return fallback and cache it
+  const fallbackUrl = '/assets/fallback-logo.svg';
+  flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+  console.warn(`All flag sources failed for ${country}, using fallback`);
+  return fallbackUrl;
 }
 
 /**
