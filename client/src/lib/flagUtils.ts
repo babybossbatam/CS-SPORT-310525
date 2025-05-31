@@ -329,24 +329,48 @@ export const getCountryFlagWithFallbackSync = (country: string | null | undefine
  * Generate country flag sources with MyFallbackAPI integration for onError handling
  */
 const normalizeCountryCode = (country: string) => {
+  // Handle special country name mappings
+  const countryMappings: { [key: string]: string } = {
+    'South Korea': 'KR',
+    'South-Korea': 'KR',
+    'New Zealand': 'NZ',
+    'New-Zealand': 'NZ',
+    'Czech Republic': 'CZ',
+    'Czech-Republic': 'CZ',
+    'United States': 'US',
+    'United-States': 'US',
+    'United Arab Emirates': 'AE',
+    'Saudi Arabia': 'SA',
+    'Bosnia and Herzegovina': 'BA'
+  };
+
+  const mapped = countryMappings[country];
+  if (mapped) {
+    return mapped;
+  }
+
   return country.replace(/\s+/g, '').toLowerCase();
 };
 
-const validateFlagUrl = async (url: string, countryCode: string) => {
-  try {
-    const response = await fetch(url, { method: 'HEAD' });
-    if (!response.ok) {
+const validateFlagUrlBackground = (url: string, countryCode: string) => {
+  // Non-blocking background validation
+  setTimeout(async () => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      if (!response.ok) {
+        const fallbackUrl = FALLBACK_FLAG_SERVICES[0].replace('{country}', countryCode);
+        localStorage.setItem(`flag_${countryCode}`, fallbackUrl);
+        imagePreloader.preloadImage(fallbackUrl).catch(() => {});
+      } else {
+        localStorage.setItem(`flag_${countryCode}`, url);
+      }
+    } catch (error: any) {
+      // Silent background validation - don't log errors to avoid console spam
       const fallbackUrl = FALLBACK_FLAG_SERVICES[0].replace('{country}', countryCode);
       localStorage.setItem(`flag_${countryCode}`, fallbackUrl);
       imagePreloader.preloadImage(fallbackUrl).catch(() => {});
-      throw new Error(`Failed to load ${url}`);
-    } else {
-      localStorage.setItem(`flag_${countryCode}`, url);
-      imagePreloader.preloadImage(url).catch(() => {});
     }
-  } catch (error: any) {
-    console.error(`Flag validation failed for ${countryCode}: ${error.message}`);
-  }
+  }, 100);
 };
 export function generateCountryFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
