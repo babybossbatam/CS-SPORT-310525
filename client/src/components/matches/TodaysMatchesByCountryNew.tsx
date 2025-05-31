@@ -177,7 +177,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   // Use centralized flag utilities
-  const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
+  const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null): string => {
     return getCountryFlagWithFallbackSync(country, leagueFlag);
   };
 

@@ -320,9 +320,7 @@ export const getCountryFlagWithFallbackSync = (country: string | null | undefine
 
   // Start preloading primary URL and background validation
   imagePreloader.preloadImage(primaryUrl).catch(() => {});
-  validateFlagUrl(primaryUrl, cleanCountry).catch(() => {
-    // Silently handle validation failures
-  });
+  validateFlagUrlBackground(primaryUrl, cleanCountry);
 
   return primaryUrl;
 };
