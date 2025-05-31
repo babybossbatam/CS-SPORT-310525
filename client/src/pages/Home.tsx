@@ -12,7 +12,6 @@ import FeaturedMatch from '@/components/matches/FeaturedMatch';
 import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
 
 import StatsPanel from '@/components/stats/StatsPanel';
-import NewsSection from '@/components/news/NewsSection';
 import RegionModal from '@/components/modals/RegionModal';
 import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
@@ -477,17 +476,7 @@ const Home = () => {
                 <HomeTopScorersList />
               </CardContent>
             </Card>
-            <Card className="shadow-md">
-              <CardContent className="p-4">
-                <NewsSection 
-                  title="Live Football News"
-                  maxItems={3} 
-                  sport="football"
-                  showImages={true}
-                  compact={true}
-                />
-              </CardContent>
-            </Card>
+            
             <LeagueStandingsFilter />
 
             {/* Popular Leagues and Teams sections */}
