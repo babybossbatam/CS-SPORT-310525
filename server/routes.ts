@@ -852,8 +852,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      console_code blocks.
-log(`Bundesliga found: ${leagueData.league.name}, attempting to fetch fixtures...`);
+      console.log(`Bundesliga found: ${leagueData.league.name}, attempting to fetch fixtures...`);
 
       // Always use 2025 season data as requested
       const seasonToUse = 2025;
