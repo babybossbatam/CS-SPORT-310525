@@ -39,9 +39,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
-  // Store validation result but don't return early to avoid hooks order violation
-  const isValidDate = !!selectedDate;
-
+  // Always call hooks in the same order - validate after hooks
   // Fetch all fixtures for the selected date with aggressive caching
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
@@ -59,6 +57,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
+
+  // Now validate after all hooks are called
+  if (!selectedDate) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">Please select a valid date</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Start with all countries collapsed by default
   useEffect(() => {

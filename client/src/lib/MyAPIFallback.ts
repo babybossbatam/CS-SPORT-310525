@@ -30,7 +30,7 @@ function isValidUrl(url: string): boolean {
         url.includes('//')) {
       return false;
     }
-    
+
     new URL(url);
     return url.startsWith('http://') || url.startsWith('https://');
   } catch {
@@ -47,7 +47,7 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
 
   // Extract team ID from various sources
   let cleanTeamId: string | number | null = null;
-  
+
   if (teamId) {
     if (typeof teamId === 'number') {
       cleanTeamId = teamId;

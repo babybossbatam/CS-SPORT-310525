@@ -542,8 +542,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
 
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid league ID" });
+      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
+        return res.status(400).json({ message: 'Invalid league ID' });
       }
 
       // Check cache first
@@ -606,8 +606,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid league ID" });
+      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
+        return res.status(400).json({ message: 'Invalid league ID' });
       }
 
       console.log(`Fetching fixtures for league ${id} with fixed season ${season} as requested`);
@@ -665,8 +665,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid league ID" });
+      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
+        return res.status(400).json({ message: 'Invalid league ID' });
       }
 
       console.log(`Fetching standings for league ${id} with fixed season ${season} as requested`);
@@ -814,7 +814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
         console.warn("No Champions League fixtures found in API response");
-        // Return empty array instead of 404 error to avoid breaking frontend
+        // Return empty array instead of error to avoid breaking frontend
         return res.json([]);
       }
 
@@ -844,7 +844,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Attempting to fetch Bundesliga (ID: ${leagueId}) fixtures for season ${currentYear}`);
 
-      // First, let's verify the league exists
+      // First, let's verify the leaguedata exists
       const leagueData = await rapidApiService.getLeagueById(leagueId);
       if (!leagueData) {
         console.error("Bundesliga data not found in API");
@@ -1419,7 +1419,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
-      if (isNaN(id)) {
+      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
         return res.status(400).json({ message: "Invalid league ID" });
       }
 
