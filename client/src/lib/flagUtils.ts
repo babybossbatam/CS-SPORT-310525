@@ -215,7 +215,7 @@ export function generateFlagSources(country: string): string[] {
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = getFlagCacheKey(country);
-  
+
   // Check cache first
   const cached = flagCache.getCached(cacheKey);
   if (cached) {
@@ -224,21 +224,21 @@ export async function getCachedFlag(country: string): Promise<string> {
   }
 
   console.log(`Flag cache miss for ${country}, fetching...`);
-  
+
   const sources = generateFlagSources(country);
-  
+
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
-    
+
     try {
       console.log(`Flag fallback for ${country}: trying source ${i + 1}/${sources.length}`);
-      
+
       // For data URLs or local assets, return immediately
       if (source.startsWith('data:') || source.startsWith('/assets/')) {
         flagCache.setCached(cacheKey, source, `fallback-${i}`, true);
         return source;
       }
-      
+
       // For external URLs, validate before caching
       const isValid = await validateLogoUrl(source);
       if (isValid) {
@@ -392,7 +392,7 @@ export function createCountryFlagFallbackHandler(country: string) {
 
   return function handleFlagError(event: any) {
     const img = event.currentTarget;
-    
+
     // Prevent rapid consecutive fallback attempts
     if (isHandling) return;
     isHandling = true;
@@ -408,7 +408,7 @@ export function createCountryFlagFallbackHandler(country: string) {
         console.log(`All flag sources failed for ${country}, using final fallback`);
         img.src = '/assets/fallback-logo.svg';
       }
-      
+
       isHandling = false;
     }, 100); // Small delay to prevent flickering
   };
@@ -521,7 +521,7 @@ export const createImageFallbackHandler = (
 
   return (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const img = event.currentTarget;
-    
+
     // Prevent multiple fallback attempts
     if (hasFallbackRun) return;
     hasFallbackRun = true;
@@ -529,4 +529,122 @@ export const createImageFallbackHandler = (
     // Direct fallback to SVG to prevent loops
     img.src = getFallbackSVG(itemName);
   };
+};
+
+export const getFlagUrl = async (country: string): Promise<string> => {
+  // Normalize country name
+  const normalizedCountry = country.trim();
+
+  if (!normalizedCountry) {
+    console.warn('Empty country name provided to getFlagUrl');
+    return '/assets/fallback-logo.svg';
+  }
+
+  // Check cache first
+  const cacheKey = `flag_${normalizedCountry.toLowerCase()}`;
+  const cachedFlag = flagCache.get(cacheKey);
+
+  if (cachedFlag) {
+    return cachedFlag;
+  }
+
+  console.log(`Getting flag for country: ${normalizedCountry}`);
+
+  try {
+    // Try our API endpoint first (which uses SportsRadar)
+    const response = await fetch(`/api/flags/${encodeURIComponent(normalizedCountry)}`, {
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+
+      if (data.success && data.flagUrl) {
+        console.log(`✅ Valid flag found for ${normalizedCountry}: ${data.flagUrl}`);
+        flagCache.set(cacheKey, data.flagUrl);
+        return data.flagUrl;
+      }
+
+      if (data.shouldExclude) {
+        console.log(`🚫 Country ${normalizedCountry} should be excluded due to missing flag`);
+        flagCache.set(cacheKey, '/assets/fallback-logo.svg');
+        return '/assets/fallback-logo.svg';
+      }
+    }
+
+    console.log(`❌ API failed for ${normalizedCountry}, trying fallback sources`);
+
+    // Fallback 1: Try API-Football format
+    try {
+      console.log(`Flag fallback for ${normalizedCountry}: trying source 1/3`);
+      const apiFootballUrl = `https://media.api-sports.io/flags/${normalizedCountry.toLowerCase().replace(/\s+/g, '')}.svg`;
+
+      const apiFootballResponse = await fetch(apiFootballUrl, { 
+        method: 'HEAD',
+        signal: AbortSignal.timeout(3000)
+      });
+
+      if (apiFootballResponse.ok && apiFootballResponse.status === 200) {
+        console.log(`✅ Valid flag found via API-Football for ${normalizedCountry}: ${apiFootballUrl}`);
+        flagCache.set(cacheKey, apiFootballUrl);
+        return apiFootballUrl;
+      }
+    } catch (e) {
+      console.log(`Failed API-Football fallback for ${normalizedCountry}`);
+    }
+
+    // Fallback 2: Try 365scores CDN
+    try {
+      console.log(`Flag fallback for ${normalizedCountry}: trying source 2/3`);
+      const scores365Url = `https://sports.365scores.com/CDN/images/flags/${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}.svg`;
+
+      const scores365Response = await fetch(scores365Url, { 
+        method: 'HEAD',
+        signal: AbortSignal.timeout(3000)
+      });
+
+      if (scores365Response.ok && scores365Response.status === 200) {
+        console.log(`✅ Valid flag found via 365scores for ${normalizedCountry}: ${scores365Url}`);
+        flagCache.set(cacheKey, scores365Url);
+        return scores365Url;
+      }
+    } catch (e) {
+      console.log(`Failed 365scores fallback for ${normalizedCountry}`);
+    }
+
+    // Fallback 3: Country code based approach
+    try {
+      console.log(`Flag fallback for ${normalizedCountry}: trying source 3/3`);
+      const countryCode = getCountryCode(normalizedCountry);
+      if (countryCode) {
+        const countryCodeUrl = `https://flagcdn.com/w40/${countryCode}.png`;
+
+        const countryCodeResponse = await fetch(countryCodeUrl, { 
+          method: 'HEAD',
+          signal: AbortSignal.timeout(3000)
+        });
+
+        if (countryCodeResponse.ok && countryCodeResponse.status === 200) {
+          console.log(`✅ Valid flag found via country code for ${normalizedCountry}: ${countryCodeUrl}`);
+          flagCache.set(cacheKey, countryCodeUrl);
+          return countryCodeUrl;
+        }
+      }
+    } catch (e) {
+      console.log(`Failed country code fallback for ${normalizedCountry}`);
+    }
+
+    console.log(`❌ All flag sources failed for ${normalizedCountry}, using fallback`);
+
+    // All fallbacks failed, use default
+    const fallbackUrl = '/assets/fallback-logo.svg';
+    flagCache.set(cacheKey, fallbackUrl);
+    return fallbackUrl;
+
+  } catch (error) {
+    console.error(`Error fetching flag for ${normalizedCountry}:`, error);
+    const fallbackUrl = '/assets/fallback-logo.svg';
+    flagCache.set(cacheKey, fallbackUrl);
+    return fallbackUrl;
+  }
 };

@@ -26,16 +26,39 @@ export const handleApiError = (error: unknown): string => {
   console.error('API Error:', error);
   
   if (error instanceof Error) {
-    if (error.message.includes('Network') || error.message.includes('fetch')) {
+    if (error.message.includes('Network') || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
       return "Network error: Please check your internet connection and try again.";
     }
-    if (error.message.includes('timeout')) {
+    if (error.message.includes('timeout') || error.message.includes('AbortError')) {
       return "Request timeout: Please try again.";
+    }
+    if (error.message.includes('server connection lost')) {
+      return "Server connection lost: Reconnecting...";
     }
     return error.message;
   }
   
   return "An unexpected error occurred. Please try again.";
+};
+
+// Add network recovery helper
+export const handleNetworkRecovery = () => {
+  console.log('Attempting network recovery...');
+  
+  // Clear any stale cache entries
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const staleKeys = Object.keys(localStorage).filter(key => 
+      key.startsWith('flag_') || key.startsWith('logo_')
+    );
+    staleKeys.forEach(key => localStorage.removeItem(key));
+  }
+  
+  // Force refresh after a short delay
+  setTimeout(() => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  }, 2000);
 };
 
 // Global unhandled rejection handler

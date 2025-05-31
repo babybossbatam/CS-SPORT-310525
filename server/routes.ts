@@ -1271,36 +1271,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { country } = req.params;
 
       if (!country) {
-        return res.status(400).json({ error: 'Country parameter is required' });
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Country parameter is required',
+          fallbackUrl: '/assets/fallback-logo.svg',
+          shouldExclude: true
+        });
       }
 
       console.log(`Getting flag for country: ${country}`);
 
-      // Try SportsRadar flag
-      const sportsRadarFlag = await sportsradarApi.getCountryFlag(country);
+      // Try SportsRadar flag with timeout
+      try {
+        const sportsRadarFlag = await Promise.race([
+          sportsradarApi.getCountryFlag(country),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('SportsRadar timeout')), 5000)
+          )
+        ]) as string | null;
 
-      if (sportsRadarFlag) {
-        res.json({ 
-          success: true, 
-          flagUrl: sportsRadarFlag,
-          source: 'SportsRadar'
-        });
-      } else {
-          console.warn(`🚫 Country ${country} will be excluded due to missing flag from both sources`);
-          res.json({ 
-            success: false, 
-            message: 'Flag not found in both SportsRadar and 365scores - country will be excluded',
-            fallbackUrl: '/assets/fallback-logo.svg',
-            shouldExclude: true
+        if (sportsRadarFlag) {
+          return res.json({ 
+            success: true, 
+            flagUrl: sportsRadarFlag,
+            source: 'SportsRadar'
           });
         }
+      } catch (sportsRadarError) {
+        console.warn(`SportsRadar flag failed for ${country}:`, sportsRadarError);
+      }
+
+      // If SportsRadar fails, return fallback response
+      console.warn(`🚫 Country ${country} will use fallback flag`);
+      res.json({ 
+        success: false, 
+        message: 'Flag not found in SportsRadar - using fallback',
+        fallbackUrl: '/assets/fallback-logo.svg',
+        shouldExclude: false // Don't exclude, just use fallback
+      });
+
     } catch (error) {
       console.error('Error fetching flag:', error);
-      res.status(500).json({ 
+      res.status(200).json({ // Return 200 to avoid network errors
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch flag',
         fallbackUrl: '/assets/fallback-logo.svg',
-        shouldExclude: true
+        shouldExclude: false
       });
     }
   });
