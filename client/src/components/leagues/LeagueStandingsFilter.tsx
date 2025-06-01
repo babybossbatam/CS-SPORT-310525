@@ -85,6 +85,7 @@ const LeagueStandingsFilter = () => {
       const data = await response.json();
       return data?.league?.standings?.[0] || [];
     },
+    enabled: !!selectedLeague && selectedLeague !== '', // Only run when we have a valid league ID
     staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
     gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
     refetchOnMount: false, // Don't refetch on mount if data exists for today
@@ -97,6 +98,7 @@ const LeagueStandingsFilter = () => {
       const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/fixtures`);
       return response.json();
     },
+    enabled: !!selectedLeague && selectedLeague !== '', // Only run when we have a valid league ID
     staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
     gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
     refetchOnMount: false, // Don't refetch on mount if data exists for today
