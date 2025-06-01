@@ -884,7 +884,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className="w-12 h-12 object-cover rounded-full drop-shadow-md border-2 border-gray-200"
+                              className="w-12 h-12 object-contain drop-shadow-md"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1020,7 +1020,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className="w-12 h-12 object-cover rounded-full drop-shadow-md border-2 border-gray-200"
+                              className="w-12 h-12 object-contain drop-shadow-md"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
