@@ -946,7 +946,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-14px' }}>
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
