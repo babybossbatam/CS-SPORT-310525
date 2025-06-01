@@ -33,8 +33,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
-  // Define state for storing fetched flags - moved to top to maintain hook order
-  const [flagMap, setFlagMap] = useState<{ [country: string]: string }>({});
+  // Initialize flagMap with immediate synchronous values for better rendering
+  const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
+    // Pre-populate with synchronous flag URLs to prevent initial undefined state
+    const initialMap: { [country: string]: string } = {};
+    return initialMap;
+  });
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
@@ -268,9 +272,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Only proceed if we have countries to fetch flags for
       if (sortedCountries.length === 0) return;
 
-      const countriesToFetch = sortedCountries.filter((countryData: any) => 
-        !flagMap[countryData.country]
-      );
+      // First, populate with synchronous flags immediately
+      const immediateFlags: { [country: string]: string } = {};
+      const countriesToFetch: any[] = [];
+
+      sortedCountries.forEach((countryData: any) => {
+        const country = countryData.country;
+        if (!flagMap[country]) {
+          // Get immediate synchronous flag
+          const syncFlag = getCountryFlagWithFallbackSync(country);
+          immediateFlags[country] = syncFlag;
+          // Still add to fetch list for potential better async flag
+          countriesToFetch.push(countryData);
+        }
+      });
+
+      // Update flagMap immediately with sync flags
+      if (Object.keys(immediateFlags).length > 0) {
+        setFlagMap(prev => ({ ...prev, ...immediateFlags }));
+      }
 
       if (countriesToFetch.length === 0) return;
 
@@ -603,7 +623,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = getCountryFlagWithFallbackSync(countryData.country);
+                          const fallbackUrl = getCountryFlagWithFallbackSync(countryData.country);
+                          if (target.src !== fallbackUrl) {
+                            target.src = fallbackUrl;
+                          }
                         }}
                       />
                       <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
