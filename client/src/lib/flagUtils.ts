@@ -1778,11 +1778,8 @@ export function compare365ScoresCompatibility(fixtures: any[]): void {
   console.log('\n🔄 Cross-reference complete. Use the suggestions above to enhance country mapping.');
 }
 
-// Enhanced flag caching with better error handling and performance
-const flagCache = createSmartCache<string>();
+import { getFlagForCountry, flagCache } from './logoCache';
+import { CACHE_FRESHNESS } from './cacheFreshness';
 
 // Global flag request deduplication
 const pendingFlagRequests = new Map<string, Promise<string>>();
-
-import { getFlagForCountry } from './logoCache';
-import { CACHE_FRESHNESS } from './cacheFreshness';
