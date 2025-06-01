@@ -221,15 +221,15 @@ export function generateFlagSources(country: string): string[] {
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = getFlagCacheKey(country);
 
-  // Check cache first - return immediately if found
+  // Check cache first - return immediately if found AND it's not a fallback
   const cached = flagCache.getCached(cacheKey);
-  if (cached && cached.verified) {
+  if (cached && cached.verified && !cached.url.includes('/assets/fallback-logo.svg')) {
     return cached.url;
   }
 
-  // If cached but not verified, check if it's been long enough to retry
-  if (cached && !cached.verified && Date.now() - cached.timestamp < 300000) { // 5 minutes
-    return cached.url; // Return cached even if not verified to prevent repeated failures
+  // If cached result is a fallback, clear it and try again
+  if (cached && cached.url.includes('/assets/fallback-logo.svg')) {
+    flagCache.removeCached(cacheKey);
   }
 
   const sources = generateFlagSources(country);
@@ -239,10 +239,15 @@ export async function getCachedFlag(country: string): Promise<string> {
     const source = sources[i];
 
     try {
-      // For data URLs or local assets, return immediately
-      if (source.startsWith('data:') || source.startsWith('/assets/')) {
-        flagCache.setCached(cacheKey, source, `fallback-${i}`, true);
+      // For data URLs (like World flag), return immediately but don't cache fallbacks
+      if (source.startsWith('data:')) {
+        flagCache.setCached(cacheKey, source, `data-${i}`, true);
         return source;
+      }
+
+      // Don't return fallback SVG immediately - try other sources first
+      if (source.startsWith('/assets/')) {
+        continue;
       }
 
       // Skip SportsRadar API for now due to failures - go directly to FlagsAPI
@@ -261,9 +266,8 @@ export async function getCachedFlag(country: string): Promise<string> {
     }
   }
 
-  // If all sources fail, return fallback and cache it
+  // If all sources fail, return fallback but DON'T cache it
   const fallbackUrl = '/assets/fallback-logo.svg';
-  flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
   return fallbackUrl;
 }
 
@@ -536,6 +540,22 @@ export const createImageFallbackHandler = (
     img.src = getFallbackSVG(itemName);
   };
 };
+
+/**
+ * Clear all cached fallback flags to force re-fetching
+ */
+export function clearFallbackFlagCache(): void {
+  // Get all cached items and remove fallback ones
+  const cache = (flagCache as any).cache; // Access the internal Map
+  if (cache instanceof Map) {
+    for (const [key, value] of cache.entries()) {
+      if (value.url && value.url.includes('/assets/fallback-logo.svg')) {
+        cache.delete(key);
+      }
+    }
+  }
+  console.log('Cleared fallback flag cache entries');
+}
 
 export const getFlagUrl = async (country: string): Promise<string> => {
   // Normalize country name

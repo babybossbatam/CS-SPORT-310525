@@ -18,7 +18,7 @@ import {
   isDateTimeStringTomorrow,
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
-import { getCachedFlag, getCountryFlagWithFallbackSync } from '@/lib/flagUtils';
+import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -309,6 +309,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
+    // Clear fallback cache entries on component mount to force re-fetching
+    clearFallbackFlagCache();
+    
     const fetchFlags = async () => {
       // Only proceed if we have countries to fetch flags for
       if (sortedCountries.length === 0) return;
@@ -325,12 +328,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const country = countryData.country;
         try {
           console.log(`Fetching flag for country: ${country}`);
-          const flag = await getCountryFlagWithFallback(country);
+          const flag = await getCachedFlag(country); // Use getCachedFlag directly
           console.log(`Flag result for ${country}: ${flag}`);
 
           // Only store non-fallback flags in the state
           if (flag && !flag.includes('/assets/fallback-logo.svg')) {
             newFlags[country] = flag;
+            console.log(`✅ Storing valid flag for ${country}: ${flag}`);
+          } else {
+            console.log(`⚠️ Skipping fallback flag for ${country}`);
           }
         } catch (error) {
           console.error(`Failed to fetch flag for ${country}:`, error);
@@ -340,6 +346,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       if (Object.keys(newFlags).length > 0) {
         setFlagMap(prev => ({ ...prev, ...newFlags }));
+        console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
       }
     };
 

@@ -1,4 +1,3 @@
-
 /**
  * Enhanced Logo Cache System
  * Handles caching for team logos, league logos, and country flags
@@ -40,7 +39,7 @@ class LogoCache {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
     }
-    
+
     this.cleanupTimer = setInterval(() => {
       this.cleanup();
     }, this.config.cleanupInterval);
@@ -62,7 +61,7 @@ class LogoCache {
     if (this.cache.size > this.config.maxSize) {
       const entries = Array.from(this.cache.entries())
         .sort((a, b) => a[1].timestamp - b[1].timestamp);
-      
+
       const toRemove = entries.slice(0, this.cache.size - this.config.maxSize);
       toRemove.forEach(([key]) => this.cache.delete(key));
     }
@@ -80,18 +79,15 @@ class LogoCache {
     });
   }
 
+  // Get cached logo/flag
   getCached(key: string): CachedItem | null {
-    const item = this.cache.get(key);
-    if (!item) return null;
+    return this.cache.get(key) || null;
+  },
 
-    // Check if expired
-    if (Date.now() - item.timestamp > this.config.maxAge) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return item;
-  }
+  // Remove cached item
+  removeCached(key: string): void {
+    this.cache.delete(key);
+  },
 
   markAsVerified(key: string) {
     const item = this.cache.get(key);
