@@ -533,12 +533,14 @@ export async function getCachedFlag(country: string): Promise<string> {
       : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     if (age < maxAge) {
+      console.log(`🎯 Using cached flag for ${country} (age: ${ageMinutes}m)`);
       return cached.url;
     }
   }
 
   // Check if there's already a pending request for this country
   if (pendingFlagRequests.has(cacheKey)) {
+    console.log(`⏳ Reusing pending request for ${country}`);
     return pendingFlagRequests.get(cacheKey)!;
   }
 
@@ -555,6 +557,8 @@ export async function getCachedFlag(country: string): Promise<string> {
     flagCache.setCached(cacheKey, europeFlag, 'europe-direct', true);
     return europeFlag;
   }
+
+  console.log(`🔍 Processing flag request for ${country} (not in cache)`);
 
   // For regular countries, check if they have simple country code mappings first
   const normalizedCountry = country.trim();
@@ -574,16 +578,19 @@ export async function getCachedFlag(country: string): Promise<string> {
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
     flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
+    console.log(`⚡ Direct flag for ${country}: ${flagUrl}`);
     return flagUrl;
   }
 
   if (countryCode && countryCode.startsWith('GB-')) {
     const flagUrl = `https://flagcdn.com/w40/gb.png`;
     flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
+    console.log(`🇬🇧 GB fallback for ${country}: ${flagUrl}`);
     return flagUrl;
   }
 
   // For countries that need API calls, use improved batching
+  console.log(`📦 Adding ${country} to batch queue`);
   const flagPromise = addToBatch(country);
   pendingFlagRequests.set(cacheKey, flagPromise);
   

@@ -245,81 +245,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryA.localeCompare(countryB);
   });
 
-  // Optimized flag fetching with better batching
+  // Single flag fetching effect with deduplication
   useEffect(() => {
-    const fetchFlags = async () => {
-      const countries = sortedCountries.map((c: any) => c.country).filter(Boolean);
-      const uniqueCountries = [...new Set(countries)];
+    const countries = sortedCountries.map((c: any) => c.country).filter(Boolean);
+    const uniqueCountries = [...new Set(countries)];
 
-      // Check which countries actually need fetching (not in cache or flagMap)
-      const countriesNeedingFlags = uniqueCountries.filter(country => {
-        if (flagMap[country]) return false;
-        
-        // Check if already in cache
-        const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-        const cached = flagCache.getCached(cacheKey);
-        if (cached) {
-          const age = Date.now() - cached.timestamp;
-          const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
-            ? 60 * 60 * 1000  // 1 hour for fallbacks
-            : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
-          
-          if (age < maxAge) {
-            // Use cached result immediately
-            setFlagMap(prev => ({ ...prev, [country]: cached.url }));
-            return false;
-          }
-        }
-        return true;
-      });
+    // Only process countries that aren't already in flagMap
+    const missingCountries = uniqueCountries.filter(country => !flagMap[country]);
+    
+    if (missingCountries.length === 0) {
+      return;
+    }
 
-      if (countriesNeedingFlags.length === 0) {
-        return;
+    console.log(`🎯 Need flags for ${missingCountries.length} countries: ${missingCountries.join(', ')}`);
+
+    // Pre-populate flagMap with sync flags to prevent redundant calls
+    const syncFlags: { [country: string]: string } = {};
+    missingCountries.forEach(country => {
+      const syncFlag = getCountryFlagWithFallbackSync(country);
+      if (syncFlag) {
+        syncFlags[country] = syncFlag;
       }
+    });
 
-      console.log(`🚀 Initiating optimized batch flag fetch for ${countriesNeedingFlags.length} countries`);
-
-      // Create a single batch request to avoid individual fetching
-      try {
-        const results = await Promise.allSettled(
-          countriesNeedingFlags.map(async (country) => {
-            const flagUrl = await getCachedFlag(country);
-            return { country, flagUrl };
-          })
-        );
-
-        const newFlags: { [country: string]: string } = {};
-        let validCount = 0;
-        let fallbackCount = 0;
-
-        results.forEach((result) => {
-          if (result.status === 'fulfilled') {
-            const { country, flagUrl } = result.value;
-            newFlags[country] = flagUrl;
-
-            if (flagUrl.includes('/assets/fallback-logo.svg')) {
-              fallbackCount++;
-            } else {
-              validCount++;
-            }
-          }
-        });
-
-        if (Object.keys(newFlags).length > 0) {
-          setFlagMap(prev => ({ ...prev, ...newFlags }));
-          console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
-          console.log(`📊 Flag fetch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
-        }
-
-      } catch (error) {
-        console.error('Error in optimized flag fetching:', error);
-      }
-    };
-
-    // Reduced debounce for faster UI updates while still allowing batching
-    const timeoutId = setTimeout(fetchFlags, 100);
-    return () => clearTimeout(timeoutId);
-  }, [sortedCountries.map((c: any) => c.country).join(',')]);
+    if (Object.keys(syncFlags).length > 0) {
+      setFlagMap(prev => ({ ...prev, ...syncFlags }));
+      console.log(`⚡ Pre-populated ${Object.keys(syncFlags).length} flags synchronously`);
+    }
+  }, [sortedCountries.length]); // Only depend on count, not the specific countries
 
 
 
@@ -536,12 +489,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
-                        src={flagMap[countryData.country] || '/assets/fallback-logo.svg'}
+                        src={flagMap[countryData.country] || getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg'}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            // Simple fallback without clearing cache - let the cache system handle it
                             if (!target.src.includes('/assets/fallback-logo.svg')) {
                               target.src = '/assets/fallback-logo.svg';
                             }
