@@ -565,7 +565,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                     onClick={() => toggleCountry(countryData.country)}
                     className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors font-bold"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
                         src={flagMap[countryData.country]}
                         alt={countryData.country}
