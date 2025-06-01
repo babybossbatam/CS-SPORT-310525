@@ -687,7 +687,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           {getHeaderTitle()}
         </h3>
       </div>
-
       {/* Create individual league cards from all countries */}
       {top20FilteredCountries.flatMap((countryData: any) => 
         Object.values(countryData.leagues)
@@ -929,7 +928,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 mt-[8px] mb-[8px] pt-[0px] pb-[0px]">
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
