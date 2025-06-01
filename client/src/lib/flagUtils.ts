@@ -520,6 +520,9 @@ export async function getCachedFlag(country: string): Promise<string> {
   
   console.log(`🔍 [flagUtils.ts:getCachedFlag] getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
   
+  // Track request patterns
+  trackFlagRequest(country, cacheKey);
+  
   // Track usage for intelligent caching
   trackFlagUsage(country);
 
@@ -1763,8 +1766,21 @@ export function compare365ScoresCompatibility(fixtures: any[]): void {
 import { getFlagForCountry, flagCache } from './logoCache';
 import { CACHE_FRESHNESS } from './cacheFreshness';
 
-// Global flag request deduplication
+// Global flag request deduplication with improved tracking
 const pendingFlagRequests = new Map<string, Promise<string>>();
+const flagRequestCounts = new Map<string, number>();
+
+/**
+ * Track and log flag request patterns for debugging
+ */
+function trackFlagRequest(country: string, cacheKey: string): void {
+  const count = flagRequestCounts.get(cacheKey) || 0;
+  flagRequestCounts.set(cacheKey, count + 1);
+  
+  if (count > 2) {
+    console.log(`🔄 [flagUtils.ts] Multiple requests for ${country} (${count + 1} times) - consider component optimization`);
+  }
+}
 
 // Track flag usage for intelligent eviction
 const flagUsageTracker = new Map<string, { count: number, lastUsed: number }>();
