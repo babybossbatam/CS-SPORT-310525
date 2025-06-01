@@ -901,7 +901,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className={`w-9 h-9 ${
-                                // Apply ball effect to all country/international competitions regardless of date
+                                // Apply flag styling to all country/international competitions 
                                 (countryData.country === 'World' || 
                                  countryData.country === 'Europe' || 
                                  countryData.country === 'South America' || 
@@ -915,7 +915,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-lg' 
+                                  ? 'object-cover rounded-md border border-gray-200' 
                                   : 'object-contain'
                               }`}
                               onError={(e) => {
@@ -1057,7 +1057,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className={`w-9 h-9 ${
-                                // Apply ball effect to all country/international competitions regardless of date
+                                // Apply flag styling to all country/international competitions 
                                 (countryData.country === 'World' || 
                                  countryData.country === 'Europe' || 
                                  countryData.country === 'South America' || 
@@ -1071,7 +1071,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-lg' 
+                                  ? 'object-cover rounded-md border border-gray-200' 
                                   : 'object-contain'
                               }`}
                               onError={(e) => {
