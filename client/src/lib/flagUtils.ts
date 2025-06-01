@@ -4,9 +4,9 @@ import { testImageUrl, findWorkingLogoUrl, generateLogoSources } from './MyAPIFa
 
 export { countryCodeMap };
 
-// Enhanced country code mapping for FlagsAPI with normalized variations
+// Enhanced country code mapping for Flagpedia with normalized variations
 const countryCodeMap: { [key: string]: string } = {
-  'England': 'EN',
+  'England': 'GB-ENG',
   'Scotland': 'GB-SCT', 
   'Wales': 'GB-WLS',
   'Northern Ireland': 'GB-NIR',
@@ -206,30 +206,33 @@ export function generateFlagSources(country: string): string[] {
   }
 
   if (cleanCountry === 'Europe') {
-    return ['https://flagsapi.com/EU/flat/24.png'];
+    return ['https://flagpedia.net/data/flags/w580/eu.png'];
   }
 
   const countryCode = countryCodeMap[cleanCountry];
 
   if (countryCode) {
-    // Use direct mapping - if 2 letters, use as-is; if special code, use first part
-    const flagCode = countryCode.length === 2 ? countryCode : countryCode.split('-')[0];
+    // 1. Primary: Flagpedia (reliable source with support for special codes like GB-ENG)
+    sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
+    sources.push(`https://flagpedia.net/data/flags/normal/${countryCode.toLowerCase()}.png`);
 
-    // 1. Primary: FlagCDN (most reliable, working source)
-    sources.push(`https://flagcdn.com/w40/${flagCode.toLowerCase()}.png`);
-    sources.push(`https://flagcdn.com/24x18/${flagCode.toLowerCase()}.png`);
+    // 2. Secondary: FlagCDN (for standard country codes)
+    if (countryCode.length === 2) {
+      sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
+      sources.push(`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`);
+    }
 
-    // 2. Alternative external source (RestCountries)
-    sources.push(`https://restcountries.com/v3.1/alpha/${flagCode.toLowerCase()}?fields=flags`);
-
-    // 3. Backup FlagCDN format
-    sources.push(`https://flagcdn.com/${flagCode.toLowerCase()}/flat/64.png`);
+    // 3. Alternative external source (RestCountries) - only for 2-letter codes
+    if (countryCode.length === 2) {
+      sources.push(`https://restcountries.com/v3.1/alpha/${countryCode.toLowerCase()}?fields=flags`);
+    }
   } else {
     console.warn(`No country code mapping found for: ${cleanCountry}`);
 
     // Fallback: try common variations for unmapped countries
     const cleanName = cleanCountry.toLowerCase().replace(/\s+/g, '');
     const shortName = cleanName.substring(0, 2);
+    sources.push(`https://flagpedia.net/data/flags/w580/${shortName}.png`);
     sources.push(`https://flagcdn.com/w40/${shortName}.png`);
   }
 
@@ -379,13 +382,13 @@ export function getCountryFlagWithFallbackSync(
   }
 
   if (cleanCountry === 'Europe') {
-    return 'https://flagsapi.com/EU/flat/24.png';
+    return 'https://flagpedia.net/data/flags/w580/eu.png';
   }
 
   // Use country code mapping first for most reliable flags
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
-    return `https://flagsapi.com/${countryCode}/flat/24.png`;
+    return `https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`;
   }
 
   // Fallback to API endpoint for unmapped countries
@@ -408,10 +411,11 @@ export function generateCountryFlagSources(country: string): string[] {
   const fallbackSources = generateLogoSources(cleanCountry, 'flag');
   sources.push(...fallbackSources);
 
-  // 3. Third: FlagsAPI using country code mapping
+  // 3. Third: Flagpedia using country code mapping
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
-    sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
+    sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
+    sources.push(`https://flagpedia.net/data/flags/normal/${countryCode.toLowerCase()}.png`);
   }
 
   // 4. Final fallback
