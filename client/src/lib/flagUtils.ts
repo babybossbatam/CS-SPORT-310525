@@ -337,7 +337,7 @@ export async function getCachedFlag(country: string): Promise<string> {
 
   // PRIORITY 1: Check cache first - return ANY cached result immediately (including fallbacks)
   const cached = flagCache.getCached(cacheKey);
-  if (cached && cached.verified) {
+  if (cached) {
     // Return cached result immediately, even if it's a fallback
     // This prevents unnecessary refetching on every page refresh
     console.log(`📦 Using cached flag for ${country}: ${cached.url} (age: ${Math.round((Date.now() - cached.timestamp) / 1000 / 60)} min)`);
@@ -345,44 +345,48 @@ export async function getCachedFlag(country: string): Promise<string> {
   }
 
   console.log(`🔍 Fetching fresh flag for country: ${country}`);
-  const sources = generateFlagSources(country);
-
-  // Try sources with better logging
-  for (let i = 0; i < sources.length; i++) {
-    const source = sources[i];
-
-    try {
-      // For data URLs (like World flag), return immediately
-      if (source.startsWith('data:')) {
-        console.log(`✅ Using data URL for ${country}`);
-        flagCache.setCached(cacheKey, source, `data-${i}`, true);
-        return source;
-      }
-
-      // Skip fallback SVG in the loop - save it for last
-      if (source.startsWith('/assets/')) {
-        continue;
-      }
-
-      console.log(`Trying source ${i + 1}/${sources.length} for ${country}: ${source}`);
-
-      // For external URLs, validate before caching
-      const isValid = await validateLogoUrl(source);
-      if (isValid) {
-        console.log(`✅ Valid flag found for ${country}: ${source}`);
-        flagCache.setCached(cacheKey, source, `source-${i}`, true);
-        return source;
-      } else {
-        console.log(`❌ Invalid flag source for ${country}: ${source} (HTTP or image load failed)`);
-      }
-    } catch (error) {
-      console.log(`Error testing source for ${country}: ${source}`, error);
-      continue;
-    }
+  
+  // Special cases first (immediate return, no API calls needed)
+  if (country === 'World') {
+    const worldFlag = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+    flagCache.setCached(cacheKey, worldFlag, 'data-world', true);
+    return worldFlag;
   }
 
-  // If all sources fail, cache the fallback for 1 hour to prevent repeated failures
-  console.log(`⚠️ All sources failed for ${country}, caching fallback for 1 hour`);
+  if (country === 'Europe') {
+    const europeFlag = 'https://flagcdn.com/w40/eu.png';
+    flagCache.setCached(cacheKey, europeFlag, 'europe-direct', true);
+    return europeFlag;
+  }
+
+  // Try country code mapping first (most reliable, no validation needed)
+  const countryCode = countryCodeMap[country];
+  if (countryCode && countryCode.length === 2) {
+    const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+    console.log(`✅ Using country code flag for ${country}: ${flagUrl}`);
+    flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
+    return flagUrl;
+  }
+
+  // Fallback to API endpoint for unmapped countries (cache the result regardless)
+  try {
+    const apiUrl = `/api/flags/${encodeURIComponent(country)}`;
+    const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.flagUrl) {
+        console.log(`✅ API flag found for ${country}: ${data.flagUrl}`);
+        flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
+        return data.flagUrl;
+      }
+    }
+  } catch (error) {
+    console.log(`API request failed for ${country}:`, error);
+  }
+
+  // Final fallback - cache it to avoid future requests
+  console.log(`⚠️ Using fallback for ${country}, caching for 24 hours`);
   const fallbackUrl = '/assets/fallback-logo.svg';
   flagCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
   return fallbackUrl;

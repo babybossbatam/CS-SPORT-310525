@@ -326,20 +326,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       for (const countryData of countriesToFetch) {
         const country = countryData.country;
         try {
-          console.log(`Fetching flag for country: ${country}`);
-          const flag = await getCachedFlag(country); // Use getCachedFlag directly
-          console.log(`Flag result for ${country}: ${flag}`);
-
-          // Only store non-fallback flags in the state
-          if (flag && !flag.includes('/assets/fallback-logo.svg')) {
+          const flag = await getCachedFlag(country); // This now uses cache much more effectively
+          
+          // Store ALL results (including fallbacks) to prevent re-fetching
+          if (flag) {
             newFlags[country] = flag;
-            console.log(`✅ Storing valid flag for ${country}: ${flag}`);
-          } else {
-            console.log(`⚠️ Skipping fallback flag for ${country}`);
+            if (!flag.includes('/assets/fallback-logo.svg')) {
+              console.log(`✅ Valid flag cached for ${country}: ${flag}`);
+            } else {
+              console.log(`📦 Fallback flag cached for ${country}`);
+            }
           }
         } catch (error) {
           console.error(`Failed to fetch flag for ${country}:`, error);
-          // Don't store fallback in state - let onError handle it
+          // Cache fallback to prevent future attempts
+          newFlags[country] = '/assets/fallback-logo.svg';
         }
       }
 
