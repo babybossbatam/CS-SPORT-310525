@@ -204,6 +204,17 @@ const countryCodeMap: { [key: string]: string } = {
   'Benin': 'BJ',
   'Mauritania': 'MR',
   'Gambia': 'GM',
+  // Additional missing countries from iban.com
+  'Faroe Islands': 'FO',
+  'Faroe-Islands': 'FO',
+  'Faroes': 'FO',
+  'Greenland': 'GL',
+  'Isle of Man': 'IM',
+  'Isle-of-Man': 'IM',
+  'Jersey': 'JE',
+  'Guernsey': 'GG',
+  'Aland Islands': 'AX',
+  'Åland Islands': 'AX',
   // Special territories and regions
   'Macao': 'MO',
   'Macau': 'MO',
@@ -283,7 +294,12 @@ const countryCodeMap: { [key: string]: string } = {
   'ROC': 'TW',
   'Hong Kong SAR': 'HK',
   'Macau SAR': 'MO',
-  'Macao SAR': 'MO'
+  'Macao SAR': 'MO',
+  // Additional variations
+  'RSA': 'ZA',
+  'South-Africa': 'ZA',
+  'República de Sudáfrica': 'ZA',
+  'Suid-Afrika': 'ZA'
 };
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
@@ -856,6 +872,43 @@ export const createImageFallbackHandler = (
     img.src = getFallbackSVG(itemName);
   };
 };
+
+/**
+ * Check if a country is in the country code mapping and log variations
+ */
+export function debugCountryMapping(country: string): void {
+  const normalizedCountry = country.trim();
+  let countryCode = countryCodeMap[normalizedCountry];
+  
+  console.log(`🔍 Debugging country mapping for: "${country}"`);
+  console.log(`📝 Normalized: "${normalizedCountry}"`);
+  console.log(`🗺️ Direct mapping: ${countryCode || 'NOT FOUND'}`);
+  
+  // Try variations
+  if (!countryCode && normalizedCountry.includes('-')) {
+    const spaceVersion = normalizedCountry.replace(/-/g, ' ');
+    countryCode = countryCodeMap[spaceVersion];
+    console.log(`🔄 Space variation "${spaceVersion}": ${countryCode || 'NOT FOUND'}`);
+  }
+  
+  if (!countryCode && normalizedCountry.includes(' ')) {
+    const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
+    countryCode = countryCodeMap[hyphenVersion];
+    console.log(`🔄 Hyphen variation "${hyphenVersion}": ${countryCode || 'NOT FOUND'}`);
+  }
+  
+  // Show similar matches
+  const similarMatches = Object.keys(countryCodeMap).filter(key => 
+    key.toLowerCase().includes(normalizedCountry.toLowerCase()) ||
+    normalizedCountry.toLowerCase().includes(key.toLowerCase())
+  );
+  
+  if (similarMatches.length > 0) {
+    console.log(`🎯 Similar matches found:`, similarMatches.map(match => `"${match}" -> ${countryCodeMap[match]}`));
+  }
+  
+  console.log(`✅ Final result: ${countryCode || 'FALLBACK WILL BE USED'}`);
+}
 
 /**
  * Get flag cache statistics for debugging
