@@ -90,10 +90,10 @@ const PopularLeaguesList = () => {
         <div className="space-y-2">
           {displayLeagues.map((league, index) => {
             const isFavorite = league.id ? user.preferences.favoriteLeagues.includes(league.id.toString()) : false;
-            
+
             return (
               <div
-                key={league.id || `league-${index}`}
+                key={league.id}
                 className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
                 onClick={() => navigate(`/league/${league.id}`)}
               >
@@ -106,8 +106,22 @@ const PopularLeaguesList = () => {
                   }}
                 />
                 <div className="ml-3 flex-1">
-                  <div className="text-sm">{typeof league.name === 'string' ? league.name : league.name?.name || 'Unknown League'}</div>
-                  <div className="text-xs text-gray-500">{typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown Country'}</div>
+                  <div className="text-sm">
+                    {typeof league.name === 'string' 
+                      ? league.name 
+                      : (typeof league.name === 'object' && league.name?.name) 
+                        ? String(league.name.name)
+                        : 'Unknown League'
+                    }
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {typeof league.country === 'string' 
+                      ? league.country 
+                      : (typeof league.country === 'object' && league.country?.name) 
+                        ? String(league.country.name)
+                        : 'Unknown Country'
+                    }
+                  </div>
                 </div>
                 <button
                   onClick={(e) => {
