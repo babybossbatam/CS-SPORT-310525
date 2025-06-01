@@ -946,7 +946,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-14px' }}>
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
@@ -955,7 +955,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                 return (
                                   <>
-                                    <div className="text-xs font-semibold mb-0.5">
+                                    <div className="text-xs font-semibold mb-0.5" style={{ marginTop: '5px' }}>
                                       <span className="text-red-600 animate-pulse">
                                         {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                       </span>
