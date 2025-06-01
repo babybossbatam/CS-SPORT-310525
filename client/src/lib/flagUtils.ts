@@ -6,7 +6,7 @@ export { countryCodeMap };
 
 // Enhanced country code mapping for FlagsAPI with normalized variations
 const countryCodeMap: { [key: string]: string } = {
-  'England': 'GB-ENG',
+  'England': 'EN',
   'Scotland': 'GB-SCT', 
   'Wales': 'GB-WLS',
   'Northern Ireland': 'GB-NIR',
@@ -209,33 +209,35 @@ export function generateFlagSources(country: string): string[] {
     return ['https://flagsapi.com/EU/flat/24.png'];
   }
 
-  // Get country code with normalization
   const countryCode = countryCodeMap[cleanCountry];
-  
+
   if (countryCode) {
-    // 1. Primary: FlagsAPI (most reliable for mapped countries)
-    sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
-    
-    // 2. Secondary: FlagCDN (good fallback)
-    if (countryCode.length === 2) {
-      sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
-    }
-    
-    // 3. Alternative FlagCDN format
-    if (countryCode.length === 2) {
-      sources.push(`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`);
-    }
+    // Use direct mapping - if 2 letters, use as-is; if special code, use first part
+    const flagCode = countryCode.length === 2 ? countryCode : countryCode.split('-')[0];
+
+    // 1. Primary: FlagCDN (most reliable, working source)
+    sources.push(`https://flagcdn.com/w40/${flagCode.toLowerCase()}.png`);
+    sources.push(`https://flagcdn.com/24x18/${flagCode.toLowerCase()}.png`);
+
+    // 2. Alternative external source (RestCountries)
+    sources.push(`https://restcountries.com/v3.1/alpha/${flagCode.toLowerCase()}?fields=flags`);
+
+    // 3. Backup FlagCDN format
+    sources.push(`https://flagcdn.com/${flagCode.toLowerCase()}/flat/64.png`);
   } else {
     console.warn(`No country code mapping found for: ${cleanCountry}`);
+
+    // Fallback: try common variations for unmapped countries
+    const cleanName = cleanCountry.toLowerCase().replace(/\s+/g, '');
+    const shortName = cleanName.substring(0, 2);
+    sources.push(`https://flagcdn.com/w40/${shortName}.png`);
   }
 
   // 4. Alternative external source (RestCountries)
-  if (countryCode && countryCode.length === 2) {
-    sources.push(`https://restcountries.com/v3.1/alpha/${countryCode.toLowerCase()}?fields=flags`);
-  }
+
 
   // 5. Ultimate fallback
-  sources.push('/assets/fallback-logo.svg');
+
 
   return sources;
 }
