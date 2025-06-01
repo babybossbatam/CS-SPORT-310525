@@ -5,11 +5,6 @@ import { useLocation } from 'wouter';
 import { Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { homePageUtils } from '@/lib/homePageCache';
-import TeamLogo from '@/components/matches/TeamLogo';
-import { Skeleton } from '@/components/ui/skeleton';
 
 // Popular teams with their data
 const popularTeams = [
@@ -30,9 +25,9 @@ const PopularTeamsList = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const user = useSelector((state: RootState) => state.user);
-
+  
   const toggleFavorite = (teamId: number) => {
     if (!user.isAuthenticated) {
       toast({
@@ -42,13 +37,13 @@ const PopularTeamsList = () => {
       navigate('/auth');
       return;
     }
-
+    
     const teamIdStr = teamId.toString();
     const isFavorite = user.preferences.favoriteTeams.includes(teamIdStr);
-
+    
     if (isFavorite) {
       dispatch(userActions.removeFavoriteTeam(teamIdStr));
-
+      
       // Update on server
       if (user.id) {
         apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
@@ -59,7 +54,7 @@ const PopularTeamsList = () => {
       }
     } else {
       dispatch(userActions.addFavoriteTeam(teamIdStr));
-
+      
       // Update on server
       if (user.id) {
         apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
@@ -70,7 +65,7 @@ const PopularTeamsList = () => {
       }
     }
   };
-
+  
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-3">
@@ -87,12 +82,12 @@ const PopularTeamsList = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="space-y-0.5">
       {popularTeams.map((team) => {
         const isFavorite = user.preferences.favoriteTeams.includes(team.id.toString());
-
+        
         return (
           <div 
             key={team.id}
@@ -107,12 +102,12 @@ const PopularTeamsList = () => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
               }}
             />
-
+            
             <div className="flex-1">
               <div className="text-sm font-medium">{team.name}</div>
               <div className="text-xs text-neutral-500">{team.country}</div>
             </div>
-
+            
             <button 
               onClick={(e) => {
                 e.stopPropagation();

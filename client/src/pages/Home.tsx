@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, uiActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { homePageUtils } from '@/lib/homePageCache';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
@@ -67,15 +66,15 @@ const Home = () => {
     }
   }, [selectedDate, dispatch]);
 
-  // Use cached home page data
   const { data: leagueStandings } = useQuery({
-    queryKey: ['home-standings'],
+    queryKey: ['standings'],
     queryFn: async () => {
       const leagues = [39, 140, 78, 135, 2, 3, 848]; // Premier League, La Liga, Bundesliga, Serie A, UCL, UEL, Conference League
       const standingsData = {};
 
       for (const leagueId of leagues) {
-        const data = await homePageUtils.getLeagueStandings(leagueId);
+        const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`);
+        const data = await response.json();
         if (data?.league?.standings?.[0]) {
           standingsData[leagueId] = {
             league: data.league,
@@ -84,11 +83,7 @@ const Home = () => {
         }
       }
       return standingsData;
-    },
-    staleTime: 4 * 60 * 60 * 1000, // 4 hours
-    gcTime: 8 * 60 * 60 * 1000, // 8 hours
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    }
   });
 
   // Use direct state access to avoid identity function warnings
@@ -207,29 +202,24 @@ const Home = () => {
     fetchLeagues();
   }, [dispatch, toast]); // Simplified dependencies
 
-  // Use cached scoreboard data for today and tomorrow
-  const { data: todayFixtures } = useQuery({
-    queryKey: ['home-scoreboard', selectedDate],
-    queryFn: () => homePageUtils.getScoreboardData(selectedDate || format(new Date(), 'yyyy-MM-dd')),
-    enabled: !!selectedDate,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 60 * 1000, // Refetch every minute for live updates
-  });
-
-  // Fetch upcoming fixtures for tomorrow
+  // Fetch upcoming fixtures for tomorrow to display in the scoreboard when no live matches
   useEffect(() => {
     const fetchUpcomingFixtures = async () => {
       try {
+        // Get tomorrow's date in YYYY-MM-DD format
         const tomorrow = addDays(new Date(), 1);
         const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
 
-        const data = await homePageUtils.getScoreboardData(tomorrowFormatted);
+        const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowFormatted}`);
+        const data = await response.json();
+
         if (data && data.length > 0) {
           dispatch(fixturesActions.setUpcomingFixtures(data));
           setFixtures(data);
         }
       } catch (error) {
         console.error('Error fetching upcoming fixtures:', error);
+        // No toast needed for this as it's not critical - we'll just fallback gracefully
       }
     };
 
