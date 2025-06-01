@@ -18,7 +18,7 @@ import {
   isDateTimeStringTomorrow,
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
-import { getCachedFlag } from '@/lib/flagUtils';
+import { getCachedFlag, getCountryFlagWithFallbackSync } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -513,11 +513,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return false;
   };
-
-  // Fetch flags for all countries in the list
-  const getCountryFlagWithFallbackSync = (country: string) => {
-    return `https://flagsapi.com/${country}/flat/64.png`
-  }
 
   const getCountryFlagWithFallback = async (country: string) => {
     const flag = await getCachedFlag(country)
