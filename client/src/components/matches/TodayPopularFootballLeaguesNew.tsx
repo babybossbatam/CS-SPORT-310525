@@ -932,7 +932,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'w-full h-full' 
+                                  ? 'h-9 w-9' 
                                   : 'w-9 h-9 object-contain'
                               }`}
                               onError={(e) => {
@@ -1105,7 +1105,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'w-full h-full' 
+                                  ? 'h-9 w-9' 
                                   : 'w-9 h-9 object-contain'
                               }`}
                               onError={(e) => {
