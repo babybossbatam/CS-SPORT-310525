@@ -47,7 +47,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
-    'England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Saudi Arabia', 'Egypt', 'Colombia', 'Europe', 'World'
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'World', 'Europe', 'South America', 'Brazil', 'Saudi Arabia', 'Egypt', 'Colombia'
   ];
 
   // Enhanced leagues by country with tier-based filtering
@@ -243,7 +243,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
     const endTime = Date.now();
     console.log(`Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`);
-    
+
     return finalFiltered;
   }, [fixtures, selectedDate]);
 
