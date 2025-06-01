@@ -895,7 +895,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-14px' }}>
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
@@ -904,16 +904,19 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                 return (
                                   <>
-                                    <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
-                                      LIVE
+                                    <div className="text-xs font-semibold mb-0.5">
+                                      <span className="text-red-600 animate-pulse">
+                                        {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                      </span>
                                     </div>
-                                    <div className="text-lg font-bold text-red-600 flex items-center gap-2">
-                                      <span>{match.goals.home ?? 0}</span>
+                                    <div className="text-lg font-bold flex items-center gap-2">
+                                      <span className="text-black">
+                                        {match.goals.home ?? 0}
+                                      </span>
                                       <span className="text-gray-400">-</span>
-                                      <span>{match.goals.away ?? 0}</span>
-                                    </div>
-                                    <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
-                                      {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                      <span className="text-black">
+                                        {match.goals.away ?? 0}
+                                      </span>
                                     </div>
                                   </>
                                 );
@@ -931,38 +934,34 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 if (hasValidScores) {
                                   return (
                                     <>
-                                      <div className="text-xs text-gray-600 font-semibold mb-1">
-                                        {status === 'FT' ? 'ENDED' : 
-                                         status === 'AET' ? 'AFTER EXTRA TIME' :
-                                         status === 'PEN' ? 'PENALTIES' :
-                                         status === 'AWD' ? 'AWARDED' :
-                                         status === 'WO' ? 'WALKOVER' :
-                                         status === 'ABD' ? 'ABANDONED' :
-                                         status === 'CANC' ? 'CANCELLED' :
-                                         status === 'SUSP' ? 'SUSPENDED' : status}
+                                      <div className="text-xs font-semibold mb-0.5">
+                                        <span className="text-gray-600">
+                                          {status === 'FT' ? 'Ended' : 
+                                           status === 'AET' ? 'AET' :
+                                           status === 'PEN' ? 'PEN' :
+                                           status === 'AWD' ? 'Awarded' :
+                                           status === 'WO' ? 'Walkover' :
+                                           status === 'ABD' ? 'Abandoned' :
+                                           status === 'CANC' ? 'Cancelled' :
+                                           status === 'SUSP' ? 'Suspended' : status}
+                                        </span>
                                       </div>
-                                      <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                        <span>{homeScore}</span>
+                                      <div className="text-lg font-bold flex items-center gap-2">
+                                        <span className="text-black">
+                                          {homeScore}
+                                        </span>
                                         <span className="text-gray-400">-</span>
-                                        <span>{awayScore}</span>
-                                      </div>
-                                      <div className="text-xs text-gray-500 mt-1">
-                                        {status === 'FT' ? 'FT' : 
-                                         status === 'AET' ? 'AET' :
-                                         status === 'PEN' ? 'PEN' :
-                                         status === 'AWD' ? 'Awarded' :
-                                         status === 'WO' ? 'Walkover' :
-                                         status === 'ABD' ? 'Abandoned' :
-                                         status === 'CANC' ? 'Cancelled' :
-                                         status === 'SUSP' ? 'Suspended' : status}
+                                        <span className="text-black">
+                                          {awayScore}
+                                        </span>
                                       </div>
                                     </>
                                   );
                                 } else {
                                   // Match is finished but no valid score data
-                                  const statusText = status === 'FT' ? 'No Score Available' : 
-                                                   status === 'AET' ? 'AET - No Score' :
-                                                   status === 'PEN' ? 'PEN - No Score' :
+                                  const statusText = status === 'FT' ? 'No Score' : 
+                                                   status === 'AET' ? 'AET' :
+                                                   status === 'PEN' ? 'PEN' :
                                                    status === 'AWD' ? 'Awarded' :
                                                    status === 'WO' ? 'Walkover' :
                                                    status === 'ABD' ? 'Abandoned' :
@@ -971,10 +970,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                                   return (
                                     <>
-                                      <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded text-center">
-                                        {statusText}
+                                      <div className="text-xs font-semibold mb-0.5">
+                                        <span className="text-gray-600">{statusText}</span>
                                       </div>
-                                      <div className="text-xs text-gray-500 mt-1">
+                                      <div className="text-sm font-medium text-gray-900">
                                         {format(fixtureDate, 'HH:mm')}
                                       </div>
                                     </>
@@ -993,10 +992,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                                 return (
                                   <>
-                                    <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
-                                      {statusText}
+                                    <div className="text-xs font-semibold mb-0.5">
+                                      <span className="text-red-600">{statusText}</span>
                                     </div>
-                                    <div className="text-xs text-gray-500 mt-1">
+                                    <div className="text-sm font-medium text-gray-900">
                                       {format(fixtureDate, 'HH:mm')}
                                     </div>
                                   </>
