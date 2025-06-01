@@ -18,7 +18,7 @@ import {
   isDateTimeStringTomorrow,
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
-import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache } from '@/lib/flagUtils';
+import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -82,8 +82,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return 'Unknown';
     }
 
-    import { countryCodeMap } from '@/lib/flagUtils';
-    
     // Create reverse mapping from country code to country name using the centralized countryCodeMap
     const countryNameMap: { [key: string]: string } = {};
     Object.entries(countryCodeMap).forEach(([countryName, countryCode]) => {
@@ -91,6 +89,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         countryNameMap[countryCode.toLowerCase()] = countryName;
       }
     });
+
+    // Additional mappings for common variations
+    const additionalMappings: { [key: string]: string } = {
       'czech republic': 'Czech-Republic',
       'india': 'India',
       'ae': 'United Arab Emirates',
@@ -102,7 +103,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
 
     const cleanCountry = country.trim().toLowerCase();
-    return countryNameMap[cleanCountry] || country;
+    return countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
   };
 
   const getCountryFlag = async (country: string): Promise<string> => {
