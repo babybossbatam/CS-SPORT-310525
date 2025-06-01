@@ -900,24 +900,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className={`w-9 h-9 ${
-                                // Apply flag styling to all country/international competitions 
-                                (countryData.country === 'World' || 
-                                 countryData.country === 'Europe' || 
-                                 countryData.country === 'South America' || 
-                                 countryData.country === 'International' ||
-                                 leagueData.league.name?.toLowerCase().includes('international') ||
-                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
-                                 leagueData.league.name?.toLowerCase().includes('nations league') ||
-                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                 leagueData.league.name?.toLowerCase().includes('euro') ||
-                                 leagueData.league.name?.toLowerCase().includes('copa america') ||
-                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
-                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-md border border-gray-200' 
-                                  : 'object-contain'
-                              }`}
+                              className="w-9 h-9 object-contain"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1056,24 +1039,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className={`w-9 h-9 ${
-                                // Apply flag styling to all country/international competitions 
-                                (countryData.country === 'World' || 
-                                 countryData.country === 'Europe' || 
-                                 countryData.country === 'South America' || 
-                                 countryData.country === 'International' ||
-                                 leagueData.league.name?.toLowerCase().includes('international') ||
-                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
-                                 leagueData.league.name?.toLowerCase().includes('nations league') ||
-                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                 leagueData.league.name?.toLowerCase().includes('euro') ||
-                                 leagueData.league.name?.toLowerCase().includes('copa america') ||
-                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
-                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-md border border-gray-200' 
-                                  : 'object-contain'
-                              }`}
+                              className="w-9 h-9 object-contain"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
