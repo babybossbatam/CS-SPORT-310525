@@ -915,7 +915,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-full' 
+                                  ? 'object-cover rounded-lg' 
                                   : 'object-contain'
                               }`}
                               onError={(e) => {
@@ -1071,7 +1071,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-full' 
+                                  ? 'object-cover rounded-lg' 
                                   : 'object-contain'
                               }`}
                               onError={(e) => {
