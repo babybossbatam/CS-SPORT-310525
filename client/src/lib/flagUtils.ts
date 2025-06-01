@@ -339,6 +339,9 @@ const countryCodeMap: { [key: string]: string } = {
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
 
+// Re-export flagCache for components that need it
+export { flagCache };
+
 // Flag preloading system
 const FLAG_STORAGE_KEY = 'cssport_flag_cache';
 const FLAG_PRELOAD_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
