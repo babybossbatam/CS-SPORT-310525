@@ -313,18 +313,30 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback - Aggressive cache-first approach
+ * Get cached flag or fetch with fallback - Prioritize valid flags over fallbacks
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = getFlagCacheKey(country);
 
-  // PRIORITY 1: Check cache first - return ANY cached result immediately (including fallbacks)
+  // PRIORITY 1: Check cache first, but be selective about fallbacks
   const cached = flagCache.getCached(cacheKey);
   if (cached) {
-    // Return cached result immediately, even if it's a fallback
-    // This prevents unnecessary refetching on every page refresh
-    console.log(`📦 Using cached flag for ${country}: ${cached.url} (age: ${Math.round((Date.now() - cached.timestamp) / 1000 / 60)} min)`);
-    return cached.url;
+    // If we have a valid flag (not fallback), use it immediately
+    if (!cached.url.includes('/assets/fallback-logo.svg')) {
+      console.log(`📦 Using cached flag for ${country}: ${cached.url} (age: ${Math.round((Date.now() - cached.timestamp) / 1000 / 60)} min)`);
+      return cached.url;
+    }
+    
+    // For cached fallbacks, only use them if they're recent (less than 1 hour)
+    const age = Date.now() - cached.timestamp;
+    const oneHour = 60 * 60 * 1000;
+    if (age < oneHour) {
+      console.log(`📦 Using recent cached fallback for ${country} (age: ${Math.round(age / 1000 / 60)} min)`);
+      return cached.url;
+    }
+    
+    // If fallback is old, try to fetch a better flag
+    console.log(`🔄 Cached fallback is old for ${country}, attempting fresh fetch`);
   }
 
   // Special cases first (immediate return, no API calls needed)
@@ -376,8 +388,8 @@ export async function getCachedFlag(country: string): Promise<string> {
     console.log(`API request failed for ${country}:`, error);
   }
 
-  // Final fallback - cache it to avoid future requests
-  console.log(`⚠️ Using fallback for ${country}, caching for 24 hours`);
+  // Final fallback - cache it but with shorter duration
+  console.log(`⚠️ Using fallback for ${country}, caching for 1 hour`);
   const fallbackUrl = '/assets/fallback-logo.svg';
   flagCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
   return fallbackUrl;

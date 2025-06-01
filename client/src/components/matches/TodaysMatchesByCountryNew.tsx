@@ -347,6 +347,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (Object.keys(newFlags).length > 0) {
         setFlagMap(prev => ({ ...prev, ...newFlags }));
         console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
+        
+        // Log cache performance stats
+        const validFlags = Object.values(newFlags).filter(url => !url.includes('/assets/fallback-logo.svg')).length;
+        const fallbackFlags = Object.keys(newFlags).length - validFlags;
+        console.log(`📊 Flag fetch stats: ${validFlags} valid, ${fallbackFlags} fallbacks`);
       }
     };
 
