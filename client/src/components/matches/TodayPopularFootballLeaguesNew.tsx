@@ -1033,6 +1033,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             })()}
                           </div>
 
+                          
                           <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
@@ -1052,7 +1053,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover country-flag-ball' 
+                                  ? 'object-cover rounded-full' 
                                   : 'object-contain'
                               }`}
                               onError={(e) => {
