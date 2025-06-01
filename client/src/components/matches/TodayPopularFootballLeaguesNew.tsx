@@ -729,7 +729,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       <img
                         src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                         alt={leagueData.league.name || 'Unknown League'}
-                        className="w-9 h-9 object-contain mt-0.5"
+                        className={` ${
+                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
+                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                                 leagueData.league.name?.toLowerCase().includes('fifa'))
+                                  ? 'object-cover country-flag-ball' 
+                                  : 'w-9 h-9 object-contain'
+                              }`}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
@@ -799,8 +805,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         return 0;
                       }
 
-                      const now = new Date();
-                      const aTime = aDate.getTime();
+                      const now =```text
+const aTime = aDate.getTime();
                       const bTime = bDate.getTime();
 
                       // Check if matches involve popular teams (with null safety)
@@ -900,7 +906,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className="w-9 h-9 object-contain"
+                              className={` ${
+                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
+                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                                 leagueData.league.name?.toLowerCase().includes('fifa'))
+                                  ? 'object-cover country-flag-ball' 
+                                  : 'w-9 h-9 object-contain'
+                              }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1039,7 +1051,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className="w-9 h-9 object-contain"
+                               className={` ${
+                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
+                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                                 leagueData.league.name?.toLowerCase().includes('fifa'))
+                                  ? 'object-cover country-flag-ball' 
+                                  : 'w-9 h-9 object-contain'
+                              }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
