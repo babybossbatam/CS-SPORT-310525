@@ -40,6 +40,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -555,6 +556,18 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       return favoriteTeams?.some(team => team.id === teamId) || false;
     };
 
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches(prev => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
+  };
+
   // Start with all countries collapsed by default
   useEffect(() => {
     // Reset to collapsed state when selected date changes
@@ -852,15 +865,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     .map((match: any) => (
                       <div 
                         key={match.fixture.id} 
-                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group flex"
+                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group flex relative"
                       >
-                        {/* Left Star Button with slide-in animation */}
+                        {/* Star Button with overlay positioning */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Add your functionality here
+                            toggleStarMatch(match.fixture.id);
                           }}
-                          className="w-0 group-hover:w-10 overflow-hidden hover:bg-blue-50 transition-all duration-300 ease-in-out bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 py-2"
+                          className="absolute left-0 top-0 bottom-0 w-0 group-hover:w-10 overflow-hidden hover:bg-blue-50 transition-all duration-700 ease-in-out bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 z-10"
                           title="Add to favorites"
                           onMouseEnter={(e) => {
                             e.currentTarget.closest('.group')?.classList.add('disable-hover');
@@ -869,7 +882,11 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             e.currentTarget.closest('.group')?.classList.remove('disable-hover');
                           }}
                         >
-                          <Star className="h-5 w-5 text-blue-300 group-hover:text-blue-500 transition-colors duration-200 opacity-0 group-hover:opacity-100" />
+                          <Star className={`h-5 w-5 transition-all duration-700 opacity-0 group-hover:opacity-100 ${
+                            starredMatches.has(match.fixture.id) 
+                              ? 'text-blue-500 fill-blue-500' 
+                              : 'text-blue-300 group-hover:text-blue-500'
+                          }`} />
                         </button>
 
                         <div className="flex items-center px-3 py-2 flex-1">
