@@ -325,7 +325,7 @@ export async function getCachedFlag(country: string): Promise<string> {
   if (cached) {
     const age = Date.now() - cached.timestamp;
     const ageMinutes = Math.round(age / 1000 / 60);
-    
+
     console.log(`📦 Cache found for ${country}:`, {
       url: cached.url,
       source: cached.source,
@@ -339,14 +339,14 @@ export async function getCachedFlag(country: string): Promise<string> {
       console.log(`✅ Using cached valid flag for ${country}: ${cached.url} (age: ${ageMinutes} min)`);
       return cached.url;
     }
-    
+
     // For cached fallbacks, only use them if they're recent (less than 1 hour)
     const oneHour = 60 * 60 * 1000;
     if (age < oneHour) {
       console.log(`📦 Using recent cached fallback for ${country} (age: ${ageMinutes} min)`);
       return cached.url;
     }
-    
+
     // If fallback is old, try to fetch a better flag
     console.log(`🔄 Cached fallback is old for ${country} (age: ${ageMinutes} min), attempting fresh fetch`);
   } else {
@@ -372,7 +372,7 @@ export async function getCachedFlag(country: string): Promise<string> {
   // Try country code mapping first (most reliable, no validation needed)
   const countryCode = countryCodeMap[country];
   console.log(`🔍 Country code mapping for ${country}: ${countryCode || 'NOT FOUND'}`);
-  
+
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
     console.log(`✅ Using country code flag for ${country}: ${flagUrl}`);
@@ -769,11 +769,12 @@ export function clearFallbackFlagCache(): void {
 export function checkFlagCache(country: string): void {
   const cacheKey = getFlagCacheKey(country);
   const cached = flagCache.getCached(cacheKey);
-  
+
   if (cached) {
     const age = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
     console.log(`🔍 Cache status for ${country}:`, {
       key: cacheKey,
+      ```text
       url: cached.url,
       source: cached.source,
       age: `${age} minutes`,
