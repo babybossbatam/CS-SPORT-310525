@@ -131,6 +131,12 @@ class StandingsCache {
   }
 
   private async performIndividualFetch(leagueId: number, season?: number): Promise<LeagueStandings | null> {
+    // Validate league ID before making API call
+    if (!leagueId || leagueId <= 0 || typeof leagueId !== 'number') {
+      console.warn(`Invalid league ID provided: ${leagueId}`);
+      return null;
+    }
+
     try {
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined

@@ -237,7 +237,6 @@ const LeagueDetails = () => {
                       {league && league.league && league.league.id && (
                         <LeagueStandings
                           leagueId={league.league.id}
-                          season={league.league.season}
                         />
                       )}
                     </Card>

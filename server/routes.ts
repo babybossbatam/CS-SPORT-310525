@@ -1406,35 +1406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get league standings
-  apiRouter.get('/leagues/:id/standings', async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      // Calculate current season based on date
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-      // If we're in the second half of the year, use next year as season
-      const currentSeason = currentMonth >= 7 ? 
-        currentDate.getFullYear() + 1 : 
-        currentDate.getFullYear();
-      const season = parseInt(req.query.season as string) || currentSeason;
 
-      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
-        return res.status(400).json({ message: "Invalid league ID" });
-      }
-
-      console.log(`Fetching standings for league ${id} with fixed season ${season} as requested`);
-
-      // Use API-Football (RapidAPI) only
-      const standings = await rapidApiService.getLeagueStandings(id, season);
-      console.log(`Received standings data for league ${id} from RapidAPI`);
-
-      res.json(standings);
-    } catch (error) {
-      console.error(`Error fetching standings for league ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to fetch standings data" });
-    }
-  });
 
   // Create HTTP server
   const httpServer = createServer(app);
