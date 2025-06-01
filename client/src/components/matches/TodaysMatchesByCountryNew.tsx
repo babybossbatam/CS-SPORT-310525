@@ -326,7 +326,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       for (const countryData of countriesToFetch) {
         const country = countryData.country;
         try {
-          const flag = await getCachedFlag(country); // This now uses cache much more effectively
+          const flag = await getCachedFlag(country); // Cache-first approach
           
           // Store ALL results (including fallbacks) to prevent re-fetching
           if (flag) {

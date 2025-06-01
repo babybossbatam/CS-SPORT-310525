@@ -90,8 +90,8 @@ class LogoCache {
     // Check expiration - be more lenient for valid flags
     const age = Date.now() - item.timestamp;
     const maxAge = item.url.includes('/assets/fallback-logo.svg') 
-      ? 24 * 60 * 60 * 1000  // 24 hours for fallbacks
-      : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
+      ? 7 * 24 * 60 * 60 * 1000  // 7 days for fallbacks (extended to reduce API calls)
+      : 30 * 24 * 60 * 60 * 1000; // 30 days for valid flags (extended for better caching)
 
     if (age > maxAge) {
       console.log(`🗑️ Cache expired for ${key} (age: ${Math.round(age / 1000 / 60)} min)`);

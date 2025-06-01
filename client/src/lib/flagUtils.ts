@@ -313,7 +313,7 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback - Cache-first optimized approach
+ * Get cached flag or fetch with fallback - Aggressive cache-first approach
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = getFlagCacheKey(country);
@@ -326,8 +326,6 @@ export async function getCachedFlag(country: string): Promise<string> {
     console.log(`📦 Using cached flag for ${country}: ${cached.url} (age: ${Math.round((Date.now() - cached.timestamp) / 1000 / 60)} min)`);
     return cached.url;
   }
-
-  console.log(`🔍 Fetching fresh flag for country: ${country}`);
 
   // Special cases first (immediate return, no API calls needed)
   if (country === 'World') {
@@ -342,12 +340,22 @@ export async function getCachedFlag(country: string): Promise<string> {
     return europeFlag;
   }
 
+  console.log(`🔍 Fetching fresh flag for country: ${country}`);
+
   // Try country code mapping first (most reliable, no validation needed)
   const countryCode = countryCodeMap[country];
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
     console.log(`✅ Using country code flag for ${country}: ${flagUrl}`);
     flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
+    return flagUrl;
+  }
+
+  // For countries with special codes (like GB-ENG for England), use fallback immediately
+  if (countryCode && countryCode.startsWith('GB-')) {
+    const flagUrl = `https://flagcdn.com/w40/gb.png`;
+    console.log(`✅ Using GB fallback for ${country}: ${flagUrl}`);
+    flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
     return flagUrl;
   }
 
