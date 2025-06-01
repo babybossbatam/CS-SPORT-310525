@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
@@ -263,119 +263,85 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Don't clear cache - let it work naturally for better performance
 
-    const fetchFlags = async () => {
-      // Only proceed if we have countries to fetch flags for
-      if (sortedCountries.length === 0) return;
+    // Memoize flag fetching to prevent duplicates
+  const fetchFlags = useMemo(() => {
+    let isFetching = false;
 
-      // First, prioritize cached flags over everything else
-      const immediateFlags: { [country: string]: string } = {};
-      const countriesToFetch: any[] = [];
+    return async () => {
+      if (isFetching) {
+        console.log('🔄 Flag fetching already in progress, skipping duplicate request');
+        return;
+      }
 
-      sortedCountries.forEach((countryData: any) => {
-        const country = countryData.country;
-        if (!flagMap[country]) {
-          // Check cache first - use any cached result if available
-          const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-          const cached = flagCache.getCached(cacheKey);
-          
-          if (cached) {
-            // Use any cached flag immediately (valid or fallback)
-            immediateFlags[country] = cached.url;
-            console.log(`✅ Using cached flag for ${country}: ${cached.url}`);
-            // Only fetch fresh if cache is expired or fallback is old
-            const age = Date.now() - cached.timestamp;
-            const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
-              ? 60 * 60 * 1000  // 1 hour for fallbacks
-              : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
-            
-            if (age >= maxAge) {
-              countriesToFetch.push(countryData);
-            }
-          } else {
-            // No cache - get immediate synchronous flag and add to fetch list
-            const syncFlag = getCountryFlagWithFallbackSync(country);
-            immediateFlags[country] = syncFlag;
-            countriesToFetch.push(countryData);
-          }
+      const countries = sortedCountries.map((c: any) => c.country).filter(Boolean);
+      const uniqueCountries = [...new Set(countries)];
+
+      // Only fetch flags that aren't already in our flagMap
+      const countriesNeedingFlags = uniqueCountries.filter(country => !flagMap[country]);
+
+      if (countriesNeedingFlags.length === 0) {
+        console.log('🎌 All countries already have flags cached');
+        return;
+      }
+
+      isFetching = true;
+      console.log(`🔍 Fetching flags for ${countriesNeedingFlags.length} countries:`, countriesNeedingFlags);
+
+      const flagPromises = countriesNeedingFlags.map(async (country) => {
+        try {
+          const flagUrl = await getCachedFlag(country);
+          return { country, flagUrl };
+        } catch (error) {
+          console.warn(`Failed to get flag for ${country}:`, error);
+          return { country, flagUrl: '/assets/fallback-logo.svg' };
         }
       });
 
-      // Update flagMap immediately with sync flags
-      if (Object.keys(immediateFlags).length > 0) {
-        setFlagMap(prev => ({ ...prev, ...immediateFlags }));
-      }
+      try {
+        const results = await Promise.allSettled(flagPromises);
+        const newFlags: { [country: string]: string } = {};
+        let validCount = 0;
+        let fallbackCount = 0;
 
-      if (countriesToFetch.length === 0) return;
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            const { country, flagUrl } = result.value;
+            newFlags[country] = flagUrl;
 
-      const newFlags: { [country: string]: string } = {};
-
-      for (const countryData of countriesToFetch) {
-        const country = countryData.country;
-        try {
-          const flag = await getCachedFlag(country); // Cache-first approach
-
-          // Store ALL results (including fallbacks) to prevent re-fetching
-          if (flag) {
-            newFlags[country] = flag;
-            if (!flag.includes('/assets/fallback-logo.svg')) {
-              console.log(`✅ Valid flag cached for ${country}: ${flag}`);
+            if (flagUrl === '/assets/fallback-logo.svg') {
+              fallbackCount++;
             } else {
-              console.log(`📦 Fallback flag cached for ${country}`);
+              validCount++;
             }
+          } else {
+            const country = countriesNeedingFlags[index];
+            newFlags[country] = '/assets/fallback-logo.svg';
+            fallbackCount++;
           }
-        } catch (error) {
-          console.error(`Failed to fetch flag for ${country}:`, error);
-          // Cache fallback to prevent future attempts
-          newFlags[country] = '/assets/fallback-logo.svg';
-        }
-      }
+        });
 
-      if (Object.keys(newFlags).length > 0) {
-        setFlagMap(prev => ({ ...prev, ...newFlags }));
-        console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
-
-        // Log cache performance stats
-        const validFlags = Object.values(newFlags).filter(url => !url.includes('/assets/fallback-logo.svg')).length;
-        const fallbackFlags = Object.keys(newFlags).length - validFlags;
-        console.log(`📊 Flag fetch stats: ${validFlags} valid, ${fallbackFlags} fallbacks`);
-
-        // Debug: Check cache status for a few countries and team logos
         if (Object.keys(newFlags).length > 0) {
-          import('../../lib/flagUtils').then(({ checkFlagCache, getFlagCacheStats }) => {
-            const firstCountry = Object.keys(newFlags)[0];
-            checkFlagCache(firstCountry);
-            getFlagCacheStats();
-          });
-
-          // Debug team logos for the first few matches
-          import('../../lib/teamLogoUtils').then(({ debugTeamLogo, checkTeamLogoCache, getTeamLogoCacheStats }) => {
-            const firstCountries = sortedCountries.slice(0, 2);
-            firstCountries.forEach((countryData: any) => {
-              // Get matches from the first league of each country
-              const firstLeague = Object.values(countryData.leagues)[0] as any;
-              if (firstLeague?.matches) {
-                firstLeague.matches.slice(0, 2).forEach((match: any) => {
-                  if (match.teams?.home) {
-                    debugTeamLogo(match.teams.home.id, match.teams.home.name, match.teams.home.logo);
-                    checkTeamLogoCache(match.teams.home.id, match.teams.home.name);
-                  }
-                  if (match.teams?.away) {
-                    debugTeamLogo(match.teams.away.id, match.teams.away.name, match.teams.away.logo);
-                    checkTeamLogoCache(match.teams.away.id, match.teams.away.name);
-                  }
-                });
-              }
-            });
-            getTeamLogoCacheStats();
-          });
+          setFlagMap(prev => ({ ...prev, ...newFlags }));
+          console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
+          console.log(`📊 Flag fetch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
         }
+      } catch (error) {
+        console.error('Error fetching flags:', error);
+      } finally {
+        isFetching = false;
       }
     };
+  }, [sortedCountries, flagMap]);
 
-    fetchFlags();
-  }, [sortedCountries.map((c: any) => c.country).join(',')]); // Removed flagMap dependency to prevent loops
+    // Debounce flag fetching to prevent rapid consecutive calls
+    const timeoutId = setTimeout(() => {
+      fetchFlags();
+    }, 100);
 
-  
+    return () => clearTimeout(timeoutId);
+  }, [sortedCountries.map((c: any) => c.country).join(','), fetchFlags]);
+
+
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
@@ -803,7 +769,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                             const homeScore = match.goals.home;
                                             const awayScore = match.goals.away;
                                             const hasValidScores = (homeScore !== null && homeScore !== undefined) &&
-                                              (awayScore !== null && awayScore !== undefined) &&
+(awayScore !== null && awayScore !== undefined) &&
                                               !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
 
                                             if (hasValidScores) {

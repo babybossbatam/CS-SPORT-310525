@@ -541,6 +541,12 @@ export async function getCachedFlag(country: string): Promise<string> {
     console.log(`❌ No cache found for ${country} with key: ${cacheKey}`);
   }
 
+    // Check if there's already a pending request for this country
+    if (pendingFlagRequests.has(cacheKey)) {
+      console.log(`⏳ Deduplicating request for ${country}, using existing promise`);
+      return pendingFlagRequests.get(cacheKey)!;
+    }
+
   // Special cases first (immediate return, no API calls needed)
   if (country === 'World') {
     // Try 365scores.com CDN first, fallback to custom SVG
@@ -593,28 +599,39 @@ export async function getCachedFlag(country: string): Promise<string> {
     return flagUrl;
   }
 
-  // Fallback to API endpoint for unmapped countries (cache the result regardless)
-  try {
-    const apiUrl = `/api/flags/${encodeURIComponent(country)}`;
-    const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
+      // Create and store the promise
+    const flagPromise = (async () => {
+      try {
+          // Fallback to API endpoint for unmapped countries (cache the result regardless)
+          try {
+            const apiUrl = `/api/flags/${encodeURIComponent(country)}`;
+            const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success && data.flagUrl) {
-        console.log(`✅ API flag found for ${country}: ${data.flagUrl}`);
-        flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
-        return data.flagUrl;
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.flagUrl) {
+                console.log(`✅ API flag found for ${country}: ${data.flagUrl}`);
+                flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
+                return data.flagUrl;
+              }
+            }
+          } catch (error) {
+            console.log(`API request failed for ${country}:`, error);
+          }
+
+          // Final fallback - cache it but with shorter duration
+          console.log(`⚠️ Using fallback for ${country}, caching for 1 hour`);
+          const fallbackUrl = '/assets/fallback-logo.svg';
+          flagCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
+          return fallbackUrl;
+      } finally {
+          // Remove from pending requests when done
+          pendingFlagRequests.delete(cacheKey);
       }
-    }
-  } catch (error) {
-    console.log(`API request failed for ${country}:`, error);
-  }
+    })();
 
-  // Final fallback - cache it but with shorter duration
-  console.log(`⚠️ Using fallback for ${country}, caching for 1 hour`);
-  const fallbackUrl = '/assets/fallback-logo.svg';
-  flagCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
-  return fallbackUrl;
+    pendingFlagRequests.set(cacheKey, flagPromise);
+    return flagPromise;
 }
 
 /**
@@ -1685,7 +1702,7 @@ export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): 
 
   const foundInApi = new Set(apiCountries.map(c => c.trim()));
   const mappedExternal = new Set<string>();
-  const unmappedExternal = new Set<string>();
+    const unmappedExternal = new Set<string>();
 
   externalSourcePatterns.forEach(pattern => {
     if (countryCodeMap[pattern]) {
@@ -1759,4 +1776,60 @@ export function compare365ScoresCompatibility(fixtures: any[]): void {
   analyzeCountriesAgainstExternalSources(Array.from(allCountries));
 
   console.log('\n🔄 Cross-reference complete. Use the suggestions above to enhance country mapping.');
+}
+
+// Enhanced flag caching with better error handling and performance
+const flagCache = createSmartCache<string>();
+
+// Global flag request deduplication
+const pendingFlagRequests = new Map<string, Promise<string>>();
+
+import { getFlagForCountry } from './logoCache';
+import { CACHE_FRESHNESS } from './cacheFreshness';
+
+export async function getCachedFlag(country: string): Promise<string> {
+  const key = getFlagCacheKey(country);
+
+  console.log(`🔍 getCachedFlag called for: ${country} with cache key: ${key}`);
+
+  // Check cache first
+  const cached = flagCache.getCached(key);
+  if (cached && !CACHE_FRESHNESS.isExpired(cached.timestamp)) {
+    const ageMinutes = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
+    console.log(`✅ Cache hit for ${key} (age: ${ageMinutes} min)`);
+    return cached.url;
+  }
+
+  // Check if there's already a pending request for this country
+  if (pendingFlagRequests.has(key)) {
+    console.log(`⏳ Deduplicating request for ${country}, using existing promise`);
+    return pendingFlagRequests.get(key)!;
+  }
+
+  if (cached) {
+    const ageMinutes = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
+    console.log(`⏰ Cached flag expired for ${country}, age: ${ageMinutes} min`);
+  } else {
+    console.log(`❌ No cache found for ${country} with key: ${key}`);
+  }
+
+  // Create and store the promise
+  const flagPromise = (async () => {
+    try {
+      console.log(`🔍 Fetching fresh flag for country: ${country}`);
+      const flagUrl = await getFlagForCountry(country);
+
+      // Cache the result
+      flagCache.setCache(key, flagUrl, 'country-code', true);
+      console.log(`💾 Cached flag for ${country} with source: country-code`);
+
+      return flagUrl;
+    } finally {
+      // Remove from pending requests when done
+      pendingFlagRequests.delete(key);
+    }
+  })();
+
+  pendingFlagRequests.set(key, flagPromise);
+  return flagPromise;
 }
