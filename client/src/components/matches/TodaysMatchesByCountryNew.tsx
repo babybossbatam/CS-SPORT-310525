@@ -540,48 +540,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         src={flagMap[countryData.country] || '/assets/fallback-logo.svg'}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                        onError={async (e) => {
+                        onError={(e) => {
                             const target = e.target as HTMLImageElement;
 
-                            // Check if this is a real error or just a temporary loading issue
+                            // Prevent multiple fallback attempts on the same image
+                            if (target.dataset.fallbackAttempted === 'true') {
+                              return;
+                            }
+                            target.dataset.fallbackAttempted = 'true';
+
+                            // Check if this is a real error
                             if (target.complete && target.naturalWidth === 0) {
                               console.log(`🚫 Real image load error for ${countryData.country}: ${target.src}`);
 
-                              // Use fallback only if not already using it
-                              if (!target.src.includes('/assets/fallback-logo.svg')) {
-                                try {
-                                  // For World, try a different 365scores URL first before clearing cache
-                                  if (countryData.country === 'World') {
-                                    // Try the International flag URL without clearing cache first
-                                    const internationalFlag = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
-                                    
-                                    // Only clear cache if we're not already trying the international flag
-                                    if (!target.src.includes('international')) {
-                                      console.log('🔄 Trying 365scores International flag for World');
-                                      target.src = internationalFlag;
-                                      return;
-                                    } else {
-                                      // If international flag also failed, clear cache and use fallback
-                                      const worldCacheKey = 'flag_world';
-                                      flagCache.removeCached(worldCacheKey);
-                                      setFlagMap(prev => {
-                                        const newMap = { ...prev };
-                                        delete newMap['World'];
-                                        return newMap;
-                                      });
-                                      console.log('🗑️ All World flag sources failed, cleared cache and using fallback');
-                                    }
-                                  }
-
-                                  // Ultimate fallback
-                                  target.src = '/assets/fallback-logo.svg';
-                                } catch (error) {
-                                  console.error('Error in flag fallback:', error);
-                                  target.src = '/assets/fallback-logo.svg';
-                                }
+                              // For World flag, try alternative before fallback
+                              if (countryData.country === 'World' && !target.src.includes('international') && !target.src.includes('/assets/fallback-logo.svg')) {
+                                console.log('🔄 Trying alternative World flag source');
+                                target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
+                                return;
                               }
-                            } else {
-                              console.log(`ℹ️ Image load event triggered but image is loading properly for ${countryData.country}`);
+
+                              // Use fallback for all failed attempts
+                              target.src = '/assets/fallback-logo.svg';
                             }
                         }}
                       />
@@ -776,7 +756,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   <div className="text-xs text-gray-600 font-semibold mb-1">
                                                     {status === 'FT' ? 'ENDED' : status}
                                                   </div>
-                                                  <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                                  <div className="text-lg font-bold text-gray-900```text
+ flex items-center gap-2">
                                                     <span>{homeScore}</span>
                                                     <span className="text-gray-400">-</span>
                                                     <span>{awayScore}</span>

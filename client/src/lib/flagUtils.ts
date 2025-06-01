@@ -544,6 +544,8 @@ export function generateFlagSources(country: string): string[] {
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
   
+  console.log(`🔍 getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
+  
   // Track usage for intelligent caching
   trackFlagUsage(country);
 
@@ -553,18 +555,32 @@ export async function getCachedFlag(country: string): Promise<string> {
     const age = Date.now() - cached.timestamp;
     const ageMinutes = Math.round(age / 1000 / 60);
 
+    console.log(`⏰ Cache age check for ${cacheKey}:`, {
+      ageMinutes,
+      maxAgeMinutes: cached.url.includes('/assets/fallback-logo.svg') ? 60 : 10080,
+      expired: false,
+      url: cached.url,
+      source: cached.source
+    });
+
     // Use any cached result if it's not too old
     const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
       ? 60 * 60 * 1000  // 1 hour for fallbacks
       : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     if (age < maxAge) {
+      console.log(`✅ Cache hit for ${cacheKey} (age: ${ageMinutes} min)`);
       return cached.url;
+    } else {
+      console.log(`⏰ Cache expired for ${cacheKey} (age: ${ageMinutes} min)`);
     }
+  } else {
+    console.log(`❌ Cache miss for key: ${cacheKey}`);
   }
 
   // Check if there's already a pending request for this country
   if (pendingFlagRequests.has(cacheKey)) {
+    console.log(`⏳ Returning existing pending request for ${country}`);
     return pendingFlagRequests.get(cacheKey)!;
   }
 
