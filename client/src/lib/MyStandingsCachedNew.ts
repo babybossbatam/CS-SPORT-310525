@@ -82,6 +82,21 @@ const STANDINGS_CACHE_CONFIG = {
   retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
 };
 
+// localStorage cache manager for standings
+const STANDINGS_STORAGE_KEY = 'standings_cache';
+const CACHE_EXPIRY_TIME = 4 * 60 * 60 * 1000; // 4 hours
+
+interface CachedStandingsItem {
+  data: LeagueStandings;
+  timestamp: number;
+  leagueId: number;
+  season: number;
+}
+
+interface StandingsStorageCache {
+  [key: string]: CachedStandingsItem;
+}
+
 // Popular leagues for batch fetching
 const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
 
@@ -89,12 +104,129 @@ class StandingsCache {
   private static instance: StandingsCache;
   private batchCache = new Map<string, Promise<BatchStandingsResponse>>();
   private individualCache = new Map<string, Promise<LeagueStandings | null>>();
+  private memoryCache = new Map<string, CachedStandingsItem>();
 
   static getInstance(): StandingsCache {
     if (!StandingsCache.instance) {
       StandingsCache.instance = new StandingsCache();
+      // Load cache from localStorage on initialization
+      StandingsCache.instance.loadFromStorage();
     }
     return StandingsCache.instance;
+  }
+
+  // Load standings cache from localStorage
+  private loadFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(STANDINGS_STORAGE_KEY);
+      if (stored) {
+        const cache: StandingsStorageCache = JSON.parse(stored);
+        const now = Date.now();
+        
+        let loadedCount = 0;
+        Object.entries(cache).forEach(([key, item]) => {
+          // Only load non-expired items
+          if (now - item.timestamp < CACHE_EXPIRY_TIME) {
+            this.memoryCache.set(key, item);
+            loadedCount++;
+          }
+        });
+        
+        console.log(`🏆 Loaded ${loadedCount} standings from localStorage cache`);
+        this.logCacheStats();
+      }
+    } catch (error) {
+      console.error('Error loading standings cache from localStorage:', error);
+    }
+  }
+
+  // Save standings cache to localStorage
+  private saveToStorage(): void {
+    try {
+      const cacheObject: StandingsStorageCache = {};
+      this.memoryCache.forEach((item, key) => {
+        cacheObject[key] = item;
+      });
+      localStorage.setItem(STANDINGS_STORAGE_KEY, JSON.stringify(cacheObject));
+    } catch (error) {
+      console.error('Error saving standings cache to localStorage:', error);
+    }
+  }
+
+  // Get cached standings from memory/localStorage
+  private getCachedStandings(leagueId: number, season?: number): LeagueStandings | null {
+    const cacheKey = this.getStandingsKey(leagueId, season);
+    const cached = this.memoryCache.get(cacheKey);
+    
+    if (cached) {
+      const now = Date.now();
+      const age = now - cached.timestamp;
+      
+      if (age < CACHE_EXPIRY_TIME) {
+        console.log(`🏆 Cache hit for standings league ${leagueId} (age: ${Math.floor(age / 60000)} min)`);
+        return cached.data;
+      } else {
+        // Remove expired item
+        this.memoryCache.delete(cacheKey);
+        console.log(`⏰ Expired standings cache for league ${leagueId}`);
+      }
+    }
+    
+    console.log(`❌ Cache miss for standings league ${leagueId}`);
+    return null;
+  }
+
+  // Set cached standings in memory and localStorage
+  private setCachedStandings(leagueId: number, data: LeagueStandings, season?: number): void {
+    const cacheKey = this.getStandingsKey(leagueId, season);
+    const currentYear = new Date().getFullYear();
+    const targetSeason = season || currentYear;
+    
+    const cacheItem: CachedStandingsItem = {
+      data,
+      timestamp: Date.now(),
+      leagueId,
+      season: targetSeason,
+    };
+    
+    this.memoryCache.set(cacheKey, cacheItem);
+    this.saveToStorage();
+    
+    console.log(`💾 Cached standings for league ${leagueId} (${data.league.name})`);
+  }
+
+  // Log cache statistics
+  private logCacheStats(): void {
+    const now = Date.now();
+    const stats = {
+      total: this.memoryCache.size,
+      fresh: 0,
+      expired: 0,
+    };
+
+    this.memoryCache.forEach((item) => {
+      const age = now - item.timestamp;
+      if (age < CACHE_EXPIRY_TIME) {
+        stats.fresh++;
+      } else {
+        stats.expired++;
+      }
+    });
+
+    console.log(`🏆 Standings Cache Stats:`, stats);
+    
+    if (stats.total > 0) {
+      const details = Array.from(this.memoryCache.entries()).map(([key, item]) => {
+        const age = Math.floor((now - item.timestamp) / 60000);
+        return {
+          league: item.data.league.name,
+          leagueId: item.leagueId,
+          season: item.season,
+          age: `${age} min`
+        };
+      });
+      console.log(`📊 Standings Cache Details:`, details.slice(0, 10)); // Show first 10
+    }
   }
 
   // Generate consistent cache keys
@@ -137,7 +269,14 @@ class StandingsCache {
       return null;
     }
 
+    // Check cache first
+    const cached = this.getCachedStandings(leagueId, season);
+    if (cached) {
+      return cached;
+    }
+
     try {
+      console.log(`🔍 Fetching fresh standings for league ${leagueId}`);
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined
       });
@@ -148,7 +287,13 @@ class StandingsCache {
       }
 
       const data = await response.json();
-      console.log(`✅ Fetched standings for league ${leagueId}`);
+      
+      // Cache the fetched data
+      if (data && data.league) {
+        this.setCachedStandings(leagueId, data, season);
+      }
+      
+      console.log(`✅ Fetched and cached standings for league ${leagueId} (${data?.league?.name || 'Unknown'})`);
       return data;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
@@ -245,7 +390,51 @@ class StandingsCache {
   clearCache(): void {
     this.batchCache.clear();
     this.individualCache.clear();
-    console.log('🧹 Standings cache cleared');
+    this.memoryCache.clear();
+    
+    try {
+      localStorage.removeItem(STANDINGS_STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing standings localStorage:', error);
+    }
+    
+    console.log('🧹 Standings cache cleared (memory + localStorage)');
+  }
+
+  // Get cache statistics for debugging
+  getCacheStats(): {
+    total: number;
+    fresh: number;
+    expired: number;
+    details: Array<{league: string; leagueId: number; season: number; age: string}>;
+  } {
+    const now = Date.now();
+    const stats = {
+      total: this.memoryCache.size,
+      fresh: 0,
+      expired: 0,
+      details: [] as Array<{league: string; leagueId: number; season: number; age: string}>,
+    };
+
+    this.memoryCache.forEach((item) => {
+      const age = now - item.timestamp;
+      const ageMinutes = Math.floor(age / 60000);
+      
+      if (age < CACHE_EXPIRY_TIME) {
+        stats.fresh++;
+      } else {
+        stats.expired++;
+      }
+
+      stats.details.push({
+        league: item.data.league.name,
+        leagueId: item.leagueId,
+        season: item.season,
+        age: `${ageMinutes} min`,
+      });
+    });
+
+    return stats;
   }
 }
 
