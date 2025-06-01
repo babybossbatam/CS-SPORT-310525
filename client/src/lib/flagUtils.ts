@@ -4,6 +4,28 @@ import { testImageUrl, findWorkingLogoUrl, generateLogoSources } from './MyAPIFa
 
 export { countryCodeMap };
 
+/**
+ * Get country code from country name using the centralized mapping
+ */
+export function getCountryCode(countryName: string): string | null {
+  const normalizedCountry = countryName.trim();
+  let countryCode = countryCodeMap[normalizedCountry];
+  
+  // If not found, try with spaces instead of hyphens
+  if (!countryCode && normalizedCountry.includes('-')) {
+    const spaceVersion = normalizedCountry.replace(/-/g, ' ');
+    countryCode = countryCodeMap[spaceVersion];
+  }
+  
+  // If not found, try with hyphens instead of spaces
+  if (!countryCode && normalizedCountry.includes(' ')) {
+    const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
+    countryCode = countryCodeMap[hyphenVersion];
+  }
+  
+  return countryCode || null;
+}
+
 // Enhanced country code mapping for Flagpedia with normalized variations
 const countryCodeMap: { [key: string]: string } = {
   'England': 'GB-ENG',
