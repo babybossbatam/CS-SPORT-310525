@@ -896,11 +896,28 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                          <div className={`flex-shrink-0 mx-1 flex items-center justify-center w-9 h-9 ${
+                            // Apply flag styling to all country/international competitions 
+                            (countryData.country === 'World' || 
+                             countryData.country === 'Europe' || 
+                             countryData.country === 'South America' || 
+                             countryData.country === 'International' ||
+                             leagueData.league.name?.toLowerCase().includes('international') ||
+                             leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                             leagueData.league.name?.toLowerCase().includes('nations league') ||
+                             leagueData.league.name?.toLowerCase().includes('world cup') ||
+                             leagueData.league.name?.toLowerCase().includes('euro') ||
+                             leagueData.league.name?.toLowerCase().includes('copa america') ||
+                             leagueData.league.name?.toLowerCase().includes('uefa') ||
+                             leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                             leagueData.league.name?.toLowerCase().includes('fifa'))
+                              ? 'country-flag-ball' 
+                              : ''
+                          }`}>
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className={`w-9 h-9 ${
+                              className={`${
                                 // Apply flag styling to all country/international competitions 
                                 (countryData.country === 'World' || 
                                  countryData.country === 'Europe' || 
@@ -915,8 +932,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-full border border-gray-200' 
-                                  : 'object-contain'
+                                  ? 'w-full h-full' 
+                                  : 'w-9 h-9 object-contain'
                               }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -1052,11 +1069,28 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
 
-                          <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                          <div className={`flex-shrink-0 mx-1 flex items-center justify-center w-9 h-9 ${
+                            // Apply flag styling to all country/international competitions 
+                            (countryData.country === 'World' || 
+                             countryData.country === 'Europe' || 
+                             countryData.country === 'South America' || 
+                             countryData.country === 'International' ||
+                             leagueData.league.name?.toLowerCase().includes('international') ||
+                             leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                             leagueData.league.name?.toLowerCase().includes('nations league') ||
+                             leagueData.league.name?.toLowerCase().includes('world cup') ||
+                             leagueData.league.name?.toLowerCase().includes('euro') ||
+                             leagueData.league.name?.toLowerCase().includes('copa america') ||
+                             leagueData.league.name?.toLowerCase().includes('uefa') ||
+                             leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                             leagueData.league.name?.toLowerCase().includes('fifa'))
+                              ? 'country-flag-ball' 
+                              : ''
+                          }`}>
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className={`w-9 h-9 ${
+                              className={`${
                                 // Apply flag styling to all country/international competitions 
                                 (countryData.country === 'World' || 
                                  countryData.country === 'Europe' || 
@@ -1071,8 +1105,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                  leagueData.league.name?.toLowerCase().includes('fifa'))
-                                  ? 'object-cover rounded-full border border-gray-200' 
-                                  : 'object-contain'
+                                  ? 'w-full h-full' 
+                                  : 'w-9 h-9 object-contain'
                               }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
