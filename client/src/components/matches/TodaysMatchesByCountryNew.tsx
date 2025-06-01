@@ -322,11 +322,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const flagPromises = countriesToFetch.map(async (countryData: any) => {
         const country = countryData.country;
         try {
+          console.log(`Fetching flag for country: ${country}`);
           const flag = await getCountryFlagWithFallback(country);
+          console.log(`Flag result for ${country}: ${flag}`);
           return { country, flag };
         } catch (error) {
           console.error(`Failed to fetch flag for ${country}:`, error);
-          return { country, flag: getCountryFlagWithFallbackSync(country) };
+          const fallbackFlag = getCountryFlagWithFallbackSync(country);
+          console.log(`Using fallback flag for ${country}: ${fallbackFlag}`);
+          return { country, flag: fallbackFlag };
         }
       });
 
