@@ -234,7 +234,7 @@ const LeagueDetails = () => {
 
                   <TabsContent value="standings" className="mt-2">
                     <Card>
-                      {league && (
+                      {league && league.league && league.league.id && (
                         <LeagueStandings
                           leagueId={league.league.id}
                           season={league.league.season}
