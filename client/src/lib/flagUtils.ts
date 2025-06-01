@@ -411,17 +411,11 @@ export function initializeFlagCachePersistence(): void {
   // Load existing cache on startup
   loadFlagCacheFromStorage();
 
-  // Prewarm cache with popular countries
-  prewarmPopularFlags();
-
   // Save cache periodically (every 5 minutes)
   setInterval(saveFlagCacheToStorage, 5 * 60 * 1000);
 
   // Run intelligent cache cleanup every 10 minutes
   setInterval(intelligentCacheCleanup, 10 * 60 * 1000);
-
-  // Background refresh of stale cache entries every 30 minutes
-  setInterval(backgroundCacheRefresh, 30 * 60 * 1000);
 
   // Save cache when page is unloaded
   window.addEventListener('beforeunload', saveFlagCacheToStorage);
@@ -436,27 +430,10 @@ export function initializeFlagCachePersistence(): void {
 
 /**
  * Prewarm flag cache with most common countries from sports data
+ * Disabled - flags will be loaded on-demand to prevent duplicate fetches
  */
 export async function prewarmPopularFlags(): Promise<void> {
-  const popularCountries = [
-    'England', 'Spain', 'Germany', 'France', 'Italy', 'Netherlands', 
-    'Portugal', 'Brazil', 'Argentina', 'United States', 'Japan',
-    'South Korea', 'Mexico', 'Turkey', 'Belgium', 'Croatia',
-    'Poland', 'Switzerland', 'Austria', 'Denmark', 'World', 'Europe'
-  ];
-
-  console.log('🔥 Prewarming flag cache for popular countries...');
-  
-  const prewarmPromises = popularCountries.map(async (country) => {
-    try {
-      await getCachedFlag(country);
-    } catch (error) {
-      console.warn(`Failed to prewarm flag for ${country}:`, error);
-    }
-  });
-
-  await Promise.allSettled(prewarmPromises);
-  console.log('✅ Flag cache prewarming completed');
+  console.log('🔥 Flag prewarming disabled - using on-demand loading');
 }
 
 /**
@@ -1133,18 +1110,10 @@ export function getFlagCacheStats(): void {
 
 /**
  * Clear all cached fallback flags to force re-fetching (use sparingly)
+ * Disabled - let the cache system handle expiration naturally
  */
 export function clearFallbackFlagCache(): void {
-  // Get all cached items and remove fallback ones
-  const cache = (flagCache as any).cache; // Access the internal Map
-  if (cache instanceof Map) {
-    for (const [key, value] of cache.entries()) {
-      if (value.url && value.url.includes('/assets/fallback-logo.svg')) {
-        cache.delete(key);
-      }
-    }
-  }
-  console.log('Cleared fallback flag cache entries');
+  console.log('Cache clearing disabled - relying on natural cache expiration');
 }
 
 /**

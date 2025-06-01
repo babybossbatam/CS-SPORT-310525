@@ -541,25 +541,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
-
-                            // Prevent multiple fallback attempts on the same image
-                            if (target.dataset.fallbackAttempted === 'true') {
-                              return;
-                            }
-                            target.dataset.fallbackAttempted = 'true';
-
-                            // Check if this is a real error
-                            if (target.complete && target.naturalWidth === 0) {
-                              console.log(`🚫 Real image load error for ${countryData.country}: ${target.src}`);
-
-                              // For World flag, don't clear cache - just use fallback
-                              if (countryData.country === 'World') {
-                                console.log('🌍 World flag failed to load, using fallback without clearing cache');
-                                target.src = '/assets/fallback-logo.svg';
-                                return;
-                              }
-
-                              // Use fallback for all failed attempts
+                            // Simple fallback without clearing cache - let the cache system handle it
+                            if (!target.src.includes('/assets/fallback-logo.svg')) {
                               target.src = '/assets/fallback-logo.svg';
                             }
                         }}
