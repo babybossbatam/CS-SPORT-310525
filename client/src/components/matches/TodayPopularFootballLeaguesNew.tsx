@@ -700,7 +700,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       <img
                         src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                         alt={leagueData.league.name || 'Unknown League'}
-                        className="w-5 h-5 object-contain"
+                        className="w-5 h-5 object-contain drop-shadow-sm"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
@@ -717,7 +717,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       <img
                         src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                         alt={leagueData.league.name || 'Unknown League'}
-                        className="w-6 h-6 object-contain mt-0.5"
+                        className="w-6 h-6 object-contain mt-0.5 drop-shadow-sm"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
@@ -884,7 +884,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className="w-12 h-12 object-contain"
+                              className="w-12 h-12 object-contain drop-shadow-md"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1020,7 +1020,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className="w-12 h-12 object-contain"
+                              className="w-12 h-12 object-contain drop-shadow-md"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
