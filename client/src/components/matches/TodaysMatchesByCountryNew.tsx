@@ -327,7 +327,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const country = countryData.country;
         try {
           const flag = await getCachedFlag(country); // Cache-first approach
-          
+
           // Store ALL results (including fallbacks) to prevent re-fetching
           if (flag) {
             newFlags[country] = flag;
@@ -347,12 +347,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (Object.keys(newFlags).length > 0) {
         setFlagMap(prev => ({ ...prev, ...newFlags }));
         console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
-        
+
         // Log cache performance stats
         const validFlags = Object.values(newFlags).filter(url => !url.includes('/assets/fallback-logo.svg')).length;
         const fallbackFlags = Object.keys(newFlags).length - validFlags;
         console.log(`📊 Flag fetch stats: ${validFlags} valid, ${fallbackFlags} fallbacks`);
-        
+
         // Debug: Check cache status for a few countries and team logos
         if (Object.keys(newFlags).length > 0) {
           import('../../lib/flagUtils').then(({ checkFlagCache, getFlagCacheStats }) => {
@@ -360,7 +360,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             checkFlagCache(firstCountry);
             getFlagCacheStats();
           });
-          
+
           // Debug team logos for the first few matches
           import('../../lib/teamLogoUtils').then(({ debugTeamLogo, checkTeamLogoCache, getTeamLogoCacheStats }) => {
             const firstCountries = sortedCountries.slice(0, 2);
@@ -753,7 +753,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                              match.league?.name?.toLowerCase().includes('uefa') ||
                                              match.league?.name?.toLowerCase().includes('conmebol') ||
                                              match.league?.name?.toLowerCase().includes('fifa'))
-                                              ? 'object-cover country-flag-ball rounded-full' 
+                                              ? ''object-cover country-flag-ball rounded-full' 
                                               : 'object-contain'
                                           }`}
                                           onError={(e) => {
