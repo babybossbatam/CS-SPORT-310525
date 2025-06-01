@@ -860,7 +860,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             e.stopPropagation();
                             // Add your functionality here
                           }}
-                          className="h-full w-10 hover:bg-blue-50 transition-colors duration-200 bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0"
+                          className="w-10 hover:bg-blue-50 transition-colors duration-200 bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 py-2"
                           title="Add to favorites"
                           onMouseEnter={(e) => {
                             e.currentTarget.closest('.group')?.classList.add('disable-hover');
