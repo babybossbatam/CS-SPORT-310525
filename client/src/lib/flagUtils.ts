@@ -518,6 +518,8 @@ export function generateFlagSources(country: string): string[] {
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
   
+  console.log(`🔍 [flagUtils.ts:getCachedFlag] getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
+  
   // Track usage for intelligent caching
   trackFlagUsage(country);
 
@@ -533,14 +535,13 @@ export async function getCachedFlag(country: string): Promise<string> {
       : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     if (age < maxAge) {
-      console.log(`🎯 Using cached flag for ${country} (age: ${ageMinutes}m)`);
+      console.log(`✅ [flagUtils.ts:getCachedFlag] Cache hit for ${country} (age: ${ageMinutes} min)`);
       return cached.url;
     }
   }
 
   // Check if there's already a pending request for this country
   if (pendingFlagRequests.has(cacheKey)) {
-    console.log(`⏳ Reusing pending request for ${country}`);
     return pendingFlagRequests.get(cacheKey)!;
   }
 
@@ -557,8 +558,6 @@ export async function getCachedFlag(country: string): Promise<string> {
     flagCache.setCached(cacheKey, europeFlag, 'europe-direct', true);
     return europeFlag;
   }
-
-  console.log(`🔍 Processing flag request for ${country} (not in cache)`);
 
   // For regular countries, check if they have simple country code mappings first
   const normalizedCountry = country.trim();
@@ -578,19 +577,16 @@ export async function getCachedFlag(country: string): Promise<string> {
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
     flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
-    console.log(`⚡ Direct flag for ${country}: ${flagUrl}`);
     return flagUrl;
   }
 
   if (countryCode && countryCode.startsWith('GB-')) {
     const flagUrl = `https://flagcdn.com/w40/gb.png`;
     flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
-    console.log(`🇬🇧 GB fallback for ${country}: ${flagUrl}`);
     return flagUrl;
   }
 
   // For countries that need API calls, use improved batching
-  console.log(`📦 Adding ${country} to batch queue`);
   const flagPromise = addToBatch(country);
   pendingFlagRequests.set(cacheKey, flagPromise);
   
@@ -654,7 +650,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
   const cached = flagCache.getCached(flagCacheKey);
   if (cached) {
-    console.log(`🔄 Sync function using cached flag for ${country}: ${cached.url}`);
+    console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Sync function using cached flag for ${country}: ${cached.url}`);
     return cached.url;
   }
 
@@ -682,7 +678,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
         // Special cases for international competitions
         if (cleanCountry === 'World') {
           result = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
-          console.log(`🌍 Sync World flag: ${result}`);
+          console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Sync World flag: ${result}`);
         } else if (cleanCountry === 'Europe') {
           result = 'https://flagcdn.com/w40/eu.png';
         } else {
@@ -1799,7 +1795,7 @@ async function processFlagBatch(): Promise<void> {
   flagBatchQueue.clear();
   flagBatchCallbacks.clear();
   
-  console.log(`🚀 Processing flag batch for ${countries.length} countries:`, countries.slice(0, 10));
+  console.log(`🚀 [flagUtils.ts:processFlagBatch] Processing flag batch for ${countries.length} countries:`, countries.slice(0, 10));
 
   // Filter out countries that are already cached or being processed
   const countriesToProcess = countries.filter(country => {
@@ -1822,11 +1818,11 @@ async function processFlagBatch(): Promise<void> {
   });
 
   if (countriesToProcess.length === 0) {
-    console.log(`✅ All countries were already cached, no processing needed`);
+    console.log(`✅ [flagUtils.ts:processFlagBatch] All countries were already cached, no processing needed`);
     return;
   }
 
-  console.log(`📊 Processing ${countriesToProcess.length}/${countries.length} countries (others were cached)`);
+  console.log(`📊 [flagUtils.ts:processFlagBatch] Processing ${countriesToProcess.length}/${countries.length} countries (others were cached)`);
 
   // Process countries in optimized chunks
   const chunkSize = 5; // Smaller chunks for better performance

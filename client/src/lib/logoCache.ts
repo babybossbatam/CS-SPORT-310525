@@ -70,13 +70,13 @@ class LogoCache {
   }
 
   setCached(key: string, url: string, source: string, verified: boolean = false) {
-    console.log(`💾 Setting cache for key: ${key}`, {
+    console.log(`💾 [logoCache.ts:setCached] Setting cache for key: ${key}`, {
       url,
       source,
       verified,
       timestamp: Date.now()
     });
-    
+
     this.cache.set(key, {
       url,
       source,
@@ -90,13 +90,13 @@ class LogoCache {
   getCached(key: string): CachedItem | null {
     const item = this.cache.get(key);
 
-    console.log(`🔍 Cache lookup for key: ${key}`, {
+    console.log(`🔍 [logoCache.ts:getCached] Cache lookup for key: ${key}`, {
       found: !!item,
       cacheSize: this.cache.size
     });
 
     if (!item) {
-      console.log(`❌ Cache miss for key: ${key}`);
+      console.log(`❌ [logoCache.ts:getCached] Cache miss for key: ${key}`);
       return null;
     }
 
@@ -109,7 +109,7 @@ class LogoCache {
     const ageMinutes = Math.round(age / 1000 / 60);
     const maxAgeMinutes = Math.round(maxAge / 1000 / 60);
 
-    console.log(`⏰ Cache age check for ${key}:`, {
+    console.log(`⏰ [logoCache.ts:getCached] Cache age check for ${key}:`, {
       ageMinutes,
       maxAgeMinutes,
       expired: age > maxAge,
@@ -123,7 +123,7 @@ class LogoCache {
       return null;
     }
 
-    console.log(`✅ Cache hit for ${key} (age: ${ageMinutes} min)`);
+    console.log(`✅ [logoCache.ts:getCached] Cache hit for ${key} (age: ${ageMinutes} min)`);
     return item;
   }
 
