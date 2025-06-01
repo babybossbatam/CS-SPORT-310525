@@ -1148,6 +1148,403 @@ export function checkFlagCache(country: string): void {
   }
 }
 
+/**
+ * 365scores.com commonly used countries based on their website structure
+ */
+const scores365Countries = [
+  // Major European countries
+  'England', 'Spain', 'Germany', 'France', 'Italy', 'Netherlands', 'Portugal',
+  'Belgium', 'Turkey', 'Switzerland', 'Austria', 'Denmark', 'Sweden', 'Norway',
+  'Poland', 'Czech Republic', 'Croatia', 'Serbia', 'Greece', 'Ukraine', 'Russia',
+  'Bulgaria', 'Romania', 'Hungary', 'Slovakia', 'Slovenia', 'Bosnia and Herzegovina',
+  'North Macedonia', 'Montenegro', 'Albania', 'Kosovo', 'Moldova', 'Belarus',
+  'Lithuania', 'Latvia', 'Estonia', 'Finland', 'Iceland', 'Ireland', 'Malta',
+  'Cyprus', 'Luxembourg', 'Scotland', 'Wales', 'Northern Ireland',
+
+  // Major South American countries
+  'Brazil', 'Argentina', 'Mexico', 'Colombia', 'Peru', 'Chile', 'Uruguay',
+  'Paraguay', 'Bolivia', 'Ecuador', 'Venezuela',
+
+  // North America & Caribbean
+  'United States', 'USA', 'Canada', 'Costa Rica', 'Panama', 'Guatemala',
+  'Honduras', 'El Salvador', 'Nicaragua', 'Jamaica', 'Trinidad and Tobago',
+  'Cuba', 'Dominican Republic', 'Haiti', 'Barbados', 'Bahamas',
+
+  // Caribbean territories commonly on sports sites
+  'Curaçao', 'Curacao', 'Sint Maarten', 'Aruba', 'Bonaire', 'Saint Lucia',
+  'Saint Vincent and the Grenadines', 'Grenada', 'Dominica', 'Antigua and Barbuda',
+  'Saint Kitts and Nevis', 'Montserrat', 'Anguilla', 'British Virgin Islands',
+  'US Virgin Islands', 'Puerto Rico', 'Cayman Islands', 'Turks and Caicos',
+  'Bermuda',
+
+  // Major Asian countries
+  'Japan', 'South Korea', 'China', 'India', 'Thailand', 'Vietnam', 'Malaysia',
+  'Singapore', 'Indonesia', 'Philippines', 'Myanmar', 'Cambodia', 'Laos',
+  'Brunei', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Bhutan',
+  'Maldives', 'Afghanistan', 'Iran', 'Iraq', 'Saudi Arabia', 'United Arab Emirates',
+  'Qatar', 'Kuwait', 'Bahrain', 'Oman', 'Yemen', 'Jordan', 'Lebanon', 'Syria',
+  'Israel', 'Palestine',
+
+  // Asian territories and regions
+  'Hong Kong', 'Macau', 'Macao', 'Taiwan', 'Chinese Taipei',
+
+  // Oceania
+  'Australia', 'New Zealand', 'Papua New Guinea', 'Fiji', 'Samoa', 'Tonga',
+  'Vanuatu', 'Solomon Islands', 'Cook Islands', 'Niue', 'American Samoa',
+  'Guam', 'Northern Mariana Islands', 'French Polynesia', 'New Caledonia',
+
+  // Major African countries
+  'Egypt', 'Libya', 'Tunisia', 'Algeria', 'Morocco', 'Sudan', 'South Sudan',
+  'Ethiopia', 'Eritrea', 'Djibouti', 'Somalia', 'Kenya', 'Uganda', 'Tanzania',
+  'Rwanda', 'Burundi', 'Nigeria', 'Ghana', 'Ivory Coast', 'Senegal', 'Mali',
+  'Burkina Faso', 'Niger', 'Chad', 'Central African Republic', 'Cameroon',
+  'Equatorial Guinea', 'Gabon', 'Republic of the Congo', 'Democratic Republic of the Congo',
+  'Congo DR', 'Congo DRC', 'Angola', 'Zambia', 'Zimbabwe', 'Botswana',
+  'Namibia', 'South Africa', 'Lesotho', 'Eswatini', 'Madagascar', 'Mauritius',
+  'Seychelles', 'Comoros', 'Cape Verde', 'Guinea-Bissau', 'Guinea', 'Sierra Leone',
+  'Liberia', 'Togo', 'Benin', 'Mauritania', 'Gambia', 'Malawi',
+
+  // Central Asian countries
+  'Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Kyrgyzstan', 'Tajikistan',
+  'Azerbaijan', 'Armenia', 'Georgia', 'Mongolia',
+
+  // Special territories and regions
+  'Faroe Islands', 'Greenland', 'Isle of Man', 'Jersey', 'Guernsey',
+  'Gibraltar', 'Falkland Islands', 'Saint Helena', 'Norfolk Island',
+  'Christmas Island', 'Cocos Islands',
+
+  // International/Continental
+  'World', 'Europe'
+];
+
+/**
+ * SportsRadar commonly supported countries based on their API patterns
+ */
+const sportsRadarCountries = [
+  // All UEFA countries
+  'Albania', 'Andorra', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium',
+  'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic',
+  'Denmark', 'England', 'Estonia', 'Faroe Islands', 'Finland', 'France',
+  'Georgia', 'Germany', 'Gibraltar', 'Greece', 'Hungary', 'Iceland', 'Ireland',
+  'Israel', 'Italy', 'Kazakhstan', 'Kosovo', 'Latvia', 'Liechtenstein',
+  'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro',
+  'Netherlands', 'North Macedonia', 'Northern Ireland', 'Norway', 'Poland',
+  'Portugal', 'Romania', 'Russia', 'San Marino', 'Scotland', 'Serbia',
+  'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Turkey',
+  'Ukraine', 'Wales',
+
+  // All CONMEBOL countries
+  'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador',
+  'Paraguay', 'Peru', 'Uruguay', 'Venezuela',
+
+  // Major CONCACAF countries
+  'Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada',
+  'Costa Rica', 'Cuba', 'Dominica', 'Dominican Republic', 'El Salvador',
+  'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico',
+  'Nicaragua', 'Panama', 'Saint Kitts and Nevis', 'Saint Lucia',
+  'Saint Vincent and the Grenadines', 'Trinidad and Tobago', 'United States',
+
+  // Major AFC countries
+  'Afghanistan', 'Australia', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei',
+  'Cambodia', 'China', 'Guam', 'Hong Kong', 'India', 'Indonesia', 'Iran',
+  'Iraq', 'Japan', 'Jordan', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon',
+  'Macau', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal',
+  'North Korea', 'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar',
+  'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria',
+  'Tajikistan', 'Thailand', 'Timor-Leste', 'Turkmenistan', 'United Arab Emirates',
+  'Uzbekistan', 'Vietnam', 'Yemen',
+
+  // Major CAF countries
+  'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
+  'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros',
+  'Congo', 'Democratic Republic of the Congo', 'Djibouti', 'Egypt',
+  'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia',
+  'Ghana', 'Guinea', 'Guinea-Bissau', 'Ivory Coast', 'Kenya', 'Lesotho',
+  'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania',
+  'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria',
+  'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone',
+  'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo',
+  'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe',
+
+  // OFC countries
+  'American Samoa', 'Cook Islands', 'Fiji', 'New Caledonia', 'New Zealand',
+  'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Tahiti', 'Tonga',
+  'Vanuatu'
+];
+
+/**
+ * Compare your current country mapping with 365scores.com patterns
+ */
+export function compare365ScoresMapping(): void {
+  console.log('🏆 Comparing Current Mapping vs 365scores.com Patterns');
+  console.log('=' .repeat(60));
+
+  const currentlyMapped = new Set(Object.keys(countryCodeMap));
+  const scores365Set = new Set(scores365Countries);
+  
+  // Countries in 365scores but missing from your mapping
+  const missingFrom365 = scores365Countries.filter(country => !currentlyMapped.has(country));
+  
+  // Countries in your mapping but not typically on 365scores
+  const extraInMapping = Array.from(currentlyMapped).filter(country => !scores365Set.has(country));
+
+  console.log(`📊 Comparison Results:`);
+  console.log(`   Current mapping: ${currentlyMapped.size} countries`);
+  console.log(`   365scores patterns: ${scores365Countries.length} countries`);
+  console.log(`   Missing from current: ${missingFrom365.length} countries`);
+  console.log(`   Extra in current: ${extraInMapping.length} countries`);
+
+  if (missingFrom365.length > 0) {
+    console.log('\n🚫 Countries common on 365scores.com but missing from your mapping:');
+    missingFrom365.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   ❌ "${country}" -> suggested: "${suggested}"`);
+    });
+
+    console.log('\n💡 Suggested additions to countryCodeMap:');
+    missingFrom365.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   '${country}': '${suggested}',`);
+    });
+  }
+
+  if (extraInMapping.length > 0 && extraInMapping.length <= 20) {
+    console.log('\n📝 Countries in your mapping but not typical on 365scores:');
+    extraInMapping.sort().forEach(country => {
+      console.log(`   ℹ️  "${country}": '${countryCodeMap[country]}'`);
+    });
+  }
+
+  // Coverage percentage
+  const commonCountries = scores365Countries.filter(country => currentlyMapped.has(country));
+  const coverage = ((commonCountries.length / scores365Countries.length) * 100).toFixed(1);
+  console.log(`\n📈 Coverage: ${coverage}% of 365scores.com patterns are supported`);
+}
+
+/**
+ * Compare your current country mapping with SportsRadar patterns
+ */
+export function compareSportsRadarMapping(): void {
+  console.log('🎯 Comparing Current Mapping vs SportsRadar Patterns');
+  console.log('=' .repeat(60));
+
+  const currentlyMapped = new Set(Object.keys(countryCodeMap));
+  const sportsRadarSet = new Set(sportsRadarCountries);
+  
+  // Countries in SportsRadar but missing from your mapping
+  const missingFromSportsRadar = sportsRadarCountries.filter(country => !currentlyMapped.has(country));
+  
+  // Countries in your mapping but not in SportsRadar patterns
+  const extraInMapping = Array.from(currentlyMapped).filter(country => !sportsRadarSet.has(country));
+
+  console.log(`📊 Comparison Results:`);
+  console.log(`   Current mapping: ${currentlyMapped.size} countries`);
+  console.log(`   SportsRadar patterns: ${sportsRadarCountries.length} countries`);
+  console.log(`   Missing from current: ${missingFromSportsRadar.length} countries`);
+  console.log(`   Extra in current: ${extraInMapping.length} countries`);
+
+  if (missingFromSportsRadar.length > 0) {
+    console.log('\n🚫 Countries supported by SportsRadar but missing from your mapping:');
+    missingFromSportsRadar.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   ❌ "${country}" -> suggested: "${suggested}"`);
+    });
+
+    console.log('\n💡 Suggested additions to countryCodeMap:');
+    missingFromSportsRadar.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   '${country}': '${suggested}',`);
+    });
+  }
+
+  // Coverage percentage
+  const commonCountries = sportsRadarCountries.filter(country => currentlyMapped.has(country));
+  const coverage = ((commonCountries.length / sportsRadarCountries.length) * 100).toFixed(1);
+  console.log(`\n📈 Coverage: ${coverage}% of SportsRadar patterns are supported`);
+}
+
+/**
+ * Comprehensive comparison of all three mappings
+ */
+export function compareAllCountryMappings(): void {
+  console.log('🌍 COMPREHENSIVE COUNTRY MAPPING COMPARISON');
+  console.log('=' .repeat(80));
+
+  const currentMapped = new Set(Object.keys(countryCodeMap));
+  const scores365Set = new Set(scores365Countries);
+  const sportsRadarSet = new Set(sportsRadarCountries);
+
+  // Find overlaps and unique countries
+  const allCountries = new Set([
+    ...Array.from(currentMapped),
+    ...scores365Countries,
+    ...sportsRadarCountries
+  ]);
+
+  const results = {
+    inAll: [],
+    inCurrentAndScores365: [],
+    inCurrentAndSportsRadar: [],
+    inScores365AndSportsRadar: [],
+    onlyInCurrent: [],
+    onlyInScores365: [],
+    onlyInSportsRadar: [],
+    missingFromAll: []
+  };
+
+  for (const country of allCountries) {
+    const inCurrent = currentMapped.has(country);
+    const inScores365 = scores365Set.has(country);
+    const inSportsRadar = sportsRadarSet.has(country);
+
+    if (inCurrent && inScores365 && inSportsRadar) {
+      results.inAll.push(country);
+    } else if (inCurrent && inScores365) {
+      results.inCurrentAndScores365.push(country);
+    } else if (inCurrent && inSportsRadar) {
+      results.inCurrentAndSportsRadar.push(country);
+    } else if (inScores365 && inSportsRadar) {
+      results.inScores365AndSportsRadar.push(country);
+    } else if (inCurrent) {
+      results.onlyInCurrent.push(country);
+    } else if (inScores365) {
+      results.onlyInScores365.push(country);
+    } else if (inSportsRadar) {
+      results.onlyInSportsRadar.push(country);
+    }
+  }
+
+  console.log(`📊 SUMMARY STATISTICS:`);
+  console.log(`   Total unique countries: ${allCountries.size}`);
+  console.log(`   Current mapping: ${currentMapped.size} countries`);
+  console.log(`   365scores patterns: ${scores365Countries.length} countries`);
+  console.log(`   SportsRadar patterns: ${sportsRadarCountries.length} countries`);
+  console.log(`   Supported by all three: ${results.inAll.length} countries`);
+
+  console.log(`\n🎯 PRIORITY ADDITIONS (missing from current but in both 365scores and SportsRadar):`);
+  if (results.inScores365AndSportsRadar.length > 0) {
+    results.inScores365AndSportsRadar.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   🔥 "${country}": '${suggested}',`);
+    });
+  } else {
+    console.log(`   ✅ Great! No countries are missing from your mapping that are in both sources.`);
+  }
+
+  console.log(`\n📱 365SCORES SPECIFIC (in 365scores but not SportsRadar):`);
+  if (results.onlyInScores365.length > 0 && results.onlyInScores365.length <= 15) {
+    results.onlyInScores365.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   📱 "${country}": '${suggested}',`);
+    });
+  } else if (results.onlyInScores365.length > 15) {
+    console.log(`   📱 ${results.onlyInScores365.length} countries (too many to list individually)`);
+  }
+
+  console.log(`\n🎯 SPORTSRADAR SPECIFIC (in SportsRadar but not 365scores):`);
+  if (results.onlyInSportsRadar.length > 0 && results.onlyInSportsRadar.length <= 15) {
+    results.onlyInSportsRadar.sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      console.log(`   🎯 "${country}": '${suggested}',`);
+    });
+  } else if (results.onlyInSportsRadar.length > 15) {
+    console.log(`   🎯 ${results.onlyInSportsRadar.length} countries (too many to list individually)`);
+  }
+
+  // Coverage statistics
+  const scores365Coverage = ((results.inAll.length + results.inCurrentAndScores365.length) / scores365Countries.length * 100).toFixed(1);
+  const sportsRadarCoverage = ((results.inAll.length + results.inCurrentAndSportsRadar.length) / sportsRadarCountries.length * 100).toFixed(1);
+
+  console.log(`\n📈 COVERAGE ANALYSIS:`);
+  console.log(`   365scores coverage: ${scores365Coverage}%`);
+  console.log(`   SportsRadar coverage: ${sportsRadarCoverage}%`);
+
+  console.log(`\n💡 RECOMMENDATIONS:`);
+  console.log(`   1. Add the ${results.inScores365AndSportsRadar.length} priority countries (in both sources)`);
+  console.log(`   2. Consider adding 365scores-specific countries for better web compatibility`);
+  console.log(`   3. Consider adding SportsRadar-specific countries for better API compatibility`);
+}
+
+/**
+ * Test country mapping against live API data and external sources
+ */
+export async function testCountryMappingAgainstLiveData(fixtures: any[]): Promise<void> {
+  console.log('🧪 Testing Country Mapping Against Live API Data');
+  console.log('=' .repeat(60));
+
+  const apiCountries = new Set<string>();
+  const mappedCountries = new Set<string>();
+  const unmappedCountries = new Set<string>();
+
+  // Extract countries from live fixtures
+  fixtures.forEach(fixture => {
+    if (fixture?.league?.country) {
+      const country = fixture.league.country.trim();
+      apiCountries.add(country);
+
+      if (countryCodeMap[country]) {
+        mappedCountries.add(country);
+      } else {
+        // Try variations
+        let found = false;
+        if (country.includes('-')) {
+          const spaceVersion = country.replace(/-/g, ' ');
+          if (countryCodeMap[spaceVersion]) {
+            mappedCountries.add(country);
+            found = true;
+          }
+        }
+        if (!found && country.includes(' ')) {
+          const hyphenVersion = country.replace(/\s+/g, '-');
+          if (countryCodeMap[hyphenVersion]) {
+            mappedCountries.add(country);
+            found = true;
+          }
+        }
+        if (!found) {
+          unmappedCountries.add(country);
+        }
+      }
+    }
+  });
+
+  console.log(`📊 Live API Data Analysis:`);
+  console.log(`   Total countries in API: ${apiCountries.size}`);
+  console.log(`   Mapped countries: ${mappedCountries.size}`);
+  console.log(`   Unmapped countries: ${unmappedCountries.size}`);
+
+  if (unmappedCountries.size > 0) {
+    console.log(`\n🚫 Countries from API missing in mapping:`);
+    Array.from(unmappedCountries).sort().forEach(country => {
+      const suggested = suggestCountryCode(country);
+      const in365 = scores365Countries.includes(country) ? '📱' : '  ';
+      const inSR = sportsRadarCountries.includes(country) ? '🎯' : '  ';
+      console.log(`   ${in365}${inSR} "${country}": '${suggested}',`);
+    });
+  }
+
+  // Check coverage against external sources
+  const apiCountriesArray = Array.from(apiCountries);
+  const in365Count = apiCountriesArray.filter(country => scores365Countries.includes(country)).length;
+  const inSRCount = apiCountriesArray.filter(country => sportsRadarCountries.includes(country)).length;
+
+  console.log(`\n🎯 External Source Recognition:`);
+  console.log(`   Countries also in 365scores patterns: ${in365Count}/${apiCountries.size}`);
+  console.log(`   Countries also in SportsRadar patterns: ${inSRCount}/${apiCountries.size}`);
+
+  // Show countries that are in API but not in any external source
+  const notInAnySources = apiCountriesArray.filter(country => 
+    !scores365Countries.includes(country) && !sportsRadarCountries.includes(country)
+  );
+
+  if (notInAnySources.length > 0) {
+    console.log(`\n❓ Countries in API but not in external source patterns:`);
+    notInAnySources.sort().forEach(country => {
+      console.log(`   ❓ "${country}"`);
+    });
+  }
+}
+
 export const getFlagUrl = async (country: string): Promise<string> => {
   // Normalize country name
   const normalizedCountry = country.trim();
