@@ -561,8 +561,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           // Use fallback only if not already using it
                           if (!target.src.includes('/assets/fallback-logo.svg')) {
                             try {
-                              // For World, try the 365scores International flag
+                              // For World, clear cache first then try the 365scores International flag
                               if (countryData.country === 'World') {
+                                // Clear the cached World flag entry first
+                                const worldCacheKey = 'flag_world';
+                                flagCache.removeCached(worldCacheKey);
+                                
+                                // Also clear from component's flagMap state
+                                setFlagMap(prev => {
+                                  const newMap = { ...prev };
+                                  delete newMap['World'];
+                                  return newMap;
+                                });
+                                
+                                console.log('🗑️ Cleared cached World flag entry and component state');
+                                
                                 target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
                                 return;
                               }
