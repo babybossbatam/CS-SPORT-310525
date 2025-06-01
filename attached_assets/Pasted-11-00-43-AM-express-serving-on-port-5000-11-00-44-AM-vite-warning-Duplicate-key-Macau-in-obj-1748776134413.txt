@@ -1,0 +1,251 @@
+11:00:43 AM [express] serving on port 5000
+11:00:44 AM [vite] warning: Duplicate key "Macau" in object literal
+280|    'Tristan da Cunha': 'TA',
+281|    // Asian countries/territories
+282|    'Macau': 'MO',
+   |    ^
+283|    'Macao': 'MO',
+284|    'Hong Kong': 'HK',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Macao" in object literal
+281|    // Asian countries/territories
+282|    'Macau': 'MO',
+283|    'Macao': 'MO',
+   |    ^
+284|    'Hong Kong': 'HK',
+285|    'Taiwan': 'TW',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Hong Kong" in object literal
+282|    'Macau': 'MO',
+283|    'Macao': 'MO',
+284|    'Hong Kong': 'HK',
+   |    ^
+285|    'Taiwan': 'TW',
+286|    'Chinese Taipei': 'TW',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Taiwan" in object literal
+283|    'Macao': 'MO',
+284|    'Hong Kong': 'HK',
+285|    'Taiwan': 'TW',
+   |    ^
+286|    'Chinese Taipei': 'TW',
+287|    // African variations
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "San Marino" in object literal
+295|    'Congo-Kinshasa': 'CD',
+296|    // European microstates and territories
+297|    'San Marino': 'SM',
+   |    ^
+298|    'Vatican': 'VA',
+299|    'Liechtenstein': 'LI',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Liechtenstein" in object literal
+297|    'San Marino': 'SM',
+298|    'Vatican': 'VA',
+299|    'Liechtenstein': 'LI',
+   |    ^
+300|    'Monaco': 'MC',
+301|    'Andorra': 'AD',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Monaco" in object literal
+298|    'Vatican': 'VA',
+299|    'Liechtenstein': 'LI',
+300|    'Monaco': 'MC',
+   |    ^
+301|    'Andorra': 'AD',
+302|    // Oceania territories
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Andorra" in object literal
+299|    'Liechtenstein': 'LI',
+300|    'Monaco': 'MC',
+301|    'Andorra': 'AD',
+   |    ^
+302|    // Oceania territories
+303|    'Norfolk Island': 'NF',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Northern Ireland" in object literal
+310|    'Great Britain': 'GB',
+311|    'Britain': 'GB',
+312|    'Northern Ireland': 'GB-NIR',
+   |    ^
+313|    'Bosnia & Herzegovina': 'BA',
+314|    'Bosnia and Herzegovina': 'BA',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Bosnia and Herzegovina" in object literal
+312|    'Northern Ireland': 'GB-NIR',
+313|    'Bosnia & Herzegovina': 'BA',
+314|    'Bosnia and Herzegovina': 'BA',
+   |    ^
+315|    'Herzegovina': 'BA',
+316|    'Czech Republic': 'CZ',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Czech Republic" in object literal
+314|    'Bosnia and Herzegovina': 'BA',
+315|    'Herzegovina': 'BA',
+316|    'Czech Republic': 'CZ',
+   |    ^
+317|    'Czech-Republic': 'CZ',
+318|    'Czechia': 'CZ',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Czech-Republic" in object literal
+315|    'Herzegovina': 'BA',
+316|    'Czech Republic': 'CZ',
+317|    'Czech-Republic': 'CZ',
+   |    ^
+318|    'Czechia': 'CZ',
+319|    'North Macedonia': 'MK',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "North Macedonia" in object literal
+317|    'Czech-Republic': 'CZ',
+318|    'Czechia': 'CZ',
+319|    'North Macedonia': 'MK',
+   |    ^
+320|    'Macedonia': 'MK',
+321|    'FYROM': 'MK',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "South Korea" in object literal
+320|    'Macedonia': 'MK',
+321|    'FYROM': 'MK',
+322|    'South Korea': 'KR',
+   |    ^
+323|    'North Korea': 'KP',
+324|    'Korea Republic': 'KR',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "North Korea" in object literal
+321|    'FYROM': 'MK',
+322|    'South Korea': 'KR',
+323|    'North Korea': 'KP',
+   |    ^
+324|    'Korea Republic': 'KR',
+325|    'Korea DPR': 'KP',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Ivory Coast" in object literal
+326|    'Republic of Korea': 'KR',
+327|    'Democratic Republic of Korea': 'KP',
+328|    'Ivory Coast': 'CI',
+   |    ^
+329|    'Côte d\'Ivoire': 'CI',
+330|    'Vatican': 'VA',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Vatican" in object literal
+328|    'Ivory Coast': 'CI',
+329|    'Côte d\'Ivoire': 'CI',
+330|    'Vatican': 'VA',
+   |    ^
+331|    'Holy See': 'VA',
+332|    'Palestine': 'PS',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Palestine" in object literal
+330|    'Vatican': 'VA',
+331|    'Holy See': 'VA',
+332|    'Palestine': 'PS',
+   |    ^
+333|    'Macao SAR': 'MO',
+334|    'Hong Kong SAR': 'HK',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Chinese Taipei" in object literal
+334|    'Hong Kong SAR': 'HK',
+335|    'Taiwan Province of China': 'TW',
+336|    'Chinese Taipei': 'TW',
+   |    ^
+337|    'Great Britain': 'GB',
+338|    'Britain': 'GB',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Great Britain" in object literal
+335|    'Taiwan Province of China': 'TW',
+336|    'Chinese Taipei': 'TW',
+337|    'Great Britain': 'GB',
+   |    ^
+338|    'Britain': 'GB',
+339|    'Republic of Ireland': 'IE',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Britain" in object literal
+336|    'Chinese Taipei': 'TW',
+337|    'Great Britain': 'GB',
+338|    'Britain': 'GB',
+   |    ^
+339|    'Republic of Ireland': 'IE',
+340|    'Republic of Korea': 'KR',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Republic of Korea" in object literal
+338|    'Britain': 'GB',
+339|    'Republic of Ireland': 'IE',
+340|    'Republic of Korea': 'KR',
+   |    ^
+341|    'Democratic Republic of Korea': 'KP',
+342|    'DPRK': 'KP',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Democratic Republic of Korea" in object literal
+339|    'Republic of Ireland': 'IE',
+340|    'Republic of Korea': 'KR',
+341|    'Democratic Republic of Korea': 'KP',
+   |    ^
+342|    'DPRK': 'KP',
+343|    'ROK': 'KR',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Hong Kong SAR" in object literal
+344|    'PRC': 'CN',
+345|    'ROC': 'TW',
+346|    'Hong Kong SAR': 'HK',
+   |    ^
+347|    'Macau SAR': 'MO',
+348|    'Macao SAR': 'MO',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+11:00:44 AM [vite] warning: Duplicate key "Macao SAR" in object literal
+346|    'Hong Kong SAR': 'HK',
+347|    'Macau SAR': 'MO',
+348|    'Macao SAR': 'MO',
+   |    ^
+349|    // Additional variations
+350|    'RSA': 'ZA',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
