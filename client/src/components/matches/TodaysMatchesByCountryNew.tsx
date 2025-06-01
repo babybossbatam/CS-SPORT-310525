@@ -753,7 +753,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                              match.league?.name?.toLowerCase().includes('uefa') ||
                                              match.league?.name?.toLowerCase().includes('conmebol') ||
                                              match.league?.name?.toLowerCase().includes('fifa'))
-                                              ? ''object-cover country-flag-ball rounded-full' 
+                                              ? 'object-cover country-flag-ball rounded-full' 
                                               : 'object-contain'
                                           }`}
                                           onError={(e) => {
