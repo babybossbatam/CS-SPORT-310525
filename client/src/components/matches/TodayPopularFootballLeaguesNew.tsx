@@ -933,8 +933,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                    leagueData.league.name?.toLowerCase().includes('conmebol') ||
                                    leagueData.league.name?.toLowerCase().includes('fifa')) && {
                                   transform: 'scale(1.5)',
-                                  objectPosition: 'center center'
-                                })
+                                  objectPosition: 'center center',
+                                }
                               }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -1090,6 +1090,24 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                   ? 'object-cover rounded-full object-center' 
                                   : 'object-contain'
                               }`}
+                              style={{
+                                ...(countryData.country === 'World' || 
+                                   countryData.country === 'Europe' || 
+                                   countryData.country === 'South America' || 
+                                   countryData.country === 'International' ||
+                                   leagueData.league.name?.toLowerCase().includes('international') ||
+                                   leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                   leagueData.league.name?.toLowerCase().includes('nations league') ||
+                                   leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                   leagueData.league.name?.toLowerCase().includes('euro') ||
+                                   leagueData.league.name?.toLowerCase().includes('copa america') ||
+                                   leagueData.league.name?.toLowerCase().includes('uefa') ||
+                                   leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                                   leagueData.league.name?.toLowerCase().includes('fifa')) && {
+                                  transform: 'scale(1.5)',
+                                  objectPosition: 'center center',
+                                }
+                              }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
