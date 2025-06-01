@@ -234,23 +234,18 @@ export function generateFlagSources(country: string): string[] {
 
     // 5. Special handling for GB subdivision codes (England, Scotland, etc.)
     if (countryCode.startsWith('GB-')) {
-      const subCode = countryCode.split('-')[1].toLowerCase();
-      sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
       // Use main GB code for these APIs
       sources.push(`https://countryflags.io/gb/flat/64.png`);
-    } else {
-      // 6. Flagpedia for regular countries
-      sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
+      sources.push(`https://flagcdn.com/w40/gb.png`);
     }
 
-    // 7. RestCountries backup (for 2-letter codes only)
+    // 6. RestCountries backup (for 2-letter codes only)
     if (countryCode.length === 2) {
       sources.push(`https://restcountries.com/v3.1/alpha/${countryCode.toLowerCase()}?fields=flags`);
     }
 
-    // 8. Additional reliable sources from simplelocalize.io
+    // 7. Additional reliable sources from simplelocalize.io
     if (countryCode.length === 2) {
-      sources.push(`https://flagsapi.com/${countryCode.toUpperCase()}/flat/64.png`);
       sources.push(`https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/${countryCode.toLowerCase()}.svg`);
     }
   } else {
@@ -454,9 +449,7 @@ export function generateCountryFlagSources(country: string): string[] {
       sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
       sources.push(`https://countryflags.io/${countryCode.toLowerCase()}/flat/64.png`);
       sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
-      sources.push(`https://flagsapi.com/${countryCode.toUpperCase()}/flat/64.png`);
     }
-    sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
   }
 
   // 4. Final fallback
