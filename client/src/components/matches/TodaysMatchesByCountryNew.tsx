@@ -621,11 +621,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         src={flagMap[countryData.country] || '/assets/fallback-logo.svg'}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                        onError={(e) => {
+                        onError={async (e) => {
                           const target = e.target as HTMLImageElement;
                           // Use fallback only if not already using it
                           if (!target.src.includes('/assets/fallback-logo.svg')) {
-                            target.src = '/assets/fallback-logo.svg';
+                            try {
+                              // Try to get a fresh cached flag first
+                              const freshFlag = await getCachedFlag(countryData.country);
+                              if (freshFlag && freshFlag !== target.src) {
+                                target.src = freshFlag;
+                              } else {
+                                target.src = '/assets/fallback-logo.svg';
+                              }
+                            } catch (error) {
+                              target.src = '/assets/fallback-logo.svg';
+                            }
                           }
                         }}
                       />
