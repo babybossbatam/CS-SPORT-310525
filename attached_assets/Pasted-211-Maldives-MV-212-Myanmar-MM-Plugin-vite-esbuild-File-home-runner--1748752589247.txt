@@ -1,0 +1,74 @@
+211|    'Maldives': 'MV',
+212|    'Myanmar': 'MM',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "Maldives" in object literal
+209|    'Sri Lanka': 'LK',
+210|    'Bangladesh': 'BD',
+211|    'Maldives': 'MV',
+   |    ^
+212|    'Myanmar': 'MM',
+213|    'Cambodia': 'KH',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "Myanmar" in object literal
+210|    'Bangladesh': 'BD',
+211|    'Maldives': 'MV',
+212|    'Myanmar': 'MM',
+   |    ^
+213|    'Cambodia': 'KH',
+214|    'Laos': 'LA',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "Cambodia" in object literal
+211|    'Maldives': 'MV',
+212|    'Myanmar': 'MM',
+213|    'Cambodia': 'KH',
+   |    ^
+214|    'Laos': 'LA',
+215|    'Vietnam': 'VN',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "Laos" in object literal
+212|    'Myanmar': 'MM',
+213|    'Cambodia': 'KH',
+214|    'Laos': 'LA',
+   |    ^
+215|    'Vietnam': 'VN',
+216|    'Brunei': 'BN',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "Vietnam" in object literal
+213|    'Cambodia': 'KH',
+214|    'Laos': 'LA',
+215|    'Vietnam': 'VN',
+   |    ^
+216|    'Brunei': 'BN',
+217|    'East Timor': 'TL',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "Brunei" in object literal
+214|    'Laos': 'LA',
+215|    'Vietnam': 'VN',
+216|    'Brunei': 'BN',
+   |    ^
+217|    'East Timor': 'TL',
+218|    'Timor-Leste': 'TL',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/flagUtils.ts
+4:17:42 AM [vite] warning: Duplicate key "East Timor" in object literal
+215|    'Vietnam': 'VN',
+216|    'Brunei': 'BN',
+217|    'East Timor': 'TL',
+   |    ^
+218|    'Timor-Leste': 'TL',
+219|    'Papua New Guinea': 'PG',
+
+  Plugin: vite:esbuild
