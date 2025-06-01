@@ -6,31 +6,27 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
+import { useQuery } from '@tanstack/react-query';
+import { homePageUtils } from '@/lib/homePageCache';
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
-  const [leagueData, setLeagueData] = useState<LeagueData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadLeagues = async () => {
-      try {
-        setIsLoading(true);
-        const leagues = await getPopularLeagues();
-        setLeagueData(leagues);
-      } catch (error) {
-        console.error('Failed to load league data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Use cached popular leagues data
+  const { data: leagues = [], isLoading } = useQuery({
+    queryKey: ['home-popular-leagues'],
+    queryFn: () => homePageUtils.getPopularLeagues(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: 48 * 60 * 60 * 1000, // 48 hours
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-    loadLeagues();
-  }, []);
+  // Show only top 5 leagues
+  const displayLeagues = leagues.slice(0, 5);
 
   const toggleFavorite = (leagueId: number) => {
     if (!user.isAuthenticated) {
@@ -92,8 +88,8 @@ const PopularLeaguesList = () => {
       <CardContent className="p-4">
         <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
         <div className="space-y-2">
-          {leagueData.map((league) => {
-            const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
+          {displayLeagues.map((league, index) => {
+            const isFavorite = league.id ? user.preferences.favoriteLeagues.includes(league.id.toString()) : false;
 
             return (
               <div
@@ -110,8 +106,22 @@ const PopularLeaguesList = () => {
                   }}
                 />
                 <div className="ml-3 flex-1">
-                  <div className="text-sm">{league.name}</div>
-                  <div className="text-xs text-gray-500">{league.country}</div>
+                  <div className="text-sm">
+                    {typeof league.name === 'string' 
+                      ? league.name 
+                      : (typeof league.name === 'object' && league.name?.name) 
+                        ? String(league.name.name)
+                        : 'Unknown League'
+                    }
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {typeof league.country === 'string' 
+                      ? league.country 
+                      : (typeof league.country === 'object' && league.country?.name) 
+                        ? String(league.country.name)
+                        : 'Unknown Country'
+                    }
+                  </div>
                 </div>
                 <button
                   onClick={(e) => {
