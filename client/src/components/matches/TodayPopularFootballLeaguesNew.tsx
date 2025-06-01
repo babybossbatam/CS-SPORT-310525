@@ -729,13 +729,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       <img
                         src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                         alt={leagueData.league.name || 'Unknown League'}
-                        className={`${
-                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
-                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa')
-                                  ? 'object-cover country-flag-ball' 
-                                  : 'w-9 h-9 object-contain'
-                              }`}
+                        className="w-9 h-9 object-contain mt-0.5"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
@@ -803,7 +797,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       // Ensure valid dates
                       if (!isValid(aDate) || !isValid(bDate)) {
                         return 0;
-                        }
+                      }
 
                       const now = new Date();
                       const aTime = aDate.getTime();
@@ -902,19 +896,27 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 mx-1 flex items-center justify-center w-9 h-9">
+                          <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className={`${
+                              className={`w-9 h-9 ${
+                                // Apply flag styling to all country/international competitions 
+                                (countryData.country === 'World' || 
+                                 countryData.country === 'Europe' || 
+                                 countryData.country === 'South America' || 
+                                 countryData.country === 'International' ||
+                                 leagueData.league.name?.toLowerCase().includes('international') ||
+                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                 leagueData.league.name?.toLowerCase().includes('nations league') ||
+                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                 leagueData.league.name?.toLowerCase().includes('euro') ||
+                                 leagueData.league.name?.toLowerCase().includes('copa america') ||
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa') ||
-                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
-                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                 leagueData.league.name?.toLowerCase().includes('international')
-                                  ? 'object-cover country-flag-ball' 
-                                  : 'w-9 h-9 object-contain'
+                                 leagueData.league.name?.toLowerCase().includes('fifa'))
+                                  ? 'object-cover rounded-md border border-gray-200' 
+                                  : 'object-contain'
                               }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -1050,19 +1052,27 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
 
-                          <div className="flex-shrink-0 mx-1 flex items-center justify-center w-9 h-9">
+                          <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className={`${
+                              className={`w-9 h-9 ${
+                                // Apply flag styling to all country/international competitions 
+                                (countryData.country === 'World' || 
+                                 countryData.country === 'Europe' || 
+                                 countryData.country === 'South America' || 
+                                 countryData.country === 'International' ||
+                                 leagueData.league.name?.toLowerCase().includes('international') ||
+                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                 leagueData.league.name?.toLowerCase().includes('nations league') ||
+                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                 leagueData.league.name?.toLowerCase().includes('euro') ||
+                                 leagueData.league.name?.toLowerCase().includes('copa america') ||
                                  leagueData.league.name?.toLowerCase().includes('uefa') ||
                                  leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa') ||
-                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
-                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                 leagueData.league.name?.toLowerCase().includes('international')
-                                  ? 'object-cover country-flag-ball' 
-                                  : 'w-9 h-9 object-contain'
+                                 leagueData.league.name?.toLowerCase().includes('fifa'))
+                                  ? 'object-cover rounded-md border border-gray-200' 
+                                  : 'object-contain'
                               }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
