@@ -927,8 +927,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             />
                           </div>
 
-                          {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative">
+                          {/* Score/Time Center - Fixed height container */}
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative h-16 w-20">
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
@@ -936,7 +936,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               // Live matches
                               if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                 return (
-                                  <div className="relative">
+                                  <div className="relative flex flex-col items-center justify-center h-full">
+                                    <div className="text-xs font-semibold mb-1">
+                                      <span className="text-red-600 animate-pulse bg-white px-1 rounded">
+                                        {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                      </span>
+                                    </div>
                                     <div className="text-lg font-bold flex items-center gap-2">
                                       <span className="text-black">
                                         {match.goals.home ?? 0}
@@ -944,11 +949,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                       <span className="text-gray-400">-</span>
                                       <span className="text-black">
                                         {match.goals.away ?? 0}
-                                      </span>
-                                    </div>
-                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                      <span className="text-red-600 animate-pulse bg-white px-1 rounded">
-                                        {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                       </span>
                                     </div>
                                   </div>
@@ -966,17 +966,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                                 if (hasValidScores) {
                                   return (
-                                    <div className="relative">
-                                      <div className="text-lg font-bold flex items-center gap-2">
-                                        <span className="text-black">
-                                          {homeScore}
-                                        </span>
-                                        <span className="text-gray-400">-</span>
-                                        <span className="text-black">
-                                          {awayScore}
-                                        </span>
-                                      </div>
-                                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                    <div className="relative flex flex-col items-center justify-center h-full">
+                                      <div className="text-xs font-semibold mb-1">
                                         <span className="text-gray-600 bg-white px-1 rounded">
                                           {status === 'FT' ? 'Ended' : 
                                            status === 'AET' ? 'AET' :
@@ -986,6 +977,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                            status === 'ABD' ? 'Abandoned' :
                                            status === 'CANC' ? 'Cancelled' :
                                            status === 'SUSP' ? 'Suspended' : status}
+                                        </span>
+                                      </div>
+                                      <div className="text-lg font-bold flex items-center gap-2">
+                                        <span className="text-black">
+                                          {homeScore}
+                                        </span>
+                                        <span className="text-gray-400">-</span>
+                                        <span className="text-black">
+                                          {awayScore}
                                         </span>
                                       </div>
                                     </div>
@@ -1002,12 +1002,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                                    status === 'SUSP' ? 'Suspended' : 'No Score';
 
                                   return (
-                                    <div className="relative">
-                                      <div className="text-sm font-medium text-gray-900">
-                                        {format(fixtureDate, 'HH:mm')}
-                                      </div>
-                                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                    <div className="relative flex flex-col items-center justify-center h-full">
+                                      <div className="text-xs font-semibold mb-1">
                                         <span className="text-gray-600 bg-white px-1 rounded">{statusText}</span>
+                                      </div>
+                                      <div className="text-base font-medium text-gray-900">
+                                        {format(fixtureDate, 'HH:mm')}
                                       </div>
                                     </div>
                                   );
@@ -1024,12 +1024,12 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                                   status === 'WO' ? 'Walkover' : status;
 
                                 return (
-                                  <div className="relative">
-                                    <div className="text-sm font-medium text-gray-900">
-                                      {format(fixtureDate, 'HH:mm')}
-                                    </div>
-                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                  <div className="relative flex flex-col items-center justify-center h-full">
+                                    <div className="text-xs font-semibold mb-1">
                                       <span className="text-red-600 bg-white px-1 rounded">{statusText}</span>
+                                    </div>
+                                    <div className="text-base font-medium text-gray-900">
+                                      {format(fixtureDate, 'HH:mm')}
                                     </div>
                                   </div>
                                 );
@@ -1037,15 +1037,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                               // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                               return (
-                                <div className="relative">
-                                  <div className="text-base font-medium text-black mt-[0px] mb-[0px] pt-[14px] pb-[14px]">
-                                    {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
-                                  </div>
+                                <div className="relative flex flex-col items-center justify-center h-full">
                                   {status === 'TBD' && (
-                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
+                                    <div className="text-xs font-semibold mb-1">
                                       <span className="text-gray-500 bg-white px-1 rounded">Time TBD</span>
                                     </div>
                                   )}
+                                  <div className="text-base font-medium text-black">
+                                    {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
+                                  </div>
                                 </div>
                               );
                             })()}
