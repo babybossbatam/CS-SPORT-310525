@@ -10,19 +10,19 @@ export { countryCodeMap };
 export function getCountryCode(countryName: string): string | null {
   const normalizedCountry = countryName.trim();
   let countryCode = countryCodeMap[normalizedCountry];
-  
+
   // If not found, try with spaces instead of hyphens
   if (!countryCode && normalizedCountry.includes('-')) {
     const spaceVersion = normalizedCountry.replace(/-/g, ' ');
     countryCode = countryCodeMap[spaceVersion];
   }
-  
+
   // If not found, try with hyphens instead of spaces
   if (!countryCode && normalizedCountry.includes(' ')) {
     const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
     countryCode = countryCodeMap[hyphenVersion];
   }
-  
+
   return countryCode || null;
 }
 
@@ -325,11 +325,11 @@ const countryCodeMap: { [key: string]: string } = {
   'South-Africa': 'ZA',
   'República de Sudáfrica': 'ZA',
   'Suid-Afrika': 'ZA',
-  
+
   // 365scores specific countries
   'Europe': 'EU',
   'World': 'WO',
-  
+
   // SportsRadar specific countries
   'Congo': 'CD', // Democratic Republic of Congo (not Colombia CO)
   'Mozambique': 'MZ', // Mozambique (not Macau MO)
@@ -378,7 +378,7 @@ export function loadFlagCacheFromStorage(): void {
 
     const cacheData = JSON.parse(stored);
     const age = Date.now() - cacheData.timestamp;
-    
+
     // Check if stored cache is not too old
     if (age > FLAG_PRELOAD_EXPIRY) {
       console.log('🕐 Stored flag cache is too old, clearing');
@@ -417,7 +417,7 @@ export function initializeFlagCachePersistence(): void {
 
   // Save cache when page is unloaded
   window.addEventListener('beforeunload', saveFlagCacheToStorage);
-  
+
   // Save cache when visibility changes (tab switch, etc.)
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
@@ -562,19 +562,19 @@ export async function getCachedFlag(country: string): Promise<string> {
   // Normalize country name for better matching
   const normalizedCountry = country.trim();
   let countryCode = countryCodeMap[normalizedCountry];
-  
+
   // If not found, try with spaces instead of hyphens
   if (!countryCode && normalizedCountry.includes('-')) {
     const spaceVersion = normalizedCountry.replace(/-/g, ' ');
     countryCode = countryCodeMap[spaceVersion];
   }
-  
+
   // If not found, try with hyphens instead of spaces
   if (!countryCode && normalizedCountry.includes(' ')) {
     const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
     countryCode = countryCodeMap[hyphenVersion];
   }
-  
+
   console.log(`🔍 Country code mapping for ${country}: ${countryCode || 'NOT FOUND'}`);
 
   if (countryCode && countryCode.length === 2) {
@@ -915,6 +915,8 @@ export const createImageFallbackHandler = (
   };
 };
 
+// Debug functions for country mapping analysis - removed to reduce console noise
+
 /**
  * Analyze all countries from API data and identify missing ones
  */
@@ -922,13 +924,13 @@ export function analyzeCountryMappingCoverage(fixtures: any[]): void {
   const allCountries = new Set<string>();
   const mappedCountries = new Set<string>();
   const unmappedCountries = new Set<string>();
-  
+
   // Extract all unique countries from fixtures
   fixtures.forEach(fixture => {
     if (fixture?.league?.country) {
       const country = fixture.league.country.trim();
       allCountries.add(country);
-      
+
       // Check if it's mapped
       if (countryCodeMap[country]) {
         mappedCountries.add(country);
@@ -955,18 +957,18 @@ export function analyzeCountryMappingCoverage(fixtures: any[]): void {
       }
     }
   });
-  
+
   console.log('🌍 Country Mapping Coverage Analysis:');
   console.log(`📊 Total unique countries in API data: ${allCountries.size}`);
   console.log(`✅ Mapped countries: ${mappedCountries.size}`);
   console.log(`❌ Unmapped countries: ${unmappedCountries.size}`);
-  
+
   if (unmappedCountries.size > 0) {
     console.log('🚫 Missing countries from countryCodeMap:');
     Array.from(unmappedCountries).sort().forEach(country => {
       console.log(`   - "${country}"`);
     });
-    
+
     console.log('\n💡 Suggested additions to countryCodeMap:');
     Array.from(unmappedCountries).sort().forEach(country => {
       // Try to suggest a country code
@@ -974,7 +976,7 @@ export function analyzeCountryMappingCoverage(fixtures: any[]): void {
       console.log(`   '${country}': '${suggested}',`);
     });
   }
-  
+
   console.log('\n📋 All countries found in API data:');
   Array.from(allCountries).sort().forEach(country => {
     const isMapped = mappedCountries.has(country);
@@ -1005,11 +1007,11 @@ function suggestCountryCode(country: string): string {
     'Trinidad and Tobago': 'TT',
     'El Salvador': 'SV',
   };
-  
+
   if (suggestions[country]) {
     return suggestions[country];
   }
-  
+
   // Generate a best guess based on country name
   const words = country.split(' ');
   if (words.length === 1) {
@@ -1027,34 +1029,34 @@ function suggestCountryCode(country: string): string {
 export function debugCountryMapping(country: string): void {
   const normalizedCountry = country.trim();
   let countryCode = countryCodeMap[normalizedCountry];
-  
+
   console.log(`🔍 Debugging country mapping for: "${country}"`);
   console.log(`📝 Normalized: "${normalizedCountry}"`);
   console.log(`🗺️ Direct mapping: ${countryCode || 'NOT FOUND'}`);
-  
+
   // Try variations
   if (!countryCode && normalizedCountry.includes('-')) {
     const spaceVersion = normalizedCountry.replace(/-/g, ' ');
     countryCode = countryCodeMap[spaceVersion];
     console.log(`🔄 Space variation "${spaceVersion}": ${countryCode || 'NOT FOUND'}`);
   }
-  
+
   if (!countryCode && normalizedCountry.includes(' ')) {
     const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
     countryCode = countryCodeMap[hyphenVersion];
     console.log(`🔄 Hyphen variation "${hyphenVersion}": ${countryCode || 'NOT FOUND'}`);
   }
-  
+
   // Show similar matches
   const similarMatches = Object.keys(countryCodeMap).filter(key => 
     key.toLowerCase().includes(normalizedCountry.toLowerCase()) ||
     normalizedCountry.toLowerCase().includes(key.toLowerCase())
   );
-  
+
   if (similarMatches.length > 0) {
     console.log(`🎯 Similar matches found:`, similarMatches.map(match => `"${match}" -> ${countryCodeMap[match]}`));
   }
-  
+
   console.log(`✅ Final result: ${countryCode || 'FALLBACK WILL BE USED'}`);
 }
 
@@ -1272,10 +1274,10 @@ export function compare365ScoresMapping(): void {
 
   const currentlyMapped = new Set(Object.keys(countryCodeMap));
   const scores365Set = new Set(scores365Countries);
-  
+
   // Countries in 365scores but missing from your mapping
   const missingFrom365 = scores365Countries.filter(country => !currentlyMapped.has(country));
-  
+
   // Countries in your mapping but not typically on 365scores
   const extraInMapping = Array.from(currentlyMapped).filter(country => !scores365Set.has(country));
 
@@ -1321,10 +1323,10 @@ export function compareSportsRadarMapping(): void {
 
   const currentlyMapped = new Set(Object.keys(countryCodeMap));
   const sportsRadarSet = new Set(sportsRadarCountries);
-  
+
   // Countries in SportsRadar but missing from your mapping
   const missingFromSportsRadar = sportsRadarCountries.filter(country => !currentlyMapped.has(country));
-  
+
   // Countries in your mapping but not in SportsRadar patterns
   const extraInMapping = Array.from(currentlyMapped).filter(country => !sportsRadarSet.has(country));
 
@@ -1546,7 +1548,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
   }
 
   // Check cache first
-  const cacheKey = `flag_${normalizedCountry.toLowerCase()}`;
+  const cacheKey = `flag_${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}`;
   const cachedFlag = flagCache.get(cacheKey);
 
   if (cachedFlag) {
@@ -1667,7 +1669,7 @@ export function getFlagCacheKey(country: string): string {
  */
 export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): void {
   console.log('🌐 Analyzing countries against external sports sources (365scores.com style)...');
-  
+
   // Common patterns found on 365scores.com and similar sports sites
   const externalSourcePatterns = [
     'Curaçao', 'Curacao', 'Sint Maarten', 'Aruba', 'Bonaire',
@@ -1680,11 +1682,11 @@ export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): 
     'DR Congo', 'Congo DR', 'Congo DRC', 'Republic of Congo',
     'Congo Republic', 'Congo-Brazzaville', 'Congo-Kinshasa'
   ];
-  
+
   const foundInApi = new Set(apiCountries.map(c => c.trim()));
   const mappedExternal = new Set<string>();
   const unmappedExternal = new Set<string>();
-  
+
   externalSourcePatterns.forEach(pattern => {
     if (countryCodeMap[pattern]) {
       mappedExternal.add(pattern);
@@ -1703,18 +1705,18 @@ export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): 
       }
     }
   });
-  
+
   console.log(`📊 External Source Analysis (365scores.com style):`);
   console.log(`✅ Mapped external patterns: ${mappedExternal.size}`);
   console.log(`❌ Unmapped external patterns: ${unmappedExternal.size}`);
-  
+
   if (unmappedExternal.size > 0) {
     console.log('🚫 Missing patterns that might appear on 365scores.com:');
     Array.from(unmappedExternal).sort().forEach(pattern => {
       console.log(`   - "${pattern}"`);
     });
   }
-  
+
   // Check which of these patterns actually appear in our API data
   const actualMatches = new Set<string>();
   externalSourcePatterns.forEach(pattern => {
@@ -1722,7 +1724,7 @@ export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): 
       actualMatches.add(pattern);
     }
   });
-  
+
   if (actualMatches.size > 0) {
     console.log('🎯 External patterns found in current API data:');
     Array.from(actualMatches).sort().forEach(pattern => {
@@ -1730,7 +1732,7 @@ export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): 
       console.log(`   ${isMapped} "${pattern}"`);
     });
   }
-  
+
   // Suggestions for common sports site countries
   console.log('\n💡 Consider adding these common sports site countries:');
   unmappedExternal.forEach(country => {
@@ -1744,17 +1746,17 @@ export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): 
  */
 export function compare365ScoresCompatibility(fixtures: any[]): void {
   console.log('🏆 Comparing with 365scores.com compatibility patterns...');
-  
+
   const allCountries = new Set<string>();
   fixtures.forEach(fixture => {
     if (fixture?.league?.country) {
       allCountries.add(fixture.league.country.trim());
     }
   });
-  
+
   // Run both analyses
   analyzeCountryMappingCoverage(fixtures);
   analyzeCountriesAgainstExternalSources(Array.from(allCountries));
-  
+
   console.log('\n🔄 Cross-reference complete. Use the suggestions above to enhance country mapping.');
 }
