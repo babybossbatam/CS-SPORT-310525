@@ -6,31 +6,27 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
+import { useQuery } from '@tanstack/react-query';
+import { homePageUtils } from '@/lib/homePageCache';
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
-  const [leagueData, setLeagueData] = useState<LeagueData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadLeagues = async () => {
-      try {
-        setIsLoading(true);
-        const leagues = await getPopularLeagues();
-        setLeagueData(leagues);
-      } catch (error) {
-        console.error('Failed to load league data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Use cached popular leagues data
+  const { data: leagues = [], isLoading } = useQuery({
+    queryKey: ['home-popular-leagues'],
+    queryFn: () => homePageUtils.getPopularLeagues(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: 48 * 60 * 60 * 1000, // 48 hours
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-    loadLeagues();
-  }, []);
+  // Show only top 5 leagues
+  const displayLeagues = leagues.slice(0, 5);
 
   const toggleFavorite = (leagueId: number) => {
     if (!user.isAuthenticated) {
@@ -92,41 +88,37 @@ const PopularLeaguesList = () => {
       <CardContent className="p-4">
         <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
         <div className="space-y-2">
-          {leagueData.map((league) => {
-            const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
-
-            return (
-              <div
-                key={league.id}
-                className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
-                onClick={() => navigate(`/league/${league.id}`)}
-              >
-                <img
-                  src={league.logo}
-                  alt={league.name}
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                  }}
-                />
-                <div className="ml-3 flex-1">
-                  <div className="text-sm">{league.name}</div>
-                  <div className="text-xs text-gray-500">{league.country}</div>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(league.id);
-                  }}
-                  className="text-gray-400 hover:text-blue-500 transition-colors"
-                >
-                  <Star
-                    className={`h-4 w-4 ${isFavorite ? 'text-blue-500 fill-current' : ''}`}
-                  />
-                </button>
+          {displayLeagues.map((league, index) => (
+            <div
+              key={league.id}
+              className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+              onClick={() => navigate(`/league/${league.id}`)}
+            >
+              <img
+                src={league.logo}
+                alt={league.name}
+                className="w-5 h-5 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                }}
+              />
+              <div className="ml-3 flex-1">
+                <div className="text-sm">{league.name}</div>
+                <div className="text-xs text-gray-500">{league.country}</div>
               </div>
-            );
-          })}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(league.id);
+                }}
+                className="text-gray-400 hover:text-blue-500 transition-colors"
+              >
+                <Star
+                  className={`h-4 w-4 ${isFavorite ? 'text-blue-500 fill-current' : ''}`}
+                />
+              </button>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
