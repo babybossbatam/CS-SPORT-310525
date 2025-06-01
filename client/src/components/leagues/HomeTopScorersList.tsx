@@ -5,7 +5,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { TrendingUp } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { homePageUtils } from '@/lib/homePageCache';
 
 // Popular leagues for top scorers excluding cups
 const POPULAR_LEAGUES = [
@@ -54,14 +53,16 @@ const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
 
-  const { data: topScorers, isLoading, error } = useQuery({
-    queryKey: ['home-top-scorers', selectedLeague],
-    queryFn: () => homePageUtils.getTopScorers(parseInt(selectedLeague)),
-    enabled: !!selectedLeague,
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
-    gcTime: 12 * 60 * 60 * 1000, // 12 hours
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+  const { data: topScorers, isLoading } = useQuery({
+    queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
+    staleTime: 30 * 60 * 1000,
+    select: (data: PlayerStatistics[]) => {
+      return data.sort((a, b) => {
+        const goalsA = a.statistics[0]?.goals?.total || 0;
+        const goalsB = b.statistics[0]?.goals?.total || 0;
+        return goalsB - goalsA;
+      });
+    }
   });
 
   if (isLoading) {
