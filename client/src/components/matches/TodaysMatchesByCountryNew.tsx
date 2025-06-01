@@ -563,7 +563,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
                   <button
                     onClick={() => toggleCountry(countryData.country)}
-                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors font-bold"
                   >
                     <div className="flex items-center gap-3">
                       <img
@@ -592,7 +592,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       <ChevronDown className="h-4 w-4 text-gray-500" />
                     )}
                   </button>
-
                   {isExpanded && (
                     <div className="bg-gray-50 border-t border-gray-100">
                       {/* Sort leagues - popular first */}
