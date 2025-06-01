@@ -56,7 +56,7 @@
 .country-flag-ball img {
   width: 36px !important;
   height: 36px !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
   border-radius: 50%;
 }
 
