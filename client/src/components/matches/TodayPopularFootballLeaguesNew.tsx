@@ -804,7 +804,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       const bTime = bDate.getTime();
 
                       // Check if matches involve popular teams (with null safety)
-                      const aHasPopularTeam = (a.teams?.home?.id && POPULAR_TEAMS.includes(a.teams.home.id)) || 
+                      const aHasPopularTeam = (a.teams?.home?.id && POPULAR_TEAMS.id && POPULAR_TEAMS.includes(a.teams.home.id)) || 
                                              (a.teams?.away?.id && POPULAR_TEAMS.includes(a.teams.away.id));
                       const bHasPopularTeam = (b.teams?.home?.id && POPULAR_TEAMS.includes(b.teams.home.id)) || 
                                              (b.teams?.away?.id && POPULAR_TEAMS.includes(b.teams.away.id));
