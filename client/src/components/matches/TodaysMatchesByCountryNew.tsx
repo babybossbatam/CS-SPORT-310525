@@ -601,9 +601,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         src={flagMap[countryData.country]}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
-                        onError={(e) => {
+                        onError={async (e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = getCountryFlagWithFallbackSync(countryData.country)
+                          try {
+                            const fallbackFlag = await getCachedFlag(countryData.country);
+                            target.src = fallbackFlag;
+                          } catch (error) {
+                            target.src = '/assets/fallback-logo.svg';
+                          }
                         }}
                       />
                       <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
