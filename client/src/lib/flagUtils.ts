@@ -411,8 +411,17 @@ export function initializeFlagCachePersistence(): void {
   // Load existing cache on startup
   loadFlagCacheFromStorage();
 
+  // Prewarm cache with popular countries
+  prewarmPopularFlags();
+
   // Save cache periodically (every 5 minutes)
   setInterval(saveFlagCacheToStorage, 5 * 60 * 1000);
+
+  // Run intelligent cache cleanup every 10 minutes
+  setInterval(intelligentCacheCleanup, 10 * 60 * 1000);
+
+  // Background refresh of stale cache entries every 30 minutes
+  setInterval(backgroundCacheRefresh, 30 * 60 * 1000);
 
   // Save cache when page is unloaded
   window.addEventListener('beforeunload', saveFlagCacheToStorage);
@@ -423,6 +432,31 @@ export function initializeFlagCachePersistence(): void {
       saveFlagCacheToStorage();
     }
   });
+}
+
+/**
+ * Prewarm flag cache with most common countries from sports data
+ */
+export async function prewarmPopularFlags(): Promise<void> {
+  const popularCountries = [
+    'England', 'Spain', 'Germany', 'France', 'Italy', 'Netherlands', 
+    'Portugal', 'Brazil', 'Argentina', 'United States', 'Japan',
+    'South Korea', 'Mexico', 'Turkey', 'Belgium', 'Croatia',
+    'Poland', 'Switzerland', 'Austria', 'Denmark', 'World', 'Europe'
+  ];
+
+  console.log('🔥 Prewarming flag cache for popular countries...');
+  
+  const prewarmPromises = popularCountries.map(async (country) => {
+    try {
+      await getCachedFlag(country);
+    } catch (error) {
+      console.warn(`Failed to prewarm flag for ${country}:`, error);
+    }
+  });
+
+  await Promise.allSettled(prewarmPromises);
+  console.log('✅ Flag cache prewarming completed');
 }
 
 /**
@@ -511,6 +545,9 @@ export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
 
   console.log(`🔍 getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
+  
+  // Track usage for intelligent caching
+  trackFlagUsage(country);
 
   // PRIORITY 1: Always check cache first - use any valid cached result
   const cached = flagCache.getCached(cacheKey);
@@ -1078,7 +1115,7 @@ export function debugCountryMapping(country: string): void {
 }
 
 /**
- * Get flag cache statistics for debugging
+ * Get flag cache statistics for debugging with performance metrics
  */
 export function getFlagCacheStats(): void {
   const cache = (flagCache as any).cache; // Access the internal Map
@@ -1088,10 +1125,19 @@ export function getFlagCacheStats(): void {
       valid: 0,
       fallback: 0,
       expired: 0,
-      fresh: 0
+      fresh: 0,
+      mostUsed: '',
+      leastUsed: '',
+      avgUsage: 0
     };
 
     const now = Date.now();
+    let totalUsage = 0;
+    let maxUsage = 0;
+    let minUsage = Infinity;
+    let maxUsageKey = '';
+    let minUsageKey = '';
+
     for (const [key, value] of cache.entries()) {
       const age = now - value.timestamp;
       const maxAge = value.url.includes('/assets/fallback-logo.svg') 
@@ -1109,15 +1155,32 @@ export function getFlagCacheStats(): void {
       } else {
         stats.valid++;
       }
+
+      // Track usage statistics
+      const usage = flagUsageTracker.get(key);
+      if (usage) {
+        totalUsage += usage.count;
+        if (usage.count > maxUsage) {
+          maxUsage = usage.count;
+          maxUsageKey = key.replace('flag_', '');
+        }
+        if (usage.count < minUsage) {
+          minUsage = usage.count;
+          minUsageKey = key.replace('flag_', '');
+        }
+      }
     }
 
-    console.log('🎌 Flag Cache Stats:', stats);
-    console.log('📊 Cache Details:', Array.from(cache.entries()).map(([key, value]) => ({
-      country: key.replace('flag_', ''),
-      url: value.url,
-      age: `${Math.round((now - value.timestamp) / 1000 / 60)} min`,
-      source: value.source
-    })));
+    stats.avgUsage = Math.round(totalUsage / cache.size);
+    stats.mostUsed = `${maxUsageKey} (${maxUsage})`;
+    stats.leastUsed = `${minUsageKey} (${minUsage === Infinity ? 0 : minUsage})`;
+
+    console.log('🎌 Enhanced Flag Cache Stats:', stats);
+    console.log('📊 Usage Performance:', {
+      totalRequests: totalUsage,
+      cacheHitRatio: `${((stats.fresh / (stats.fresh + stats.expired)) * 100).toFixed(1)}%`,
+      fallbackRatio: `${((stats.fallback / stats.total) * 100).toFixed(1)}%`
+    });
   }
 }
 
@@ -1783,3 +1846,99 @@ import { CACHE_FRESHNESS } from './cacheFreshness';
 
 // Global flag request deduplication
 const pendingFlagRequests = new Map<string, Promise<string>>();
+
+// Track flag usage for intelligent eviction
+const flagUsageTracker = new Map<string, { count: number, lastUsed: number }>();
+
+/**
+ * Track flag usage for cache optimization
+ */
+function trackFlagUsage(country: string): void {
+  const key = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+  const current = flagUsageTracker.get(key) || { count: 0, lastUsed: 0 };
+  flagUsageTracker.set(key, {
+    count: current.count + 1,
+    lastUsed: Date.now()
+  });
+}
+
+/**
+ * Intelligent cache cleanup - remove least used flags when cache gets large
+ */
+export function intelligentCacheCleanup(): void {
+  const cache = (flagCache as any).cache;
+  if (!(cache instanceof Map)) return;
+
+  const maxCacheSize = 100; // Maximum flags to keep in cache
+  
+  if (cache.size <= maxCacheSize) return;
+
+  console.log(`🧹 Cache cleanup: ${cache.size} entries, target: ${maxCacheSize}`);
+
+  // Get usage data and sort by least used + oldest
+  const entries = Array.from(cache.entries()).map(([key, value]) => {
+    const usage = flagUsageTracker.get(key) || { count: 0, lastUsed: 0 };
+    return {
+      key,
+      value,
+      usage: usage.count,
+      lastUsed: usage.lastUsed,
+      score: usage.count + (Date.now() - usage.lastUsed) / (1000 * 60 * 60) // Usage count + hours since last use
+    };
+  });
+
+  // Sort by score (lower = less important)
+  entries.sort((a, b) => a.score - b.score);
+
+  // Remove least important entries
+  const toRemove = entries.slice(0, cache.size - maxCacheSize);
+  toRemove.forEach(({ key }) => {
+    cache.delete(key);
+    flagUsageTracker.delete(key);
+  });
+
+  console.log(`🗑️ Removed ${toRemove.length} least used flags from cache`);
+}
+
+/**
+ * Background refresh of stale cache entries
+ */
+async function backgroundCacheRefresh(): Promise<void> {
+  const cache = (flagCache as any).cache;
+  if (!(cache instanceof Map)) return;
+
+  const now = Date.now();
+  const staleEntries: string[] = [];
+
+  // Find entries that are getting stale but still used
+  for (const [key, value] of cache.entries()) {
+    const usage = flagUsageTracker.get(key);
+    const age = now - value.timestamp;
+    const maxAge = value.url.includes('/assets/fallback-logo.svg') 
+      ? 60 * 60 * 1000  // 1 hour for fallbacks
+      : 24 * 60 * 60 * 1000; // 24 hours for valid flags
+
+    // Refresh if entry is 75% of max age and has been used recently
+    if (age > maxAge * 0.75 && usage && usage.count > 3) {
+      staleEntries.push(key.replace('flag_', ''));
+    }
+  }
+
+  if (staleEntries.length > 0) {
+    console.log(`🔄 Background refreshing ${staleEntries.length} stale flag entries`);
+    
+    // Refresh in batches to avoid overwhelming the system
+    const batchSize = 5;
+    for (let i = 0; i < staleEntries.length; i += batchSize) {
+      const batch = staleEntries.slice(i, i + batchSize);
+      await Promise.allSettled(
+        batch.map(country => getCachedFlag(country))
+      );
+      
+      // Small delay between batches
+      if (i + batchSize < staleEntries.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  }
+}
