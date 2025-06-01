@@ -206,23 +206,32 @@ export function generateFlagSources(country: string): string[] {
   }
 
   if (cleanCountry === 'Europe') {
-    return ['https://flagpedia.net/data/flags/w580/eu.png'];
+    return ['https://flagcdn.com/w40/eu.png', 'https://media.api-sports.io/flags/eu.svg'];
   }
 
   const countryCode = countryCodeMap[cleanCountry];
 
   if (countryCode) {
-    // 1. Primary: Flagpedia (reliable source with support for special codes like GB-ENG)
-    sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
-    sources.push(`https://flagpedia.net/data/flags/normal/${countryCode.toLowerCase()}.png`);
-
-    // 2. Secondary: FlagCDN (for standard country codes)
+    // 1. Primary: FlagCDN (most reliable for standard codes)
     if (countryCode.length === 2) {
       sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
       sources.push(`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`);
     }
 
-    // 3. Alternative external source (RestCountries) - only for 2-letter codes
+    // 2. Secondary: API-Sports flags (good alternative)
+    sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
+
+    // 3. Special handling for GB subdivision codes (England, Scotland, etc.)
+    if (countryCode.startsWith('GB-')) {
+      const subCode = countryCode.split('-')[1].toLowerCase();
+      sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
+      sources.push(`https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_${subCode === 'eng' ? 'England' : subCode === 'sct' ? 'Scotland' : subCode === 'wls' ? 'Wales' : 'Northern_Ireland'}.svg/40px-Flag_of_${subCode === 'eng' ? 'England' : subCode === 'sct' ? 'Scotland' : subCode === 'wls' ? 'Wales' : 'Northern_Ireland'}.svg.png`);
+    } else {
+      // 4. Flagpedia for regular countries
+      sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
+    }
+
+    // 5. RestCountries backup (for 2-letter codes only)
     if (countryCode.length === 2) {
       sources.push(`https://restcountries.com/v3.1/alpha/${countryCode.toLowerCase()}?fields=flags`);
     }
@@ -232,8 +241,8 @@ export function generateFlagSources(country: string): string[] {
     // Fallback: try common variations for unmapped countries
     const cleanName = cleanCountry.toLowerCase().replace(/\s+/g, '');
     const shortName = cleanName.substring(0, 2);
-    sources.push(`https://flagpedia.net/data/flags/w580/${shortName}.png`);
     sources.push(`https://flagcdn.com/w40/${shortName}.png`);
+    sources.push(`https://media.api-sports.io/flags/${shortName}.svg`);
   }
 
   // 4. Alternative external source (RestCountries)
@@ -289,7 +298,7 @@ export async function getCachedFlag(country: string): Promise<string> {
         flagCache.setCached(cacheKey, source, `source-${i}`, true);
         return source;
       } else {
-        console.log(`❌ Invalid flag source for ${country}: ${source}`);
+        console.log(`❌ Invalid flag source for ${country}: ${source} (HTTP or image load failed)`);
       }
     } catch (error) {
       console.log(`Error testing source for ${country}: ${source}`, error);
@@ -382,13 +391,18 @@ export function getCountryFlagWithFallbackSync(
   }
 
   if (cleanCountry === 'Europe') {
-    return 'https://flagpedia.net/data/flags/w580/eu.png';
+    return 'https://flagcdn.com/w40/eu.png';
   }
 
   // Use country code mapping first for most reliable flags
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
-    return `https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`;
+    // For standard 2-letter codes, use FlagCDN (most reliable)
+    if (countryCode.length === 2) {
+      return `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+    }
+    // For special codes like GB-ENG, try API-Sports first
+    return `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
   }
 
   // Fallback to API endpoint for unmapped countries
@@ -411,11 +425,14 @@ export function generateCountryFlagSources(country: string): string[] {
   const fallbackSources = generateLogoSources(cleanCountry, 'flag');
   sources.push(...fallbackSources);
 
-  // 3. Third: Flagpedia using country code mapping
+  // 3. Third: Multiple flag sources using country code mapping
   const countryCode = countryCodeMap[cleanCountry];
   if (countryCode) {
+    if (countryCode.length === 2) {
+      sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
+      sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
+    }
     sources.push(`https://flagpedia.net/data/flags/w580/${countryCode.toLowerCase()}.png`);
-    sources.push(`https://flagpedia.net/data/flags/normal/${countryCode.toLowerCase()}.png`);
   }
 
   // 4. Final fallback
