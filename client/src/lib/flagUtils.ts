@@ -253,6 +253,57 @@ const countryCodeMap: { [key: string]: string } = {
   'French Polynesia': 'PF',
   'New Caledonia': 'NC',
   'Wallis and Futuna': 'WF',
+  // Additional countries commonly found on 365scores.com
+  'Curaçao': 'CW',
+  'Curacao': 'CW',
+  'Sint Maarten': 'SX',
+  'Aruba': 'AW',
+  'Bonaire': 'BQ',
+  'Saint Lucia': 'LC',
+  'Saint Vincent and the Grenadines': 'VC',
+  'Grenada': 'GD',
+  'Dominica': 'DM',
+  'Antigua and Barbuda': 'AG',
+  'Saint Kitts and Nevis': 'KN',
+  'Montserrat': 'MS',
+  'Anguilla': 'AI',
+  'British Virgin Islands': 'VG',
+  'US Virgin Islands': 'VI',
+  'Puerto Rico': 'PR',
+  'Cayman Islands': 'KY',
+  'Turks and Caicos': 'TC',
+  'Bermuda': 'BM',
+  'Falkland Islands': 'FK',
+  'Gibraltar': 'GI',
+  'Saint Helena': 'SH',
+  'Ascension Island': 'AC',
+  'Tristan da Cunha': 'TA',
+  // Asian countries/territories
+  'Macau': 'MO',
+  'Macao': 'MO',
+  'Hong Kong': 'HK',
+  'Taiwan': 'TW',
+  'Chinese Taipei': 'TW',
+  // African variations
+  'DR Congo': 'CD',
+  'Congo DR': 'CD',
+  'Congo DRC': 'CD',
+  'Democratic Republic of Congo': 'CD',
+  'Republic of Congo': 'CG',
+  'Congo Republic': 'CG',
+  'Congo-Brazzaville': 'CG',
+  'Congo-Kinshasa': 'CD',
+  // European microstates and territories
+  'San Marino': 'SM',
+  'Vatican': 'VA',
+  'Liechtenstein': 'LI',
+  'Monaco': 'MC',
+  'Andorra': 'AD',
+  // Oceania territories
+  'Norfolk Island': 'NF',
+  'Christmas Island': 'CX',
+  'Cocos Islands': 'CC',
+  'Heard Island': 'HM',
   // Common alternative names
   'United Kingdom': 'GB',
   'UK': 'GB',
@@ -1220,4 +1271,102 @@ export const getFlagUrl = async (country: string): Promise<string> => {
  */
 export function getFlagCacheKey(country: string): string {
   return `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+}
+
+/**
+ * Analyze countries against external source patterns (like 365scores.com)
+ * This helps identify missing countries that might be common on other sports sites
+ */
+export function analyzeCountriesAgainstExternalSources(apiCountries: string[]): void {
+  console.log('🌐 Analyzing countries against external sports sources (365scores.com style)...');
+  
+  // Common patterns found on 365scores.com and similar sports sites
+  const externalSourcePatterns = [
+    'Curaçao', 'Curacao', 'Sint Maarten', 'Aruba', 'Bonaire',
+    'Saint Lucia', 'Saint Vincent and the Grenadines', 'Grenada',
+    'Dominica', 'Antigua and Barbuda', 'Saint Kitts and Nevis',
+    'Montserrat', 'Anguilla', 'British Virgin Islands', 'US Virgin Islands',
+    'Puerto Rico', 'Cayman Islands', 'Turks and Caicos', 'Bermuda',
+    'Falkland Islands', 'Gibraltar', 'Saint Helena', 'Norfolk Island',
+    'Christmas Island', 'Cocos Islands', 'Chinese Taipei',
+    'DR Congo', 'Congo DR', 'Congo DRC', 'Republic of Congo',
+    'Congo Republic', 'Congo-Brazzaville', 'Congo-Kinshasa'
+  ];
+  
+  const foundInApi = new Set(apiCountries.map(c => c.trim()));
+  const mappedExternal = new Set<string>();
+  const unmappedExternal = new Set<string>();
+  
+  externalSourcePatterns.forEach(pattern => {
+    if (countryCodeMap[pattern]) {
+      mappedExternal.add(pattern);
+    } else {
+      // Check for variations
+      let found = false;
+      if (pattern.includes(' ')) {
+        const hyphenVersion = pattern.replace(/\s+/g, '-');
+        if (countryCodeMap[hyphenVersion]) {
+          mappedExternal.add(pattern);
+          found = true;
+        }
+      }
+      if (!found) {
+        unmappedExternal.add(pattern);
+      }
+    }
+  });
+  
+  console.log(`📊 External Source Analysis (365scores.com style):`);
+  console.log(`✅ Mapped external patterns: ${mappedExternal.size}`);
+  console.log(`❌ Unmapped external patterns: ${unmappedExternal.size}`);
+  
+  if (unmappedExternal.size > 0) {
+    console.log('🚫 Missing patterns that might appear on 365scores.com:');
+    Array.from(unmappedExternal).sort().forEach(pattern => {
+      console.log(`   - "${pattern}"`);
+    });
+  }
+  
+  // Check which of these patterns actually appear in our API data
+  const actualMatches = new Set<string>();
+  externalSourcePatterns.forEach(pattern => {
+    if (foundInApi.has(pattern)) {
+      actualMatches.add(pattern);
+    }
+  });
+  
+  if (actualMatches.size > 0) {
+    console.log('🎯 External patterns found in current API data:');
+    Array.from(actualMatches).sort().forEach(pattern => {
+      const isMapped = countryCodeMap[pattern] ? '✅' : '❌';
+      console.log(`   ${isMapped} "${pattern}"`);
+    });
+  }
+  
+  // Suggestions for common sports site countries
+  console.log('\n💡 Consider adding these common sports site countries:');
+  unmappedExternal.forEach(country => {
+    const suggested = suggestCountryCode(country);
+    console.log(`   '${country}': '${suggested}',`);
+  });
+}
+
+/**
+ * Compare current country mapping coverage with 365scores.com style patterns
+ */
+export function compare365ScoresCompatibility(fixtures: any[]): void {
+  console.log('🏆 Comparing with 365scores.com compatibility patterns...');
+  
+  const allCountries = new Set<string>();
+  fixtures.forEach(fixture => {
+    if (fixture?.league?.country) {
+      allCountries.add(fixture.league.country.trim());
+    }
+  });
+  
+  // Run both analyses
+  analyzeCountryMappingCoverage(fixtures);
+  analyzeCountriesAgainstExternalSources(Array.from(allCountries));
+  
+  console.log('\n🔄 Cross-reference complete. Use the suggestions above to enhance country mapping.');
 }

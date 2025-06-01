@@ -353,6 +353,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       });
     };
     
+    (window as any).compare365ScoresCompatibility = () => {
+      console.log(`🏆 Comparing with 365scores.com compatibility for current fixtures...`);
+      
+      import('../../lib/flagUtils').then(({ compare365ScoresCompatibility }) => {
+        compare365ScoresCompatibility(allFixtures);
+      });
+    };
+    
     (window as any).showAllCountriesFromFixtures = () => {
       const countries = new Set();
       allFixtures.forEach(fixture => {
@@ -362,6 +370,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       });
       console.log('🌍 All countries in current fixtures:', Array.from(countries).sort());
       return Array.from(countries).sort();
+    };
+    
+    (window as any).analyzeExternalSources = () => {
+      const countries = new Set();
+      allFixtures.forEach(fixture => {
+        if (fixture?.league?.country) {
+          countries.add(fixture.league.country);
+        }
+      });
+      
+      import('../../lib/flagUtils').then(({ analyzeCountriesAgainstExternalSources }) => {
+        analyzeCountriesAgainstExternalSources(Array.from(countries));
+      });
     };
   }, [allFixtures, selectedDate]);
 
