@@ -878,28 +878,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
                               {match.teams.home.name}
                             </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleFavoriteTeam(match.teams.home.id, match.teams.home.name);
-                              }}
-                              className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white shadow-sm flex items-center justify-center"
-                              title={isTeamFavorite(match.teams.home.id) ? 'Remove from favorites' : 'Add to favorites'}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.closest('.group')?.classList.add('disable-hover');
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.closest('.group')?.classList.remove('disable-hover');
-                              }}
-                            >
-                              <Star 
-                                className={`h-3 w-3 transition-colors duration-200 ${
-                                  isTeamFavorite(match.teams.home.id) 
-                                    ? 'text-yellow-400 fill-yellow-400' 
-                                    : 'text-gray-300 group-hover:text-yellow-400'
-                                }`} 
-                              />
-                            </button>
                           </div>
 
                           <div className="flex-shrink-0 mx-1">
@@ -1055,7 +1033,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                           {/* Away Team */}
                           <div className="flex items-center flex-1 min-w-0">
-                            
                             <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
                               {match.teams.away.name}
                             </div>
