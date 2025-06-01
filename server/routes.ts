@@ -1070,6 +1070,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SportsRadar league logo endpoint (server-side to avoid CORS)
+  apiRouter.get('/sportsradar/leagues/:leagueId/logo', async (req: Request, res: Response) => {
+    try {
+      let { leagueId } = req.params;
+
+      // If leagueId contains a URL, extract the actual league ID
+      if (leagueId.includes('http')) {
+        const urlDecoded = decodeURIComponent(leagueId);
+        const leagueIdMatch = urlDecoded.match(/\/leagues\/(\d+)\.png/);
+        if (leagueIdMatch && leagueIdMatch[1]) {
+          leagueId = leagueIdMatch[1];
+        } else {
+          console.warn(`Could not extract league ID from URL: ${urlDecoded}`);
+          return res.status(400).json({ error: 'Invalid league ID format' });
+        }
+      }
+
+      // Validate that leagueId is numeric
+      if (!/^\d+$/.test(leagueId)) {
+        console.warn(`Invalid league ID format: ${leagueId}`);
+        return res.status(400).json({ error: 'League ID must be numeric' });
+      }
+
+      console.log(`SportsRadar: Fetching logo for league ID: ${leagueId}`);
+
+      // Try multiple SportsRadar logo formats for leagues
+      const logoUrls = [
+        `https://api.sportradar.com/soccer/production/v4/en/tournaments/${leagueId}/logo.png`,
+        `https://api.sportradar.com/soccer-images/production/tournaments/${leagueId}/logo.png`,
+        `https://imagecache.sportradar.com/production/soccer/tournaments/${leagueId}/logo.png`
+      ];
+
+      for (const logoUrl of logoUrls) {
+        try {
+          const response = await fetch(logoUrl, {
+            headers: {
+              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
+              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get('content-type') || 'image/png';
+            const buffer = await response.arrayBuffer();
+
+            res.set('Content-Type', contentType);
+            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+            res.send(Buffer.from(buffer));
+            return;
+          }
+        } catch (error) {
+          console.warn(`SportsRadar league logo URL failed: ${logoUrl}`, error);
+          continue;
+        }
+      }
+
+      console.warn(`SportsRadar league logo not found for league: ${leagueId}`);
+      res.status(404).json({ error: 'League logo not found' });
+    } catch (error) {
+      console.error(`Error fetching SportsRadar league logo for ${req.params.leagueId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch league logo' });
+    }
+  });
+
   // SportsRadar team logo endpoint (server-side to avoid CORS)
   apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
     try {

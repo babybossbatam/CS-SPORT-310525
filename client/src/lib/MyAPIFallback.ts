@@ -16,6 +16,13 @@ export interface TeamLogoOptions {
   size?: 'small' | 'medium' | 'large';
 }
 
+export interface LeagueLogoOptions {
+  leagueId?: number | string;
+  leagueName?: string;
+  originalUrl?: string;
+  size?: 'small' | 'medium' | 'large';
+}
+
 import { teamLogoCache, getTeamLogoCacheKey, validateLogoUrl } from './logoCache';
 
 /**
@@ -88,9 +95,114 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
         priority: 2
       }
     );
+
+    // 3. SportsRadar sources
+    sources.push(
+      {
+        url: `/api/sportsradar/teams/${cleanTeamId}/logo`,
+        source: 'sportsradar-proxy',
+        priority: 3
+      },
+      {
+        url: `https://api.sportradar.com/soccer/production/v4/en/competitors/${cleanTeamId}/profile.png`,
+        source: 'sportsradar-direct-v4',
+        priority: 4
+      },
+      {
+        url: `https://api.sportradar.com/soccer-images/production/competitors/${cleanTeamId}/logo.png`,
+        source: 'sportsradar-images',
+        priority: 5
+      },
+      {
+        url: `https://imagecache.sportradar.com/production/soccer/competitors/${cleanTeamId}/logo.png`,
+        source: 'sportsradar-cache',
+        priority: 6
+      }
+    );
   }
 
-  // 3. Fallback logo
+  // 4. Fallback logo
+  sources.push({
+    url: '/assets/fallback-logo.svg',
+    source: 'fallback',
+    priority: 9
+  });
+
+  return sources.sort((a, b) => a.priority - b.priority);
+}
+
+/**
+ * Generate multiple logo sources for a league with SportsRadar support
+ */
+export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSource[] {
+  const { leagueId, leagueName, originalUrl, size = 'medium' } = options;
+  const sources: LogoSource[] = [];
+
+  // Extract league ID from various sources
+  let cleanLeagueId: string | number | null = null;
+
+  if (leagueId) {
+    if (typeof leagueId === 'number') {
+      cleanLeagueId = leagueId;
+    } else if (typeof leagueId === 'string') {
+      // Extract league ID from URL if it's a URL string
+      const urlMatch = leagueId.match(/\/leagues\/(\d+)/);
+      if (urlMatch && urlMatch[1]) {
+        cleanLeagueId = urlMatch[1];
+      } else if (/^\d+$/.test(leagueId)) {
+        cleanLeagueId = leagueId;
+      }
+    }
+  }
+
+  // Try to extract league ID from original URL if we don't have one
+  if (!cleanLeagueId && originalUrl) {
+    const urlMatch = originalUrl.match(/\/leagues\/(\d+)/);
+    if (urlMatch && urlMatch[1]) {
+      cleanLeagueId = urlMatch[1];
+    }
+  }
+
+  // 1. Original URL if valid and properly formatted
+  if (originalUrl && isValidUrl(originalUrl) && !originalUrl.includes('undefined') && !originalUrl.includes('null')) {
+    sources.push({
+      url: originalUrl,
+      source: 'api-sports-original',
+      priority: 1
+    });
+  }
+
+  // 2. API-Sports direct URLs if we have a league ID
+  if (cleanLeagueId) {
+    sources.push(
+      {
+        url: `https://media.api-sports.io/football/leagues/${cleanLeagueId}.png`,
+        source: 'api-sports-direct',
+        priority: 2
+      }
+    );
+
+    // 3. SportsRadar sources
+    sources.push(
+      {
+        url: `/api/sportsradar/leagues/${cleanLeagueId}/logo`,
+        source: 'sportsradar-proxy',
+        priority: 3
+      },
+      {
+        url: `https://api.sportradar.com/soccer/production/v4/en/tournaments/${cleanLeagueId}/logo.png`,
+        source: 'sportsradar-tournaments',
+        priority: 4
+      },
+      {
+        url: `https://api.sportradar.com/soccer-images/production/tournaments/${cleanLeagueId}/logo.png`,
+        source: 'sportsradar-tournament-images',
+        priority: 5
+      }
+    );
+  }
+
+  // 4. Fallback logo
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
@@ -113,6 +225,46 @@ export async function getCachedTeamLogo(teamId: number | string, teamName?: stri
   }
 
   const sources = generateLogoSources({ teamId, teamName, originalUrl });
+
+  for (const source of sources) {
+    try {
+      // For local assets, return immediately
+      if (source.url.startsWith('/assets/')) {
+        teamLogoCache.setCached(cacheKey, source.url, source.source, true);
+        return source.url;
+      }
+
+      // For external URLs, do a quick validation
+      const isValid = await validateLogoUrl(source.url);
+      if (isValid) {
+        teamLogoCache.setCached(cacheKey, source.url, source.source, true);
+        return source.url;
+      }
+    } catch (error) {
+      // Continue to next source on error
+      continue;
+    }
+  }
+
+  // If all sources fail, return fallback and cache it
+  const fallbackUrl = '/assets/fallback-logo.svg';
+  teamLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+  return fallbackUrl;
+}
+
+/**
+ * Get cached league logo or fetch with intelligent fallback
+ */
+export async function getCachedLeagueLogo(leagueId: number | string, leagueName?: string, originalUrl?: string): Promise<string> {
+  const cacheKey = `league_${leagueId}_${leagueName || 'unknown'}`;
+
+  // Check cache first
+  const cached = teamLogoCache.getCached(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const sources = generateLeagueLogoSources({ leagueId, leagueName, originalUrl });
 
   for (const source of sources) {
     try {
