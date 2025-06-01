@@ -528,7 +528,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   return (
     <Card className="mt-4">
-      <CardHeader className="pb-4">
+      <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[10px] pb-[10px]">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Calendar className="h-4 w-4" />
           {getHeaderTitle()}
@@ -563,7 +563,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
                   <button
                     onClick={() => toggleCountry(countryData.country)}
-                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors font-bold"
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors pt-[12px] pb-[12px] font-normal text-[14px]"
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
