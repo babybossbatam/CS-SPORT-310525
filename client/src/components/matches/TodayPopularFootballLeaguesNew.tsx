@@ -803,7 +803,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       // Ensure valid dates
                       if (!isValid(aDate) || !isValid(bDate)) {
                         return 0;
-                      }
+                        }
 
                       const now = new Date();
                       const aTime = aDate.getTime();
@@ -906,7 +906,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className="w-9 h-9 object-contain"
+                              className={`${
+                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
+                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                                 leagueData.league.name?.toLowerCase().includes('fifa') ||
+                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                 leagueData.league.name?.toLowerCase().includes('international')
+                                  ? 'object-cover country-flag-ball' 
+                                  : 'w-9 h-9 object-contain'
+                              }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1045,7 +1054,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className="w-9 h-9 object-contain"
+                              className={`${
+                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
+                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
+                                 leagueData.league.name?.toLowerCase().includes('fifa') ||
+                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                 leagueData.league.name?.toLowerCase().includes('international')
+                                  ? 'object-cover country-flag-ball' 
+                                  : 'w-9 h-9 object-contain'
+                              }`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
