@@ -880,7 +880,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 mx-1">
+                          <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
@@ -1033,7 +1033,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             })()}
                           </div>
 
-                          <div className="flex-shrink-0 mx-1">
+                          <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
