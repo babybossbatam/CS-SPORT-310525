@@ -955,18 +955,18 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                 return (
                                   <div className="relative">
-                                    <div className="text-lg font-bold flex items-center gap-2" style={{ marginTop: '-14px' }}>
+                                    <div className="text-xs font-semibold mb-1">
+                                      <span className="text-red-600 animate-pulse">
+                                        {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                      </span>
+                                    </div>
+                                    <div className="text-lg font-bold flex items-center gap-2">
                                       <span className="text-black">
                                         {match.goals.home ?? 0}
                                       </span>
                                       <span className="text-gray-400">-</span>
                                       <span className="text-black">
                                         {match.goals.away ?? 0}
-                                      </span>
-                                    </div>
-                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                      <span className="text-red-600 animate-pulse">
-                                        {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                       </span>
                                     </div>
                                   </div>
@@ -985,16 +985,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 if (hasValidScores) {
                                   return (
                                     <div className="relative">
-                                      <div className="text-lg font-bold flex items-center gap-2" style={{ marginTop: '-14px' }}>
-                                        <span className="text-black">
-                                          {homeScore}
-                                        </span>
-                                        <span className="text-gray-400">-</span>
-                                        <span className="text-black">
-                                          {awayScore}
-                                        </span>
-                                      </div>
-                                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                      <div className="text-xs font-semibold mb-1">
                                         <span className="text-gray-600">
                                           {status === 'FT' ? 'Ended' : 
                                            status === 'AET' ? 'AET' :
@@ -1004,6 +995,15 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                            status === 'ABD' ? 'Abandoned' :
                                            status === 'CANC' ? 'Cancelled' :
                                            status === 'SUSP' ? 'Suspended' : status}
+                                        </span>
+                                      </div>
+                                      <div className="text-lg font-bold flex items-center gap-2">
+                                        <span className="text-black">
+                                          {homeScore}
+                                        </span>
+                                        <span className="text-gray-400">-</span>
+                                        <span className="text-black">
+                                          {awayScore}
                                         </span>
                                       </div>
                                     </div>
