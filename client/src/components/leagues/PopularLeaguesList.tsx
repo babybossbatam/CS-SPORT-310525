@@ -89,7 +89,7 @@ const PopularLeaguesList = () => {
         <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
         <div className="space-y-2">
           {displayLeagues.map((league, index) => {
-            const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
+            const isFavorite = league.id ? user.preferences.favoriteLeagues.includes(league.id.toString()) : false;
             
             return (
               <div
