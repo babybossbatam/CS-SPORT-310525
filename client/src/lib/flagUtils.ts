@@ -874,6 +874,112 @@ export const createImageFallbackHandler = (
 };
 
 /**
+ * Analyze all countries from API data and identify missing ones
+ */
+export function analyzeCountryMappingCoverage(fixtures: any[]): void {
+  const allCountries = new Set<string>();
+  const mappedCountries = new Set<string>();
+  const unmappedCountries = new Set<string>();
+  
+  // Extract all unique countries from fixtures
+  fixtures.forEach(fixture => {
+    if (fixture?.league?.country) {
+      const country = fixture.league.country.trim();
+      allCountries.add(country);
+      
+      // Check if it's mapped
+      if (countryCodeMap[country]) {
+        mappedCountries.add(country);
+      } else {
+        // Try variations
+        let found = false;
+        if (country.includes('-')) {
+          const spaceVersion = country.replace(/-/g, ' ');
+          if (countryCodeMap[spaceVersion]) {
+            mappedCountries.add(country);
+            found = true;
+          }
+        }
+        if (!found && country.includes(' ')) {
+          const hyphenVersion = country.replace(/\s+/g, '-');
+          if (countryCodeMap[hyphenVersion]) {
+            mappedCountries.add(country);
+            found = true;
+          }
+        }
+        if (!found) {
+          unmappedCountries.add(country);
+        }
+      }
+    }
+  });
+  
+  console.log('🌍 Country Mapping Coverage Analysis:');
+  console.log(`📊 Total unique countries in API data: ${allCountries.size}`);
+  console.log(`✅ Mapped countries: ${mappedCountries.size}`);
+  console.log(`❌ Unmapped countries: ${unmappedCountries.size}`);
+  
+  if (unmappedCountries.size > 0) {
+    console.log('🚫 Missing countries from countryCodeMap:');
+    Array.from(unmappedCountries).sort().forEach(country => {
+      console.log(`   - "${country}"`);
+    });
+    
+    console.log('\n💡 Suggested additions to countryCodeMap:');
+    Array.from(unmappedCountries).sort().forEach(country => {
+      // Try to suggest a country code
+      const suggested = suggestCountryCode(country);
+      console.log(`   '${country}': '${suggested}',`);
+    });
+  }
+  
+  console.log('\n📋 All countries found in API data:');
+  Array.from(allCountries).sort().forEach(country => {
+    const isMapped = mappedCountries.has(country);
+    console.log(`   ${isMapped ? '✅' : '❌'} ${country}`);
+  });
+}
+
+/**
+ * Suggest a country code for an unmapped country
+ */
+function suggestCountryCode(country: string): string {
+  // Common patterns and known mappings
+  const suggestions: { [key: string]: string } = {
+    // Add common variations here
+    'United States': 'US',
+    'United Kingdom': 'GB',
+    'South Korea': 'KR',
+    'North Korea': 'KP',
+    'Czech Republic': 'CZ',
+    'Bosnia and Herzegovina': 'BA',
+    'North Macedonia': 'MK',
+    'Costa Rica': 'CR',
+    'South Africa': 'ZA',
+    'New Zealand': 'NZ',
+    'Saudi Arabia': 'SA',
+    'United Arab Emirates': 'AE',
+    'Dominican Republic': 'DO',
+    'Trinidad and Tobago': 'TT',
+    'El Salvador': 'SV',
+  };
+  
+  if (suggestions[country]) {
+    return suggestions[country];
+  }
+  
+  // Generate a best guess based on country name
+  const words = country.split(' ');
+  if (words.length === 1) {
+    // Single word - take first 2 letters
+    return country.substring(0, 2).toUpperCase();
+  } else {
+    // Multiple words - take first letter of each word
+    return words.map(word => word.charAt(0)).join('').substring(0, 2).toUpperCase();
+  }
+}
+
+/**
  * Check if a country is in the country code mapping and log variations
  */
 export function debugCountryMapping(country: string): void {

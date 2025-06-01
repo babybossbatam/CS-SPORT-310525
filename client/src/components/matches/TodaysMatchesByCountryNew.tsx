@@ -255,6 +255,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
+    // Analyze country mapping coverage when fixtures change
+    if (allFixtures.length > 0) {
+      import('../../lib/flagUtils').then(({ analyzeCountryMappingCoverage }) => {
+        analyzeCountryMappingCoverage(allFixtures);
+      });
+    }
+
     // Don't clear cache - let it work naturally for better performance
 
     const fetchFlags = async () => {
@@ -334,6 +341,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     fetchFlags();
   }, [sortedCountries.map((c: any) => c.country).join(',')]); // Removed flagMap dependency to prevent loops
+
+  // Make debugging functions available globally for manual testing
+  useEffect(() => {
+    (window as any).debugCountryMappingForDate = (date?: string) => {
+      const targetDate = date || selectedDate;
+      console.log(`🔍 Analyzing country mapping for date: ${targetDate}`);
+      
+      import('../../lib/flagUtils').then(({ analyzeCountryMappingCoverage }) => {
+        analyzeCountryMappingCoverage(allFixtures);
+      });
+    };
+    
+    (window as any).showAllCountriesFromFixtures = () => {
+      const countries = new Set();
+      allFixtures.forEach(fixture => {
+        if (fixture?.league?.country) {
+          countries.add(fixture.league.country);
+        }
+      });
+      console.log('🌍 All countries in current fixtures:', Array.from(countries).sort());
+      return Array.from(countries).sort();
+    };
+  }, [allFixtures, selectedDate]);
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
