@@ -309,8 +309,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
-    // Clear fallback cache entries on component mount to force re-fetching
-    clearFallbackFlagCache();
+    // Don't clear cache - let it work naturally for better performance
     
     const fetchFlags = async () => {
       // Only proceed if we have countries to fetch flags for

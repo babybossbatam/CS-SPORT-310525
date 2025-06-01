@@ -243,25 +243,21 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback - Enhanced cache-first approach
+ * Get cached flag or fetch with fallback - Cache-first optimized approach
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = getFlagCacheKey(country);
 
-  // Check cache first - return immediately if found AND it's not a fallback
+  // PRIORITY 1: Check cache first - return ANY cached result immediately (including fallbacks)
   const cached = flagCache.getCached(cacheKey);
-  if (cached && cached.verified && !cached.url.includes('/assets/fallback-logo.svg')) {
-    console.log(`Using cached flag for ${country}: ${cached.url}`);
+  if (cached && cached.verified) {
+    // Return cached result immediately, even if it's a fallback
+    // This prevents unnecessary refetching on every page refresh
+    console.log(`📦 Using cached flag for ${country}: ${cached.url} (age: ${Math.round((Date.now() - cached.timestamp) / 1000 / 60)} min)`);
     return cached.url;
   }
 
-  // If cached result is a fallback, clear it and try again
-  if (cached && cached.url.includes('/assets/fallback-logo.svg')) {
-    console.log(`Clearing fallback cache for ${country}`);
-    flagCache.removeCached(cacheKey);
-  }
-
-  console.log(`Fetching flag for country: ${country}`);
+  console.log(`🔍 Fetching fresh flag for country: ${country}`);
   const sources = generateFlagSources(country);
 
   // Try sources with better logging
@@ -298,9 +294,10 @@ export async function getCachedFlag(country: string): Promise<string> {
     }
   }
 
-  // If all sources fail, return fallback but DON'T cache it to allow retries
-  console.log(`⚠️ All sources failed for ${country}, using fallback`);
+  // If all sources fail, cache the fallback for 1 hour to prevent repeated failures
+  console.log(`⚠️ All sources failed for ${country}, caching fallback for 1 hour`);
   const fallbackUrl = '/assets/fallback-logo.svg';
+  flagCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
   return fallbackUrl;
 }
 
@@ -575,7 +572,51 @@ export const createImageFallbackHandler = (
 };
 
 /**
- * Clear all cached fallback flags to force re-fetching
+ * Get flag cache statistics for debugging
+ */
+export function getFlagCacheStats(): void {
+  const cache = (flagCache as any).cache; // Access the internal Map
+  if (cache instanceof Map) {
+    const stats = {
+      total: cache.size,
+      valid: 0,
+      fallback: 0,
+      expired: 0,
+      fresh: 0
+    };
+    
+    const now = Date.now();
+    for (const [key, value] of cache.entries()) {
+      const age = now - value.timestamp;
+      const maxAge = value.url.includes('/assets/fallback-logo.svg') 
+        ? 60 * 60 * 1000  // 1 hour for fallbacks
+        : 24 * 60 * 60 * 1000; // 24 hours for valid flags
+      
+      if (age > maxAge) {
+        stats.expired++;
+      } else {
+        stats.fresh++;
+      }
+      
+      if (value.url.includes('/assets/fallback-logo.svg')) {
+        stats.fallback++;
+      } else {
+        stats.valid++;
+      }
+    }
+    
+    console.log('🎌 Flag Cache Stats:', stats);
+    console.log('📊 Cache Details:', Array.from(cache.entries()).map(([key, value]) => ({
+      country: key.replace('flag_', ''),
+      url: value.url,
+      age: `${Math.round((now - value.timestamp) / 1000 / 60)} min`,
+      source: value.source
+    })));
+  }
+}
+
+/**
+ * Clear all cached fallback flags to force re-fetching (use sparingly)
  */
 export function clearFallbackFlagCache(): void {
   // Get all cached items and remove fallback ones

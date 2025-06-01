@@ -79,9 +79,27 @@ class LogoCache {
     });
   }
 
-  // Get cached logo/flag
+  // Get from cache first
   getCached(key: string): CachedItem | null {
-    return this.cache.get(key) || null;
+    const item = this.cache.get(key);
+
+    if (!item) {
+      return null;
+    }
+
+    // Check expiration - but be more lenient for valid flags
+    const age = Date.now() - item.timestamp;
+    const maxAge = item.url.includes('/assets/fallback-logo.svg') 
+      ? 60 * 60 * 1000  // 1 hour for fallbacks
+      : this.config.maxAge;    // 24 hours for valid flags
+
+    if (age > maxAge) {
+      console.log(`🗑️ Cache expired for ${key} (age: ${Math.round(age / 1000 / 60)} min)`);
+      this.cache.delete(key);
+      return null;
+    }
+
+    return item;
   }
 
   // Remove cached item
@@ -154,7 +172,7 @@ export async function validateLogoUrl(url: string): Promise<boolean> {
     // Create a test image element for reliable validation
     return new Promise((resolve) => {
       const img = new Image();
-      
+
       // Set timeout to avoid hanging
       const timeout = setTimeout(() => {
         resolve(false);
