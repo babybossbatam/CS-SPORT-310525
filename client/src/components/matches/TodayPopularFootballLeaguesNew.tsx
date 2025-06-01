@@ -946,7 +946,31 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 mt-[8px] mb-[8px] pt-[0px] pb-[0px]">
+                          <div className={`flex flex-col items-center justify-center px-4 flex-shrink-0 ${
+                            (() => {
+                              const status = match.fixture.status.short;
+                              const isLiveMatch = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
+                              const isFinishedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+                              
+                              // Check if finished match has valid scores
+                              if (isFinishedMatch) {
+                                const homeScore = match.goals.home;
+                                const awayScore = match.goals.away;
+                                const hasValidScores = (homeScore !== null && homeScore !== undefined) && 
+                                                      (awayScore !== null && awayScore !== undefined) &&
+                                                      !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
+                                return hasValidScores ? '-mt-2' : 'mt-[8px] mb-[8px]';
+                              }
+                              
+                              // Live matches should align with team names
+                              if (isLiveMatch) {
+                                return '-mt-2';
+                              }
+                              
+                              // Upcoming matches keep original position
+                              return 'mt-[8px] mb-[8px]';
+                            })()
+                          }`}>
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
