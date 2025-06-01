@@ -42,6 +42,26 @@
   animation: pulse-scale 1.5s infinite ease-in-out;
 }
 
+/* Ball-like 3D effect for country flags */
+.country-flag-ball {
+  position: relative;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.country-flag-ball::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 25%;
+  width: 40%;
+  height: 40%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
 :root {
       --background: 0 0% 100%;
 --foreground: 20 14.3% 4.1%;

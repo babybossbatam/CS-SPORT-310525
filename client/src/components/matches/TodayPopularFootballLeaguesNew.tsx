@@ -896,26 +896,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
                                 leagueData.league.name?.toLowerCase().includes('euro') ||
                                 leagueData.league.name?.toLowerCase().includes('copa america')
-                                  ? 'object-cover rounded-full border-2 border-white/30 shadow-lg relative' 
+                                  ? 'object-cover country-flag-ball' 
                                   : 'object-contain'
                               }`}
-                              style={{
-                                // Ball-like 3D effect for country flags
-                                ...(countryData.country === 'World' || 
-                                    countryData.country === 'Europe' || 
-                                    countryData.country === 'South America' || 
-                                    countryData.country === 'International' ||
-                                    leagueData.league.name?.toLowerCase().includes('international') ||
-                                    leagueData.league.name?.toLowerCase().includes('friendlies') ||
-                                    leagueData.league.name?.toLowerCase().includes('nations league') ||
-                                    leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                    leagueData.league.name?.toLowerCase().includes('euro') ||
-                                    leagueData.league.name?.toLowerCase().includes('copa america') ? {
-                                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
-                                  background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)',
-                                  backgroundBlendMode: 'overlay'
-                                } : {})
-                              }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1063,26 +1046,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
                                 leagueData.league.name?.toLowerCase().includes('euro') ||
                                 leagueData.league.name?.toLowerCase().includes('copa america')
-                                  ? 'object-cover rounded-full border-2 border-white/30 shadow-lg relative' 
+                                  ? 'object-cover country-flag-ball' 
                                   : 'object-contain'
                               }`}
-                              style={{
-                                // Ball-like 3D effect for country flags
-                                ...(countryData.country === 'World' || 
-                                    countryData.country === 'Europe' || 
-                                    countryData.country === 'South America' || 
-                                    countryData.country === 'International' ||
-                                    leagueData.league.name?.toLowerCase().includes('international') ||
-                                    leagueData.league.name?.toLowerCase().includes('friendlies') ||
-                                    leagueData.league.name?.toLowerCase().includes('nations league') ||
-                                    leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                    leagueData.league.name?.toLowerCase().includes('euro') ||
-                                    leagueData.league.name?.toLowerCase().includes('copa america') ? {
-                                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
-                                  background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)',
-                                  backgroundBlendMode: 'overlay'
-                                } : {})
-                              }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
