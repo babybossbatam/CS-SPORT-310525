@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Disable card hover effect when star buttons are being hovered */
+.group.disable-hover:hover {
+  background-color: white !important;
+}
+
 /* Disable card hover when button is hovered */
 .group.button-hovered:hover {
   background-color: white !important;

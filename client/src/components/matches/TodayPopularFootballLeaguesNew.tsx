@@ -852,7 +852,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     .map((match: any) => (
                       <div 
                         key={match.fixture.id} 
-                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group"
                       >
                         <div className="flex items-center px-3 py-2">
                           {/* Home Team */}
@@ -865,8 +865,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 e.stopPropagation();
                                 toggleFavoriteTeam(match.teams.home.id, match.teams.home.name);
                               }}
-                              className="ml-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 group"
+                              className="ml-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 star-button"
                               title={isTeamFavorite(match.teams.home.id) ? 'Remove from favorites' : 'Add to favorites'}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.closest('.group')?.classList.add('disable-hover');
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.closest('.group')?.classList.remove('disable-hover');
+                              }}
                             >
                               <Star 
                                 className={`h-3 w-3 transition-colors duration-200 ${
@@ -1036,8 +1042,14 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 e.stopPropagation();
                                 toggleFavoriteTeam(match.teams.away.id, match.teams.away.name);
                               }}
-                              className="mr-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 group"
+                              className="mr-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 star-button"
                               title={isTeamFavorite(match.teams.away.id) ? 'Remove from favorites' : 'Add to favorites'}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.closest('.group')?.classList.add('disable-hover');
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.closest('.group')?.classList.remove('disable-hover');
+                              }}
                             >
                               <Star 
                                 className={`h-3 w-3 transition-colors duration-200 ${
