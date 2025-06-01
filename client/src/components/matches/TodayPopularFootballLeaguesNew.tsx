@@ -854,13 +854,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         key={match.fixture.id} 
                         className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group flex"
                       >
-                        {/* Left Star Button */}
+                        {/* Left Star Button with slide-in animation */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             // Add your functionality here
                           }}
-                          className="w-10 hover:bg-blue-50 transition-colors duration-200 bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 py-2"
+                          className="w-0 group-hover:w-10 overflow-hidden hover:bg-blue-50 transition-all duration-300 ease-in-out bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 py-2"
                           title="Add to favorites"
                           onMouseEnter={(e) => {
                             e.currentTarget.closest('.group')?.classList.add('disable-hover');
@@ -869,7 +869,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             e.currentTarget.closest('.group')?.classList.remove('disable-hover');
                           }}
                         >
-                          <Star className="h-3 w-3 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" />
+                          <Star className="h-3 w-3 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200 opacity-0 group-hover:opacity-100" />
                         </button>
 
                         <div className="flex items-center px-3 py-2 flex-1">
