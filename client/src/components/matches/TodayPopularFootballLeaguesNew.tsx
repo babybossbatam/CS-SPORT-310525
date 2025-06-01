@@ -888,7 +888,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           }`} />
                         </button>
 
-                        <div className="flex items-center px-3 py-2 flex-1">
+                        <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
                           {/* Home Team */}
                           <div className="flex items-center flex-1 min-w-0">
                             <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
@@ -928,7 +928,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           </div>
 
                           {/* Score/Time Center */}
-                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative">
+                          <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative h-12">
                             {(() => {
                               const status = match.fixture.status.short;
                               const fixtureDate = parseISO(match.fixture.date);
@@ -1037,8 +1037,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
                               // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                               return (
-                                <div className="relative">
-                                  <div className="text-base font-medium text-black mt-[0px] mb-[0px] pt-[14px] pb-[14px]">
+                                <div className="relative flex items-center justify-center h-full">
+                                  <div className="text-base font-medium text-black">
                                     {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
                                   </div>
                                   {status === 'TBD' && (
