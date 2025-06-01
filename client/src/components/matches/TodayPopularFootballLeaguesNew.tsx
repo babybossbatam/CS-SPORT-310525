@@ -869,7 +869,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             e.currentTarget.closest('.group')?.classList.remove('disable-hover');
                           }}
                         >
-                          <Star className="h-3 w-3 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200 opacity-0 group-hover:opacity-100" />
+                          <Star className="h-5 w-5 text-blue-300 group-hover:text-blue-500 transition-colors duration-200 opacity-0 group-hover:opacity-100" />
                         </button>
 
                         <div className="flex items-center px-3 py-2 flex-1">
