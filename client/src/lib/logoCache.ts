@@ -82,12 +82,12 @@ class LogoCache {
   // Get cached logo/flag
   getCached(key: string): CachedItem | null {
     return this.cache.get(key) || null;
-  },
+  }
 
   // Remove cached item
   removeCached(key: string): void {
     this.cache.delete(key);
-  },
+  }
 
   markAsVerified(key: string) {
     const item = this.cache.get(key);
