@@ -865,7 +865,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 e.stopPropagation();
                                 toggleFavoriteTeam(match.teams.home.id, match.teams.home.name);
                               }}
-                              className="ml-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 star-button"
+                              className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white shadow-sm flex items-center justify-center"
                               title={isTeamFavorite(match.teams.home.id) ? 'Remove from favorites' : 'Add to favorites'}
                               onMouseEnter={(e) => {
                                 e.currentTarget.closest('.group')?.classList.add('disable-hover');
@@ -1042,7 +1042,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 e.stopPropagation();
                                 toggleFavoriteTeam(match.teams.away.id, match.teams.away.name);
                               }}
-                              className="mr-1 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 star-button"
+                              className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white shadow-sm flex items-center justify-center"
                               title={isTeamFavorite(match.teams.away.id) ? 'Remove from favorites' : 'Add to favorites'}
                               onMouseEnter={(e) => {
                                 e.currentTarget.closest('.group')?.classList.add('disable-hover');
