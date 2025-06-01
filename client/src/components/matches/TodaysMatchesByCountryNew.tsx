@@ -260,12 +260,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
-    // Analyze country mapping coverage when fixtures change
-    if (allFixtures.length > 0) {
-      import('../../lib/flagUtils').then(({ analyzeCountryMappingCoverage }) => {
-        analyzeCountryMappingCoverage(allFixtures);
-      });
-    }
 
     // Don't clear cache - let it work naturally for better performance
 
@@ -381,45 +375,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     fetchFlags();
   }, [sortedCountries.map((c: any) => c.country).join(',')]); // Removed flagMap dependency to prevent loops
 
-  // Add debugging functions for country mapping comparison
-  useEffect(() => {
-    if (allFixtures.length === 0) return;
-
-    // Attach comparison functions to window for debugging
-    (window as any).compare365ScoresMapping = async () => {
-      const { compare365ScoresMapping } = await import('../../lib/flagUtils');
-      return compare365ScoresMapping();
-    };
-
-    (window as any).compareSportsRadarMapping = async () => {
-      const { compareSportsRadarMapping } = await import('../../lib/flagUtils');
-      return compareSportsRadarMapping();
-    };
-
-    (window as any).compareAllCountryMappings = async () => {
-      const { compareAllCountryMappings } = await import('../../lib/flagUtils');
-      return compareAllCountryMappings();
-    };
-
-    (window as any).testCountryMappingAgainstLiveData = async () => {
-      const { testCountryMappingAgainstLiveData } = await import('../../lib/flagUtils');
-      return testCountryMappingAgainstLiveData(allFixtures);
-    };
-
-    console.log('🌍 Country mapping comparison functions available:');
-    console.log('  - window.compare365ScoresMapping() - Compare with 365scores.com patterns');
-    console.log('  - window.compareSportsRadarMapping() - Compare with SportsRadar patterns');
-    console.log('  - window.compareAllCountryMappings() - Comprehensive comparison of all sources');
-    console.log('  - window.testCountryMappingAgainstLiveData() - Test against current API data');
-
-    // Cleanup
-    return () => {
-      delete (window as any).compare365ScoresMapping;
-      delete (window as any).compareSportsRadarMapping;
-      delete (window as any).compareAllCountryMappings;
-      delete (window as any).testCountryMappingAgainstLiveData;
-    };
-  }, [allFixtures]);
+  
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
