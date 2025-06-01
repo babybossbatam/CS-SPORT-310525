@@ -260,14 +260,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
-    let isFetching = false;
-
     const fetchFlags = async () => {
-      if (isFetching) {
-        console.log('🔄 Flag fetching already in progress, skipping duplicate request');
-        return;
-      }
-
       const countries = sortedCountries.map((c: any) => c.country).filter(Boolean);
       const uniqueCountries = [...new Set(countries)];
 
@@ -279,16 +272,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return;
       }
 
-      isFetching = true;
-      console.log(`🔍 Fetching flags for ${countriesNeedingFlags.length} countries:`, countriesNeedingFlags);
+      console.log(`🚀 Batch fetching flags for ${countriesNeedingFlags.length} countries:`, countriesNeedingFlags);
 
+      // Use Promise.allSettled to handle all requests simultaneously
+      // The getCachedFlag function now handles batching internally
       const flagPromises = countriesNeedingFlags.map(async (country) => {
         try {
           const flagUrl = await getCachedFlag(country);
-          return { country, flagUrl };
+          return { country, flagUrl, success: true };
         } catch (error) {
           console.warn(`Failed to get flag for ${country}:`, error);
-          return { country, flagUrl: '/assets/fallback-logo.svg' };
+          return { country, flagUrl: '/assets/fallback-logo.svg', success: false };
         }
       });
 
@@ -300,7 +294,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         results.forEach((result, index) => {
           if (result.status === 'fulfilled') {
-            const { country, flagUrl } = result.value;
+            const { country, flagUrl, success } = result.value;
             newFlags[country] = flagUrl;
 
             if (flagUrl.includes('/assets/fallback-logo.svg')) {
@@ -317,13 +311,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         });
 
         setFlagMap(prev => ({ ...prev, ...newFlags }));
-        console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
-        console.log(`📊 Flag fetch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
+        console.log(`🎌 Batch completed: Updated flagMap with ${Object.keys(newFlags).length} new flags`);
+        console.log(`📊 Batch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
 
       } catch (error) {
-        console.error('Error fetching flags:', error);
-      } finally {
-        isFetching = false;
+        console.error('Error in batch flag fetching:', error);
       }
     };
 
@@ -333,7 +325,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [sortedCountries.map((c: any) => c.country).join(','), flagMap]);
+  }, [sortedCountries.map((c: any) => c.country).join(','), Object.keys(flagMap).length]);
 
 
 
