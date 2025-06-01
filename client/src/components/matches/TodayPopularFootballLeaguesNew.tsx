@@ -934,7 +934,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                    leagueData.league.name?.toLowerCase().includes('fifa')) && {
                                   transform: 'scale(1.5)',
                                   objectPosition: 'center center'
-                                })
+                                }),
                               }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
