@@ -310,7 +310,6 @@ const countryCodeMap: { [key: string]: string } = {
   'Republic of Korea': 'KR',
   'Democratic Republic of Korea': 'KP',
   'Côte d\'Ivoire': 'CI',
-  'Palestine': 'PS',
   'Macao SAR': 'MO',
   'Hong Kong SAR': 'HK',
   'Taiwan Province of China': 'TW',
