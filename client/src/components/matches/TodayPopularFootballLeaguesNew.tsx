@@ -903,7 +903,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className="w-9 h-9 object-cover rounded-full"
-                              style={{ aspectRatio: '1/1', minWidth: '36px', minHeight: '36px' }}
+                              style={{ 
+                                aspectRatio: '1/1', 
+                                minWidth: '36px', 
+                                minHeight: '36px',
+                                objectFit: 'cover',
+                                objectPosition: 'center'
+                              }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
@@ -1043,7 +1049,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className="w-9 h-9 object-cover rounded-full"
-                              style={{ aspectRatio: '1/1', minWidth: '36px', minHeight: '36px' }}
+                              style={{ 
+                                aspectRatio: '1/1', 
+                                minWidth: '36px', 
+                                minHeight: '36px',
+                                objectFit: 'cover',
+                                objectPosition: 'center'
+                              }}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (target.src !== '/assets/fallback-logo.svg') {
