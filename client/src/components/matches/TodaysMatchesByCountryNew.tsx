@@ -352,46 +352,64 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     console.log('🔧 Attaching debugging functions to window object...');
 
-    (window as any).debugCountryMappingForDate = (date?: string) => {
+    (window as any).debugCountryMappingForDate = async (date?: string) => {
       const targetDate = date || selectedDate;
       console.log(`🔍 Analyzing country mapping for date: ${targetDate}`);
+      console.log(`📊 Total fixtures to analyze: ${allFixtures.length}`);
       
-      import('../../lib/flagUtils').then(({ analyzeCountryMappingCoverage }) => {
+      try {
+        const { analyzeCountryMappingCoverage } = await import('../../lib/flagUtils');
         analyzeCountryMappingCoverage(allFixtures);
-      });
+      } catch (error) {
+        console.error('Error analyzing country mapping:', error);
+      }
     };
     
-    (window as any).compare365ScoresCompatibility = () => {
+    (window as any).compare365ScoresCompatibility = async () => {
       console.log(`🏆 Comparing with 365scores.com compatibility for current fixtures...`);
+      console.log(`📊 Total fixtures to analyze: ${allFixtures.length}`);
       
-      import('../../lib/flagUtils').then(({ compare365ScoresCompatibility }) => {
+      try {
+        const { compare365ScoresCompatibility } = await import('../../lib/flagUtils');
         compare365ScoresCompatibility(allFixtures);
-      });
+      } catch (error) {
+        console.error('Error comparing 365scores compatibility:', error);
+      }
     };
     
     (window as any).showAllCountriesFromFixtures = () => {
-      const countries = new Set();
+      const countries = new Set<string>();
       allFixtures.forEach(fixture => {
         if (fixture?.league?.country) {
           countries.add(fixture.league.country);
         }
       });
-      console.log('🌍 All countries in current fixtures:', Array.from(countries).sort());
-      return Array.from(countries).sort();
+      const sortedCountries = Array.from(countries).sort();
+      console.log('🌍 All countries in current fixtures:', sortedCountries);
+      console.log(`📊 Total unique countries: ${sortedCountries.length}`);
+      return sortedCountries;
     };
     
-    (window as any).analyzeExternalSources = () => {
-      const countries = new Set();
+    (window as any).analyzeExternalSources = async () => {
+      const countries = new Set<string>();
       allFixtures.forEach(fixture => {
         if (fixture?.league?.country) {
           countries.add(fixture.league.country);
         }
       });
       
-      import('../../lib/flagUtils').then(({ analyzeCountriesAgainstExternalSources }) => {
+      console.log(`🌐 Analyzing ${countries.size} countries against external sources...`);
+      
+      try {
+        const { analyzeCountriesAgainstExternalSources } = await import('../../lib/flagUtils');
         analyzeCountriesAgainstExternalSources(Array.from(countries));
-      });
+      } catch (error) {
+        console.error('Error analyzing external sources:', error);
+      }
     };
+
+    // Auto-run a basic analysis to verify functions work
+    (window as any).showAllCountriesFromFixtures();
 
     // Log available debugging functions
     console.log('✅ Debugging functions attached! Available functions:');
