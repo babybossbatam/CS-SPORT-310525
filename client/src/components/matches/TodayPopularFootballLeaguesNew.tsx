@@ -872,7 +872,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             e.stopPropagation();
                             toggleStarMatch(match.fixture.id);
                           }}
-                          className="absolute left-0 top-0 bottom-0 w-10 -translate-x-full group-hover:translate-x-0 hover:bg-white transition-transform duration-700 ease-in-out bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 z-10"
+                          className="absolute left-0 top-0 bottom-0 w-10 -translate-x-full group-hover:translate-x-0 hover:bg-white transition-transform duration-700 ease-in-out bg-white border-r border-stone-300 flex items-center justify-center flex-shrink-0 z-10"
                           title="Add to favorites"
                           onMouseEnter={(e) => {
                             e.currentTarget.closest('.group')?.classList.add('disable-hover');
