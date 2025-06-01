@@ -316,7 +316,7 @@ export function generateFlagSources(country: string): string[] {
  * Get cached flag or fetch with fallback - Prioritize valid flags over fallbacks
  */
 export async function getCachedFlag(country: string): Promise<string> {
-  const cacheKey = getFlagCacheKey(country);
+  const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
 
   // PRIORITY 1: Check cache first, but be selective about fallbacks
   const cached = flagCache.getCached(cacheKey);
@@ -745,6 +745,27 @@ export function clearFallbackFlagCache(): void {
   console.log('Cleared fallback flag cache entries');
 }
 
+/**
+ * Check if a specific flag is cached and show cache details
+ */
+export function checkFlagCache(country: string): void {
+  const cacheKey = getFlagCacheKey(country);
+  const cached = flagCache.getCached(cacheKey);
+  
+  if (cached) {
+    const age = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
+    console.log(`🔍 Cache status for ${country}:`, {
+      key: cacheKey,
+      url: cached.url,
+      source: cached.source,
+      age: `${age} minutes`,
+      verified: cached.verified
+    });
+  } else {
+    console.log(`❌ No cache found for ${country} with key: ${cacheKey}`);
+  }
+}
+
 export const getFlagUrl = async (country: string): Promise<string> => {
   // Normalize country name
   const normalizedCountry = country.trim();
@@ -863,6 +884,9 @@ export const getFlagUrl = async (country: string): Promise<string> => {
   }
 };
 
+/**
+ * Generate consistent cache key for flags
+ */
 export function getFlagCacheKey(country: string): string {
   return `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
 }

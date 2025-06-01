@@ -352,6 +352,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const validFlags = Object.values(newFlags).filter(url => !url.includes('/assets/fallback-logo.svg')).length;
         const fallbackFlags = Object.keys(newFlags).length - validFlags;
         console.log(`📊 Flag fetch stats: ${validFlags} valid, ${fallbackFlags} fallbacks`);
+        
+        // Debug: Check cache status for a few countries
+        if (Object.keys(newFlags).length > 0) {
+          import('../../../lib/flagUtils').then(({ checkFlagCache }) => {
+            const firstCountry = Object.keys(newFlags)[0];
+            checkFlagCache(firstCountry);
+          });
+        }
       }
     };
 
