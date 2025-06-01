@@ -271,7 +271,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Macao SAR': 'MO',
   'Hong Kong SAR': 'HK',
   'Taiwan Province of China': 'TW',
-  'Chinese Taipei': 'TW'
+  'Chinese Taipei': 'TW',
   'Great Britain': 'GB',
   'Britain': 'GB',
   'Republic of Ireland': 'IE',
