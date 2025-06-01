@@ -425,15 +425,20 @@ export async function getCachedFlag(country: string): Promise<string> {
       return cached.url;
     }
 
-    // For cached fallbacks, only use them if they're recent (less than 1 hour)
-    const oneHour = 60 * 60 * 1000;
-    if (age < oneHour) {
-      console.log(`📦 Using recent cached fallback for ${country} (age: ${ageMinutes} min)`);
+    // For cached fallbacks, be more aggressive about re-fetching
+    // Only use fallback cache if it's very recent (less than 5 minutes) OR if we already tried country code mapping
+    const fiveMinutes = 5 * 60 * 1000;
+    const countryCode = countryCodeMap[country.trim()];
+    
+    // If we have a valid country code but cached fallback, always try fresh fetch
+    if (countryCode && countryCode.length === 2) {
+      console.log(`🔄 Have country code ${countryCode} for ${country} but cached fallback, fetching fresh`);
+    } else if (age < fiveMinutes) {
+      console.log(`📦 Using very recent cached fallback for ${country} (age: ${ageMinutes} min)`);
       return cached.url;
+    } else {
+      console.log(`🔄 Cached fallback is old for ${country} (age: ${ageMinutes} min), attempting fresh fetch`);
     }
-
-    // If fallback is old, try to fetch a better flag
-    console.log(`🔄 Cached fallback is old for ${country} (age: ${ageMinutes} min), attempting fresh fetch`);
   } else {
     console.log(`❌ No cache found for ${country} with key: ${cacheKey}`);
   }
