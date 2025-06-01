@@ -274,29 +274,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Only proceed if we have countries to fetch flags for
       if (sortedCountries.length === 0) return;
 
-      // First, populate with synchronous flags immediately
+      // First, prioritize cached flags over everything else
       const immediateFlags: { [country: string]: string } = {};
       const countriesToFetch: any[] = [];
 
       sortedCountries.forEach((countryData: any) => {
         const country = countryData.country;
         if (!flagMap[country]) {
-          // Check if flag is already cached in flagCache before fetching
+          // Check cache first - use any cached result if available
           const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
           const cached = flagCache.getCached(cacheKey);
           
-          if (cached && !cached.url.includes('/assets/fallback-logo.svg')) {
-            // Use cached flag immediately
+          if (cached) {
+            // Use any cached flag immediately (valid or fallback)
             immediateFlags[country] = cached.url;
             console.log(`✅ Using cached flag for ${country}: ${cached.url}`);
-          } else {
-            // Get immediate synchronous flag
-            const syncFlag = getCountryFlagWithFallbackSync(country);
-            immediateFlags[country] = syncFlag;
-            // Only add to fetch list if we don't have a valid cached flag
-            if (!cached || cached.url.includes('/assets/fallback-logo.svg')) {
+            // Only fetch fresh if cache is expired or fallback is old
+            const age = Date.now() - cached.timestamp;
+            const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
+              ? 60 * 60 * 1000  // 1 hour for fallbacks
+              : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
+            
+            if (age >= maxAge) {
               countriesToFetch.push(countryData);
             }
+          } else {
+            // No cache - get immediate synchronous flag and add to fetch list
+            const syncFlag = getCountryFlagWithFallbackSync(country);
+            immediateFlags[country] = syncFlag;
+            countriesToFetch.push(countryData);
           }
         }
       });

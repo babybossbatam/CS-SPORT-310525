@@ -505,14 +505,14 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback - Prioritize valid flags over fallbacks
+ * Get cached flag or fetch with fallback - Prioritize cache lookup first
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
 
   console.log(`🔍 getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
 
-  // PRIORITY 1: Check cache first, but be selective about fallbacks
+  // PRIORITY 1: Always check cache first - use any valid cached result
   const cached = flagCache.getCached(cacheKey);
   if (cached) {
     const age = Date.now() - cached.timestamp;
@@ -526,25 +526,16 @@ export async function getCachedFlag(country: string): Promise<string> {
       isFallback: cached.url.includes('/assets/fallback-logo.svg')
     });
 
-    // If we have a valid flag (not fallback), use it immediately
-    if (!cached.url.includes('/assets/fallback-logo.svg')) {
-      console.log(`✅ Using cached valid flag for ${country}: ${cached.url} (age: ${ageMinutes} min)`);
-      return cached.url;
-    }
+    // Use any cached result if it's not too old
+    const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
+      ? 60 * 60 * 1000  // 1 hour for fallbacks
+      : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
-    // For cached fallbacks, be more aggressive about re-fetching
-    // Only use fallback cache if it's very recent (less than 5 minutes) OR if we already tried country code mapping
-    const fiveMinutes = 5 * 60 * 1000;
-    const countryCode = countryCodeMap[country.trim()];
-    
-    // If we have a valid country code but cached fallback, always try fresh fetch
-    if (countryCode && countryCode.length === 2) {
-      console.log(`🔄 Have country code ${countryCode} for ${country} but cached fallback, fetching fresh`);
-    } else if (age < fiveMinutes) {
-      console.log(`📦 Using very recent cached fallback for ${country} (age: ${ageMinutes} min)`);
+    if (age < maxAge) {
+      console.log(`✅ Using cached flag for ${country}: ${cached.url} (age: ${ageMinutes} min)`);
       return cached.url;
     } else {
-      console.log(`🔄 Cached fallback is old for ${country} (age: ${ageMinutes} min), attempting fresh fetch`);
+      console.log(`🔄 Cache expired for ${country} (age: ${ageMinutes} min), fetching fresh`);
     }
   } else {
     console.log(`❌ No cache found for ${country} with key: ${cacheKey}`);
@@ -675,7 +666,15 @@ export async function getCountryFlagWithFallback(
 const flagCacheMem = new Map<string, string>();
 
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
-  // Check memory cache first
+  // Check main flagCache first before memory cache
+  const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+  const cached = flagCache.getCached(flagCacheKey);
+  if (cached) {
+    console.log(`🔄 Sync function using cached flag for ${country}: ${cached.url}`);
+    return cached.url;
+  }
+
+  // Check memory cache second
   const cacheKey = `${country}-${leagueFlag || ''}`;
   if (flagCacheMem.has(cacheKey)) {
     return flagCacheMem.get(cacheKey)!;
