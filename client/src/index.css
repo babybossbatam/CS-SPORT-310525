@@ -49,13 +49,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   aspect-ratio: 1;
-  width: 36px;
-  height: 36px;
 }
 
 .country-flag-ball img {
-  width: 36px !important;
-  height: 36px !important;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover !important;
   border-radius: 50%;
 }
