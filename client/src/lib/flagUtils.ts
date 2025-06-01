@@ -76,6 +76,7 @@ const countryCodeMap: { [key: string]: string } = {
   'USA': 'US',
   'Canada': 'CA',
   'Costa Rica': 'CR',
+  'Costa-Rica': 'CR',
   'Panama': 'PA',
   'Guatemala': 'GT',
   'Honduras': 'HN',
@@ -454,7 +455,22 @@ export async function getCachedFlag(country: string): Promise<string> {
   console.log(`🗺️ Cache status reason: ${cached ? 'Cache expired or fallback' : 'No cache entry'}`);
 
   // Try country code mapping first (most reliable, no validation needed)
-  const countryCode = countryCodeMap[country];
+  // Normalize country name for better matching
+  const normalizedCountry = country.trim();
+  let countryCode = countryCodeMap[normalizedCountry];
+  
+  // If not found, try with spaces instead of hyphens
+  if (!countryCode && normalizedCountry.includes('-')) {
+    const spaceVersion = normalizedCountry.replace(/-/g, ' ');
+    countryCode = countryCodeMap[spaceVersion];
+  }
+  
+  // If not found, try with hyphens instead of spaces
+  if (!countryCode && normalizedCountry.includes(' ')) {
+    const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
+    countryCode = countryCodeMap[hyphenVersion];
+  }
+  
   console.log(`🔍 Country code mapping for ${country}: ${countryCode || 'NOT FOUND'}`);
 
   if (countryCode && countryCode.length === 2) {
