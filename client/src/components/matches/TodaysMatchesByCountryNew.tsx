@@ -268,20 +268,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const countriesNeedingFlags = uniqueCountries.filter(country => !flagMap[country]);
 
       if (countriesNeedingFlags.length === 0) {
-        console.log('🎌 All countries already have flags cached');
         return;
       }
 
-      console.log(`🚀 Batch fetching flags for ${countriesNeedingFlags.length} countries:`, countriesNeedingFlags);
+      console.log(`🚀 Initiating batch flag fetch for ${countriesNeedingFlags.length} countries`);
 
-      // Use Promise.allSettled to handle all requests simultaneously
-      // The getCachedFlag function now handles batching internally
+      // Start all flag requests simultaneously - the batching system will handle them efficiently
       const flagPromises = countriesNeedingFlags.map(async (country) => {
         try {
           const flagUrl = await getCachedFlag(country);
           return { country, flagUrl, success: true };
         } catch (error) {
-          console.warn(`Failed to get flag for ${country}:`, error);
           return { country, flagUrl: '/assets/fallback-logo.svg', success: false };
         }
       });
@@ -294,7 +291,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         results.forEach((result, index) => {
           if (result.status === 'fulfilled') {
-            const { country, flagUrl, success } = result.value;
+            const { country, flagUrl } = result.value;
             newFlags[country] = flagUrl;
 
             if (flagUrl.includes('/assets/fallback-logo.svg')) {
@@ -306,24 +303,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             const country = countriesNeedingFlags[index];
             newFlags[country] = '/assets/fallback-logo.svg';
             fallbackCount++;
-            console.warn(`Promise rejected for ${country}:`, result.reason);
           }
         });
 
         setFlagMap(prev => ({ ...prev, ...newFlags }));
-        console.log(`🎌 Batch completed: Updated flagMap with ${Object.keys(newFlags).length} new flags`);
-        console.log(`📊 Batch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
+        console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags (${validCount} valid, ${fallbackCount} fallbacks)`);
 
       } catch (error) {
         console.error('Error in batch flag fetching:', error);
       }
     };
 
-    // Debounce flag fetching to prevent rapid consecutive calls
-    const timeoutId = setTimeout(() => {
-      fetchFlags();
-    }, 100);
-
+    // Increased debounce to allow more requests to batch together
+    const timeoutId = setTimeout(fetchFlags, 150);
     return () => clearTimeout(timeoutId);
   }, [sortedCountries.map((c: any) => c.country).join(','), Object.keys(flagMap).length]);
 

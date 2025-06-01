@@ -539,12 +539,10 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback - Now uses batching system
+ * Get cached flag or fetch with fallback - Now uses improved batching system
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-
-  console.log(`🔍 getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
   
   // Track usage for intelligent caching
   trackFlagUsage(country);
@@ -555,32 +553,18 @@ export async function getCachedFlag(country: string): Promise<string> {
     const age = Date.now() - cached.timestamp;
     const ageMinutes = Math.round(age / 1000 / 60);
 
-    console.log(`📦 Cache found for ${country}:`, {
-      url: cached.url,
-      source: cached.source,
-      ageMinutes,
-      verified: cached.verified,
-      isFallback: cached.url.includes('/assets/fallback-logo.svg')
-    });
-
     // Use any cached result if it's not too old
     const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
       ? 60 * 60 * 1000  // 1 hour for fallbacks
       : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     if (age < maxAge) {
-      console.log(`✅ Using cached flag for ${country}: ${cached.url} (age: ${ageMinutes} min)`);
       return cached.url;
-    } else {
-      console.log(`🔄 Cache expired for ${country} (age: ${ageMinutes} min), adding to batch for refresh`);
     }
-  } else {
-    console.log(`❌ No cache found for ${country} with key: ${cacheKey}`);
   }
 
   // Check if there's already a pending request for this country
   if (pendingFlagRequests.has(cacheKey)) {
-    console.log(`⏳ Deduplicating request for ${country}, using existing promise`);
     return pendingFlagRequests.get(cacheKey)!;
   }
 
@@ -614,21 +598,17 @@ export async function getCachedFlag(country: string): Promise<string> {
   // If we have a simple 2-letter country code, process immediately
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
-    console.log(`✅ Using country code flag for ${country}: ${flagUrl}`);
     flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
     return flagUrl;
   }
 
   if (countryCode && countryCode.startsWith('GB-')) {
     const flagUrl = `https://flagcdn.com/w40/gb.png`;
-    console.log(`✅ Using GB fallback for ${country}: ${flagUrl}`);
     flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
     return flagUrl;
   }
 
-  // For countries that need API calls or more complex processing, use batching
-  console.log(`📦 Adding ${country} to batch processing queue`);
-  
+  // For countries that need API calls, use improved batching
   const flagPromise = addToBatch(country);
   pendingFlagRequests.set(cacheKey, flagPromise);
   
@@ -1824,7 +1804,7 @@ const flagBatchCallbacks = new Map<string, Array<(url: string) => void>>();
 let batchProcessingTimeout: NodeJS.Timeout | null = null;
 
 /**
- * Process batched flag requests efficiently
+ * Process batched flag requests efficiently with improved deduplication
  */
 async function processFlagBatch(): Promise<void> {
   if (flagBatchQueue.size === 0) return;
@@ -1844,12 +1824,39 @@ async function processFlagBatch(): Promise<void> {
   flagBatchQueue.clear();
   flagBatchCallbacks.clear();
   
-  console.log(`🚀 Processing flag batch for ${countries.length} countries:`, countries);
+  console.log(`🚀 Processing flag batch for ${countries.length} countries:`, countries.slice(0, 10));
 
-  // Process countries in smaller chunks to avoid overwhelming the system
-  const chunkSize = 10;
-  for (let i = 0; i < countries.length; i += chunkSize) {
-    const chunk = countries.slice(i, i + chunkSize);
+  // Filter out countries that are already cached or being processed
+  const countriesToProcess = countries.filter(country => {
+    const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    const cached = flagCache.getCached(cacheKey);
+    if (cached) {
+      const age = Date.now() - cached.timestamp;
+      const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
+        ? 60 * 60 * 1000  // 1 hour for fallbacks
+        : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
+      
+      if (age < maxAge) {
+        // Use cached result immediately
+        const countryCallbacks = callbacks.get(country) || [];
+        countryCallbacks.forEach(callback => callback(cached.url));
+        return false; // Don't process this country
+      }
+    }
+    return true; // Process this country
+  });
+
+  if (countriesToProcess.length === 0) {
+    console.log(`✅ All countries were already cached, no processing needed`);
+    return;
+  }
+
+  console.log(`📊 Processing ${countriesToProcess.length}/${countries.length} countries (others were cached)`);
+
+  // Process countries in optimized chunks
+  const chunkSize = 5; // Smaller chunks for better performance
+  for (let i = 0; i < countriesToProcess.length; i += chunkSize) {
+    const chunk = countriesToProcess.slice(i, i + chunkSize);
     
     const chunkPromises = chunk.map(async (country) => {
       try {
@@ -1869,12 +1876,12 @@ async function processFlagBatch(): Promise<void> {
     await Promise.allSettled(chunkPromises);
     
     // Small delay between chunks to be respectful to external services
-    if (i + chunkSize < countries.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    if (i + chunkSize < countriesToProcess.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
   }
 
-  console.log(`✅ Completed flag batch processing for ${countries.length} countries`);
+  console.log(`✅ Completed flag batch processing for ${countriesToProcess.length} countries`);
 }
 
 /**
@@ -1958,7 +1965,7 @@ async function fetchSingleFlag(country: string): Promise<string> {
 }
 
 /**
- * Add country to batch queue for processing
+ * Add country to batch queue for processing with improved batching
  */
 function addToBatch(country: string): Promise<string> {
   return new Promise((resolve) => {
@@ -1976,10 +1983,11 @@ function addToBatch(country: string): Promise<string> {
       clearTimeout(batchProcessingTimeout);
     }
     
+    // Longer timeout to collect more requests together
     batchProcessingTimeout = setTimeout(() => {
       batchProcessingTimeout = null;
       processFlagBatch();
-    }, 50); // Small delay to collect multiple requests
+    }, 200); // Increased delay to batch more requests together
   });
 }
 
