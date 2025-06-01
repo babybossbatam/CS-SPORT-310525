@@ -238,6 +238,90 @@ const countryCodeMap: { [key: string]: string } = {
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
 
+// Flag preloading system
+const FLAG_STORAGE_KEY = 'cssport_flag_cache';
+const FLAG_PRELOAD_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+
+/**
+ * Save flag cache to localStorage for persistence
+ */
+export function saveFlagCacheToStorage(): void {
+  try {
+    const cache = (flagCache as any).cache;
+    if (cache instanceof Map) {
+      const cacheData = {
+        timestamp: Date.now(),
+        flags: Array.from(cache.entries())
+      };
+      localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(cacheData));
+      console.log(`💾 Saved ${cache.size} flags to localStorage`);
+    }
+  } catch (error) {
+    console.warn('Failed to save flag cache to storage:', error);
+  }
+}
+
+/**
+ * Load flag cache from localStorage on startup
+ */
+export function loadFlagCacheFromStorage(): void {
+  try {
+    const stored = localStorage.getItem(FLAG_STORAGE_KEY);
+    if (!stored) {
+      console.log('🏁 No stored flag cache found');
+      return;
+    }
+
+    const cacheData = JSON.parse(stored);
+    const age = Date.now() - cacheData.timestamp;
+    
+    // Check if stored cache is not too old
+    if (age > FLAG_PRELOAD_EXPIRY) {
+      console.log('🕐 Stored flag cache is too old, clearing');
+      localStorage.removeItem(FLAG_STORAGE_KEY);
+      return;
+    }
+
+    // Restore flags to cache
+    const cache = (flagCache as any).cache;
+    if (cache instanceof Map && cacheData.flags) {
+      let restoredCount = 0;
+      for (const [key, value] of cacheData.flags) {
+        // Only restore if not already in cache and not too old
+        if (!cache.has(key)) {
+          cache.set(key, value);
+          restoredCount++;
+        }
+      }
+      console.log(`🔄 Restored ${restoredCount} flags from localStorage (age: ${Math.round(age / 1000 / 60)} min)`);
+    }
+  } catch (error) {
+    console.warn('Failed to load flag cache from storage:', error);
+    localStorage.removeItem(FLAG_STORAGE_KEY);
+  }
+}
+
+/**
+ * Auto-save flag cache periodically and on page unload
+ */
+export function initializeFlagCachePersistence(): void {
+  // Load existing cache on startup
+  loadFlagCacheFromStorage();
+
+  // Save cache periodically (every 5 minutes)
+  setInterval(saveFlagCacheToStorage, 5 * 60 * 1000);
+
+  // Save cache when page is unloaded
+  window.addEventListener('beforeunload', saveFlagCacheToStorage);
+  
+  // Save cache when visibility changes (tab switch, etc.)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      saveFlagCacheToStorage();
+    }
+  });
+}
+
 /**
  * Generate multiple flag sources for a country with improved reliability
  */
