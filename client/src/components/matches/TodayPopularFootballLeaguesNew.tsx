@@ -900,7 +900,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
-                              className={`w-12 h-12 ${
+                              className={`w-6 h-6 ${
                                 // Apply ball effect to all country/international competitions regardless of date
                                 (countryData.country === 'World' || 
                                  countryData.country === 'Europe' || 
@@ -1054,7 +1054,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
-                              className={`w-12 h-12 ${
+                              className={`w-6 h-6 ${
                                 // Apply ball effect to all country/international competitions regardless of date
                                 (countryData.country === 'World' || 
                                  countryData.country === 'Europe' || 
