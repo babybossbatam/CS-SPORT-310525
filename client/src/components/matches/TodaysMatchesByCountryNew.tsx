@@ -260,14 +260,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
-
-    // Don't clear cache - let it work naturally for better performance
-
-    // Memoize flag fetching to prevent duplicates
-  const fetchFlags = useMemo(() => {
     let isFetching = false;
 
-    return async () => {
+    const fetchFlags = async () => {
       if (isFetching) {
         console.log('🔄 Flag fetching already in progress, skipping duplicate request');
         return;
@@ -331,7 +326,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         isFetching = false;
       }
     };
-  }, [sortedCountries, flagMap]);
 
     // Debounce flag fetching to prevent rapid consecutive calls
     const timeoutId = setTimeout(() => {
@@ -339,7 +333,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [sortedCountries.map((c: any) => c.country).join(','), fetchFlags]);
+  }, [sortedCountries.map((c: any) => c.country).join(','), flagMap]);
 
 
 
