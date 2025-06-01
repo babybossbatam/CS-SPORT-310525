@@ -345,7 +345,7 @@ export async function getCachedFlag(country: string): Promise<string> {
   }
 
   console.log(`🔍 Fetching fresh flag for country: ${country}`);
-  
+
   // Special cases first (immediate return, no API calls needed)
   if (country === 'World') {
     const worldFlag = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
@@ -372,7 +372,7 @@ export async function getCachedFlag(country: string): Promise<string> {
   try {
     const apiUrl = `/api/flags/${encodeURIComponent(country)}`;
     const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
-    
+
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.flagUrl) {
@@ -859,3 +859,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
     return fallbackUrl;
   }
 };
+
+export function getFlagCacheKey(country: string): string {
+  return `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+}
