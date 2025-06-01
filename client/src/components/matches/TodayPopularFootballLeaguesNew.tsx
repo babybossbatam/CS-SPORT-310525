@@ -852,27 +852,27 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                     .map((match: any) => (
                       <div 
                         key={match.fixture.id} 
-                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group"
+                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group flex"
                       >
-                        <div className="flex items-center px-3 py-2">
-                          {/* Left Star Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Add your functionality here
-                            }}
-                            className="h-full px-1 hover:bg-blue-50 transition-colors duration-200 bg-white shadow-sm flex items-center justify-center mr-2"
-                            title="Add to favorites"
-                            onMouseEnter={(e) => {
-                              e.currentTarget.closest('.group')?.classList.add('disable-hover');
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.closest('.group')?.classList.remove('disable-hover');
-                            }}
-                          >
-                            <Star className="h-3 w-3 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" />
-                          </button>
+                        {/* Left Star Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Add your functionality here
+                          }}
+                          className="h-full w-10 hover:bg-blue-50 transition-colors duration-200 bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0"
+                          title="Add to favorites"
+                          onMouseEnter={(e) => {
+                            e.currentTarget.closest('.group')?.classList.add('disable-hover');
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.closest('.group')?.classList.remove('disable-hover');
+                          }}
+                        >
+                          <Star className="h-3 w-3 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" />
+                        </button>
 
+                        <div className="flex items-center px-3 py-2 flex-1">
                           {/* Home Team */}
                           <div className="flex items-center flex-1 min-w-0">
                             <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
