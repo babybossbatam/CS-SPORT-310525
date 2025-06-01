@@ -70,6 +70,13 @@ class LogoCache {
   }
 
   setCached(key: string, url: string, source: string, verified: boolean = false) {
+    console.log(`💾 Setting cache for key: ${key}`, {
+      url,
+      source,
+      verified,
+      timestamp: Date.now()
+    });
+    
     this.cache.set(key, {
       url,
       source,
@@ -83,7 +90,13 @@ class LogoCache {
   getCached(key: string): CachedItem | null {
     const item = this.cache.get(key);
 
+    console.log(`🔍 Cache lookup for key: ${key}`, {
+      found: !!item,
+      cacheSize: this.cache.size
+    });
+
     if (!item) {
+      console.log(`❌ Cache miss for key: ${key}`);
       return null;
     }
 
@@ -93,12 +106,24 @@ class LogoCache {
       ? 60 * 60 * 1000  // 1 hour for fallbacks (shorter to retry sooner)
       : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
+    const ageMinutes = Math.round(age / 1000 / 60);
+    const maxAgeMinutes = Math.round(maxAge / 1000 / 60);
+
+    console.log(`⏰ Cache age check for ${key}:`, {
+      ageMinutes,
+      maxAgeMinutes,
+      expired: age > maxAge,
+      url: item.url,
+      source: item.source
+    });
+
     if (age > maxAge) {
-      console.log(`🗑️ Cache expired for ${key} (age: ${Math.round(age / 1000 / 60)} min)`);
+      console.log(`🗑️ Cache expired for ${key} (age: ${ageMinutes} min, max: ${maxAgeMinutes} min)`);
       this.cache.delete(key);
       return null;
     }
 
+    console.log(`✅ Cache hit for ${key} (age: ${ageMinutes} min)`);
     return item;
   }
 
