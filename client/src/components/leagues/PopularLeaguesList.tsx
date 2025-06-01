@@ -93,7 +93,7 @@ const PopularLeaguesList = () => {
             
             return (
               <div
-                key={league.id}
+                key={league.id || `league-${index}`}
                 className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
                 onClick={() => navigate(`/league/${league.id}`)}
               >
@@ -106,8 +106,8 @@ const PopularLeaguesList = () => {
                   }}
                 />
                 <div className="ml-3 flex-1">
-                  <div className="text-sm">{league.name}</div>
-                  <div className="text-xs text-gray-500">{league.country}</div>
+                  <div className="text-sm">{typeof league.name === 'string' ? league.name : league.name?.name || 'Unknown League'}</div>
+                  <div className="text-xs text-gray-500">{typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown Country'}</div>
                 </div>
                 <button
                   onClick={(e) => {
