@@ -867,13 +867,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         key={match.fixture.id} 
                         className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group flex relative"
                       >
-                        {/* Star Button with overlay positioning */}
+                        {/* Star Button with true slide-in effect */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleStarMatch(match.fixture.id);
                           }}
-                          className="absolute left-0 top-0 bottom-0 w-0 group-hover:w-10 overflow-hidden hover:bg-blue-50 transition-all duration-700 ease-in-out bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 z-10"
+                          className="absolute left-0 top-0 bottom-0 w-10 -translate-x-full group-hover:translate-x-0 hover:bg-blue-50 transition-transform duration-700 ease-in-out bg-white border-r border-gray-100 flex items-center justify-center flex-shrink-0 z-10"
                           title="Add to favorites"
                           onMouseEnter={(e) => {
                             e.currentTarget.closest('.group')?.classList.add('disable-hover');
@@ -882,7 +882,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             e.currentTarget.closest('.group')?.classList.remove('disable-hover');
                           }}
                         >
-                          <Star className={`h-5 w-5 transition-all duration-700 opacity-0 group-hover:opacity-100 ${
+                          <Star className={`h-5 w-5 transition-all duration-700 ${
                             starredMatches.has(match.fixture.id) 
                               ? 'text-blue-500 fill-blue-500' 
                               : 'text-blue-300 group-hover:text-blue-500'
