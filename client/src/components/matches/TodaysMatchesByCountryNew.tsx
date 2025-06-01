@@ -632,7 +632,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
-                        src={flagMap[countryData.country] || '/assets/fallback-logo.svg'}
+                        src={
+                          countryData.country === 'World' 
+                            ? 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world'
+                            : flagMap[countryData.country] || '/assets/fallback-logo.svg'
+                        }
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={async (e) => {
@@ -640,6 +644,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           // Use fallback only if not already using it
                           if (!target.src.includes('/assets/fallback-logo.svg')) {
                             try {
+                              // For World, try the direct 365scores URL again
+                              if (countryData.country === 'World') {
+                                target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world';
+                                return;
+                              }
                               // Try to get a fresh cached flag first
                               const freshFlag = await getCachedFlag(countryData.country);
                               if (freshFlag && freshFlag !== target.src) {
