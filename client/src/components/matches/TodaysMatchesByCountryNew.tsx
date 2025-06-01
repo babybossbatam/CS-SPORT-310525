@@ -738,7 +738,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img 
                                           src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
-                                          className={`h-9 w-9 ${
+                                          className={`w-12 h-12 ${
                                             // Apply ball effect to country flags in international competitions
                                             (countryData.country === 'World' || 
                                              countryData.country === 'Europe' || 
@@ -875,7 +875,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img
                                           src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                           alt={match.teams.away.name}
-                                          className={`h-9 w-9 ${
+                                          className={`w-12 h-12 ${
                                             // Apply ball effect to country flags in international competitions
                                             (countryData.country === 'World' || 
                                              countryData.country === 'Europe' || 
