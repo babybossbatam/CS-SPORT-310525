@@ -111,20 +111,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
   };
 
-  const getCountryFlag = async (country: string): Promise<string> => {
-    const cleanCountry = country.trim();
-
-    // Handle special cases
-    if (cleanCountry === 'World') {
-      return 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world';
-    }
-
-    if (cleanCountry === 'Europe') {
-      return 'https://flagsapi.com/EU/flat/24.png';
-    }
-
-    return await getCachedFlag(cleanCountry);
-  };
+  
 
   // Filter fixtures to ensure they belong to the selected date
   // This handles edge cases where LIVE matches span across midnight
@@ -504,10 +491,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  const getCountryFlagWithFallback = async (country: string) => {
-    const flag = await getCachedFlag(country)
-    return flag
-  }
+  
 
 
 
@@ -568,10 +552,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             if (target.complete && target.naturalWidth === 0) {
                               console.log(`🚫 Real image load error for ${countryData.country}: ${target.src}`);
 
-                              // For World flag, try alternative before fallback
-                              if (countryData.country === 'World' && !target.src.includes('international') && !target.src.includes('/assets/fallback-logo.svg')) {
-                                console.log('🔄 Trying alternative World flag source');
-                                target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
+                              // For World flag, don't clear cache - just use fallback
+                              if (countryData.country === 'World') {
+                                console.log('🌍 World flag failed to load, using fallback without clearing cache');
+                                target.src = '/assets/fallback-logo.svg';
                                 return;
                               }
 
