@@ -729,7 +729,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       <img
                         src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                         alt={leagueData.league.name || 'Unknown League'}
-                        className="w-6 h-6 object-contain mt-0.5"
+                        className="w-9 h-9 object-contain mt-0.5"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
