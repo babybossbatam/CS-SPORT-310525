@@ -722,6 +722,16 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                         }}
                       />
+                      {/* Country Flag - Made round */}
+                      <img
+                        src={countryData.flag}
+                        alt={`${countryData.country} flag`}
+                        className="w-6 h-6 object-cover rounded-full border border-gray-200 ml-2"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/assets/fallback-logo.svg';
+                        }}
+                      />
                       <div className="flex flex-col">
                         <span className="font-semibold text-base text-gray-800">
                           {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
