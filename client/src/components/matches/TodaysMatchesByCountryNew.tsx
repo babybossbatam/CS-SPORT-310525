@@ -37,8 +37,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
     const initialMap: { [country: string]: string } = {};
-    // Pre-populate special cases that don't need async fetching
-    initialMap['World'] = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world';
+    // Let World flag be fetched through the normal caching system
     return initialMap;
   });
 
@@ -638,11 +637,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
-                        src={
-                          countryData.country === 'World' 
-                            ? 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world'
-                            : flagMap[countryData.country] || '/assets/fallback-logo.svg'
-                        }
+                        src={flagMap[countryData.country] || '/assets/fallback-logo.svg'}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={async (e) => {
