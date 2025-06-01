@@ -730,9 +730,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                         alt={leagueData.league.name || 'Unknown League'}
                         className={`${
-                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
-                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa')
+                                 // Only apply ball effect to specific competitions like Friendlies, World Cup, and FIFA tournaments
+                                 (leagueData.league.name?.toLowerCase().includes('friendlies') && !leagueData.league.name?.toLowerCase().includes('women')) ||
+                                 leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                 leagueData.league.name?.toLowerCase().includes('fifa club world cup') ||
+                                 (leagueData.league.name?.toLowerCase().includes('fifa') && 
+                                  (leagueData.league.name?.toLowerCase().includes('tournament') || 
+                                   leagueData.league.name?.toLowerCase().includes('cup')))
                                   ? 'object-cover country-flag-ball' 
                                   : 'w-9 h-9 object-contain'
                               }`}
@@ -907,12 +911,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.home.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.home.name}
                               className={`${
-                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
-                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa') ||
-                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                 // Only apply ball effect to specific competitions like Friendlies, World Cup, and FIFA tournaments
+                                 (leagueData.league.name?.toLowerCase().includes('friendlies') && !leagueData.league.name?.toLowerCase().includes('women')) ||
                                  leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                 leagueData.league.name?.toLowerCase().includes('international')
+                                 leagueData.league.name?.toLowerCase().includes('fifa club world cup') ||
+                                 (leagueData.league.name?.toLowerCase().includes('fifa') && 
+                                  (leagueData.league.name?.toLowerCase().includes('tournament') || 
+                                   leagueData.league.name?.toLowerCase().includes('cup')))
                                   ? 'object-cover country-flag-ball' 
                                   : 'w-9 h-9 object-contain'
                               }`}
@@ -1055,12 +1060,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                               alt={match.teams.away.name}
                               className={`${
-                                 leagueData.league.name?.toLowerCase().includes('uefa') ||
-                                 leagueData.league.name?.toLowerCase().includes('conmebol') ||
-                                 leagueData.league.name?.toLowerCase().includes('fifa') ||
-                                 leagueData.league.name?.toLowerCase().includes('friendlies') ||
+                                 // Only apply ball effect to specific competitions like Friendlies, World Cup, and FIFA tournaments
+                                 (leagueData.league.name?.toLowerCase().includes('friendlies') && !leagueData.league.name?.toLowerCase().includes('women')) ||
                                  leagueData.league.name?.toLowerCase().includes('world cup') ||
-                                 leagueData.league.name?.toLowerCase().includes('international')
+                                 leagueData.league.name?.toLowerCase().includes('fifa club world cup') ||
+                                 (leagueData.league.name?.toLowerCase().includes('fifa') && 
+                                  (leagueData.league.name?.toLowerCase().includes('tournament') || 
+                                   leagueData.league.name?.toLowerCase().includes('cup')))
                                   ? 'object-cover country-flag-ball' 
                                   : 'w-9 h-9 object-contain'
                               }`}
