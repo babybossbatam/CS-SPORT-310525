@@ -561,9 +561,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           // Use fallback only if not already using it
                           if (!target.src.includes('/assets/fallback-logo.svg')) {
                             try {
-                              // For World, try the direct 365scores URL again
+                              // For World, try the 365scores International flag
                               if (countryData.country === 'World') {
-                                target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world';
+                                target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
                                 return;
                               }
                               // Try to get a fresh cached flag first

@@ -435,7 +435,8 @@ export function generateFlagSources(country: string): string[] {
   // Special cases for international competitions
   if (cleanCountry === 'World') {
     return [
-      'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world',
+      'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international',
+      'https://sports.365scores.com/CDN/images/flags/international.svg',
       'https://sports.365scores.com/CDN/images/flags/world.svg',
       'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K'
     ];
@@ -548,10 +549,10 @@ export async function getCachedFlag(country: string): Promise<string> {
 
   // Special cases first (immediate return, no API calls needed)
   if (country === 'World') {
-    // Try 365scores.com CDN first, fallback to custom SVG
-    const worldFlag365 = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world';
-    flagCache.setCached(cacheKey, worldFlag365, '365scores-world', true);
-    return worldFlag365;
+    // Use 365scores.com International flag to match their site
+    const internationalFlag365 = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
+    flagCache.setCached(cacheKey, internationalFlag365, '365scores-international', true);
+    return internationalFlag365;
   }
 
   if (country === 'Europe') {
@@ -713,7 +714,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
       } else {
         // Special cases for international competitions
         if (cleanCountry === 'World') {
-          result = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:World.png/v5/Countries/round/world';
+          result = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
         } else if (cleanCountry === 'Europe') {
           result = 'https://flagcdn.com/w40/eu.png';
         } else {
