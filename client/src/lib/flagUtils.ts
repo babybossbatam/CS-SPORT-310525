@@ -371,60 +371,67 @@ export async function getCountryFlagWithFallback(
   return '/assets/fallback-logo.svg';
 }
 
-/**
- * Simplified synchronous version to reduce flickering
- * @param country - Country name
- * @param leagueFlag - Optional league flag URL
- * @returns Flag image URL with single fallback
- */
-export function getCountryFlagWithFallbackSync(
-  country: string | null | undefined, 
-  leagueFlag?: string | null
-): string {
+// Memory cache for flag URLs
+const flagCacheMem = new Map<string, string>();
+
+export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
+  // Check memory cache first
+  const cacheKey = `${country}-${leagueFlag || ''}`;
+  if (flagCacheMem.has(cacheKey)) {
+    return flagCacheMem.get(cacheKey)!;
+  }
+
+  let result: string;
   // Use league flag if available and valid
   if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
-    return leagueFlag;
-  }
+    result = leagueFlag;
+  } else {
+    // Add comprehensive null/undefined check for country
+    if (!country || typeof country !== 'string' || country.trim() === '') {
+      result = '/assets/fallback-logo.svg';
+    } else {
+      const cleanCountry = country.trim();
 
-  // Add comprehensive null/undefined check for country
-  if (!country || typeof country !== 'string' || country.trim() === '') {
-    return '/assets/fallback-logo.svg';
-  }
-
-  const cleanCountry = country.trim();
-
-  // Special handling for Unknown country
-  if (cleanCountry === 'Unknown') {
-    return '/assets/fallback-logo.svg';
-  }
-
-  // Special cases for international competitions
-  if (cleanCountry === 'World') {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
-  }
-
-  if (cleanCountry === 'Europe') {
-    return 'https://flagcdn.com/w40/eu.png';
-  }
-
-  // Use country code mapping first for most reliable flags
-  const countryCode = countryCodeMap[cleanCountry];
-  if (countryCode) {
-    // For standard 2-letter codes, use FlagCDN (most reliable)
-    if (countryCode.length === 2) {
-      return `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+      // Special handling for Unknown country
+      if (cleanCountry === 'Unknown') {
+        result = '/assets/fallback-logo.svg';
+      } else {
+        // Special cases for international competitions
+        if (cleanCountry === 'World') {
+          result = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+        } else if (cleanCountry === 'Europe') {
+          result = 'https://flagcdn.com/w40/eu.png';
+        } else {
+          // Use country code mapping first for most reliable flags
+          const countryCode = countryCodeMap[cleanCountry];
+          if (countryCode) {
+            // For standard 2-letter codes, use FlagCDN (most reliable)
+            if (countryCode.length === 2) {
+              result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+            } else
+              // For special codes like GB-ENG, try FlagCDN with main country code
+              if (countryCode.startsWith('GB-')) {
+                result = `https://flagcdn.com/w40/gb.png`;
+              } else {
+                // For other special codes, try API-Sports
+                result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
+              }
+          } else {
+            // Fallback to API endpoint for unmapped countries
+            result = `/api/flags/${encodeURIComponent(cleanCountry)}`;
+          }
+        }
+      }
     }
-    // For special codes like GB-ENG, try FlagCDN with main country code
-    if (countryCode.startsWith('GB-')) {
-      return `https://flagcdn.com/w40/gb.png`;
-    }
-    // For other special codes, try API-Sports
-    return `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
   }
 
-  // Fallback to API endpoint for unmapped countries
-  return `/api/flags/${encodeURIComponent(cleanCountry)}`;
-}
+  console.log(`Flag result for ${country}:`, result);
+
+  // Cache the result
+  flagCacheMem.set(cacheKey, result);
+
+  return result;
+};
 
 /**
  * Generate country flag sources with MyFallbackAPI integration for onError handling
@@ -622,27 +629,27 @@ export function getFlagCacheStats(): void {
       expired: 0,
       fresh: 0
     };
-    
+
     const now = Date.now();
     for (const [key, value] of cache.entries()) {
       const age = now - value.timestamp;
       const maxAge = value.url.includes('/assets/fallback-logo.svg') 
         ? 60 * 60 * 1000  // 1 hour for fallbacks
         : 24 * 60 * 60 * 1000; // 24 hours for valid flags
-      
+
       if (age > maxAge) {
         stats.expired++;
       } else {
         stats.fresh++;
       }
-      
+
       if (value.url.includes('/assets/fallback-logo.svg')) {
         stats.fallback++;
       } else {
         stats.valid++;
       }
     }
-    
+
     console.log('🎌 Flag Cache Stats:', stats);
     console.log('📊 Cache Details:', Array.from(cache.entries()).map(([key, value]) => ({
       country: key.replace('flag_', ''),

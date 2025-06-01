@@ -58,8 +58,8 @@ export const rapidApiService = {
     const today = new Date().toISOString().split('T')[0];
     const isToday = date === today;
 
-    // Use shorter cache time for today's data (30 seconds) vs other dates (2 minutes)
-    const cacheTime = isToday ? 30 * 1000 : 2 * 60 * 1000;
+    // Use shorter cache time for today's data (30 seconds) vs other dates (10 minutes for yesterday/tomorrow)
+    const cacheTime = isToday ? 30 * 1000 : 10 * 60 * 1000;
     if (cached && now - cached.timestamp < cacheTime) {
       return cached.data;
     }

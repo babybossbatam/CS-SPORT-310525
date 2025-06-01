@@ -55,13 +55,27 @@ export const useCachedQuery = <T>(
 
 // Smart cache manager
 export const CacheManager = {
-  // Get cached data with freshness check
+  // Get cached data with freshness check and localStorage fallback
   getCachedData: <T>(queryKey: string[], maxAge: number = 30 * 60 * 1000): T | null => {
     const data = queryClient.getQueryData<T>(queryKey);
     const state = queryClient.getQueryState(queryKey);
     
     if (data && state?.dataUpdatedAt && CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge)) {
       return data;
+    }
+    
+    // Fallback to localStorage
+    try {
+      const cacheKey = queryKey.join('-');
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { data: localData, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < maxAge) {
+          return localData;
+        }
+      }
+    } catch (error) {
+      console.error('Error reading from localStorage cache:', error);
     }
     
     return null;
