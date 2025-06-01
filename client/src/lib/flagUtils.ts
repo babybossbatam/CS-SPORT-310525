@@ -774,7 +774,6 @@ export function checkFlagCache(country: string): void {
     const age = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
     console.log(`🔍 Cache status for ${country}:`, {
       key: cacheKey,
-      ```text
       url: cached.url,
       source: cached.source,
       age: `${age} minutes`,
