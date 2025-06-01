@@ -308,7 +308,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             const { country, flagUrl } = result.value;
             newFlags[country] = flagUrl;
 
-            if (flagUrl === '/assets/fallback-logo.svg') {
+            if (flagUrl.includes('/assets/fallback-logo.svg')) {
               fallbackCount++;
             } else {
               validCount++;
@@ -317,14 +317,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             const country = countriesNeedingFlags[index];
             newFlags[country] = '/assets/fallback-logo.svg';
             fallbackCount++;
+            console.warn(`Promise rejected for ${country}:`, result.reason);
           }
         });
 
-        if (Object.keys(newFlags).length > 0) {
-          setFlagMap(prev => ({ ...prev, ...newFlags }));
-          console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
-          console.log(`📊 Flag fetch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
-        }
+        setFlagMap(prev => ({ ...prev, ...newFlags }));
+        console.log(`🎌 Updated flagMap with ${Object.keys(newFlags).length} new flags`);
+        console.log(`📊 Flag fetch stats: ${validCount} valid, ${fallbackCount} fallbacks`);
+
       } catch (error) {
         console.error('Error fetching flags:', error);
       } finally {
