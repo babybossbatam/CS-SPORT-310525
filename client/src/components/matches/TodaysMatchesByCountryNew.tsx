@@ -550,29 +550,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               // Use fallback only if not already using it
                               if (!target.src.includes('/assets/fallback-logo.svg')) {
                                 try {
-                                  // For World, clear cache first then try the 365scores International flag
+                                  // For World, try a different 365scores URL first before clearing cache
                                   if (countryData.country === 'World') {
-                                    // Clear the cached World flag entry first
-                                    const worldCacheKey = 'flag_world';
-                                    flagCache.removeCached(worldCacheKey);
-
-                                    // Also clear from component's flagMap state
-                                    setFlagMap(prev => {
-                                      const newMap = { ...prev };
-                                      delete newMap['World'];
-                                      return newMap;
-                                    });
-
-                                    console.log('🗑️ Cleared cached World flag entry and component state due to real error');
-
-                                    target.src = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
-                                    return;
-                                  }
-                                  // Try fetching a fresh flag to replace the broken one
-                                  const freshFlag = await getCachedFlag(countryData.country);
-                                  if (freshFlag && freshFlag !== target.src) {
-                                    target.src = freshFlag;
-                                    return;
+                                    // Try the International flag URL without clearing cache first
+                                    const internationalFlag = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
+                                    
+                                    // Only clear cache if we're not already trying the international flag
+                                    if (!target.src.includes('international')) {
+                                      console.log('🔄 Trying 365scores International flag for World');
+                                      target.src = internationalFlag;
+                                      return;
+                                    } else {
+                                      // If international flag also failed, clear cache and use fallback
+                                      const worldCacheKey = 'flag_world';
+                                      flagCache.removeCached(worldCacheKey);
+                                      setFlagMap(prev => {
+                                        const newMap = { ...prev };
+                                        delete newMap['World'];
+                                        return newMap;
+                                      });
+                                      console.log('🗑️ All World flag sources failed, cleared cache and using fallback');
+                                    }
                                   }
 
                                   // Ultimate fallback
