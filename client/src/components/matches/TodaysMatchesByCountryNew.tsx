@@ -363,18 +363,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           
           // Debug team logos for the first few matches
           import('../../lib/teamLogoUtils').then(({ debugTeamLogo, checkTeamLogoCache, getTeamLogoCacheStats }) => {
-            const firstMatches = groupedMatches.slice(0, 2);
-            firstMatches.forEach(countryData => {
-              countryData.matches.slice(0, 2).forEach(match => {
-                if (match.teams?.home) {
-                  debugTeamLogo(match.teams.home.id, match.teams.home.name, match.teams.home.logo);
-                  checkTeamLogoCache(match.teams.home.id, match.teams.home.name);
-                }
-                if (match.teams?.away) {
-                  debugTeamLogo(match.teams.away.id, match.teams.away.name, match.teams.away.logo);
-                  checkTeamLogoCache(match.teams.away.id, match.teams.away.name);
-                }
-              });
+            const firstCountries = sortedCountries.slice(0, 2);
+            firstCountries.forEach((countryData: any) => {
+              // Get matches from the first league of each country
+              const firstLeague = Object.values(countryData.leagues)[0] as any;
+              if (firstLeague?.matches) {
+                firstLeague.matches.slice(0, 2).forEach((match: any) => {
+                  if (match.teams?.home) {
+                    debugTeamLogo(match.teams.home.id, match.teams.home.name, match.teams.home.logo);
+                    checkTeamLogoCache(match.teams.home.id, match.teams.home.name);
+                  }
+                  if (match.teams?.away) {
+                    debugTeamLogo(match.teams.away.id, match.teams.away.name, match.teams.away.logo);
+                    checkTeamLogoCache(match.teams.away.id, match.teams.away.name);
+                  }
+                });
+              }
             });
             getTeamLogoCacheStats();
           });
