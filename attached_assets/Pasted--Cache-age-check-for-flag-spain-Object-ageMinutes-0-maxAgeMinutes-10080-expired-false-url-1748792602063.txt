@@ -1,0 +1,40 @@
+⏰ Cache age check for flag_spain: 
+Object {ageMinutes: 0, maxAgeMinutes: 10080, expired: false, url: "https://flagcdn.com/w40/es.png", source: "country-code"}
+✅ Cache hit for flag_spain (age: 0 min)
+🔄 Sync function using cached flag for Spain: https://flagcdn.com/w40/es.png
+🔍 Cache lookup for key: flag_england 
+Object {found: true, cacheSize: 111}
+⏰ Cache age check for flag_england: 
+Object {ageMinutes: 45, maxAgeMinutes: 10080, expired: false, url: "https://flagcdn.com/w40/gb.png", source: "gb-fallback"}
+✅ Cache hit for flag_england (age: 45 min)
+🔄 Sync function using cached flag for England: https://flagcdn.com/w40/gb.png
+🔍 Cache lookup for key: flag_world 
+Object {found: true, cacheSize: 111}
+⏰ Cache age check for flag_world: 
+Object {ageMinutes: 0, maxAgeMinutes: 10080, expired: false, url: "https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:…", source: "365scores-international"}
+✅ Cache hit for flag_world (age: 0 min)
+🔄 Sync function using cached flag for World: https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international
+🔍 Cache lookup for key: flag_brazil 
+Object {found: true, cacheSize: 111}
+⏰ Cache age check for flag_brazil: 
+Object {ageMinutes: 30, maxAgeMinutes: 10080, expired: false, url: "https://flagcdn.com/w40/br.png", source: "country-code"}
+✅ Cache hit for flag_brazil (age: 30 min)
+🔄 Sync function using cached flag for Brazil: https://flagcdn.com/w40/br.png
+🔍 Cache lookup for key: flag_colombia 
+Object {found: true, cacheSize: 111}
+⏰ Cache age check for flag_colombia: 
+Object {ageMinutes: 536, maxAgeMinutes: 10080, expired: false, url: "https://flagcdn.com/w40/co.png", source: "country-code"}
+✅ Cache hit for flag_colombia (age: 536 min)
+🔄 Sync function using cached flag for Colombia: https://flagcdn.com/w40/co.png
+🔍 Cache lookup for key: flag_spain 
+Object {found: true, cacheSize: 111}
+⏰ Cache age check for flag_spain: 
+Object {ageMinutes: 0, maxAgeMinutes: 10080, expired: false, url: "https://flagcdn.com/w40/es.png", source: "country-code"}
+✅ Cache hit for flag_spain (age: 0 min)
+🔄 Sync function using cached flag for Spain: https://flagcdn.com/w40/es.png
+🔍 Cache lookup for key: flag_england 
+Object {found: true, cacheSize: 111}
+⏰ Cache age check for flag_england: 
+Object {ageMinutes: 45, maxAgeMinutes: 10080, expired: false, url: "https://flagcdn.com/w40/gb.png", source: "gb-fallback"}
+✅ Cache hit for flag_england (age: 45 min)
+🔄 Sync function using cached flag for England: https://flagcdn.com/w40/gb.png
