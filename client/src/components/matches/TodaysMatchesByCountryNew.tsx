@@ -312,35 +312,31 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const fetchFlags = async () => {
       // Only proceed if we have countries to fetch flags for
       if (sortedCountries.length === 0) return;
-      
+
       const countriesToFetch = sortedCountries.filter((countryData: any) => 
         !flagMap[countryData.country]
       );
 
       if (countriesToFetch.length === 0) return;
 
-      const flagPromises = countriesToFetch.map(async (countryData: any) => {
+      const newFlags: { [country: string]: string } = {};
+
+      for (const countryData of countriesToFetch) {
         const country = countryData.country;
         try {
           console.log(`Fetching flag for country: ${country}`);
           const flag = await getCountryFlagWithFallback(country);
           console.log(`Flag result for ${country}: ${flag}`);
-          return { country, flag };
+
+          // Only store non-fallback flags in the state
+          if (flag && !flag.includes('/assets/fallback-logo.svg')) {
+            newFlags[country] = flag;
+          }
         } catch (error) {
           console.error(`Failed to fetch flag for ${country}:`, error);
-          const fallbackFlag = getCountryFlagWithFallbackSync(country);
-          console.log(`Using fallback flag for ${country}: ${fallbackFlag}`);
-          return { country, flag: fallbackFlag };
+          // Don't store fallback in state - let onError handle it
         }
-      });
-
-      const results = await Promise.all(flagPromises);
-      const newFlags = results.reduce((acc, result) => {
-        if (result) {
-          acc[result.country] = result.flag;
-        }
-        return acc;
-      }, {} as { [country: string]: string });
+      }
 
       if (Object.keys(newFlags).length > 0) {
         setFlagMap(prev => ({ ...prev, ...newFlags }));
@@ -348,7 +344,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
 
     fetchFlags();
-  }, [sortedCountries.map((c: any) => c.country).join(','), flagMap]); // Use stable dependency
+  }, [sortedCountries.map((c: any) => c.country).join(',')]); // Removed flagMap dependency to prevent loops
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
@@ -574,6 +570,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         src={flagMap[countryData.country]}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = getCountryFlagWithFallbackSync(countryData.country)
+                        }}
                       />
                       <span className="text-sm font-medium text-gray-900">{countryData.country}</span>
                       <span className="text-xs text-gray-500">({totalMatches})</span>
