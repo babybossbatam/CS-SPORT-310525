@@ -138,15 +138,42 @@ export function getFlagCacheKey(countryCode?: string, countryName?: string): str
   return `flag_${countryCode || 'unknown'}_${countryName || 'unknown'}`;
 }
 
-// URL validation function
+// URL validation function with improved reliability
 export async function validateLogoUrl(url: string): Promise<boolean> {
   try {
-    // Use HEAD request to check if image exists without downloading it
-    const response = await fetch(url, { 
-      method: 'HEAD',
-      mode: 'no-cors' // Avoid CORS issues
+    // For data URLs, always return true
+    if (url.startsWith('data:')) {
+      return true;
+    }
+
+    // For local assets, always return true
+    if (url.startsWith('/assets/')) {
+      return true;
+    }
+
+    // Create a test image element for reliable validation
+    return new Promise((resolve) => {
+      const img = new Image();
+      
+      // Set timeout to avoid hanging
+      const timeout = setTimeout(() => {
+        resolve(false);
+      }, 3000);
+
+      img.onload = () => {
+        clearTimeout(timeout);
+        resolve(true);
+      };
+
+      img.onerror = () => {
+        clearTimeout(timeout);
+        resolve(false);
+      };
+
+      // Set crossOrigin to handle CORS
+      img.crossOrigin = 'anonymous';
+      img.src = url;
     });
-    return response.ok;
   } catch (error) {
     console.warn(`Failed to validate URL: ${url}`, error);
     return false;

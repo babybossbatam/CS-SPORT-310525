@@ -4,7 +4,7 @@ import { testImageUrl, findWorkingLogoUrl, generateLogoSources } from './MyAPIFa
 
 export { countryCodeMap };
 
-// Country code mapping for FlagsAPI
+// Enhanced country code mapping for FlagsAPI with normalized variations
 const countryCodeMap: { [key: string]: string } = {
   'England': 'GB-ENG',
   'Scotland': 'GB-SCT', 
@@ -25,6 +25,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Norway': 'NO',
   'Poland': 'PL',
   'Czech Republic': 'CZ',
+  'Czech-Republic': 'CZ',
   'Croatia': 'HR',
   'Serbia': 'RS',
   'Greece': 'GR',
@@ -36,6 +37,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Slovakia': 'SK',
   'Slovenia': 'SI',
   'Bosnia and Herzegovina': 'BA',
+  'Bosnia': 'BA',
   'North Macedonia': 'MK',
   'Montenegro': 'ME',
   'Albania': 'AL',
@@ -71,6 +73,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Suriname': 'SR',
   'French Guiana': 'GF',
   'United States': 'US',
+  'USA': 'US',
   'Canada': 'CA',
   'Costa Rica': 'CR',
   'Panama': 'PA',
@@ -88,9 +91,11 @@ const countryCodeMap: { [key: string]: string } = {
   'Bahamas': 'BS',
   'Japan': 'JP',
   'South Korea': 'KR',
+  'South-Korea': 'KR',
   'China': 'CN',
   'Australia': 'AU',
   'New Zealand': 'NZ',
+  'New-Zealand': 'NZ',
   'India': 'IN',
   'Thailand': 'TH',
   'Vietnam': 'VN',
@@ -154,6 +159,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Gabon': 'GA',
   'Republic of the Congo': 'CG',
   'Democratic Republic of the Congo': 'CD',
+  'Congo-DR': 'CD',
   'Angola': 'AO',
   'Zambia': 'ZM',
   'Zimbabwe': 'ZW',
@@ -174,13 +180,21 @@ const countryCodeMap: { [key: string]: string } = {
   'Togo': 'TG',
   'Benin': 'BJ',
   'Mauritania': 'MR',
-  'Gambia': 'GM'
+  'Gambia': 'GM',
+  // Special territories and regions
+  'Macao': 'MO',
+  'Macau': 'MO',
+  'Hong Kong': 'HK',
+  'Taiwan': 'TW',
+  'Malawi': 'MW',
+  'Georgia': 'GE',
+  'Uzbekistan': 'UZ'
 };
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
 
 /**
- * Generate multiple flag sources for a country with SportsRadar fallback
+ * Generate multiple flag sources for a country with improved reliability
  */
 export function generateFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
@@ -195,21 +209,32 @@ export function generateFlagSources(country: string): string[] {
     return ['https://flagsapi.com/EU/flat/24.png'];
   }
 
-  // 1. Primary: FlagsAPI using country code mapping (most reliable)
+  // Get country code with normalization
   const countryCode = countryCodeMap[cleanCountry];
+  
   if (countryCode) {
+    // 1. Primary: FlagsAPI (most reliable for mapped countries)
     sources.push(`https://flagsapi.com/${countryCode}/flat/24.png`);
+    
+    // 2. Secondary: FlagCDN (good fallback)
+    if (countryCode.length === 2) {
+      sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
+    }
+    
+    // 3. Alternative FlagCDN format
+    if (countryCode.length === 2) {
+      sources.push(`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`);
+    }
+  } else {
+    console.warn(`No country code mapping found for: ${cleanCountry}`);
   }
 
-  // 2. Secondary: Alternative reliable sources
+  // 4. Alternative external source (RestCountries)
   if (countryCode && countryCode.length === 2) {
-    sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
+    sources.push(`https://restcountries.com/v3.1/alpha/${countryCode.toLowerCase()}?fields=flags`);
   }
 
-  // 3. Skip SportsRadar for now due to server issues
-  // sources.push(`/api/sportsradar/flags/${encodeURIComponent(cleanCountry)}`);
-
-  // 4. Ultimate fallback
+  // 5. Ultimate fallback
   sources.push('/assets/fallback-logo.svg');
 
   return sources;
@@ -224,49 +249,55 @@ export async function getCachedFlag(country: string): Promise<string> {
   // Check cache first - return immediately if found AND it's not a fallback
   const cached = flagCache.getCached(cacheKey);
   if (cached && cached.verified && !cached.url.includes('/assets/fallback-logo.svg')) {
+    console.log(`Using cached flag for ${country}: ${cached.url}`);
     return cached.url;
   }
 
   // If cached result is a fallback, clear it and try again
   if (cached && cached.url.includes('/assets/fallback-logo.svg')) {
+    console.log(`Clearing fallback cache for ${country}`);
     flagCache.removeCached(cacheKey);
   }
 
+  console.log(`Fetching flag for country: ${country}`);
   const sources = generateFlagSources(country);
 
-  // Try sources with reduced logging for better performance
+  // Try sources with better logging
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
 
     try {
-      // For data URLs (like World flag), return immediately but don't cache fallbacks
+      // For data URLs (like World flag), return immediately
       if (source.startsWith('data:')) {
+        console.log(`✅ Using data URL for ${country}`);
         flagCache.setCached(cacheKey, source, `data-${i}`, true);
         return source;
       }
 
-      // Don't return fallback SVG immediately - try other sources first
+      // Skip fallback SVG in the loop - save it for last
       if (source.startsWith('/assets/')) {
         continue;
       }
 
-      // Skip SportsRadar API for now due to failures - go directly to FlagsAPI
-      if (source.includes('/api/sportsradar/flags/')) {
-        continue;
-      }
+      console.log(`Trying source ${i + 1}/${sources.length} for ${country}: ${source}`);
 
       // For external URLs, validate before caching
       const isValid = await validateLogoUrl(source);
       if (isValid) {
+        console.log(`✅ Valid flag found for ${country}: ${source}`);
         flagCache.setCached(cacheKey, source, `source-${i}`, true);
         return source;
+      } else {
+        console.log(`❌ Invalid flag source for ${country}: ${source}`);
       }
     } catch (error) {
+      console.log(`Error testing source for ${country}: ${source}`, error);
       continue;
     }
   }
 
-  // If all sources fail, return fallback but DON'T cache it
+  // If all sources fail, return fallback but DON'T cache it to allow retries
+  console.log(`⚠️ All sources failed for ${country}, using fallback`);
   const fallbackUrl = '/assets/fallback-logo.svg';
   return fallbackUrl;
 }
