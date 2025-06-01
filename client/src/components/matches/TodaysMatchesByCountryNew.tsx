@@ -310,7 +310,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Move useEffect here to maintain hook order - always called
   useEffect(() => {
     // Don't clear cache - let it work naturally for better performance
-    
+
     const fetchFlags = async () => {
       // Only proceed if we have countries to fetch flags for
       if (sortedCountries.length === 0) return;
@@ -698,10 +698,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       </div>
 
                                       <div className="flex-shrink-0 mx-1">
-                                        <img
-                                          src={match.teams.home.logo || '/assets/fallback-logo.png'}
+                                        <img 
+                                          src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
-                                          className="w-12 h-12 object-contain"
+                                          className={`w-12 h-12 ${
+                                            // Apply ball effect to country flags in international competitions
+                                            (countryData.country === 'World' || 
+                                             countryData.country === 'Europe' || 
+                                             countryData.country === 'South America' || 
+                                             countryData.country === 'International' ||
+                                             match.league?.name?.toLowerCase().includes('international') ||
+                                             match.league?.name?.toLowerCase().includes('friendlies') ||
+                                             match.league?.name?.toLowerCase().includes('nations league') ||
+                                             match.league?.name?.toLowerCase().includes('world cup') ||
+                                             match.league?.name?.toLowerCase().includes('euro') ||
+                                             match.league?.name?.toLowerCase().includes('copa america') ||
+                                             match.league?.name?.toLowerCase().includes('uefa') ||
+                                             match.league?.name?.toLowerCase().includes('conmebol') ||
+                                             match.league?.name?.toLowerCase().includes('fifa'))
+                                              ? 'object-cover country-flag-ball rounded-full' 
+                                              : 'object-contain'
+                                          }`}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target.src !== '/assets/fallback-logo.png') {
@@ -821,7 +838,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img
                                           src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                           alt={match.teams.away.name}
-                                          className="w-12 h-12 object-contain"
+                                          className={`w-12 h-12 ${
+                                            // Apply ball effect to country flags in international competitions
+                                            (countryData.country === 'World' || 
+                                             countryData.country === 'Europe' || 
+                                             countryData.country === 'South America' || 
+                                             countryData.country === 'International' ||
+                                             match.league?.name?.toLowerCase().includes('international') ||
+                                             match.league?.name?.toLowerCase().includes('friendlies') ||
+                                             match.league?.name?.toLowerCase().includes('nations league') ||
+                                             match.league?.name?.toLowerCase().includes('world cup') ||
+                                             match.league?.name?.toLowerCase().includes('euro') ||
+                                             match.league?.name?.toLowerCase().includes('copa america') ||
+                                             match.league?.name?.toLowerCase().includes('uefa') ||
+                                             match.league?.name?.toLowerCase().includes('conmebol') ||
+                                             match.league?.name?.toLowerCase().includes('fifa'))
+                                              ? 'object-cover country-flag-ball rounded-full'
+                                              : 'object-contain'
+                                          }`}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target.src !== '/assets/fallback-logo.png') {
