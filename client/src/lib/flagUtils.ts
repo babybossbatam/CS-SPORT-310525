@@ -350,7 +350,17 @@ const countryCodeMap: { [key: string]: string } = {
   'RSA': 'ZA',
   'South-Africa': 'ZA',
   'República de Sudáfrica': 'ZA',
-  'Suid-Afrika': 'ZA'
+  'Suid-Afrika': 'ZA',
+  
+  // 365scores specific countries
+  'Europe': 'EU',
+  'World': 'WO',
+  
+  // SportsRadar specific countries
+  'Congo': 'CG',
+  'Mozambique': 'MZ',
+  'Sao Tome and Principe': 'ST',
+  'Tahiti': 'PF'
 };
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
