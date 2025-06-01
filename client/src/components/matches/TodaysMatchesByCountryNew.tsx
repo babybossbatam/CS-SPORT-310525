@@ -344,6 +344,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Make debugging functions available globally for manual testing
   useEffect(() => {
+    // Only attach functions if we have fixtures data
+    if (allFixtures.length === 0) {
+      console.log('⏳ Waiting for fixtures data before attaching debugging functions...');
+      return;
+    }
+
+    console.log('🔧 Attaching debugging functions to window object...');
+
     (window as any).debugCountryMappingForDate = (date?: string) => {
       const targetDate = date || selectedDate;
       console.log(`🔍 Analyzing country mapping for date: ${targetDate}`);
@@ -383,6 +391,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       import('../../lib/flagUtils').then(({ analyzeCountriesAgainstExternalSources }) => {
         analyzeCountriesAgainstExternalSources(Array.from(countries));
       });
+    };
+
+    // Log available debugging functions
+    console.log('✅ Debugging functions attached! Available functions:');
+    console.log('  - window.debugCountryMappingForDate(date?) - Analyze country mapping for specific date');
+    console.log('  - window.compare365ScoresCompatibility() - Compare with 365scores.com patterns');
+    console.log('  - window.showAllCountriesFromFixtures() - Show all countries in current fixtures');
+    console.log('  - window.analyzeExternalSources() - Analyze against external sports site patterns');
+    console.log(`  - Current fixtures: ${allFixtures.length} matches loaded`);
+
+    // Cleanup function to remove from window when component unmounts
+    return () => {
+      delete (window as any).debugCountryMappingForDate;
+      delete (window as any).compare365ScoresCompatibility;
+      delete (window as any).showAllCountriesFromFixtures;
+      delete (window as any).analyzeExternalSources;
+      console.log('🧹 Debugging functions cleaned up from window object');
     };
   }, [allFixtures, selectedDate]);
 
