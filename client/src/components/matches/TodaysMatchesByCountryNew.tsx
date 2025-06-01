@@ -18,7 +18,7 @@ import {
   isDateTimeStringTomorrow,
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
-import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap } from '@/lib/flagUtils';
+import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap, flagCache } from '@/lib/flagUtils';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -281,11 +281,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       sortedCountries.forEach((countryData: any) => {
         const country = countryData.country;
         if (!flagMap[country]) {
-          // Get immediate synchronous flag
-          const syncFlag = getCountryFlagWithFallbackSync(country);
-          immediateFlags[country] = syncFlag;
-          // Still add to fetch list for potential better async flag
-          countriesToFetch.push(countryData);
+          // Check if flag is already cached in flagCache before fetching
+          const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+          const cached = flagCache.getCached(cacheKey);
+          
+          if (cached && !cached.url.includes('/assets/fallback-logo.svg')) {
+            // Use cached flag immediately
+            immediateFlags[country] = cached.url;
+            console.log(`✅ Using cached flag for ${country}: ${cached.url}`);
+          } else {
+            // Get immediate synchronous flag
+            const syncFlag = getCountryFlagWithFallbackSync(country);
+            immediateFlags[country] = syncFlag;
+            // Only add to fetch list if we don't have a valid cached flag
+            if (!cached || cached.url.includes('/assets/fallback-logo.svg')) {
+              countriesToFetch.push(countryData);
+            }
+          }
         }
       });
 
