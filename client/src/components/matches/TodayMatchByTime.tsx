@@ -290,9 +290,13 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               )}
                             </div>
                             <div className="text-lg font-bold flex items-center gap-2">
-                              <span className="text-black">2</span>
+                              <span className="text-black">
+                                {match.goals.home || 0}
+                              </span>
                               <span className="text-gray-400">-</span>
-                              <span className="text-black">2</span>
+                              <span className="text-black">
+                                {match.goals.away || 0}
+                              </span>
                             </div>
                           </div>
 
