@@ -1574,7 +1574,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       if (timeFilterActive) {
                         const aDate = parseISO(a.fixture.date);
                         const bDate = parseISO(b.fixture.date);
-                        fixture.date);
                         const now = new Date();
 
                         // Ensure valid dates
