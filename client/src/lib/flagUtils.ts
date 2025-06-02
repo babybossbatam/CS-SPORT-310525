@@ -564,6 +564,16 @@ export async function getCachedFlag(country: string): Promise<string> {
   // For regular countries, check if they have simple country code mappings first
   const normalizedCountry = country.trim();
   let countryCode = countryCodeMap[normalizedCountry];
+  
+  // Debug logging for specific countries
+  if (normalizedCountry === 'Colombia') {
+    console.log(`🔍 [flagUtils.ts:getCachedFlag] Debug Colombia mapping:`, {
+      normalizedCountry,
+      countryCode,
+      hasMapping: !!countryCodeMap[normalizedCountry],
+      mappingValue: countryCodeMap[normalizedCountry]
+    });
+  }
 
   if (!countryCode && normalizedCountry.includes('-')) {
     const spaceVersion = normalizedCountry.replace(/-/g, ' ');
@@ -578,6 +588,7 @@ export async function getCachedFlag(country: string): Promise<string> {
   // If we have a simple 2-letter country code, process immediately
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+    console.log(`🌍 [flagUtils.ts:getCachedFlag] Setting cached flag for ${country} with country code ${countryCode}: ${flagUrl}`);
     flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
     return flagUrl;
   }
@@ -690,6 +701,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
             // For standard 2-letter codes, use FlagCDN (most reliable)
             if (countryCode.length === 2) {
               result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+              console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Found country code for ${cleanCountry}: ${countryCode} -> ${result}`);
             } else if (countryCode.startsWith('GB-')) {
               // For special codes like GB-ENG, try FlagCDN with main country code
                 result = `https://flagcdn.com/w40/gb.png`;
@@ -698,6 +710,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
                 result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
               }
           } else {
+            console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No country code found for: ${cleanCountry}`);
             // Fallback to API endpoint for unmapped countries
             result = `/api/flags/${encodeURIComponent(cleanCountry)}`;
           }
@@ -708,8 +721,15 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
 
   console.log(`Flag result for ${country}:`, result);
 
-  // Cache the result
+  // Cache the result in both memory cache and main flag cache
   flagCacheMem.set(cacheKey, result);
+  
+  // Also cache in the main flag cache if it's a valid flag URL (not API endpoint)
+  if (result && !result.startsWith('/api/') && result !== '/assets/fallback-logo.svg') {
+    const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    flagCache.setCached(flagCacheKey, result, 'sync-cache', true);
+    console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached flag for ${country}: ${result}`);
+  }
 
   return result;
 };
