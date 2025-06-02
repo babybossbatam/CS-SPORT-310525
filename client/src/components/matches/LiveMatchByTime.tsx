@@ -159,6 +159,13 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     if (aIsLive && bIsLive) {
       const aElapsed = Number(a.fixture.status.elapsed) || 0;
       const bElapsed = Number(b.fixture.status.elapsed) || 0;
+      
+      // Debug specific problematic matches
+      if ((aElapsed === 46 || aElapsed === 47) || (bElapsed === 46 || bElapsed === 47)) {
+        console.log(`🔍 [DEBUG] Problematic match: ${a.teams.home.name} vs ${a.teams.away.name} (${aElapsed}') vs ${b.teams.home.name} vs ${b.teams.away.name} (${bElapsed}')`);
+        console.log(`🔍 [DEBUG] Sort result: ${aElapsed - bElapsed} (${aElapsed} - ${bElapsed})`);
+      }
+      
       return aElapsed - bElapsed; // Shortest elapsed time first (22' before 31')
     }
 
