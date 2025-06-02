@@ -84,6 +84,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Argentina': 'AR',
   'Mexico': 'MX',
   'Colombia': 'CO',
+  'colombia': 'co', // Add lowercase variant
   'Peru': 'PE',
   'Chile': 'CL',
   'Uruguay': 'UY',
@@ -2076,3 +2077,19 @@ async function backgroundCacheRefresh(): Promise<void> {
 }
 // Flag cache configuration - optimized for different content types
 const FLAG_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days - flags are static and don't change
+
+// Internal getCached function
+function getCached(cacheKey: string): string | undefined {
+  const cached = flagCache.getCached(cacheKey);
+  if (cached) {
+    return cached.url;
+  }
+  return undefined;
+}
+
+/**
+ * Get country flag URL with enhanced fallback support using MyAPIFallback system
+ * @param country - Country name
+ * @param leagueFlag - Optional league flag URL
+ * @returns string - Flag image URL
+ */
