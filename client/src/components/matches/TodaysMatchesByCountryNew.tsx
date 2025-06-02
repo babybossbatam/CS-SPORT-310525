@@ -265,10 +265,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return passes;
       }
 
-      // For non-live matches, be strict about date matching
-      const fixtureFormatted = format(fixtureDate, 'yyyy-MM-dd');
-      const selectedFormatted = format(selectedDateObj, 'yyyy-MM-dd');
-      const passes = fixtureFormatted === selectedFormatted;
+      // 365scores approach: Simple date matching (same as server)
+      const fixtureFormatted = fixture.fixture.date.split('T')[0];
+      const passes = fixtureFormatted === selectedDate;
 
       if (!passes) {
         console.log(`❌ [DEBUG] Date mismatch:`, {
