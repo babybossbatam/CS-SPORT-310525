@@ -1,0 +1,22 @@
+🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: Colombia | Called from: at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/matches/TodayPopularFootballLeaguesNew.tsx?t=1748833182674:276:15
+🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG LOOKUP - Key: flag_colombia | Called from: at getCountryFlagWithFallbackSync (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/lib/flagUtils.ts?t=1748833182674:533:28)
+🔍 [logoCache.ts:getCached] Cache lookup for key: flag_colombia 
+Object {found: true, cacheSize: 102}
+⏰ [logoCache.ts:getCached] Cache age check for flag_colombia: 
+Object {ageMinutes: 45, maxAgeMinutes: 10080, expired: false, url: "https://media.api-sports.io/flags/co.svg", source: "sync-cache"}
+🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Found in cache: 
+Object {url: "https://media.api-sports.io/flags/co.svg", source: "sync-cache", ageMinutes: 45, isExpired: false, timestamp: "2025-06-02T02:15:46.213Z"}
+✅ [logoCache.ts:getCached] Cache hit for flag_colombia (age: 45 min)
+🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Cache hit! Returning: https://media.api-sports.io/flags/co.svg
+✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Main cache hit for Colombia: https://media.api-sports.io/flags/co.svg | Source: sync-cache
+🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: Colombia | Called from: at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/matches/TodayPopularFootballLeaguesNew.tsx?t=1748833182674:276:15
+🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG LOOKUP - Key: flag_colombia | Called from: at getCountryFlagWithFallbackSync (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/lib/flagUtils.ts?t=1748833182674:533:28)
+🔍 [logoCache.ts:getCached] Cache lookup for key: flag_colombia 
+Object {found: true, cacheSize: 102}
+⏰ [logoCache.ts:getCached] Cache age check for flag_colombia: 
+Object {ageMinutes: 45, maxAgeMinutes: 10080, expired: false, url: "https://media.api-sports.io/flags/co.svg", source: "sync-cache"}
+🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Found in cache: 
+Object {url: "https://media.api-sports.io/flags/co.svg", source: "sync-cache", ageMinutes: 45, isExpired: false, timestamp: "2025-06-02T02:15:46.213Z"}
+✅ [logoCache.ts:getCached] Cache hit for flag_colombia (age: 45 min)
+🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Cache hit! Returning: https://media.api-sports.io/flags/co.svg
+✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Main cache hit for Colombia: https://media.api-sports.io/flags/co.svg | Source: sync-cache
