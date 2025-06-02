@@ -714,15 +714,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             return '/assets/world flag_new.png';
                           }
                           
-                          // Check if we have a cached flag first
+                          // For England specifically, always use the England flag
+                          if (countryData.country === 'England') {
+                            return 'https://flagcdn.com/w40/gb-eng.png';
+                          }
+                          
+                          // Check if we have a cached flag for other countries
                           const cachedFlag = flagMap[countryData.country];
                           if (cachedFlag) {
                             return cachedFlag;
-                          }
-                          
-                          // For England specifically, use the correct flag
-                          if (countryData.country === 'England') {
-                            return 'https://flagcdn.com/w40/gb-eng.png';
                           }
                           
                           // For other countries, use the fallback sync function
@@ -737,12 +737,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               target.src = '/assets/fallback-logo.svg';
                               return;
                             }
-                            // For England and other GB subdivisions, try GB flag as fallback
-                            if ((countryData.country === 'England' || countryData.country === 'Scotland' || 
-                                 countryData.country === 'Wales' || countryData.country === 'Northern Ireland') && 
+                            // For England specifically, ensure we try the correct flag first
+                            if (countryData.country === 'England' && !target.src.includes('fallback-logo.svg')) {
+                              if (!target.src.includes('gb-eng')) {
+                                // First try the England flag
+                                target.src = 'https://flagcdn.com/w40/gb-eng.png';
+                                return;
+                              } else {
+                                // If England flag fails, use GB flag
+                                target.src = 'https://flagcdn.com/w40/gb.png';
+                                return;
+                              }
+                            }
+                            // For other GB subdivisions
+                            if ((countryData.country === 'Scotland' || countryData.country === 'Wales' || 
+                                 countryData.country === 'Northern Ireland') && 
                                 !target.src.includes('fallback-logo.svg')) {
-                              if (target.src.includes('gb-eng') || target.src.includes('gb-sct') || 
-                                  target.src.includes('gb-wls') || target.src.includes('gb-nir')) {
+                              if (target.src.includes('gb-sct') || target.src.includes('gb-wls') || target.src.includes('gb-nir')) {
                                 target.src = 'https://flagcdn.com/w40/gb.png'; // Fallback to GB flag
                               } else if (target.src.includes('/gb.png')) {
                                 target.src = '/assets/fallback-logo.svg';
