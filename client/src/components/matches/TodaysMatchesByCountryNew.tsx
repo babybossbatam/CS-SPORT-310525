@@ -884,6 +884,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = memo
       </CardContent>
     </Card>
   );
-};
+});
 
 export default TodaysMatchesByCountryNew;
