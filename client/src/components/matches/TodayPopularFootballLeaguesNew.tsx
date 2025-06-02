@@ -741,7 +741,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           }}
                         />
                         <div className="flex flex-col">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-1">Popular Football Leagues</h3>
+                          {isFirstCard && (
+                            <h3 className="text-lg font-semibold text-gray-800 mb-1">Popular Football Leagues</h3>
+                          )}
                           <span className="font-semibold text-base text-gray-800">
                             {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                           </span>
