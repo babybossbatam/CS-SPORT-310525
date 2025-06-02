@@ -561,14 +561,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
-                        src={countryData.country === 'World' ? '/assets/world_flag_new.png' : (flagMap[countryData.country] || getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg')}
+                        src={countryData.country === 'World' ? '/assets/world flag_new.png' : (flagMap[countryData.country] || getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg')}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            // For World flag, don't fall back to SVG, keep the world_flag_new.png
+                            // For World flag, use MyAPIFallback for proper fallback handling
                             if (countryData.country === 'World') {
-                              return; // Keep the world_flag_new.png even if there's an error
+                              target.src = '/assets/fallback-logo.svg';
+                              return;
                             }
                             if (!target.src.includes('/assets/fallback-logo.svg')) {
                               target.src = '/assets/fallback-logo.svg';
