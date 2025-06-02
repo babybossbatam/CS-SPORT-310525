@@ -10,20 +10,20 @@ export const matchByCountryExclusionTerms = [
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
   'women\'s', "women's", 'friendlies women', 'women friendlies',
 
-  // Non-competitive/exhibition matches (but allow World Friendlies)
-  'test', 'exhibition', 'testimonial', 'charity',
+  // Non-competitive matches (allow exhibition and FIFA matches)
+  'test', 'testimonial', 'charity',
 
   // Indoor/alternative formats
   'futsal', 'indoor', 'beach', 'arena',
 
-  // Esports and virtual competitions
-  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'fifa', 'pes', 'efootball',
+  // Esports and virtual competitions (but allow FIFA competitions)
+  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball',
 
   // Unknown/unspecified competitions
   'unknown', 'tbd', 'to be determined', 'unspecified'
 ];
 
-// Optional youth/development terms - only applied when match limit is reached
+// Youth/development terms - now used for limiting rather than excluding
 export const youthDevelopmentTerms = [
   'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
   'development', 'academy', 'primavera', 'reserves', 'juvenil', 'cadete', 'infantil'
@@ -36,7 +36,7 @@ export const youthDevelopmentTerms = [
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
  * @param awayTeamName - The name of the away team
- * @param applyYouthFilter - Whether to apply youth/development filtering (when match count > 10)
+ * @param applyYouthFilter - Whether to apply youth/development limiting (when match count > 10)
  * @returns true if the fixture should be excluded, false otherwise
  */
 export const shouldExcludeMatchByCountry = (
@@ -95,14 +95,14 @@ export const shouldExcludeMatchByCountry = (
   // If main exclusion applies, exclude the match
   if (isMainExcluded) return true;
 
-  // If youth filter is enabled and this is a youth match, exclude it
+  // If youth filter is enabled and this is a youth match, apply limiting logic
   if (applyYouthFilter) {
     const isYouthMatch = youthDevelopmentTerms.some(term => 
       league.includes(term) || 
       homeTeam.includes(term) || 
       awayTeam.includes(term)
     );
-    if (isYouthMatch) return true;
+    if (isYouthMatch) return true; // Still exclude when limiting is needed
   }
 
   return false;
@@ -142,10 +142,35 @@ export const isEsportsMatch = (leagueName: string, homeTeamName: string, awayTea
 /**
  * Check if a match is from youth/development leagues
  */
-export const isYouthMatch = (leagueName: string): boolean => {
+export const isYouthMatch = (leagueName: string, homeTeamName?: string, awayTeamName?: string): boolean => {
   const league = leagueName.toLowerCase();
+  const homeTeam = homeTeamName?.toLowerCase() || '';
+  const awayTeam = awayTeamName?.toLowerCase() || '';
   
-  return youthDevelopmentTerms.some(term => league.includes(term));
+  return youthDevelopmentTerms.some(term => 
+    league.includes(term) || 
+    homeTeam.includes(term) || 
+    awayTeam.includes(term)
+  );
+};
+
+/**
+ * Check if a match should be limited (youth matches when there are too many)
+ * This is used for priority-based filtering instead of hard exclusion
+ */
+export const shouldLimitYouthMatch = (
+  leagueName: string,
+  homeTeamName: string,
+  awayTeamName: string,
+  totalMatchCount: number,
+  maxMatches: number = 10
+): boolean => {
+  // Only apply youth limiting when we have more matches than the limit
+  if (totalMatchCount <= maxMatches) {
+    return false;
+  }
+  
+  return isYouthMatch(leagueName, homeTeamName, awayTeamName);
 };
 
 /**
