@@ -705,7 +705,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           .map((leagueData: any, leagueIndex: number) => {
             const isFirstCard = countryIndex === 0 && leagueIndex === 0;
             return (
-              <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? '-mt-4 pt-0' : 'py-4'}`}>
+              <Card key={`${countryData.country}-${leagueData.league.id}`} className="border bg-card text-card-foreground shadow-md overflow-hidden py-4 mt-[16px] mb-[16px] pt-[0px] pb-[0px]">
                 {/* League Header - Always show unless time filter is active */}
                 {!timeFilterActive && (
                   <>
