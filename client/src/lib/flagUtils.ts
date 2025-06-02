@@ -446,7 +446,7 @@ export function generateFlagSources(country: string): string[] {
 
   // Special cases for international competitions - use local file
   if (cleanCountry === 'World') {
-    return ['/assets/world flag_new.png'];
+    return ['/assets/world_flag_new.png'];
   }
 
   if (cleanCountry === 'Europe') {
@@ -708,7 +708,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
       } else {
         // Special cases for international competitions
         if (cleanCountry === 'World') {
-          result = '/assets/world flag_new.png';
+          result = '/assets/world_flag_new.png';
           console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
         } else if (cleanCountry === 'Europe') {
           result = 'https://flagcdn.com/w40/eu.png';
@@ -1923,7 +1923,7 @@ async function fetchIndividualFlag(country: string): Promise<string> {
 
   // Special cases first
   if (country === 'World') {
-    const worldFlag = '/assets/world flag_new.png';
+    const worldFlag = '/assets/world_flag_new.png';
     console.log(`🌍 [flagUtils.ts:fetchIndividualFlag] Special case - World flag: ${worldFlag}`);
     flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
     return worldFlag;
