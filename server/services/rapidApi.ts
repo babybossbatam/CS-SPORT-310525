@@ -123,7 +123,7 @@ export const rapidApiService = {
             if (response.data && response.data.response) {
               const dateFixtures = response.data.response;
 
-              // Filter fixtures that match the requested date in ANY timezone
+              // Filter fixtures using 365scores simple approach
               const validFixtures = dateFixtures.filter((fixture: any) => {
                 try {
                   // Check date validity
@@ -131,10 +131,7 @@ export const rapidApiService = {
                     return false;
                   }
                   
-                  const apiDateString = fixture.fixture.date;
-                  const fixtureDate = new Date(apiDateString);
-                  
-                  // 365scores approach: Check if fixture falls on requested date in multiple timezone interpretations
+                  // 365scores approach: Simple date matching
                   const validDateChecks = this.isFixtureValidForDate(fixture, date);
                   
                   if (!validDateChecks.isValid) {
@@ -262,68 +259,23 @@ export const rapidApiService = {
   },
 
   /**
-   * 365scores.com approach: Comprehensive timezone-aware date validation
+   * 365scores.com approach: Simple date validation matching their method
    */
   isFixtureValidForDate(fixture: any, targetDate: string): { isValid: boolean, matchMethod?: string } {
     try {
       const apiDateString = fixture.fixture.date;
-      const fixtureDate = new Date(apiDateString);
       
-      // Method 1: Direct string comparison (original API format)
-      let directDateString = '';
-      if (apiDateString.includes('T')) {
-        directDateString = apiDateString.split('T')[0];
-      } else if (apiDateString.includes(' ')) {
-        directDateString = apiDateString.split(' ')[0];
-      } else {
-        directDateString = apiDateString;
-      }
+      // 365scores approach: Simple date extraction from API response
+      // They typically just extract the date part from the API's timestamp
+      const fixtureDate = apiDateString.split('T')[0];
       
-      if (directDateString === targetDate) {
-        return { isValid: true, matchMethod: 'direct' };
-      }
-      
-      // Method 2: UTC conversion
-      const utcDateString = fixtureDate.toISOString().split('T')[0];
-      if (utcDateString === targetDate) {
-        return { isValid: true, matchMethod: 'utc' };
-      }
-      
-      // Method 3: Timezone offset handling (365scores approach)
-      if (apiDateString.includes('+') || (apiDateString.includes('-') && apiDateString.lastIndexOf('-') > 10)) {
-        // Extract timezone offset from strings like "2025-06-02T00:00:00+01:00"
-        const timezoneMatch = apiDateString.match(/([+-])(\d{2}):(\d{2})$/);
-        if (timezoneMatch) {
-          const [, sign, hours, minutes] = timezoneMatch;
-          const offsetMinutes = (parseInt(hours) * 60 + parseInt(minutes)) * (sign === '+' ? 1 : -1);
-          
-          // Create date object and apply timezone offset
-          const baseDate = new Date(apiDateString.replace(/([+-]\d{2}:\d{2})$/, 'Z'));
-          const adjustedDate = new Date(baseDate.getTime() - (offsetMinutes * 60 * 1000));
-          const timezoneAdjustedDate = adjustedDate.toISOString().split('T')[0];
-          
-          if (timezoneAdjustedDate === targetDate) {
-            return { isValid: true, matchMethod: 'timezone-adjusted' };
-          }
-        }
-      }
-      
-      // Method 4: Local timezone interpretation (365scores approach)
-      // Check if the fixture falls on the target date in multiple common timezones
-      const commonTimezones = [0, -300, -480, 60, 120, 330, 540]; // UTC, EST, PST, CET, EET, IST, JST (in minutes)
-      
-      for (const tzOffset of commonTimezones) {
-        const localDate = new Date(fixtureDate.getTime() + (tzOffset * 60 * 1000));
-        const localDateString = localDate.toISOString().split('T')[0];
-        
-        if (localDateString === targetDate) {
-          return { isValid: true, matchMethod: `timezone-${tzOffset}` };
-        }
+      if (fixtureDate === targetDate) {
+        return { isValid: true, matchMethod: '365scores-style' };
       }
       
       return { isValid: false };
     } catch (error) {
-      console.error('Error in timezone validation:', error);
+      console.error('Error in date validation:', error);
       return { isValid: false };
     }
   },
