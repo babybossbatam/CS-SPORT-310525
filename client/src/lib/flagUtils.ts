@@ -826,14 +826,8 @@ export function createCountryFlagFallbackHandler(country: string) {
         isHandling = false;
       }
     }, 100); // Reduced timeout for faster fallback
-  } else {
-        console.log(`All flag sources failed for ${country}, using final fallback`);
-        img.src = '/assets/fallback-logo.svg';
-      }
-
-      isHandling = false;
-    }, 100); // Small delay to prevent flickering
   };
+}
 }
 
 /**
