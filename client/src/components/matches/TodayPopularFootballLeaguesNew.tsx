@@ -731,7 +731,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       </div>
                     ) : (
                       <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 pt-[12px] pb-[12px] mt-[0px] mb-[0px]">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Popular Football Leagues</h3>
                         <img
                           src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                           alt={leagueData.league.name || 'Unknown League'}
@@ -742,6 +741,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           }}
                         />
                         <div className="flex flex-col">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-1">Popular Football Leagues</h3>
                           <span className="font-semibold text-base text-gray-800">
                             {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                           </span>
