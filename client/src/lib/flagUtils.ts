@@ -724,14 +724,14 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
               result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
               console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${result}`);
             } else if (countryCode.startsWith('GB-')) {
-              // For special codes like GB-ENG, try FlagCDN with main country code
-                result = `https://flagcdn.com/w40/gb.png`;
-                console.log(`🇬🇧 [flagUtils.ts:getCountryFlagWithFallbackSync] Using GB fallback for ${cleanCountry}: ${result}`);
-              } else {
-                // For other special codes, try API-Sports
-                result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
-                console.log(`🏴 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API-Sports for ${cleanCountry}: ${result}`);
-              }
+              // For GB subdivision codes like GB-ENG, GB-SCT, etc., try FlagCDN first
+              result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+              console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [flagUtils.ts:getCountryFlagWithFallbackSync] Using GB subdivision flag for ${cleanCountry}: ${countryCode} -> ${result}`);
+            } else {
+              // For other special codes, try API-Sports
+              result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
+              console.log(`🏴 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API-Sports for ${cleanCountry}: ${result}`);
+            }
           } else {
             console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No country code found for: ${cleanCountry}`);
             // Fallback to API endpoint for unmapped countries

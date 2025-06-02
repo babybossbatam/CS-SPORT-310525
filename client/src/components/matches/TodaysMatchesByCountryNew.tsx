@@ -737,9 +737,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               target.src = '/assets/fallback-logo.svg';
                               return;
                             }
-                            // For England, try alternative sources
-                            if (countryData.country === 'England' && !target.src.includes('fallback-logo.svg')) {
-                              if (target.src.includes('gb-eng')) {
+                            // For England and other GB subdivisions, try GB flag as fallback
+                            if ((countryData.country === 'England' || countryData.country === 'Scotland' || 
+                                 countryData.country === 'Wales' || countryData.country === 'Northern Ireland') && 
+                                !target.src.includes('fallback-logo.svg')) {
+                              if (target.src.includes('gb-eng') || target.src.includes('gb-sct') || 
+                                  target.src.includes('gb-wls') || target.src.includes('gb-nir')) {
                                 target.src = 'https://flagcdn.com/w40/gb.png'; // Fallback to GB flag
                               } else if (target.src.includes('/gb.png')) {
                                 target.src = '/assets/fallback-logo.svg';
