@@ -111,16 +111,57 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
     });
 
-    // Additional mappings for common variations
+    // Additional mappings for common variations and full country names from API
     const additionalMappings: { [key: string]: string } = {
       'czech republic': 'Czech-Republic',
       'india': 'India',
       'ae': 'United Arab Emirates',
       'united arab emirates': 'United Arab Emirates',
+      'united arab emirates (the)': 'United Arab Emirates',
       'uae': 'United Arab Emirates',
       'ba': 'Bosnia & Herzegovina',
       'mk': 'North Macedonia',
-      'sa': 'Saudi Arabia'
+      'sa': 'Saudi Arabia',
+      'saudi arabia': 'Saudi Arabia',
+      'gb': 'United Kingdom',
+      'gbr': 'United Kingdom', 
+      'united kingdom': 'United Kingdom',
+      'united kingdom of great britain and northern ireland': 'United Kingdom',
+      'united kingdom of great britain and northern ireland (the)': 'United Kingdom',
+      'us': 'United States',
+      'usa': 'United States',
+      'united states': 'United States',
+      'united states of america': 'United States',
+      'united states minor outlying islands': 'United States',
+      'united states minor outlying islands (the)': 'United States',
+      'um': 'United States',
+      'umi': 'United States',
+      'korea republic': 'South Korea',
+      'korea (republic of)': 'South Korea',
+      'korea democratic people\'s republic': 'North Korea',
+      'korea (democratic people\'s republic of)': 'North Korea',
+      'iran islamic republic': 'Iran',
+      'iran (islamic republic of)': 'Iran',
+      'russian federation': 'Russia',
+      'russian federation (the)': 'Russia',
+      'venezuela bolivarian republic': 'Venezuela',
+      'venezuela (bolivarian republic of)': 'Venezuela',
+      'bolivia plurinational state': 'Bolivia',
+      'bolivia (plurinational state of)': 'Bolivia',
+      'tanzania united republic': 'Tanzania',
+      'tanzania (united republic of)': 'Tanzania',
+      'moldova republic': 'Moldova',
+      'moldova (republic of)': 'Moldova',
+      'macedonia former yugoslav republic': 'North Macedonia',
+      'macedonia (the former yugoslav republic of)': 'North Macedonia',
+      'palestinian territory occupied': 'Palestine',
+      'palestinian territory (occupied)': 'Palestine',
+      'palestine state': 'Palestine',
+      'palestine (state of)': 'Palestine',
+      'congo democratic republic': 'Democratic Republic of Congo',
+      'congo (the democratic republic of the)': 'Democratic Republic of Congo',
+      'lao people\'s democratic republic': 'Laos',
+      'lao people\'s democratic republic (the)': 'Laos'
     };
 
     const cleanCountry = country.trim().toLowerCase();
@@ -207,12 +248,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return acc;
     }
 
-    // Only allow valid country names, World, and Europe
+    // Allow valid country names, World, Europe, and various country name formats
     const validCountry = country.trim();
-    if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
+    if (validCountry.length === 0) {
       console.warn('Skipping fixture with empty country name:', country, fixture);
       return acc;
     }
+
+    // Accept all non-empty country names (including long official names)
+    // The getCountryDisplayName function will handle the mapping
 
     const leagueId = league.id;
 
