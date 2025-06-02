@@ -57,12 +57,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const cachedFixtures = getCachedFixturesForDate(selectedDate);
       if (cachedFixtures) {
         console.log(`✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`);
-        console.log(`📊 [DEBUG] Raw cached fixtures breakdown:`, {
+        
+        // Detailed API data analysis
+        const apiAnalysis = {
           totalFixtures: cachedFixtures.length,
-          countries: [...new Set(cachedFixtures.map(f => f.league?.country).filter(Boolean))],
-          leagues: [...new Set(cachedFixtures.map(f => f.league?.name).filter(Boolean))],
-          statuses: [...new Set(cachedFixtures.map(f => f.fixture?.status?.short).filter(Boolean))]
-        });
+          countries: [...new Set(cachedFixtures.map(f => f.league?.country).filter(Boolean))].length,
+          leagues: [...new Set(cachedFixtures.map(f => f.league?.name).filter(Boolean))].length,
+          statuses: [...new Set(cachedFixtures.map(f => f.fixture?.status?.short).filter(Boolean))],
+          dateRange: {
+            earliest: cachedFixtures.reduce((min, f) => f.fixture?.date < min ? f.fixture.date : min, cachedFixtures[0]?.fixture?.date || ''),
+            latest: cachedFixtures.reduce((max, f) => f.fixture?.date > max ? f.fixture.date : max, cachedFixtures[0]?.fixture?.date || '')
+          },
+          sampleFixtures: cachedFixtures.slice(0, 5).map(f => ({
+            id: f.fixture?.id,
+            date: f.fixture?.date,
+            status: f.fixture?.status?.short,
+            league: f.league?.name,
+            country: f.league?.country,
+            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`
+          }))
+        };
+        
+        console.log(`📊 [DEBUG] API Data Analysis:`, apiAnalysis);
         return cachedFixtures;
       }
 
@@ -74,12 +90,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (data && Array.isArray(data)) {
         cacheFixturesForDate(selectedDate, data, 'api');
         console.log(`💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`);
-        console.log(`📊 [DEBUG] Raw API fixtures breakdown:`, {
+        
+        // Detailed API data analysis for fresh data
+        const apiAnalysis = {
           totalFixtures: data.length,
-          countries: [...new Set(data.map(f => f.league?.country).filter(Boolean))],
-          leagues: [...new Set(data.map(f => f.league?.name).filter(Boolean))],
-          statuses: [...new Set(data.map(f => f.fixture?.status?.short).filter(Boolean))]
-        });
+          countries: [...new Set(data.map(f => f.league?.country).filter(Boolean))].length,
+          leagues: [...new Set(data.map(f => f.league?.name).filter(Boolean))].length,
+          statuses: [...new Set(data.map(f => f.fixture?.status?.short).filter(Boolean))],
+          dateRange: {
+            earliest: data.reduce((min, f) => f.fixture?.date < min ? f.fixture.date : min, data[0]?.fixture?.date || ''),
+            latest: data.reduce((max, f) => f.fixture?.date > max ? f.fixture.date : max, data[0]?.fixture?.date || '')
+          },
+          sampleFixtures: data.slice(0, 5).map(f => ({
+            id: f.fixture?.id,
+            date: f.fixture?.date,
+            status: f.fixture?.status?.short,
+            league: f.league?.name,
+            country: f.league?.country,
+            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`
+          }))
+        };
+        
+        console.log(`📊 [DEBUG] Fresh API Data Analysis:`, apiAnalysis);
       }
 
       return data;
@@ -254,12 +286,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   });
 
-  console.log(`📊 [DEBUG] Date filtering results:`, {
+  // Comprehensive filtering analysis
+  const filterAnalysis = {
+    selectedDate,
     originalCount: fixtures.length,
     filteredCount: allFixtures.length,
-    selectedDate,
-    removedCount: fixtures.length - allFixtures.length
-  });
+    removedCount: fixtures.length - allFixtures.length,
+    removedFixtures: fixtures.filter(f => !allFixtures.includes(f)).slice(0, 10).map(f => ({
+      id: f.fixture?.id,
+      date: f.fixture?.date,
+      status: f.fixture?.status?.short,
+      league: f.league?.name,
+      country: f.league?.country,
+      teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+      reason: 'Date mismatch'
+    })),
+    statusBreakdown: {
+      original: [...new Set(fixtures.map(f => f.fixture?.status?.short).filter(Boolean))],
+      filtered: [...new Set(allFixtures.map(f => f.fixture?.status?.short).filter(Boolean))]
+    },
+    dateBreakdown: {
+      original: [...new Set(fixtures.map(f => f.fixture?.date?.split('T')[0]).filter(Boolean))],
+      filtered: [...new Set(allFixtures.map(f => f.fixture?.date?.split('T')[0]).filter(Boolean))]
+    }
+  };
+
+  console.log(`📊 [DEBUG] Comprehensive Filtering Analysis:`, filterAnalysis);
 
   // Group fixtures by country and league with comprehensive null checks
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
@@ -387,20 +439,36 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return acc;
   }, {});
 
-  // Final summary of grouped data
+  // Final summary of grouped data with comprehensive analysis
   const countryStats = Object.entries(fixturesByCountry).map(([country, data]: [string, any]) => ({
     country,
     totalMatches: Object.values(data.leagues).reduce((sum: number, league: any) => sum + league.matches.length, 0),
     leagues: Object.keys(data.leagues).length,
-    leagueNames: Object.values(data.leagues).map((l: any) => l.league.name)
+    leagueNames: Object.values(data.leagues).map((l: any) => l.league.name),
+    sampleMatches: Object.values(data.leagues).flatMap((l: any) => l.matches).slice(0, 3).map((m: any) => ({
+      id: m.fixture?.id,
+      date: m.fixture?.date,
+      status: m.fixture?.status?.short,
+      teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`
+    }))
   }));
 
-  console.log(`📊 [DEBUG] Final grouping summary:`, {
+  const groupingAnalysis = {
+    selectedDate,
     totalCountries: Object.keys(fixturesByCountry).length,
     totalMatches: countryStats.reduce((sum, c) => sum + c.totalMatches, 0),
-    countriesWithMatches: countryStats.filter(c => c.totalMatches > 0),
-    breakdown: countryStats
-  });
+    totalLeagues: countryStats.reduce((sum, c) => sum + c.leagues, 0),
+    countriesWithMatches: countryStats.filter(c => c.totalMatches > 0).length,
+    topCountries: countryStats.sort((a, b) => b.totalMatches - a.totalMatches).slice(0, 5),
+    pipeline: {
+      step1_rawFixtures: fixtures.length,
+      step2_dateFiltered: allFixtures.length,
+      step3_countryGrouped: countryStats.reduce((sum, c) => sum + c.totalMatches, 0),
+      step4_exclusionFiltered: countryStats.reduce((sum, c) => sum + c.totalMatches, 0)
+    }
+  };
+
+  console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
 
   // Sort countries alphabetically A-Z
   const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
