@@ -92,14 +92,29 @@ export const rapidApiService = {
         console.log(`Fetching ALL fixtures for date ${date} from all countries and leagues`);
 
         // Fetch all fixtures for the date without league restrictions
+        console.log(`🌍 [RapidAPI] Making API request for date: ${date} with UTC timezone`);
+        
         const response = await apiClient.get('/fixtures', {
           params: { 
             date: date,
+            timezone: 'UTC', // Explicitly specify UTC timezone
             // Don't specify league parameter to get all leagues
           }
         });
 
-        console.log(`API response for all fixtures on ${date}: status ${response.status}, results: ${response.data?.results || 0}`);
+        console.log(`📡 [RapidAPI] API response for all fixtures on ${date}: status ${response.status}, results: ${response.data?.results || 0}`);
+        
+        // Debug: Log the actual dates in the response
+        if (response.data?.response?.length > 0) {
+          const sampleFixtures = response.data.response.slice(0, 5);
+          console.log(`🔍 [RapidAPI] Sample fixture dates from API:`, sampleFixtures.map(f => ({
+            id: f.fixture?.id,
+            requestedDate: date,
+            apiReturnedDate: f.fixture?.date,
+            dateMatch: f.fixture?.date?.startsWith(date),
+            timezone: 'UTC_requested'
+          })));
+        }
 
         if (response.data && response.data.response) {
           const dateFixtures = response.data.response;
@@ -108,10 +123,27 @@ export const rapidApiService = {
           const validFixtures = dateFixtures.filter((fixture: any) => {
             try {
               // Check date validity
-              if (!fixture?.fixture?.date) return false;
+              if (!fixture?.fixture?.date) {
+                console.log(`❌ [RapidAPI] Filtering out fixture with no date:`, fixture.fixture?.id);
+                return false;
+              }
+              
               const fixtureDate = new Date(fixture.fixture.date);
               const fixtureDateString = fixtureDate.toISOString().split('T')[0];
-              if (fixtureDateString !== date) return false;
+              
+              // Strict date validation - reject any fixture that doesn't match the requested date
+              if (fixtureDateString !== date) {
+                console.log(`🚫 [RapidAPI] Date mismatch - REJECTING fixture:`, {
+                  fixtureId: fixture.fixture.id,
+                  requestedDate: date,
+                  apiReturnedDate: fixture.fixture.date,
+                  extractedDate: fixtureDateString,
+                  league: fixture.league?.name,
+                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                  status: fixture.fixture?.status?.short
+                });
+                return false;
+              }
 
               // Check required data structure
               if (!fixture.league || !fixture.league.id || !fixture.league.name) return false;
@@ -292,9 +324,12 @@ export const rapidApiService = {
     }
 
     try {
-      console.log('RapidAPI: Fetching live fixtures...');
+      console.log('🔴 [RapidAPI] Fetching live fixtures with UTC timezone...');
       const response = await apiClient.get('/fixtures', {
-        params: { live: 'all' }
+        params: { 
+          live: 'all',
+          timezone: 'UTC' // Explicitly specify UTC timezone for live fixtures too
+        }
       });
 
       if (response.data && response.data.response && response.data.response.length > 0) {

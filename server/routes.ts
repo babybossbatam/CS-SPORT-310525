@@ -265,6 +265,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { date } = req.params;
       const { all } = req.query;
 
+      // Validate date format first
+      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        console.log(`❌ [Routes] Invalid date format: ${date}`);
+        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+
+      // Additional date validation - ensure it's a valid date
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime()) || dateObj.toISOString().split('T')[0] !== date) {
+        console.log(`❌ [Routes] Invalid date value: ${date}`);
+        return res.status(400).json({ error: 'Invalid date value' });
+      }
+
+      console.log(`🎯 [Routes] Processing request for validated date: ${date} (all=${all})`);
+
       // Check cache first to prevent frequent API calls
       const cacheKey = all === 'true' ? `date-all:${date}` : `date:${date}`;
       const cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
@@ -275,8 +290,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         if (cacheAge < 2 * 60 * 60 * 1000) { // 2 hours (increased from 30 minutes)
-          console.log(`Returning ${cachedFixtures.length} cached fixtures for date ${date} (all=${all})`);
-          return res.json(cachedFixtures.map(fixture => fixture.data));
+          // Validate cached fixtures have correct dates before serving
+          const validCachedFixtures = cachedFixtures.filter(fixture => {
+            const fixtureData = fixture.data as any;
+            if (!fixtureData?.fixture?.date) return false;
+            
+            const fixtureDate = new Date(fixtureData.fixture.date);
+            const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+            
+            if (fixtureDateString !== date) {
+              console.log(`🚫 [Routes] Found cached fixture with wrong date:`, {
+                requestedDate: date,
+                cachedFixtureDate: fixtureDateString,
+                fixtureId: fixtureData.fixture.id
+              });
+              return false;
+            }
+            return true;
+          });
+
+          if (validCachedFixtures.length > 0) {
+            console.log(`✅ [Routes] Returning ${validCachedFixtures.length} validated cached fixtures for date ${date} (all=${all})`);
+            return res.json(validCachedFixtures.map(fixture => fixture.data));
+          } else {
+            console.log(`🗑️ [Routes] All cached fixtures had wrong dates, will fetch fresh data for ${date}`);
+          }
+        } else {
+          console.log(`⏰ [Routes] Cache expired for ${date}, age: ${Math.round(cacheAge / 60000)} minutes`);
         }
       }
 
@@ -312,42 +352,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      // If we got fixtures, cache them
+      // If we got fixtures, validate dates before caching
       if (fixtures && fixtures.length > 0) {
-        try {
-          // Cache new fixtures - but use updateCachedFixture to handle potential duplicates
-          // We'll update if exists or create if not exists
-          for (const fixture of fixtures) {
-            try {
-              const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
-              const existingFixture = await storage.getCachedFixture(fixtureId);
-
-              if (existingFixture) {
-                // Update existing fixture
-                await storage.updateCachedFixture(fixtureId, fixture);
-              } else {
-                // Create new fixture
-                await storage.createCachedFixture({
-                  fixtureId: fixtureId,
-                  data: fixture,
-                  league: cacheKey,
-                  date: date
-                });
-              }
-            } catch (error) {
-              // Log but continue with other fixtures
-              const individualError = error as Error;
-              console.error(`Error caching individual fixture ${fixture.fixture.id}:`, individualError.message || 'Unknown error');
-            }
+        // Final validation: ensure all fixtures match the requested date
+        const validFixtures = fixtures.filter(fixture => {
+          if (!fixture?.fixture?.date) return false;
+          const fixtureDate = new Date(fixture.fixture.date);
+          const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+          
+          if (fixtureDateString !== date) {
+            console.log(`🚫 [Routes] Final validation - rejecting fixture with wrong date:`, {
+              requestedDate: date,
+              fixtureDate: fixtureDateString,
+              fixtureId: fixture.fixture.id
+            });
+            return false;
           }
+          return true;
+        });
+
+        console.log(`📊 [Routes] Date validation results: ${fixtures.length} received, ${validFixtures.length} valid for ${date}`);
+
+        if (validFixtures.length > 0) {
+          try {
+            // Cache only validated fixtures
+            for (const fixture of validFixtures) {
+              try {
+                const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
+                const existingFixture = await storage.getCachedFixture(fixtureId);
+
+                if (existingFixture) {
+                  // Update existing fixture
+                  await storage.updateCachedFixture(fixtureId, fixture);
+                } else {
+                  // Create new fixture
+                  await storage.createCachedFixture({
+                    fixtureId: fixtureId,
+                    data: fixture,
+                    league: cacheKey,
+                    date: date
+                  });
+                }
+              } catch (error) {
+                // Log but continue with other fixtures
+                const individualError = error as Error;
+                console.error(`Error caching individual fixture ${fixture.fixture.id}:`, individualError.message || 'Unknown error');
+              }
+            }
         } catch (cacheError) {
-          console.error(`Error caching fixtures for date ${date}:`, cacheError);
-          // Continue even if caching fails
+            console.error(`Error caching fixtures for date ${date}:`, cacheError);
+            // Continue even if caching fails
+          }
+
+          console.log(`✅ [Routes] Successfully cached and returning ${validFixtures.length} validated fixtures for ${date}`);
+          return res.json(validFixtures);
+        } else {
+          console.log(`❌ [Routes] No valid fixtures found for ${date} after validation`);
+          return res.json([]);
         }
       }
 
-      // Return fixtures whether from API or empty array
-      return res.json(fixtures || []);
+      // Return empty array if no fixtures
+      console.log(`📭 [Routes] No fixtures received from API for ${date}`);
+      return res.json([]);
     } catch (error) {
       console.error('Error fetching fixtures by date:', error);
       // Return empty array instead of error to avoid breaking frontend
