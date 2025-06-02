@@ -173,10 +173,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     const cleanCountry = country.trim().toLowerCase();
     const displayName = countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
-    
+
     // Cache the result for future use
     setCachedCountryName(country, displayName, 'country-mapping');
-    
+
     return displayName;
   };
 
@@ -766,8 +766,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   <div className="text-xs text-gray-600 font-semibold mb-1">
                                                     {status === 'FT' ? 'ENDED' : status}
                                                   </div>
-                                                  <div className="text-lg font-bold text-gray-900```text
- flex items-center gap-2">
+                                                  <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                                     <span>{homeScore}</span>
                                                     <span className="text-gray-400">-</span>
                                                     <span>{awayScore}</span>
@@ -811,7 +810,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
                                                   {statusText}
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-1">```text
+                                                <div className="text-xs text-gray-500 mt-1">
                                                   {format(fixtureDate, 'HH:mm')}
                                                 </div>
                                               </>

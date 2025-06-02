@@ -70,12 +70,12 @@ class LogoCache {
   }
 
   setCached(key: string, url: string, source: string, verified: boolean = false) {
-    console.log(`💾 [logoCache.ts:setCached] Setting cache for key: ${key}`, {
-      url,
-      source,
-      verified,
-      timestamp: Date.now()
-    });
+    const isColombiaFlag = key.includes('colombia');
+    const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
+
+    if (isColombiaFlag) {
+      console.log(`🇨🇴 [logoCache.ts:setCached] COLOMBIA FLAG CACHE SET - Key: ${key} | URL: ${url} | Source: ${source} | Called from: ${caller}`);
+    }
 
     this.cache.set(key, {
       url,
@@ -84,10 +84,35 @@ class LogoCache {
       verified,
       retryCount: 0
     });
+
+    console.log(`💾 [logoCache.ts:setCached] Setting cache for key: ${key}`, {
+      url,
+      source,
+      verified,
+      timestamp: Date.now()
+    });
+
+    if (isColombiaFlag) {
+      console.log(`🇨🇴 [logoCache.ts:setCached] COLOMBIA FLAG - Successfully cached:`, {
+        key,
+        url,
+        source,
+        verified,
+        timestamp: new Date(Date.now()).toISOString(),
+        cacheSize: this.cache.size
+      });
+    }
   }
 
   // Get from cache first
   getCached(key: string): CachedItem | null {
+    const isColombiaFlag = key.includes('colombia');
+    const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
+
+    if (isColombiaFlag) {
+      console.log(`🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG LOOKUP - Key: ${key} | Called from: ${caller}`);
+    }
+
     const item = this.cache.get(key);
 
     console.log(`🔍 [logoCache.ts:getCached] Cache lookup for key: ${key}`, {
@@ -97,6 +122,9 @@ class LogoCache {
 
     if (!item) {
       console.log(`❌ [logoCache.ts:getCached] Cache miss for key: ${key}`);
+      if (isColombiaFlag) {
+        console.log(`🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Cache miss! No entry found`);
+      }
       return null;
     }
 
@@ -117,13 +145,29 @@ class LogoCache {
       source: item.source
     });
 
+    if (isColombiaFlag) {
+      console.log(`🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Found in cache:`, {
+        url: item.url,
+        source: item.source,
+        ageMinutes,
+        isExpired: age > maxAge,
+        timestamp: new Date(item.timestamp).toISOString()
+      });
+    }
+
     if (age > maxAge) {
-      console.log(`🗑️ Cache expired for ${key} (age: ${ageMinutes} min, max: ${maxAgeMinutes} min)`);
+      console.log(`🗑️ Cache expired for ${key} (age: ${ageMinutes} min)`);
+      if (isColombiaFlag) {
+        console.log(`🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Cache expired, removing entry`);
+      }
       this.cache.delete(key);
       return null;
     }
 
     console.log(`✅ [logoCache.ts:getCached] Cache hit for ${key} (age: ${ageMinutes} min)`);
+    if (isColombiaFlag) {
+      console.log(`🇨🇴 [logoCache.ts:getCached] COLOMBIA FLAG - Cache hit! Returning: ${item.url}`);
+    }
     return item;
   }
 

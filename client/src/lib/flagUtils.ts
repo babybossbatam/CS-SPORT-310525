@@ -512,41 +512,106 @@ export function generateFlagSources(country: string): string[] {
 }
 
 /**
- * Get cached flag or fetch with fallback - Simplified individual fetch approach
+ * Get cached flag or fetch with fallback - Now uses individual fetch for easier debugging
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+  const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
 
-  console.log(`🔍 [flagUtils.ts:getCachedFlag] getCachedFlag called for: ${country}`);
+  console.log(`🔍 [flagUtils.ts:getCachedFlag] Called for: ${country} | Cache Key: ${cacheKey} | Called from: ${caller}`);
+
+  // Track request patterns
+  trackFlagRequest(country, cacheKey);
 
   // Track usage for intelligent caching
   trackFlagUsage(country);
 
-  // PRIORITY 1: Always check cache first
+  // PRIORITY 1: Always check cache first - use any valid cached result
   const cached = flagCache.getCached(cacheKey);
   if (cached) {
     const age = Date.now() - cached.timestamp;
+    const ageMinutes = Math.round(age / 1000 / 60);
+
+    // Use any cached result if it's not too old
     const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
       ? 60 * 60 * 1000  // 1 hour for fallbacks
       : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     if (age < maxAge) {
-      console.log(`✅ Cache hit for ${country}`);
+      console.log(`✅ [flagUtils.ts:getCachedFlag] Cache hit for ${country} (age: ${ageMinutes} min) | URL: ${cached.url} | Source: ${cached.source}`);
       return cached.url;
+    } else {
+      console.log(`⚠️ [flagUtils.ts:getCachedFlag] Cache expired for ${country} (age: ${ageMinutes} min, max: ${Math.round(maxAge / 1000 / 60)} min) | Will refetch`);
     }
+  } else {
+    console.log(`❌ [flagUtils.ts:getCachedFlag] Cache miss for ${country} | Cache key: ${cacheKey}`);
   }
 
-  // Check if there's already a pending request to avoid duplicates
+  // Check if there's already a pending request for this country
   if (pendingFlagRequests.has(cacheKey)) {
-    console.log(`⏳ Pending request exists for ${country}`);
+    console.log(`⏳ [flagUtils.ts:getCachedFlag] Pending request exists for ${country}, waiting...`);
     return pendingFlagRequests.get(cacheKey)!;
   }
 
-  // Create individual fetch promise
-  const flagPromise = fetchSingleFlag(country);
+  // For immediate special cases, don't use batching
+  if (country === 'World') {
+    const worldFlag = '/assets/world-flag.png';
+    flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
+    console.log(`🌍 [flagUtils.ts:getCachedFlag] Using local World flag: ${worldFlag}`);
+    return worldFlag;
+  }
+
+  if (country === 'Europe') {
+    const europeFlag = 'https://flagcdn.com/w40/eu.png';
+    flagCache.setCached(cacheKey, europeFlag, 'europe-direct', true);
+    console.log(`🇪🇺 [flagUtils.ts:getCachedFlag] Using Europe flag: ${europeFlag}`);
+    return europeFlag;
+  }
+
+  // For regular countries, check if they have simple country code mappings first
+  const normalizedCountry = country.trim();
+  let countryCode = countryCodeMap[normalizedCountry];
+  
+  console.log(`🔍 [flagUtils.ts:getCachedFlag] Country mapping lookup for "${normalizedCountry}":`, {
+    directMapping: countryCode,
+    hasDirectMapping: !!countryCode
+  });
+
+  if (!countryCode && normalizedCountry.includes('-')) {
+    const spaceVersion = normalizedCountry.replace(/-/g, ' ');
+    countryCode = countryCodeMap[spaceVersion];
+    console.log(`🔍 [flagUtils.ts:getCachedFlag] Trying space variation "${spaceVersion}": ${countryCode || 'not found'}`);
+  }
+
+  if (!countryCode && normalizedCountry.includes(' ')) {
+    const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
+    countryCode = countryCodeMap[hyphenVersion];
+    console.log(`🔍 [flagUtils.ts:getCachedFlag] Trying hyphen variation "${hyphenVersion}": ${countryCode || 'not found'}`);
+  }
+
+  // If we have a simple 2-letter country code, process immediately
+  if (countryCode && countryCode.length === 2) {
+    const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+    console.log(`🎯 [flagUtils.ts:getCachedFlag] Found 2-letter country code for ${country}: ${countryCode} -> ${flagUrl}`);
+    flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
+    console.log(`💾 [flagUtils.ts:getCachedFlag] Cached flag for ${country} with source: country-code`);
+    return flagUrl;
+  }
+
+  if (countryCode && countryCode.startsWith('GB-')) {
+    const flagUrl = `https://flagcdn.com/w40/gb.png`;
+    console.log(`🇬🇧 [flagUtils.ts:getCachedFlag] Using GB fallback for ${country}: ${flagUrl}`);
+    flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
+    return flagUrl;
+  }
+
+  // For countries that need API calls, use individual fetch instead of batching
+  console.log(`🌐 [flagUtils.ts:getCachedFlag] No direct mapping for ${country}, starting individual fetch...`);
+  const flagPromise = fetchIndividualFlag(country);
   pendingFlagRequests.set(cacheKey, flagPromise);
 
   flagPromise.finally(() => {
+    console.log(`🏁 [flagUtils.ts:getCachedFlag] Finished processing ${country}, removing from pending`);
     pendingFlagRequests.delete(cacheKey);
   });
 
@@ -602,34 +667,44 @@ export async function getCountryFlagWithFallback(
 const flagCacheMem = new Map<string, string>();
 
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
+  const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
+  console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
+
   // Check main flagCache first before memory cache
   const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
   const cached = flagCache.getCached(flagCacheKey);
   if (cached) {
-    console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Sync function using cached flag for ${country}: ${cached.url}`);
+    console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Main cache hit for ${country}: ${cached.url} | Source: ${cached.source}`);
     return cached.url;
   }
 
   // Check memory cache second
   const cacheKey = `${country}-${leagueFlag || ''}`;
   if (flagCacheMem.has(cacheKey)) {
-    return flagCacheMem.get(cacheKey)!;
+    const memCached = flagCacheMem.get(cacheKey)!;
+    console.log(`🧠 [flagUtils.ts:getCountryFlagWithFallbackSync] Memory cache hit for ${country}: ${memCached}`);
+    return memCached;
   }
+
+  console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No cache found for ${country}, generating sync...`);
 
   let result: string;
   // Use league flag if available and valid
   if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
     result = leagueFlag;
+    console.log(`🏆 [flagUtils.ts:getCountryFlagWithFallbackSync] Using league flag for ${country}: ${leagueFlag}`);
   } else {
     // Add comprehensive null/undefined check for country
     if (!country || typeof country !== 'string' || country.trim() === '') {
       result = '/assets/fallback-logo.svg';
+      console.log(`⚠️ [flagUtils.ts:getCountryFlagWithFallbackSync] Empty country, using fallback`);
     } else {
       const cleanCountry = country.trim();
 
       // Special handling for Unknown country
       if (cleanCountry === 'Unknown') {
         result = '/assets/fallback-logo.svg';
+        console.log(`❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`);
       } else {
         // Special cases for international competitions
         if (cleanCountry === 'World') {
@@ -637,41 +712,48 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
           console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
         } else if (cleanCountry === 'Europe') {
           result = 'https://flagcdn.com/w40/eu.png';
+          console.log(`🇪🇺 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Europe flag: ${result}`);
         } else {
           // Use country code mapping first for most reliable flags
           const countryCode = countryCodeMap[cleanCountry];
+          console.log(`🔍 [flagUtils.ts:getCountryFlagWithFallbackSync] Country code lookup for "${cleanCountry}": ${countryCode || 'not found'}`);
+          
           if (countryCode) {
             // For standard 2-letter codes, use FlagCDN (most reliable)
             if (countryCode.length === 2) {
               result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
-              console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Found country code for ${cleanCountry}: ${countryCode} -> ${result}`);
+              console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${result}`);
             } else if (countryCode.startsWith('GB-')) {
               // For special codes like GB-ENG, try FlagCDN with main country code
                 result = `https://flagcdn.com/w40/gb.png`;
+                console.log(`🇬🇧 [flagUtils.ts:getCountryFlagWithFallbackSync] Using GB fallback for ${cleanCountry}: ${result}`);
               } else {
                 // For other special codes, try API-Sports
                 result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
+                console.log(`🏴 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API-Sports for ${cleanCountry}: ${result}`);
               }
           } else {
             console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No country code found for: ${cleanCountry}`);
             // Fallback to API endpoint for unmapped countries
             result = `/api/flags/${encodeURIComponent(cleanCountry)}`;
+            console.log(`🌐 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API endpoint for ${cleanCountry}: ${result}`);
           }
         }
       }
     }
   }
 
-  console.log(`Flag result for ${country}:`, result);
+  console.log(`🏁 [flagUtils.ts:getCountryFlagWithFallbackSync] Final result for ${country}: ${result}`);
 
   // Cache the result in both memory cache and main flag cache
   flagCacheMem.set(cacheKey, result);
+  console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Stored in memory cache: ${cacheKey} -> ${result}`);
   
   // Also cache in the main flag cache if it's a valid flag URL (not API endpoint)
   if (result && !result.startsWith('/api/') && result !== '/assets/fallback-logo.svg') {
     const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
     flagCache.setCached(flagCacheKey, result, 'sync-cache', true);
-    console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached flag for ${country}: ${result}`);
+    console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached in main cache for ${country}: ${result} | Source: sync-cache`);
   }
 
   return result;
@@ -1746,90 +1828,198 @@ function trackFlagRequest(country: string, cacheKey: string): void {
 // Track flag usage for intelligent eviction
 const flagUsageTracker = new Map<string, { count: number, lastUsed: number }>();
 
-// Simplified request deduplication
-const pendingFlagRequests = new Map<string, Promise<string>>();
+// Batch processing for flag requests
+const flagBatchQueue = new Set<string>();
+const flagBatchCallbacks = new Map<string, Array<(url: string) => void>>();
+let batchProcessingTimeout: NodeJS.Timeout | null = null;
 
 /**
- * Fetch a single flag with optimized priority handling
+ * Process batched flag requests efficiently with improved deduplication
  */
-async function fetchSingleFlag(country: string): Promise<string> {
+async function processFlagBatch(): Promise<void> {
+  if (flagBatchQueue.size === 0) return;
+
+  const countries = Array.from(flagBatchQueue);
+  const callbacks = new Map<string, Array<(url: string) => void>>();
+
+  // Collect all callbacks for this batch
+  countries.forEach(country => {
+    const countryCallbacks = flagBatchCallbacks.get(country) || [];
+    if (countryCallbacks.length > 0) {
+      callbacks.set(country, [...countryCallbacks]);
+    }
+  });
+
+  // Clear the batch queue and callbacks
+  flagBatchQueue.clear();
+  flagBatchCallbacks.clear();
+
+  console.log(`🚀 [flagUtils.ts:processFlagBatch] Processing flag batch for ${countries.length} countries:`, countries.slice(0, 10));
+
+  // Filter out countries that are already cached or being processed
+  const countriesToProcess = countries.filter(country => {
+    const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    const cached = flagCache.getCached(cacheKey);
+    if (cached) {
+      const age = Date.now() - cached.timestamp;
+      const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
+        ? 60 * 60 * 1000  // 1 hour for fallbacks
+        : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
+
+      if (age < maxAge) {
+        // Use cached result immediately
+        const countryCallbacks = callbacks.get(country) || [];
+        countryCallbacks.forEach(callback => callback(cached.url));
+        return false; // Don't process this country
+      }
+    }
+    return true; // Process this country
+  });
+
+  if (countriesToProcess.length === 0) {
+    console.log(`✅ [flagUtils.ts:processFlagBatch] All countries were already cached, no processing needed`);
+    return;
+  }
+
+  console.log(`📊 [flagUtils.ts:processFlagBatch] Processing ${countriesToProcess.length}/${countries.length} countries (others were cached)`);
+
+  // Process countries in optimized chunks
+  const chunkSize = 5; // Smaller chunks for better performance
+  for (let i = 0; i < countriesToProcess.length; i += chunkSize) {
+    const chunk = countriesToProcess.slice(i, i + chunkSize);
+
+    const chunkPromises = chunk.map(async (country) => {
+      try {
+        const flagUrl = await fetchSingleFlag(country);
+        const countryCallbacks = callbacks.get(country) || [];
+        countryCallbacks.forEach(callback => callback(flagUrl));
+        return { country, flagUrl, success: true };
+      } catch (error) {
+        console.warn(`Failed to fetch flag for ${country} in batch:`, error);
+        const fallbackUrl = '/assets/fallback-logo.svg';
+        const countryCallbacks = callbacks.get(country) || [];
+        countryCallbacks.forEach(callback => callback(fallbackUrl));
+        return { country, flagUrl: fallbackUrl, success: false };
+      }
+    });
+
+    await Promise.allSettled(chunkPromises);
+
+    // Small delay between chunks to be respectful to external services
+    if (i + chunkSize < countriesToProcess.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
+
+  console.log(`✅ Completed flag batch processing for ${countriesToProcess.length} countries`);
+}
+
+/**
+ * Fetch a single flag individually with comprehensive debugging
+ */
+async function fetchIndividualFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-  const normalizedCountry = country.trim();
+  console.log(`🚀 [flagUtils.ts:fetchIndividualFlag] Starting individual fetch for: ${country}`);
 
-  console.log(`🚀 Fetching flag for: ${country}`);
-
-  // PRIORITY 1: Special cases (immediate return)
+  // Special cases first
   if (country === 'World') {
     const worldFlag = '/assets/world-flag.png';
+    console.log(`🌍 [flagUtils.ts:fetchIndividualFlag] Special case - World flag: ${worldFlag}`);
     flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
-    console.log(`🌍 Using local World flag: ${worldFlag}`);
     return worldFlag;
   }
 
   if (country === 'Europe') {
     const europeFlag = 'https://flagcdn.com/w40/eu.png';
+    console.log(`🇪🇺 [flagUtils.ts:fetchIndividualFlag] Special case - Europe flag: ${europeFlag}`);
     flagCache.setCached(cacheKey, europeFlag, 'europe-direct', true);
     return europeFlag;
   }
 
-  // PRIORITY 2: Country code mapping (immediate return)
+  // Try country code mapping (this should have been caught earlier, but double-check)
+  const normalizedCountry = country.trim();
   let countryCode = countryCodeMap[normalizedCountry];
+  console.log(`🔍 [flagUtils.ts:fetchIndividualFlag] Country code lookup for "${normalizedCountry}": ${countryCode || 'not found'}`);
 
-  // Try variations
   if (!countryCode && normalizedCountry.includes('-')) {
     const spaceVersion = normalizedCountry.replace(/-/g, ' ');
     countryCode = countryCodeMap[spaceVersion];
+    console.log(`🔍 [flagUtils.ts:fetchIndividualFlag] Space variation "${spaceVersion}": ${countryCode || 'not found'}`);
   }
+
   if (!countryCode && normalizedCountry.includes(' ')) {
     const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
     countryCode = countryCodeMap[hyphenVersion];
+    console.log(`🔍 [flagUtils.ts:fetchIndividualFlag] Hyphen variation "${hyphenVersion}": ${countryCode || 'not found'}`);
   }
 
-  // Standard 2-letter country codes
   if (countryCode && countryCode.length === 2) {
     const flagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using country code ${countryCode}: ${flagUrl}`);
     flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
-    console.log(`✅ Country code flag for ${country}: ${flagUrl}`);
+    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached flag for ${country}`);
     return flagUrl;
   }
 
-  // GB subdivision codes (England, Scotland, etc.)
   if (countryCode && countryCode.startsWith('GB-')) {
     const flagUrl = `https://flagcdn.com/w40/gb.png`;
+    console.log(`🇬🇧 [flagUtils.ts:fetchIndividualFlag] Using GB fallback: ${flagUrl}`);
     flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
-    console.log(`🇬🇧 GB subdivision flag for ${country}: ${flagUrl}`);
     return flagUrl;
   }
 
-  // PRIORITY 3: API fallback (async)
+  // Try API endpoint as last resort
+  console.log(`🌐 [flagUtils.ts:fetchIndividualFlag] No country code found, trying API for: ${country}`);
   try {
-    console.log(`🌐 Trying API for unmapped country: ${country}`);
     const apiUrl = `/api/flags/${encodeURIComponent(country)}`;
-    const response = await fetch(apiUrl, { 
-      signal: AbortSignal.timeout(5000),
-      headers: { 'Cache-Control': 'no-cache' }
-    });
+    console.log(`📡 [flagUtils.ts:fetchIndividualFlag] Making API request to: ${apiUrl}`);
+    
+    const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
+    console.log(`📡 [flagUtils.ts:fetchIndividualFlag] API response status: ${response.status} for ${country}`);
 
     if (response.ok) {
       const data = await response.json();
+      console.log(`📡 [flagUtils.ts:fetchIndividualFlag] API response data for ${country}:`, {
+        success: data.success,
+        hasFlag: !!data.flagUrl,
+        shouldExclude: data.shouldExclude,
+        flagUrl: data.flagUrl?.substring(0, 50) + '...'
+      });
+
       if (data.success && data.flagUrl) {
+        console.log(`✅ [flagUtils.ts:fetchIndividualFlag] API success for ${country}: ${data.flagUrl}`);
         flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
-        console.log(`✅ API flag for ${country}: ${data.flagUrl}`);
+        console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached API result for ${country}`);
         return data.flagUrl;
+      } else if (data.shouldExclude) {
+        console.log(`🚫 [flagUtils.ts:fetchIndividualFlag] API says exclude ${country}`);
+        const fallbackUrl = '/assets/fallback-logo.svg';
+        flagCache.setCached(cacheKey, fallbackUrl, 'api-exclude', true);
+        return fallbackUrl;
       }
+    } else {
+      console.log(`❌ [flagUtils.ts:fetchIndividualFlag] API request failed for ${country}: HTTP ${response.status}`);
     }
   } catch (error) {
-    console.warn(`API failed for ${country}:`, error);
+    console.log(`❌ [flagUtils.ts:fetchIndividualFlag] API request error for ${country}:`, error);
   }
 
-  // PRIORITY 4: Final fallback
+  // Final fallback
+  console.log(`🔄 [flagUtils.ts:fetchIndividualFlag] Using final fallback for ${country}`);
   const fallbackUrl = '/assets/fallback-logo.svg';
-  flagCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
-  console.log(`❌ Using fallback for ${country}`);
+  flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+  console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached fallback for ${country}`);
   return fallbackUrl;
 }
 
-// Removed batching system - using direct individual fetches
+/**
+ * Add country to batch queue for processing with improved batching
+ * DISABLED: Using individual fetch for better debugging
+ */
+function addToBatch(country: string): Promise<string> {
+  console.log(`🚫 [flagUtils.ts:addToBatch] Batch processing disabled, redirecting to individual fetch for: ${country}`);
+  return fetchIndividualFlag(country);
+}
 
 /**
  * Track flag usage for cache optimization
