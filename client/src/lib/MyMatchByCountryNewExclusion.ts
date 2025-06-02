@@ -20,30 +20,29 @@ export const matchByCountryExclusionTerms = [
   'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball'
 ];
 
-// Unknown/unspecified leagues and countries (handled separately with highest priority)
+// Unknown/unspecified leagues and countries (REMOVED - no longer excluded)
 export const unknownLeagueTerms = [
-  'unknown', 'tbd', 'to be determined', 'unspecified', '', null, undefined
+  // These are now allowed through - removing restrictions on unknown leagues
 ];
 
-// Regional and lower-tier leagues (handled separately)
+// Regional and lower-tier leagues (REMOVED - no longer excluded)
 export const regionalLeagueTerms = [
-  'regional', 'division 3', 'division 4', 'division 5', 'third division', 'fourth division',
-  'oberliga', 'oberliga -', 'oberliga westfalen', 'oberliga baden', 'oberliga bayern', 
-  'oberliga hessen', 'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 
-  'oberliga thüringen', 'serie c', 'serie d', 'amateur', 'reserve', 'reserves',
-  'segunda division b', 'tercera division', 'cuarta division'
+  // These are now allowed through - removing restrictions on regional leagues
 ];
 
-// Youth/development terms - now used for limiting rather than excluding
+// Youth/development terms - now only excludes U19 and above (U15-U18 still excluded)
 export const youthDevelopmentTerms = [
-  'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-  'development', 'academy', 'primavera', 'reserves', 'juvenil', 'cadete', 'infantil'
+  'u15', 'u16', 'u17', 'u18', // Only exclude very young categories
+  // Removed: 'u19', 'u20', 'u21', 'u23' - these are now allowed
+  // Removed: 'youth', 'junior', 'reserve', 'amateur' - these are now allowed
+  // Removed: 'development', 'academy', 'primavera', 'reserves' - these are now allowed
+  // Removed: 'juvenil', 'cadete', 'infantil' - these are now allowed
 ];
 
 /**
  * Check if a fixture should be excluded based on league name and team names
  * Specialized version for TodaysMatchesByCountryNew component
- * Note: Unknown leagues and regional leagues are now handled in the main component
+ * Note: Unknown leagues and regional leagues are now allowed through
  * 
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
@@ -103,14 +102,14 @@ export const shouldExcludeMatchByCountry = (
   // If main exclusion applies, exclude the match
   if (isMainExcluded) return true;
 
-  // If youth filter is enabled and this is a youth match, apply limiting logic
+  // If youth filter is enabled and this is a very young match (U15-U18 only), apply limiting logic
   if (applyYouthFilter) {
-    const isYouthMatch = youthDevelopmentTerms.some(term => 
+    const isVeryYoungMatch = youthDevelopmentTerms.some(term => 
       league.includes(term) || 
       homeTeam.includes(term) || 
       awayTeam.includes(term)
     );
-    if (isYouthMatch) return true; // Still exclude when limiting is needed
+    if (isVeryYoungMatch) return true; // Still exclude when limiting is needed
   }
 
   return false;
@@ -122,12 +121,11 @@ export const shouldExcludeMatchByCountry = (
 
 /**
  * Check if a match is from an unknown or invalid source
+ * NOTE: This function now returns false - unknown matches are allowed
  */
 export const isUnknownMatch = (leagueName: string): boolean => {
-  const league = leagueName.toLowerCase();
-  return ['unknown', 'tbd', 'to be determined', 'unspecified'].some(term => 
-    league.includes(term)
-  );
+  // No longer filtering unknown matches
+  return false;
 };
 
 /**
@@ -149,6 +147,7 @@ export const isEsportsMatch = (leagueName: string, homeTeamName: string, awayTea
 
 /**
  * Check if a match is from youth/development leagues
+ * Now only checks for very young categories (U15-U18)
  */
 export const isYouthMatch = (leagueName: string, homeTeamName?: string, awayTeamName?: string): boolean => {
   const league = leagueName.toLowerCase();
@@ -163,8 +162,9 @@ export const isYouthMatch = (leagueName: string, homeTeamName?: string, awayTeam
 };
 
 /**
- * Check if a match should be limited (youth matches when there are too many)
+ * Check if a match should be limited (very young matches when there are too many)
  * This is used for priority-based filtering instead of hard exclusion
+ * Now only applies to U15-U18
  */
 export const shouldLimitYouthMatch = (
   leagueName: string,

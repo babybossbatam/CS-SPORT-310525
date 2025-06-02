@@ -341,48 +341,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const awayTeamName = fixture.teams?.away?.name || '';
     const countryName = league.country || '';
 
-    // Check for unknown leagues first (highest priority exclusion)
-    const isUnknownLeague = !leagueName || 
-      leagueName.toLowerCase().includes('unknown') ||
-      leagueName.toLowerCase().includes('tbd') ||
-      leagueName.toLowerCase().includes('to be determined') ||
-      leagueName.toLowerCase().includes('unspecified') ||
-      !countryName ||
-      countryName.toLowerCase() === 'unknown' ||
-      countryName.toLowerCase() === '';
-
-    if (isUnknownLeague) {
-      console.log(`🚫 [DEBUG] Excluding unknown league:`, {
-        fixtureId: fixture.fixture.id,
-        league: leagueName,
-        country: countryName,
-        reason: 'Unknown league or country'
-      });
-      return acc;
-    }
-
-    // Check for regional/lower-tier leagues
-    const isRegionalLeague = leagueName.toLowerCase().includes('regional') ||
-      leagueName.toLowerCase().includes('division 3') ||
-      leagueName.toLowerCase().includes('division 4') ||
-      leagueName.toLowerCase().includes('division 5') ||
-      leagueName.toLowerCase().includes('third division') ||
-      leagueName.toLowerCase().includes('fourth division') ||
-      leagueName.toLowerCase().includes('oberliga') ||
-      leagueName.toLowerCase().includes('serie c') ||
-      leagueName.toLowerCase().includes('serie d') ||
-      leagueName.toLowerCase().includes('amateur') ||
-      leagueName.toLowerCase().includes('reserve');
-
-    if (isRegionalLeague) {
-      console.log(`🚫 [DEBUG] Excluding regional league:`, {
-        fixtureId: fixture.fixture.id,
-        league: leagueName,
-        country: countryName,
-        reason: 'Regional/lower-tier league'
-      });
-      return acc;
-    }
+    // Note: Unknown leagues and regional leagues are now allowed through
+    // Only applying main exclusion filters (women's, esports, etc.)
 
     // Apply standard exclusion filters (women's, youth, etc.)
     const shouldExclude = shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName);
