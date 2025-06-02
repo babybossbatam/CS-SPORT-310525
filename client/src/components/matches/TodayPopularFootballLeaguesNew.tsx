@@ -698,7 +698,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       </div>
       
       {/* Create individual league cards from all countries */}
-      {top20FilteredCountries.flatMap((countryData: any) => 
+      {top20FilteredCountries.flatMap((countryData: any, countryIndex: number) => 
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
             // Prioritize leagues that are popular for this specific country
@@ -712,8 +712,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             // Finally alphabetical
             return a.league.name.localeCompare(b.league.name);
           })
-          .map((leagueData: any) => (
-            <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
+          .map((leagueData: any, leagueIndex: number) => {
+            const isFirstCard = countryIndex === 0 && leagueIndex === 0;
+            return (
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? '-mt-4' : ''}`}>
               {/* League Header - Always show unless time filter is active */}
               {!timeFilterActive && (
                 <>
@@ -1087,7 +1089,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                 </div>
               </CardContent>
             </Card>
-          ))
+            );
+          })
       )}
     </div>
   );
