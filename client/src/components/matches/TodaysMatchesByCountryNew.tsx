@@ -779,7 +779,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = memo
                                                 <>
                                                   <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded text-center">
                                                     {statusText}
-                                                                                 </div>
+                                                  </div>
                                                   <div className="text-xs text-gray-500 mt-1">
                                                     {format(fixtureDate, 'HH:mm')}
                                                   </div>
