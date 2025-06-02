@@ -815,8 +815,18 @@ export function createCountryFlagFallbackHandler(country: string) {
         const nextSource = sources[currentIndex];
         console.log(`Flag fallback for ${country}: trying source ${currentIndex + 1}/${sources.length}`);
         img.src = nextSource;
+        
+        // Reset handling flag after attempting new source
+        setTimeout(() => {
+          isHandling = false;
+        }, 1000);
       } else {
-        console.log(`All flag sources failed for ${country}, using final fallback`);
+        console.warn(`All flag sources exhausted for ${country}, using final fallback`);
+        img.src = '/assets/fallback-logo.svg';
+        isHandling = false;
+      }
+    }, 100); // Reduced timeout for faster fallback
+  };le.log(`All flag sources failed for ${country}, using final fallback`);
         img.src = '/assets/fallback-logo.svg';
       }
 

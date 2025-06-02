@@ -33,12 +33,31 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   private handleNetworkError = () => {
+    // Prevent multiple recovery attempts
+    if (this.state.isRecovering) return;
+    
     this.setState({ isRecovering: true });
     handleNetworkRecovery();
+    
+    // Auto-reset recovery state after timeout
+    setTimeout(() => {
+      this.setState({ isRecovering: false });
+    }, 10000);
   };
 
   private handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, isRecovering: false });
+    // Clear error state and force component re-render
+    this.setState({ 
+      hasError: false, 
+      error: undefined, 
+      isRecovering: false 
+    });
+    
+    // Force a small delay to prevent immediate re-error
+    setTimeout(() => {
+      // Trigger a soft refresh of the component tree
+      window.dispatchEvent(new Event('retry-boundary'));
+    }, 100);
   };
 
   public render() {
