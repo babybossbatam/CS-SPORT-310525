@@ -684,7 +684,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   return (
     <>
       {/* Header Section */}
-      <h3 className="text-sm font-semibold mb-4">
+      <h3 className="text-sm font-semibold mb-4 mt-4">
         {getHeaderTitle()}
       </h3>
       {/* Create individual league cards from all countries */}
