@@ -443,11 +443,9 @@ export function generateFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
   const sources: string[] = [];
 
-  // Special cases for international competitions - use single consistent URL
+  // Special cases for international competitions - use local file
   if (cleanCountry === 'World') {
-    return [
-      'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international'
-    ];
+    return ['/assets/world-flag.png'];
   }
 
   if (cleanCountry === 'Europe') {
@@ -550,10 +548,10 @@ export async function getCachedFlag(country: string): Promise<string> {
 
   // For immediate special cases, don't use batching
   if (country === 'World') {
-    const internationalFlag365 = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
-    flagCache.setCached(cacheKey, internationalFlag365, '365scores-international', true);
-    console.log(`🌍 Using standard World flag: ${internationalFlag365}`);
-    return internationalFlag365;
+    const worldFlag = '/assets/world-flag.png';
+    flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
+    console.log(`🌍 Using local World flag: ${worldFlag}`);
+    return worldFlag;
   }
 
   if (country === 'Europe') {
@@ -680,8 +678,8 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
       } else {
         // Special cases for international competitions
         if (cleanCountry === 'World') {
-          result = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
-          console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Sync World flag: ${result}`);
+          result = '/assets/world-flag.png';
+          console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
         } else if (cleanCountry === 'Europe') {
           result = 'https://flagcdn.com/w40/eu.png';
         } else {
@@ -1891,10 +1889,10 @@ async function fetchSingleFlag(country: string): Promise<string> {
 
   // Special cases
   if (country === 'World') {
-    const internationalFlag365 = 'https://imagecache.365scores.com/image/upload/f_png,w_32,h_32,c_limit,q_auto:eco,dpr_2,d_Countries:round:International.png/v5/Countries/round/international';
-    flagCache.setCached(cacheKey, internationalFlag365, '365scores-international', true);
-    console.log(`🌍 Cached World flag: ${internationalFlag365}`);
-    return internationalFlag365;
+    const worldFlag = '/assets/world-flag.png';
+    flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
+    console.log(`🌍 Cached local World flag: ${worldFlag}`);
+    return worldFlag;
   }
 
   if (country === 'Europe') {
