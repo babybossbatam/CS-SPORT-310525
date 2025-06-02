@@ -670,7 +670,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           {getHeaderTitle()}
         </h3>
       </CardHeader>
-      <CardContent className="p-0 pt-4">
+      <CardContent className="p-0">
         <div>
           {/* Use sortedCountries directly */}
           {
