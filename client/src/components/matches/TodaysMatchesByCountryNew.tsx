@@ -19,6 +19,7 @@ import {
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
 import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap, flagCache } from '@/lib/flagUtils';
+import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCache';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -45,17 +46,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
 
   // Always call hooks in the same order - validate after hooks
-  // Fetch all fixtures for the selected date with aggressive caching
+  // Fetch all fixtures for the selected date with comprehensive caching
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async ()=> {
+      console.log(`🔍 [TodaysMatchesByCountryNew] Checking cache for date: ${selectedDate}`);
+      
+      // Check our custom cache first
+      const cachedFixtures = getCachedFixturesForDate(selectedDate);
+      if (cachedFixtures) {
+        console.log(`✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`);
+        return cachedFixtures;
+      }
+
+      console.log(`📡 [TodaysMatchesByCountryNew] Fetching fresh data for date: ${selectedDate}`);
       const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
 
-      // Trust the API to return correct fixtures for the date - don't double filter
+      // Cache the fetched data
+      if (data && Array.isArray(data)) {
+        cacheFixturesForDate(selectedDate, data, 'api');
+        console.log(`💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`);
+      }
+
       return data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes for fresher data
+    staleTime: 2 * 60 * 1000, // 2 minutes for live data
     gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
     enabled: !!selectedDate && enableFetching,
     refetchOnWindowFocus: false,

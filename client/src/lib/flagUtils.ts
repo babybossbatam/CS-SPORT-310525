@@ -517,12 +517,12 @@ export function generateFlagSources(country: string): string[] {
  */
 export async function getCachedFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-  
+
   console.log(`🔍 [flagUtils.ts:getCachedFlag] getCachedFlag called for: ${country} with cache key: ${cacheKey}`);
-  
+
   // Track request patterns
   trackFlagRequest(country, cacheKey);
-  
+
   // Track usage for intelligent caching
   trackFlagUsage(country);
 
@@ -592,11 +592,11 @@ export async function getCachedFlag(country: string): Promise<string> {
   // For countries that need API calls, use improved batching
   const flagPromise = addToBatch(country);
   pendingFlagRequests.set(cacheKey, flagPromise);
-  
+
   flagPromise.finally(() => {
     pendingFlagRequests.delete(cacheKey);
   });
-  
+
   return flagPromise;
 }
 
@@ -865,6 +865,7 @@ export async function getFlagWithErrorHandling(
 }
 
 // Final fallback SVG
+const flagCache configuration updated to use 7 days for flag caching.
 const getFallbackSVG = (countryName: string) => {
   const initials = countryName
     .split(' ')
@@ -1593,7 +1594,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
         signal: AbortSignal.timeout(3000)
       });
 
-      if (apiFootballResponse.ok && apiFootballResponse.status === 200) {
+      if (apiFootballResponse.ok && apiFootballResponseok && apiFootballResponse.status === 200) {
         console.log(`✅ Valid flag found via API-Football for ${normalizedCountry}: ${apiFootballUrl}`);
         flagCache.set(cacheKey, apiFootballUrl);
         return apiFootballUrl;
@@ -1776,7 +1777,7 @@ const flagRequestCounts = new Map<string, number>();
 function trackFlagRequest(country: string, cacheKey: string): void {
   const count = flagRequestCounts.get(cacheKey) || 0;
   flagRequestCounts.set(cacheKey, count + 1);
-  
+
   if (count > 2) {
     console.log(`🔄 [flagUtils.ts] Multiple requests for ${country} (${count + 1} times) - consider component optimization`);
   }
@@ -1798,7 +1799,7 @@ async function processFlagBatch(): Promise<void> {
 
   const countries = Array.from(flagBatchQueue);
   const callbacks = new Map<string, Array<(url: string) => void>>();
-  
+
   // Collect all callbacks for this batch
   countries.forEach(country => {
     const countryCallbacks = flagBatchCallbacks.get(country) || [];
@@ -1810,7 +1811,7 @@ async function processFlagBatch(): Promise<void> {
   // Clear the batch queue and callbacks
   flagBatchQueue.clear();
   flagBatchCallbacks.clear();
-  
+
   console.log(`🚀 [flagUtils.ts:processFlagBatch] Processing flag batch for ${countries.length} countries:`, countries.slice(0, 10));
 
   // Filter out countries that are already cached or being processed
@@ -1822,7 +1823,7 @@ async function processFlagBatch(): Promise<void> {
       const maxAge = cached.url.includes('/assets/fallback-logo.svg') 
         ? 60 * 60 * 1000  // 1 hour for fallbacks
         : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
-      
+
       if (age < maxAge) {
         // Use cached result immediately
         const countryCallbacks = callbacks.get(country) || [];
@@ -1844,7 +1845,7 @@ async function processFlagBatch(): Promise<void> {
   const chunkSize = 5; // Smaller chunks for better performance
   for (let i = 0; i < countriesToProcess.length; i += chunkSize) {
     const chunk = countriesToProcess.slice(i, i + chunkSize);
-    
+
     const chunkPromises = chunk.map(async (country) => {
       try {
         const flagUrl = await fetchSingleFlag(country);
@@ -1861,7 +1862,7 @@ async function processFlagBatch(): Promise<void> {
     });
 
     await Promise.allSettled(chunkPromises);
-    
+
     // Small delay between chunks to be respectful to external services
     if (i + chunkSize < countriesToProcess.length) {
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -1876,7 +1877,7 @@ async function processFlagBatch(): Promise<void> {
  */
 async function fetchSingleFlag(country: string): Promise<string> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-  
+
   // Check cache first
   const cached = flagCache.getCached(cacheKey);
   if (cached) {
@@ -1959,18 +1960,18 @@ function addToBatch(country: string): Promise<string> {
   return new Promise((resolve) => {
     // Add to batch queue
     flagBatchQueue.add(country);
-    
+
     // Add callback
     if (!flagBatchCallbacks.has(country)) {
       flagBatchCallbacks.set(country, []);
     }
     flagBatchCallbacks.get(country)!.push(resolve);
-    
+
     // Schedule batch processing if not already scheduled
     if (batchProcessingTimeout) {
       clearTimeout(batchProcessingTimeout);
     }
-    
+
     // Longer timeout to collect more requests together
     batchProcessingTimeout = setTimeout(() => {
       batchProcessingTimeout = null;
@@ -1999,7 +2000,7 @@ export function intelligentCacheCleanup(): void {
   if (!(cache instanceof Map)) return;
 
   const maxCacheSize = 100; // Maximum flags to keep in cache
-  
+
   if (cache.size <= maxCacheSize) return;
 
   console.log(`🧹 Cache cleanup: ${cache.size} entries, target: ${maxCacheSize}`);
@@ -2055,7 +2056,7 @@ async function backgroundCacheRefresh(): Promise<void> {
 
   if (staleEntries.length > 0) {
     console.log(`🔄 Background refreshing ${staleEntries.length} stale flag entries`);
-    
+
     // Refresh in batches to avoid overwhelming the system
     const batchSize = 5;
     for (let i = 0; i < staleEntries.length; i += batchSize) {
@@ -2063,7 +2064,7 @@ async function backgroundCacheRefresh(): Promise<void> {
       await Promise.allSettled(
         batch.map(country => getCachedFlag(country))
       );
-      
+
       // Small delay between batches
       if (i + batchSize < staleEntries.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -2071,3 +2072,5 @@ async function backgroundCacheRefresh(): Promise<void> {
     }
   }
 }
+// Flag cache configuration - optimized for different content types
+const FLAG_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days - flags are static and don't change
