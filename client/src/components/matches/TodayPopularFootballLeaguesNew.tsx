@@ -701,25 +701,807 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       });
     };
 
-    // Memoized flag lookup to prevent duplicate calls during renders
-  const getCountryFlagMemoized = useCallback((country: string) => {
-    return getCountryFlagWithFallbackSync(country);
-  }, []);
+  return (
+    <div className="space-y-4">
+      {/* Header Section */}
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold">
+          {getHeaderTitle()}
+        </h3>
+      </div>
+      {/* Create individual league cards from all countries */}
+      {top20FilteredCountries.flatMap((countryData: any) => 
+        Object.values(countryData.leagues)
+          .sort((a: any, b: any) => {
+            // Prioritize leagues that are popular for this specific country
+            if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+            if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
 
-  // Create a stable flag cache for countries to prevent re-renders
-  const countryFlags = useMemo(() => {
-    const flagMap = new Map();
+            // Then globally popular leagues
+            if (a.isPopular && !b.isPopular) return -1;
+            if (!a.isPopular && b.isPopular) return 1;
 
-    Object.values(fixturesByCountry).forEach((countryData: any) => {
-      const country = countryData.country;
-      if (!flagMap.has(country)) {
-        flagMap.set(country, getCountryFlagWithFallbackSync(country));
+            // Finally alphabetical
+            return a.league.name.localeCompare(b.league.name);
+          })
+          .map((leagueData: any) => (
+            <Card key={`${countryData.country}-${leagueData.league.id}`} className="overflow-hidden">
+              {/* League Header - Always show unless time filter is active */}
+              {!timeFilterActive && (
+                <>
+                  {leagueData.isFriendlies ? (
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                      <img
+                        src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                        alt={leagueData.league.name || 'Unknown League'}
+                        className="w-5 h-5 object-contain rounded-full"
+                        style={{ backgroundColor: 'transparent' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                        }}
+                      />
+                      <span className="font-medium text-sm text-blue-800">
+                        {leagueData.league.name || 'Unknown League'}
+                      </span>
+                      <span className="text-xs text-blue-600">
+                        {leagueData.matches.length} {leagueData.matches.length === 1 ? 'match' : 'matches'}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                      <img
+                        src={leagueData.league.logo || '/assets/fallback-logo.svg'}
+                        alt={leagueData.league.name || 'Unknown League'}
+                        className="w-9 h-9 object-contain mt-0.5 rounded-full"
+                        style={{ backgroundColor: 'transparent' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                        }}
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-base text-gray-800">
+                          {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                           <img
+                            src={countryFlags.get(countryData.country) || getCountryFlagWithFallbackSync(countryData.country)}
+                            alt={`${countryData.country} flag`}
+                            className="w-6 h-4 object-cover rounded-sm"
+                            loading="lazy"
+                          />
+                          {countryData.country || 'Unknown Country'}
+                        </span>
+                      </div>
+                      <div className="flex gap-1 ml-auto">
+                        {leagueData.isPopularForCountry && (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                            Popular Country
+                          </span>
+                        )}
+                        {leagueData.isPopular && !leagueData.isPopularForCountry && (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                            Popular
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Matches - Show for all leagues */}
+              <CardContent className="p-0">
+                <div className="space-y-0">
+                  {leagueData.matches
+                    .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
+                    .sort((a: any, b: any) => {
+                      // When time filter is active, prioritize by time more strictly
+                      if (timeFilterActive) {
+                        const aDate = parseISO(a.fixture.date);
+                        const bDate = parseISO(b.This edit focuses on removing duplicate hook definitions to address the "Rendered more hooks" error.
+<replit_final_file>
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ChevronDown, ChevronUp, Calendar, Star } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, userActions } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { format, parseISO, isValid, differenceInHours, subDays, addDays } from 'date-fns';
+import { safeSubstring } from '@/lib/dateUtilsUpdated';
+import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
+import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
+import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
+import { POPULAR_LEAGUES } from '@/lib/constants';
+import { 
+  DEFAULT_POPULAR_TEAMS, 
+  DEFAULT_POPULAR_LEAGUES,
+  POPULAR_COUNTRIES,
+  isLiveMatch
+} from '@/lib/matchFilters';
+import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
+import { createFallbackHandler } from '../../lib/MyAPIFallback';
+import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
+import { getCachedTeamLogo } from '../../lib/MyAPIFallback';
+
+// Track component renders for debugging
+let popularLeaguesRenderCount = 0;
+
+interface TodayPopularFootballLeaguesNewProps {
+  selectedDate: string;
+  timeFilterActive?: boolean;
+  showTop20?: boolean;
+  liveFilterActive?: boolean;
+}
+
+const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewProps> = memo(({ 
+  selectedDate, 
+  timeFilterActive = false, 
+  showTop20 = false,
+  liveFilterActive = false 
+}) => {
+  popularLeaguesRenderCount++;
+  console.log(`🔄 [TodayPopularFootballLeaguesNew] Render #${popularLeaguesRenderCount}`);
+
+  // Memoize flag URLs to prevent repeated lookups
+  const flagUrlCache = useMemo(() => new Map<string, string>(), []);
+
+  // Memoized flag lookup function
+  const getFlagUrl = useCallback((country: string) => {
+    if (flagUrlCache.has(country)) {
+      console.log(`🎯 [TodayPopularFootballLeaguesNew] Using cached flag for: ${country}`);
+      return flagUrlCache.get(country)!;
+    }
+
+    console.log(`🏁 [TodayPopularFootballLeaguesNew] Getting flag for: ${country}`);
+    const flagUrl = getCountryFlagWithFallbackSync(country);
+    flagUrlCache.set(country, flagUrl);
+    return flagUrl;
+  }, [flagUrlCache]);
+
+  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
+  const [enableFetching, setEnableFetching] = useState(true);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+  const favoriteTeams = useSelector((state: RootState) => state.user.favoriteTeams);
+
+  // Popular countries prioritization with new requirements
+  const POPULAR_COUNTRIES_ORDER = [
+    'England', 'Spain', 'Italy', 'Germany', 'France', 'World', 'Europe', 'South America', 'Brazil', 'Saudi Arabia', 'Egypt', 'Colombia'
+  ];
+
+  // Enhanced leagues by country with tier-based filtering
+  const POPULAR_LEAGUES_BY_COUNTRY = {
+    'England': [39, 45, 48], // Premier League, FA Cup, EFL Cup
+    'Spain': [140, 143], // La Liga, Copa del Rey
+    'Italy': [135, 137], // Serie A, Coppa Italia
+    'Germany': [78, 81], // Bundesliga, DFB Pokal
+    'France': [61, 66], // Ligue 1, Coupe de France
+    'Brazil': [71, 72, 73, 74], // Serie A Brazil, Serie B Brazil, Serie C Brazil, Serie D Brazil
+    'Saudi Arabia': [307], // Saudi Pro League (only major league)
+    'Egypt': [233], // Egyptian Premier League (only major league)
+    'Colombia': [239], // Liga BetPlay (Colombian Primera A)
+    'USA': [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
+    'United Arab Emirates': [301], // UAE Pro League
+    'Europe': [2, 3, 848], // UEFA Champions League, Europa League, Conference League
+    'World': [1, 10], // World Cup, Men's International Friendlies (excludes women's)
+    'South America': [9, 11, 13], // CONMEBOL: Copa America, Libertadores, Sudamericana
+    'International': [15], // FIFA Club World Cup as separate category
+  };
+
+  // Flatten popular leagues for backward compatibility
+  const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
+
+  // Popular teams for match prioritization
+  const POPULAR_TEAMS = [
+    // Premier League
+    33, 40, 42, 50, 47, 49, // Manchester United, Liverpool, Arsenal, Manchester City, Tottenham, Chelsea
+    // La Liga
+    529, 541, 530, 548, 727, // Barcelona, Real Madrid, Atletico Madrid, Real Sociedad, Athletic Bilbao
+    // Serie A
+    489, 492, 496, 500, 502, 505, // AC Milan, Napoli, Juventus, Inter, Fiorentina, Lazio
+    // Bundesliga
+    157, 165, 168, 173, 192, // Bayern Munich, Borussia Dortmund, Bayer Leverkusen, RB Leipzig, Eintracht Frankfurt
+    // Champions League popular teams
+    85, 81, 212, 548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
+  ];
+
+  // Check if we have fresh cached data
+  const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
+
+  const cachedFixtures = CacheManager.getCachedData(fixturesQueryKey, 30 * 60 * 1000); // 30 minutes
+
+  // Fetch all fixtures for the selected date with smart caching
+  const { data: fixtures = [], isLoading, isFetching } = useCachedQuery(
+    fixturesQueryKey,
+    async () => {
+      const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
+      const data = await response.json();
+      return data;
+    },
+    {
+      enabled: !!selectedDate && enableFetching,
+      maxAge: 30 * 60 * 1000, // 30 minutes
+      backgroundRefresh: true,
+    }
+  );
+
+  // Use the prioritized popular countries list
+  const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
+
+  // Memoize expensive filtering operations
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length) return [];
+
+    console.log(`Processing ${fixtures.length} fixtures for filtering`);
+    const startTime = Date.now();
+
+    const filtered = fixtures.filter(fixture => {
+      // Date filtering - ensure exact date match
+      if (fixture?.fixture?.date) {
+        try {
+          const fixtureDate = parseISO(fixture.fixture.date);
+          if (isValid(fixtureDate)) {
+            const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+            const matchesSelectedDate = fixtureDateString === selectedDate;
+
+            if (!matchesSelectedDate) {
+              return false;
+            }
+
+            // Client-side filtering for popular leagues and countries
+            const leagueId = fixture.league?.id;
+            const country = fixture.league?.country?.toLowerCase() || '';
+
+            // Check if it's a popular league
+            const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+            // Check if it's from a popular country
+            const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(popularCountry => 
+              country.includes(popularCountry.toLowerCase())
+            );
+
+            // Check if it's an international competition
+            const leagueName = fixture.league?.name?.toLowerCase() || '';
+            const isInternationalCompetition = 
+              // UEFA competitions
+              leagueName.includes('champions league') ||
+              leagueName.includes('europa league') ||
+              leagueName.includes('conference league') ||
+              leagueName.includes('uefa') ||
+              // FIFA competitions
+              leagueName.includes('world cup') ||
+              leagueName.includes('fifa club world cup') ||
+              leagueName.includes('fifa') ||
+              // CONMEBOL competitions
+              leagueName.includes('conmebol') ||
+              leagueName.includes('copa america') ||
+              leagueName.includes('copa libertadores') ||
+              leagueName.includes('copa sudamericana') ||
+              leagueName.includes('libertadores') ||
+              leagueName.includes('sudamericana') ||
+              // Men's International Friendlies (excludes women's)
+              (leagueName.includes('friendlies') && !leagueName.includes('women')) ||
+              (leagueName.includes('international') && !leagueName.includes('women')) ||
+              country.includes('world') ||
+              country.includes('europe') ||
+              country.includes('international');
+
+            return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
+          }
+        } catch (error) {
+          console.error('Error parsing fixture date:', error);
+          return false;
+        }
       }
+
+      return false;
     });
 
-    console.log(`⚡ Pre-populated ${flagMap.size} flags synchronously`);
-    return flagMap;
-  }, [fixturesByCountry]);
+    const finalFiltered = filtered.filter(fixture => {
+      // Apply exclusion filters
+      if (shouldExcludeFixture(
+        fixture.league.name,
+        fixture.teams.home.name,
+        fixture.teams.away.name
+      )) {
+        return false;
+      }
+
+      // Skip fixtures with null or undefined country
+      if (!fixture.league.country) {
+        return false;
+      }
+
+      const countryName = fixture.league.country?.toLowerCase() || '';
+      const leagueId = fixture.league.id;
+      const leagueNameLower = fixture.league.name?.toLowerCase() || '';
+
+      // Check for international competitions first
+      const isInternationalCompetition = 
+        // UEFA competitions
+        leagueNameLower.includes('champions league') ||
+        leagueNameLower.includes('europa league') ||
+        leagueNameLower.includes('conference league') ||
+        leagueNameLower.includes('uefa') ||
+        leagueNameLower.includes('euro') ||
+        // FIFA competitions
+        leagueNameLower.includes('world cup') ||
+        leagueNameLower.includes('fifa club world cup') ||
+        leagueNameLower.includes('fifa cup') ||
+        leagueNameLower.includes('fifa') ||
+        // CONMEBOL competitions
+        leagueNameLower.includes('conmebol') ||
+        leagueNameLower.includes('copa america') ||
+        leagueNameLower.includes('copa libertadores') ||
+        leagueNameLower.includes('copa sudamericana') ||
+        leagueNameLower.includes('libertadores') ||
+        leagueNameLower.includes('sudamericana') ||
+        // Men's International Friendlies (excludes women's)
+        (leagueNameLower.includes('friendlies') && !leagueNameLower.includes('women')) ||
+        (leagueNameLower.includes('international') && !leagueNameLower.includes('women')) ||
+        countryName.includes('world') ||
+        countryName.includes('europe') ||
+        countryName.includes('international');
+
+      // Allow all international competitions through
+      if (isInternationalCompetition) {
+        return true;
+      }
+
+      // Check if it's a popular country
+      const matchingCountry = POPULAR_COUNTRIES.find(country => 
+        countryName.includes(country.toLowerCase())
+      );
+
+      if (!matchingCountry) {
+        return false;
+      }
+
+      return true;
+    });
+
+    const endTime = Date.now();
+    console.log(`Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`);
+
+    return finalFiltered;
+  }, [fixtures, selectedDate]);
+
+  // Group fixtures by country and league, with special handling for Friendlies
+  const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
+    // Add comprehensive null checks
+    if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+      return acc;
+    }
+
+    // Ensure league has required properties
+    const league = fixture.league;
+    if (!league.id || !league.name) {
+      console.warn('Invalid league data:', league);
+      return acc;
+    }
+
+    // Use centralized exclusion filter
+    const leagueName = league.name || '';
+    const homeTeamName = fixture.teams?.home?.name || '';
+    const awayTeamName = fixture.teams?.away?.name || '';
+
+    // Check if fixture should be excluded using centralized filter
+    if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
+      return acc;
+    }
+
+    const country = league.country;
+
+    // Skip fixtures without a valid country, but keep World and Europe competitions
+    if (!country || 
+        country === null ||
+        country === undefined ||
+        typeof country !== 'string' || 
+        country.trim() === '' || 
+        country.toLowerCase() === 'unknown') {
+
+      // Allow World competitions, CONMEBOL, UEFA, and FIFA competitions to pass through
+      if (league.name && (
+          league.name.toLowerCase().includes('world') || 
+          league.name.toLowerCase().includes('europe') ||
+          league.name.toLowerCase().includes('uefa') ||
+          league.name.toLowerCase().includes('fifa') ||
+          league.name.toLowerCase().includes('fifa club world cup') ||
+          league.name.toLowerCase().includes('champions') ||
+          league.name.toLowerCase().includes('conference') ||
+          // Men's International Friendlies only (excludes women's)
+          (league.name.toLowerCase().includes('friendlies') && !league.name.toLowerCase().includes('women')) ||
+          (league.name.toLowerCase().includes('international') && !league.name.toLowerCase().includes('women')) ||
+          league.name.toLowerCase().includes('conmebol') ||
+          league.name.toLowerCase().includes('copa america') ||
+          league.name.toLowerCase().includes('copa libertadores') ||
+          league.name.toLowerCase().includes('copa sudamericana'))) {
+
+        // Determine the appropriate country key
+        let countryKey = 'World';
+        if (league.name.toLowerCase().includes('fifa club world cup') || 
+            league.name.toLowerCase().includes('club world cup')) {
+          countryKey = 'International';
+        } else if (league.name.toLowerCase().includes('conmebol') ||
+            league.name.toLowerCase().includes('copa america') ||
+            league.name.toLowerCase().includes('copa libertadores') ||
+            league.name.toLowerCase().includes('copa sudamericana')) {
+          countryKey = 'South America';
+        } else if (league.name.toLowerCase().includes('uefa') ||
+                   league.name.toLowerCase().includes('europe') ||
+                   league.name.toLowerCase().includes('champions') ||
+                   league.name.toLowerCase().includes('conference')) {
+          countryKey = 'Europe';
+        }
+
+        if (!acc[countryKey]) {
+          acc[countryKey] = {
+            country: countryKey,
+            flag: getCountryFlagWithFallbackSync(countryKey),
+            leagues: {},
+            hasPopularLeague: true
+          };
+        }
+        const leagueId = league.id;
+
+        if (!acc[countryKey].leagues[leagueId]) {
+          acc[countryKey].leagues[leagueId] = {
+            league: { ...league, country: countryKey },
+            matches: [],
+            isPopular: POPULAR_LEAGUES.includes(leagueId),
+            isFriendlies: league.name.toLowerCase().includes('friendlies')
+          };
+        }
+        acc[countryKey].leagues[leagueId].matches.push(fixture);
+        return acc;
+      }
+
+      return acc;
+    }
+
+    const validCountry = country.trim();
+
+    // Only allow valid country names, World, and Europe
+    if (validCountry !== 'World' && validCountry !== 'Europe' && validCountry.length === 0) {
+      return acc;
+    }
+
+    const leagueId = league.id;
+    if (!acc[country]) {
+      acc[country] = {
+        country,
+        flag: getCountryFlagWithFallbackSync(country, league.flag),
+        leagues: {},
+        hasPopularLeague: false
+      };
+    }
+
+    // Check if this is a popular league for this country
+    const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
+    const isPopularForCountry = countryPopularLeagues.includes(leagueId);
+    const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
+
+    if (isPopularForCountry || isGloballyPopular) {
+      acc[country].hasPopularLeague = true;
+    }
+
+    if (!acc[country].leagues[leagueId]) {
+      acc[country].leagues[leagueId] = {
+        league: {
+          ...league,
+          logo: league.logo || 'https://media.api-sports.io/football/leagues/1.png'
+        },
+        matches: [],
+        isPopular: isPopularForCountry || isGloballyPopular,
+        isPopularForCountry: isPopularForCountry,
+        isFriendlies: false
+      };
+    }
+
+    // Validate team data before adding
+    if (fixture.teams.home && fixture.teams.away && 
+        fixture.teams.home.name && fixture.teams.away.name) {
+      acc[country].leagues[leagueId].matches.push({
+        ...fixture,
+        teams: {
+          home: {
+            ...fixture.teams.home,
+            logo: fixture.teams.home.logo || '/assets/fallback-logo.svg'
+          },
+          away: {
+            ...fixture.teams.away,
+            logo: fixture.teams.away.logo || '/assets/fallback-logo.svg'
+          }
+        }
+      });
+    }
+
+    return acc;
+  }, {});
+
+  // Filter to show only popular countries with badge system
+  const filteredCountries = Object.values(fixturesByCountry).filter((countryData: any) => {
+    return countryData.hasPopularLeague;
+  });
+
+  // Sort countries by the POPULAR_COUNTRIES_ORDER
+  const sortedCountries = useMemo(() => {
+    return filteredCountries.sort((a: any, b: any) => {
+      const getPopularCountryIndex = (country: string) => {
+        if (!country) return 999;
+        const index = POPULAR_COUNTRIES_ORDER.findIndex(pc => 
+          safeSubstring(country, 0).toLowerCase() === safeSubstring(pc, 0).toLowerCase()
+        );
+        return index === -1 ? 999 : index;
+      };
+
+      const aPopularIndex = getPopularCountryIndex(a.country);
+      const bPopularIndex = getPopularCountryIndex(b.country);
+
+      const aIsPopularCountry = aPopularIndex !== 999;
+      const bIsPopularCountry = bPopularIndex !== 999;
+
+      // Check if countries are World or Europe (International competitions)
+      const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe';
+      const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe';
+
+      // Priority order: Popular countries with badge leagues first
+      if (aIsPopularCountry && a.hasPopularLeague && (!bIsPopularCountry || !b.hasPopularLeague)) return -1;
+      if (bIsPopularCountry && b.hasPopularLeague && (!aIsPopularCountry || !a.hasPopularLeague)) return 1;
+
+      // Both are popular countries with badge leagues - sort by priority order
+      if (aIsPopularCountry && a.hasPopularLeague && bIsPopularCountry && b.hasPopularLeague) {
+        return aPopularIndex - bPopularIndex;
+      }
+
+      // Default to alphabetical sorting for other cases
+      const countryA = a.country || '';
+      const countryB = b.country || '';
+      return countryA.localeCompare(countryB);
+    });
+  }, [filteredCountries]);
+
+  // Apply time filters
+  const timeFilteredCountries = useMemo(() => {
+    if (!timeFilterActive) return sortedCountries;
+
+    return sortedCountries.map(countryData => {
+      const updatedLeagues = Object.entries(countryData.leagues).reduce((acc: any, [leagueId, leagueData]: any) => {
+        const updatedMatches = leagueData.matches.filter((match: any) => {
+          if (!match?.fixture?.date) return false;
+
+          try {
+            const fixtureDate = parseISO(match.fixture.date);
+            if (!isValid(fixtureDate)) return false;
+
+            const now = new Date();
+            const hoursDifference = differenceInHours(fixtureDate, now);
+            return hoursDifference >= -2 && hoursDifference <= 12;
+          } catch (error) {
+            return false;
+          }
+        });
+
+        if (updatedMatches.length > 0) {
+          acc[leagueId] = {
+            ...leagueData,
+            matches: updatedMatches
+          };
+        }
+        return acc;
+      }, {});
+
+      return {
+        ...countryData,
+        leagues: updatedLeagues
+      };
+    }).filter(countryData => Object.keys(countryData.leagues).length > 0);
+  }, [sortedCountries, timeFilterActive]);
+
+  // Apply live filters
+  const liveFilteredCountries = useMemo(() => {
+    if (!liveFilterActive) return timeFilteredCountries;
+
+    return timeFilteredCountries.map(countryData => {
+      const updatedLeagues = Object.entries(countryData.leagues).reduce((acc: any, [leagueId, leagueData]: any) => {
+        const updatedMatches = leagueData.matches.filter((match: any) => {
+          return match.fixture.status.short === 'LIV' || match.fixture.status.short === 'HT';
+        });
+
+        if (updatedMatches.length > 0) {
+          acc[leagueId] = {
+            ...leagueData,
+            matches: updatedMatches
+          };
+        }
+        return acc;
+      }, {});
+
+      return {
+        ...countryData,
+        leagues: updatedLeagues
+      };
+    }).filter(countryData => Object.keys(countryData.leagues).length > 0);
+  }, [timeFilteredCountries, liveFilterActive]);
+
+  // Apply top 20 filters (by default)
+  const top20FilteredCountries = useMemo(() => {
+    if (!showTop20) return liveFilteredCountries;
+    return liveFilteredCountries.slice(0, 20);
+  }, [liveFilteredCountries, showTop20]);
+
+  const toggleCountry = useCallback((country: string) => {
+    setExpandedCountries(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
+      }
+      return newExpanded;
+    });
+  }, []);
+
+  // Favorite team functionality
+  const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
+    try {
+      const isFavorite = favoriteTeams?.some(team => team.id === teamId) || false;
+
+      if (isFavorite) {
+        dispatch(userActions.removeFavoriteTeam(teamId));
+        toast({
+          title: "Removed from favorites",
+          description: `${teamName} has been removed from your favorites.`,
+        });
+      } else {
+        dispatch(userActions.addFavoriteTeam({ id: teamId, name: teamName }));
+        toast({
+          title: "Added to favorites",
+          description: `${teamName} has been added to your favorites.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling favorite team:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorites. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isTeamFavorite = (teamId: number) => {
+      return favoriteTeams?.some(team => team.id === teamId) || false;
+    };
+
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches(prev => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
+  };
+
+  // Start with all countries collapsed by default
+  useEffect(() => {
+    // Reset to collapsed state when selected date changes
+    setExpandedCountries(new Set());
+  }, [selectedDate]);
+
+  if (isLoading || isFetching) {
+    return (
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-3 w-40" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!filteredFixtures.length) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No matches available for this date</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Calculate date strings for comparison - use actual current date for reference
+  const actualCurrentDate = new Date();
+  const actualTodayString = format(actualCurrentDate, 'yyyy-MM-dd');
+  const actualYesterdayString = format(subDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+  const actualTomorrowString = format(addDays(actualCurrentDate, 1), 'yyyy-MM-dd');
+
+  // Get header title based on selected date with accurate date comparison
+  const getHeaderTitle = () => {
+    // Determine what type of matches to show based on selected date
+    const isSelectedToday = selectedDate === actualTodayString;
+    const isSelectedYesterday = selectedDate === actualYesterdayString;
+    const isSelectedTomorrow = selectedDate === actualTomorrowString;
+
+    let baseTitle = "";
+
+    // Use exact string comparison for accurate date matching
+    if (isSelectedToday) {
+      baseTitle = "Today's Popular Football Leagues";
+    } else if (isSelectedYesterday) {
+      baseTitle = "Yesterday's Popular Football Leagues";
+    } else if (isSelectedTomorrow) {
+      baseTitle = "Tomorrow's Popular Football Leagues";
+    } else {
+      const selectedDateObj = parseISO(selectedDate);
+      baseTitle = `Popular Football Leagues - ${format(selectedDateObj, 'MMM d, yyyy')}`;
+    }
+
+    // Add time filter indicator
+    if (timeFilterActive && showTop20) {
+      baseTitle += " (Top 20 by Time)";
+    }
+
+    return baseTitle;
+  };
+
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    try {
+      if (!dateString) return '--:--';
+      const date = new Date(dateString);
+      return format(date, 'HH:mm');
+    } catch (error) {
+      console.error('Error formatting match time:', error);
+      return '--:--';
+    }
+  };
+
+    const addFavoriteTeam = (team: any) => {
+      dispatch(userActions.addFavoriteTeam(team));
+      toast({
+        title: "Added to favorites",
+        description: `${team.name} has been added to your favorites.`,
+      });
+    };
+
+    const removeFavoriteTeam = (teamId: number) => {
+      dispatch(userActions.removeFavoriteTeam(teamId));
+      toast({
+        title: "Removed from favorites",
+        description: `Team has been removed from your favorites.`,
+      });
+    };
 
   return (
     <div className="space-y-4">
@@ -819,6 +1601,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       if (timeFilterActive) {
                         const aDate = parseISO(a.fixture.date);
                         const bDate = parseISO(b.fixture.date);
+                        fixture.date);
                         const now = new Date();
 
                         // Ensure valid dates
