@@ -259,18 +259,28 @@ export const rapidApiService = {
   },
 
   /**
-   * 365scores.com approach: Simple date validation matching their method
+   * 365scores.com approach: Enhanced date validation with timezone consideration
    */
   isFixtureValidForDate(fixture: any, targetDate: string): { isValid: boolean, matchMethod?: string } {
     try {
       const apiDateString = fixture.fixture.date;
       
-      // 365scores approach: Simple date extraction from API response
-      // They typically just extract the date part from the API's timestamp
+      // Primary check: Direct UTC date match (365scores primary method)
       const fixtureDate = apiDateString.split('T')[0];
       
       if (fixtureDate === targetDate) {
-        return { isValid: true, matchMethod: '365scores-style' };
+        return { isValid: true, matchMethod: '365scores-direct' };
+      }
+      
+      // Enhanced check: Allow ±1 day for timezone variations (365scores fallback)
+      const targetDateObj = new Date(targetDate);
+      const fixtureDateObj = new Date(fixtureDate);
+      const timeDiffMs = Math.abs(fixtureDateObj.getTime() - targetDateObj.getTime());
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      
+      // Allow fixtures within 1 day (covers timezone differences)
+      if (timeDiffMs <= oneDayMs) {
+        return { isValid: true, matchMethod: '365scores-timezone-adjusted' };
       }
       
       return { isValid: false };
