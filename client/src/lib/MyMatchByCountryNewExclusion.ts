@@ -30,10 +30,10 @@ export const regionalLeagueTerms = [
   // These are now allowed through - removing restrictions on regional leagues
 ];
 
-// Youth/development terms - now only excludes U19 and above (U15-U18 still excluded)
+// Youth/development terms - only excludes U18 and below (U19-U21 now allowed)
 export const youthDevelopmentTerms = [
-  'u15', 'u16', 'u17', 'u18', // Only exclude very young categories
-  // Removed: 'u19', 'u20', 'u21', 'u23' - these are now allowed
+  'u15', 'u16', 'u17', 'u18', // Only exclude U18 and below
+  // Now allowed: 'u19', 'u20', 'u21', 'u23' - these age groups are allowed through
   // Removed: 'youth', 'junior', 'reserve', 'amateur' - these are now allowed
   // Removed: 'development', 'academy', 'primavera', 'reserves' - these are now allowed
   // Removed: 'juvenil', 'cadete', 'infantil' - these are now allowed
@@ -102,7 +102,7 @@ export const shouldExcludeMatchByCountry = (
   // If main exclusion applies, exclude the match
   if (isMainExcluded) return true;
 
-  // If youth filter is enabled and this is a very young match (U15-U18 only), apply limiting logic
+  // If youth filter is enabled and this is a very young match (U18 and below only), apply limiting logic
   if (applyYouthFilter) {
     const isVeryYoungMatch = youthDevelopmentTerms.some(term => 
       league.includes(term) || 
@@ -147,7 +147,7 @@ export const isEsportsMatch = (leagueName: string, homeTeamName: string, awayTea
 
 /**
  * Check if a match is from youth/development leagues
- * Now only checks for very young categories (U15-U18)
+ * Now only checks for very young categories (U18 and below)
  */
 export const isYouthMatch = (leagueName: string, homeTeamName?: string, awayTeamName?: string): boolean => {
   const league = leagueName.toLowerCase();
@@ -164,7 +164,7 @@ export const isYouthMatch = (leagueName: string, homeTeamName?: string, awayTeam
 /**
  * Check if a match should be limited (very young matches when there are too many)
  * This is used for priority-based filtering instead of hard exclusion
- * Now only applies to U15-U18
+ * Now only applies to U18 and below
  */
 export const shouldLimitYouthMatch = (
   leagueName: string,
