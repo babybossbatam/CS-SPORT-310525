@@ -701,6 +701,26 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       });
     };
 
+    // Memoized flag lookup to prevent duplicate calls during renders
+  const getCountryFlagMemoized = useCallback((country: string) => {
+    return getCountryFlagWithFallbackSync(country);
+  }, []);
+
+  // Create a stable flag cache for countries to prevent re-renders
+  const countryFlags = useMemo(() => {
+    const flagMap = new Map();
+      
+    Object.values(fixturesByCountry).forEach((countryData: any) => {
+      const country = countryData.country;
+      if (!flagMap.has(country)) {
+        flagMap.set(country, getCountryFlagWithFallbackSync(country));
+      }
+    });
+
+    console.log(`⚡ Pre-populated ${flagMap.size} flags synchronously`);
+    return flagMap;
+  }, [fixturesByCountry]);
+
   return (
     <div className="space-y-4">
       {/* Header Section */}
@@ -763,7 +783,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                           {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                         </span>
                         <span className="text-xs text-gray-600">
-                          {leagueData.league.country || 'Unknown Country'}
+                           <img
+                            src={countryFlags.get(countryData.country) || getCountryFlagWithFallbackSync(countryData.country)}
+                            alt={`${countryData.country} flag`}
+                            className="w-6 h-4 object-cover rounded-sm"
+                            loading="lazy"
+                          />
+                          {countryData.country || 'Unknown Country'}
                         </span>
                       </div>
                       <div className="flex gap-1 ml-auto">
