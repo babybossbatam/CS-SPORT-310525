@@ -1890,8 +1890,14 @@ async function fetchSingleFlag(country: string): Promise<string> {
   // Special cases
   if (country === 'World') {
     const worldFlag = '/assets/world-flag.png';
+    // Clear any existing cache first
+    const cache = (flagCache as any).cache;
+    if (cache instanceof Map && cache.has(cacheKey)) {
+      cache.delete(cacheKey);
+      console.log(`🗑️ Cleared old World flag cache in fetchSingleFlag`);
+    }
     flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
-    console.log(`🌍 Cached local World flag: ${worldFlag}`);
+    console.log(`🌍 Using fresh local World flag in fetchSingleFlag: ${worldFlag}`);
     return worldFlag;
   }
 
