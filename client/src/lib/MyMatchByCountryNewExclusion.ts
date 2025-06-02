@@ -50,6 +50,41 @@ export const shouldExcludeMatchByCountry = (
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
 
+  // Check if this is a regional/international competition that should NEVER be excluded
+  const isRegionalCompetition = 
+    // UEFA competitions
+    league.includes('uefa') ||
+    league.includes('champions league') ||
+    league.includes('europa league') ||
+    league.includes('conference league') ||
+    league.includes('euro') ||
+    league.includes('european') ||
+    // FIFA competitions
+    league.includes('fifa') ||
+    league.includes('world cup') ||
+    league.includes('fifa club world cup') ||
+    // CONMEBOL competitions
+    league.includes('conmebol') ||
+    league.includes('copa america') ||
+    league.includes('copa libertadores') ||
+    league.includes('copa sudamericana') ||
+    league.includes('libertadores') ||
+    league.includes('sudamericana') ||
+    // International Friendlies (both men's and women's for regional competitions)
+    league.includes('friendlies') ||
+    league.includes('international') ||
+    // Other regional competitions
+    league.includes('nations league') ||
+    league.includes('confederation') ||
+    league.includes('qualifying') ||
+    league.includes('world') ||
+    league.includes('continental');
+
+  // If it's a regional/international competition, never exclude it
+  if (isRegionalCompetition) {
+    return false;
+  }
+
   // Check if any main exclusion term exists in league or team names
   const isMainExcluded = matchByCountryExclusionTerms.some(term => 
     league.includes(term) || 
