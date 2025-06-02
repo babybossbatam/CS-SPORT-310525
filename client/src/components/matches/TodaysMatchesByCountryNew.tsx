@@ -51,7 +51,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async ()=> {
       console.log(`🔍 [TodaysMatchesByCountryNew] Checking cache for date: ${selectedDate}`);
-      
+
       // Check our custom cache first
       const cachedFixtures = getCachedFixturesForDate(selectedDate);
       if (cachedFixtures) {
@@ -127,7 +127,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
   };
 
-  
+
 
   // Filter fixtures to ensure they belong to the selected date
   // This handles edge cases where LIVE matches span across midnight
@@ -268,7 +268,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Only process countries that aren't already in flagMap
     const missingCountries = uniqueCountries.filter(country => !flagMap[country]);
-    
+
     if (missingCountries.length === 0) {
       return;
     }
@@ -460,7 +460,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  
+
 
 
 
@@ -751,7 +751,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
                                                   {statusText}
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="text-xs text-gray-500 mt-1">```text
                                                   {format(fixtureDate, 'HH:mm')}
                                                 </div>
                                               </>

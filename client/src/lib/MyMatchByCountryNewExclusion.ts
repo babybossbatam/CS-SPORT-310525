@@ -6,22 +6,9 @@
 
 // Enhanced exclusion terms organized by category for TodaysMatchesByCountryNew filtering
 export const matchByCountryExclusionTerms = [
-  // Youth and development leagues (strict filtering)
-  'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-  'development', 'academy', 'primavera', 'reserves', 'juvenil', 'cadete', 'infantil',
-
   // Women's competitions (comprehensive exclusion)
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
   'women\'s', "women's", 'friendlies women', 'women friendlies',
-
-  // Lower divisions and regional competitions
-  'regional', 'division 3', 'division 4', 'division 5', 'third division', 'fourth division',
-  '2. bundesliga', '2 bundesliga', 'second bundesliga', 'bundesliga 2', '2nd bundesliga', 'zweite bundesliga',
-  'serie b', 'serie c', 'serie d', 'segunda division', 'tercera division',
-  'championship', 'league one', 'league two', 'non-league',
-  'amazonenense', 'segunda division', 'tercera division',
-  'oberliga', 'oberliga -', 'oberliga westfalen', 'oberliga baden', 'oberliga bayern', 'oberliga hessen',
-  'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 'oberliga thüringen',
 
   // Non-competitive/exhibition matches (but allow World Friendlies)
   'test', 'exhibition', 'testimonial', 'charity',
@@ -36,6 +23,12 @@ export const matchByCountryExclusionTerms = [
   'unknown', 'tbd', 'to be determined', 'unspecified'
 ];
 
+// Optional youth/development terms - only applied when match limit is reached
+export const youthDevelopmentTerms = [
+  'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
+  'development', 'academy', 'primavera', 'reserves', 'juvenil', 'cadete', 'infantil'
+];
+
 /**
  * Check if a fixture should be excluded based on league name and team names
  * Specialized version for TodaysMatchesByCountryNew component
@@ -43,24 +36,41 @@ export const matchByCountryExclusionTerms = [
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
  * @param awayTeamName - The name of the away team
+ * @param applyYouthFilter - Whether to apply youth/development filtering (when match count > 10)
  * @returns true if the fixture should be excluded, false otherwise
  */
 export const shouldExcludeMatchByCountry = (
   leagueName: string, 
   homeTeamName: string, 
-  awayTeamName: string
+  awayTeamName: string,
+  applyYouthFilter: boolean = false
 ): boolean => {
   // Convert to lowercase for case-insensitive matching
   const league = leagueName.toLowerCase();
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
 
-  // Check if any exclusion term exists in league or team names
-  return matchByCountryExclusionTerms.some(term => 
+  // Check if any main exclusion term exists in league or team names
+  const isMainExcluded = matchByCountryExclusionTerms.some(term => 
     league.includes(term) || 
     homeTeam.includes(term) || 
     awayTeam.includes(term)
   );
+
+  // If main exclusion applies, exclude the match
+  if (isMainExcluded) return true;
+
+  // If youth filter is enabled and this is a youth match, exclude it
+  if (applyYouthFilter) {
+    const isYouthMatch = youthDevelopmentTerms.some(term => 
+      league.includes(term) || 
+      homeTeam.includes(term) || 
+      awayTeam.includes(term)
+    );
+    if (isYouthMatch) return true;
+  }
+
+  return false;
 };
 
 /**
@@ -99,9 +109,8 @@ export const isEsportsMatch = (leagueName: string, homeTeamName: string, awayTea
  */
 export const isYouthMatch = (leagueName: string): boolean => {
   const league = leagueName.toLowerCase();
-  const youthTerms = ['u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur'];
   
-  return youthTerms.some(term => league.includes(term));
+  return youthDevelopmentTerms.some(term => league.includes(term));
 };
 
 /**
