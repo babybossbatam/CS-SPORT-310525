@@ -230,7 +230,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // 365scores.com approach: Filter fixtures using timezone-aware local date matching
+  // Simple and reliable date filtering - direct UTC date matching
   const allFixtures = fixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date) {
       console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
@@ -238,27 +238,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     try {
-      const fixtureDate = parseISO(fixture.fixture.date);
-      if (!isValid(fixtureDate)) {
-        console.log(`❌ [DEBUG] Filtering out fixture with invalid date:`, fixture.fixture.id, fixture.fixture.date);
-        return false;
-      }
-
-      const selectedDateObj = parseISO(selectedDate);
-      if (!isValid(selectedDateObj)) {
-        console.log(`❌ [DEBUG] Invalid selected date:`, selectedDate);
-        return false;
-      }
-
-      // 365scores.com style: Convert fixture UTC time to user's local date
-      const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
-      const passes = fixtureLocalDate === selectedDate;
+      // Extract UTC date from fixture (YYYY-MM-DD format)
+      const fixtureUTCDate = fixture.fixture.date.split('T')[0];
+      
+      // Direct exact match with selected date
+      const passes = fixtureUTCDate === selectedDate;
 
       if (!passes) {
-        console.log(`❌ [DEBUG] Date mismatch (365scores style):`, {
+        console.log(`❌ [DEBUG] Date mismatch (direct UTC):`, {
           fixtureId: fixture.fixture.id,
           fixtureUTCDate: fixture.fixture.date,
-          fixtureLocalDate,
+          extractedUTCDate: fixtureUTCDate,
           selectedDate,
           status: fixture.fixture.status?.short
         });
@@ -623,13 +613,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Format the time for display
+  // Format the time for display in user's local timezone
   const formatMatchTime = (dateString: string | null | undefined) => {
     if (!dateString || typeof dateString !== 'string') return '--:--';
 
     try {
-      const date = new Date(dateString);
-      return format(date, 'HH:mm');
+      // Parse UTC time and convert to user's local timezone automatically
+      const utcDate = parseISO(dateString);
+      if (!isValid(utcDate)) return '--:--';
+      
+      // format() automatically converts to user's local timezone
+      return format(utcDate, 'HH:mm');
     } catch (error) {
       console.error('Error formatting match time:', error);
       return '--:--';
