@@ -1130,6 +1130,5 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     </div>
   );
 };
-};
-};
+
 export default TodayPopularFootballLeaguesNew;
