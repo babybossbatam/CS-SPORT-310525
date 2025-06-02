@@ -826,7 +826,8 @@ export function createCountryFlagFallbackHandler(country: string) {
         isHandling = false;
       }
     }, 100); // Reduced timeout for faster fallback
-  };le.log(`All flag sources failed for ${country}, using final fallback`);
+  } else {
+        console.log(`All flag sources failed for ${country}, using final fallback`);
         img.src = '/assets/fallback-logo.svg';
       }
 
