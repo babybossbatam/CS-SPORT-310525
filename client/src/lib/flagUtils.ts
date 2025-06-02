@@ -691,9 +691,8 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
             // For standard 2-letter codes, use FlagCDN (most reliable)
             if (countryCode.length === 2) {
               result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
-            } else
+            } else if (countryCode.startsWith('GB-')) {
               // For special codes like GB-ENG, try FlagCDN with main country code
-              if (countryCode.startsWith('GB-')) {
                 result = `https://flagcdn.com/w40/gb.png`;
               } else {
                 // For other special codes, try API-Sports
