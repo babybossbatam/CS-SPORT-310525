@@ -827,7 +827,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         }
 
                         const aTime = aDate.getTime();
-                        const bTime = bDate.getTime();                        const nowTime = now.getTime();
+                        const bTime = bDate.getTime();
+                        const nowTime = now.getTime();
 
                         // Calculate time distance from now
                         const aDistance = Math.abs(aTime - nowTime);
