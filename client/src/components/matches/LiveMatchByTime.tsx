@@ -121,7 +121,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
         })
       : allMatches;
 
-  // Sort all matches by priority: Live → Upcoming → Finished
+  // Sort all matches by time with most recent first
   const sortedMatches = filteredMatches.sort((a: any, b: any) => {
     const aStatus = a.fixture.status.short;
     const bStatus = b.fixture.status.short;
@@ -135,6 +135,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
     const aTime = aDate.getTime();
     const bTime = bDate.getTime();
+    const now = new Date().getTime();
 
     // Check if matches are live
     const aIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
@@ -144,36 +145,29 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
       bStatus,
     );
 
-    // Live matches first
-    if (aIsLive && !bIsLive) return -1;
-    if (!aIsLive && bIsLive) return 1;
-
-    // If both live, sort by status priority
-    if (aIsLive && bIsLive) {
-      const statusOrder: { [key: string]: number } = {
-        LIVE: 1,
-        "1H": 2,
-        "2H": 3,
-        HT: 4,
-        ET: 5,
-        BT: 6,
-        P: 7,
-        INT: 8,
-      };
-      const aOrder = statusOrder[aStatus] || 99;
-      const bOrder = statusOrder[bStatus] || 99;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-    }
-
     // Check if matches are finished
     const aIsFinished = ["FT", "AET", "PEN"].includes(aStatus);
     const bIsFinished = ["FT", "AET", "PEN"].includes(bStatus);
 
-    // Upcoming matches before finished matches
-    if (!aIsFinished && bIsFinished) return -1;
-    if (aIsFinished && !bIsFinished) return 1;
+    // Calculate time distance from now for prioritization
+    const aTimeDistance = Math.abs(aTime - now);
+    const bTimeDistance = Math.abs(bTime - now);
 
-    // Within same category, sort by time
+    // Live matches first (sorted by most recent start time)
+    if (aIsLive && !bIsLive) return -1;
+    if (!aIsLive && bIsLive) return 1;
+    if (aIsLive && bIsLive) {
+      return aTimeDistance - bTimeDistance; // Most recent live matches first
+    }
+
+    // Recently finished matches next (most recent first)
+    if (aIsFinished && !bIsFinished) return -1;
+    if (!aIsFinished && bIsFinished) return 1;
+    if (aIsFinished && bIsFinished) {
+      return bTime - aTime; // Most recent finished matches first
+    }
+
+    // Upcoming matches last (closest to start time first)
     return aTime - bTime;
   });
 
