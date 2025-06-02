@@ -817,7 +817,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   return (
     <>
       {/* Header Section */}
-      <CardHeader className="text-sm font-semibold mb-4 mt-4 p-3 bg-white border border-stone-200">
+      <CardHeader className="text-sm font-semibold mb-4 p-3 bg-white border border-stone-200">
         {getHeaderTitle()}
       </CardHeader>
       {/* Create individual league cards from all countries */}
@@ -872,7 +872,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           </span>
                         </div>
                       ) : (
-                        <CardContent className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pt-[12px] pb-[12px] mt-[0px] mb-[0px]">
+                        <CardContent className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px]">
                           <img
                             src={
                               leagueData.league.logo ||
