@@ -48,7 +48,7 @@ const popularLeagues: { [leagueId: number]: string[] } = {
 
 export const rapidApiService = {
   /**
-   * Get fixtures by date with prioritized live scores for today
+   * Get fixtures by date with comprehensive timezone handling (365scores.com approach)
    */
   async getFixturesByDate(date: string, fetchAll: boolean = false): Promise<FixtureResponse[]> {
     const cacheKey = `fixtures-date-${date}${fetchAll ? '-all' : ''}`;
@@ -89,233 +89,108 @@ export const rapidApiService = {
       }
 
       if (fetchAll) {
-        console.log(`Fetching ALL fixtures for date ${date} from all countries and leagues`);
+        console.log(`🌍 [365scores approach] Fetching fixtures with expanded date range for comprehensive timezone coverage`);
 
-        // Fetch all fixtures for the date without league restrictions
-        console.log(`🌍 [RapidAPI] Making API request for date: ${date} without timezone restriction`);
-        console.log(`🌍 [RapidAPI] Request URL: ${apiClient.defaults.baseURL}/fixtures`);
-        console.log(`🌍 [RapidAPI] Request params:`, { 
-          date: date
-        });
-        
-        const response = await apiClient.get('/fixtures', {
-          params: { 
-            date: date
-            // No timezone parameter - let API return all fixtures for the date
-          }
-        });
+        // Create expanded date range (±1 day) to catch all timezone variations
+        const requestedDate = new Date(date);
+        const previousDay = new Date(requestedDate);
+        previousDay.setDate(previousDay.getDate() - 1);
+        const nextDay = new Date(requestedDate);
+        nextDay.setDate(nextDay.getDate() + 1);
 
-        console.log(`📡 [RapidAPI] API response for all fixtures on ${date}: status ${response.status}, results: ${response.data?.results || 0}`);
-        console.log(`📡 [RapidAPI] Response headers:`, {
-          'content-type': response.headers['content-type'],
-          'x-ratelimit-remaining': response.headers['x-ratelimit-remaining'],
-          'x-ratelimit-requests-remaining': response.headers['x-ratelimit-requests-remaining']
-        });
-        
-        // Debug: Log the actual dates in the response with detailed analysis
-        if (response.data?.response?.length > 0) {
-          const sampleFixtures = response.data.response.slice(0, 10);
-          console.log(`🔍 [RapidAPI] Sample fixture dates from API (first 10):`, sampleFixtures.map(f => {
-            const fixtureDate = new Date(f.fixture?.date);
-            const fixtureUTCString = fixtureDate.toISOString().split('T')[0];
-            const fixtureLocalString = fixtureDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+        const dateRange = [
+          previousDay.toISOString().split('T')[0],
+          date,
+          nextDay.toISOString().split('T')[0]
+        ];
+
+        console.log(`🌍 [365scores approach] Querying date range: ${dateRange.join(', ')} for comprehensive coverage`);
+
+        // Fetch fixtures from all dates in range
+        for (const queryDate of dateRange) {
+          try {
+            console.log(`🌍 [RapidAPI] Making API request for date: ${queryDate}`);
             
-            return {
-              id: f.fixture?.id,
-              league: f.league?.name,
-              teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-              requestedDate: date,
-              apiReturnedDate: f.fixture?.date,
-              extractedUTCDate: fixtureUTCString,
-              extractedLocalDate: fixtureLocalString,
-              dateMatchUTC: fixtureUTCString === date,
-              dateMatchLocal: fixtureLocalString === date,
-              timezone: 'UTC_requested',
-              timezoneOffset: fixtureDate.getTimezoneOffset()
-            };
-          }));
-          
-          // Count date mismatches
-          const dateMismatches = response.data.response.filter(f => {
-            const fixtureDate = new Date(f.fixture?.date);
-            const fixtureUTCString = fixtureDate.toISOString().split('T')[0];
-            return fixtureUTCString !== date;
-          });
-          
-          console.log(`🚨 [RapidAPI] Date mismatch analysis:`, {
-            totalFixtures: response.data.response.length,
-            dateMismatches: dateMismatches.length,
-            mismatchPercentage: Math.round((dateMismatches.length / response.data.response.length) * 100),
-            requestedDate: date,
-            commonReturnedDates: [...new Set(response.data.response.map(f => {
-              const fixtureDate = new Date(f.fixture?.date);
-              return fixtureDate.toISOString().split('T')[0];
-            }))].slice(0, 5)
-          });
-        }
-
-        if (response.data && response.data.response) {
-          const dateFixtures = response.data.response;
-
-          // Validate that all fixtures are for the correct date and have required data
-          const validFixtures = dateFixtures.filter((fixture: any) => {
-            try {
-              // Check date validity
-              if (!fixture?.fixture?.date) {
-                console.log(`❌ [RapidAPI] Filtering out fixture with no date:`, fixture.fixture?.id);
-                return false;
+            const response = await apiClient.get('/fixtures', {
+              params: { 
+                date: queryDate
+                // No timezone parameter - let API return all fixtures for the date
               }
-              
-              // ENHANCED TIMEZONE HANDLING - Convert ALL timezone formats to local date
-              let fixtureDateString;
-              const apiDateString = fixture.fixture.date;
-              
-              // Parse the complete ISO string 
-              const fixtureDate = new Date(apiDateString);
-              
-              // Method 1: Extract date from original API string (before JS conversion)
-              if (apiDateString.includes('T')) {
-                // For ISO format like "2025-06-02T00:00:00+01:00"
-                fixtureDateString = apiDateString.split('T')[0];
-              } else if (apiDateString.includes(' ')) {
-                // For format like "2025-06-02 15:30:00"
-                fixtureDateString = apiDateString.split(' ')[0];
-              } else {
-                // For simple date format
-                fixtureDateString = apiDateString;
-              }
-              
-              // Method 2: Convert UTC to local date (fallback)
-              const utcDateString = fixtureDate.toISOString().split('T')[0];
-              
-              // Method 3: ENHANCED - Handle timezone offsets manually
-              let timezoneAdjustedDate = date;
-              if (apiDateString.includes('+') || (apiDateString.includes('-') && apiDateString.lastIndexOf('-') > 10)) {
-                // Extract timezone offset from strings like "2025-06-02T00:00:00+01:00"
-                const timezoneMatch = apiDateString.match(/([+-])(\d{2}):(\d{2})$/);
-                if (timezoneMatch) {
-                  const [, sign, hours, minutes] = timezoneMatch;
-                  const offsetMinutes = (parseInt(hours) * 60 + parseInt(minutes)) * (sign === '+' ? 1 : -1);
+            });
+
+            console.log(`📡 [RapidAPI] API response for ${queryDate}: status ${response.status}, results: ${response.data?.results || 0}`);
+
+            if (response.data && response.data.response) {
+              const dateFixtures = response.data.response;
+
+              // Filter fixtures that match the requested date in ANY timezone
+              const validFixtures = dateFixtures.filter((fixture: any) => {
+                try {
+                  // Check date validity
+                  if (!fixture?.fixture?.date) {
+                    return false;
+                  }
                   
-                  // Create date object and apply timezone offset
-                  const baseDate = new Date(apiDateString.replace(/([+-]\d{2}:\d{2})$/, 'Z'));
-                  const adjustedDate = new Date(baseDate.getTime() - (offsetMinutes * 60 * 1000));
-                  timezoneAdjustedDate = adjustedDate.toISOString().split('T')[0];
+                  const apiDateString = fixture.fixture.date;
+                  const fixtureDate = new Date(apiDateString);
                   
-                  console.log(`🌍 [RapidAPI] Timezone adjustment:`, {
-                    original: apiDateString,
-                    offset: `${sign}${hours}:${minutes}`,
-                    offsetMinutes,
-                    adjustedDate: timezoneAdjustedDate,
-                    requestedDate: date
-                  });
+                  // 365scores approach: Check if fixture falls on requested date in multiple timezone interpretations
+                  const validDateChecks = this.isFixtureValidForDate(fixture, date);
+                  
+                  if (!validDateChecks.isValid) {
+                    return false;
+                  }
+
+                  // Check required data structure
+                  if (!fixture.league || !fixture.league.id || !fixture.league.name) return false;
+                  if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) return false;
+                  if (!fixture.teams.home.name || !fixture.teams.away.name) return false;
+
+                  // Set default values for missing data
+                  if (!fixture.league.country) fixture.league.country = 'Unknown';
+                  if (!fixture.league.logo) fixture.league.logo = 'https://media.api-sports.io/football/leagues/1.png';
+                  if (!fixture.teams.home.logo) fixture.teams.home.logo = '/assets/fallback-logo.png';
+                  if (!fixture.teams.away.logo) fixture.teams.away.logo = '/assets/fallback-logo.png';
+
+                  // Enhanced esports filtering
+                  if (this.isEsportsFixture(fixture)) {
+                    return false;
+                  }
+
+                  // Filter out fixtures with null/undefined country (99% are esports)
+                  if (fixture.league.country === null || 
+                      fixture.league.country === undefined || 
+                      fixture.league.country === '') {
+                    return false;
+                  }
+
+                  // Additional check for suspicious country values
+                  if (typeof fixture.league.country === 'string' && 
+                      fixture.league.country.toLowerCase().includes('unknown')) {
+                    return false;
+                  }
+
+                  return true;
+                } catch (error) {
+                  console.error('Error validating fixture:', error, fixture);
+                  return false;
                 }
-              }
-              
-              // Check all three methods for date matching
-              const originalMatches = fixtureDateString === date;
-              const utcMatches = utcDateString === date;
-              const timezoneMatches = timezoneAdjustedDate === date;
-              
-              if (!originalMatches && !utcMatches && !timezoneMatches) {
-                console.log(`🚫 [RapidAPI] Date mismatch - REJECTING fixture:`, {
-                  fixtureId: fixture.fixture.id,
-                  requestedDate: date,
-                  apiReturnedDate: apiDateString,
-                  extractedOriginalDate: fixtureDateString,
-                  extractedUtcDate: utcDateString,
-                  timezoneAdjustedDate,
-                  originalMatches,
-                  utcMatches,
-                  timezoneMatches,
-                  league: fixture.league?.name,
-                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`
-                });
-                return false;
-              }
-              
-              // Validate the extracted date format
-              if (!fixtureDateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                console.log(`❌ [RapidAPI] Invalid date format extracted:`, {
-                  fixtureId: fixture.fixture.id,
-                  apiReturnedDate: apiDateString,
-                  extractedDate: fixtureDateString
-                });
-                return false;
-              }
-              
-              // Date validation was moved above - this section removed to prevent double rejection
+              });
 
-              // Check required data structure
-              if (!fixture.league || !fixture.league.id || !fixture.league.name) return false;
-              if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) return false;
-              if (!fixture.teams.home.name || !fixture.teams.away.name) return false;
+              console.log(`Retrieved ${dateFixtures.length} fixtures from ${queryDate}, ${validFixtures.length} valid for target date ${date}`);
 
-              // Set default values for missing data
-              if (!fixture.league.country) fixture.league.country = 'Unknown';
-              if (!fixture.league.logo) fixture.league.logo = 'https://media.api-sports.io/football/leagues/1.png';
-              if (!fixture.teams.home.logo) fixture.teams.home.logo = '/assets/fallback-logo.png';
-              if (!fixture.teams.away.logo) fixture.teams.away.logo = '/assets/fallback-logo.png';
-
-              // COMPREHENSIVE ESPORTS FILTERING - Enhanced version
-              const leagueName = fixture.league.name?.toLowerCase() || '';
-              const homeTeamName = fixture.teams.home.name?.toLowerCase() || '';
-              const awayTeamName = fixture.teams.away.name?.toLowerCase() || '';
-
-              // Expanded esports exclusion terms
-              const esportsTerms = [
-                'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
-                'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football',
-                'volta', 'ultimate team', 'clubs', 'gaming', 'game',
-                'simulator', 'simulation', 'digital', 'online',
-                'battle', 'legend', 'champion', 'tournament online',
-                'vs online', 'gt sport', 'rocket league', 'fc online',
-                'dream league', 'top eleven', 'football manager',
-                'championship manager', 'mobile', 'app'
-              ];
-
-              // Check if any esports term exists in league or team names
-              const isEsports = esportsTerms.some(term => 
-                leagueName.includes(term) || 
-                homeTeamName.includes(term) || 
-                awayTeamName.includes(term)
-              );
-
-              if (isEsports) {
-                return false;
-              }
-
-              // CRITICAL: Filter out fixtures with null/undefined country (99% are esports)
-              if (fixture.league.country === null || 
-                  fixture.league.country === undefined || 
-                  fixture.league.country === '') {
-                console.log(`Filtering out fixture with null/empty country: ${fixture.league.name}`);
-                return false;
-              }
-
-              // Additional check for suspicious country values
-              if (typeof fixture.league.country === 'string' && 
-                  fixture.league.country.toLowerCase().includes('unknown')) {
-                console.log(`Filtering out fixture with unknown country: ${fixture.league.name}`);
-                return false;
-              }
-
-              return true;
-            } catch (error) {
-              console.error('Error validating fixture:', error, fixture);
-              return false;
+              // Merge with existing fixtures, avoiding duplicates
+              const existingIds = new Set(allFixtures.map(f => f.fixture.id));
+              const newFixtures = validFixtures.filter((f: any) => !existingIds.has(f.fixture.id));
+              allFixtures = [...allFixtures, ...newFixtures];
             }
-          });
-
-          console.log(`Retrieved ${dateFixtures.length} fixtures, ${validFixtures.length} valid for date ${date}`);
-
-          // Merge with live fixtures, avoiding duplicates
-          const existingIds = new Set(allFixtures.map(f => f.fixture.id));
-          const newFixtures = validFixtures.filter((f: any) => !existingIds.has(f.fixture.id));
-          allFixtures = [...allFixtures, ...newFixtures];
-
-
+          } catch (error) {
+            console.error(`Error fetching fixtures for date ${queryDate}:`, error);
+            continue;
+          }
         }
+
+        console.log(`🌍 [365scores approach] Total fixtures collected: ${allFixtures.length} for date ${date}`);
       } else {
         // Define popular leagues - matches core leagues
         const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
@@ -324,8 +199,8 @@ export const rapidApiService = {
           try {
             const leagueFixtures = await this.getFixturesByLeague(leagueId, 2024);
             const dateFixtures = leagueFixtures.filter(fixture => {
-              const fixtureDate = new Date(fixture.fixture.date).toISOString().split('T')[0];
-              return fixtureDate === date;
+              const validDateChecks = this.isFixtureValidForDate(fixture, date);
+              return validDateChecks.isValid;
             });
 
             // Merge avoiding duplicates
@@ -375,31 +250,6 @@ export const rapidApiService = {
     } catch (error) {
       console.error('RapidAPI: Error fetching fixtures by date:', error);
 
-      // Try B365API as fallback for current date
-      if (isToday) {
-        /* Removed B365 Fallback
-        try {
-          console.log('RapidAPI failed for today, trying B365API live matches as fallback...');
-          const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
-
-          if (b365LiveMatches && b365LiveMatches.length > 0) {
-            const convertedMatches = b365LiveMatches.map(match => 
-              b365ApiService.convertToRapidApiFormat(match)
-            );
-
-            console.log(`B365API Fallback: Retrieved ${convertedMatches.length} fixtures for today`);
-            fixturesCache.set(cacheKey, { 
-              data: convertedMatches, 
-              timestamp: now 
-            });
-            return convertedMatches;
-          }
-        } catch (b365Error) {
-          console.error('B365API Fallback also failed:', b365Error);
-        }
-        */
-      }
-
       if (cached?.data) {
         console.log('Using cached data due to API error');
         return cached.data;
@@ -409,6 +259,101 @@ export const rapidApiService = {
       }
       throw new Error('Failed to fetch fixtures: Unknown error');
     }
+  },
+
+  /**
+   * 365scores.com approach: Comprehensive timezone-aware date validation
+   */
+  isFixtureValidForDate(fixture: any, targetDate: string): { isValid: boolean, matchMethod?: string } {
+    try {
+      const apiDateString = fixture.fixture.date;
+      const fixtureDate = new Date(apiDateString);
+      
+      // Method 1: Direct string comparison (original API format)
+      let directDateString = '';
+      if (apiDateString.includes('T')) {
+        directDateString = apiDateString.split('T')[0];
+      } else if (apiDateString.includes(' ')) {
+        directDateString = apiDateString.split(' ')[0];
+      } else {
+        directDateString = apiDateString;
+      }
+      
+      if (directDateString === targetDate) {
+        return { isValid: true, matchMethod: 'direct' };
+      }
+      
+      // Method 2: UTC conversion
+      const utcDateString = fixtureDate.toISOString().split('T')[0];
+      if (utcDateString === targetDate) {
+        return { isValid: true, matchMethod: 'utc' };
+      }
+      
+      // Method 3: Timezone offset handling (365scores approach)
+      if (apiDateString.includes('+') || (apiDateString.includes('-') && apiDateString.lastIndexOf('-') > 10)) {
+        // Extract timezone offset from strings like "2025-06-02T00:00:00+01:00"
+        const timezoneMatch = apiDateString.match(/([+-])(\d{2}):(\d{2})$/);
+        if (timezoneMatch) {
+          const [, sign, hours, minutes] = timezoneMatch;
+          const offsetMinutes = (parseInt(hours) * 60 + parseInt(minutes)) * (sign === '+' ? 1 : -1);
+          
+          // Create date object and apply timezone offset
+          const baseDate = new Date(apiDateString.replace(/([+-]\d{2}:\d{2})$/, 'Z'));
+          const adjustedDate = new Date(baseDate.getTime() - (offsetMinutes * 60 * 1000));
+          const timezoneAdjustedDate = adjustedDate.toISOString().split('T')[0];
+          
+          if (timezoneAdjustedDate === targetDate) {
+            return { isValid: true, matchMethod: 'timezone-adjusted' };
+          }
+        }
+      }
+      
+      // Method 4: Local timezone interpretation (365scores approach)
+      // Check if the fixture falls on the target date in multiple common timezones
+      const commonTimezones = [0, -300, -480, 60, 120, 330, 540]; // UTC, EST, PST, CET, EET, IST, JST (in minutes)
+      
+      for (const tzOffset of commonTimezones) {
+        const localDate = new Date(fixtureDate.getTime() + (tzOffset * 60 * 1000));
+        const localDateString = localDate.toISOString().split('T')[0];
+        
+        if (localDateString === targetDate) {
+          return { isValid: true, matchMethod: `timezone-${tzOffset}` };
+        }
+      }
+      
+      return { isValid: false };
+    } catch (error) {
+      console.error('Error in timezone validation:', error);
+      return { isValid: false };
+    }
+  },
+
+  /**
+   * Enhanced esports detection
+   */
+  isEsportsFixture(fixture: any): boolean {
+    const leagueName = fixture.league?.name?.toLowerCase() || '';
+    const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || '';
+    const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || '';
+
+    // Expanded esports exclusion terms
+    const esportsTerms = [
+      'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
+      'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football',
+      'volta', 'ultimate team', 'clubs', 'gaming', 'game',
+      'simulator', 'simulation', 'digital', 'online',
+      'battle', 'legend', 'champion', 'tournament online',
+      'vs online', 'gt sport', 'rocket league', 'fc online',
+      'dream league', 'top eleven', 'football manager',
+      'championship manager', 'mobile', 'app'
+    ];
+
+    // Check if any esports term exists in league or team names
+    return esportsTerms.some(term => 
+      leagueName.includes(term) || 
+      homeTeamName.includes(term) || 
+      awayTeamName.includes(term)
+    );
   },
 
   /**
