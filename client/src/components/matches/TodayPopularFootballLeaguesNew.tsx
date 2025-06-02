@@ -799,31 +799,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       if (timeFilterActive) {
                         const aDate = parseISO(a.fixture.date);
                         const bDate = parseISO(b.fixture.date);
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronDown, ChevronUp, Calendar, Star } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, userActions } from '@/lib/store';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { format, parseISO, isValid, differenceInHours, subDays, addDays } from 'date-fns';
-import { safeSubstring } from '@/lib/dateUtilsUpdated';
-import { shouldExcludeFixture } from '@/lib/exclusionFilters';
-import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
-import { useCachedQuery, CacheManager } from '@/lib/cachingHelper';
-import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
-import { POPULAR_LEAGUES } from '@/lib/constants';
-import { 
-  DEFAULT_POPULAR_TEAMS, 
-  DEFAULT_POPULAR_LEAGUES,
-  POPULAR_COUNTRIES,
-  isLiveMatch
-} from '@/lib/matchFilters';
-import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
-import { createFallbackHandler } from '../../lib/MyAPIFallback';
-import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
-import { getCachedTeamLogo } from '../../lib/MyAPIFallback';
 
 // Track component renders for debugging
 let popularLeaguesRenderCount = 0;
