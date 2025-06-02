@@ -889,6 +889,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                               starredMatches.has(match.fixture.id) 
                                 ? 'text-blue-500 fill-blue-500' 
                                 : 'text-blue-300 group-hover:text-blue-500'
+                            }`}
                             }`} />
                           </button>
 
