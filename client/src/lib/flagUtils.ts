@@ -828,7 +828,6 @@ export function createCountryFlagFallbackHandler(country: string) {
     }, 100); // Reduced timeout for faster fallback
   };
 }
-}
 
 /**
  * Get SportsRadar flag URL for a country
