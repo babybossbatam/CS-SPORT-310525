@@ -166,14 +166,14 @@ export const rapidApiService = {
                 return false;
               }
               
-              // Extract date more intelligently - handle all timezone formats properly
+              // ENHANCED TIMEZONE HANDLING - Convert ALL timezone formats to local date
               let fixtureDateString;
               const apiDateString = fixture.fixture.date;
               
-              // Parse the complete ISO string and convert to the requested date
+              // Parse the complete ISO string 
               const fixtureDate = new Date(apiDateString);
               
-              // Extract the date part from the API string directly (before any JS conversion)
+              // Method 1: Extract date from original API string (before JS conversion)
               if (apiDateString.includes('T')) {
                 // For ISO format like "2025-06-02T00:00:00+01:00"
                 fixtureDateString = apiDateString.split('T')[0];
@@ -185,22 +185,49 @@ export const rapidApiService = {
                 fixtureDateString = apiDateString;
               }
               
-              // Also check the UTC date conversion as a fallback
+              // Method 2: Convert UTC to local date (fallback)
               const utcDateString = fixtureDate.toISOString().split('T')[0];
               
-              // Accept fixture if EITHER the original date OR the UTC conversion matches
-              const originalDateMatches = fixtureDateString === date;
-              const utcDateMatches = utcDateString === date;
+              // Method 3: ENHANCED - Handle timezone offsets manually
+              let timezoneAdjustedDate = date;
+              if (apiDateString.includes('+') || (apiDateString.includes('-') && apiDateString.lastIndexOf('-') > 10)) {
+                // Extract timezone offset from strings like "2025-06-02T00:00:00+01:00"
+                const timezoneMatch = apiDateString.match(/([+-])(\d{2}):(\d{2})$/);
+                if (timezoneMatch) {
+                  const [, sign, hours, minutes] = timezoneMatch;
+                  const offsetMinutes = (parseInt(hours) * 60 + parseInt(minutes)) * (sign === '+' ? 1 : -1);
+                  
+                  // Create date object and apply timezone offset
+                  const baseDate = new Date(apiDateString.replace(/([+-]\d{2}:\d{2})$/, 'Z'));
+                  const adjustedDate = new Date(baseDate.getTime() - (offsetMinutes * 60 * 1000));
+                  timezoneAdjustedDate = adjustedDate.toISOString().split('T')[0];
+                  
+                  console.log(`🌍 [RapidAPI] Timezone adjustment:`, {
+                    original: apiDateString,
+                    offset: `${sign}${hours}:${minutes}`,
+                    offsetMinutes,
+                    adjustedDate: timezoneAdjustedDate,
+                    requestedDate: date
+                  });
+                }
+              }
               
-              if (!originalDateMatches && !utcDateMatches) {
+              // Check all three methods for date matching
+              const originalMatches = fixtureDateString === date;
+              const utcMatches = utcDateString === date;
+              const timezoneMatches = timezoneAdjustedDate === date;
+              
+              if (!originalMatches && !utcMatches && !timezoneMatches) {
                 console.log(`🚫 [RapidAPI] Date mismatch - REJECTING fixture:`, {
                   fixtureId: fixture.fixture.id,
                   requestedDate: date,
                   apiReturnedDate: apiDateString,
                   extractedOriginalDate: fixtureDateString,
                   extractedUtcDate: utcDateString,
-                  originalMatches: originalDateMatches,
-                  utcMatches: utcDateMatches,
+                  timezoneAdjustedDate,
+                  originalMatches,
+                  utcMatches,
+                  timezoneMatches,
                   league: fixture.league?.name,
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`
                 });
