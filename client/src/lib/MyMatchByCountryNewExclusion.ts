@@ -17,10 +17,21 @@ export const matchByCountryExclusionTerms = [
   'futsal', 'indoor', 'beach', 'arena',
 
   // Esports and virtual competitions (but allow FIFA competitions)
-  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball',
+  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball'
+];
 
-  // Unknown/unspecified competitions
-  'unknown', 'tbd', 'to be determined', 'unspecified'
+// Unknown/unspecified leagues and countries (handled separately with highest priority)
+export const unknownLeagueTerms = [
+  'unknown', 'tbd', 'to be determined', 'unspecified', '', null, undefined
+];
+
+// Regional and lower-tier leagues (handled separately)
+export const regionalLeagueTerms = [
+  'regional', 'division 3', 'division 4', 'division 5', 'third division', 'fourth division',
+  'oberliga', 'oberliga -', 'oberliga westfalen', 'oberliga baden', 'oberliga bayern', 
+  'oberliga hessen', 'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 
+  'oberliga thüringen', 'serie c', 'serie d', 'amateur', 'reserve', 'reserves',
+  'segunda division b', 'tercera division', 'cuarta division'
 ];
 
 // Youth/development terms - now used for limiting rather than excluding
@@ -32,6 +43,7 @@ export const youthDevelopmentTerms = [
 /**
  * Check if a fixture should be excluded based on league name and team names
  * Specialized version for TodaysMatchesByCountryNew component
+ * Note: Unknown leagues and regional leagues are now handled in the main component
  * 
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
@@ -50,15 +62,15 @@ export const shouldExcludeMatchByCountry = (
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
 
-  // Check if this is a regional/international competition that should NEVER be excluded
-  const isRegionalCompetition = 
+  // Check if this is a major international competition that should NEVER be excluded
+  const isMajorInternationalCompetition = 
     // UEFA competitions
     league.includes('uefa') ||
     league.includes('champions league') ||
     league.includes('europa league') ||
     league.includes('conference league') ||
     league.includes('euro') ||
-    league.includes('european') ||
+    league.includes('european championship') ||
     // FIFA competitions
     league.includes('fifa') ||
     league.includes('world cup') ||
@@ -70,18 +82,14 @@ export const shouldExcludeMatchByCountry = (
     league.includes('copa sudamericana') ||
     league.includes('libertadores') ||
     league.includes('sudamericana') ||
-    // International Friendlies (both men's and women's for regional competitions)
-    league.includes('friendlies') ||
-    league.includes('international') ||
-    // Other regional competitions
+    // International competitions
     league.includes('nations league') ||
     league.includes('confederation') ||
-    league.includes('qualifying') ||
-    league.includes('world') ||
-    league.includes('continental');
+    league.includes('qualifying') && (league.includes('world cup') || league.includes('euro')) ||
+    league.includes('international') && (league.includes('cup') || league.includes('championship'));
 
-  // If it's a regional/international competition, never exclude it
-  if (isRegionalCompetition) {
+  // If it's a major international competition, never exclude it
+  if (isMajorInternationalCompetition) {
     return false;
   }
 
