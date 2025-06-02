@@ -728,7 +728,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         </span>
                       </div>
                     ) : (
-                      <CardContent className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pt-[12px] pb-[12px] mt-[0px] mb-[0px]">
+                      <CardContent className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pt-[12px] pb-[12px] mt-[0px] mb-[0px] py-4">
                         <img
                           src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                           alt={leagueData.league.name || 'Unknown League'}
