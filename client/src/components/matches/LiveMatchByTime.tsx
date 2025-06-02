@@ -237,20 +237,13 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
       <Card className=" overflow-hidden">
         {/* Header showing total matches */}
 
-        <div className="flex ml-auto">
-          <span className="relative flex h-3 w-3 mt-1">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-          </span>
-        </div>
-
         {/* All Matches */}
         <CardContent className="p-0">
           <div className="space-y-0">
             {sortedMatches.map((match: any) => (
               <div
                 key={match.fixture.id}
-                className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                className="bg-white hover:bg-gray-200 transition-all duration-200 cursor-pointer border-b border-gray-200 last:border-b-0"
               >
                 <div className="flex items-center px-3 py-2">
                   {/* Home Team */}
@@ -281,7 +274,9 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                       {match.fixture.status.short === "FT" ? (
                         <span className="text-gray-600">Ended</span>
                       ) : match.fixture.status.short === "HT" ? (
-                        <span className="text-red-600 animate-pulse">HT</span>
+                        <span className="text-red-600 animate-pulse">
+                          Halftime
+                        </span>
                       ) : ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
                           match.fixture.status.short,
                         ) ? (
@@ -304,9 +299,6 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                       </span>
                     </div>
                     {/* League info below score */}
-                    <div className="text-xs text-gray-500 mt-1 text-center">
-                      {match.leagueInfo.name}
-                    </div>
                   </div>
 
                   <div className="flex-shrink-0 mx-1">
