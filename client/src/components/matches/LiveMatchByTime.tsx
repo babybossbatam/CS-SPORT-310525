@@ -160,13 +160,9 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
       const aElapsed = Number(a.fixture.status.elapsed) || 0;
       const bElapsed = Number(b.fixture.status.elapsed) || 0;
       
-      // Debug specific problematic matches
-      if ((aElapsed === 46 || aElapsed === 47) || (bElapsed === 46 || bElapsed === 47)) {
-        console.log(`🔍 [DEBUG] Problematic match: ${a.teams.home.name} vs ${a.teams.away.name} (${aElapsed}') vs ${b.teams.home.name} vs ${b.teams.away.name} (${bElapsed}')`);
-        console.log(`🔍 [DEBUG] Sort result: ${aElapsed - bElapsed} (${aElapsed} - ${bElapsed})`);
-      }
-      
-      return aElapsed - bElapsed; // Shortest elapsed time first (22' before 31')
+      // Ensure consistent ascending order: shorter elapsed time first
+      const sortResult = aElapsed - bElapsed;
+      return sortResult;
     }
 
     // Recently finished matches next (most recent first)
@@ -243,9 +239,9 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
         {/* All Matches */}
         <CardContent className="p-0">
           <div className="space-y-0">
-            {sortedMatches.map((match: any) => (
+            {sortedMatches.map((match: any, index: number) => (
               <div
-                key={match.fixture.id}
+                key={`${match.fixture.id}-${match.fixture.status.elapsed}-${index}`}
                 className="bg-white hover:bg-gray-200 transition-all duration-200 cursor-pointer border-b border-gray-200 last:border-b-0"
               >
                 <div className="flex items-center px-3 py-2">
