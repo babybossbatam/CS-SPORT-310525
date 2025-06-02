@@ -1,0 +1,159 @@
+{
+  "requestedDate": "2025-06-02",
+  "serverTime": "2025-06-02T11:20:02.704Z",
+  "serverTimezone": "UTC",
+  "testResults": [
+    {
+      "testName": "UTC",
+      "timezone": "UTC",
+      "totalResults": 100,
+      "sampleDates": [
+        {
+          "id": 1364254,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1368731,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1368937,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1369669,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1369670,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        }
+      ],
+      "correctDateCount": 100
+    },
+    {
+      "testName": "London",
+      "timezone": "Europe/London",
+      "totalResults": 109,
+      "sampleDates": [
+        {
+          "id": 1338409,
+          "returnedDate": "2025-06-02T00:00:00+01:00",
+          "extractedDate": "2025-06-01",
+          "matchesRequested": false
+        },
+        {
+          "id": 1345437,
+          "returnedDate": "2025-06-02T00:00:00+01:00",
+          "extractedDate": "2025-06-01",
+          "matchesRequested": false
+        },
+        {
+          "id": 1345438,
+          "returnedDate": "2025-06-02T00:00:00+01:00",
+          "extractedDate": "2025-06-01",
+          "matchesRequested": false
+        },
+        {
+          "id": 1357319,
+          "returnedDate": "2025-06-02T00:00:00+01:00",
+          "extractedDate": "2025-06-01",
+          "matchesRequested": false
+        },
+        {
+          "id": 1359767,
+          "returnedDate": "2025-06-02T00:00:00+01:00",
+          "extractedDate": "2025-06-01",
+          "matchesRequested": false
+        }
+      ],
+      "correctDateCount": 89
+    },
+    {
+      "testName": "New_York",
+      "timezone": "America/New_York",
+      "totalResults": 78,
+      "sampleDates": [
+        {
+          "id": 1375355,
+          "returnedDate": "2025-06-02T01:00:00-04:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1376337,
+          "returnedDate": "2025-06-02T01:00:00-04:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1366876,
+          "returnedDate": "2025-06-02T05:30:00-04:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1374901,
+          "returnedDate": "2025-06-02T06:00:00-04:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1373472,
+          "returnedDate": "2025-06-02T07:00:00-04:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        }
+      ],
+      "correctDateCount": 72
+    },
+    {
+      "testName": "No_Timezone",
+      "timezone": "none",
+      "totalResults": 100,
+      "sampleDates": [
+        {
+          "id": 1364254,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1368731,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1368937,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1369669,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        },
+        {
+          "id": 1369670,
+          "returnedDate": "2025-06-02T00:00:00+00:00",
+          "extractedDate": "2025-06-02",
+          "matchesRequested": true
+        }
+      ],
+      "correctDateCount": 100
+    }
+  ]
+}
