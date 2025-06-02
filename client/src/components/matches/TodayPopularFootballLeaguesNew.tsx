@@ -709,7 +709,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Create a stable flag cache for countries to prevent re-renders
   const countryFlags = useMemo(() => {
     const flagMap = new Map();
-      
+
     Object.values(fixturesByCountry).forEach((countryData: any) => {
       const country = countryData.country;
       if (!flagMap.has(country)) {
@@ -795,8 +795,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       <div className="flex gap-1 ml-auto">
                         {leagueData.isPopularForCountry && (
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                            Popular Country
-                          </span>
+                            Popular Country                          </span>
                         )}
                         {leagueData.isPopular && !leagueData.isPopularForCountry && (
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
