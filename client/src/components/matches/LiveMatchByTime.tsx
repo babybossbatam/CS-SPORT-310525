@@ -305,7 +305,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                     <img
                       src={match.teams.away.logo || "/assets/fallback-logo.png"}
                       alt={match.teams.away.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-9 h-9 object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         if (target.src !== "/assets/fallback-logo.png") {

@@ -362,7 +362,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 "/assets/fallback-logo.png"
                               }
                               alt={match.teams.home.name}
-                              className="w-12 h-12 object-contain"
+                              className="w-9 h-9 object-contain"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (
@@ -406,7 +406,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 "/assets/fallback-logo.png"
                               }
                               alt={match.teams.away.name}
-                              className="w-12 h-12 object-contain"
+                              className="w-9 h-9 object-contain"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 if (
