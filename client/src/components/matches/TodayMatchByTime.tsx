@@ -256,7 +256,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     <img
                       src={match.teams.home.logo || "/assets/fallback-logo.png"}
                       alt={match.teams.home.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-9 h-9 object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         if (target.src !== "/assets/fallback-logo.png") {
