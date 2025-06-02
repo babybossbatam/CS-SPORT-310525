@@ -259,8 +259,8 @@ export const rapidApiService = {
   },
 
   /**
-   * Simple and reliable date validation - direct UTC date matching only
-   * Any timezone conversion is handled on the client side for display
+   * Inclusive date validation - allow fixtures from all timezones
+   * Server gets all potentially relevant fixtures, client does precise filtering
    */
   isFixtureValidForDate(fixture: any, targetDate: string): { isValid: boolean, matchMethod?: string } {
     try {
@@ -269,9 +269,21 @@ export const rapidApiService = {
       // Extract UTC date from API response (YYYY-MM-DD format)
       const fixtureDate = apiDateString.split('T')[0];
       
-      // Direct exact match - no timezone tolerance needed
-      if (fixtureDate === targetDate) {
-        return { isValid: true, matchMethod: 'direct-utc-match' };
+      // Allow fixtures from target date and ±1 day to capture all timezone variations
+      const targetDateObj = new Date(targetDate);
+      const previousDay = new Date(targetDateObj);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const nextDay = new Date(targetDateObj);
+      nextDay.setDate(nextDay.getDate() + 1);
+      
+      const validDates = [
+        previousDay.toISOString().split('T')[0],
+        targetDate,
+        nextDay.toISOString().split('T')[0]
+      ];
+      
+      if (validDates.includes(fixtureDate)) {
+        return { isValid: true, matchMethod: 'timezone-inclusive' };
       }
       
       return { isValid: false };

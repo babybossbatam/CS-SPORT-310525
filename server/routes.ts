@@ -309,17 +309,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const validCachedFixtures = cachedFixtures.filter(fixture => {
             const fixtureData = fixture.data as any;
             if (!fixtureData?.fixture?.date) return false;
-            
+
             // Extract date directly from API string to avoid timezone conversion issues
             let fixtureDateString;
             const apiDateString = fixtureData.fixture.date;
-            
+
             if (apiDateString.includes('T')) {
               fixtureDateString = apiDateString.split('T')[0];
             } else {
               fixtureDateString = apiDateString.split(' ')[0];
             }
-            
+
             if (fixtureDateString !== date) {
               console.log(`🚫 [Routes] Found cached fixture with wrong date:`, {
                 requestedDate: date,
@@ -380,17 +380,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Final validation: ensure all fixtures match the requested date
         const validFixtures = fixtures.filter(fixture => {
           if (!fixture?.fixture?.date) return false;
-          
+
           // Extract date directly from API string to avoid timezone issues
           let fixtureDateString;
           const apiDateString = fixture.fixture.date;
-          
+
           if (apiDateString.includes('T')) {
             fixtureDateString = apiDateString.split('T')[0];
           } else {
             fixtureDateString = apiDateString.split(' ')[0];
           }
-          
+
           if (fixtureDateString !== date) {
             console.log(`🚫 [Routes] Final validation - rejecting fixture with wrong date:`, {
               requestedDate: date,
@@ -847,8 +847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching Conference League fixtures:", error);
       // Return empty array instead of error to avoid breaking frontend
-      return res.json([]);
-    }
+      return res.json([]);      }
   });
 
   // Europa League fixtures endpoint (League ID 3)
@@ -1366,13 +1365,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
 
+      // Server-side: Keep all fixtures - let client do precise date filtering
+  // This ensures we capture fixtures from all timezones that might be valid
+  const validatedFixtures = allFixtures.filter(fixture => {
+    try {
+      const apiDateString = fixture.fixture.date;
+      const extractedDate = apiDateString.split('T')[0];
+
+      // Allow fixtures from ±1 day to capture all timezone variations
+      const targetDateObj = new Date(date);
+      const previousDay = new Date(targetDateObj);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const nextDay = new Date(targetDateObj);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const validDates = [
+        previousDay.toISOString().split('T')[0],
+        date,
+        nextDay.toISOString().split('T')[0]
+      ];
+
+      if (!validDates.includes(extractedDate)) {
+        console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
+  requestedDate: '${date}',
+  apiReturnedDate: '${apiDateString}',
+  extractedDate: '${extractedDate}',
+  fixtureId: ${fixture.fixture.id}
+}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in final date validation:', error);
+      return false;
+    }
+  });
+
       res.json({ 
         success: true, 
-        fixtures: allFixtures,
+        fixtures: validatedFixtures,
         country: country,
         season: season || 2024,
         totalLeagues: countryLeagues.length,
-        totalFixtures: allFixtures.length
+        totalFixtures: validatedFixtures.length
       });
     } catch (error) {
       console.error('Error fetching fixtures by country:', error);
@@ -1387,9 +1423,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get('/debug/rapidapi-date/:date', async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
-      
+
       console.log(`🔬 [DEBUG] Testing RapidAPI direct call for date: ${date}`);
-      
+
       // Make direct API call with different timezone parameters
       const tests = [
         { timezone: 'UTC', name: 'UTC' },
@@ -1397,27 +1433,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { timezone: 'America/New_York', name: 'New_York' },
         { name: 'No_Timezone' } // No timezone parameter
       ];
-      
+
       const results = [];
-      
+
       for (const test of tests) {
         try {
           const params: any = { date };
           if (test.timezone) {
             params.timezone = test.timezone;
           }
-          
+
           console.log(`🧪 [DEBUG] Testing with params:`, params);
-          
+
           const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?${new URLSearchParams(params)}`, {
             headers: {
               'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
               'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
             }
           });
-          
+
           const data = await response.json();
-          
+
           if (data.response?.length > 0) {
             const sampleDates = data.response.slice(0, 5).map((f: any) => {
               const fixtureDate = new Date(f.fixture?.date);
@@ -1428,7 +1464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 matchesRequested: fixtureDate.toISOString().split('T')[0] === date
               };
             });
-            
+
             results.push({
               testName: test.name,
               timezone: test.timezone || 'none',
@@ -1455,14 +1491,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       res.json({
         requestedDate: date,
         serverTime: new Date().toISOString(),
         serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         testResults: results
       });
-      
+
     } catch (error) {
       console.error('Debug endpoint error:', error);
       res.status(500).json({ error: 'Debug test failed' });
