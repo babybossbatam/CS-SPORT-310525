@@ -705,7 +705,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           .map((leagueData: any, leagueIndex: number) => {
             const isFirstCard = countryIndex === 0 && leagueIndex === 0;
             return (
-              <Card key={`${countryData.country}-${leagueData.league.id}`} className="border bg-card text-card-foreground shadow-md overflow-hidden py-4 mt-[16px] mb-[16px] pt-[0px] pb-[0px]">
+              <Card key={`${countryData.country}-${leagueData.league.id}`} className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4">
                 {/* League Header - Always show unless time filter is active */}
                 {!timeFilterActive && (
                   <>
@@ -795,6 +795,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         const aStatus = a.fixture.status.short;
                         const bStatus = b.fixture.status.short;
                         const aDate = parseISO(a.fixture.date);
+                        ```
                         const bDate = parseISO(b.fixture.date);
 
                         // Ensure valid dates
