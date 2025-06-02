@@ -344,87 +344,130 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                 {/* Live Matches */}
                 <CardContent className="p-0">
                   <div className="space-y-0">
-                    {leagueData.matches.map((match: any) => (
-                      <div
-                        key={match.fixture.id}
-                        className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="flex items-center px-3 py-2">
-                          {/* Home Team */}
-                          <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                            {match.teams.home.name}
-                          </div>
+                    {leagueData.matches
+                      .sort((a: any, b: any) => {
+                        // Sort live matches by elapsed time ascending (shorter elapsed time first)
+                        const aStatus = a.fixture.status.short;
+                        const bStatus = b.fixture.status.short;
 
-                          <div className="flex-shrink-0 mx-1">
-                            <img
-                              src={
-                                match.teams.home.logo ||
-                                "/assets/fallback-logo.png"
-                              }
-                              alt={match.teams.home.name}
-                              className="w-9 h-9 object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (
-                                  target.src !== "/assets/fallback-logo.png"
-                                ) {
-                                  target.src = "/assets/fallback-logo.png";
-                                }
-                              }}
-                            />
-                          </div>
+                        const aIsLive = [
+                          "LIVE",
+                          "1H",
+                          "HT",
+                          "2H",
+                          "ET",
+                          "BT",
+                          "P",
+                          "INT",
+                        ].includes(aStatus);
+                        const bIsLive = [
+                          "LIVE",
+                          "1H",
+                          "HT",
+                          "2H",
+                          "ET",
+                          "BT",
+                          "P",
+                          "INT",
+                        ].includes(bStatus);
 
-                          {/* Score/Time Center - Live matches */}
-                          <div
-                            className="flex flex-col items-center justify-center px-4 flex-shrink-0"
-                            style={{ marginTop: "-14px" }}
-                          >
-                            <div className="text-xs font-semibold mb-0.5">
-                              {match.fixture.status.short === "FT" ? (
-                                <span className="text-gray-600">Ended</span>
-                              ) : match.fixture.status.short === "HT" ? (
-                                <span className="text-red-600 animate-pulse">
-                                  HT
-                                </span>
-                              ) : (
-                                <span className="text-red-600 animate-pulse">
-                                  {match.fixture.status.elapsed || 0}'
-                                </span>
-                              )}
+                        // If both are live, sort by elapsed time ascending
+                        if (aIsLive && bIsLive) {
+                          const aElapsed =
+                            Number(a.fixture.status.elapsed) || 0;
+                          const bElapsed =
+                            Number(b.fixture.status.elapsed) || 0;
+                          return aElapsed - bElapsed; // Ascending order: shorter elapsed time first
+                        }
+
+                        // Live matches first
+                        if (aIsLive && !bIsLive) return -1;
+                        if (!aIsLive && bIsLive) return 1;
+
+                        // If neither is live, maintain original order
+                        return 0;
+                      })
+                      .map((match: any) => (
+                        <div
+                          key={match.fixture.id}
+                          className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="flex items-center px-3 py-2">
+                            {/* Home Team */}
+                            <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                              {match.teams.home.name}
                             </div>
-                            <div className="text-lg font-bold flex items-center gap-2">
-                              <span className="text-black">2</span>
-                              <span className="text-gray-400">-</span>
-                              <span className="text-black">2</span>
-                            </div>
-                          </div>
 
-                          <div className="flex-shrink-0 mx-1">
-                            <img
-                              src={
-                                match.teams.away.logo ||
-                                "/assets/fallback-logo.png"
-                              }
-                              alt={match.teams.away.name}
-                              className="w-9 h-9 object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (
-                                  target.src !== "/assets/fallback-logo.png"
-                                ) {
-                                  target.src = "/assets/fallback-logo.png";
+                            <div className="flex-shrink-0 mx-1">
+                              <img
+                                src={
+                                  match.teams.home.logo ||
+                                  "/assets/fallback-logo.png"
                                 }
-                              }}
-                            />
-                          </div>
+                                alt={match.teams.home.name}
+                                className="w-9 h-9 object-contain"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (
+                                    target.src !== "/assets/fallback-logo.png"
+                                  ) {
+                                    target.src = "/assets/fallback-logo.png";
+                                  }
+                                }}
+                              />
+                            </div>
 
-                          {/* Away Team */}
-                          <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                            {match.teams.away.name}
+                            {/* Score/Time Center - Live matches */}
+                            <div
+                              className="flex flex-col items-center justify-center px-4 flex-shrink-0"
+                              style={{ marginTop: "-14px" }}
+                            >
+                              <div className="text-xs font-semibold mb-0.5">
+                                {match.fixture.status.short === "FT" ? (
+                                  <span className="text-gray-600">Ended</span>
+                                ) : match.fixture.status.short === "HT" ? (
+                                  <span className="text-red-600 animate-pulse">
+                                    HT
+                                  </span>
+                                ) : (
+                                  <span className="text-red-600 animate-pulse">
+                                    {match.fixture.status.elapsed || 0}'
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-lg font-bold flex items-center gap-2">
+                                <span className="text-black">2</span>
+                                <span className="text-gray-400">-</span>
+                                <span className="text-black">2</span>
+                              </div>
+                            </div>
+
+                            <div className="flex-shrink-0 mx-1">
+                              <img
+                                src={
+                                  match.teams.away.logo ||
+                                  "/assets/fallback-logo.png"
+                                }
+                                alt={match.teams.away.name}
+                                className="w-9 h-9 object-contain"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (
+                                    target.src !== "/assets/fallback-logo.png"
+                                  ) {
+                                    target.src = "/assets/fallback-logo.png";
+                                  }
+                                }}
+                              />
+                            </div>
+
+                            {/* Away Team */}
+                            <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                              {match.teams.away.name}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </CardContent>
               </Card>
