@@ -110,7 +110,7 @@ export const rapidApiService = {
         for (const queryDate of dateRange) {
           try {
             console.log(`🌍 [RapidAPI] Making API request for date: ${queryDate}`);
-            
+
             const response = await apiClient.get('/fixtures', {
               params: { 
                 date: queryDate
@@ -130,10 +130,10 @@ export const rapidApiService = {
                   if (!fixture?.fixture?.date) {
                     return false;
                   }
-                  
+
                   // 365scores approach: Simple date matching
                   const validDateChecks = this.isFixtureValidForDate(fixture, date);
-                  
+
                   if (!validDateChecks.isValid) {
                     return false;
                   }
@@ -265,27 +265,27 @@ export const rapidApiService = {
   isFixtureValidForDate(fixture: any, targetDate: string): { isValid: boolean, matchMethod?: string } {
     try {
       const apiDateString = fixture.fixture.date;
-      
+
       // Extract UTC date from API response (YYYY-MM-DD format)
       const fixtureDate = apiDateString.split('T')[0];
-      
+
       // Allow fixtures from target date and ±1 day to capture all timezone variations
       const targetDateObj = new Date(targetDate);
       const previousDay = new Date(targetDateObj);
       previousDay.setDate(previousDay.getDate() - 1);
       const nextDay = new Date(targetDateObj);
       nextDay.setDate(nextDay.getDate() + 1);
-      
+
       const validDates = [
         previousDay.toISOString().split('T')[0],
         targetDate,
         nextDay.toISOString().split('T')[0]
       ];
-      
+
       if (validDates.includes(fixtureDate)) {
         return { isValid: true, matchMethod: 'timezone-inclusive' };
       }
-      
+
       return { isValid: false };
     } catch (error) {
       console.error('Error in date validation:', error);

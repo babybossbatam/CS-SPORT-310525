@@ -320,7 +320,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Only applying main exclusion filters (women's, esports, etc.)
 
     // Apply standard exclusion filters (women's, youth, etc.)
-    const shouldExclude = shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName);
+    const shouldExclude = shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName, false, countryName);
     if (shouldExclude) {
       console.log(`🚫 [DEBUG] Excluding match by standard filters:`, {
         fixtureId: fixture.fixture.id,

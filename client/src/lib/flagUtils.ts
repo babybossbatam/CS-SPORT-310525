@@ -108,6 +108,8 @@ const countryCodeMap: { [key: string]: string } = {
   'Belize': 'BZ',
   'Jamaica': 'JM',
   'Trinidad and Tobago': 'TT',
+  'Trinidad-and-Tobago': 'TT',
+  'Trinidad-And-Tobago': 'TT',
   'Cuba': 'CU',
   'Dominican Republic': 'DO',
   'Haiti': 'HT',

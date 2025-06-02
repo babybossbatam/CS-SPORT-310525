@@ -850,7 +850,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json([]);      }
   });
 
-  // Europa League fixtures endpoint (League ID 3)
+  // Europa Leaguefixtures endpoint (League ID 3)
   apiRouter.get("/europa-league/fixtures", async (_req: Request, res: Response) => {
     try {
       console.log("Europa League fixtures API call initiated");
@@ -1514,6 +1514,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
       }
+    // Get fixtures for the requested date without timezone restrictions
+  // This allows us to capture fixtures from all timezones for the given date
+  const apiFromDate = requestedDate; // Use the date as-is
+  const apiToDate = requestedDate; // Same day
 
       const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
       console.log(`Got ${fixtures.length} fixtures ${all === 'true' ? 'from all leagues' : 'from popular leagues'} for date ${date}`);
