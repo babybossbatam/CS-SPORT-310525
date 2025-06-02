@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { format, parseISO, isValid, differenceInHours } from 'date-fns';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
-import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { shouldExcludeMatchByCountry } from '@/lib/MyMatchByCountryNewExclusion';
 import { isToday, isYesterday, isTomorrow } from '@/lib/dateUtilsUpdated';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, fixturesActions, selectFixturesByDate } from '@/lib/store';
@@ -188,7 +188,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Skip exclusion filter for Egypt matches to ensure all Egypt matches are shown
     if (league.country?.toLowerCase() !== 'egypt') {
-      if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
+      if (shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName)) {
         return acc;
       }
     }
