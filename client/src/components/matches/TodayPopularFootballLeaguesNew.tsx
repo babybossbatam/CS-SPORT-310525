@@ -684,11 +684,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   return (
     <div className="space-y-4 py-4 -mt-4">
       {/* Header Section */}
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold">
-          {getHeaderTitle()}
-        </h3>
-      </div>
+      <h3 className="text-sm font-semibold mb-4">
+        {getHeaderTitle()}
+      </h3>
       {/* Create individual league cards from all countries */}
       {top20FilteredCountries.flatMap((countryData: any, countryIndex: number) => 
         Object.values(countryData.leagues)
