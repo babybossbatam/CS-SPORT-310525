@@ -415,84 +415,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.get("/leagues", async (_req: Request, res: Response) => {
     try {
-      console.log('🔍 [All Leagues] Endpoint called');
-      
       // Check for cached leagues first
       const cachedLeagues = await storage.getAllCachedLeagues();
-      console.log(`📊 [All Leagues] Found ${cachedLeagues?.length || 0} cached leagues`);
 
   // Popular leagues endpoint
   apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
     try {
-      console.log('🔍 [Popular Leagues] Endpoint called');
-      
       // Try to get from cached leagues first
       const allLeagues = await storage.getAllCachedLeagues();
-      console.log(`📊 [Popular Leagues] Found ${allLeagues?.length || 0} cached leagues`);
-
-      if (!allLeagues || allLeagues.length === 0) {
-        console.warn('⚠️ [Popular Leagues] No cached leagues found, fetching from API');
-        
-        // Fetch leagues from API if cache is empty
-        const apiLeagues = await rapidApiService.getLeagues();
-        console.log(`📥 [Popular Leagues] Fetched ${apiLeagues?.length || 0} leagues from API`);
-        
-        if (!apiLeagues || apiLeagues.length === 0) {
-          console.error('❌ [Popular Leagues] No leagues available from API either');
-          return res.status(500).json({ error: 'No leagues data available' });
-        }
-        
-        // Cache the leagues
-        for (const league of apiLeagues) {
-          try {
-            const leagueId = league.league.id.toString();
-            await storage.createCachedLeague({
-              leagueId: leagueId,
-              data: league
-            });
-          } catch (cacheError) {
-            console.error(`Error caching league ${league.league.id}:`, cacheError);
-          }
-        }
-        
-        // Use the fresh API data
-        const allLeaguesData = apiLeagues;
-        
-        // Define popular league IDs with priorities
-        const popularLeagueIds = [
-          { id: 2, priority: 1 }, // Champions League
-          { id: 39, priority: 2 }, // Premier League
-          { id: 140, priority: 3 }, // La Liga
-          { id: 135, priority: 4 }, // Serie A
-          { id: 78, priority: 5 }, // Bundesliga
-          { id: 3, priority: 6 }, // Europa League
-          { id: 848, priority: 7 }, // Conference League
-          { id: 137, priority: 8 }, // Coppa Italia
-          { id: 45, priority: 9 }, // FA Cup
-          { id: 40, priority: 10 }, // Community Shield
-          { id: 48, priority: 11 } // EFL Cup
-        ];
-
-        console.log(`🎯 [Popular Leagues] Looking for ${popularLeagueIds.length} popular leagues`);
-
-        // Filter and sort popular leagues from fresh API data
-        const popularLeagues = popularLeagueIds
-          .map(({ id, priority }) => {
-            const league = allLeaguesData.find(l => l.league.id === id);
-            if (league) {
-              console.log(`✅ [Popular Leagues] Found league: ${league.league.name} (ID: ${id})`);
-              return { ...league, priority };
-            } else {
-              console.warn(`❌ [Popular Leagues] League not found: ID ${id}`);
-              return null;
-            }
-          })
-          .filter(Boolean)
-          .sort((a, b) => a.priority - b.priority);
-
-        console.log(`📋 [Popular Leagues] Returning ${popularLeagues.length} popular leagues`);
-        return res.json(popularLeagues);
-      }
 
       // Define popular league IDs with priorities
       const popularLeagueIds = [
@@ -502,34 +432,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 135, priority: 4 }, // Serie A
         { id: 78, priority: 5 }, // Bundesliga
         { id: 3, priority: 6 }, // Europa League
-        { id: 848, priority: 7 }, // Conference League
-        { id: 137, priority: 8 }, // Coppa Italia
-        { id: 45, priority: 9 }, // FA Cup
-        { id: 40, priority: 10 }, // Community Shield
-        { id: 48, priority: 11 } // EFL Cup
+        { id: 137, priority: 7 }, // Coppa Italia
+        { id: 45, priority: 8 }, // FA Cup
+        { id: 40, priority: 9 }, // Community Shield
+        { id: 48, priority: 10 } // EFL Cup
       ];
 
-      console.log(`🎯 [Popular Leagues] Looking for ${popularLeagueIds.length} popular leagues in cache`);
-
-      // Filter and sort popular leagues from cached data
+      // Filter and sort popular leagues
       const popularLeagues = popularLeagueIds
         .map(({ id, priority }) => {
-          const league = allLeagues.find(l => l.data && l.data.league && l.data.league.id === id);
-          if (league) {
-            console.log(`✅ [Popular Leagues] Found cached league: ${league.data.league.name} (ID: ${id})`);
-            return { ...league.data, priority };
-          } else {
-            console.warn(`❌ [Popular Leagues] Cached league not found: ID ${id}`);
-            return null;
-          }
+          const league = allLeagues.find(l => l.data.league.id === id);
+          return league ? { ...league.data, priority } : null;
         })
         .filter(Boolean)
         .sort((a, b) => a.priority - b.priority);
 
-      console.log(`📋 [Popular Leagues] Returning ${popularLeagues.length} popular leagues from cache`);
       res.json(popularLeagues);
     } catch (error) {
-      console.error('❌ [Popular Leagues] Error fetching popular leagues:', error);
+      console.error('Error fetching popular leagues:', error);
       res.status(500).json({ error: 'Failed to fetch popular leagues' });
     }
   });
@@ -537,23 +457,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cachedLeagues && cachedLeagues.length > 0) {
         // Transform to the expected format
         const leagues = cachedLeagues.map(league => league.data);
-        console.log(`✅ [All Leagues] Returning ${leagues.length} cached leagues`);
         return res.json(leagues);
       }
 
-      console.log('📥 [All Leagues] No cache found, fetching from RapidAPI');
-      
       // Use API-Football (RapidAPI) only
       try {
         const leagues = await rapidApiService.getLeagues();
-        console.log(`📥 [All Leagues] Fetched ${leagues?.length || 0} leagues from RapidAPI`);
 
         // Cache each league from RapidAPI
         try {
-          console.log(`💾 [All Leagues] Starting to cache ${leagues.length} leagues`);
-          let cachedCount = 0;
-          let updatedCount = 0;
-          
           for (const league of leagues) {
             try {
               const leagueId = league.league.id.toString();
@@ -561,26 +473,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               if (existingLeague) {
                 await storage.updateCachedLeague(leagueId, league);
-                updatedCount++;
               } else {
                 await storage.createCachedLeague({
                   leagueId: leagueId,
                   data: league
                 });
-                cachedCount++;
               }
             } catch (individualError) {
               // Log and continue with other leagues
-              console.error(`❌ [All Leagues] Error caching league ${league.league.id}:`, individualError);
+              console.error(`Error caching league ${league.league.id}:`, individualError);
             }
           }
-          
-          console.log(`✅ [All Leagues] Caching complete: ${cachedCount} new, ${updatedCount} updated`);
         } catch (cacheError) {
-          console.error('❌ [All Leagues] Error caching leagues from RapidAPI:', cacheError);
+          console.error('Error caching leagues from RapidAPI:', cacheError);
         }
 
-        console.log(`📋 [All Leagues] Returning ${leagues.length} fresh leagues from API`);
         return res.json(leagues);
       } catch (rapidApiError) {
         console.error('RapidAPI error for leagues:', rapidApiError);
