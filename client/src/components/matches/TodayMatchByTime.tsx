@@ -247,97 +247,79 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
               >
                 <div className="flex items-center px-3 py-2">
-                  {/* Home Team */}
-                  <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                    {match.teams.home.name}
-                  </div>
+                          {/* Home Team */}
+                          <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                            {match.teams.home.name}
+                          </div>
 
-                  <div className="flex-shrink-0 mx-1">
-                    <img
-                      src={match.teams.home.logo || "/assets/fallback-logo.png"}
-                      alt={match.teams.home.name}
-                      className="w-9 h-9 object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (target.src !== "/assets/fallback-logo.png") {
-                          target.src = "/assets/fallback-logo.png";
-                        }
-                      }}
-                    />
-                  </div>
+                          <div className="flex-shrink-0 mx-1">
+                            <img
+                              src={
+                                match.teams.home.logo ||
+                                "/assets/fallback-logo.png"
+                              }
+                              alt={match.teams.home.name}
+                              className="w-9 h-9 object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (
+                                  target.src !== "/assets/fallback-logo.png"
+                                ) {
+                                  target.src = "/assets/fallback-logo.png";
+                                }
+                              }}
+                            />
+                          </div>
 
-                  {/* Score/Time Center */}
-                  <div
-                    className="flex flex-col items-center justify-center px-4 flex-shrink-0"
-                    style={{ marginTop: "-14px" }}
-                  >
-                    <div className="text-xs font-semibold mb-0.5">
-                      {match.fixture.status.short === "FT" ? (
-                        <span className="text-gray-600">Ended</span>
-                      ) : match.fixture.status.short === "HT" ? (
-                        <span className="text-red-600 animate-pulse">
-                          Halftime
-                        </span>
-                      ) : ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
-                          match.fixture.status.short,
-                        ) ? (
-                        <span className="text-red-600 animate-pulse">
-                          {match.fixture.status.elapsed || 0}'
-                        </span>
-                      ) : (
-                        <span className="text-gray-600">
-                          {format(parseISO(match.fixture.date), "HH:mm")}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-lg font-bold flex items-center gap-2">
-                      <span className="text-black">
-                        {match.goals?.home ?? 0}
-                      </span>
-                      <span className="text-gray-400">-</span>
-                      <span className="text-black">
-                        {match.goals?.away ?? 0}
-                      </span>
-                    </div>
-                    {/* League info below score */}
-                    <div className="text-xs text-gray-500 mt-1 text-center">
-                      <div className="flex items-center gap-1">
-                        <img
-                          src={getCountryFlagWithFallback(
-                            match.leagueInfo.country,
-                            match.leagueInfo.logo,
-                          )}
-                          alt={match.leagueInfo.country}
-                          className="w-3 h-2 object-cover rounded-sm"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/assets/fallback-logo.svg";
-                          }}
-                        />
-                        {match.leagueInfo.name}
-                      </div>
-                    </div>
-                  </div>
+                          {/* Score/Time Center - Live matches */}
+                          <div
+                            className="flex flex-col items-center justify-center px-4 flex-shrink-0"
+                            style={{ marginTop: "-14px" }}
+                          >
+                            <div className="text-xs font-semibold mb-0.5">
+                              {match.fixture.status.short === "FT" ? (
+                                <span className="text-gray-600">Ended</span>
+                              ) : match.fixture.status.short === "HT" ? (
+                                <span className="text-red-600 animate-pulse">
+                                  HT
+                                </span>
+                              ) : (
+                                <span className="text-red-600 animate-pulse">
+                                  {match.fixture.status.elapsed || 0}'
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-lg font-bold flex items-center gap-2">
+                              <span className="text-black">2</span>
+                              <span className="text-gray-400">-</span>
+                              <span className="text-black">2</span>
+                            </div>
+                          </div>
 
-                  <div className="flex-shrink-0 mx-1">
-                    <img
-                      src={match.teams.away.logo || "/assets/fallback-logo.png"}
-                      alt={match.teams.away.name}
-                      className="w-12 h-12 object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (target.src !== "/assets/fallback-logo.png") {
-                          target.src = "/assets/fallback-logo.png";
-                        }
-                      }}
-                    />
-                  </div>
+                          <div className="flex-shrink-0 mx-1">
+                            <img
+                              src={
+                                match.teams.away.logo ||
+                                "/assets/fallback-logo.png"
+                              }
+                              alt={match.teams.away.name}
+                              className="w-9 h-9 object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (
+                                  target.src !== "/assets/fallback-logo.png"
+                                ) {
+                                  target.src = "/assets/fallback-logo.png";
+                                }
+                              }}
+                            />
+                          </div>
 
-                  {/* Away Team */}
-                  <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                    {match.teams.away.name}
-                  </div>
-                </div>
+                          {/* Away Team */}
+                          <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                            {match.teams.away.name}
+                          </div>
+                        </div>
               </div>
             ))}
           </div>
