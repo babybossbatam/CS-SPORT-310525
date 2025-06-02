@@ -120,21 +120,11 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     if (aIsLive && !bIsLive) return -1;
     if (!aIsLive && bIsLive) return 1;
 
-    // If both live, sort by status priority
+    // If both are live, sort by elapsed time ascending (shorter elapsed time first)
     if (aIsLive && bIsLive) {
-      const statusOrder: { [key: string]: number } = {
-        LIVE: 1,
-        "1H": 2,
-        "2H": 3,
-        HT: 4,
-        ET: 5,
-        BT: 6,
-        P: 7,
-        INT: 8,
-      };
-      const aOrder = statusOrder[aStatus] || 99;
-      const bOrder = statusOrder[bStatus] || 99;
-      if (aOrder !== bOrder) return aOrder - bOrder;
+      const aElapsed = Number(a.fixture.status.elapsed) || 0;
+      const bElapsed = Number(b.fixture.status.elapsed) || 0;
+      return aElapsed - bElapsed; // Ascending order: shorter elapsed time first
     }
 
     // Check if matches are finished
