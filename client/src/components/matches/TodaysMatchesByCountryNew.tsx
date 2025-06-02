@@ -709,14 +709,41 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
-                        src={countryData.country === 'World' ? '/assets/world flag_new.png' : (flagMap[countryData.country] || getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg')}
+                        src={(() => {
+                          if (countryData.country === 'World') {
+                            return '/assets/world flag_new.png';
+                          }
+                          
+                          // Check if we have a cached flag first
+                          const cachedFlag = flagMap[countryData.country];
+                          if (cachedFlag) {
+                            return cachedFlag;
+                          }
+                          
+                          // For England specifically, use the correct flag
+                          if (countryData.country === 'England') {
+                            return 'https://flagcdn.com/w40/gb-eng.png';
+                          }
+                          
+                          // For other countries, use the fallback sync function
+                          return getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg';
+                        })()}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            // For World flag, use MyAPIFallback for proper fallback handling
+                            // For World flag, use fallback
                             if (countryData.country === 'World') {
                               target.src = '/assets/fallback-logo.svg';
+                              return;
+                            }
+                            // For England, try alternative sources
+                            if (countryData.country === 'England' && !target.src.includes('fallback-logo.svg')) {
+                              if (target.src.includes('gb-eng')) {
+                                target.src = 'https://flagcdn.com/w40/gb.png'; // Fallback to GB flag
+                              } else if (target.src.includes('/gb.png')) {
+                                target.src = '/assets/fallback-logo.svg';
+                              }
                               return;
                             }
                             if (!target.src.includes('/assets/fallback-logo.svg')) {
