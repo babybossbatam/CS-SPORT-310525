@@ -205,6 +205,32 @@ export function isDateStringTomorrow(dateString: string): boolean {
   return dateString === actualTomorrow;
 }
 
+// 365scores.com style: Convert UTC fixture time to user's local date
+export function getFixtureLocalDate(utcDateString: string): string {
+  try {
+    const utcDate = parseISO(utcDateString);
+    if (!isValid(utcDate)) return utcDateString.split('T')[0];
+    
+    // Convert to user's local timezone and get the date part
+    const localDate = new Date(utcDate.getTime());
+    return format(localDate, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error converting to local date:', error);
+    return utcDateString.split('T')[0];
+  }
+}
+
+// 365scores.com style: Check if a fixture belongs to a specific local date
+export function isFixtureOnLocalDate(fixtureUTCDate: string, targetLocalDate: string): boolean {
+  try {
+    const fixtureLocalDate = getFixtureLocalDate(fixtureUTCDate);
+    return fixtureLocalDate === targetLocalDate;
+  } catch (error) {
+    console.error('Error checking fixture local date:', error);
+    return false;
+  }
+}
+
 // Get relative date display name
 export function getRelativeDateDisplayName(dateString: string): string {
   if (isDateStringToday(dateString)) return "Today's Matches";

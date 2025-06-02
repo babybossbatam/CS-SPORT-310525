@@ -7,7 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { format, parseISO, isValid, differenceInHours, subDays, addDays } from 'date-fns';
+import { format, parseISO, isValid, differenceInHours } from 'date-fns';
+import { getFixtureLocalDate, isFixtureOnLocalDate } from '@/lib/dateUtilsUpdated';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from '@/lib/cacheConfig';
@@ -123,9 +124,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         try {
           const fixtureDate = parseISO(fixture.fixture.date);
           if (isValid(fixtureDate)) {
-            // 365scores approach: Simple date extraction (same as server)
-            const fixtureDateString = fixture.fixture.date.split('T')[0];
-            const matchesSelectedDate = fixtureDateString === selectedDate;
+            // 365scores.com style: Convert fixture UTC time to user's local date
+            const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
+            const matchesSelectedDate = fixtureLocalDate === selectedDate;
 
             if (!matchesSelectedDate) {
               return false;

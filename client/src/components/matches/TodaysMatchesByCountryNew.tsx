@@ -224,10 +224,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return displayName;
   };
 
+  // Helper function to convert UTC date to user's local date
+  const getFixtureLocalDate = (utcDateString: string): string => {
+    const utcDate = parseISO(utcDateString);
+    return format(utcDate, 'yyyy-MM-dd');
+  };
 
-
-  // Filter fixtures to ensure they belong to the selected date
-  // This handles edge cases where LIVE matches span across midnight
+  // 365scores.com approach: Filter fixtures using timezone-aware local date matching
   const allFixtures = fixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date) {
       console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
@@ -247,34 +250,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return false;
       }
 
-      // For LIVE matches, be more lenient - allow matches that started within 6 hours of the selected date
-      const status = fixture.fixture.status?.short;
-      const isLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
-
-      if (isLive) {
-        const hoursDiff = Math.abs(differenceInHours(fixtureDate, selectedDateObj));
-        const passes = hoursDiff <= 6;
-        console.log(`🔴 [DEBUG] Live match filter:`, {
-          fixtureId: fixture.fixture.id,
-          status,
-          fixtureDate: fixture.fixture.date,
-          selectedDate,
-          hoursDiff,
-          passes
-        });
-        return passes;
-      }
-
-      // 365scores approach: Simple date matching (same as server)
-      const fixtureFormatted = fixture.fixture.date.split('T')[0];
-      const passes = fixtureFormatted === selectedDate;
+      // 365scores.com style: Convert fixture UTC time to user's local date
+      const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
+      const passes = fixtureLocalDate === selectedDate;
 
       if (!passes) {
-        console.log(`❌ [DEBUG] Date mismatch:`, {
+        console.log(`❌ [DEBUG] Date mismatch (365scores style):`, {
           fixtureId: fixture.fixture.id,
-          fixtureDate: fixtureFormatted,
-          selectedDate: selectedFormatted,
-          status
+          fixtureUTCDate: fixture.fixture.date,
+          fixtureLocalDate,
+          selectedDate,
+          status: fixture.fixture.status?.short
         });
       }
 
@@ -295,7 +281,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       id: f.fixture?.id,
       date: f.fixture?.date,
       status: f.fixture?.status?.short,
-      league: f.league?.name,
+      league: f.league?.country,
       country: f.league?.country,
       teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
       reason: 'Date mismatch'
