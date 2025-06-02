@@ -102,8 +102,7 @@ export const rapidApiService = {
         const response = await apiClient.get('/fixtures', {
           params: { 
             date: date,
-            timezone: 'UTC', // Explicitly specify UTC timezone
-            // Don't specify league parameter to get all leagues
+            timezone: 'UTC' // Force UTC timezone for consistent date handling
           }
         });
 
@@ -377,7 +376,7 @@ export const rapidApiService = {
       const response = await apiClient.get('/fixtures', {
         params: { 
           live: 'all',
-          timezone: 'UTC' // Explicitly specify UTC timezone for live fixtures too
+          timezone: 'UTC' // Force UTC timezone for consistent date handling
         }
       });
 
@@ -501,7 +500,10 @@ export const rapidApiService = {
 
     try {
       const response = await apiClient.get('/fixtures', {
-        params: { id }
+        params: { 
+          id,
+          timezone: 'UTC' // Force UTC timezone for consistent date handling
+        }
       });
 
       if (response.data && response.data.response && response.data.response.length > 0) {
@@ -559,7 +561,11 @@ export const rapidApiService = {
       console.log(`Using correct season ${correctSeason} for league ${leagueId} (${leagueInfo.league.name})`);
 
       const response = await apiClient.get('/fixtures', {
-        params: { league: leagueId, season: correctSeason }
+        params: { 
+          league: leagueId, 
+          season: correctSeason,
+          timezone: 'UTC' // Force UTC timezone for consistent date handling
+        }
       });
 
       console.log(`Fixtures API response status: ${response.status}, results count: ${response.data?.results || 0}`);

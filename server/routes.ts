@@ -310,14 +310,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const fixtureData = fixture.data as any;
             if (!fixtureData?.fixture?.date) return false;
             
-            const fixtureDate = new Date(fixtureData.fixture.date);
+            // Force UTC interpretation to avoid timezone issues
+            const fixtureDate = new Date(fixtureData.fixture.date + (fixtureData.fixture.date.includes('T') ? '' : 'T00:00:00Z'));
             const fixtureDateString = fixtureDate.toISOString().split('T')[0];
             
             if (fixtureDateString !== date) {
               console.log(`🚫 [Routes] Found cached fixture with wrong date:`, {
                 requestedDate: date,
                 cachedFixtureDate: fixtureDateString,
-                fixtureId: fixtureData.fixture.id
+                fixtureId: fixtureData.fixture.id,
+                originalDate: fixtureData.fixture.date
               });
               return false;
             }
