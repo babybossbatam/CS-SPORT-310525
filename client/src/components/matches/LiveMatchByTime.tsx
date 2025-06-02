@@ -159,7 +159,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     if (aIsLive && bIsLive) {
       const aElapsed = a.fixture.status.elapsed || 0;
       const bElapsed = b.fixture.status.elapsed || 0;
-      return bElapsed - aElapsed; // Longest elapsed time first
+      return aElapsed - bElapsed; // Shortest elapsed time first (ascending)
     }
 
     // Recently finished matches next (most recent first)
