@@ -11,5 +11,41 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Configure connection with better error handling
+const poolConfig = {
+  connectionString: process.env.DATABASE_URL,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  allowExitOnIdle: false
+};
+
+export const pool = new Pool(poolConfig);
+
+// Add error event handlers
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+pool.on('connect', () => {
+  console.log('Database connection established');
+});
+
+pool.on('remove', () => {
+  console.log('Database connection removed from pool');
+});
+
 export const db = drizzle({ client: pool, schema });
+
+// Graceful shutdown handler
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT, closing database connections...');
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Received SIGTERM, closing database connections...');
+  await pool.end();
+  process.exit(0);
+});

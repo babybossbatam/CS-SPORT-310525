@@ -22,6 +22,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
   app.use("/api", apiRouter);
 
+  // Health check endpoint
+  apiRouter.get("/health", async (_req: Request, res: Response) => {
+    try {
+      // Test database connection
+      await storage.getCachedFixturesByDate(new Date().toISOString().split('T')[0]);
+      res.json({ 
+        status: 'healthy', 
+        database: 'connected',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Health check failed:', error);
+      res.status(503).json({ 
+        status: 'unhealthy', 
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // User authentication and management routes
   apiRouter.post("/auth/register", async (req: Request, res: Response) => {
     try {
