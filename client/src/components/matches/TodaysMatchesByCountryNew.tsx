@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
@@ -22,17 +22,22 @@ import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, 
 import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCache';
 import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
 
+// Track component renders for debugging
+let renderCount = 0;
+
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
 }
 
-const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({ 
+const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = memo(({ 
   selectedDate, 
   liveFilterActive = false, 
   timeFilterActive = false 
 }) => {
+  renderCount++;
+  console.log(`🔄 [TodaysMatchesByCountryNew] Render #${renderCount}`);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
   // Initialize flagMap with immediate synchronous values for better rendering
@@ -317,36 +322,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryA.localeCompare(countryB);
   });
 
-  // Single flag fetching effect with deduplication
-  useEffect(() => {
-    const countries = sortedCountries.map((c: any) => c.country).filter(Boolean);
-    const uniqueCountries = [...new Set(countries)];
+  // Memoize flag URLs to prevent repeated lookups
+  const flagUrlCache = useMemo(() => {
+    const cache = new Map<string, string>();
+    return cache;
+  }, []);
 
-    // Only process countries that aren't already in flagMap
-    const missingCountries = uniqueCountries.filter(country => !flagMap[country]);
-
-    if (missingCountries.length === 0) {
-      return;
+  // Memoized flag lookup function
+  const getFlagUrl = useCallback((country: string) => {
+    if (flagUrlCache.has(country)) {
+      return flagUrlCache.get(country)!;
     }
 
-    console.log(`🎯 Need flags for ${missingCountries.length} countries: ${missingCountries.join(', ')}`);
-
-    // Pre-populate flagMap with sync flags to prevent redundant calls
-    const syncFlags: { [country: string]: string } = {};
-    missingCountries.forEach(country => {
-      const syncFlag = getCountryFlagWithFallbackSync(country);
-      if (syncFlag) {
-        syncFlags[country] = syncFlag;
-      }
-    });
-
-    if (Object.keys(syncFlags).length > 0) {
-      setFlagMap(prev => ({ ...prev, ...syncFlags }));
-      console.log(`⚡ Pre-populated ${Object.keys(syncFlags).length} flags synchronously`);
-    }
-  }, [sortedCountries.length]); // Only depend on count, not the specific countries
-
-
+    console.log(`🏁 [TodaysMatchesByCountryNew] Getting flag for: ${country}`);
+    const flagUrl = getCountryFlagWithFallbackSync(country);
+    flagUrlCache.set(country, flagUrl);
+    return flagUrl;
+  }, [flagUrlCache]);
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);

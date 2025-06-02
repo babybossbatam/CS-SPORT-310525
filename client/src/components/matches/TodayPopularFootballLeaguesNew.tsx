@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Star } from 'lucide-react';
@@ -25,6 +25,9 @@ import { createFallbackHandler } from '../../lib/MyAPIFallback';
 import { MyFallbackAPI } from '../../lib/MyFallbackAPI';
 import { getCachedTeamLogo } from '../../lib/MyAPIFallback';
 
+// Track component renders for debugging
+let popularLeaguesRenderCount = 0;
+
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
   timeFilterActive?: boolean;
@@ -32,12 +35,31 @@ interface TodayPopularFootballLeaguesNewProps {
   liveFilterActive?: boolean;
 }
 
-const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewProps> = ({ 
+const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewProps> = memo(({ 
   selectedDate, 
   timeFilterActive = false, 
   showTop20 = false,
   liveFilterActive = false 
 }) => {
+  popularLeaguesRenderCount++;
+  console.log(`🔄 [TodayPopularFootballLeaguesNew] Render #${popularLeaguesRenderCount}`);
+
+  // Memoize flag URLs to prevent repeated lookups
+  const flagUrlCache = useMemo(() => new Map<string, string>(), []);
+
+  // Memoized flag lookup function
+  const getFlagUrl = useCallback((country: string) => {
+    if (flagUrlCache.has(country)) {
+      console.log(`🎯 [TodayPopularFootballLeaguesNew] Using cached flag for: ${country}`);
+      return flagUrlCache.get(country)!;
+    }
+
+    console.log(`🏁 [TodayPopularFootballLeaguesNew] Getting flag for: ${country}`);
+    const flagUrl = getCountryFlagWithFallbackSync(country);
+    flagUrlCache.set(country, flagUrl);
+    return flagUrl;
+  }, [flagUrlCache]);
+
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -779,8 +801,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         }
 
                         const aTime = aDate.getTime();
-                        const bTime = bDate.getTime();
-                        const nowTime = now.getTime();
+                        const bTime = bDate.getTime();                        const nowTime = now.getTime();
 
                         // Calculate time distance from now
                         const aDistance = Math.abs(aTime - nowTime);
