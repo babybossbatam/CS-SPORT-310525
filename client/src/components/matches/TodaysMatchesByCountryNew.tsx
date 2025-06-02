@@ -247,7 +247,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return false;
       }
 
-      // Strict date matching to prevent duplicates - extract date part only
+      // For LIVE matches, be more lenient - allow matches that started within 6 hours of the selected date
+      const status = fixture.fixture.status?.short;
+      const isLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
+
+      if (isLive) {
+        const hoursDiff = Math.abs(differenceInHours(fixtureDate, selectedDateObj));
+        const passes = hoursDiff <= 6;
+        console.log(`🔴 [DEBUG] Live match filter:`, {
+          fixtureId: fixture.fixture.id,
+          status,
+          fixtureDate: fixture.fixture.date,
+          selectedDate,
+          hoursDiff,
+          passes
+        });
+        return passes;
+      }
+
+      // 365scores approach: Simple date matching (same as server)
       const fixtureFormatted = fixture.fixture.date.split('T')[0];
       const passes = fixtureFormatted === selectedDate;
 
@@ -255,8 +273,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         console.log(`❌ [DEBUG] Date mismatch:`, {
           fixtureId: fixture.fixture.id,
           fixtureDate: fixtureFormatted,
-          selectedDate,
-          status: fixture.fixture.status?.short
+          selectedDate: selectedFormatted,
+          status
         });
       }
 

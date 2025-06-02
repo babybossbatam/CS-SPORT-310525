@@ -123,7 +123,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         try {
           const fixtureDate = parseISO(fixture.fixture.date);
           if (isValid(fixtureDate)) {
-            // Strict date matching to prevent duplicates - extract date part only
+            // 365scores approach: Simple date extraction (same as server)
             const fixtureDateString = fixture.fixture.date.split('T')[0];
             const matchesSelectedDate = fixtureDateString === selectedDate;
 
