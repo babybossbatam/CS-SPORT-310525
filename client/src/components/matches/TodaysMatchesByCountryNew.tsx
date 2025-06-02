@@ -322,33 +322,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = memo
     return countryA.localeCompare(countryB);
   });
 
-  // Create a stable flag cache for countries to prevent re-renders
-  const countryFlags = useMemo(() => {
-    const flagMap = new Map();
-    
-    // Pre-populate flags for all countries in the fixture data
-    Object.values(fixturesByCountry).forEach((countryData: any) => {
-      const country = countryData.country;
-      if (!flagMap.has(country)) {
-        flagMap.set(country, getCountryFlagWithFallbackSync(country));
-      }
-    });
+  // Memoize flag URLs to prevent repeated lookups
+  const flagUrlCache = useMemo(() => {
+    const cache = new Map<string, string>();
+    return cache;
+  }, []);
 
-    console.log(`⚡ [TodaysMatchesByCountryNew] Pre-populated ${flagMap.size} flags synchronously`);
-    return flagMap;
-  }, [fixturesByCountry]);
-
-  // Memoized flag lookup function for fallback cases
+  // Memoized flag lookup function
   const getFlagUrl = useCallback((country: string) => {
-    // First check our pre-populated cache
-    if (countryFlags.has(country)) {
-      return countryFlags.get(country);
+    if (flagUrlCache.has(country)) {
+      return flagUrlCache.get(country)!;
     }
 
     console.log(`🏁 [TodaysMatchesByCountryNew] Getting flag for: ${country}`);
     const flagUrl = getCountryFlagWithFallbackSync(country);
+    flagUrlCache.set(country, flagUrl);
     return flagUrl;
-  }, [countryFlags]);
+  }, [flagUrlCache]);
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
@@ -563,7 +553,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = memo
                   >
                     <div className="flex items-center gap-3 font-normal text-[14px]">
                       <img
-                        src={countryData.country === 'World' ? '/assets/world_flag_new.png' : (countryFlags.get(countryData.country) || getFlagUrl(countryData.country) || '/assets/fallback-logo.svg')}
+                        src={countryData.country === 'World' ? '/assets/world_flag_new.png' : (flagMap[countryData.country] || getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg')}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
@@ -884,6 +874,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = memo
       </CardContent>
     </Card>
   );
-});
+};
 
 export default TodaysMatchesByCountryNew;

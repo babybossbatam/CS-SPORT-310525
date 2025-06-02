@@ -46,7 +46,6 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
   // Memoize flag URLs to prevent repeated lookups
   const flagUrlCache = useMemo(() => new Map<string, string>(), []);
-  const countryFlags = useMemo(() => new Map<string, string>(), []);
 
   // Memoized flag lookup function
   const getFlagUrl = useCallback((country: string) => {
@@ -94,7 +93,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   };
 
   // Flatten popular leagues for backward compatibility
-  const POPULAR_LEAGUES_FLAT = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
+  const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -131,7 +130,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   );
 
   // Use the prioritized popular countries list
-  const POPULAR_COUNTRIES_LIST = POPULAR_COUNTRIES_ORDER;
+  const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
   // Memoize expensive filtering operations
   const filteredFixtures = useMemo(() => {
@@ -158,7 +157,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             const country = fixture.league?.country?.toLowerCase() || '';
 
             // Check if it's a popular league
-            const isPopularLeague = POPULAR_LEAGUES_FLAT.includes(leagueId);
+            const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
 
             // Check if it's from a popular country
             const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(popularCountry => 
@@ -254,7 +253,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
       }
 
       // Check if it's a popular country
-      const matchingCountry = POPULAR_COUNTRIES_LIST.find(country => 
+      const matchingCountry = POPULAR_COUNTRIES.find(country => 
         countryName.includes(country.toLowerCase())
       );
 
@@ -353,7 +352,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           acc[countryKey].leagues[leagueId] = {
             league: { ...league, country: countryKey },
             matches: [],
-            isPopular: POPULAR_LEAGUES_FLAT.includes(leagueId),
+            isPopular: POPULAR_LEAGUES.includes(leagueId),
             isFriendlies: league.name.toLowerCase().includes('friendlies')
           };
         }
@@ -384,7 +383,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     // Check if this is a popular league for this country
     const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
     const isPopularForCountry = countryPopularLeagues.includes(leagueId);
-    const isGloballyPopular = POPULAR_LEAGUES_FLAT.includes(leagueId);
+    const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
     if (isPopularForCountry || isGloballyPopular) {
       acc[country].hasPopularLeague = true;
@@ -445,6 +444,10 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
 
       const aIsPopularCountry = aPopularIndex !== 999;
       const bIsPopularCountry = bPopularIndex !== 999;
+
+      // Check if countries are World or Europe (International competitions)
+      const aIsWorldOrEurope = a.country === 'World' || a.country === 'Europe';
+      const bIsWorldOrEurope = b.country === 'World' || b.country === 'Europe';
 
       // Priority order: Popular countries with badge leagues first
       if (aIsPopularCountry && a.hasPopularLeague && (!bIsPopularCountry || !b.hasPopularLeague)) return -1;
@@ -572,8 +575,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   };
 
   const isTeamFavorite = (teamId: number) => {
-    return favoriteTeams?.some(team => team.id === teamId) || false;
-  };
+      return favoriteTeams?.some(team => team.id === teamId) || false;
+    };
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches(prev => {
@@ -670,6 +673,34 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     return baseTitle;
   };
 
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    try {
+      if (!dateString) return '--:--';
+      const date = new Date(dateString);
+      return format(date, 'HH:mm');
+    } catch (error) {
+      console.error('Error formatting match time:', error);
+      return '--:--';
+    }
+  };
+
+    const addFavoriteTeam = (team: any) => {
+      dispatch(userActions.addFavoriteTeam(team));
+      toast({
+        title: "Added to favorites",
+        description: `${team.name} has been added to your favorites.`,
+      });
+    };
+
+    const removeFavoriteTeam = (teamId: number) => {
+      dispatch(userActions.removeFavoriteTeam(teamId));
+      toast({
+        title: "Removed from favorites",
+        description: `Team has been removed from your favorites.`,
+      });
+    };
+
   return (
     <div className="space-y-4">
       {/* Header Section */}
@@ -731,15 +762,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         <span className="font-semibold text-base text-gray-800">
                           {safeSubstring(leagueData.league.name, 0) || 'Unknown League'}
                         </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-600">
-                          <img
-                            src={countryFlags.get(countryData.country) || getCountryFlagWithFallbackSync(countryData.country)}
-                            alt={`${countryData.country} flag`}
-                            className="w-6 h-4 object-cover rounded-sm"
-                            loading="lazy"
-                          />
-                          {countryData.country || 'Unknown Country'}
-                        </div>
+                        <span className="text-xs text-gray-600">
+                          {leagueData.league.country || 'Unknown Country'}
+                        </span>
                       </div>
                       <div className="flex gap-1 ml-auto">
                         {leagueData.isPopularForCountry && (
@@ -776,8 +801,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         }
 
                         const aTime = aDate.getTime();
-                        const bTime = bDate.getTime();
-                        const nowTime = now.getTime();
+                        const bTime = bDate.getTime();                        const nowTime = now.getTime();
 
                         // Calculate time distance from now
                         const aDistance = Math.abs(aTime - nowTime);
@@ -794,7 +818,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       const bDate = parseISO(b.fixture.date);
 
                       // Ensure valid dates
-if (!isValid(aDate) || !isValid(bDate)) {
+                      if (!isValid(aDate) || !isValid(bDate)) {
                         return 0;
                       }
 
@@ -1040,6 +1064,7 @@ if (!isValid(aDate) || !isValid(bDate)) {
                             })()}
                           </div>
 
+
                           <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                             <img
                               src={match.teams.away.logo || '/assets/fallback-logo.svg'}
@@ -1077,6 +1102,6 @@ if (!isValid(aDate) || !isValid(bDate)) {
       )}
     </div>
   );
-});
+};
 
 export default TodayPopularFootballLeaguesNew;

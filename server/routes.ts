@@ -845,15 +845,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Health check endpoint for error recovery
-  apiRouter.get("/health-check", (_req: Request, res: Response) => {
-    res.status(200).json({ 
-      status: 'ok', 
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
-  });
-
   // Europa League fixtures endpoint (League ID 3)
   apiRouter.get("/europa-league/fixtures", async (_req: Request, res: Response) => {
     try {

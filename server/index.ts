@@ -10,17 +10,11 @@ app.use(express.urlencoded({ extended: false }));
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
-  // Log additional context
-  console.error('Stack:', error.stack);
   // Don't exit the process, just log the error
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Log additional context if reason is an error
-  if (reason instanceof Error) {
-    console.error('Error stack:', reason.stack);
-  }
   // Don't exit the process, just log the error
 });
 
