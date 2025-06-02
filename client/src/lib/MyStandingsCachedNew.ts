@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from './utils';
@@ -122,7 +121,7 @@ class StandingsCache {
       if (stored) {
         const cache: StandingsStorageCache = JSON.parse(stored);
         const now = Date.now();
-        
+
         let loadedCount = 0;
         Object.entries(cache).forEach(([key, item]) => {
           // Only load non-expired items
@@ -131,7 +130,7 @@ class StandingsCache {
             loadedCount++;
           }
         });
-        
+
         console.log(`🏆 Loaded ${loadedCount} standings from localStorage cache`);
         this.logCacheStats();
       }
@@ -157,11 +156,11 @@ class StandingsCache {
   private getCachedStandings(leagueId: number, season?: number): LeagueStandings | null {
     const cacheKey = this.getStandingsKey(leagueId, season);
     const cached = this.memoryCache.get(cacheKey);
-    
+
     if (cached) {
       const now = Date.now();
       const age = now - cached.timestamp;
-      
+
       if (age < CACHE_EXPIRY_TIME) {
         console.log(`🏆 Cache hit for standings league ${leagueId} (age: ${Math.floor(age / 60000)} min)`);
         return cached.data;
@@ -171,7 +170,7 @@ class StandingsCache {
         console.log(`⏰ Expired standings cache for league ${leagueId}`);
       }
     }
-    
+
     console.log(`❌ Cache miss for standings league ${leagueId}`);
     return null;
   }
@@ -181,17 +180,17 @@ class StandingsCache {
     const cacheKey = this.getStandingsKey(leagueId, season);
     const currentYear = new Date().getFullYear();
     const targetSeason = season || currentYear;
-    
+
     const cacheItem: CachedStandingsItem = {
       data,
       timestamp: Date.now(),
       leagueId,
       season: targetSeason,
     };
-    
+
     this.memoryCache.set(cacheKey, cacheItem);
     this.saveToStorage();
-    
+
     console.log(`💾 Cached standings for league ${leagueId} (${data.league.name})`);
   }
 
@@ -214,7 +213,7 @@ class StandingsCache {
     });
 
     console.log(`🏆 Standings Cache Stats:`, stats);
-    
+
     if (stats.total > 0) {
       const details = Array.from(this.memoryCache.entries()).map(([key, item]) => {
         const age = Math.floor((now - item.timestamp) / 60000);
@@ -272,6 +271,7 @@ class StandingsCache {
     // Check cache first
     const cached = this.getCachedStandings(leagueId, season);
     if (cached) {
+      console.log(`🎯 Using cached standings for league ${leagueId} - no API call needed`);
       return cached;
     }
 
@@ -287,12 +287,12 @@ class StandingsCache {
       }
 
       const data = await response.json();
-      
+
       // Cache the fetched data
       if (data && data.league) {
         this.setCachedStandings(leagueId, data, season);
       }
-      
+
       console.log(`✅ Fetched and cached standings for league ${leagueId} (${data?.league?.name || 'Unknown'})`);
       return data;
     } catch (error) {
@@ -322,13 +322,13 @@ class StandingsCache {
 
   private async performBatchFetch(leagueIds: number[], season?: number): Promise<BatchStandingsResponse> {
     console.log(`🔄 Batch fetching standings for leagues: ${leagueIds.join(', ')}`);
-    
+
     const results: BatchStandingsResponse = {};
     const batchSize = 3; // Process in smaller batches to avoid overwhelming the API
-    
+
     for (let i = 0; i < leagueIds.length; i += batchSize) {
       const batch = leagueIds.slice(i, i + batchSize);
-      
+
       // Add small delay between batches
       if (i > 0) {
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -345,7 +345,7 @@ class StandingsCache {
       });
 
       const batchResults = await Promise.all(batchPromises);
-      
+
       batchResults.forEach(({ leagueId, standings }) => {
         results[leagueId] = standings;
       });
@@ -391,13 +391,13 @@ class StandingsCache {
     this.batchCache.clear();
     this.individualCache.clear();
     this.memoryCache.clear();
-    
+
     try {
       localStorage.removeItem(STANDINGS_STORAGE_KEY);
     } catch (error) {
       console.error('Error clearing standings localStorage:', error);
     }
-    
+
     console.log('🧹 Standings cache cleared (memory + localStorage)');
   }
 
@@ -419,7 +419,7 @@ class StandingsCache {
     this.memoryCache.forEach((item) => {
       const age = now - item.timestamp;
       const ageMinutes = Math.floor(age / 60000);
-      
+
       if (age < CACHE_EXPIRY_TIME) {
         stats.fresh++;
       } else {

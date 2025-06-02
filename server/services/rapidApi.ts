@@ -181,7 +181,7 @@ export const rapidApiService = {
           const newFixtures = validFixtures.filter((f: any) => !existingIds.has(f.fixture.id));
           allFixtures = [...allFixtures, ...newFixtures];
 
-          
+
         }
       } else {
         // Define popular leagues - matches core leagues
@@ -648,31 +648,35 @@ export const rapidApiService = {
   /**
    * Get league standings by league ID and season
    */
-  async getLeagueStandings(leagueId: number, season: number): Promise<LeagueStandings | null> {
-    const cacheKey = `standings-${leagueId}-${season}`;
+  async getLeagueStandings(leagueId: number, season?: number) {
+    const cacheKey = `standings_${leagueId}_${season || 'current'}`;
     const cached = leaguesCache.get(cacheKey);
-
     const now = Date.now();
-    if (cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
+
+    // Use longer cache duration for standings (2 hours instead of 1 hour)
+    const STANDINGS_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+
+    if (cached && (now - cached.timestamp) < STANDINGS_CACHE_DURATION) {
+      console.log(`🎯 Using server cached standings for league ${leagueId} (age: ${Math.floor((now - cached.timestamp) / 60000)} min)`);
       return cached.data;
     }
 
     try {
-      console.log(`Fetching standings for league ${leagueId}, season ${season}`);
-
-      // First let's check if the league exists and get the current season
+      // Get league info to determine correct season
       const leagueInfo = await this.getLeagueById(leagueId);
       if (!leagueInfo) {
-        console.log(`League with ID ${leagueId} not found`);
+        console.log(`No league info found for league ${leagueId}`);
         return null;
       }
 
-      // Find the current season
-      const currentSeason = leagueInfo.seasons.find(s => s.current) || leagueInfo.seasons[0];
+      // Get current season info
+      const currentSeason = leagueInfo.seasons?.[leagueInfo.seasons.length - 1];
       if (!currentSeason) {
-        console.log(`No season data found for league ${leagueId}`);
+        console.log(`No season info for league ${leagueId}`);
         return null;
       }
+
+      console.log(`🔍 Fetching fresh standings for league ${leagueId}, season ${season || 'current'}`);
 
       // Use the correct season from the league info
       const correctSeason = currentSeason.year;
@@ -690,6 +694,7 @@ export const rapidApiService = {
           data: standingsData, 
           timestamp: now 
         });
+        console.log(`💾 Cached server standings for league ${leagueId} for 2 hours`);
         return standingsData;
       }
 
