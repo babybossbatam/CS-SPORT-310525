@@ -665,8 +665,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   return (
     <Card className="mt-4">
       <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[10px] pb-[10px] border-b border-stone-200">
-        <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
+        <h3 className="text-sm font-semibold">
           {getHeaderTitle()}
         </h3>
       </CardHeader>
