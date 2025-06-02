@@ -167,23 +167,35 @@ export const rapidApiService = {
                 return false;
               }
               
-              const fixtureDate = new Date(fixture.fixture.date);
-              const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+              // Extract date more intelligently - handle timezone offsets properly
+              let fixtureDateString;
+              const apiDateString = fixture.fixture.date;
+              
+              // Method 1: Extract date directly from the ISO string before timezone conversion
+              if (apiDateString.includes('T')) {
+                fixtureDateString = apiDateString.split('T')[0];
+              } else {
+                // Fallback: if no 'T' separator, use the date as-is
+                fixtureDateString = apiDateString.split(' ')[0];
+              }
+              
+              // Validate the extracted date format
+              if (!fixtureDateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                console.log(`❌ [RapidAPI] Invalid date format extracted:`, {
+                  fixtureId: fixture.fixture.id,
+                  apiReturnedDate: apiDateString,
+                  extractedDate: fixtureDateString
+                });
+                return false;
+              }
               
               // Strict date validation - reject any fixture that doesn't match the requested date
               if (fixtureDateString !== date) {
-                const fixtureDate = new Date(fixture.fixture.date);
-                const requestedDateObj = new Date(date + 'T00:00:00Z');
-                const timeDiff = fixtureDate.getTime() - requestedDateObj.getTime();
-                const hoursDiff = Math.round(timeDiff / (1000 * 60 * 60));
-                
                 console.log(`🚫 [RapidAPI] Date mismatch - REJECTING fixture:`, {
                   fixtureId: fixture.fixture.id,
                   requestedDate: date,
-                  apiReturnedDate: fixture.fixture.date,
+                  apiReturnedDate: apiDateString,
                   extractedDate: fixtureDateString,
-                  hoursDifference: hoursDiff,
-                  timeDifferenceMs: timeDiff,
                   league: fixture.league?.name,
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                   status: fixture.fixture?.status?.short,

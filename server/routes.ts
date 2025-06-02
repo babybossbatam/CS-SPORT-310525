@@ -310,9 +310,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const fixtureData = fixture.data as any;
             if (!fixtureData?.fixture?.date) return false;
             
-            // Force UTC interpretation to avoid timezone issues
-            const fixtureDate = new Date(fixtureData.fixture.date + (fixtureData.fixture.date.includes('T') ? '' : 'T00:00:00Z'));
-            const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+            // Extract date directly from API string to avoid timezone conversion issues
+            let fixtureDateString;
+            const apiDateString = fixtureData.fixture.date;
+            
+            if (apiDateString.includes('T')) {
+              fixtureDateString = apiDateString.split('T')[0];
+            } else {
+              fixtureDateString = apiDateString.split(' ')[0];
+            }
             
             if (fixtureDateString !== date) {
               console.log(`🚫 [Routes] Found cached fixture with wrong date:`, {
@@ -374,13 +380,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Final validation: ensure all fixtures match the requested date
         const validFixtures = fixtures.filter(fixture => {
           if (!fixture?.fixture?.date) return false;
-          const fixtureDate = new Date(fixture.fixture.date);
-          const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+          
+          // Extract date directly from API string to avoid timezone issues
+          let fixtureDateString;
+          const apiDateString = fixture.fixture.date;
+          
+          if (apiDateString.includes('T')) {
+            fixtureDateString = apiDateString.split('T')[0];
+          } else {
+            fixtureDateString = apiDateString.split(' ')[0];
+          }
           
           if (fixtureDateString !== date) {
             console.log(`🚫 [Routes] Final validation - rejecting fixture with wrong date:`, {
               requestedDate: date,
-              fixtureDate: fixtureDateString,
+              apiReturnedDate: apiDateString,
+              extractedDate: fixtureDateString,
               fixtureId: fixture.fixture.id
             });
             return false;
