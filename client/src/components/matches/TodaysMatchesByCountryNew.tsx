@@ -20,6 +20,7 @@ import {
 } from '@/lib/dateUtilsUpdated';
 import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap, flagCache } from '@/lib/flagUtils';
 import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCache';
+import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -97,10 +98,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
-  // Country code to full name mapping
+  // Country code to full name mapping with caching
   const getCountryDisplayName = (country: string | null | undefined): string => {
     if (!country || typeof country !== 'string' || country.trim() === '') {
       return 'Unknown';
+    }
+
+    // Check cache first
+    const cachedName = getCachedCountryName(country);
+    if (cachedName) {
+      return cachedName;
     }
 
     // Create reverse mapping from country code to country name using the centralized countryCodeMap
@@ -165,7 +172,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
 
     const cleanCountry = country.trim().toLowerCase();
-    return countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
+    const displayName = countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
+    
+    // Cache the result for future use
+    setCachedCountryName(country, displayName, 'country-mapping');
+    
+    return displayName;
   };
 
 
