@@ -736,7 +736,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 mt-[-15px] mb-[-15px] pt-[12px] pb-[12px]">
+                      <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 pt-[12px] pb-[12px] mt-[0px] mb-[0px]">
                         <img
                           src={leagueData.league.logo || '/assets/fallback-logo.svg'}
                           alt={leagueData.league.name || 'Unknown League'}
