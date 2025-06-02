@@ -891,7 +891,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             }`} />
                           </button>
 
-                          <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
+                          <CardContent className="flex items-center px-3 py-3 flex-1 min-h-[60px]"></CardContent>
                             {/* Home Team */}
                             <div className="flex items-center flex-1 min-w-0">
                               <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
@@ -1072,7 +1072,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                                 {match.teams.away.name}
                               </div>
                             </div>
-                          </div>
+                          </CardContent>
                         </div>
                       ))}
                   </div>
