@@ -682,7 +682,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     };
 
   return (
-    <div className="space-y-4 py-4 -mt-4">
+    <>
       {/* Header Section */}
       <h3 className="text-sm font-semibold mb-4">
         {getHeaderTitle()}
@@ -1084,7 +1084,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
             );
           })
       )}
-    </div>
+    </>
   );
 };
 
