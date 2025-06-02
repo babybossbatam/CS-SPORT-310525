@@ -798,9 +798,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                       // When time filter is active, prioritize by time more strictly
                       if (timeFilterActive) {
                         const aDate = parseISO(a.fixture.date);
-                        const bDate = parseISO(b.This edit focuses on removing duplicate hook definitions to address the "Rendered more hooks" error.
-<replit_final_file>
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+                        const bDate = parseISO(b.fixture.date);
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, ChevronUp, Calendar, Star } from 'lucide-react';
