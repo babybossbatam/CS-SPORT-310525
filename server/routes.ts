@@ -279,6 +279,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`🎯 [Routes] Processing request for validated date: ${date} (all=${all})`);
+      console.log(`🎯 [Routes] Request details:`, {
+        originalUrl: req.originalUrl,
+        method: req.method,
+        params: req.params,
+        query: req.query,
+        headers: {
+          'user-agent': req.headers['user-agent'],
+          'x-forwarded-for': req.headers['x-forwarded-for'],
+          'accept-timezone': req.headers['accept-timezone']
+        },
+        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        serverTime: new Date().toISOString(),
+        requestedDate: date,
+        parsedDate: new Date(date).toISOString()
+      });
 
       // Check cache first to prevent frequent API calls
       const cacheKey = all === 'true' ? `date-all:${date}` : `date:${date}`;
@@ -1348,6 +1363,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch fixtures by country'
       });
+    }
+  });
+
+  // Debug endpoint to test RapidAPI date requests directly
+  apiRouter.get('/debug/rapidapi-date/:date', async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+      
+      console.log(`🔬 [DEBUG] Testing RapidAPI direct call for date: ${date}`);
+      
+      // Make direct API call with different timezone parameters
+      const tests = [
+        { timezone: 'UTC', name: 'UTC' },
+        { timezone: 'Europe/London', name: 'London' },
+        { timezone: 'America/New_York', name: 'New_York' },
+        { name: 'No_Timezone' } // No timezone parameter
+      ];
+      
+      const results = [];
+      
+      for (const test of tests) {
+        try {
+          const params: any = { date };
+          if (test.timezone) {
+            params.timezone = test.timezone;
+          }
+          
+          console.log(`🧪 [DEBUG] Testing with params:`, params);
+          
+          const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?${new URLSearchParams(params)}`, {
+            headers: {
+              'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data.response?.length > 0) {
+            const sampleDates = data.response.slice(0, 5).map((f: any) => {
+              const fixtureDate = new Date(f.fixture?.date);
+              return {
+                id: f.fixture?.id,
+                returnedDate: f.fixture?.date,
+                extractedDate: fixtureDate.toISOString().split('T')[0],
+                matchesRequested: fixtureDate.toISOString().split('T')[0] === date
+              };
+            });
+            
+            results.push({
+              testName: test.name,
+              timezone: test.timezone || 'none',
+              totalResults: data.response.length,
+              sampleDates,
+              correctDateCount: data.response.filter((f: any) => {
+                const fixtureDate = new Date(f.fixture?.date);
+                return fixtureDate.toISOString().split('T')[0] === date;
+              }).length
+            });
+          } else {
+            results.push({
+              testName: test.name,
+              timezone: test.timezone || 'none',
+              totalResults: 0,
+              error: 'No fixtures returned'
+            });
+          }
+        } catch (error) {
+          results.push({
+            testName: test.name,
+            timezone: test.timezone || 'none',
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      }
+      
+      res.json({
+        requestedDate: date,
+        serverTime: new Date().toISOString(),
+        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        testResults: results
+      });
+      
+    } catch (error) {
+      console.error('Debug endpoint error:', error);
+      res.status(500).json({ error: 'Debug test failed' });
     }
   });
 

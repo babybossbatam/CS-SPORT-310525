@@ -93,6 +93,11 @@ export const rapidApiService = {
 
         // Fetch all fixtures for the date without league restrictions
         console.log(`🌍 [RapidAPI] Making API request for date: ${date} with UTC timezone`);
+        console.log(`🌍 [RapidAPI] Request URL: ${apiClient.defaults.baseURL}/fixtures`);
+        console.log(`🌍 [RapidAPI] Request params:`, { 
+          date: date,
+          timezone: 'UTC'
+        });
         
         const response = await apiClient.get('/fixtures', {
           params: { 
@@ -103,17 +108,52 @@ export const rapidApiService = {
         });
 
         console.log(`📡 [RapidAPI] API response for all fixtures on ${date}: status ${response.status}, results: ${response.data?.results || 0}`);
+        console.log(`📡 [RapidAPI] Response headers:`, {
+          'content-type': response.headers['content-type'],
+          'x-ratelimit-remaining': response.headers['x-ratelimit-remaining'],
+          'x-ratelimit-requests-remaining': response.headers['x-ratelimit-requests-remaining']
+        });
         
-        // Debug: Log the actual dates in the response
+        // Debug: Log the actual dates in the response with detailed analysis
         if (response.data?.response?.length > 0) {
-          const sampleFixtures = response.data.response.slice(0, 5);
-          console.log(`🔍 [RapidAPI] Sample fixture dates from API:`, sampleFixtures.map(f => ({
-            id: f.fixture?.id,
+          const sampleFixtures = response.data.response.slice(0, 10);
+          console.log(`🔍 [RapidAPI] Sample fixture dates from API (first 10):`, sampleFixtures.map(f => {
+            const fixtureDate = new Date(f.fixture?.date);
+            const fixtureUTCString = fixtureDate.toISOString().split('T')[0];
+            const fixtureLocalString = fixtureDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            
+            return {
+              id: f.fixture?.id,
+              league: f.league?.name,
+              teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+              requestedDate: date,
+              apiReturnedDate: f.fixture?.date,
+              extractedUTCDate: fixtureUTCString,
+              extractedLocalDate: fixtureLocalString,
+              dateMatchUTC: fixtureUTCString === date,
+              dateMatchLocal: fixtureLocalString === date,
+              timezone: 'UTC_requested',
+              timezoneOffset: fixtureDate.getTimezoneOffset()
+            };
+          }));
+          
+          // Count date mismatches
+          const dateMismatches = response.data.response.filter(f => {
+            const fixtureDate = new Date(f.fixture?.date);
+            const fixtureUTCString = fixtureDate.toISOString().split('T')[0];
+            return fixtureUTCString !== date;
+          });
+          
+          console.log(`🚨 [RapidAPI] Date mismatch analysis:`, {
+            totalFixtures: response.data.response.length,
+            dateMismatches: dateMismatches.length,
+            mismatchPercentage: Math.round((dateMismatches.length / response.data.response.length) * 100),
             requestedDate: date,
-            apiReturnedDate: f.fixture?.date,
-            dateMatch: f.fixture?.date?.startsWith(date),
-            timezone: 'UTC_requested'
-          })));
+            commonReturnedDates: [...new Set(response.data.response.map(f => {
+              const fixtureDate = new Date(f.fixture?.date);
+              return fixtureDate.toISOString().split('T')[0];
+            }))].slice(0, 5)
+          });
         }
 
         if (response.data && response.data.response) {
@@ -133,14 +173,23 @@ export const rapidApiService = {
               
               // Strict date validation - reject any fixture that doesn't match the requested date
               if (fixtureDateString !== date) {
+                const fixtureDate = new Date(fixture.fixture.date);
+                const requestedDateObj = new Date(date + 'T00:00:00Z');
+                const timeDiff = fixtureDate.getTime() - requestedDateObj.getTime();
+                const hoursDiff = Math.round(timeDiff / (1000 * 60 * 60));
+                
                 console.log(`🚫 [RapidAPI] Date mismatch - REJECTING fixture:`, {
                   fixtureId: fixture.fixture.id,
                   requestedDate: date,
                   apiReturnedDate: fixture.fixture.date,
                   extractedDate: fixtureDateString,
+                  hoursDifference: hoursDiff,
+                  timeDifferenceMs: timeDiff,
                   league: fixture.league?.name,
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                  status: fixture.fixture?.status?.short
+                  status: fixture.fixture?.status?.short,
+                  venue: fixture.fixture?.venue?.name,
+                  timezone: fixture.fixture?.timezone || 'not_specified'
                 });
                 return false;
               }
