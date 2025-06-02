@@ -159,7 +159,10 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     if (aIsLive && bIsLive) {
       const aElapsed = Number(a.fixture.status.elapsed) || 0;
       const bElapsed = Number(b.fixture.status.elapsed) || 0;
-      return aElapsed - bElapsed; // Shortest elapsed time first (22' before 27')
+      console.log(`🔄 [DEBUG] Live match sorting: ${a.teams.home.name} vs ${a.teams.away.name} (${aElapsed}') vs ${b.teams.home.name} vs ${b.teams.away.name} (${bElapsed}')`);
+      const result = aElapsed - bElapsed;
+      console.log(`🔄 [DEBUG] Sort result: ${result} (${aElapsed} - ${bElapsed})`);
+      return result; // Shortest elapsed time first (22' before 31')
     }
 
     // Recently finished matches next (most recent first)
