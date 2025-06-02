@@ -705,7 +705,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
           .map((leagueData: any, leagueIndex: number) => {
             const isFirstCard = countryIndex === 0 && leagueIndex === 0;
             return (
-              <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden py-4 ${isFirstCard ? '-mt-4 pt-0' : ''}`}>
+              <Card key={`${countryData.country}-${leagueData.league.id}`} className={`overflow-hidden ${isFirstCard ? '-mt-4 pt-0' : 'py-4'}`}>
                 {/* League Header - Always show unless time filter is active */}
                 {!timeFilterActive && (
                   <>
@@ -895,7 +895,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             {/* Home Team */}
                             <div className="flex items-center flex-1 min-w-0">
                               <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                                {match.teams.home.name}
+                                {match.teams.home.name || 'Unknown Team'}
                               </div>
                             </div>
 
@@ -1069,7 +1069,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
                             {/* Away Team */}
                             <div className="flex items-center flex-1 min-w-0">
                               <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                                {match.teams.away.name}
+                                {match.teams.away.name || 'Unknown Team'}
                               </div>
                             </div>
                           </div>
