@@ -57,6 +57,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const cachedFixtures = getCachedFixturesForDate(selectedDate);
       if (cachedFixtures) {
         console.log(`✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`);
+        console.log(`📊 [DEBUG] Raw cached fixtures breakdown:`, {
+          totalFixtures: cachedFixtures.length,
+          countries: [...new Set(cachedFixtures.map(f => f.league?.country).filter(Boolean))],
+          leagues: [...new Set(cachedFixtures.map(f => f.league?.name).filter(Boolean))],
+          statuses: [...new Set(cachedFixtures.map(f => f.fixture?.status?.short).filter(Boolean))]
+        });
         return cachedFixtures;
       }
 
@@ -68,6 +74,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (data && Array.isArray(data)) {
         cacheFixturesForDate(selectedDate, data, 'api');
         console.log(`💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`);
+        console.log(`📊 [DEBUG] Raw API fixtures breakdown:`, {
+          totalFixtures: data.length,
+          countries: [...new Set(data.map(f => f.league?.country).filter(Boolean))],
+          leagues: [...new Set(data.map(f => f.league?.name).filter(Boolean))],
+          statuses: [...new Set(data.map(f => f.fixture?.status?.short).filter(Boolean))]
+        });
       }
 
       return data;
@@ -185,14 +197,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Filter fixtures to ensure they belong to the selected date
   // This handles edge cases where LIVE matches span across midnight
   const allFixtures = fixtures.filter((fixture: any) => {
-    if (!fixture?.fixture?.date) return false;
+    if (!fixture?.fixture?.date) {
+      console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
+      return false;
+    }
 
     try {
       const fixtureDate = parseISO(fixture.fixture.date);
-      if (!isValid(fixtureDate)) return false;
+      if (!isValid(fixtureDate)) {
+        console.log(`❌ [DEBUG] Filtering out fixture with invalid date:`, fixture.fixture.id, fixture.fixture.date);
+        return false;
+      }
 
       const selectedDateObj = parseISO(selectedDate);
-      if (!isValid(selectedDateObj)) return false;
+      if (!isValid(selectedDateObj)) {
+        console.log(`❌ [DEBUG] Invalid selected date:`, selectedDate);
+        return false;
+      }
 
       // For LIVE matches, be more lenient - allow matches that started within 6 hours of the selected date
       const status = fixture.fixture.status?.short;
@@ -200,37 +221,65 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       if (isLive) {
         const hoursDiff = Math.abs(differenceInHours(fixtureDate, selectedDateObj));
-        // Allow live matches that started within 6 hours of the selected date
-        return hoursDiff <= 6;
+        const passes = hoursDiff <= 6;
+        console.log(`🔴 [DEBUG] Live match filter:`, {
+          fixtureId: fixture.fixture.id,
+          status,
+          fixtureDate: fixture.fixture.date,
+          selectedDate,
+          hoursDiff,
+          passes
+        });
+        return passes;
       }
 
       // For non-live matches, be strict about date matching
-      return format(fixtureDate, 'yyyy-MM-dd') === format(selectedDateObj, 'yyyy-MM-dd');
+      const fixtureFormatted = format(fixtureDate, 'yyyy-MM-dd');
+      const selectedFormatted = format(selectedDateObj, 'yyyy-MM-dd');
+      const passes = fixtureFormatted === selectedFormatted;
+      
+      if (!passes) {
+        console.log(`❌ [DEBUG] Date mismatch:`, {
+          fixtureId: fixture.fixture.id,
+          fixtureDate: fixtureFormatted,
+          selectedDate: selectedFormatted,
+          status
+        });
+      }
+      
+      return passes;
     } catch (error) {
-      console.warn('Date validation error for fixture:', fixture.fixture.id, error);
+      console.warn('❌ [DEBUG] Date validation error for fixture:', fixture.fixture.id, error);
       return false;
     }
+  });
+
+  console.log(`📊 [DEBUG] Date filtering results:`, {
+    originalCount: fixtures.length,
+    filteredCount: allFixtures.length,
+    selectedDate,
+    removedCount: fixtures.length - allFixtures.length
   });
 
   // Group fixtures by country and league with comprehensive null checks
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
     // Validate fixture structure
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-      console.warn('Invalid fixture data structure:', fixture);
+      console.warn('❌ [DEBUG] Invalid fixture data structure:', fixture);
       return acc;
     }
 
     // Validate league data
     const league = fixture.league;
     if (!league.id || !league.name) {
-      console.warn('Invalid league data:', league);
+      console.warn('❌ [DEBUG] Invalid league data:', league);
       return acc;
     }
 
     // Validate team data
     if (!fixture.teams.home || !fixture.teams.away ||
       !fixture.teams.home.name || !fixture.teams.away.name) {
-      console.warn('Invalid team data:', fixture.teams);
+      console.warn('❌ [DEBUG] Invalid team data:', fixture.teams);
       return acc;
     }
 
@@ -241,7 +290,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Skip exclusion filter for Egypt matches to ensure all Egypt matches are shown
     if (league.country?.toLowerCase() !== 'egypt') {
-      if (shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName)) {
+      const shouldExclude = shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName);
+      if (shouldExclude) {
+        console.log(`🚫 [DEBUG] Excluding match:`, {
+          fixtureId: fixture.fixture.id,
+          league: leagueName,
+          homeTeam: homeTeamName,
+          awayTeam: awayTeamName,
+          country: league.country
+        });
         return acc;
       }
     }
@@ -256,14 +313,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       typeof country !== 'string' ||
       country.trim() === '' ||
       country.toLowerCase() === 'unknown') {
-      console.warn('Skipping fixture with invalid/unknown country:', country, fixture);
+      console.warn('❌ [DEBUG] Skipping fixture with invalid/unknown country:', country, fixture.fixture.id);
       return acc;
     }
 
     // Allow valid country names, World, Europe, and various country name formats
     const validCountry = country.trim();
     if (validCountry.length === 0) {
-      console.warn('Skipping fixture with empty country name:', country, fixture);
+      console.warn('❌ [DEBUG] Skipping fixture with empty country name:', country, fixture.fixture.id);
       return acc;
     }
 
@@ -273,6 +330,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const leagueId = league.id;
 
     if (!acc[displayCountry]) {
+      console.log(`🆕 [DEBUG] Creating new country group:`, {
+        originalCountry: country,
+        displayCountry,
+        fixtureId: fixture.fixture.id,
+        league: leagueName
+      });
       acc[displayCountry] = {
         country: displayCountry,
         flag: '',
@@ -282,6 +345,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     if (!acc[displayCountry].leagues[leagueId]) {
+      console.log(`🆕 [DEBUG] Creating new league group:`, {
+        country: displayCountry,
+        leagueId,
+        leagueName,
+        fixtureId: fixture.fixture.id
+      });
       acc[displayCountry].leagues[leagueId] = {
         league: {
           ...league,
@@ -307,8 +376,31 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
     });
 
+    console.log(`✅ [DEBUG] Added match to country group:`, {
+      country: displayCountry,
+      league: leagueName,
+      match: `${homeTeamName} vs ${awayTeamName}`,
+      fixtureId: fixture.fixture.id,
+      status: fixture.fixture.status?.short
+    });
+
     return acc;
   }, {});
+
+  // Final summary of grouped data
+  const countryStats = Object.entries(fixturesByCountry).map(([country, data]: [string, any]) => ({
+    country,
+    totalMatches: Object.values(data.leagues).reduce((sum: number, league: any) => sum + league.matches.length, 0),
+    leagues: Object.keys(data.leagues).length,
+    leagueNames: Object.values(data.leagues).map((l: any) => l.league.name)
+  }));
+
+  console.log(`📊 [DEBUG] Final grouping summary:`, {
+    totalCountries: Object.keys(fixturesByCountry).length,
+    totalMatches: countryStats.reduce((sum, c) => sum + c.totalMatches, 0),
+    countriesWithMatches: countryStats.filter(c => c.totalMatches > 0),
+    breakdown: countryStats
+  });
 
   // Sort countries alphabetically A-Z
   const sortedCountries = Object.values(fixturesByCountry).sort((a: any, b: any) => {
