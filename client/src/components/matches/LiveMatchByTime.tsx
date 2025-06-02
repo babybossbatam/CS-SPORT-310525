@@ -1,12 +1,11 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Activity } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { format, parseISO, isValid, differenceInHours } from 'date-fns';
-import { countryCodeMap } from '@/lib/flagUtils';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Activity } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { format, parseISO, isValid, differenceInHours } from "date-fns";
+import { countryCodeMap } from "@/lib/flagUtils";
 
 interface LiveMatchByTimeProps {
   refreshInterval?: number;
@@ -15,11 +14,11 @@ interface LiveMatchByTimeProps {
   timeFilterActive?: boolean;
 }
 
-const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({ 
-  refreshInterval = 30000, 
-  isTimeFilterActive = false, 
-  liveFilterActive = false, 
-  timeFilterActive = false 
+const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
+  refreshInterval = 30000,
+  isTimeFilterActive = false,
+  liveFilterActive = false,
+  timeFilterActive = false,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
 
@@ -28,10 +27,10 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
   // Fetch all live fixtures with automatic refresh
   const { data: fixtures = [], isLoading } = useQuery({
-    queryKey: ['live-fixtures-all-countries'],
+    queryKey: ["live-fixtures-all-countries"],
     queryFn: async () => {
-      console.log('Fetching live fixtures for all countries');
-      const response = await apiRequest('GET', '/api/fixtures/live');
+      console.log("Fetching live fixtures for all countries");
+      const response = await apiRequest("GET", "/api/fixtures/live");
       const data = await response.json();
 
       console.log(`Received ${data.length} live fixtures`);
@@ -47,44 +46,54 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   });
 
   // Enhanced country flag mapping with better null safety
-  const getCountryFlag = (country: string | null | undefined, leagueFlag?: string | null) => {
+  const getCountryFlag = (
+    country: string | null | undefined,
+    leagueFlag?: string | null,
+  ) => {
     // Use league flag if available and valid
-    if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
+    if (
+      leagueFlag &&
+      typeof leagueFlag === "string" &&
+      leagueFlag.trim() !== ""
+    ) {
       return leagueFlag;
     }
 
     // Add comprehensive null/undefined check for country
-    if (!country || typeof country !== 'string' || country.trim() === '') {
-      return '/assets/fallback-logo.png'; // Default football logo
+    if (!country || typeof country !== "string" || country.trim() === "") {
+      return "/assets/fallback-logo.png"; // Default football logo
     }
 
     const cleanCountry = country.trim();
 
     // Special handling for Unknown country only
-    if (cleanCountry === 'Unknown') {
-      return '/assets/fallback-logo.png'; // Default football logo
+    if (cleanCountry === "Unknown") {
+      return "/assets/fallback-logo.png"; // Default football logo
     }
 
     // Special cases for international competitions
-    if (cleanCountry === 'World') {
-      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+    if (cleanCountry === "World") {
+      return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0iIzMzNzNkYyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im0yIDEyaDIwbS0yMCA0aDIwbS0yMC04aDIwIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMmE0IDE0IDAgMCAwIDAgMjBBNCAxNCAwIDAgMCAxMiAyIiBzdHJva2U9IiMzMzczZGMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K";
     }
 
-    if (cleanCountry === 'Europe') {
-      return 'https://flagsapi.com/EU/flat/24.png';
+    if (cleanCountry === "Europe") {
+      return "https://flagsapi.com/EU/flat/24.png";
     }
 
     // Use centralized countryCodeMap from flagUtils
 
     // Use country mapping, fallback to SportsRadar for unknown countries
-    let countryCode = 'XX';
+    let countryCode = "XX";
     if (countryCodeMap[cleanCountry]) {
       countryCode = countryCodeMap[cleanCountry];
       return `https://flagsapi.com/${countryCode}/flat/24.png`;
     } else {
-      console.warn('Unknown country for flag mapping, trying SportsRadar fallback:', cleanCountry);
+      console.warn(
+        "Unknown country for flag mapping, trying SportsRadar fallback:",
+        cleanCountry,
+      );
       // Try SportsRadar flags API as fallback
-      return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, '_')}/flag_24x24.png`;
+      return `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${cleanCountry.toLowerCase().replace(/\s+/g, "_")}/flag_24x24.png`;
     }
   };
 
@@ -95,19 +104,22 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   const allMatches = allFixtures.map((fixture: any) => ({
     ...fixture,
     leagueInfo: {
-      name: fixture.league?.name || 'Unknown League',
-      country: fixture.league?.country || 'Unknown Country',
-      logo: fixture.league?.logo || '/assets/fallback-logo.svg'
-    }
+      name: fixture.league?.name || "Unknown League",
+      country: fixture.league?.country || "Unknown Country",
+      logo: fixture.league?.logo || "/assets/fallback-logo.svg",
+    },
   }));
 
   // Filter for live matches only when both filters are active
-  const filteredMatches = liveFilterActive && timeFilterActive 
-    ? allMatches.filter((match: any) => {
-        const status = match.fixture.status.short;
-        return ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
-      })
-    : allMatches;
+  const filteredMatches =
+    liveFilterActive && timeFilterActive
+      ? allMatches.filter((match: any) => {
+          const status = match.fixture.status.short;
+          return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+            status,
+          );
+        })
+      : allMatches;
 
   // Sort all matches by priority: Live → Upcoming → Finished
   const sortedMatches = filteredMatches.sort((a: any, b: any) => {
@@ -125,8 +137,12 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     const bTime = bDate.getTime();
 
     // Check if matches are live
-    const aIsLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(aStatus);
-    const bIsLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(bStatus);
+    const aIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+      aStatus,
+    );
+    const bIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+      bStatus,
+    );
 
     // Live matches first
     if (aIsLive && !bIsLive) return -1;
@@ -135,7 +151,14 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     // If both live, sort by status priority
     if (aIsLive && bIsLive) {
       const statusOrder: { [key: string]: number } = {
-        'LIVE': 1, '1H': 2, '2H': 3, 'HT': 4, 'ET': 5, 'BT': 6, 'P': 7, 'INT': 8
+        LIVE: 1,
+        "1H": 2,
+        "2H": 3,
+        HT: 4,
+        ET: 5,
+        BT: 6,
+        P: 7,
+        INT: 8,
       };
       const aOrder = statusOrder[aStatus] || 99;
       const bOrder = statusOrder[bStatus] || 99;
@@ -143,8 +166,8 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     }
 
     // Check if matches are finished
-    const aIsFinished = ['FT', 'AET', 'PEN'].includes(aStatus);
-    const bIsFinished = ['FT', 'AET', 'PEN'].includes(bStatus);
+    const aIsFinished = ["FT", "AET", "PEN"].includes(aStatus);
+    const bIsFinished = ["FT", "AET", "PEN"].includes(bStatus);
 
     // Upcoming matches before finished matches
     if (!aIsFinished && bIsFinished) return -1;
@@ -200,32 +223,25 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-base font-bold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 rounded-lg">
-        {liveFilterActive && timeFilterActive ? "Popular Football Live Score" : 
-         liveFilterActive && !timeFilterActive ? "Live Football Scores" : 
-         !liveFilterActive && timeFilterActive ? "All Matches by Time" : 
-         "Live Football Scores"}
+      <h3 className="text-base font-semi-bold text-gray-800 mt-4 bg-white border border-gray-200 p-3 ">
+        {liveFilterActive && timeFilterActive
+          ? "Popular Football Live Score"
+          : liveFilterActive && !timeFilterActive
+            ? "Live Football Scores"
+            : !liveFilterActive && timeFilterActive
+              ? "All Matches by Time"
+              : "Live Football Scores"}
       </h3>
 
       {/* Single consolidated card with all matches sorted by time */}
-      <Card className="mt-4 overflow-hidden">
+      <Card className=" overflow-hidden">
         {/* Header showing total matches */}
-        <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-          <Activity className="w-6 h-6 text-red-500 mt-0.5" />
-          <div className="flex flex-col">
-            <span className="font-semibold text-base text-gray-800">
-              All Matches - Sorted by Time
-            </span>
-            <span className="text-xs text-gray-600">
-              {sortedMatches.length} matches found
-            </span>
-          </div>
-          <div className="flex gap-1 ml-auto">
-            <span className="relative flex h-3 w-3 mt-1">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-            </span>
-          </div>
+
+        <div className="flex ml-auto">
+          <span className="relative flex h-3 w-3 mt-1">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span>
         </div>
 
         {/* All Matches */}
@@ -244,30 +260,37 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
                   <div className="flex-shrink-0 mx-1">
                     <img
-                      src={match.teams.home.logo || '/assets/fallback-logo.png'}
+                      src={match.teams.home.logo || "/assets/fallback-logo.png"}
                       alt={match.teams.home.name}
                       className="w-12 h-12 object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== '/assets/fallback-logo.png') {
-                          target.src = '/assets/fallback-logo.png';
+                        if (target.src !== "/assets/fallback-logo.png") {
+                          target.src = "/assets/fallback-logo.png";
                         }
                       }}
                     />
                   </div>
 
                   {/* Score/Time Center */}
-                  <div className="flex flex-col items-center justify-center px-4 flex-shrink-0" style={{ marginTop: '-14px' }}>
+                  <div
+                    className="flex flex-col items-center justify-center px-4 flex-shrink-0"
+                    style={{ marginTop: "-14px" }}
+                  >
                     <div className="text-xs font-semibold mb-0.5">
-                      {match.fixture.status.short === 'FT' ? (
+                      {match.fixture.status.short === "FT" ? (
                         <span className="text-gray-600">Ended</span>
-                      ) : match.fixture.status.short === 'HT' ? (
+                      ) : match.fixture.status.short === "HT" ? (
                         <span className="text-red-600 animate-pulse">HT</span>
-                      ) : ['LIVE', '1H', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture.status.short) ? (
-                        <span className="text-red-600 animate-pulse">{match.fixture.status.elapsed || 0}'</span>
+                      ) : ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
+                          match.fixture.status.short,
+                        ) ? (
+                        <span className="text-red-600 animate-pulse">
+                          {match.fixture.status.elapsed || 0}'
+                        </span>
                       ) : (
                         <span className="text-gray-600">
-                          {format(parseISO(match.fixture.date), 'HH:mm')}
+                          {format(parseISO(match.fixture.date), "HH:mm")}
                         </span>
                       )}
                     </div>
@@ -288,13 +311,13 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
                   <div className="flex-shrink-0 mx-1">
                     <img
-                      src={match.teams.away.logo || '/assets/fallback-logo.png'}
+                      src={match.teams.away.logo || "/assets/fallback-logo.png"}
                       alt={match.teams.away.name}
                       className="w-12 h-12 object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== '/assets/fallback-logo.png') {
-                          target.src = '/assets/fallback-logo.png';
+                        if (target.src !== "/assets/fallback-logo.png") {
+                          target.src = "/assets/fallback-logo.png";
                         }
                       }}
                     />
