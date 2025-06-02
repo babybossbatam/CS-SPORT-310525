@@ -865,7 +865,6 @@ export async function getFlagWithErrorHandling(
 }
 
 // Final fallback SVG
-const flagCache configuration updated to use 7 days for flag caching.
 const getFallbackSVG = (countryName: string) => {
   const initials = countryName
     .split(' ')
