@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { format, parseISO, isValid, differenceInHours } from 'date-fns';
+import { format, parseISO, isValid, differenceInHours, subDays, addDays } from 'date-fns';
 import { getFixtureLocalDate, isFixtureOnLocalDate } from '@/lib/dateUtilsUpdated';
 import { safeSubstring } from '@/lib/dateUtilsUpdated';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
