@@ -684,7 +684,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   return (
     <div className="space-y-4 py-4 -mt-4">
       {/* Header Section */}
-      <div className="mb-4"></div>
+      <div className="mb-4">
         <h3 className="text-sm font-semibold">
           {getHeaderTitle()}
         </h3>
