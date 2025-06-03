@@ -912,7 +912,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </CardContent>
                       )}
                     </>
-                  )}
+                                    )}
                   {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
                     <div className="space-y-0">
@@ -1107,8 +1107,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <img
                                   src={
-                                    match.teams.home.logo ||
-                                    "/assets/fallback-logo.svg"
+                                    match.teams.home.id 
+                                      ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                      : "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.home.name}
                                   className="w-9 h-9 rounded-full object-contain"
