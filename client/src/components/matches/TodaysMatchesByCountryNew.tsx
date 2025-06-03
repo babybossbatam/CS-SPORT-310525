@@ -1244,7 +1244,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   </button>
 
                                   <div className="match-content-container">
-                                    <div className="flex items-center px-3 py-2">
+                                  {/* Home Team - Fixed width to prevent overflow */}
+                                  <div className="flex items-center px-3 py-2">
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
@@ -1499,10 +1500,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     </div>
 
                                     {/* Away Team - Fixed width to prevent overflow */}
-                                      <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
-                                        {shortenTeamName(match.teams.away.name) ||
-                                          "Unknown Team"}
-                                      </div>
+                                    <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                                      {shortenTeamName(match.teams.away.name) ||
+                                        "Unknown Team"}
+                                    </div>
                                     </div>
                                   </div>
                                 </div>
