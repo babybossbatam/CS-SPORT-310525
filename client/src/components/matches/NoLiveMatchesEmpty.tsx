@@ -1,5 +1,4 @@
 
-import { Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NoLiveMatchesEmptyProps {
@@ -16,54 +15,54 @@ const NoLiveMatchesEmpty = ({
   description = "There are no matches currently in play. Our system is continuously monitoring for live matches."
 }: NoLiveMatchesEmptyProps) => {
   return (
-    <div className="p-8 text-center space-y-6">
-      {/* Modern animated fallback image container */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
-          <img 
-            src="/assets/fallback-logo.svg" 
-            alt="No live matches available"
-            className="h-20 w-20 mx-auto object-contain opacity-60 transition-all duration-300 hover:opacity-80 hover:scale-105"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/assets/fallback-logo.png';
-            }}
+    <div className="flex flex-col items-center justify-center p-12 text-center bg-gray-100 min-h-[400px]">
+      {/* Stadium seats illustration */}
+      <div className="mb-8">
+        <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Stadium structure */}
+          <path 
+            d="M10 60 L10 20 Q10 15 15 15 L105 15 Q110 15 110 20 L110 60 L95 70 L25 70 Z" 
+            fill="#6B7280" 
+            stroke="#4B5563" 
+            strokeWidth="2"
           />
-        </div>
+          
+          {/* Seats */}
+          <circle cx="30" cy="45" r="8" fill="#EA580C" />
+          <circle cx="50" cy="45" r="8" fill="#EA580C" />
+          <circle cx="70" cy="45" r="8" fill="#EA580C" />
+          <circle cx="90" cy="45" r="8" fill="#EA580C" />
+          
+          {/* Stadium roof structure */}
+          <path 
+            d="M5 20 Q60 5 115 20" 
+            stroke="#4B5563" 
+            strokeWidth="2" 
+            fill="none"
+          />
+          <line x1="15" y1="20" x2="12" y2="15" stroke="#4B5563" strokeWidth="2" />
+          <line x1="105" y1="20" x2="108" y2="15" stroke="#4B5563" strokeWidth="2" />
+        </svg>
       </div>
 
-      {/* Modern icon with subtle animation */}
-      <div className="relative">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 rounded-full">
-          <Activity className="h-8 w-8 text-red-600 animate-pulse" />
-        </div>
-      </div>
-
-      {/* Modern typography */}
-      <div className="space-y-3">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-          {title}
-        </h3>
-        <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
-          {description}
+      {/* Text content */}
+      <div className="mb-8 max-w-md">
+        <p className="text-gray-600 text-lg leading-relaxed">
+          It doesn't happen often, but there are no live matches being played right now.
         </p>
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-          <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-          <span>System active • Checking for live matches</span>
-        </div>
+        <p className="text-gray-500 text-base mt-2">
+          Check it out later
+        </p>
       </div>
 
-      {/* Modern call-to-action */}
+      {/* Call-to-action button */}
       {showBackButton && onBackToHome && (
-        <div className="pt-4">
-          <Button 
-            onClick={onBackToHome}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-          >
-            <Activity className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Button>
-        </div>
+        <Button 
+          onClick={onBackToHome}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium shadow-lg transition-all duration-200 hover:shadow-xl"
+        >
+          See All Matches
+        </Button>
       )}
     </div>
   );
