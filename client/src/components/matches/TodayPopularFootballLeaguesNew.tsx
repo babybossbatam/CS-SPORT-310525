@@ -912,9 +912,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </CardContent>
                       )}
                     </>
-                                    )}
+                  )}
                   {/* Matches - Show for all leagues */}
-```python
                   <CardContent className="p-0">
                     <div className="space-y-0">
                       {leagueData.matches
@@ -1332,7 +1331,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 })()}
                               </div>
 
-                              
+
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <img
                                   src={
