@@ -1,0 +1,287 @@
+
+/* MyLogoPositioning.css - Team Logo Positioning for Match Cards */
+
+/* Main match card container */
+.match-card-container {
+  background-color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-bottom: 1px solid rgb(243 244 246);
+  position: relative;
+  display: flex;
+}
+
+.match-card-container:hover {
+  background-color: rgb(249 250 251);
+}
+
+.match-card-container:last-child {
+  border-bottom: none;
+}
+
+/* Star button slide-in effect */
+.match-star-button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2.5rem;
+  transform: translateX(-100%);
+  transition: transform 0.7s ease-in-out;
+  background-color: white;
+  border-right: 1px solid rgb(214 211 209);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.match-card-container:hover .match-star-button {
+  transform: translateX(0);
+}
+
+.match-star-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  transition: all 0.7s ease;
+  color: rgb(147 197 253);
+}
+
+.match-card-container:hover .match-star-icon {
+  color: rgb(59 130 246);
+}
+
+.match-star-icon.starred {
+  color: rgb(59 130 246);
+  fill: rgb(59 130 246);
+}
+
+/* Main match content container */
+.match-content-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  flex: 1;
+  min-height: 60px;
+  gap: 0.5rem;
+}
+
+/* Team name containers */
+.home-team-name {
+  text-align: right;
+  font-size: 0.875rem;
+  color: rgb(17 24 39);
+  flex: 1;
+  padding-right: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.away-team-name {
+  text-align: left;
+  font-size: 0.875rem;
+  color: rgb(17 24 39);
+  flex: 1;
+  padding-left: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Team logo containers */
+.team-logo-container {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-logo {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  object-fit: contain;
+  filter: brightness(115%) contrast(120%) saturate(110%) drop-shadow(0 3px 6px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.08));
+}
+
+.team-logo.national-team {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Score/Time center container */
+.match-score-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+  width: 80px;
+  flex-shrink: 0;
+  position: relative;
+  height: 3rem;
+}
+
+/* Score display styles */
+.match-score-display {
+  font-size: 1.125rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.score-number {
+  color: black;
+}
+
+.score-separator {
+  color: rgb(156 163 175);
+}
+
+/* Match status labels */
+.match-status-label {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: white;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.status-live {
+  color: rgb(220 38 38);
+  animation: pulse 2s infinite;
+}
+
+.status-ended {
+  color: rgb(75 85 99);
+}
+
+.status-postponed {
+  color: rgb(220 38 38);
+}
+
+.status-upcoming {
+  color: black;
+}
+
+/* Match time display */
+.match-time-display {
+  font-size: 1rem;
+  font-weight: 500;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .match-content-container {
+    padding: 0.5rem;
+    gap: 0.25rem;
+  }
+  
+  .home-team-name,
+  .away-team-name {
+    font-size: 0.75rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .team-logo {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  .match-score-container {
+    width: 70px;
+    padding: 0 0.5rem;
+  }
+  
+  .match-score-display {
+    font-size: 1rem;
+  }
+  
+  .match-time-display {
+    font-size: 0.875rem;
+  }
+}
+
+/* Animation keyframes */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Hover effects */
+.match-card-container:hover .team-logo {
+  filter: brightness(125%) contrast(130%) saturate(120%) drop-shadow(0 4px 8px rgba(0,0,0,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* League header styling (if needed) */
+.league-header-container {
+  display: flex;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: white;
+  border-bottom: 1px solid rgb(229 231 235);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0;
+}
+
+.league-logo {
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  margin-top: 0.125rem;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.league-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.league-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: rgb(31 41 55);
+}
+
+.league-country {
+  font-size: 0.75rem;
+  color: rgb(75 85 99);
+}
+
+.league-badge {
+  font-size: 0.75rem;
+  background-color: rgb(219 234 254);
+  color: rgb(29 78 216);
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Disable hover effect when star button is being interacted with */
+.match-card-container.disable-hover {
+  background-color: white !important;
+}

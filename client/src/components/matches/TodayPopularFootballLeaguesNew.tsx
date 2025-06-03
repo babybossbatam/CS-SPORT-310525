@@ -38,6 +38,7 @@ import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
+import "../../styles/MyLogoPositioning.css";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -1140,7 +1141,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         .map((match: any) => (
                           <div
                             key={match.fixture.id}
-                            className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0 group flex relative"
+                            className="match-card-container group"
                           >
                             {/* Star Button with true slide-in effect */}
                             <button
@@ -1148,7 +1149,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 e.stopPropagation();
                                 toggleStarMatch(match.fixture.id);
                               }}
-                              className="absolute left-0 top-0 bottom-0 w-10 -translate-x-full group-hover:translate-x-0 hover:bg-white transition-transform duration-700 ease-in-out bg-white border-r border-stone-300 flex items-center justify-center flex-shrink-0 z-10"
+                              className="match-star-button"
                               title="Add to favorites"
                               onMouseEnter={(e) => {
                                 e.currentTarget
@@ -1162,22 +1163,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               }}
                             >
                               <Star
-                                className={`h-5 w-5 transition-all duration-700 ${
+                                className={`match-star-icon ${
                                   starredMatches.has(match.fixture.id)
-                                    ? "text-blue-500 fill-blue-500"
-                                    : "text-blue-300 group-hover:text-blue-500"
+                                    ? "starred"
+                                    : ""
                                 }`}
                               />
                             </button>
 
-                            <div className="flex items-center justify-center px-3 py-3 flex-1 min-h-[60px] gap-2">
+                            <div className="match-content-container">
                               {/* Home Team Name - positioned further left */}
-                              <div className="text-right text-sm text-gray-900 flex-1 pr-3 truncate">
+                              <div className="home-team-name">
                                 {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                               </div>
 
                               {/* Home team logo - closer to center */}
-                              <div className="flex-shrink-0 flex items-center justify-center">
+                              <div className="team-logo-container">
                                 <img
                                   src={
                                     match.teams.home.id
@@ -1186,21 +1187,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   }
                                   alt={match.teams.home.name}
                                   title={match.teams.home.name}
-                                  className={`w-9 h-9 ${
+                                  className={`team-logo ${
                                     isNationalTeam(
                                       match.teams.home,
                                       leagueData.league
                                     )
-                                      ? "rounded-full object-cover"
-                                      : "object-contain"
+                                      ? "national-team"
+                                      : ""
                                   }`}
-                                  style={{
-                                    width: "36px",
-                                    height: "36px",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
-                                    filter: "brightness(115%) contrast(120%) saturate(110%) drop-shadow(0 3px 6px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.08))",
-                                  }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                                   }}
@@ -1208,7 +1202,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Score/Time Center - Fixed width and centered */}
-                              <div className="flex flex-col items-center justify-center px-3 w-[80px] flex-shrink-0 relative h-12">
+                              <div className="match-score-container">
                                 {(() => {
                                   const status = match.fixture.status.short;
                                   const fixtureDate = parseISO(
@@ -1230,23 +1224,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   ) {
                                     return (
                                       <div className="relative">
-                                        <div className="text-lg font-bold flex items-center gap-2">
-                                          <span className="text-black">
+                                        <div className="match-score-display">
+                                          <span className="score-number">
                                             {match.goals.home ?? 0}
                                           </span>
-                                          <span className="text-gray-400">
+                                          <span className="score-separator">
                                             -
                                           </span>
-                                          <span className="text-black">
+                                          <span className="score-number">
                                             {match.goals.away ?? 0}
                                           </span>
                                         </div>
-                                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                          <span className="text-red-600 animate-pulse bg-white px-1 rounded">
-                                            {status === "HT"
-                                              ? "HT"
-                                              : `${match.fixture.status.elapsed || 0}'`}
-                                          </span>
+                                        <div className="match-status-label status-live">
+                                          {status === "HT"
+                                            ? "HT"
+                                            : `${match.fixture.status.elapsed || 0}'`}
                                         </div>
                                       </div>
                                     );
@@ -1279,37 +1271,35 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     if (hasValidScores) {
                                       return (
                                         <div className="relative">
-                                          <div className="text-lg font-bold flex items-center gap-2">
-                                            <span className="text-black">
+                                          <div className="match-score-display">
+                                            <span className="score-number">
                                               {homeScore}
                                             </span>
-                                            <span className="text-gray-400">
+                                            <span className="score-separator">
                                               -
                                             </span>
-                                            <span className="text-black">
+                                            <span className="score-number">
                                               {awayScore}
                                             </span>
                                           </div>
-                                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                            <span className="text-gray-600 bg-white px-1 rounded">
-                                              {status === "FT"
-                                                ? "Ended"
-                                                : status === "AET"
-                                                  ? "AET"
-                                                  : status === "PEN"
-                                                    ? "PEN"
-                                                    : status === "AWD"
-                                                      ? "Awarded"
-                                                      : status === "WO"
-                                                        ? "Walkover"
-                                                        : status === "ABD"
-                                                          ? "Abandoned"
-                                                          : status === "CANC"
-                                                            ? "Cancelled"
-                                                            : status === "SUSP"
-                                                              ? "Suspended"
-                                                              : status}
-                                            </span>
+                                          <div className="match-status-label status-ended">
+                                            {status === "FT"
+                                              ? "Ended"
+                                              : status === "AET"
+                                                ? "AET"
+                                                : status === "PEN"
+                                                  ? "PEN"
+                                                  : status === "AWD"
+                                                    ? "Awarded"
+                                                    : status === "WO"
+                                                      ? "Walkover"
+                                                      : status === "ABD"
+                                                        ? "Abandoned"
+                                                        : status === "CANC"
+                                                          ? "Cancelled"
+                                                          : status === "SUSP"
+                                                            ? "Suspended"
+                                                            : status}
                                           </div>
                                         </div>
                                       );
@@ -1392,16 +1382,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                   return (
                                     <div className="relative flex items-center justify-center h-full">
-                                      <div className="text-base font-medium text-black">
+                                      <div className="match-time-display">
                                         {status === "TBD"
                                           ? "TBD"
                                           : format(fixtureDate, "HH:mm")}
                                       </div>
                                       {status === "TBD" && (
-                                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
-                                          <span className="text-gray-500 bg-white px-1 rounded">
-                                            Time TBD
-                                          </span>
+                                        <div className="match-status-label status-upcoming">
+                                          Time TBD
                                         </div>
                                       )}
                                     </div>
@@ -1410,7 +1398,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Away team logo - closer to center */}
-                              <div className="flex-shrink-0 flex items-center justify-center">
+                              <div className="team-logo-container">
                                 <img
                                   src={
                                     match.teams.away.id
@@ -1419,21 +1407,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   }
                                   alt={match.teams.away.name}
                                   title={match.teams.away.name}
-                                  className={`w-9 h-9 ${
+                                  className={`team-logo ${
                                     isNationalTeam(
                                       match.teams.away,
                                       leagueData.league
                                     )
-                                      ? "rounded-full object-cover"
-                                      : "object-contain"
+                                      ? "national-team"
+                                      : ""
                                   }`}
-                                  style={{
-                                    width: "36px",
-                                    height: "36px",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
-                                    filter: "brightness(115%) contrast(120%) saturate(110%) drop-shadow(0 3px 6px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.08))",
-                                  }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                                   }}
@@ -1441,7 +1422,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Away Team Name - positioned further right */}
-                              <div className="text-left text-sm text-gray-900 flex-1 pl-3 truncate">
+                              <div className="away-team-name">
                                 {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                               </div>
                             </div>
