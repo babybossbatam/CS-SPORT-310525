@@ -368,8 +368,18 @@ export const getPriority = (leagueName: string, leagueId: number, country: strin
     return 9;
   }
 
-  // 10. Regular leagues (everything else)
-  return 10;
+  // 10. COSAFA Cup (after CONMEBOL)
+  if (name.includes('cosafa cup') || name.includes('cosafa')) {
+    return 10;
+  }
+
+  // 11. Regular leagues (everything else)
+  if (name.includes('uefa nations league') && name.includes('women')) {
+    return 12; // UEFA Nations League - Women goes to the very end
+  }
+
+  // 11. Regular leagues (everything else except UEFA Nations League - Women)
+  return 11;
 };
 
 /**
