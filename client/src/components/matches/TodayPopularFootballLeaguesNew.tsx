@@ -339,6 +339,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
+      const country = league.country;
+
       // Use centralized exclusion filter
       const leagueName = league.name || "";
       const homeTeamName = fixture.teams?.home?.name || "";
@@ -353,8 +355,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (isRestrictedUSLeague(league.id, country)) {
         return acc;
       }
-
-      const country = league.country;
 
       // Skip fixtures without a valid country, but keep World and Europe competitions
       if (
