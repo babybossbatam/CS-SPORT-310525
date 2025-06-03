@@ -8,7 +8,7 @@
 export const popularLeagueExclusionTerms = [
   // Women's competitions (comprehensive exclusion)
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
-  'women\'s', "women's", 'friendlies women', 'women friendlies',
+  'women\'s', "women's",
 
   // Youth and development leagues (strict filtering for popular leagues)
   'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
