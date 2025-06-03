@@ -1215,7 +1215,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   key={match.fixture.id}
                                   className="match-card-container group"
                                 >
-                                  {/* Star Button with true slide-in effect */}
+                                  {/* Star Button */}
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -1223,16 +1223,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     }}
                                     className="match-star-button"
                                     title="Add to favorites"
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget
-                                        .closest(".group")
-                                        ?.classList.add("disable-hover");
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget
-                                        .closest(".group")
-                                        ?.classList.remove("disable-hover");
-                                    }}
                                   >
                                     <Star
                                       className={`match-star-icon ${
@@ -1243,7 +1233,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     />
                                   </button>
 
-                                  {/* Match content container */}
+                                  {/* Match content */}
                                   <div className="match-content-container">
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
