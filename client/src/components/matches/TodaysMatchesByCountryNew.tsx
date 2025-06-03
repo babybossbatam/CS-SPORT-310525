@@ -710,7 +710,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           }
 
                           // For other countries, use the fallback sync function
-                          return getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg';
+                          return getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback.svg';
                         })()}
                         alt={countryData.country}
                         className="w-6 h-4 object-cover rounded-sm shadow-sm"
@@ -718,7 +718,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             const target = e.target as HTMLImageElement;
                             // For World flag, use fallback
                             if (countryData.country === 'World') {
-                              target.src = '/assets/fallback-logo.svg';
+                              target.src = '/assets/fallback.svg';
                               return;
                             }
                             // For England specifically, ensure we try the correct flag first
@@ -740,12 +740,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               if (target.src.includes('gb-sct') || target.src.includes('gb-wls') || target.src.includes('gb-nir')) {
                                 target.src = 'https://flagcdn.com/w40/gb.png'; // Fallback to GB flag
                               } else if (target.src.includes('/gb.png')) {
-                                target.src = '/assets/fallback-logo.svg';
+                                target.src = '/assets/fallback.svg';
                               }
                               return;
                             }
-                            if (!target.src.includes('/assets/fallback-logo.svg')) {
-                              target.src = '/assets/fallback-logo.svg';
+                            if (!target.src.includes('/assets/fallback.svg')) {
+                              target.src = '/assets/fallback.svg';
                             }
                         }}
                       />
