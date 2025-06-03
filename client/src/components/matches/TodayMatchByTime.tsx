@@ -478,9 +478,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                       />
                       <div className="flex flex-col flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm text-gray-800">
-                            {match.leagueInfo.name}
-                          </span>
                           {match.isPopularLeague && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                               ⭐
