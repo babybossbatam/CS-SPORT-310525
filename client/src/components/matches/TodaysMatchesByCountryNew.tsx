@@ -236,7 +236,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // Enhanced timezone-inclusive date filtering
+  // Client timezone-aware date filtering
   const allFixtures = fixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date) {
       console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
@@ -244,55 +244,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     try {
-      const fixtureUTCDate = fixture.fixture.date;
-      const fixtureClientDate = getFixtureClientDate(fixtureUTCDate);
+      // Convert UTC fixture time to client timezone and check if it matches selected date
+      const passes = isFixtureOnClientDate(fixture.fixture.date, selectedDate);
 
-      // Primary check: exact client date match
-      if (fixtureClientDate === selectedDate) {
+      if (!passes) {
+        const fixtureClientDate = getFixtureClientDate(fixture.fixture.date);
+        console.log(`❌ [DEBUG] Date mismatch (client timezone):`, {
+          fixtureId: fixture.fixture.id,
+          fixtureUTCDate: fixture.fixture.date,
+          fixtureClientDate,
+          selectedDate,
+          status: fixture.fixture.status?.short
+        });
+      } else {
         console.log(`✅ [DEBUG] Date match (client timezone):`, {
           fixtureId: fixture.fixture.id,
-          fixtureUTCDate,
-          fixtureClientDate,
+          fixtureUTCDate: fixture.fixture.date,
+          fixtureClientDate: getFixtureClientDate(fixture.fixture.date),
           selectedDate,
-          status: fixture.fixture.status?.short,
-          matchType: 'exact-client'
+          status: fixture.fixture.status?.short
         });
-        return true;
       }
 
-      // Secondary check: timezone-inclusive matching
-      // Include fixtures from ±1 day that might be relevant due to timezone differences
-      const targetDate = new Date(selectedDate);
-      const fixtureDate = new Date(fixtureUTCDate);
-
-      // Calculate date difference in days
-      const timeDiff = Math.abs(fixtureDate.getTime() - targetDate.getTime());
-      const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-
-      // Include fixtures within 1.5 days to capture timezone edge cases
-      if (daysDiff <= 1.5) {
-        console.log(`✅ [DEBUG] Date match (timezone-inclusive):`, {
-          fixtureId: fixture.fixture.id,
-          fixtureUTCDate,
-          fixtureClientDate,
-          selectedDate,
-          daysDiff: daysDiff.toFixed(2),
-          status: fixture.fixture.status?.short,
-          matchType: 'timezone-inclusive'
-        });
-        return true;
-      }
-
-      console.log(`❌ [DEBUG] Date mismatch (all checks failed):`, {
-        fixtureId: fixture.fixture.id,
-        fixtureUTCDate,
-        fixtureClientDate,
-        selectedDate,
-        daysDiff: daysDiff.toFixed(2),
-        status: fixture.fixture.status?.short
-      });
-
-      return false;
+      return passes;
     } catch (error) {
       console.warn('❌ [DEBUG] Date validation error for fixture:', fixture.fixture.id, error);
       return false;
@@ -435,11 +409,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       teams: {
         home: {
           ...fixture.teams.home,
-          logo: fixture.teams.home.logo || '/assets/fallback-logo.svg'
+          logo: fixture.teams.home.logo || '/assets/fallback-logo.png'
         },
         away: {
           ...fixture.teams.away,
-          logo: fixture.teams.away.logo || '/assets/fallback-logo.svg'
+          logo: fixture.teams.away.logo || '/assets/fallback-logo.png'
         }
       }
     });
@@ -696,33 +670,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-// Enhanced country flag mapping with better null safety
-  const getCountryFlag = (
-    country: string | null | undefined,
-    leagueFlag?: string | null,
-  ) => {
-    // Use league flag if available and valid
-    if (
-      leagueFlag &&
-      typeof leagueFlag === "string" &&
-      leagueFlag.trim() !== ""
-    ) {
-      return leagueFlag;
-    }
-
-    // Add comprehensive null/undefined check for country
-    if (!country || typeof country !== "string" || country.trim() === "") {
-      return "/assets/fallback-logo.svg"; // Default football logo
-    }
-
-    const cleanCountry = country.trim();
-
-    // Special handling for Unknown country only
-    if (cleanCountry === "Unknown") {
-      return "/assets/fallback-logo.svg"; // Default football logo
-    }
-  };
-
 
 
 
@@ -947,7 +894,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                       <div className="flex-shrink-0 mx-1">
                                         <img 
-                                          src={match.teams.home.logo || '/assets/fallback-logo.svg'} 
+                                          src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
                                           className={`w-9 h-9 ${
                                             // Apply ball effect to country flags in international competitions
@@ -969,8 +916,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           }`}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
-                                            if (target.src !== '/assets/fallback-logo.svg') {
-                                              target.src = '/assets/fallback-logo.svg';
+                                            if (target.src !== '/assets/fallback-logo.png') {
+                                              target.src = '/assets/fallback-logo.png';
                                             }
                                           }}
                                         />
@@ -1082,7 +1029,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                       <div className="flex-shrink-0 mx-1">
                                         <img
-                                          src={match.teams.away.logo || '/assets/fallback-logo.svg'}
+                                          src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                           alt={match.teams.away.name}
                                           className={`w-9 h-9 ${
                                             // Apply ball effect to country flags in international competitions
@@ -1104,8 +1051,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           }`}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
-                                            if (target.src !== '/assets/fallback-logo.svg') {
-                                              target.src = '/assets/fallback-logo.svg';
+                                            if (target.src !== '/assets/fallback-logo.png') {
+                                              target.src = '/assets/fallback-logo.png';
                                             }
                                           }}
                                         />

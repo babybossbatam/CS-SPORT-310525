@@ -28,10 +28,7 @@ export const popularLeagueExclusionTerms = [
 
   // Brazilian state leagues (lower-tier regional competitions)
   'amazonense', 'baiano', 'carioca', 'catarinense', 'gaucho', 'gaúcho', 'goiano', 'minero', 'mineiro', 'paranaense',
-  'copa espírito santo', 'espirito santo', 'paulista série b',
-
-  // Women's leagues (additional exclusions)
-  'liga femenina',
+  'copa espírito santo', 'espirito santo',
 
   // US lower-tier leagues that shouldn't appear in popular leagues
   'npsl', 'national premier soccer league', 'usl w league', 'wpsl',
