@@ -1105,31 +1105,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                <img
-                                  src={
-                                    match.teams.home.id 
-                                      ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                      : "/assets/fallback-logo.svg"
-                                  }
-                                  alt={match.teams.home.name}
-                                  className="w-9 h-9 rounded-full object-cover"
+                                <div
+                                  className="w-9 h-9 rounded-full bg-cover bg-center bg-no-repeat"
                                   style={{
-                                    aspectRatio: "1/1",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
-                                    maxWidth: "36px",
-                                    maxHeight: "36px",
+                                    backgroundImage: `url(${
+                                      match.teams.home.id 
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    })`,
                                     width: "36px",
                                     height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                   }}
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    if (
-                                      target.src !== "/assets/fallback-logo.svg"
-                                    ) {
-                                      target.src = "/assets/fallback-logo.svg";
-                                    }
-                                  }}
+                                  title={match.teams.home.name}
                                 />
                               </div>
 
@@ -1337,31 +1326,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                <img
-                                  src={
-                                    match.teams.away.id 
-                                      ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                      : "/assets/fallback-logo.svg"
-                                  }
-                                  alt={match.teams.away.name}
-                                  className="w-9 h-9 rounded-full object-cover"
+                                <div
+                                  className="w-9 h-9 rounded-full bg-cover bg-center bg-no-repeat"
                                   style={{
-                                    aspectRatio: "1/1",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
-                                    maxWidth: "36px",
-                                    maxHeight: "36px",
+                                    backgroundImage: `url(${
+                                      match.teams.away.id 
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    })`,
                                     width: "36px",
                                     height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                   }}
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    if (
-                                      target.src !== "/assets/fallback-logo.svg"
-                                    ) {
-                                      target.src = "/assets/fallback-logo.svg";
-                                    }
-                                  }}
+                                  title={match.teams.away.name}
                                 />
                               </div>
 
