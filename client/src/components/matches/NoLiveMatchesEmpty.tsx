@@ -1,4 +1,5 @@
 
+import { Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NoLiveMatchesEmptyProps {
@@ -12,59 +13,58 @@ const NoLiveMatchesEmpty = ({
   onBackToHome, 
   showBackButton = true,
   title = "No Live Matches",
-  description = "It doesn't happen often, but there are no live matches being played right now. Check it out later"
+  description = "There are no matches currently in play. Our system is continuously monitoring for live matches."
 }: NoLiveMatchesEmptyProps) => {
   return (
-    <div className="flex flex-col items-center justify-center p-8 text-center space-y-6 bg-gray-50 min-h-[400px]">
-      {/* Football goal/bench illustration */}
-      <div className="relative mb-4">
-        <svg 
-          width="120" 
-          height="80" 
-          viewBox="0 0 120 80" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          className="mx-auto"
-        >
-          {/* Goal frame */}
-          <path 
-            d="M20 60 L20 20 Q20 15 25 15 L95 15 Q100 15 100 20 L100 60" 
-            stroke="#333" 
-            strokeWidth="3" 
-            fill="none"
+    <div className="p-8 text-center space-y-6">
+      {/* Modern animated fallback image container */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-full blur-xl animate-pulse"></div>
+        <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
+          <img 
+            src="/assets/fallback-logo.svg" 
+            alt="No live matches available"
+            className="h-20 w-20 mx-auto object-contain opacity-60 transition-all duration-300 hover:opacity-80 hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/assets/fallback-logo.png';
+            }}
           />
-          
-          {/* Goal posts */}
-          <line x1="20" y1="60" x2="20" y2="65" stroke="#333" strokeWidth="3"/>
-          <line x1="100" y1="60" x2="100" y2="65" stroke="#333" strokeWidth="3"/>
-          
-          {/* Bench seats (orange circles) */}
-          <circle cx="35" cy="55" r="6" fill="#FF6B35"/>
-          <circle cx="50" cy="55" r="6" fill="#FF6B35"/>
-          <circle cx="65" cy="55" r="6" fill="#FF6B35"/>
-          <circle cx="80" cy="55" r="6" fill="#FF6B35"/>
-        </svg>
+        </div>
       </div>
 
-      {/* Main message */}
-      <div className="space-y-3 max-w-md">
-        <p className="text-gray-700 text-lg leading-relaxed font-medium">
-          It doesn't happen often, but there are no live matches being played right now.
-        </p>
-        <p className="text-gray-600 text-base">
-          Check it out later
-        </p>
+      {/* Modern icon with subtle animation */}
+      <div className="relative">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 rounded-full">
+          <Activity className="h-8 w-8 text-red-600 animate-pulse" />
+        </div>
       </div>
 
-      {/* See All Matches button */}
-      <div className="pt-2">
-        <Button 
-          onClick={onBackToHome}
-          className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200"
-        >
-          See All Matches
-        </Button>
+      {/* Modern typography */}
+      <div className="space-y-3">
+        <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          {title}
+        </h3>
+        <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+          {description}
+        </p>
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+          <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+          <span>System active • Checking for live matches</span>
+        </div>
       </div>
+
+      {/* Modern call-to-action */}
+      {showBackButton && onBackToHome && (
+        <div className="pt-4">
+          <Button 
+            onClick={onBackToHome}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          >
+            <Activity className="h-4 w-4" />
+            <span>Back to Home</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

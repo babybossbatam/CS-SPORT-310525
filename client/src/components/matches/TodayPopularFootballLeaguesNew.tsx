@@ -217,60 +217,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     console.log(`Processing ${fixtures.length} fixtures for filtering`);
     const startTime = Date.now();
 
-    // Apply date-based filtering if time filter is active
-    let dateFilteredFixtures = fixtures;
-    if (timeFilterActive) {
-      const now = new Date();
-      const todayStart = new Date(now);
-      todayStart.setHours(0, 0, 0, 0);
-      const todayEnd = new Date(now);
-      todayEnd.setHours(23, 59, 59, 999);
-
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStart = new Date(tomorrow);
-      tomorrowStart.setHours(0, 0, 0, 0);
-      const tomorrowEnd = new Date(tomorrow);
-      tomorrowEnd.setHours(23, 59, 59, 999);
-
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStart = new Date(yesterday);
-      yesterdayStart.setHours(0, 0, 0, 0);
-      const yesterdayEnd = new Date(yesterday);
-      yesterdayEnd.setHours(23, 59, 59, 999);
-
-      dateFilteredFixtures = fixtures.filter((fixture) => {
-        if (!fixture?.fixture?.date) {
-          return false;
-        }
-
-        try {
-          const fixtureDate = parseISO(fixture.fixture.date);
-          if (!fixtureDate) {
-            return false;
-          }
-
-          // Check if fixture is today (00:00:00 - 23:59:59)
-          const isToday = fixtureDate >= todayStart && fixtureDate <= todayEnd;
-          
-          // Check if fixture is tomorrow (00:00:00 - 23:59:59)
-          const isTomorrow = fixtureDate >= tomorrowStart && fixtureDate <= tomorrowEnd;
-          
-          // Check if fixture is yesterday (00:00:00 - 23:59:59)
-          const isYesterday = fixtureDate >= yesterdayStart && fixtureDate <= yesterdayEnd;
-
-          return isToday || isTomorrow || isYesterday;
-        } catch (error) {
-          console.error('Error filtering fixture by date range:', error);
-          return false;
-        }
-      });
-    }
-
-    const filtered = dateFilteredFixtures.filter((fixture) => {
-      // Date filtering - ensure exact date match (when time filter is NOT active)
-      if (!timeFilterActive && fixture?.fixture?.date) {
+    const filtered = fixtures.filter((fixture) => {
+      // Date filtering - ensure exact date match
+      if (fixture?.fixture?.date) {
         try {
           const fixtureDate = parseISO(fixture.fixture.date);
           if (isValid(fixtureDate)) {
@@ -333,54 +282,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.error("Error parsing fixture date:", error);
           return false;
         }
-      } else if (timeFilterActive) {
-        // When time filter is active, we've already filtered by date above
-        // Now check for popular leagues and countries
-        const leagueId = fixture.league?.id;
-        const country = fixture.league?.country?.toLowerCase() || "";
-
-        // Check if it's a popular league
-        const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-
-        // Check if it's from a popular country
-        const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-          (popularCountry) =>
-            country.includes(popularCountry.toLowerCase()),
-        );
-
-        // Check if it's an international competition
-        const leagueName = fixture.league?.name?.toLowerCase() || "";
-        const isInternationalCompetition =
-          // UEFA competitions
-          leagueName.includes("champions league") ||
-          leagueName.includes("europa league") ||
-          leagueName.includes("conference league") ||
-          leagueName.includes("uefa") ||
-          // FIFA competitions
-          leagueName.includes("world cup") ||
-          leagueName.includes("fifa club world cup") ||
-          leagueName.includes("fifa") ||
-          // CONMEBOL competitions
-          leagueName.includes("conmebol") ||
-          leagueName.includes("copa america") ||
-          leagueName.includes("copa libertadores") ||
-          leagueName.includes("copa sudamericana") ||
-          leagueName.includes("libertadores") ||
-          leagueName.includes("sudamericana") ||
-          // Men's International Friendlies (excludes women's)
-          (leagueName.includes("friendlies") &&
-            !leagueName.includes("women")) ||
-          (leagueName.includes("international") &&
-            !leagueName.includes("women")) ||
-          country.includes("world") ||
-          country.includes("europe") ||
-          country.includes("international");
-
-        return (
-          isPopularLeague ||
-          isFromPopularCountry ||
-          isInternationalCompetition
-        );
       }
 
       return false;
@@ -465,7 +366,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     return finalFiltered;
-  }, [fixtures, selectedDate, timeFilterActive]);
+  }, [fixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(

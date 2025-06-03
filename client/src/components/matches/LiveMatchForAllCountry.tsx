@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
+import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
 import { getTeamLogoSources, isNationalTeam, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
-import MydateConversionFilter from "@/lib/MydateConversionFilter";
-import NoLiveMatchesEmpty from "./NoLiveMatchesEmpty";
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
@@ -24,7 +22,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   timeFilterActive = false,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
-  const [, navigate] = useLocation();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -106,51 +103,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     }
   };
 
-  // Apply date-based filtering if time filter is active with timezone awareness
-  const allFixtures = useMemo(() => {
-    if (!timeFilterActive) {
-      return fixtures;
-    }
-
-    console.log('🕐 [DEBUG] Applying timezone-aware filtering for fixtures:', fixtures.length);
-
-    return fixtures.filter((fixture: any) => {
-      if (!fixture?.fixture?.date) {
-        console.log('❌ [DEBUG] Fixture missing date:', fixture?.fixture?.id);
-        return false;
-      }
-
-      try {
-        const fixtureUTCDate = fixture.fixture.date;
-        
-        // Use timezone-aware checking from MydateConversionFilter
-        const isToday = MydateConversionFilter.isFixtureToday(fixtureUTCDate);
-        const isTomorrow = MydateConversionFilter.isFixtureTomorrow(fixtureUTCDate);
-        const isYesterday = MydateConversionFilter.isFixtureYesterday(fixtureUTCDate);
-
-        const shouldInclude = isToday || isTomorrow || isYesterday;
-        
-        if (shouldInclude) {
-          const localTime = MydateConversionFilter.formatFixtureTime(fixtureUTCDate);
-          console.log('✅ [DEBUG] Including fixture:', {
-            fixtureId: fixture.fixture.id,
-            utcDate: fixtureUTCDate,
-            localTime: localTime,
-            isToday,
-            isTomorrow,
-            isYesterday,
-            homeTeam: fixture.teams?.home?.name,
-            awayTeam: fixture.teams?.away?.name
-          });
-        }
-
-        return shouldInclude;
-      } catch (error) {
-        console.error('Error filtering fixture by timezone-aware date range:', error);
-        return false;
-      }
-    });
-  }, [fixtures, timeFilterActive]);
+  // Use only the live fixtures data
+  const allFixtures = fixtures;
 
   // Group live fixtures by country and league with comprehensive null checks
   const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
@@ -298,10 +252,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   if (!allFixtures.length) {
     return (
-      <NoLiveMatchesEmpty 
-        onBackToHome={() => navigate('/')}
-        showBackButton={true}
-      />
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Activity className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No live matches available</p>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -469,10 +425,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 ) : match.fixture.status.short === "HT" ? (
                                   <span className="text-red-600 animate-pulse">
                                     Halftime
-                                  </span>
-                                ) : match.fixture.status.short === "NS" ? (
-                                  <span className="text-blue-600">
-                                    {MydateConversionFilter.formatFixtureTime(match.fixture.date)}
                                   </span>
                                 ) : (
                                   <span className="text-red-600 animate-pulse">
