@@ -768,11 +768,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     // Use exact string comparison for accurate date matching
     if (isSelectedToday) {
-      baseTitle = "Today's Popular Football Leagues";
+      baseTitle = "Popular Football Leagues";
     } else if (isSelectedYesterday) {
-      baseTitle = "Yesterday's Popular Football Leagues";
+      baseTitle = "Popular Football Leagues";
     } else if (isSelectedTomorrow) {
-      baseTitle = "Tomorrow's Popular Football Leagues";
+      baseTitle = "Popular Football Leagues";
     } else {
       const selectedDateObj = parseISO(selectedDate);
       baseTitle = `Popular Football Leagues - ${format(selectedDateObj, "MMM d, yyyy")}`;
@@ -817,7 +817,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   return (
     <>
       {/* Header Section */}
-      <CardHeader className="text-sm font-semibold mt-4 p-3 bg-white border border-stone-200">
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200">
         {getHeaderTitle()}
       </CardHeader>
       {/* Create individual league cards from all countries */}
