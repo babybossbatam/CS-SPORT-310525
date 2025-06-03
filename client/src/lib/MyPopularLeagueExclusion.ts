@@ -27,6 +27,9 @@ export const popularLeagueExclusionTerms = [
   'oberliga', 'oberliga -', 'oberliga westfalen', 'oberliga baden', 'oberliga bayern', 'oberliga hessen',
   'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 'oberliga thüringen',
 
+  // Brazilian state leagues (lower-tier regional competitions)
+  'amazonense', 'carioca', 'catarinense', 'gaucho', 'goiano', 'minero', 'paranaense',
+
   // US lower-tier leagues that shouldn't appear in popular leagues
   'npsl', 'national premier soccer league', 'usl w league', 'wpsl',
   'usl league two', 'usl championship', 'usl league one', 'nwsl',
