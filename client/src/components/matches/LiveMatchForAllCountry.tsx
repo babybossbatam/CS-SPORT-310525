@@ -15,6 +15,7 @@ import {
   isDateStringTomorrow,
   isFixtureOnClientDate 
 } from '@/lib/dateUtilsUpdated';
+import "@/styles/MyLogoPositioning.css";
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
@@ -471,13 +472,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 src={match.teams.home.logo}
                                 alt={`${match.teams.home.name} logo`}
                                 title={match.teams.home.name}
-                                className={`w-9 h-9 rounded-full ${
+                                className={`team-logo ${
                                   isNationalTeam(match.teams.home, leagueData.league)
-                                    ? "object-cover"
-                                    : "object-contain"
+                                    ? "national-team"
+                                    : ""
                                 }`}
                                 loading="lazy"
-                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px' }}
                                 onError={createTeamLogoErrorHandler(match.teams.home, isNationalTeam(match.teams.home, leagueData.league))}
                               />
                             </div>
@@ -498,7 +498,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                         <span className="text-black">{match.goals.away ?? 0}</span>
                                       </div>
                                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                        <span className="text-red-600 animate-pulse bg-white px-1 rounded">
+                                        <span className="match-status-label text-red-600 animate-pulse">
                                           {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                         </span>
                                       </div>
@@ -515,7 +515,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                         <span className="text-gray-400">-</span>
                                         <span className="text-black">{match.goals.away ?? 0}</span>
                                       </div>
-                                      <div className="text-xs text-gray-600 font-semibold">Ended</div>
+                                      <div className="match-status-label text-xs text-gray-600 font-semibold">Ended</div>
                                     </>
                                   );
                                 }
@@ -534,13 +534,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 src={match.teams.away.logo}
                                 alt={`${match.teams.away.name} logo`}
                                 title={match.teams.away.name}
-                                className={`w-9 h-9 rounded-full ${
+                                className={`team-logo ${
                                   isNationalTeam(match.teams.away, leagueData.league)
-                                    ? "object-cover"
-                                    : "object-contain"
+                                    ? "national-team"
+                                    : ""
                                 }`}
                                 loading="lazy"
-                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px' }}
                                 onError={createTeamLogoErrorHandler(match.teams.away, isNationalTeam(match.teams.away, leagueData.league))}
                               />
                             </div>
@@ -548,7 +547,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                             {/* Away Team - Fixed width for consistency */}
                             <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                               {match.teams.away.name}
-                            </div>
                             </div>
                           </div>
                         </div>
