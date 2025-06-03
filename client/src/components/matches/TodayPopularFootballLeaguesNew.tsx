@@ -119,6 +119,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     "Brazil",
     "Saudi Arabia",
     "United Arab Emirates",
+    "United-Arab-Emirates",
     "Egypt",
     "Colombia",
   ];
