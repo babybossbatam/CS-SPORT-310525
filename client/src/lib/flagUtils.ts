@@ -785,9 +785,8 @@ export function generateCountryFlagSources(country: string): string[] {
   if (countryCode) {
     if (countryCode.length === 2) {
       sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
-      sources.push(`https://countryflags.io/${countryMapping variations and fallback image sources updated to ensure accurate flag representation and a consistent fallback experience.
-```python
-Code.toLowerCase()}/flat/64.png`);
+      sources.push(`https://countryflags.io/${countryCode.toLowerCase()}/flat/64.png`);
+      sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}/flat/64.png`);
       sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
     }
   }
@@ -1539,7 +1538,7 @@ export async function testCountryMappingAgainstLiveData(fixtures: any[]): Promis
             found = true;
           }
         }
-        if (!found && country.includes(' ')) {
+        if (!found &&country.includes(' ')) {
           const hyphenVersion = country.replace(/\s+/g, '-');
           if (countryCodeMap[hyphenVersion]) {
             mappedCountries.add(country);
@@ -1643,7 +1642,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
         signal: AbortSignal.timeout(3000)
       });
 
-      if (apiFootballResponse.ok && apiFootballResponseok && apiFootballResponse.status === 200) {
+      if (apiFootballResponse.ok) {
         console.log(`✅ Valid flag found via API-Football for ${normalizedCountry}: ${apiFootballUrl}`);
         flagCache.set(cacheKey, apiFootballUrl);
         return apiFootballUrl;
@@ -1662,7 +1661,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
         signal: AbortSignal.timeout(3000)
       });
 
-      if (scores365Response.ok && scores365Response.status === 200) {
+      if (scores365Response.ok) {
         console.log(`✅ Valid flag found via 365scores for ${normalizedCountry}: ${scores365Url}`);
         flagCache.set(cacheKey, scores365Url);
         return scores365Url;
@@ -1683,7 +1682,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
           signal: AbortSignal.timeout(3000)
         });
 
-        if (countryCodeResponse.ok && countryCodeResponse.status === 200) {
+        if (countryCodeResponse.ok) {
           console.log(`✅ Valid flag found via country code for ${normalizedCountry}: ${countryCodeUrl}`);
           flagCache.set(cacheKey, countryCodeUrl);
           return countryCodeUrl;
