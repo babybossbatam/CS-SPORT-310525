@@ -30,6 +30,48 @@ import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
 import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 
+// Helper function to shorten team names
+const shortenTeamName = (teamName: string): string => {
+  if (!teamName) return teamName;
+
+  // Remove common suffixes that make names too long
+  const suffixesToRemove = [
+    '-sc', '-SC', ' SC', ' FC', ' CF', ' United', ' City',
+    ' Islands', ' Republic', ' National Team', ' U23', ' U21', ' U20', ' U19'
+  ];
+
+  let shortened = teamName;
+  for (const suffix of suffixesToRemove) {
+    if (shortened.endsWith(suffix)) {
+      shortened = shortened.replace(suffix, '');
+      break;
+    }
+  }
+
+  // Handle specific country name shortenings
+  const countryMappings: { [key: string]: string } = {
+    'Cape Verde Islands': 'Cape Verde',
+    'Central African Republic': 'CAR',
+    'Dominican Republic': 'Dominican Rep',
+    'Bosnia and Herzegovina': 'Bosnia',
+    'Trinidad and Tobago': 'Trinidad',
+    'Papua New Guinea': 'Papua NG',
+    'United Arab Emirates': 'UAE',
+    'Saudi Arabia': 'Saudi',
+    'South Africa': 'S. Africa',
+    'New Zealand': 'New Zealand',
+    'Costa Rica': 'Costa Rica',
+    'Puerto Rico': 'Puerto Rico'
+  };
+
+  // Check if the team name matches any country mappings
+  if (countryMappings[shortened]) {
+    shortened = countryMappings[shortened];
+  }
+
+  return shortened.trim();
+};
+
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
   liveFilterActive?: boolean;
@@ -901,7 +943,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     <div className="flex items-center px-3 py-2">
                                       {/* Home Team - Fixed width to prevent overflow */}
                                       <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
-                                        {match.teams.home.name}
+                                        {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                       </div>
 
                                       <div className="flex-shrink-0 mx-1 flex items-center justify-center">
@@ -1085,7 +1127,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                       {/* Away Team - Fixed width to prevent overflow */}
                                       <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
-                                        {match.teams.away.name}
+                                        {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                                       </div>
                                     </div>
                                   </div>
