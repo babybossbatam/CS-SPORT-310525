@@ -915,6 +915,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             </span>
                           </div>
                           <div className="flex gap-1 ml-auto">
+                            {leagueData.isPopularForCountry && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                                Popular Country
+                              </span>
+                            )}
                             {leagueData.isPopular &&
                               !leagueData.isPopularForCountry && (
                                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
