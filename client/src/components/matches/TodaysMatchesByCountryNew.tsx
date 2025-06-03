@@ -246,7 +246,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     try {
       const fixtureUTCDate = fixture.fixture.date;
       const fixtureClientDate = getFixtureClientDate(fixtureUTCDate);
-      
+
       // Primary check: exact client date match
       if (fixtureClientDate === selectedDate) {
         console.log(`✅ [DEBUG] Date match (client timezone):`, {
@@ -264,11 +264,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Include fixtures from ±1 day that might be relevant due to timezone differences
       const targetDate = new Date(selectedDate);
       const fixtureDate = new Date(fixtureUTCDate);
-      
+
       // Calculate date difference in days
       const timeDiff = Math.abs(fixtureDate.getTime() - targetDate.getTime());
       const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-      
+
       // Include fixtures within 1.5 days to capture timezone edge cases
       if (daysDiff <= 1.5) {
         console.log(`✅ [DEBUG] Date match (timezone-inclusive):`, {
@@ -435,11 +435,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       teams: {
         home: {
           ...fixture.teams.home,
-          logo: fixture.teams.home.logo || '/assets/fallback-logo.png'
+          logo: fixture.teams.home.logo || '/assets/fallback-logo.svg'
         },
         away: {
           ...fixture.teams.away,
-          logo: fixture.teams.away.logo || '/assets/fallback-logo.png'
+          logo: fixture.teams.away.logo || '/assets/fallback-logo.svg'
         }
       }
     });
@@ -696,6 +696,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
+// Enhanced country flag mapping with better null safety
+  const getCountryFlag = (
+    country: string | null | undefined,
+    leagueFlag?: string | null,
+  ) => {
+    // Use league flag if available and valid
+    if (
+      leagueFlag &&
+      typeof leagueFlag === "string" &&
+      leagueFlag.trim() !== ""
+    ) {
+      return leagueFlag;
+    }
+
+    // Add comprehensive null/undefined check for country
+    if (!country || typeof country !== "string" || country.trim() === "") {
+      return "/assets/fallback-logo.svg"; // Default football logo
+    }
+
+    const cleanCountry = country.trim();
+
+    // Special handling for Unknown country only
+    if (cleanCountry === "Unknown") {
+      return "/assets/fallback-logo.svg"; // Default football logo
+    }
+  };
+
 
 
 
@@ -920,7 +947,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                       <div className="flex-shrink-0 mx-1">
                                         <img 
-                                          src={match.teams.home.logo || '/assets/fallback-logo.png'} 
+                                          src={match.teams.home.logo || '/assets/fallback-logo.svg'} 
                                           alt={match.teams.home.name}
                                           className={`w-9 h-9 ${
                                             // Apply ball effect to country flags in international competitions
@@ -942,8 +969,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           }`}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
-                                            if (target.src !== '/assets/fallback-logo.png') {
-                                              target.src = '/assets/fallback-logo.png';
+                                            if (target.src !== '/assets/fallback-logo.svg') {
+                                              target.src = '/assets/fallback-logo.svg';
                                             }
                                           }}
                                         />
@@ -1055,7 +1082,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                       <div className="flex-shrink-0 mx-1">
                                         <img
-                                          src={match.teams.away.logo || '/assets/fallback-logo.png'}
+                                          src={match.teams.away.logo || '/assets/fallback-logo.svg'}
                                           alt={match.teams.away.name}
                                           className={`w-9 h-9 ${
                                             // Apply ball effect to country flags in international competitions
@@ -1077,8 +1104,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           }`}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
-                                            if (target.src !== '/assets/fallback-logo.png') {
-                                              target.src = '/assets/fallback-logo.png';
+                                            if (target.src !== '/assets/fallback-logo.svg') {
+                                              target.src = '/assets/fallback-logo.svg';
                                             }
                                           }}
                                         />
