@@ -1111,26 +1111,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.home.name}
-                                  className={`w-9 h-9 rounded-full ${
-                                    isNationalTeam(match.teams.home, leagueData.league)
-                                      ? "shadow-lg drop-shadow-xl object-cover"
-                                      : "object-contain"
-                                  }`}
+                                  className="w-9 h-9 rounded-full object-contain"
                                   style={{
                                     aspectRatio: "1/1",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    objectFit: isNationalTeam(match.teams.home, leagueData.league) ? "cover" : "contain",
-                                    objectPosition: "center",
-                                    ...(isNationalTeam(match.teams.home, leagueData.league) && {
-                                      background: "linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.1) 100%)",
-                                      backgroundBlendMode: "overlay",
-                                      boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.4), inset 0 -2px 8px rgba(0,0,0,0.2)",
-                                      filter: "brightness(1.1) contrast(1.1)",
-                                      position: "relative" as const,
-                                      height: "36px",
-                                      width: "36px",
-                                    }),
                                   }}
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
