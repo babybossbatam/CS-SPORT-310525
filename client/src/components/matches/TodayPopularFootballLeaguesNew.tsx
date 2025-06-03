@@ -41,13 +41,13 @@ import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
   if (!teamName) return teamName;
-  
+
   // Remove common suffixes that make names too long
   const suffixesToRemove = [
     '-sc', '-SC', ' SC', ' FC', ' CF', ' United', ' City',
     ' Islands', ' Republic', ' National Team', ' U23', ' U21', ' U20', ' U19'
   ];
-  
+
   let shortened = teamName;
   for (const suffix of suffixesToRemove) {
     if (shortened.endsWith(suffix)) {
@@ -55,7 +55,7 @@ const shortenTeamName = (teamName: string): string => {
       break;
     }
   }
-  
+
   // Handle specific country name shortenings
   const countryMappings: { [key: string]: string } = {
     'Cape Verde Islands': 'Cape Verde',
@@ -71,12 +71,12 @@ const shortenTeamName = (teamName: string): string => {
     'Costa Rica': 'Costa Rica',
     'Puerto Rico': 'Puerto Rico'
   };
-  
+
   // Check if the team name matches any country mappings
   if (countryMappings[shortened]) {
     shortened = countryMappings[shortened];
   }
-  
+
   return shortened.trim();
 };
 
@@ -219,96 +219,82 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const startTime = Date.now();
 
     const filtered = fixtures.filter((fixture) => {
-      // Date filtering - ensure exact date match
-      if (fixture?.fixture?.date) {
-        try {
-          const fixtureDate = parseISO(fixture.fixture.date);
-          if (isValid(fixtureDate)) {
-            // Use smart date labeling for more accurate filtering
-            const smartResult = MySmartDateLabeling.getSmartDateLabel(
-              fixture.fixture.date,
-              fixture.fixture.status?.short || 'NS'
-            );
-            
-            // Check if this fixture belongs to the selected date using smart logic
-            const selectedDateObj = new Date(selectedDate);
-            const currentDate = new Date();
-            
-            // Determine what the selected date represents
-            const isSelectedToday = selectedDate === format(currentDate, 'yyyy-MM-dd');
-            const isSelectedYesterday = selectedDate === format(subDays(currentDate, 1), 'yyyy-MM-dd');
-            const isSelectedTomorrow = selectedDate === format(addDays(currentDate, 1), 'yyyy-MM-dd');
-            
-            // Apply smart filtering
-            let matchesSmartDate = false;
-            if (isSelectedToday && smartResult.label === 'today') matchesSmartDate = true;
-            if (isSelectedYesterday && smartResult.label === 'yesterday') matchesSmartDate = true;
-            if (isSelectedTomorrow && smartResult.label === 'tomorrow') matchesSmartDate = true;
-            
-            // Fallback to standard date matching for other dates
-            if (!matchesSmartDate) {
-              const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
-              matchesSmartDate = fixtureLocalDate === selectedDate;
-            }
+      // Apply smart date filtering first
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartDateLabeling.getSmartDateLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short
+        );
 
-            if (!matchesSmartDate) {
-              return false;
-            }
+        // Check if this fixture belongs to the selected date using smart logic
+        const isSelectedToday = isFixtureOnLocalDate(selectedDate, new Date().toISOString().slice(0, 10));
+        const isSelectedYesterday = isFixtureOnLocalDate(selectedDate, subDays(new Date(), 1).toISOString().slice(0, 10));
+        const isSelectedTomorrow = isFixtureOnLocalDate(selectedDate, addDays(new Date(), 1).toISOString().slice(0, 10));
 
-            // Client-side filtering for popular leagues and countries
-            const leagueId = fixture.league?.id;
-            const country = fixture.league?.country?.toLowerCase() || "";
+        // Strict matching: only include if smart labeling matches selected date type
+        if (isSelectedToday && smartResult.label === 'today') return true;
+        if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+        if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
 
-            // Check if it's a popular league
-            const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+        // For matches with finished/live status, use standard date matching as fallback
+        const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
+        const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
-            // Check if it's from a popular country
-            const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-              (popularCountry) =>
-                country.includes(popularCountry.toLowerCase()),
-            );
-
-            // Check if it's an international competition
-            const leagueName = fixture.league?.name?.toLowerCase() || "";
-            const isInternationalCompetition =
-              // UEFA competitions
-              leagueName.includes("champions league") ||
-              leagueName.includes("europa league") ||
-              leagueName.includes("conference league") ||
-              leagueName.includes("uefa") ||
-              // FIFA competitions
-              leagueName.includes("world cup") ||
-              leagueName.includes("fifa club world cup") ||
-              leagueName.includes("fifa") ||
-              // CONMEBOL competitions
-              leagueName.includes("conmebol") ||
-              leagueName.includes("copa america") ||
-              leagueName.includes("copa libertadores") ||
-              leagueName.includes("copa sudamericana") ||
-              leagueName.includes("libertadores") ||
-              leagueName.includes("sudamericana") ||
-              // Men's International Friendlies (excludes women's)
-              (leagueName.includes("friendlies") &&
-                !leagueName.includes("women")) ||
-              (leagueName.includes("international") &&
-                !leagueName.includes("women")) ||
-              country.includes("world") ||
-              country.includes("europe") ||
-              country.includes("international");
-
-            return (
-              isPopularLeague ||
-              isFromPopularCountry ||
-              isInternationalCompetition
-            );
-          }
-        } catch (error) {
-          console.error("Error parsing fixture date:", error);
-          return false;
+        if (finishedStatuses.includes(fixture.fixture.status.short) || 
+            liveStatuses.includes(fixture.fixture.status.short)) {
+          return isFixtureOnLocalDate(fixture.fixture.date, selectedDate);
         }
+
+        // For not started matches, strictly follow smart date labeling - no fallback
+        return false;
       }
 
-      return false;
+      // Client-side filtering for popular leagues and countries
+      const leagueId = fixture.league?.id;
+      const country = fixture.league?.country?.toLowerCase() || "";
+
+      // Check if it's a popular league
+      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+      // Check if it's from a popular country
+      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+        (popularCountry) =>
+          country.includes(popularCountry.toLowerCase()),
+      );
+
+      // Check if it's an international competition
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+      const isInternationalCompetition =
+        // UEFA competitions
+        leagueName.includes("champions league") ||
+        leagueName.includes("europa league") ||
+        leagueName.includes("conference league") ||
+        leagueName.includes("uefa") ||
+        // FIFA competitions
+        leagueName.includes("world cup") ||
+        leagueName.includes("fifa club world cup") ||
+        leagueName.includes("fifa") ||
+        // CONMEBOL competitions
+        leagueName.includes("conmebol") ||
+        leagueName.includes("copa america") ||
+        leagueName.includes("copa libertadores") ||
+        leagueName.includes("copa sudamericana") ||
+        leagueName.includes("libertadores") ||
+        leagueName.includes("sudamericana") ||
+        // Men's International Friendlies (excludes women's)
+        (leagueName.includes("friendlies") &&
+          !leagueName.includes("women")) ||
+        (leagueName.includes("international") &&
+          !leagueName.includes("women")) ||
+        country.includes("world") ||
+        country.includes("europe") ||
+        country.includes("international");
+
+      return (
+        isPopularLeague ||
+        isFromPopularCountry ||
+        isInternationalCompetition
+      );
     });
 
     const finalFiltered = filtered.filter((fixture) => {
@@ -790,6 +776,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
+  // Helper function to check if fixture date matches client date
+  const isFixtureOnLocalDate = (fixtureDate: string, selectedDate: string): boolean => {
+    try {
+      const fixtureLocalDate = getFixtureLocalDate(fixtureDate);
+      return fixtureLocalDate === selectedDate;
+    } catch (error) {
+      console.error("Error comparing fixture date:", error);
+      return false;
+    }
+  };
+  
+
   if (isLoading || isFetching) {
     return (
       <Card>
@@ -898,12 +896,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
               // Check for UEFA Nations League - Women first (lowest priority)
               const aIsWomensNationsLeague = a.league.name?.toLowerCase().includes('uefa nations league') && a.league.name?.toLowerCase().includes('women');
               const bIsWomensNationsLeague = b.league.name?.toLowerCase().includes('uefa nations league') && b.league.name?.toLowerCase().includes('women');
-              
+
               if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
               if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
               if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
 
-              // Prioritize leagues that are popular for this specific country
+              //              // Prioritize leagues that are popular for this specific country
               if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
               if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
 
