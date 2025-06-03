@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import NoLiveMatchesEmpty from "@/components/matches/NoLiveMatchesEmpty";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
@@ -252,12 +253,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   if (!allFixtures.length) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Activity className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No live matches available</p>
-        </CardContent>
-      </Card>
+      <NoLiveMatchesEmpty 
+        showBackButton={false}
+        title="No Live Matches"
+        description="There are no matches currently in play. Our system is continuously monitoring for live matches."
+      />
     );
   }
 
