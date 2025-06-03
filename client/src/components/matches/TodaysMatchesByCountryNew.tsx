@@ -236,68 +236,119 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // Enhanced timezone-inclusive date filtering
-  const allFixtures = fixtures.filter((fixture: any) => {
-    if (!fixture?.fixture?.date) {
-      console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
-      return false;
-    }
+  // Apply date-based filtering if time filter is active
+  const allFixtures = useMemo(() => {
+    if (!timeFilterActive) {
+      return fixtures.filter((fixture: any) => {
+        if (!fixture?.fixture?.date) {
+          console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
+          return false;
+        }
 
-    try {
-      const fixtureUTCDate = fixture.fixture.date;
-      const fixtureClientDate = getFixtureClientDate(fixtureUTCDate);
+        try {
+          const fixtureUTCDate = fixture.fixture.date;
+          const fixtureClientDate = getFixtureClientDate(fixtureUTCDate);
 
-      // Primary check: exact client date match
-      if (fixtureClientDate === selectedDate) {
-        console.log(`✅ [DEBUG] Date match (client timezone):`, {
-          fixtureId: fixture.fixture.id,
-          fixtureUTCDate,
-          fixtureClientDate,
-          selectedDate,
-          status: fixture.fixture.status?.short,
-          matchType: 'exact-client'
-        });
-        return true;
-      }
+          // Primary check: exact client date match
+          if (fixtureClientDate === selectedDate) {
+            console.log(`✅ [DEBUG] Date match (client timezone):`, {
+              fixtureId: fixture.fixture.id,
+              fixtureUTCDate,
+              fixtureClientDate,
+              selectedDate,
+              status: fixture.fixture.status?.short,
+              matchType: 'exact-client'
+            });
+            return true;
+          }
 
-      // Secondary check: timezone-inclusive matching
-      // Include fixtures from ±1 day that might be relevant due to timezone differences
-      const targetDate = new Date(selectedDate);
-      const fixtureDate = new Date(fixtureUTCDate);
+          // Secondary check: timezone-inclusive matching
+          // Include fixtures from ±1 day that might be relevant due to timezone differences
+          const targetDate = new Date(selectedDate);
+          const fixtureDate = new Date(fixtureUTCDate);
 
-      // Calculate date difference in days
-      const timeDiff = Math.abs(fixtureDate.getTime() - targetDate.getTime());
-      const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+          // Calculate date difference in days
+          const timeDiff = Math.abs(fixtureDate.getTime() - targetDate.getTime());
+          const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
 
-      // Include fixtures within 1.5 days to capture timezone edge cases
-      if (daysDiff <= 1.5) {
-        console.log(`✅ [DEBUG] Date match (timezone-inclusive):`, {
-          fixtureId: fixture.fixture.id,
-          fixtureUTCDate,
-          fixtureClientDate,
-          selectedDate,
-          daysDiff: daysDiff.toFixed(2),
-          status: fixture.fixture.status?.short,
-          matchType: 'timezone-inclusive'
-        });
-        return true;
-      }
+          // Include fixtures within 1.5 days to capture timezone edge cases
+          if (daysDiff <= 1.5) {
+            console.log(`✅ [DEBUG] Date match (timezone-inclusive):`, {
+              fixtureId: fixture.fixture.id,
+              fixtureUTCDate,
+              fixtureClientDate,
+              selectedDate,
+              daysDiff: daysDiff.toFixed(2),
+              status: fixture.fixture.status?.short,
+              matchType: 'timezone-inclusive'
+            });
+            return true;
+          }
 
-      console.log(`❌ [DEBUG] Date mismatch (all checks failed):`, {
-        fixtureId: fixture.fixture.id,
-        fixtureUTCDate,
-        fixtureClientDate,
-        selectedDate,
-        daysDiff: daysDiff.toFixed(2),
-        status: fixture.fixture.status?.short
+          console.log(`❌ [DEBUG] Date mismatch (all checks failed):`, {
+            fixtureId: fixture.fixture.id,
+            fixtureUTCDate,
+            fixtureClientDate,
+            selectedDate,
+            daysDiff: daysDiff.toFixed(2),
+            status: fixture.fixture.status?.short
+          });
+
+          return false;
+        } catch (error) {
+          console.warn('❌ [DEBUG] Date validation error for fixture:', fixture.fixture.id, error);
+          return false;
+        }
       });
-
-      return false;
-    } catch (error) {
-      console.warn('❌ [DEBUG] Date validation error for fixture:', fixture.fixture.id, error);
-      return false;
     }
-  });
+
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStart = new Date(tomorrow);
+    tomorrowStart.setHours(0, 0, 0, 0);
+    const tomorrowEnd = new Date(tomorrow);
+    tomorrowEnd.setHours(23, 59, 59, 999);
+
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStart = new Date(yesterday);
+    yesterdayStart.setHours(0, 0, 0, 0);
+    const yesterdayEnd = new Date(yesterday);
+    yesterdayEnd.setHours(23, 59, 59, 999);
+
+    return fixtures.filter((fixture: any) => {
+      if (!fixture?.fixture?.date) {
+        return false;
+      }
+
+      try {
+        const fixtureDate = parseISO(fixture.fixture.date);
+        if (!fixtureDate) {
+          return false;
+        }
+
+        // Check if fixture is today (00:00:00 - 23:59:59)
+        const isToday = fixtureDate >= todayStart && fixtureDate <= todayEnd;
+        
+        // Check if fixture is tomorrow (00:00:00 - 23:59:59)
+        const isTomorrow = fixtureDate >= tomorrowStart && fixtureDate <= tomorrowEnd;
+        
+        // Check if fixture is yesterday (00:00:00 - 23:59:59)
+        const isYesterday = fixtureDate >= yesterdayStart && fixtureDate <= yesterdayEnd;
+
+        return isToday || isTomorrow || isYesterday;
+      } catch (error) {
+        console.error('Error filtering fixture by date range:', error);
+        return false;
+      }
+    });
+  }, [fixtures, timeFilterActive, selectedDate]);
 
   // Comprehensive filtering analysis
   const filterAnalysis = {

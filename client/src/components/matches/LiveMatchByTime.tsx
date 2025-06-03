@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Activity } from "lucide-react";
@@ -97,8 +97,59 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     }
   };
 
-  // Use only the live fixtures data
-  const allFixtures = fixtures;
+  // Apply date-based filtering if time filter is active
+  const allFixtures = useMemo(() => {
+    if (!timeFilterActive) {
+      return fixtures;
+    }
+
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStart = new Date(tomorrow);
+    tomorrowStart.setHours(0, 0, 0, 0);
+    const tomorrowEnd = new Date(tomorrow);
+    tomorrowEnd.setHours(23, 59, 59, 999);
+
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStart = new Date(yesterday);
+    yesterdayStart.setHours(0, 0, 0, 0);
+    const yesterdayEnd = new Date(yesterday);
+    yesterdayEnd.setHours(23, 59, 59, 999);
+
+    return fixtures.filter((fixture: any) => {
+      if (!fixture?.fixture?.date) {
+        return false;
+      }
+
+      try {
+        const fixtureDate = parseISO(fixture.fixture.date);
+        if (!fixtureDate) {
+          return false;
+        }
+
+        // Check if fixture is today (00:00:00 - 23:59:59)
+        const isToday = fixtureDate >= todayStart && fixtureDate <= todayEnd;
+        
+        // Check if fixture is tomorrow (00:00:00 - 23:59:59)
+        const isTomorrow = fixtureDate >= tomorrowStart && fixtureDate <= tomorrowEnd;
+        
+        // Check if fixture is yesterday (00:00:00 - 23:59:59)
+        const isYesterday = fixtureDate >= yesterdayStart && fixtureDate <= yesterdayEnd;
+
+        return isToday || isTomorrow || isYesterday;
+      } catch (error) {
+        console.error('Error filtering fixture by date range:', error);
+        return false;
+      }
+    });
+  }, [fixtures, timeFilterActive]);
 
   // Collect all matches from all leagues and add league info
   const allMatches = allFixtures.map((fixture: any) => ({
