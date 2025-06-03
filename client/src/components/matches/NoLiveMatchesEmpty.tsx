@@ -6,13 +6,15 @@ interface NoLiveMatchesEmptyProps {
   showBackButton?: boolean;
   title?: string;
   description?: string;
+  onDeactivateLiveFilter?: () => void;
 }
 
 const NoLiveMatchesEmpty = ({ 
   onBackToHome, 
   showBackButton = true,
   title = "No Live Matches",
-  description = "There are no matches currently in play. Our system is continuously monitoring for live matches."
+  description = "There are no matches currently in play. Our system is continuously monitoring for live matches.",
+  onDeactivateLiveFilter
 }: NoLiveMatchesEmptyProps) => {
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center bg-gray-100 min-h-[400px]">
@@ -58,7 +60,12 @@ const NoLiveMatchesEmpty = ({
       {/* Call-to-action button */}
       {showBackButton && onBackToHome && (
         <Button 
-          onClick={onBackToHome}
+          onClick={() => {
+            if (onDeactivateLiveFilter) {
+              onDeactivateLiveFilter();
+            }
+            onBackToHome();
+          }}
           className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium shadow-lg transition-all duration-200 hover:shadow-xl"
         >
           See All Matches

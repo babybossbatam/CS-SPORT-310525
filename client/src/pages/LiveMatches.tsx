@@ -162,6 +162,10 @@ const LiveMatches = () => {
               <NoLiveMatchesEmpty 
                 onBackToHome={() => navigate('/')}
                 showBackButton={true}
+                onDeactivateLiveFilter={() => {
+                  // If there's a live filter state in Redux, we would dispatch an action here
+                  // For now, this will just handle the navigation
+                }}
               />
             )}
           </CardContent>
