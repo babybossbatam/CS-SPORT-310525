@@ -887,15 +887,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
         (countryData: any, countryIndex: number) =>
           Object.values(countryData.leagues)
             .sort((a: any, b: any) => {
-              // Check for UEFA Nations League - Women first (absolute lowest priority)
+              // ABSOLUTE PRIORITY: UEFA Nations League - Women goes to the very bottom
               const aIsWomensNationsLeague = a.league.name?.toLowerCase().includes('uefa nations league') && a.league.name?.toLowerCase().includes('women');
               const bIsWomensNationsLeague = b.league.name?.toLowerCase().includes('uefa nations league') && b.league.name?.toLowerCase().includes('women');
               
-              // UEFA Nations League - Women goes to absolute bottom
-              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
-              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
-              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
+              // If either is Women's Nations League, it goes to bottom - this overrides ALL other sorting
+              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a (women's) goes to bottom
+              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b (women's) goes to bottom
+              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both are women's, same priority
 
+              // Only if neither is Women's Nations League, apply normal sorting
               // Prioritize leagues that are popular for this specific country
               if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
               if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
