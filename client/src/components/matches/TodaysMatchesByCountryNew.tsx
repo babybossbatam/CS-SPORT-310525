@@ -69,6 +69,27 @@ const shortenTeamName = (teamName: string): string => {
     shortened = countryMappings[shortened];
   }
 
+  // If still too long (more than 12 characters), intelligently shorten multi-word names
+  if (shortened.length > 12) {
+    const words = shortened.split(' ');
+    
+    if (words.length > 1) {
+      // For multi-word names, shorten the last word to its first 3-4 characters
+      const lastWordIndex = words.length - 1;
+      const lastWord = words[lastWordIndex];
+      
+      if (lastWord.length > 4) {
+        // Shorten last word to first 3 characters for most cases
+        words[lastWordIndex] = lastWord.substring(0, 3);
+      }
+      
+      shortened = words.join(' ');
+    } else {
+      // For single long words, truncate to 10 characters
+      shortened = shortened.substring(0, 10);
+    }
+  }
+
   return shortened.trim();
 };
 
