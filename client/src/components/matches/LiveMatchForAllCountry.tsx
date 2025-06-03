@@ -421,32 +421,32 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                       .map((match: any) => (
                         <div
                           key={match.fixture.id}
-                          className="match-row"
+                          className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
                         >
-                          <div className="match-container">
-                            {/* Home Team Name - positioned further left */}
-                            <div className="home-team-name">
+                          <div className="flex items-center px-3 py-2 mt-[0px] mb-[0px] pt-[16px] pb-[16px]">
+                            {/* Home Team - Fixed width to prevent overflow */}
+                            <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                               {match.teams.home.name}
                             </div>
 
-                            {/* Home team logo - closer to center */}
-                            <div className="team-logo-container">
+                            <div className="flex-shrink-0 mx-1">
                               <img
                                 src={match.teams.home.logo}
                                 alt={`${match.teams.home.name} logo`}
                                 title={match.teams.home.name}
-                                className={`team-logo ${
+                                className={`w-9 h-9 rounded-full ${
                                   isNationalTeam(match.teams.home, leagueData.league)
-                                    ? "team-logo--national"
-                                    : "team-logo--club"
+                                    ? "object-cover"
+                                    : "object-contain"
                                 }`}
                                 loading="lazy"
+                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px' }}
                                 onError={createTeamLogoErrorHandler(match.teams.home, isNationalTeam(match.teams.home, leagueData.league))}
                               />
                             </div>
 
-                            {/* Score/Time Center - Fixed width and centered */}
-                            <div className="score-center">
+                            {/* Score/Time Center - Fixed width to maintain position */}
+                            <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
                               {(() => {
                                 const status = match.fixture.status.short;
                                 const fixtureDate = parseISO(match.fixture.date);
@@ -462,7 +462,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                       </div>
                                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
                                         <span className="text-red-600 animate-pulse bg-white px-1 rounded">
-                                          {status === 'HT' ? 'Halftime' : `${match.fixture.status.elapsed || 0}'`}
+                                          {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                                         </span>
                                       </div>
                                     </div>
@@ -492,24 +492,24 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                               })()}
                             </div>
 
-                            {/* Away team logo - closer to center */}
-                            <div className="team-logo-container">
+                            <div className="flex-shrink-0 mx-1">
                               <img
                                 src={match.teams.away.logo}
                                 alt={`${match.teams.away.name} logo`}
                                 title={match.teams.away.name}
-                                className={`team-logo ${
+                                className={`w-9 h-9 rounded-full ${
                                   isNationalTeam(match.teams.away, leagueData.league)
-                                    ? "team-logo--national"
-                                    : "team-logo--club"
+                                    ? "object-cover"
+                                    : "object-contain"
                                 }`}
                                 loading="lazy"
+                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px' }}
                                 onError={createTeamLogoErrorHandler(match.teams.away, isNationalTeam(match.teams.away, leagueData.league))}
                               />
                             </div>
 
-                            {/* Away Team Name - positioned further right */}
-                            <div className="away-team-name">
+                            {/* Away Team - Fixed width for consistency */}
+                            <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                               {match.teams.away.name}
                             </div>
                           </div>

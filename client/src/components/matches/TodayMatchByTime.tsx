@@ -427,7 +427,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                       </div>
 
                       {/* Score/Time Center - Fixed width to maintain position */}
-                      <div className="flex flex-col items-center justify-center px-3 w-[80px] flex-shrink-0 relative h-12">
+                      <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
                         {(() => {
                           const status = match.fixture.status.short;
                           const fixtureDate = parseISO(match.fixture.date);
