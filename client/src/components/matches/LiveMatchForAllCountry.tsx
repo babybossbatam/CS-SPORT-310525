@@ -258,10 +258,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive
-            ? "Live Football Scores"
+            ? "Popular Football Live Score"
             : !liveFilterActive && timeFilterActive
               ? "All Matches by Time"
-              : "Live Football Scores"}
+              : "Popular Football Live Score"}
       </h3>
 
       {/* Create individual league cards from all countries */}
