@@ -1106,17 +1106,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  className="w-12 h-8 bg-cover bg-center bg-no-repeat border border-gray-200"
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=48`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "36px",
-                                    height: "36px",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
+                                    width: "48px",
+                                    height: "32px",
+                                    minWidth: "48px",
+                                    minHeight: "32px",
                                   }}
                                   title={match.teams.home.name}
                                 />
@@ -1327,17 +1327,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  className="w-12 h-8 bg-cover bg-center bg-no-repeat border border-gray-200"
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=48`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "36px",
-                                    height: "36px",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
+                                    width: "48px",
+                                    height: "32px",
+                                    minWidth: "48px",
+                                    minHeight: "32px",
                                   }}
                                   title={match.teams.away.name}
                                 />
