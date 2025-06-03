@@ -1,5 +1,6 @@
 
 import { parseISO, isValid, format } from 'date-fns';
+import { MySmartDateLabeling } from './MySmartDateLabeling';
 
 export interface DateFilterResult {
   isMatch: boolean;
@@ -151,6 +152,117 @@ export class MyDateConversionFilter {
       fixtureUTCDate,
       selectedDate,
       method: 'exact-match'
+    };
+  }
+
+  /**
+   * Filter fixtures using smart date labeling (considers match status and time)
+   */
+  static filterFixturesForDateSmart(fixtures: FixtureForDateFilter[], selectedDate: string): {
+    validFixtures: FixtureForDateFilter[];
+    rejectedFixtures: Array<{ fixture: FixtureForDateFilter; reason: string }>;
+    stats: {
+      total: number;
+      valid: number;
+      rejected: number;
+      methods: {
+        'smart-today': number;
+        'smart-yesterday': number;
+        'smart-tomorrow': number;
+        '365scores': number;
+        'timezone-inclusive': number;
+        'exact-match': number;
+      };
+    };
+  } {
+    const validFixtures: FixtureForDateFilter[] = [];
+    const rejectedFixtures: Array<{ fixture: FixtureForDateFilter; reason: string }> = [];
+    const methods = {
+      'smart-today': 0,
+      'smart-yesterday': 0,
+      'smart-tomorrow': 0,
+      '365scores': 0,
+      'timezone-inclusive': 0,
+      'exact-match': 0
+    };
+
+    fixtures.forEach(fixture => {
+      const matchStatus = fixture.fixture.status?.short || 'NS';
+      const fixtureDate = fixture.fixture.date;
+      
+      if (!fixtureDate) {
+        rejectedFixtures.push({ fixture, reason: 'No fixture date' });
+        return;
+      }
+
+      // Use smart date labeling
+      const smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus);
+      const smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
+      
+      let shouldInclude = false;
+      let matchMethod = '';
+      let matchReason = '';
+
+      // Check if smart labeling matches selected date
+      if (selectedDate === new Date().toISOString().split('T')[0] && smartResult.label === 'today') {
+        shouldInclude = true;
+        matchMethod = 'smart-today';
+        matchReason = `Smart today: ${smartResult.reason}`;
+      } else if (selectedDate === new Date(Date.now() - 24*60*60*1000).toISOString().split('T')[0] && smartResult.label === 'yesterday') {
+        shouldInclude = true;
+        matchMethod = 'smart-yesterday';
+        matchReason = `Smart yesterday: ${smartResult.reason}`;
+      } else if (selectedDate === new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0] && smartResult.label === 'tomorrow') {
+        shouldInclude = true;
+        matchMethod = 'smart-tomorrow';
+        matchReason = `Smart tomorrow: ${smartResult.reason}`;
+      } else {
+        // Fall back to standard date filtering
+        const standardResult = this.isFixtureValidForDate(fixture, selectedDate);
+        if (standardResult.isMatch) {
+          shouldInclude = true;
+          matchMethod = standardResult.method;
+          matchReason = standardResult.reason;
+        }
+      }
+
+      if (shouldInclude) {
+        validFixtures.push(fixture);
+        methods[matchMethod as keyof typeof methods]++;
+        
+        console.log(`✅ [SmartDateFilter] Match included:`, {
+          fixtureId: fixture.fixture.id,
+          method: matchMethod,
+          reason: matchReason,
+          smartLabel: smartResult.label,
+          smartReason: smartResult.reason,
+          status: matchStatus,
+          selectedDate,
+          smartInfo
+        });
+      } else {
+        rejectedFixtures.push({ fixture, reason: `Smart filter: expected ${selectedDate}, got ${smartResult.label}` });
+        
+        console.log(`❌ [SmartDateFilter] Match rejected:`, {
+          fixtureId: fixture.fixture.id,
+          expectedDate: selectedDate,
+          smartLabel: smartResult.label,
+          smartReason: smartResult.reason,
+          status: matchStatus,
+          smartInfo
+        });
+      }
+    });
+
+    return {
+      validFixtures,
+      rejectedFixtures,
+      stats: {
+        total: fixtures.length,
+        valid: validFixtures.length,
+        rejected: rejectedFixtures.length,
+        methods
+      }
     };
   }
 

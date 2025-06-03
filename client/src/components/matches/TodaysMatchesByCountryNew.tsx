@@ -237,8 +237,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // Use MyDateConversionFilter for 365scores-style date filtering
-  const { validFixtures: allFixtures, stats } = MyDateConversionFilter.filterFixturesForDate(
+  // Use MyDateConversionFilter with smart date labeling for better accuracy
+  const { validFixtures: allFixtures, stats } = MyDateConversionFilter.filterFixturesForDateSmart(
     fixtures,
     selectedDate
   );
