@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
+import { getTeamLogoSources, isNationalTeam, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
@@ -46,23 +47,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   });
 
   // Enhanced team logo source with 365scores integration
-  const getTeamLogoUrl = (team: any, isNationalTeam = false) => {
-    // For national teams or international competitions, try 365scores first
-    if (isNationalTeam || team?.name?.includes("National") || team?.name?.includes("U20") || team?.name?.includes("U21")) {
-      // Extract team ID if available for 365scores format
-      const teamId = team?.id;
-      if (teamId) {
-        return `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`;
-      }
-    }
-
-    // Use original team logo if available
-    if (team?.logo && typeof team.logo === "string" && team.logo.trim() !== "") {
-      return team.logo;
-    }
-
-    // Fallback to generic team logo
-    return "/assets/fallback-logo.png";
+  const getTeamLogoUrl = (team: any, league?: any) => {
+    const isNational = isNationalTeam(team, league);
+    const sources = getTeamLogoSources(team, isNational);
+    
+    // Return the highest priority source
+    return sources[0]?.url || "/assets/fallback-logo.png";
   };
 
   // Enhanced country flag mapping with better null safety
@@ -196,29 +186,17 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       };
     }
 
-    // Check if this is an international competition
-    const isInternationalCompetition = 
-      country === "World" || 
-      country === "Europe" || 
-      league.name?.toLowerCase().includes("international") ||
-      league.name?.toLowerCase().includes("national") ||
-      league.name?.toLowerCase().includes("world cup") ||
-      league.name?.toLowerCase().includes("euro") ||
-      league.name?.toLowerCase().includes("copa america") ||
-      league.name?.toLowerCase().includes("uefa") ||
-      league.name?.toLowerCase().includes("conmebol");
-
     // Add fixture with enhanced team logo data
     acc[country].leagues[leagueId].matches.push({
       ...fixture,
       teams: {
         home: {
           ...fixture.teams.home,
-          logo: getTeamLogoUrl(fixture.teams.home, isInternationalCompetition),
+          logo: getTeamLogoUrl(fixture.teams.home, league),
         },
         away: {
           ...fixture.teams.away,
-          logo: getTeamLogoUrl(fixture.teams.away, isInternationalCompetition),
+          logo: getTeamLogoUrl(fixture.teams.away, league),
         },
       },
     });
@@ -428,17 +406,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 className="w-9 h-9 object-contain"
                                 loading="lazy"
                                 style={{ maxWidth: '36px', maxHeight: '36px', width: 'auto', height: 'auto' }}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  const currentSrc = target.src;
-                                  
-                                  // Try 365scores format if original fails and it's not already tried
-                                  if (!currentSrc.includes('365scores.com') && match.teams.home.id) {
-                                    target.src = `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${match.teams.home.id}`;
-                                  } else if (!currentSrc.includes('/assets/fallback-logo.png')) {
-                                    target.src = "/assets/fallback-logo.png";
-                                  }
-                                }}
+                                onError={createTeamLogoErrorHandler(match.teams.home, isNationalTeam(match.teams.home, leagueData.league))}
                               />
                             </div>
 
@@ -479,17 +447,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 className="w-9 h-9 object-contain"
                                 loading="lazy"
                                 style={{ maxWidth: '36px', maxHeight: '36px', width: 'auto', height: 'auto' }}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  const currentSrc = target.src;
-                                  
-                                  // Try 365scores format if original fails and it's not already tried
-                                  if (!currentSrc.includes('365scores.com') && match.teams.away.id) {
-                                    target.src = `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${match.teams.away.id}`;
-                                  } else if (!currentSrc.includes('/assets/fallback-logo.png')) {
-                                    target.src = "/assets/fallback-logo.png";
-                                  }
-                                }}
+                                onError={createTeamLogoErrorHandler(match.teams.away, isNationalTeam(match.teams.away, leagueData.league))}
                               />
                             </div>
 
