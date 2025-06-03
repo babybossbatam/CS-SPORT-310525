@@ -914,6 +914,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     </>
                                     )}
                   {/* Matches - Show for all leagues */}
+```python
                   <CardContent className="p-0">
                     <div className="space-y-0">
                       {leagueData.matches
@@ -1331,11 +1332,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 })()}
                               </div>
 
+                              
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <img
                                   src={
-                                    match.teams.away.logo ||
-                                    "/assets/fallback-logo.svg"
+                                    match.teams.away.id 
+                                      ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                      : "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.away.name}
                                   className={`w-9 h-9 rounded-full ${

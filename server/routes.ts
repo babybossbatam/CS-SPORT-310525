@@ -497,83 +497,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.updateCachedFixture(id.toString(), fixture);
         } else {
           await storage.createCachedFixture({
-
-
-  // New endpoint for square team logos
-  app.get('/api/team-logo/square/:teamId', async (req, res) => {
-    try {
-      const { teamId } = req.params;
-      const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
-      
-      console.log(`Fetching and resizing team logo for ID: ${teamId} to ${size}x${size}`);
-
-      // Validate teamId
-      if (!/^\d+$/.test(teamId)) {
-        return res.status(400).json({ error: 'Invalid team ID format' });
-      }
-
-      // Try multiple logo sources
-      const logoUrls = [
-        `https://media.api-sports.io/football/teams/${teamId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
-        `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`
-      ];
-
-      let imageBuffer = null;
-      let sourceUrl = '';
-
-      // Try each logo source
-      for (const logoUrl of logoUrls) {
-        try {
-          const response = await fetch(logoUrl, {
-            headers: {
-              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
-              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          });
-
-          if (response.ok) {
-            const arrayBuffer = await response.arrayBuffer();
-            imageBuffer = Buffer.from(arrayBuffer);
-            sourceUrl = logoUrl;
-            console.log(`Successfully fetched logo from: ${logoUrl}`);
-            break;
-          }
-        } catch (error) {
-          console.warn(`Failed to fetch from ${logoUrl}:`, error.message);
-          continue;
-        }
-      }
-
-      // If no image found, return fallback
-      if (!imageBuffer) {
-        return res.status(404).json({ error: 'Logo not found from any source' });
-      }
-
-      // Resize image to square dimensions using Sharp
-      const resizedBuffer = await sharp(imageBuffer)
-        .resize(size, size, {
-          fit: 'cover', // This will crop the image to fill the square
-          position: 'center'
-        })
-        .png()
-        .toBuffer();
-
-      // Set appropriate headers
-      res.set({
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
-        'X-Source-URL': sourceUrl
-      });
-
-      res.send(resizedBuffer);
-
-    } catch (error) {
-      console.error('Error processing square team logo:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
             fixtureId: id.toString(),
             data: fixture,
             league: fixture.league.id.toString(),
@@ -1330,6 +1253,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`Error fetching SportsRadar league logo for ${req.params.leagueId}:`, error);
       res.status(500).json({ error: 'Failed to fetch league logo' });
+    }
+  });
+
+  // New endpoint for square team logos
+  apiRouter.get('/team-logo/square/:teamId', async (req: Request, res: Response) => {
+    try {
+      const { teamId } = req.params;
+      const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
+      
+      console.log(`Fetching and resizing team logo for ID: ${teamId} to ${size}x${size}`);
+
+      // Validate teamId
+      if (!/^\d+$/.test(teamId)) {
+        return res.status(400).json({ error: 'Invalid team ID format' });
+      }
+
+      // Try multiple logo sources
+      const logoUrls = [
+        `https://media.api-sports.io/football/teams/${teamId}.png`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
+        `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`
+      ];
+
+      let imageBuffer = null;
+      let sourceUrl = '';
+
+      // Try each logo source
+      for (const logoUrl of logoUrls) {
+        try {
+          const response = await fetch(logoUrl, {
+            headers: {
+              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
+              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+
+          if (response.ok) {
+            const arrayBuffer = await response.arrayBuffer();
+            imageBuffer = Buffer.from(arrayBuffer);
+            sourceUrl = logoUrl;
+            console.log(`Successfully fetched logo from: ${logoUrl}`);
+            break;
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch from ${logoUrl}:`, error.message);
+          continue;
+        }
+      }
+
+      // If no image found, return fallback
+      if (!imageBuffer) {
+        return res.status(404).json({ error: 'Logo not found from any source' });
+      }
+
+      // Resize image to square dimensions using Sharp
+      const resizedBuffer = await sharp(imageBuffer)
+        .resize(size, size, {
+          fit: 'cover', // This will crop the image to fill the square
+          position: 'center'
+        })
+        .png()
+        .toBuffer();
+
+      // Set appropriate headers
+      res.set({
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+        'X-Source-URL': sourceUrl
+      });
+
+      res.send(resizedBuffer);
+
+    } catch (error) {
+      console.error('Error processing square team logo:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
