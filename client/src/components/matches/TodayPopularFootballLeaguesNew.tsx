@@ -1106,7 +1106,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  className="w-9 h-full bg-cover bg-center bg-no-repeat"
                                   style={{
                                     backgroundImage: `url(${
                                       // Special handling for Niger country teams - use square format like Gabon
@@ -1119,9 +1119,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           : "/assets/fallback-logo.svg"
                                     })`,
                                     width: "36px",
-                                    height: "36px",
                                     minWidth: "36px",
-                                    minHeight: "36px",
                                   }}
                                   title={match.teams.home.name}
                                 />
@@ -1332,7 +1330,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  className="w-9 h-full bg-cover bg-center bg-no-repeat"
                                   style={{
                                     backgroundImage: `url(${
                                       // Special handling for Niger country teams - use square format like Gabon
@@ -1345,9 +1343,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           : "/assets/fallback-logo.svg"
                                     })`,
                                     width: "36px",
-                                    height: "36px",
                                     minWidth: "36px",
-                                    minHeight: "36px",
                                   }}
                                   title={match.teams.away.name}
                                 />
