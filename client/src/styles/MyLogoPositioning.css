@@ -231,7 +231,7 @@
 
 /* Hover effects */
 .match-card-container:hover .team-logo {
-  filter: brightness(110%) contrast(115%) saturate(105%) drop-shadow(0 4px 8px rgba(0,0,0,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  filter: brightness(100%) contrast(105%) saturate(95%) drop-shadow(0 4px 8px rgba(0,0,0,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 /* League header styling (if needed) */
