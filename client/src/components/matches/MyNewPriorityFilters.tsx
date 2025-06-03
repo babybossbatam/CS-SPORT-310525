@@ -245,141 +245,107 @@ export const getPriority = (leagueName: string, leagueId: number, country: strin
   const name = leagueName.toLowerCase();
   const countryLower = country.toLowerCase();
 
-  // 1. UEFA competitions (highest priority)
-  if (name.includes('uefa') || name.includes('champions league') || 
-      name.includes('europa league') || name.includes('conference league') ||
-      leagueId === 2 || leagueId === 3 || leagueId === 848) {
+  // 1. UEFA Competitions (highest priority)
+  if (name.includes('uefa champions league') || name.includes('champions league')) {
+    return 1;
+  }
+  if (name.includes('uefa europa league') || name.includes('europa league')) {
+    return 1;
+  }
+  if (name.includes('uefa conference league') || name.includes('conference league')) {
     return 1;
   }
 
-  // 2. FIFA competitions
-  if (name.includes('fifa') || name.includes('world cup') || 
-      name.includes('club world cup') || leagueId === 1 || leagueId === 15) {
+  // 2. FIFA Competitions
+  if (name.includes('fifa world cup') || name.includes('world cup')) {
+    return 2;
+  }
+  if (name.includes('fifa club world cup') || name.includes('club world cup')) {
     return 2;
   }
 
-  // 3. Top Tier Leagues (Premier League, Serie A Italy)
-  const topTierLeagues = [
-    // England Premier League
-    { id: 39, country: 'england' },
-    // Italy Serie A
-    { id: 135, country: 'italy' }
-  ];
-
-  const isTopTierLeague = topTierLeagues.some(league => 
-    league.id === leagueId || 
-    (countryLower.includes(league.country) && (
-      (league.country === 'england' && name.includes('premier league')) ||
-      (league.country === 'italy' && name.includes('serie a'))
-    ))
-  );
-
-  if (isTopTierLeague) {
+  // 3. Top Tier Leagues
+  if (name.includes('premier league') && name.includes('england')) {
+    return 3;
+  }
+  if (name.includes('serie a') && name.includes('italy')) {
     return 3;
   }
 
-  // 4. Colombian Copa Colombia
-  if (leagueId === 241 || 
-      (countryLower.includes('colombia') && name.includes('copa colombia'))) {
+  // 4. Friendlies
+  if (name.includes('friendlies') || name.includes('friendly')) {
     return 4;
   }
 
-  // 5. Brazilian Serie B and Serie C
-  const brazilianLowerSeries = [
-    { id: 72, name: 'serie b' },   // Serie B Brazil
-    { id: 73, name: 'serie c' }    // Serie C Brazil
-  ];
-
-  const isBrazilianLowerSerie = brazilianLowerSeries.some(league => 
-    league.id === leagueId || 
-    (countryLower.includes('brazil') && name.includes(league.name))
-  );
-
-  if (isBrazilianLowerSerie) {
+  // 5. Other Popular Country Leagues
+  if (name.includes('la liga') && name.includes('spain')) {
+    return 5;
+  }
+  if (name.includes('bundesliga') && name.includes('germany')) {
+    return 5;
+  }
+  if (name.includes('ligue 1') && name.includes('france')) {
+    return 5;
+  }
+  if (name.includes('serie a') && name.includes('brazil')) {
+    return 5;
+  }
+  if (name.includes('saudi pro league') || name.includes('saudi arabia')) {
+    return 5;
+  }
+  if (name.includes('premier league') && name.includes('egypt')) {
+    return 5;
+  }
+  if (name.includes('major league soccer') || name.includes('mls')) {
     return 5;
   }
 
-  // 6. Other Popular Country Leagues
-  const otherPopularCountryLeagues = [
-    // Spain La Liga
-    { id: 140, country: 'spain' },
-    // Germany Bundesliga
-    { id: 78, country: 'germany' },
-    // France Ligue 1
-    { id: 61, country: 'france' },
-    // Brazil Serie A
-    { id: 71, country: 'brazil' },
-    // Saudi Pro League
-    { id: 307, country: 'saudi arabia' },
-    // Egypt Premier League
-    { id: 233, country: 'egypt' },
-    // Major League Soccer (USA)
-    { id: 253, country: 'usa' },
-    { id: 254, country: 'usa' }
-  ];
-
-  const isOtherPopularCountryLeague = otherPopularCountryLeagues.some(league => 
-    league.id === leagueId || 
-    (countryLower.includes(league.country) && (
-      (league.country === 'spain' && name.includes('la liga')) ||
-      (league.country === 'germany' && name.includes('bundesliga')) ||
-      (league.country === 'france' && name.includes('ligue 1')) ||
-      (league.country === 'brazil' && name.includes('serie a')) ||
-      (league.country === 'saudi arabia' && (name.includes('saudi pro league') || name.includes('saudi professional league'))) ||
-      (league.country === 'egypt' && name.includes('premier league')) ||
-      (league.country === 'usa' && (name.includes('major league soccer') || name.includes('mls')))
-    ))
-  );
-
-  if (isOtherPopularCountryLeague) {
+  // 6. CONMEBOL Competitions
+  if (name.includes('copa america') || name.includes('copa libertadores') || name.includes('copa sudamericana')) {
     return 6;
   }
 
-  // 7. Friendlies
-  if (name.includes('friendlies') || name.includes('club friendly') || leagueId === 10) {
+  // 7. Brazilian Serie A (separated from other popular leagues)
+  if (name.includes('serie a') && name.includes('brazil')) {
     return 7;
   }
 
-  // 8. Other Colombian leagues and Brazilian Serie D
-  const otherBrazilianColombianLeagues = [
-    { id: 239, name: 'primera a' },        // Primera A (main Colombian league)
-    { id: 240, name: 'primera b' },        // Primera B Colombia
-    { id: 74, name: 'serie d' }            // Serie D Brazil
-  ];
-
-  const isOtherBrazilianColombian = otherBrazilianColombianLeagues.some(league => 
-    league.id === leagueId || 
-    (countryLower.includes('colombia') && (
-      (league.name === 'primera a' && (name.includes('primera a') || name.includes('liga betplay'))) ||
-      (league.name === 'primera b' && name.includes('primera b'))
-    )) ||
-    (countryLower.includes('brazil') && league.name === 'serie d' && name.includes('serie d'))
-  );
-
-  if (isOtherBrazilianColombian) {
+  // 8. Colombian Leagues
+  if (name.includes('colombia primera a') || name.includes('liga betplay')) {
+    return 8;
+  }
+  if (name.includes('copa colombia')) {
     return 8;
   }
 
-  // 9. CONMEBOL competitions
-  if (name.includes('conmebol') || name.includes('libertadores') || 
-      name.includes('sudamericana') || name.includes('copa america') ||
-      leagueId === 9 || leagueId === 11 || leagueId === 13 ||
-      countryLower.includes('south america')) {
+  // 9. Brazilian Lower Series
+  if (name.includes('serie b') && name.includes('brazil')) {
+    return 9;
+  }
+  if (name.includes('serie c') && name.includes('brazil')) {
     return 9;
   }
 
-  // 10. COSAFA Cup (after CONMEBOL)
-  if (name.includes('cosafa cup') || name.includes('cosafa')) {
+  // 10. Other Brazilian/Colombian Leagues
+  if (name.includes('colombia primera b')) {
+    return 10;
+  }
+  if (name.includes('serie d') && name.includes('brazil')) {
     return 10;
   }
 
-  // 11. Regular leagues (everything else)
-  if (name.includes('uefa nations league') && name.includes('women')) {
-    return 12; // UEFA Nations League - Women goes to the very end
+  // 11. COSAFA Cup
+  if (name.includes('cosafa cup') || name.includes('cosafa')) {
+    return 11;
   }
 
-  // 11. Regular leagues (everything else except UEFA Nations League - Women)
-  return 11;
+  // 12. Regular leagues (everything else)
+  if (name.includes('uefa nations league') && name.includes('women')) {
+    return 13; // UEFA Nations League - Women goes to the very end
+  }
+
+  // 12. Regular leagues (everything else except UEFA Nations League - Women)
+  return 12;
 };
 
 /**
