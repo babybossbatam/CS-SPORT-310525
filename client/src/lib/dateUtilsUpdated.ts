@@ -187,22 +187,95 @@ export function getDateTimeRange(dateString: string) {
   }
 }
 
-// Check if a date string represents today
+// Get current date in client's timezone
+export const getCurrentClientDateString = (): string => {
+  const now = new Date();
+  return format(now, 'yyyy-MM-dd');
+};
+
+// Convert UTC fixture time to client's local date
+export function getFixtureClientDate(utcDateString: string): string {
+  try {
+    const utcDate = parseISO(utcDateString);
+    if (!isValid(utcDate)) return utcDateString.split('T')[0];
+    
+    // Convert to client's local timezone and get the date part
+    const clientDate = new Date(utcDate.getTime());
+    return format(clientDate, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error converting to client date:', error);
+    return utcDateString.split('T')[0];
+  }
+}
+
+// Check if a fixture belongs to a specific client date
+export function isFixtureOnClientDate(fixtureUTCDate: string, targetClientDate: string): boolean {
+  try {
+    const fixtureClientDate = getFixtureClientDate(fixtureUTCDate);
+    return fixtureClientDate === targetClientDate;
+  } catch (error) {
+    console.error('Error checking fixture client date:', error);
+    return false;
+  }
+}
+
+// Check if a date string represents today in client timezone
 export function isDateStringToday(dateString: string): boolean {
-  const actualToday = getCurrentUTCDateString();
+  const actualToday = getCurrentClientDateString();
   return dateString === actualToday;
 }
 
-// Check if a date string represents yesterday
+// Check if a date string represents yesterday in client timezone
 export function isDateStringYesterday(dateString: string): boolean {
-  const actualYesterday = formatYYYYMMDD(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const actualYesterday = format(yesterday, 'yyyy-MM-dd');
   return dateString === actualYesterday;
 }
 
-// Check if a date string represents tomorrow
+// Check if a date string represents tomorrow in client timezone
 export function isDateStringTomorrow(dateString: string): boolean {
-  const actualTomorrow = formatYYYYMMDD(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const actualTomorrow = format(tomorrow, 'yyyy-MM-dd');
   return dateString === actualTomorrow;
+}
+
+// Enhanced date comparison that considers client timezone for fixture times
+export function isFixtureDateTimeStringToday(dateTimeString: string): boolean {
+  try {
+    const fixtureClientDate = getFixtureClientDate(dateTimeString);
+    const todayClientDate = getCurrentClientDateString();
+    return fixtureClientDate === todayClientDate;
+  } catch {
+    return false;
+  }
+}
+
+// Enhanced date comparison for yesterday with client timezone consideration
+export function isFixtureDateTimeStringYesterday(dateTimeString: string): boolean {
+  try {
+    const fixtureClientDate = getFixtureClientDate(dateTimeString);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayClientDate = format(yesterday, 'yyyy-MM-dd');
+    return fixtureClientDate === yesterdayClientDate;
+  } catch {
+    return false;
+  }
+}
+
+// Enhanced date comparison for tomorrow with client timezone consideration
+export function isFixtureDateTimeStringTomorrow(dateTimeString: string): boolean {
+  try {
+    const fixtureClientDate = getFixtureClientDate(dateTimeString);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowClientDate = format(tomorrow, 'yyyy-MM-dd');
+    return fixtureClientDate === tomorrowClientDate;
+  } catch {
+    return false;
+  }
 }
 
 // 365scores.com style: Convert UTC fixture time to user's local date

@@ -13,9 +13,15 @@ import { RootState, fixturesActions, selectFixturesByDate } from '@/lib/store';
 import { 
   formatYYYYMMDD, 
   getCurrentUTCDateString, 
-  isDateTimeStringToday,
-  isDateTimeStringYesterday,
-  isDateTimeStringTomorrow,
+  getCurrentClientDateString,
+  isDateStringToday,
+  isDateStringYesterday,
+  isDateStringTomorrow,
+  isFixtureOnClientDate,
+  getFixtureClientDate,
+  isFixtureDateTimeStringToday,
+  isFixtureDateTimeStringYesterday,
+  isFixtureDateTimeStringTomorrow,
   getDateTimeRange
 } from '@/lib/dateUtilsUpdated';
 import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap, flagCache } from '@/lib/flagUtils';
@@ -230,7 +236,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // Simple and reliable date filtering - direct UTC date matching
+  // Client timezone-aware date filtering
   const allFixtures = fixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date) {
       console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
@@ -238,17 +244,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     try {
-      // Extract UTC date from fixture (YYYY-MM-DD format)
-      const fixtureUTCDate = fixture.fixture.date.split('T')[0];
-      
-      // Direct exact match with selected date
-      const passes = fixtureUTCDate === selectedDate;
+      // Convert UTC fixture time to client timezone and check if it matches selected date
+      const passes = isFixtureOnClientDate(fixture.fixture.date, selectedDate);
 
       if (!passes) {
-        console.log(`❌ [DEBUG] Date mismatch (direct UTC):`, {
+        const fixtureClientDate = getFixtureClientDate(fixture.fixture.date);
+        console.log(`❌ [DEBUG] Date mismatch (client timezone):`, {
           fixtureId: fixture.fixture.id,
           fixtureUTCDate: fixture.fixture.date,
-          extractedUTCDate: fixtureUTCDate,
+          fixtureClientDate,
+          selectedDate,
+          status: fixture.fixture.status?.short
+        });
+      } else {
+        console.log(`✅ [DEBUG] Date match (client timezone):`, {
+          fixtureId: fixture.fixture.id,
+          fixtureUTCDate: fixture.fixture.date,
+          fixtureClientDate: getFixtureClientDate(fixture.fixture.date),
           selectedDate,
           status: fixture.fixture.status?.short
         });
@@ -545,7 +557,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return 'bg-blue-100 text-blue-700';
   };
 
-  // Get header title based on button states and selected date
+  // Get header title based on button states and selected date (client timezone aware)
   const getHeaderTitle = () => {
     // Check for different button states first
     if (liveFilterActive && timeFilterActive) {
@@ -556,14 +568,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return "All Matches by Time";
     }
 
-    // Default behavior based on selected date
+    // Default behavior based on selected date (client timezone)
     const selectedDateObj = new Date(selectedDate);
 
-    if (isDateTimeStringToday(selectedDate)) {
+    if (isDateStringToday(selectedDate)) {
       return "Today's Football Matches by Country";
-    } else if (isDateTimeStringYesterday(selectedDate)) {
+    } else if (isDateStringYesterday(selectedDate)) {
       return "Yesterday's Football Results by Country";
-    } else if (isDateTimeStringTomorrow(selectedDate)) {
+    } else if (isDateStringTomorrow(selectedDate)) {
       return "Tomorrow's Football Matches by Country";
     } else {
       return `Football Matches - ${format(selectedDateObj, 'MMM d, yyyy')}`;

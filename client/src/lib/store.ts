@@ -118,7 +118,7 @@ const initialStatsState: StatsState = {
 import { getCurrentUTCDateString } from './dateUtilsUpdated';
 
 const initialUIState: UIState = {
-  selectedDate: getCurrentUTCDateString(),
+  selectedDate: format(new Date(), 'yyyy-MM-dd'), // Use client timezone for selected date
   selectedFilter: 'all' as 'all' | 'live' | 'time' | 'live+time',
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League
