@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Activity } from "lucide-react";
+import { Activity, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import NoLiveMatchesEmpty from "@/components/matches/NoLiveMatchesEmpty";
 import { apiRequest } from "@/lib/queryClient";
@@ -30,9 +30,20 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   timeFilterActive = false,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+
+  const toggleStarMatch = (fixtureId: number) => {
+    const newStarred = new Set(starredMatches);
+    if (newStarred.has(fixtureId)) {
+      newStarred.delete(fixtureId);
+    } else {
+      newStarred.add(fixtureId);
+    }
+    setStarredMatches(newStarred);
+  };
 
   // Fetch all live fixtures with automatic refresh
   const { data: fixtures = [], isLoading } = useQuery({
@@ -421,9 +432,35 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                       .map((match: any) => (
                         <div
                           key={match.fixture.id}
-                          className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          className="match-card-container group"
                         >
-                          <div className="flex items-center px-3 py-2 mt-[0px] mb-[0px] pt-[16px] pb-[16px]">
+                          {/* Star Button with slide-in effect */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleStarMatch(match.fixture.id);
+                            }}
+                            className="match-star-button"
+                            title="Add to favorites"
+                            onMouseEnter={(e) => {
+                              e.currentTarget
+                                .closest(".group")
+                                ?.classList.add("disable-hover");
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget
+                                .closest(".group")
+                                ?.classList.remove("disable-hover");
+                            }}
+                          >
+                            <Star
+                              className={`match-star-icon ${
+                                starredMatches.has(match.fixture.id) ? "starred" : ""
+                              }`}
+                            />
+                          </button>
+
+                          <div className="match-content-container">
                             {/* Home Team - Fixed width to prevent overflow */}
                             <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                               {match.teams.home.name}
@@ -511,6 +548,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                             {/* Away Team - Fixed width for consistency */}
                             <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                               {match.teams.away.name}
+                            </div>
                             </div>
                           </div>
                         </div>

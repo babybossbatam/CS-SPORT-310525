@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronDown, ChevronUp, Calendar } from "lucide-react";
+import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
@@ -135,6 +135,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     new Set(),
   );
   const [enableFetching, setEnableFetching] = useState(true);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   // Initialize flagMap with immediate synchronous values for better rendering
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
@@ -742,6 +743,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries(newExpanded);
   };
 
+  const toggleStarMatch = (fixtureId: number) => {
+    const newStarred = new Set(starredMatches);
+    if (newStarred.has(fixtureId)) {
+      newStarred.delete(fixtureId);
+    } else {
+      newStarred.add(fixtureId);
+    }
+    setStarredMatches(newStarred);
+  };
+
   // Enhanced match status logic
   const getMatchStatus = (fixture: any) => {
     const status = fixture.fixture.status.short;
@@ -1202,8 +1213,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any) => (
                                 <div
                                   key={match.fixture.id}
-                                  className="match-card-container flex items-center justify-between py-2 px-3 transition-colors cursor-pointer border-b border-gray-100 last:border-b-0"
+                                  className="match-card-container group"
                                 >
+                                  {/* Star Button with true slide-in effect */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleStarMatch(match.fixture.id);
+                                    }}
+                                    className="match-star-button"
+                                    title="Add to favorites"
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget
+                                        .closest(".group")
+                                        ?.classList.add("disable-hover");
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget
+                                        .closest(".group")
+                                        ?.classList.remove("disable-hover");
+                                    }}
+                                  >
+                                    <Star
+                                      className={`match-star-icon ${
+                                        starredMatches.has(match.fixture.id)
+                                          ? "starred"
+                                          : ""
+                                      }`}
+                                    />
+                                  </button>
+
+                                  <div className="match-content-container">
                                   {/* Home Team - Fixed width to prevent overflow */}
                                   <div className="flex items-center px-3 py-2">
                                     {/* Home Team - Fixed width to prevent overflow */}
@@ -1463,6 +1503,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.away.name) ||
                                         "Unknown Team"}
+                                    </div>
                                     </div>
                                   </div>
                                 </div>
