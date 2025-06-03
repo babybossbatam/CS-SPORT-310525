@@ -212,7 +212,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       {/* Single consolidated card with all matches sorted by time */}
       <Card className="mt-4 overflow-hidden">
         {/* Header showing total matches */}
-        <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+        <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200">
           <div className="flex flex-col">
             <span className="font-semibold text-base text-gray-800">
               Popular Football Leagues
@@ -258,8 +258,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                   {/* Score/Time Center */}
                   <div
-                    className="flex flex-col items-center justify-center px-4 flex-shrink-0"
-                    style={{ marginTop: "-14px" }}
+                    className="flex flex-col items-center justify-center px-4 flex-shrink-0 mb-4"
+                    style={{ marginTop: "0px" }}
                   >
                     <div className="text-xs font-semibold mb-0.5">
                       {match.fixture.status.short === "FT" ? (
@@ -288,24 +288,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                       <span className="text-black">
                         {match.goals?.away ?? 0}
                       </span>
-                    </div>
-                    {/* League info below score */}
-                    <div className="text-xs text-gray-500 mt-1 text-center">
-                      <div className="flex items-center gap-1">
-                        <img
-                          src={getCountryFlagWithFallback(
-                            match.leagueInfo.country,
-                            match.leagueInfo.logo,
-                          )}
-                          alt={match.leagueInfo.country}
-                          className="w-3 h-2 object-cover rounded-sm"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/assets/fallback-logo.svg";
-                          }}
-                        />
-                        {match.leagueInfo.name}
-                      </div>
                     </div>
                   </div>
 
