@@ -237,11 +237,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
               >
                 <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
-                  {/* Home Team */}
-                  <div className="flex items-center flex-1 min-w-0">
-                    <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                      {match.teams.home.name || "Unknown Team"}
-                    </div>
+                  {/* Home Team - Fixed width to prevent overflow */}
+                  <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
+                    {match.teams.home.name || "Unknown Team"}
                   </div>
 
                   <div className="flex-shrink-0 mx-1 flex items-center justify-center">
@@ -265,8 +263,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     />
                   </div>
 
-                  {/* Score/Time Center */}
-                  <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative h-12">
+                  {/* Score/Time Center - Fixed width to maintain position */}
+                  <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
                     {(() => {
                       const status = match.fixture.status.short;
                       const fixtureDate = parseISO(match.fixture.date);
@@ -401,11 +399,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     />
                   </div>
 
-                  {/* Away Team */}
-                  <div className="flex items-center flex-1 min-w-0">
-                    <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                      {match.teams.away.name || "Unknown Team"}
-                    </div>
+                  {/* Away Team - Fixed width for consistency */}
+                  <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                    {match.teams.away.name || "Unknown Team"}
                   </div>
                 </div>
               </div>

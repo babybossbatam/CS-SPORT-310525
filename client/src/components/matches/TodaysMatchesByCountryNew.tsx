@@ -633,7 +633,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Parse UTC time and convert to user's local timezone automatically
       const utcDate = parseISO(dateString);
       if (!isValid(utcDate)) return '--:--';
-      
+
       // format() automatically converts to user's local timezone
       return format(utcDate, 'HH:mm');
     } catch (error) {
@@ -718,18 +718,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           if (countryData.country === 'World') {
                             return '/assets/world flag_new.png';
                           }
-                          
+
                           // For England specifically, always use the England flag
                           if (countryData.country === 'England') {
                             return 'https://flagcdn.com/w40/gb-eng.png';
                           }
-                          
+
                           // Check if we have a cached flag for other countries
                           const cachedFlag = flagMap[countryData.country];
                           if (cachedFlag) {
                             return cachedFlag;
                           }
-                          
+
                           // For other countries, use the fallback sync function
                           return getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback-logo.svg';
                         })()}
@@ -757,7 +757,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             // For other GB subdivisions
                             if ((countryData.country === 'Scotland' || countryData.country === 'Wales' || 
                                  countryData.country === 'Northern Ireland') && 
-                                !target.src.includes('fallback-logo.svg')) {
+                                !target.src.includes('fallback-logo.svg')){
                               if (target.src.includes('gb-sct') || target.src.includes('gb-wls') || target.src.includes('gb-nir')) {
                                 target.src = 'https://flagcdn.com/w40/gb.png'; // Fallback to GB flag
                               } else if (target.src.includes('/gb.png')) {
@@ -885,9 +885,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     key={match.fixture.id}
                                     className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
                                   >
+                                    {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="flex items-center px-3 py-2">
-                                      {/* Home Team */}
-                                      <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                                      {/* Home Team - Fixed width to prevent overflow */}
+                                      <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                         {match.teams.home.name}
                                       </div>
 
@@ -1057,8 +1058,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         />
                                       </div>
 
-                                      {/* Away Team */}
-                                      <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                                      {/* Away Team - Fixed width to prevent overflow */}
+                                      <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                                         {match.teams.away.name}
                                       </div>
                                     </div>
