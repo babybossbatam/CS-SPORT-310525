@@ -1096,7 +1096,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               />
                             </button>
 
-                            <div className="flex items-center px-3 flex-1 min-h-[60px]">
+                            <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
                               {/* Home Team */}
                               <div className="flex items-center flex-1 min-w-0">
                                 <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
@@ -1115,13 +1115,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=${isNationalTeam(match.teams.home, leagueData.league) ? 50 : 36}`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=50`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : "36px",
-                                    height: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : "36px",
-                                    minWidth: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : "36px",
-                                    minHeight: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : "36px",
+                                    width: "50px",
+                                    height: "50px",
+                                    minWidth: "50px",
+                                    minHeight: "50px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.home.name}
@@ -1341,13 +1341,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=${isNationalTeam(match.teams.away, leagueData.league) ? 40 : 36}`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=40`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : "36px",
-                                    height: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : "36px",
-                                    minWidth: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : "36px",
-                                    minHeight: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : "36px",
+                                    width: "40px",
+                                    height: "40px",
+                                    minWidth: "40px",
+                                    minHeight: "40px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
