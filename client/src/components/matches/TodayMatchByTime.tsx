@@ -261,42 +261,42 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     className="flex flex-col items-center justify-center px-4 flex-shrink-0 mb-4"
                     style={{ marginTop: "0px" }}
                   >
-                    {/* Status/Time display */}
-                    <div className="text-xs font-semibold mb-0.5">
-                      {match.fixture.status.short === "FT" ? (
-                        <span className="text-gray-600">Ended</span>
-                      ) : match.fixture.status.short === "HT" ? (
-                        <span className="text-red-600 animate-pulse">
-                          Halftime
-                        </span>
-                      ) : ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
-                          match.fixture.status.short,
-                        ) ? (
-                        <span className="text-red-600 animate-pulse">
-                          {match.fixture.status.elapsed || 0}'
-                        </span>
-                      ) : (
-                        <span className="text-gray-600">
-                          {format(parseISO(match.fixture.date), "HH:mm")}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Score display - only show for started matches */}
-                    {match.fixture.status.short !== "NS" && 
-                     match.fixture.status.short !== "TBD" && 
-                     match.fixture.status.short !== "PST" && 
-                     match.fixture.status.short !== "CANC" ? (
-                      <div className="text-lg font-bold flex items-center gap-2">
-                        <span className="text-black">
-                          {match.goals?.home ?? 0}
-                        </span>
-                        <span className="text-gray-400">-</span>
-                        <span className="text-black">
-                          {match.goals?.away ?? 0}
-                        </span>
+                    {/* For upcoming matches (NS, TBD, PST, CANC) - show only time */}
+                    {["NS", "TBD", "PST", "CANC"].includes(match.fixture.status.short) ? (
+                      <div className="text-sm font-semibold text-gray-600">
+                        {format(parseISO(match.fixture.date), "HH:mm")}
                       </div>
-                    ) : null}
+                    ) : (
+                      <>
+                        {/* Status/Time display for started matches */}
+                        <div className="text-xs font-semibold mb-0.5">
+                          {match.fixture.status.short === "FT" ? (
+                            <span className="text-gray-600">Ended</span>
+                          ) : match.fixture.status.short === "HT" ? (
+                            <span className="text-red-600 animate-pulse">
+                              Halftime
+                            </span>
+                          ) : ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
+                              match.fixture.status.short,
+                            ) ? (
+                            <span className="text-red-600 animate-pulse">
+                              {match.fixture.status.elapsed || 0}'
+                            </span>
+                          ) : null}
+                        </div>
+
+                        {/* Score display for started matches */}
+                        <div className="text-lg font-bold flex items-center gap-2">
+                          <span className="text-black">
+                            {match.goals?.home ?? 0}
+                          </span>
+                          <span className="text-gray-400">-</span>
+                          <span className="text-black">
+                            {match.goals?.away ?? 0}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex-shrink-0 mx-1">
