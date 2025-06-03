@@ -911,8 +911,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           </div>
                         </CardContent>
                       )}
-                    </>
-                  )}
+                    </>                  )}
                   {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
                     <div className="space-y-0">
@@ -1105,44 +1104,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               {/* Updated home team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className={`bg-cover bg-center bg-no-repeat ${
-                                    isNationalTeam(
-                                      match.teams.home,
-                                      leagueData.league,
-                                    )
-                                      ? ""
-                                      : "h-10 w-10"
-                                  }`}
+                                  className="bg-cover bg-center bg-no-repeat rounded-full"
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=${isNationalTeam(match.teams.home, leagueData.league) ? 50 : 40}`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: isNationalTeam(
-                                      match.teams.home,
-                                      leagueData.league,
-                                    )
-                                      ? "50px"
-                                      : undefined,
-                                    height: isNationalTeam(
-                                      match.teams.home,
-                                      leagueData.league,
-                                    )
-                                      ? "50px"
-                                      : undefined,
-                                    minWidth: isNationalTeam(
-                                      match.teams.home,
-                                      leagueData.league,
-                                    )
-                                      ? "50px"
-                                      : undefined,
-                                    minHeight: isNationalTeam(
-                                      match.teams.home,
-                                      leagueData.league,
-                                    )
-                                      ? "50px"
-                                      : undefined,
+                                    width: "36px",
+                                    height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.home.name}
@@ -1354,44 +1326,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               {/* Updated away team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className={`bg-cover bg-center bg-no-repeat ${
-                                    isNationalTeam(
-                                      match.teams.away,
-                                      leagueData.league,
-                                    )
-                                      ? ""
-                                      : "h-9 w-9"
-                                  }`}
+                                  className="bg-cover bg-center bg-no-repeat rounded-full"
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=${isNationalTeam(match.teams.away, leagueData.league) ? 40 : 40}`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: isNationalTeam(
-                                      match.teams.away,
-                                      leagueData.league,
-                                    )
-                                      ? "40px"
-                                      : undefined,
-                                    height: isNationalTeam(
-                                      match.teams.away,
-                                      leagueData.league,
-                                    )
-                                      ? "40px"
-                                      : undefined,
-                                    minWidth: isNationalTeam(
-                                      match.teams.away,
-                                      leagueData.league,
-                                    )
-                                      ? "40px"
-                                      : undefined,
-                                    minHeight: isNationalTeam(
-                                      match.teams.away,
-                                      leagueData.league,
-                                    )
-                                      ? "40px"
-                                      : undefined,
+                                    width: "36px",
+                                    height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
