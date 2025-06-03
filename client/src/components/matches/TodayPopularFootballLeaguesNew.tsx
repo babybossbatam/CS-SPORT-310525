@@ -1106,7 +1106,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 rounded-full bg-cover bg-center bg-no-repeat"
+                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
@@ -1327,7 +1327,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 rounded-full bg-cover bg-center bg-no-repeat"
+                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
