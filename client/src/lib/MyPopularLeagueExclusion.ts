@@ -1,4 +1,3 @@
-
 /**
  * Specialized exclusion filters for TodayPopularFootballLeaguesNew component
  * This provides focused filtering specifically for popular league displays
@@ -28,7 +27,7 @@ export const popularLeagueExclusionTerms = [
   'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 'oberliga thüringen',
 
   // Brazilian state leagues (lower-tier regional competitions)
-  'amazonense', 'carioca', 'catarinense', 'gaucho', 'goiano', 'minero', 'paranaense',
+  'amazonense', 'carioca', 'catarinense', 'gaucho', 'gaúcho', 'goiano', 'minero', 'mineiro', 'paranaense',
 
   // US lower-tier leagues that shouldn't appear in popular leagues
   'npsl', 'national premier soccer league', 'usl w league', 'wpsl',
@@ -153,12 +152,12 @@ export function isPopularLeagueSuitable(leagueName: string, country?: string): b
  */
 export function isRestrictedUSLeague(leagueId: number, country: string): boolean {
   const countryLower = safeSubstring(country, 0).toLowerCase();
-  
+
   if (countryLower.includes('usa') || countryLower.includes('united states')) {
     // Only allow MLS (253) and MLS Next Pro (254) for popular leagues display
     const allowedUSALeagues = [253, 254];
     return !allowedUSALeagues.includes(leagueId);
   }
-  
+
   return false;
 }
