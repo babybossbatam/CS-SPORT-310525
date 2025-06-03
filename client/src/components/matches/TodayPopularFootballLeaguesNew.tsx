@@ -1104,21 +1104,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 </div>
                               </div>
 
-                              <div className="flex-shrink-0 mx-1">
-                                <img
-                                  src={
-                                    // Special handling for Niger country teams
-                                    match.teams.home.name?.toLowerCase().includes('niger') && 
-                                    !match.teams.home.name?.toLowerCase().includes('nigeria')
-                                      ? `/api/team-logo/square/${match.teams.home.id}?size=48`
-                                      : match.teams.home.logo || "/assets/fallback-logo.svg"
-                                  }
-                                  alt={`${match.teams.home.name} logo`}
+                              <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                                <div
+                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  style={{
+                                    backgroundImage: `url(${
+                                      match.teams.home.id 
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    })`,
+                                    width: "36px",
+                                    height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
+                                  }}
                                   title={match.teams.home.name}
-                                  className="w-9 h-9 object-contain"
-                                  loading="lazy"
-                                  style={{ maxWidth: '36px', maxHeight: '36px', width: 'auto', height: 'auto' }}
-                                  onError={createTeamLogoErrorHandler(match.teams.home, isNationalTeam(match.teams.home, leagueData.league))}
                                 />
                               </div>
 
@@ -1325,21 +1325,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
 
-                              <div className="flex-shrink-0 mx-1">
-                                <img
-                                  src={
-                                    // Special handling for Niger country teams
-                                    match.teams.away.name?.toLowerCase().includes('niger') && 
-                                    !match.teams.away.name?.toLowerCase().includes('nigeria')
-                                      ? `/api/team-logo/square/${match.teams.away.id}?size=48`
-                                      : match.teams.away.logo || "/assets/fallback-logo.svg"
-                                  }
-                                  alt={`${match.teams.away.name} logo`}
+                              <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                                <div
+                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  style={{
+                                    backgroundImage: `url(${
+                                      match.teams.away.id 
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    })`,
+                                    width: "36px",
+                                    height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
+                                  }}
                                   title={match.teams.away.name}
-                                  className="w-9 h-9 object-contain"
-                                  loading="lazy"
-                                  style={{ maxWidth: '36px', maxHeight: '36px', width: 'auto', height: 'auto' }}
-                                  onError={createTeamLogoErrorHandler(match.teams.away, isNationalTeam(match.teams.away, leagueData.league))}
                                 />
                               </div>
 
