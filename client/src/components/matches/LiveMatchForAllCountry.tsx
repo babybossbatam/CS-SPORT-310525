@@ -106,55 +106,47 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     }
   };
 
-  // Apply date-based filtering if time filter is active
+  // Apply date-based filtering if time filter is active with timezone awareness
   const allFixtures = useMemo(() => {
     if (!timeFilterActive) {
       return fixtures;
     }
 
-    const now = new Date();
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date(now);
-    todayEnd.setHours(23, 59, 59, 999);
-
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStart = new Date(tomorrow);
-    tomorrowStart.setHours(0, 0, 0, 0);
-    const tomorrowEnd = new Date(tomorrow);
-    tomorrowEnd.setHours(23, 59, 59, 999);
-
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStart = new Date(yesterday);
-    yesterdayStart.setHours(0, 0, 0, 0);
-    const yesterdayEnd = new Date(yesterday);
-    yesterdayEnd.setHours(23, 59, 59, 999);
+    console.log('🕐 [DEBUG] Applying timezone-aware filtering for fixtures:', fixtures.length);
 
     return fixtures.filter((fixture: any) => {
       if (!fixture?.fixture?.date) {
+        console.log('❌ [DEBUG] Fixture missing date:', fixture?.fixture?.id);
         return false;
       }
 
       try {
-        const fixtureDate = MydateConversionFilter.parseDate(fixture.fixture.date);
-        if (!fixtureDate) {
-          return false;
+        const fixtureUTCDate = fixture.fixture.date;
+        
+        // Use timezone-aware checking from MydateConversionFilter
+        const isToday = MydateConversionFilter.isFixtureToday(fixtureUTCDate);
+        const isTomorrow = MydateConversionFilter.isFixtureTomorrow(fixtureUTCDate);
+        const isYesterday = MydateConversionFilter.isFixtureYesterday(fixtureUTCDate);
+
+        const shouldInclude = isToday || isTomorrow || isYesterday;
+        
+        if (shouldInclude) {
+          const localTime = MydateConversionFilter.formatFixtureTime(fixtureUTCDate);
+          console.log('✅ [DEBUG] Including fixture:', {
+            fixtureId: fixture.fixture.id,
+            utcDate: fixtureUTCDate,
+            localTime: localTime,
+            isToday,
+            isTomorrow,
+            isYesterday,
+            homeTeam: fixture.teams?.home?.name,
+            awayTeam: fixture.teams?.away?.name
+          });
         }
 
-        // Check if fixture is today (00:00:00 - 23:59:59)
-        const isToday = fixtureDate >= todayStart && fixtureDate <= todayEnd;
-        
-        // Check if fixture is tomorrow (00:00:00 - 23:59:59)
-        const isTomorrow = fixtureDate >= tomorrowStart && fixtureDate <= tomorrowEnd;
-        
-        // Check if fixture is yesterday (00:00:00 - 23:59:59)
-        const isYesterday = fixtureDate >= yesterdayStart && fixtureDate <= yesterdayEnd;
-
-        return isToday || isTomorrow || isYesterday;
+        return shouldInclude;
       } catch (error) {
-        console.error('Error filtering fixture by date range:', error);
+        console.error('Error filtering fixture by timezone-aware date range:', error);
         return false;
       }
     });
@@ -477,6 +469,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 ) : match.fixture.status.short === "HT" ? (
                                   <span className="text-red-600 animate-pulse">
                                     Halftime
+                                  </span>
+                                ) : match.fixture.status.short === "NS" ? (
+                                  <span className="text-blue-600">
+                                    {MydateConversionFilter.formatFixtureTime(match.fixture.date)}
                                   </span>
                                 ) : (
                                   <span className="text-red-600 animate-pulse">

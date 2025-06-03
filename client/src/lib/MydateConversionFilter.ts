@@ -258,6 +258,79 @@ export const isFixtureOnLocalDate = (fixtureUTCDate: string, targetLocalDate: st
 };
 
 /**
+ * Convert UTC date to user's local timezone and format as time string
+ */
+export const formatFixtureTime = (utcDateString: string): string => {
+  try {
+    const utcDate = parseISO(utcDateString);
+    if (!isValid(utcDate)) return '00:00';
+    
+    // Convert to user's local time
+    const localTime = new Date(utcDate.getTime());
+    return format(localTime, 'HH:mm');
+  } catch (error) {
+    console.error('Error formatting fixture time:', error);
+    return '00:00';
+  }
+};
+
+/**
+ * Check if fixture date is in user's local timezone today
+ */
+export const isFixtureToday = (utcDateString: string): boolean => {
+  try {
+    const utcDate = parseISO(utcDateString);
+    if (!isValid(utcDate)) return false;
+    
+    const localDate = new Date(utcDate.getTime());
+    const today = new Date();
+    
+    return format(localDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error checking if fixture is today:', error);
+    return false;
+  }
+};
+
+/**
+ * Check if fixture date is in user's local timezone tomorrow
+ */
+export const isFixtureTomorrow = (utcDateString: string): boolean => {
+  try {
+    const utcDate = parseISO(utcDateString);
+    if (!isValid(utcDate)) return false;
+    
+    const localDate = new Date(utcDate.getTime());
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    return format(localDate, 'yyyy-MM-dd') === format(tomorrow, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error checking if fixture is tomorrow:', error);
+    return false;
+  }
+};
+
+/**
+ * Check if fixture date is in user's local timezone yesterday
+ */
+export const isFixtureYesterday = (utcDateString: string): boolean => {
+  try {
+    const utcDate = parseISO(utcDateString);
+    if (!isValid(utcDate)) return false;
+    
+    const localDate = new Date(utcDate.getTime());
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    return format(localDate, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error checking if fixture is yesterday:', error);
+    return false;
+  }
+};
+
+/**
  * Advanced fixture date validation with timezone-inclusive matching
  * Includes fixtures within ±1.5 days to capture timezone edge cases
  */
@@ -481,6 +554,12 @@ export default {
   isDateTimeStringToday,
   isDateTimeStringYesterday,
   isDateTimeStringTomorrow,
+  
+  // Timezone-aware fixture checks
+  isFixtureToday,
+  isFixtureTomorrow,
+  isFixtureYesterday,
+  formatFixtureTime,
   
   // Fixture filtering
   isFixtureOnClientDate,
