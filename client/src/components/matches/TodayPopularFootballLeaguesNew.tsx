@@ -1170,14 +1170,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               />
                             </button>
 
-                            <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
-                              {/* Home Team - Fixed width to prevent overflow */}
-                              <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
+                            <div className="flex items-center justify-center px-3 py-3 flex-1 min-h-[60px] gap-2">
+                              {/* Home Team Name - positioned further left */}
+                              <div className="text-right text-sm text-gray-900 flex-1 pr-3 truncate">
                                 {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                               </div>
 
-                              {/* Updated home team logo dimensions */}
-                              <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                              {/* Home team logo - closer to center */}
+                              <div className="flex-shrink-0 flex items-center justify-center">
                                 <img
                                   src={
                                     match.teams.home.id
@@ -1207,8 +1207,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 />
                               </div>
 
-                              {/* Score/Time Center - Fixed width to maintain position */}
-                              <div className="flex flex-col items-center justify-center px-2 w-[80px] flex-shrink-0 relative h-12 mx-auto">
+                              {/* Score/Time Center - Fixed width and centered */}
+                              <div className="flex flex-col items-center justify-center px-3 w-[80px] flex-shrink-0 relative h-12">
                                 {(() => {
                                   const status = match.fixture.status.short;
                                   const fixtureDate = parseISO(
@@ -1409,8 +1409,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 })()}
                               </div>
 
-                              {/* Updated away team logo dimensions */}
-                              <div className="flex-shrink-0 mx-2 flex items-center justify-center">
+                              {/* Away team logo - closer to center */}
+                              <div className="flex-shrink-0 flex items-center justify-center">
                                 <img
                                   src={
                                     match.teams.away.id
@@ -1440,8 +1440,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 />
                               </div>
 
-                              {/* Away Team - Fixed width for consistency */}
-                              <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                              {/* Away Team Name - positioned further right */}
+                              <div className="text-left text-sm text-gray-900 flex-1 pl-3 truncate">
                                 {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                               </div>
                             </div>
