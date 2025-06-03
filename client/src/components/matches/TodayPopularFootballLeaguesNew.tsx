@@ -1156,8 +1156,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             </button>
 
                             <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
-                              {/* Home Team */}
-                              <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                              {/* Home Team - Fixed width to prevent overflow */}
+                              <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                 {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                               </div>
 
@@ -1191,8 +1191,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 />
                               </div>
 
-                              {/* Score/Time Center */}
-                              <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative h-12">
+                              {/* Score/Time Center - Fixed width to maintain position */}
+                              <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
                                 {(() => {
                                   const status = match.fixture.status.short;
                                   const fixtureDate = parseISO(
@@ -1424,7 +1424,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Away Team - Fixed width for consistency */}
-                              <div className="text-left text-sm text-gray-900 w-[120px] pl-2 truncate flex-shrink-0">
+                              <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                                 {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                               </div>
                             </div>
