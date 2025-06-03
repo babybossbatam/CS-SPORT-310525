@@ -87,15 +87,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
     Italy: [135, 137], // Serie A, Coppa Italia
     Germany: [78, 81], // Bundesliga, DFB Pokal
     France: [61, 66], // Ligue 1, Coupe de France
-    Brazil: [71, 72, 73, 74], // Serie A Brazil, Serie B Brazil, Serie C Brazil, Serie D Brazil
-    "Saudi Arabia": [307], // Saudi Pro League (only major league)
-    Egypt: [233], // Egyptian Premier League (only major league)
-    Colombia: [239], // Liga BetPlay (Colombian Primera A)
+    // Removed league restrictions for Brazil, Colombia, Saudi Arabia, Europe, South America, World
+    // These countries will now show all their leagues (exclusion filtering will be applied later)
     USA: [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     "United Arab Emirates": [301], // UAE Pro League
-    Europe: [2, 3, 848], // UEFA Champions League, Europa League, Conference League
-    World: [1, 10], // World Cup, Men's International Friendlies (excludes women's)
-    "South America": [9, 11, 13], // CONMEBOL: Copa America, Libertadores, Sudamericana
+    Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
   };
 
@@ -412,10 +408,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
           const leagueId = league.id;
 
           if (!acc[countryKey].leagues[leagueId]) {
+            const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
+            const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
+            
             acc[countryKey].leagues[leagueId] = {
               league: { ...league, country: countryKey },
               matches: [],
-              isPopular: POPULAR_LEAGUES.includes(leagueId),
+              isPopular: POPULAR_LEAGUES.includes(leagueId) || isUnrestrictedCountry,
               isFriendlies: league.name.toLowerCase().includes("friendlies"),
             };
           }
@@ -451,12 +450,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
       const isPopularForCountry = countryPopularLeagues.includes(leagueId);
       const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
+      
+      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, Europe, South America, World), 
+      // consider all leagues as "popular" to show them all
+      const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
+      const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
-      if (isPopularForCountry || isGloballyPopular) {
+      if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
         acc[country].hasPopularLeague = true;
       }
 
       if (!acc[country].leagues[leagueId]) {
+        const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
+        const isUnrestrictedCountry = unrestrictedCountries.includes(country);
+        
         acc[country].leagues[leagueId] = {
           league: {
             ...league,
@@ -465,8 +472,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
               "https://media.api-sports.io/football/leagues/1.png",
           },
           matches: [],
-          isPopular: isPopularForCountry || isGloballyPopular,
-          isPopularForCountry: isPopularForCountry,
+          isPopular: isPopularForCountry || isGloballyPopular || isUnrestrictedCountry,
+          isPopularForCountry: isPopularForCountry || isUnrestrictedCountry,
           isFriendlies: false,
         };
       }
