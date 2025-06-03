@@ -908,24 +908,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img 
                                           src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
-                                          className={`w-9 h-9 ${
-                                            // Apply ball effect to country flags in international competitions
-                                            (countryData.country === 'World' || 
-                                             countryData.country === 'Europe' || 
-                                             countryData.country === 'South America' || 
-                                             countryData.country === 'International' ||
-                                             match.league?.name?.toLowerCase().includes('international') ||
-                                             match.league?.name?.toLowerCase().includes('friendlies') ||
-                                             match.league?.name?.toLowerCase().includes('nations league') ||
-                                             match.league?.name?.toLowerCase().includes('world cup') ||
-                                             match.league?.name?.toLowerCase().includes('euro') ||
-                                             match.league?.name?.toLowerCase().includes('copa america') ||
-                                             match.league?.name?.toLowerCase().includes('uefa') ||
-                                             match.league?.name?.toLowerCase().includes('conmebol') ||
-                                             match.league?.name?.toLowerCase().includes('fifa'))
-                                              ? 'object-cover country-flag-ball rounded-full' 
-                                              : 'object-contain'
-                                          }`}
+                                          className={`w-9 h-9 object-contain`}
                                           style={{
                                             aspectRatio: "1/1",
                                             minWidth: "36px",
