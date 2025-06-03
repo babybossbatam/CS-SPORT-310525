@@ -384,7 +384,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                           key={match.fixture.id}
                           className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
                         >
-                          <div className="flex items-center px-3 py-2">
+                          <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
                             {/* Home Team */}
                             <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
                               {match.teams.home.name}
