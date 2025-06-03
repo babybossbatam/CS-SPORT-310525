@@ -107,7 +107,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
       fixture.fixture.date,
       fixture.fixture.status.short
     );
-    
+
     return {
       ...fixture,
       leagueInfo: {

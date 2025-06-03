@@ -226,25 +226,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
           fixture.fixture.status.short
         );
 
-        // Check if this fixture belongs to the selected date using smart logic
+        // For selected date filtering, accept matches that smart labeling considers appropriate
         const isSelectedToday = isFixtureOnLocalDate(selectedDate, new Date().toISOString().slice(0, 10));
         const isSelectedYesterday = isFixtureOnLocalDate(selectedDate, subDays(new Date(), 1).toISOString().slice(0, 10));
         const isSelectedTomorrow = isFixtureOnLocalDate(selectedDate, addDays(new Date(), 1).toISOString().slice(0, 10));
-
+        
         // Strict matching: only include if smart labeling matches selected date type
         if (isSelectedToday && smartResult.label === 'today') return true;
         if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
         if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
-
+        
         // For matches with finished/live status, use standard date matching as fallback
         const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
         const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-
+        
         if (finishedStatuses.includes(fixture.fixture.status.short) || 
             liveStatuses.includes(fixture.fixture.status.short)) {
           return isFixtureOnLocalDate(fixture.fixture.date, selectedDate);
         }
-
+        
         // For not started matches, strictly follow smart date labeling - no fallback
         return false;
       }

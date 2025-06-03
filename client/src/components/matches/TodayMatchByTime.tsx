@@ -10,6 +10,12 @@ import { shouldExcludeFixture } from "@/lib/exclusionFilters";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
 import { getCountryFlagWithFallback } from "@/lib/flagUtils";
 import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
+import { 
+  isDateStringToday,
+  isDateStringYesterday,
+  isDateStringTomorrow,
+  isFixtureOnClientDate 
+} from '@/lib/dateUtilsUpdated';
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -29,7 +35,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   // Fetch all fixtures for the selected date
   const { data: fixtures = [], isLoading } = useQuery({
-    queryKey: ["all-fixtures-by-date", selectedDate],
+    queryKey: ['all-fixtures-by-date', selectedDate],
     queryFn: async () => {
       console.log(`Fetching fixtures for date: ${selectedDate}`);
       const response = await apiRequest(
@@ -47,6 +53,38 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+  });
+
+  // Apply smart date filtering to prevent yesterday matches from appearing in today view
+  const smartFilteredFixtures = fixtures.filter((fixture: any) => {
+    if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) return true;
+
+    const smartResult = MySmartDateLabeling.getSmartDateLabel(
+      fixture.fixture.date,
+      fixture.fixture.status.short
+    );
+
+    // For selected date filtering, accept matches that smart labeling considers appropriate
+    const isSelectedToday = isDateStringToday(selectedDate);
+    const isSelectedYesterday = isDateStringYesterday(selectedDate);
+    const isSelectedTomorrow = isDateStringTomorrow(selectedDate);
+
+    // Strict matching: only include if smart labeling matches selected date type
+    if (isSelectedToday && smartResult.label === 'today') return true;
+    if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+    if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+
+    // For matches with finished/live status, use standard date matching as fallback
+    const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
+    const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
+
+    if (finishedStatuses.includes(fixture.fixture.status.short) || 
+        liveStatuses.includes(fixture.fixture.status.short)) {
+      return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+    }
+
+    // For not started matches, strictly follow smart date labeling - no fallback
+    return false;
   });
 
   // Use only the main fixtures data
@@ -74,21 +112,21 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
           fixture.fixture.date,
           fixture.fixture.status.short
         );
-        
+
         // Check if this fixture belongs to the selected date using smart logic
         const selectedDateObj = new Date(selectedDate);
         const currentDate = new Date();
-        
+
         const isSelectedToday = isToday(selectedDateObj);
         const isSelectedYesterday = isYesterday(selectedDateObj);
         const isSelectedTomorrow = isTomorrow(selectedDateObj);
-        
+
         // Apply smart filtering - only include if it matches the selected date's smart label
         let matchesSmartDate = false;
         if (isSelectedToday && smartResult.label === 'today') matchesSmartDate = true;
         if (isSelectedYesterday && smartResult.label === 'yesterday') matchesSmartDate = true;
         if (isSelectedTomorrow && smartResult.label === 'tomorrow') matchesSmartDate = true;
-        
+
         // For other dates, use standard date matching
         if (!isSelectedToday && !isSelectedYesterday && !isSelectedTomorrow) {
           const fixtureDate = parseISO(fixture.fixture.date);
@@ -97,7 +135,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
             matchesSmartDate = fixtureLocalDate === selectedDate;
           }
         }
-        
+
         if (!matchesSmartDate) return false;
       }
 
@@ -240,7 +278,35 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   }
 
   // Group matches by time slots with enhanced prioritization
-  const matchesByTime = useMemo(() => {
+  const matchesByTime = smartFilteredFixtures
+    .filter((fixture: any) => {
+      // Validate fixture structure
+      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+        return false;
+      }
+
+      const matchDate = parseISO(fixture.fixture.date);
+      if (!isValid(matchDate)) return false;
+
+      return true;
+    })
+    .reduce((acc: Record<string, any[]>, fixture: any) => {
+      const matchDate = parseISO(fixture.fixture.date);
+      if (!isValid(matchDate)) return acc;
+
+      const timeSlot = format(matchDate, "HH:00");
+
+      if (!acc[timeSlot]) {
+        acc[timeSlot] = [];
+      }
+
+      // Add other fixture details as needed
+      acc[timeSlot].push(fixture);
+      return acc;
+    }, {});
+
+    // Prioritize popular leagues and sort by time
+  const matchesByTimeWithPriority = useMemo(() => {
     const timeGroups: Record<string, any[]> = {};
 
     // Popular leagues for prioritization (matching MyPopularLeagueExclusion logic)
@@ -327,7 +393,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
           <div className="space-y-0">
             {Object.entries(matchesByTime).map(([timeSlot, matches]) => (
               <div key={timeSlot}>
-                
+
                 {matches.map((match: any) => (
                   <div
                     key={match.fixture.id}

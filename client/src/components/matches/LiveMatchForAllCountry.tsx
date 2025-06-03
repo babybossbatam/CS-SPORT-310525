@@ -9,6 +9,12 @@ import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
 import { getTeamLogoSources, isNationalTeam, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
 import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
+import { 
+  isDateStringToday,
+  isDateStringYesterday,
+  isDateStringTomorrow,
+  isFixtureOnClientDate 
+} from '@/lib/dateUtilsUpdated';
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
@@ -52,7 +58,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   const getTeamLogoUrl = (team: any, league?: any) => {
     const isNational = isNationalTeam(team, league);
     const sources = getTeamLogoSources(team, isNational);
-    
+
     // Return the highest priority source
     return sources[0]?.url || "/assets/fallback-logo.svg";
   };
