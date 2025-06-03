@@ -145,6 +145,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Iraq': 'IQ',
   'Saudi Arabia': 'SA',
   'United Arab Emirates': 'AE',
+  'United-Arab-Emirates': 'AE',
   'Qatar': 'QA',
   'Kuwait': 'KW',
   'Bahrain': 'BH',
