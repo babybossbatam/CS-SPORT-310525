@@ -1199,6 +1199,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     height: "36px",
                                     minWidth: "36px",
                                     minHeight: "36px",
+                                    filter: "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                                    transition: "all 0.2s ease",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    (e.target as HTMLImageElement).style.filter = "brightness(120%) contrast(125%) drop-shadow(0 4px 8px rgba(0,0,0,0.2))";
+                                    (e.target as HTMLImageElement).style.transform = "scale(1.05)";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    (e.target as HTMLImageElement).style.filter = "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))";
+                                    (e.target as HTMLImageElement).style.transform = "scale(1)";
                                   }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
@@ -1431,6 +1441,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     height: "36px",
                                     minWidth: "36px",
                                     minHeight: "36px",
+                                    filter: "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                                    transition: "all 0.2s ease",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    (e.target as HTMLImageElement).style.filter = "brightness(120%) contrast(125%) drop-shadow(0 4px 8px rgba(0,0,0,0.2))";
+                                    (e.target as HTMLImageElement).style.transform = "scale(1.05)";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    (e.target as HTMLImageElement).style.filter = "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))";
+                                    (e.target as HTMLImageElement).style.transform = "scale(1)";
                                   }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
