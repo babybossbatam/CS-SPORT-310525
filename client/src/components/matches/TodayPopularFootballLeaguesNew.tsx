@@ -1122,6 +1122,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     height: "42px",
                                     minWidth: "42px",
                                     minHeight: "42px",
+                                    backgroundColor: "transparent",
                                   }}
                                   title={match.teams.home.name}
                                 />
@@ -1347,6 +1348,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     height: "42px",
                                     minWidth: "42px",
                                     minHeight: "42px",
+                                    backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
                                 />
