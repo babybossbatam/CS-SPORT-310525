@@ -427,7 +427,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                   <span className="text-gray-600">Ended</span>
                                 ) : match.fixture.status.short === "HT" ? (
                                   <span className="text-red-600 animate-pulse">
-                                    HT
+                                    Halftime
                                   </span>
                                 ) : (
                                   <span className="text-red-600 animate-pulse">
