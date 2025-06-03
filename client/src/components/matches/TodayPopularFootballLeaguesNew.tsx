@@ -820,24 +820,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Get header title based on selected date with accurate date comparison
   const getHeaderTitle = () => {
-    // Determine what type of matches to show based on selected date
-    const isSelectedToday = selectedDate === actualTodayString;
-    const isSelectedYesterday = selectedDate === actualYesterdayString;
-    const isSelectedTomorrow = selectedDate === actualTomorrowString;
-
-    let baseTitle = "";
-
-    // Use exact string comparison for accurate date matching
-    if (isSelectedToday) {
-      baseTitle = "Popular Football Leagues";
-    } else if (isSelectedYesterday) {
-      baseTitle = "Popular Football Leagues";
-    } else if (isSelectedTomorrow) {
-      baseTitle = "Popular Football Leagues";
-    } else {
-      const selectedDateObj = parseISO(selectedDate);
-      baseTitle = `Popular Football Leagues - ${format(selectedDateObj, "MMM d, yyyy")}`;
-    }
+    let baseTitle = "Popular Football Leagues";
 
     // Add time filter indicator
     if (timeFilterActive && showTop20) {
