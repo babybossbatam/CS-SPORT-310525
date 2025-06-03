@@ -443,7 +443,6 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                   <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                     {match.teams.away.name || "Unknown Team"}
                   </div>
-                  </div>
                 </div>
               </div>
             ))}
