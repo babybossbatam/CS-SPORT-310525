@@ -27,8 +27,6 @@ import {
 import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap, flagCache } from '@/lib/flagUtils';
 import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCache';
 import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
-import { getTeamLogoSources, isNationalTeam, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
-import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -772,7 +770,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         src={(() => {
                           if (countryData.country === 'World') {
                             return '/assets/world flag_new.png';
-                          }                          // For England specifically, always use the England flag
+                          }
+
+                          // For England specifically, always use the England flag
                           if (countryData.country === 'England') {
                             return 'https://flagcdn.com/w40/gb-eng.png';
                           }

@@ -36,18 +36,17 @@ import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
-import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
   if (!teamName) return teamName;
-
+  
   // Remove common suffixes that make names too long
   const suffixesToRemove = [
     '-sc', '-SC', ' SC', ' FC', ' CF', ' United', ' City',
     ' Islands', ' Republic', ' National Team', ' U23', ' U21', ' U20', ' U19'
   ];
-
+  
   let shortened = teamName;
   for (const suffix of suffixesToRemove) {
     if (shortened.endsWith(suffix)) {
@@ -55,7 +54,7 @@ const shortenTeamName = (teamName: string): string => {
       break;
     }
   }
-
+  
   // Handle specific country name shortenings
   const countryMappings: { [key: string]: string } = {
     'Cape Verde Islands': 'Cape Verde',
@@ -71,12 +70,12 @@ const shortenTeamName = (teamName: string): string => {
     'Costa Rica': 'Costa Rica',
     'Puerto Rico': 'Puerto Rico'
   };
-
+  
   // Check if the team name matches any country mappings
   if (countryMappings[shortened]) {
     shortened = countryMappings[shortened];
   }
-
+  
   return shortened.trim();
 };
 
@@ -222,57 +221,63 @@ const TodayPopularFootballLeaguesNew: React.FC<
       // Date filtering - ensure exact date match
       if (fixture?.fixture?.date) {
         try {
-          // Use MyDateConversionFilter for consistent date filtering
-          if (!MyDateConversionFilter.isFixtureOnSelectedDate(fixture.fixture.date, selectedDate)) {
-            return false;
+          const fixtureDate = parseISO(fixture.fixture.date);
+          if (isValid(fixtureDate)) {
+            // 365scores.com style: Convert fixture UTC time to user's local date
+            const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
+            const matchesSelectedDate = fixtureLocalDate === selectedDate;
+
+            if (!matchesSelectedDate) {
+              return false;
+            }
+
+            // Client-side filtering for popular leagues and countries
+            const leagueId = fixture.league?.id;
+            const country = fixture.league?.country?.toLowerCase() || "";
+
+            // Check if it's a popular league
+            const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+            // Check if it's from a popular country
+            const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+              (popularCountry) =>
+                country.includes(popularCountry.toLowerCase()),
+            );
+
+            // Check if it's an international competition
+            const leagueName = fixture.league?.name?.toLowerCase() || "";
+            const isInternationalCompetition =
+              // UEFA competitions
+              leagueName.includes("champions league") ||
+              leagueName.includes("europa league") ||
+              leagueName.includes("conference league") ||
+              leagueName.includes("uefa") ||
+              // FIFA competitions
+              leagueName.includes("world cup") ||
+              leagueName.includes("fifa club world cup") ||
+              leagueName.includes("fifa") ||
+              // CONMEBOL competitions
+              leagueName.includes("conmebol") ||
+              leagueName.includes("copa america") ||
+              leagueName.includes("copa libertadores") ||
+              leagueName.includes("copa sudamericana") ||
+              leagueName.includes("libertadores") ||
+              leagueName.includes("sudamericana") ||
+              // Men's International Friendlies (excludes women's)
+              (leagueName.includes("friendlies") &&
+                !leagueName.includes("women")) ||
+              (leagueName.includes("international") &&
+                !leagueName.includes("women")) ||
+              country.includes("world") ||
+              country.includes("europe") ||
+              country.includes("international");
+
+            return (
+              isPopularLeague ||
+              isFromPopularCountry ||
+              isInternationalCompetition
+            );
           }
-
-          // Client-side filtering for popular leagues and countries
-          const leagueId = fixture.league?.id;
-          const country = fixture.league?.country?.toLowerCase() || "";
-
-          // Check if it's a popular league
-          const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-
-          // Check if it's from a popular country
-          const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-            (popularCountry) =>
-              country.includes(popularCountry.toLowerCase()),
-          );
-
-          // Check if it's an international competition
-          const leagueName = fixture.league?.name?.toLowerCase() || "";
-          const isInternationalCompetition =
-            // UEFA competitions
-            leagueName.includes("champions league") ||
-            leagueName.includes("europa league") ||
-            leagueName.includes("conference league") ||
-            leagueName.includes("uefa") ||
-            // FIFA competitions
-            leagueName.includes("world cup") ||
-            leagueName.includes("fifa club world cup") ||
-            leagueName.includes("fifa") ||
-            // CONMEBOL competitions
-            leagueName.includes("conmebol") ||
-            leagueName.includes("copa america") ||
-            leagueName.includes("copa libertadores") ||
-            leagueName.includes("copa sudamericana") ||
-            leagueName.includes("libertadores") ||
-            leagueName.includes("sudamericana") ||
-            // Men's International Friendlies (excludes women's)
-            (leagueName.includes("friendlies") &&
-              !leagueName.includes("women")) ||
-            (leagueName.includes("international") &&
-              !leagueName.includes("women")) ||
-            country.includes("world") ||
-            country.includes("europe") ||
-            country.includes("international");
-
-          return (
-            isPopularLeague ||
-            isFromPopularCountry ||
-            isInternationalCompetition
-          );
         } catch (error) {
           console.error("Error parsing fixture date:", error);
           return false;
@@ -869,7 +874,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
               // Check for UEFA Nations League - Women first (lowest priority)
               const aIsWomensNationsLeague = a.league.name?.toLowerCase().includes('uefa nations league') && a.league.name?.toLowerCase().includes('women');
               const bIsWomensNationsLeague = b.league.name?.toLowerCase().includes('uefa nations league') && b.league.name?.toLowerCase().includes('women');
-
+              
               if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
               if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
               if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
