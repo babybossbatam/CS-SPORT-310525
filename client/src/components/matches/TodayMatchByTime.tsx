@@ -467,28 +467,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                         {match.teams.away.name || "Unknown Team"}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 border-b border-gray-200">
-                      <img
-                        src={match.leagueInfo.logo}
-                        alt={match.leagueInfo.name}
-                        className="w-5 h-5 object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                        }}
-                      />
-                      <div className="flex flex-col flex-1">
-                        <div className="flex items-center gap-2">
-                          {match.isPopularLeague && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              ⭐
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-600">
-                          {match.leagueInfo.country}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>
