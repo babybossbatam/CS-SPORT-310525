@@ -27,7 +27,7 @@ export const popularLeagueExclusionTerms = [
   'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 'oberliga thüringen',
 
   // Brazilian state leagues (lower-tier regional competitions)
-  'amazonense', 'carioca', 'catarinense', 'gaucho', 'gaúcho', 'goiano', 'minero', 'mineiro', 'paranaense',
+  'amazonense', 'baiano', 'carioca', 'catarinense', 'gaucho', 'gaúcho', 'goiano', 'minero', 'mineiro', 'paranaense',
   'copa espírito santo', 'espirito santo',
 
   // US lower-tier leagues that shouldn't appear in popular leagues
