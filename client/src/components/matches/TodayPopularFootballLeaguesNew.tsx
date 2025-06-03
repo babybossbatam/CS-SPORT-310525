@@ -1150,17 +1150,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 toggleStarMatch(match.fixture.id);
                               }}
                               className="match-star-button"
+                              style={{ 
+                                left: '-16px',
+                                transition: 'opacity 0.7s ease-in-out, visibility 0.7s ease-in-out, transform 0.7s ease-in-out'
+                              }}
                               title="Add to favorites"
-                              onMouseEnter={(e) => {
-                                e.currentTarget
-                                  .closest(".group")
-                                  ?.classList.add("disable-hover");
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget
-                                  .closest(".group")
-                                  ?.classList.remove("disable-hover");
-                              }}
                             >
                               <Star
                                 className={`match-star-icon ${
