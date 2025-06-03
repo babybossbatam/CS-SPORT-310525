@@ -74,16 +74,21 @@ const shortenTeamName = (teamName: string): string => {
     const words = shortened.split(' ');
     
     if (words.length > 1) {
-      // For multi-word names, shorten the last word to its first 3-4 characters
+      // For multi-word names, shorten the last word progressively
       const lastWordIndex = words.length - 1;
       const lastWord = words[lastWordIndex];
       
       if (lastWord.length > 4) {
-        // Shorten last word to first 3 characters for most cases
+        // First try 3 characters
         words[lastWordIndex] = lastWord.substring(0, 3);
+        shortened = words.join(' ');
+        
+        // If still too long, try 2 characters for the last word
+        if (shortened.length > 12) {
+          words[lastWordIndex] = lastWord.substring(0, 2);
+          shortened = words.join(' ');
+        }
       }
-      
-      shortened = words.join(' ');
     } else {
       // For single long words, truncate to 10 characters
       shortened = shortened.substring(0, 10);
