@@ -1213,19 +1213,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any) => (
                                 <div
                                   key={match.fixture.id}
-                                  className="relative flex items-center border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors group overflow-hidden"
+                                  className="relative flex items-center border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors group"
                                 >
-                                  {/* Star Button with slide-in effect */}
+                                  {/* Star Button with overlay effect */}
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       toggleStarMatch(match.fixture.id);
                                     }}
-                                    className="absolute left-0 top-0 bottom-0 w-10 bg-white border-r border-gray-200 flex items-center justify-center z-10 transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full flex items-center justify-center z-10 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100 shadow-sm"
                                     title="Add to favorites"
                                   >
                                     <Star
-                                      className={`h-5 w-5 transition-colors ${
+                                      className={`h-4 w-4 transition-colors ${
                                         starredMatches.has(match.fixture.id)
                                           ? "text-yellow-500 fill-yellow-500"
                                           : "text-blue-400"
@@ -1233,8 +1233,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     />
                                   </button>
 
-                                  {/* Match content with padding to account for star button */}
-                                  <div className="flex items-center px-3 py-2 w-full transition-transform duration-300 ease-in-out group-hover:translate-x-10">
+                                  {/* Match content without margins */}
+                                  <div className="flex items-center px-3 py-2 w-full">
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
