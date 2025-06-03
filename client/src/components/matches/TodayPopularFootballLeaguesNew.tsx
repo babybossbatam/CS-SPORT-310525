@@ -1341,13 +1341,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=50`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=40`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "50px",
-                                    height: "50px",
-                                    minWidth: "50px",
-                                    minHeight: "50px",
+                                    width: "40px",
+                                    height: "40px",
+                                    minWidth: "40px",
+                                    minHeight: "40px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
