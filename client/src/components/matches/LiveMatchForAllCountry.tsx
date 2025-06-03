@@ -52,7 +52,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     const sources = getTeamLogoSources(team, isNational);
     
     // Return the highest priority source
-    return sources[0]?.url || "/assets/fallback-logo.png";
+    return sources[0]?.url || "/assets/fallback-logo.svg";
   };
 
   // Enhanced country flag mapping with better null safety
@@ -71,14 +71,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
     // Add comprehensive null/undefined check for country
     if (!country || typeof country !== "string" || country.trim() === "") {
-      return "/assets/fallback-logo.png"; // Default football logo
+      return "/assets/fallback-logo.svg"; // Default football logo
     }
 
     const cleanCountry = country.trim();
 
     // Special handling for Unknown country only
     if (cleanCountry === "Unknown") {
-      return "/assets/fallback-logo.png"; // Default football logo
+      return "/assets/fallback-logo.svg"; // Default football logo
     }
 
     // Special cases for international competitions

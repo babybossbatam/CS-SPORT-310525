@@ -144,7 +144,9 @@ const countryCodeMap: { [key: string]: string } = {
   'Iran': 'IR',
   'Iraq': 'IQ',
   'Saudi Arabia': 'SA',
+  'Saudi-Arabia': 'SA',
   'United Arab Emirates': 'AE',
+  'United-Arab-Emirates': 'AE',
   'Qatar': 'QA',
   'Kuwait': 'KW',
   'Bahrain': 'BH',
@@ -279,6 +281,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Macau': 'MO',
   'Macao': 'MO',
   'Hong Kong': 'HK',
+  'Hong-Kong': 'HK',
   'Taiwan': 'TW',
   'Chinese Taipei': 'TW',
   // African variations (removing duplicates)
@@ -557,7 +560,7 @@ export async function getCachedFlag(country: string): Promise<string> {
 
   // For immediate special cases, don't use batching
   if (country === 'World') {
-    const worldFlag = '/assets/world flag_new.png';
+    const worldFlag = '/assets/world_flag_new.png';
     flagCache.setCached(cacheKey, worldFlag, 'local-world-flag', true);
     console.log(`🌍 [flagUtils.ts:getCachedFlag] Using local World flag: ${worldFlag}`);
     return worldFlag;
@@ -573,7 +576,7 @@ export async function getCachedFlag(country: string): Promise<string> {
   // For regular countries, check if they have simple country code mappings first
   const normalizedCountry = country.trim();
   let countryCode = countryCodeMap[normalizedCountry];
-  
+
   console.log(`🔍 [flagUtils.ts:getCachedFlag] Country mapping lookup for "${normalizedCountry}":`, {
     directMapping: countryCode,
     hasDirectMapping: !!countryCode
@@ -719,7 +722,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
           // Use country code mapping first for most reliable flags
           const countryCode = countryCodeMap[cleanCountry];
           console.log(`🔍 [flagUtils.ts:getCountryFlagWithFallbackSync] Country code lookup for "${cleanCountry}": ${countryCode || 'not found'}`);
-          
+
           if (countryCode) {
             // For standard 2-letter codes, use FlagCDN (most reliable)
             if (countryCode.length === 2) {
@@ -750,7 +753,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   // Cache the result in both memory cache and main flag cache
   flagCacheMem.set(cacheKey, result);
   console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Stored in memory cache: ${cacheKey} -> ${result}`);
-  
+
   // Also cache in the main flag cache if it's a valid flag URL (not API endpoint)
   if (result && !result.startsWith('/api/') && result !== '/assets/fallback-logo.svg') {
     const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
@@ -782,7 +785,9 @@ export function generateCountryFlagSources(country: string): string[] {
   if (countryCode) {
     if (countryCode.length === 2) {
       sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
-      sources.push(`https://countryflags.io/${countryCode.toLowerCase()}/flat/64.png`);
+      sources.push(`https://countryflags.io/${countryMapping variations and fallback image sources updated to ensure accurate flag representation and a consistent fallback experience.
+```python
+Code.toLowerCase()}/flat/64.png`);
       sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
     }
   }
@@ -1975,7 +1980,7 @@ async function fetchIndividualFlag(country: string): Promise<string> {
   try {
     const apiUrl = `/api/flags/${encodeURIComponent(country)}`;
     console.log(`📡 [flagUtils.ts:fetchIndividualFlag] Making API request to: ${apiUrl}`);
-    
+
     const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
     console.log(`📡 [flagUtils.ts:fetchIndividualFlag] API response status: ${response.status} for ${country}`);
 

@@ -120,6 +120,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     "Saudi Arabia",
     "Egypt",
     "Colombia",
+    "United Arab Emirates",
+    "United-Arab-Emirates",
   ];
 
   // Enhanced leagues by country with tier-based filtering
