@@ -1105,7 +1105,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               {/* Updated home team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className={`bg-cover bg-center bg-no-repeat ${
+                                  className={`bg-cover bg-center bg-no-repeat rounded-full ${
                                     isNationalTeam(
                                       match.teams.home,
                                       leagueData.league,
