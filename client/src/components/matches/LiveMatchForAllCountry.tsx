@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { countryCodeMap } from "@/lib/flagUtils";
 import { getTeamLogoSources, isNationalTeam, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
 import MydateConversionFilter from "@/lib/MydateConversionFilter";
+import NoLiveMatchesEmpty from "./NoLiveMatchesEmpty";
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
@@ -22,6 +24,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   timeFilterActive = false,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
+  const [, navigate] = useLocation();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -303,12 +306,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   if (!allFixtures.length) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Activity className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No live matches available</p>
-        </CardContent>
-      </Card>
+      <NoLiveMatchesEmpty 
+        onBackToHome={() => navigate('/')}
+        showBackButton={true}
+      />
     );
   }
 
