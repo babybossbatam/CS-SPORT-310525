@@ -1111,13 +1111,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.home.name}
-                                  className="w-9 h-9 rounded-full object-contain shadow-lg ring-2 ring-blue-400 ring-opacity-50 hover:ring-blue-600 hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+                                  className="w-9 h-9 rounded-full object-contain"
                                   style={{
                                     aspectRatio: "1/1",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    filter: "brightness(1.1) contrast(1.05)",
-                                    background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
                                   }}
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
