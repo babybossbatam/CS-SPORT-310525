@@ -229,7 +229,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
             return false;
           }
 
-            // Client-side filtering for popular leagues and countries
+          // Client-side filtering for popular leagues and countries
             const leagueId = fixture.league?.id;
             const country = fixture.league?.country?.toLowerCase() || "";
 
@@ -275,7 +275,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
               isFromPopularCountry ||
               isInternationalCompetition
             );
-          }
         } catch (error) {
           console.error("Error parsing fixture date:", error);
           return false;
