@@ -37,6 +37,24 @@ import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 
+// Helper function to shorten team names
+const shortenTeamName = (teamName: string): string => {
+  if (!teamName) return teamName;
+  
+  // Remove common suffixes that make names too long
+  const suffixesToRemove = ['-sc', '-SC', ' SC', ' FC', ' CF', ' United', ' City'];
+  
+  let shortened = teamName;
+  for (const suffix of suffixesToRemove) {
+    if (shortened.endsWith(suffix)) {
+      shortened = shortened.replace(suffix, '');
+      break;
+    }
+  }
+  
+  return shortened.trim();
+};
+
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
   timeFilterActive?: boolean;
@@ -1116,7 +1134,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
                               {/* Home Team */}
                               <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                                {match.teams.home.name || "Unknown Team"}
+                                {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                               </div>
 
                               {/* Updated home team logo dimensions */}
@@ -1383,7 +1401,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               {/* Away Team - Fixed width for consistency */}
                               <div className="text-left text-sm text-gray-900 w-[120px] pl-2 truncate flex-shrink-0">
-                                {match.teams.away.name || "Unknown Team"}
+                                {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                               </div>
                             </div>
                           </div>
