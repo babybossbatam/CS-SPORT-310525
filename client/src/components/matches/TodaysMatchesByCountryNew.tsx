@@ -871,7 +871,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         {match.teams.home.name}
                                       </div>
 
-                                      <div className="flex-shrink-0 mx-1">
+                                      <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                         <img 
                                           src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
@@ -893,6 +893,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               ? 'object-cover country-flag-ball rounded-full' 
                                               : 'object-contain'
                                           }`}
+                                          style={{
+                                            aspectRatio: "1/1",
+                                            minWidth: "36px",
+                                            minHeight: "36px",
+                                            objectFit: "cover",
+                                            objectPosition: "center",
+                                          }}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target.src !== '/assets/fallback-logo.png') {
@@ -902,8 +909,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         />
                                       </div>
 
-                                      {/* Score/Time Center */}
-                                      <div className="flex flex-col items-center justify-center px-4 flex-shrink-0">
+                                      {/* Score/Time Center - Fixed width to maintain position */}
+                                      <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
                                         {(() => {
                                           const status = match.fixture.status.short;
                                           const fixtureDate = parseISO(match.fixture.date);
@@ -952,17 +959,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 </>
                                               );
                                             } else {
-                                              // Match is finished but no valid score data
-                                              const statusText = status === 'FT' ? 'No Score Available' :
+                                              // Match is finished but no valid score data - remove background for cancelled
+                                              const statusText = status === 'FT' ? 'No Score' :
                                                 status === 'CANC' ? 'Cancelled' :
                                                   status === 'ABD' ? 'Abandoned' :
                                                     status === 'SUSP' ? 'Suspended' : 'No Score';
 
                                               return (
                                                 <>
-                                                  <div className="text-sm font-medium text-orange-600 px-2 py-1 bg-orange-100 rounded text-center">
+                                                  <div className="text-sm font-medium text-gray-600 text-center">
                                                     {statusText}
-                                                                                 </div>
+                                                  </div>
                                                   <div className="text-xs text-gray-500 mt-1">
                                                     {format(fixtureDate, 'HH:mm')}
                                                   </div>
@@ -971,18 +978,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                             }
                                           }
 
-                                          // Postponed or delayed matches
+                                          // Postponed or delayed matches - remove background for cancelled
                                           if (['PST', 'CANC', 'ABD', 'SUSP', 'AWD', 'WO'].includes(status)) {
-                                            const statusText = status === 'PST' ? 'Postponed' :
-                                              status === 'CANC' ? 'Cancelled' :
-                                                status === 'ABD' ? 'Abandoned' :
-                                                  status === 'SUSP' ? 'Suspended' :
-                                                    status === 'AWD' ? 'Awarded' :
-                                                      status === 'WO' ? 'Walkover' : status;
+                                            const statusText = status === 'PST' ? 'Post.' :
+                                              status === 'CANC' ? 'Canc.' :
+                                                status === 'ABD' ? 'Aband.' :
+                                                  status === 'SUSP' ? 'Susp.' :
+                                                    status === 'AWD' ? 'Award.' :
+                                                      status === 'WO' ? 'W.O.' : status;
 
                                             return (
                                               <>
-                                                <div className="text-sm font-medium text-red-600 px-2 py-1 bg-red-100 rounded text-center">
+                                                <div className="text-sm font-medium text-gray-600 text-center">
                                                   {statusText}
                                                 </div>
                                                 <div className="text-xs text-gray-500 mt-1">
@@ -1006,7 +1013,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         })()}
                                       </div>
 
-                                      <div className="flex-shrink-0 mx-1">
+                                      <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                         <img
                                           src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                           alt={match.teams.away.name}
@@ -1028,6 +1035,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               ? 'object-cover country-flag-ball rounded-full'
                                               : 'object-contain'
                                           }`}
+                                          style={{
+                                            aspectRatio: "1/1",
+                                            minWidth: "36px",
+                                            minHeight: "36px",
+                                            objectFit: "cover",
+                                            objectPosition: "center",
+                                          }}
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target.src !== '/assets/fallback-logo.png') {
