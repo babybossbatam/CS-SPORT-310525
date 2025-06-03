@@ -144,6 +144,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Iran': 'IR',
   'Iraq': 'IQ',
   'Saudi Arabia': 'SA',
+  'Saudi-Arabia': 'SA',
   'United Arab Emirates': 'AE',
   'United-Arab-Emirates': 'AE',
   'Qatar': 'QA',
@@ -280,6 +281,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Macau': 'MO',
   'Macao': 'MO',
   'Hong Kong': 'HK',
+  'Hong-Kong': 'HK',
   'Taiwan': 'TW',
   'Chinese Taipei': 'TW',
   // African variations (removing duplicates)
