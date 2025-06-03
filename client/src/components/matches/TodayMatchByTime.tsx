@@ -236,86 +236,176 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 key={match.fixture.id}
                 className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
               >
-                <div className="flex items-center px-3 py-2">
+                <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
                   {/* Home Team */}
-                  <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                    {match.teams.home.name}
+                  <div className="flex items-center flex-1 min-w-0">
+                    <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                      {match.teams.home.name || "Unknown Team"}
+                    </div>
                   </div>
 
-                  <div className="flex-shrink-0 mx-1">
+                  <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                     <img
-                      src={match.teams.home.logo || "/assets/fallback-logo.png"}
+                      src={match.teams.home.logo || "/assets/fallback-logo.svg"}
                       alt={match.teams.home.name}
-                      className="w-9 h-9 object-contain"
+                      className="w-9 h-9 object-cover rounded-full"
+                      style={{
+                        aspectRatio: "1/1",
+                        minWidth: "36px",
+                        minHeight: "36px",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== "/assets/fallback-logo.png") {
-                          target.src = "/assets/fallback-logo.png";
+                        if (target.src !== "/assets/fallback-logo.svg") {
+                          target.src = "/assets/fallback-logo.svg";
                         }
                       }}
                     />
                   </div>
 
                   {/* Score/Time Center */}
-                  <div
-                    className="flex flex-col items-center justify-center px-4 flex-shrink-0 mb-4"
-                    style={{ marginTop: "0px" }}
-                  >
-                    {/* For upcoming matches (NS, TBD, PST, CANC) - show only time */}
-                    {["NS", "TBD", "PST", "CANC"].includes(match.fixture.status.short) ? (
-                      <div className="text-sm font-semibold text-gray-600">
-                        {format(parseISO(match.fixture.date), "HH:mm")}
-                      </div>
-                    ) : (
-                      <>
-                        {/* Status/Time display for started matches */}
-                        <div className="text-xs font-semibold mb-0.5">
-                          {match.fixture.status.short === "FT" ? (
-                            <span className="text-gray-600">Ended</span>
-                          ) : match.fixture.status.short === "HT" ? (
-                            <span className="text-red-600 animate-pulse">
-                              Halftime
-                            </span>
-                          ) : ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
-                              match.fixture.status.short,
-                            ) ? (
-                            <span className="text-red-600 animate-pulse">
-                              {match.fixture.status.elapsed || 0}'
-                            </span>
-                          ) : null}
-                        </div>
+                  <div className="flex flex-col items-center justify-center px-4 flex-shrink-0 relative h-12">
+                    {(() => {
+                      const status = match.fixture.status.short;
+                      const fixtureDate = parseISO(match.fixture.date);
 
-                        {/* Score display for started matches */}
-                        <div className="text-lg font-bold flex items-center gap-2">
-                          <span className="text-black">
-                            {match.goals?.home ?? 0}
-                          </span>
-                          <span className="text-gray-400">-</span>
-                          <span className="text-black">
-                            {match.goals?.away ?? 0}
-                          </span>
+                      // Live matches
+                      if (
+                        [
+                          "LIVE",
+                          "1H",
+                          "HT",
+                          "2H",
+                          "ET",
+                          "BT",
+                          "P",
+                          "INT",
+                        ].includes(status)
+                      ) {
+                        return (
+                          <div className="relative">
+                            <div className="text-lg font-bold flex items-center gap-2">
+                              <span className="text-black">
+                                {match.goals?.home ?? 0}
+                              </span>
+                              <span className="text-gray-400">-</span>
+                              <span className="text-black">
+                                {match.goals?.away ?? 0}
+                              </span>
+                            </div>
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                              <span className="text-red-600 animate-pulse bg-white px-1 rounded">
+                                {status === "HT"
+                                  ? "HT"
+                                  : `${match.fixture.status.elapsed || 0}'`}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // Finished matches
+                      if (
+                        [
+                          "FT",
+                          "AET",
+                          "PEN",
+                          "AWD",
+                          "WO",
+                          "ABD",
+                          "CANC",
+                          "SUSP",
+                        ].includes(status)
+                      ) {
+                        const homeScore = match.goals?.home;
+                        const awayScore = match.goals?.away;
+                        const hasValidScores =
+                          homeScore !== null &&
+                          homeScore !== undefined &&
+                          awayScore !== null &&
+                          awayScore !== undefined &&
+                          !isNaN(Number(homeScore)) &&
+                          !isNaN(Number(awayScore));
+
+                        if (hasValidScores) {
+                          return (
+                            <div className="relative">
+                              <div className="text-lg font-bold flex items-center gap-2">
+                                <span className="text-black">{homeScore}</span>
+                                <span className="text-gray-400">-</span>
+                                <span className="text-black">{awayScore}</span>
+                              </div>
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                <span className="text-gray-600 bg-white px-1 rounded">
+                                  {status === "FT" ? "Ended" : status}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="relative">
+                              <div className="text-sm font-medium text-gray-900">
+                                {format(fixtureDate, "HH:mm")}
+                              </div>
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                <span className="text-gray-600 bg-white px-1 rounded">
+                                  {status === "FT" ? "No Score" : status}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                      }
+
+                      // Upcoming matches
+                      return (
+                        <div className="relative flex items-center justify-center h-full">
+                          <div className="text-base font-medium text-black">
+                            {status === "TBD"
+                              ? "TBD"
+                              : format(fixtureDate, "HH:mm")}
+                          </div>
+                          {status === "TBD" && (
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
+                              <span className="text-gray-500 bg-white px-1 rounded">
+                                Time TBD
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      </>
-                    )}
+                      );
+                    })()}
                   </div>
 
-                  <div className="flex-shrink-0 mx-1">
+                  <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                     <img
-                      src={match.teams.away.logo || "/assets/fallback-logo.png"}
+                      src={match.teams.away.logo || "/assets/fallback-logo.svg"}
                       alt={match.teams.away.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-9 h-9 object-cover rounded-full"
+                      style={{
+                        aspectRatio: "1/1",
+                        minWidth: "36px",
+                        minHeight: "36px",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== "/assets/fallback-logo.png") {
-                          target.src = "/assets/fallback-logo.png";
+                        if (target.src !== "/assets/fallback-logo.svg") {
+                          target.src = "/assets/fallback-logo.svg";
                         }
                       }}
                     />
                   </div>
 
                   {/* Away Team */}
-                  <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                    {match.teams.away.name}
+                  <div className="flex items-center flex-1 min-w-0">
+                    <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
+                      {match.teams.away.name || "Unknown Team"}
+                    </div>
                   </div>
                 </div>
               </div>

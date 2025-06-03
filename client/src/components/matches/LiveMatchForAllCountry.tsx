@@ -254,7 +254,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-base font-semibold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 ">
+      <h3 className="text-base font-semibbold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 ">
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive
@@ -263,7 +263,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
               ? "All Matches by Time"
               : "Popular Football Live Score"}
       </h3>
-
       {/* Create individual league cards from all countries */}
       {sortedCountries.flatMap((countryData: any, countryIndex: number) =>
         Object.values(countryData.leagues)
@@ -332,7 +331,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                     <span className="relative flex h-3 w-3 mt-1"></span>
                   </div>
                 </div>
-
                 {/* Live Matches */}
                 <CardContent className="p-0">
                   <div className="space-y-0">
@@ -384,7 +382,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                           key={match.fixture.id}
                           className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
                         >
-                          <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
+                          <div className="flex items-center px-3 py-2 mt-[0px] mb-[0px] pt-[16px] pb-[16px]">
                             {/* Home Team */}
                             <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
                               {match.teams.home.name}
