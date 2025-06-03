@@ -27,6 +27,7 @@ import {
 import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, countryCodeMap, flagCache } from '@/lib/flagUtils';
 import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCache';
 import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
+import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -236,41 +237,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // Client timezone-aware date filtering
-  const allFixtures = fixtures.filter((fixture: any) => {
-    if (!fixture?.fixture?.date) {
-      console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
-      return false;
-    }
+  // Use MyDateConversionFilter for 365scores-style date filtering
+  const { validFixtures: allFixtures, stats } = MyDateConversionFilter.filterFixturesForDate(
+    fixtures,
+    selectedDate
+  );
 
-    try {
-      // Convert UTC fixture time to client timezone and check if it matches selected date
-      const passes = isFixtureOnClientDate(fixture.fixture.date, selectedDate);
-
-      if (!passes) {
-        const fixtureClientDate = getFixtureClientDate(fixture.fixture.date);
-        console.log(`❌ [DEBUG] Date mismatch (client timezone):`, {
-          fixtureId: fixture.fixture.id,
-          fixtureUTCDate: fixture.fixture.date,
-          fixtureClientDate,
-          selectedDate,
-          status: fixture.fixture.status?.short
-        });
-      } else {
-        console.log(`✅ [DEBUG] Date match (client timezone):`, {
-          fixtureId: fixture.fixture.id,
-          fixtureUTCDate: fixture.fixture.date,
-          fixtureClientDate: getFixtureClientDate(fixture.fixture.date),
-          selectedDate,
-          status: fixture.fixture.status?.short
-        });
-      }
-
-      return passes;
-    } catch (error) {
-      console.warn('❌ [DEBUG] Date validation error for fixture:', fixture.fixture.id, error);
-      return false;
-    }
+  // Log filtering statistics
+  console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
+    total: stats.total,
+    valid: stats.valid,
+    rejected: stats.rejected,
+    methods: stats.methods,
+    selectedDate
   });
 
   // Comprehensive filtering analysis
