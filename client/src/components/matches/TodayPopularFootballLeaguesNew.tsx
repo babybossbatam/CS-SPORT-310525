@@ -1109,19 +1109,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div
                                   className={`bg-cover bg-center bg-no-repeat ${
                                     isNationalTeam(match.teams.home, leagueData.league) 
-                                      ? "w-9 h-9" 
-                                      : "w-9 h-9"
+                                      ? "" 
+                                      : "h-9 w-9"
                                   }`}
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=50`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=${isNationalTeam(match.teams.home, leagueData.league) ? 50 : 36}`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "50px",
-                                    height: "50px",
-                                    minWidth: "50px",
-                                    minHeight: "50px",
+                                    width: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
+                                    height: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
+                                    minWidth: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
+                                    minHeight: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.home.name}
@@ -1335,19 +1335,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div
                                   className={`bg-cover bg-center bg-no-repeat ${
                                     isNationalTeam(match.teams.away, leagueData.league) 
-                                      ? "w-9 h-9" 
-                                      : "w-9 h-9"
+                                      ? "" 
+                                      : "h-9 w-9"
                                   }`}
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=40`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=${isNationalTeam(match.teams.away, leagueData.league) ? 40 : 36}`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "40px",
-                                    height: "40px",
-                                    minWidth: "40px",
-                                    minHeight: "40px",
+                                    width: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
+                                    height: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
+                                    minWidth: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
+                                    minHeight: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
