@@ -218,18 +218,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const startTime = Date.now();
 
     const filtered = fixtures.filter((fixture) => {
-      // Date filtering - ensure exact date match
+      // Date filtering - simple direct date comparison
       if (fixture?.fixture?.date) {
         try {
-          const fixtureDate = parseISO(fixture.fixture.date);
-          if (isValid(fixtureDate)) {
-            // 365scores.com style: Convert fixture UTC time to user's local date
-            const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
-            const matchesSelectedDate = fixtureLocalDate === selectedDate;
-
-            if (!matchesSelectedDate) {
-              return false;
-            }
+          // Extract date part directly from fixture date string (YYYY-MM-DD)
+          // Example: "2025-06-03T10:30:00+00:00" -> "2025-06-03"
+          const fixtureDatePart = fixture.fixture.date.split('T')[0];
+          
+          if (fixtureDatePart !== selectedDate) {
+            return false;
+          }
 
             // Client-side filtering for popular leagues and countries
             const leagueId = fixture.league?.id;
