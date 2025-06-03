@@ -340,8 +340,9 @@ export const getPriority = (leagueName: string, leagueId: number, country: strin
   }
 
   // 12. Regular leagues (everything else)
+  // 13. UEFA Nations League - Women (absolute lowest priority)
   if (name.includes('uefa nations league') && name.includes('women')) {
-    return 13; // UEFA Nations League - Women goes to the very end
+    return 999; // UEFA Nations League - Women goes to the absolute bottom
   }
 
   // 12. Regular leagues (everything else except UEFA Nations League - Women)
