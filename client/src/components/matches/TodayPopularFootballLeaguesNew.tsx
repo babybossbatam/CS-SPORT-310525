@@ -1102,7 +1102,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Updated home team logo dimensions */}
-                              <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                              <div className="flex-shrink-0 mx-1 flex items-center justify-center relative overflow-visible">
                                 <img
                                   src={
                                     match.teams.home.id
@@ -1111,7 +1111,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   }
                                   alt={match.teams.home.name}
                                   title={match.teams.home.name}
-                                  className={`w-9 h-9 rounded-full ${
+                                  className={`w-9 h-9 rounded-full relative z-10 ${
                                     isNationalTeam(
                                       match.teams.home,
                                       leagueData.league
@@ -1120,10 +1120,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       : "object-contain"
                                   }`}
                                   style={{
-                                    width: "36px",
-                                    height: "36px",
-                                    minWidth: "36px",
-                                    minHeight: "36px",
+                                    width: "48px",
+                                    height: "48px",
+                                    minWidth: "48px",
+                                    minHeight: "48px",
+                                    transform: "translateX(-6px)",
                                   }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
