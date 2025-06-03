@@ -9,6 +9,7 @@ import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeFixture } from "@/lib/exclusionFilters";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
 import { getCountryFlagWithFallback } from "@/lib/flagUtils";
+import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -65,6 +66,39 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       // Validate fixture structure
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
         return false;
+      }
+
+      // Apply smart date filtering first
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartDateLabeling.getSmartDateLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short
+        );
+        
+        // Check if this fixture belongs to the selected date using smart logic
+        const selectedDateObj = new Date(selectedDate);
+        const currentDate = new Date();
+        
+        const isSelectedToday = isToday(selectedDateObj);
+        const isSelectedYesterday = isYesterday(selectedDateObj);
+        const isSelectedTomorrow = isTomorrow(selectedDateObj);
+        
+        // Apply smart filtering - only include if it matches the selected date's smart label
+        let matchesSmartDate = false;
+        if (isSelectedToday && smartResult.label === 'today') matchesSmartDate = true;
+        if (isSelectedYesterday && smartResult.label === 'yesterday') matchesSmartDate = true;
+        if (isSelectedTomorrow && smartResult.label === 'tomorrow') matchesSmartDate = true;
+        
+        // For other dates, use standard date matching
+        if (!isSelectedToday && !isSelectedYesterday && !isSelectedTomorrow) {
+          const fixtureDate = parseISO(fixture.fixture.date);
+          if (isValid(fixtureDate)) {
+            const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
+            matchesSmartDate = fixtureLocalDate === selectedDate;
+          }
+        }
+        
+        if (!matchesSmartDate) return false;
       }
 
       // Apply exclusion filters

@@ -28,6 +28,7 @@ import { getCachedFlag, getCountryFlagWithFallbackSync, clearFallbackFlagCache, 
 import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCache';
 import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
 import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
+import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
@@ -243,6 +244,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     selectedDate
   );
 
+  // Additional smart filtering using MySmartDateLabeling for enhanced accuracy
+  const smartFilteredFixtures = allFixtures.filter((fixture: any) => {
+    if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) return true;
+    
+    const smartResult = MySmartDateLabeling.getSmartDateLabel(
+      fixture.fixture.date,
+      fixture.fixture.status.short
+    );
+    
+    // For selected date filtering, accept matches that smart labeling considers appropriate
+    const selectedDateObj = new Date(selectedDate);
+    const isSelectedToday = isDateStringToday(selectedDate);
+    const isSelectedYesterday = isDateStringYesterday(selectedDate);
+    const isSelectedTomorrow = isDateStringTomorrow(selectedDate);
+    
+    if (isSelectedToday && smartResult.label === 'today') return true;
+    if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+    if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+    
+    // Fallback to standard date matching
+    return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+  });
+
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
     total: stats.total,
@@ -280,7 +304,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   console.log(`📊 [DEBUG] Comprehensive Filtering Analysis:`, filterAnalysis);
 
   // Group fixtures by country and league with comprehensive null checks
-  const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
+  const fixturesByCountry = smartFilteredFixtures.reduce((acc: any, fixture: any) => {
     // Validate fixture structure
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
       console.warn('❌ [DEBUG] Invalid fixture data structure:', fixture);

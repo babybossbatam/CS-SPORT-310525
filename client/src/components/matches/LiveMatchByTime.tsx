@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
+import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 
 interface LiveMatchByTimeProps {
   refreshInterval?: number;
@@ -100,15 +101,25 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   // Use only the live fixtures data
   const allFixtures = fixtures;
 
-  // Collect all matches from all leagues and add league info
-  const allMatches = allFixtures.map((fixture: any) => ({
-    ...fixture,
-    leagueInfo: {
-      name: fixture.league?.name || "Unknown League",
-      country: fixture.league?.country || "Unknown Country",
-      logo: fixture.league?.logo || "/assets/fallback-logo.svg",
-    },
-  }));
+  // Collect all matches from all leagues and add league info with smart date labeling
+  const allMatches = allFixtures.map((fixture: any) => {
+    const smartResult = MySmartDateLabeling.getSmartDateLabel(
+      fixture.fixture.date,
+      fixture.fixture.status.short
+    );
+    
+    return {
+      ...fixture,
+      leagueInfo: {
+        name: fixture.league?.name || "Unknown League",
+        country: fixture.league?.country || "Unknown Country",
+        logo: fixture.league?.logo || "/assets/fallback-logo.svg",
+      },
+      smartDateLabel: smartResult.label,
+      smartDateReason: smartResult.reason,
+      isActualDate: smartResult.isActualDate
+    };
+  });
 
   // Filter for live matches only when both filters are active
   const filteredMatches =

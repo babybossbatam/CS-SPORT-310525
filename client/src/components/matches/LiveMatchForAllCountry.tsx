@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
 import { getTeamLogoSources, isNationalTeam, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
+import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 
 interface LiveMatchForAllCountryProps {
   refreshInterval?: number;
@@ -219,6 +220,30 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     },
   );
 
+  // Process live matches with smart date labeling context
+  const processedCountries = sortedCountries.map((countryData: any) => ({
+    ...countryData,
+    leagues: Object.fromEntries(
+      Object.entries(countryData.leagues).map(([leagueId, leagueData]: [string, any]) => [
+        leagueId,
+        {
+          ...leagueData,
+          matches: leagueData.matches.map((match: any) => {
+            const smartResult = MySmartDateLabeling.getSmartDateLabel(
+              match.fixture.date,
+              match.fixture.status.short
+            );
+            return {
+              ...match,
+              smartDateLabel: smartResult.label,
+              smartDateReason: smartResult.reason
+            };
+          })
+        }
+      ])
+    )
+  }));
+
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
     return (
@@ -274,7 +299,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
               : "Popular Football Live Score"}
       </h3>
       {/* Create individual league cards from all countries */}
-      {sortedCountries.flatMap((countryData: any, countryIndex: number) =>
+      {processedCountries.flatMap((countryData: any, countryIndex: number) =>
         Object.values(countryData.leagues)
           .sort((a: any, b: any) => {
             // First prioritize popular leagues (Champions League, Europa League, etc.)

@@ -36,6 +36,7 @@ import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
+import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -223,11 +224,34 @@ const TodayPopularFootballLeaguesNew: React.FC<
         try {
           const fixtureDate = parseISO(fixture.fixture.date);
           if (isValid(fixtureDate)) {
-            // 365scores.com style: Convert fixture UTC time to user's local date
-            const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
-            const matchesSelectedDate = fixtureLocalDate === selectedDate;
+            // Use smart date labeling for more accurate filtering
+            const smartResult = MySmartDateLabeling.getSmartDateLabel(
+              fixture.fixture.date,
+              fixture.fixture.status?.short || 'NS'
+            );
+            
+            // Check if this fixture belongs to the selected date using smart logic
+            const selectedDateObj = new Date(selectedDate);
+            const currentDate = new Date();
+            
+            // Determine what the selected date represents
+            const isSelectedToday = selectedDate === format(currentDate, 'yyyy-MM-dd');
+            const isSelectedYesterday = selectedDate === format(subDays(currentDate, 1), 'yyyy-MM-dd');
+            const isSelectedTomorrow = selectedDate === format(addDays(currentDate, 1), 'yyyy-MM-dd');
+            
+            // Apply smart filtering
+            let matchesSmartDate = false;
+            if (isSelectedToday && smartResult.label === 'today') matchesSmartDate = true;
+            if (isSelectedYesterday && smartResult.label === 'yesterday') matchesSmartDate = true;
+            if (isSelectedTomorrow && smartResult.label === 'tomorrow') matchesSmartDate = true;
+            
+            // Fallback to standard date matching for other dates
+            if (!matchesSmartDate) {
+              const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
+              matchesSmartDate = fixtureLocalDate === selectedDate;
+            }
 
-            if (!matchesSelectedDate) {
+            if (!matchesSmartDate) {
               return false;
             }
 
