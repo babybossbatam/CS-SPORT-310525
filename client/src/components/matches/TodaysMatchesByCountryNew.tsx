@@ -814,7 +814,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           return getCountryFlagWithFallbackSync(countryData.country) || '/assets/fallback.svg';
                         })()}
                         alt={countryData.country}
-                        className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                        className="w-9 h-6 object-cover rounded-sm shadow-sm"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             // For World flag, use fallback
