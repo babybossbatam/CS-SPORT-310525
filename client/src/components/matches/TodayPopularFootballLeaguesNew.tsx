@@ -1109,9 +1109,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   className="w-9 h-9 bg-cover bg-center bg-no-repeat"
                                   style={{
                                     backgroundImage: `url(${
-                                      match.teams.home.id 
+                                      // Special handling for Niger country teams - use square format like Gabon
+                                      match.teams.home.name?.toLowerCase().includes('niger') && 
+                                      !match.teams.home.name?.toLowerCase().includes('nigeria') &&
+                                      isNationalTeam(match.teams.home, leagueData.league)
                                         ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
+                                        : match.teams.home.id 
+                                          ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                          : "/assets/fallback-logo.svg"
                                     })`,
                                     width: "36px",
                                     height: "36px",
@@ -1330,9 +1335,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   className="w-9 h-9 bg-cover bg-center bg-no-repeat"
                                   style={{
                                     backgroundImage: `url(${
-                                      match.teams.away.id 
+                                      // Special handling for Niger country teams - use square format like Gabon
+                                      match.teams.away.name?.toLowerCase().includes('niger') && 
+                                      !match.teams.away.name?.toLowerCase().includes('nigeria') &&
+                                      isNationalTeam(match.teams.away, leagueData.league)
                                         ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
+                                        : match.teams.away.id 
+                                          ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                          : "/assets/fallback-logo.svg"
                                     })`,
                                     width: "36px",
                                     height: "36px",
