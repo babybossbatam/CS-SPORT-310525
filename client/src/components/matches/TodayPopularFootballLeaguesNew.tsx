@@ -1111,13 +1111,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.home.name}
-                                  className={`w-full h-full object-cover rounded-full ${
+                                  className={`w-9 h-9 object-cover rounded-full ${
                                     isNationalTeam(match.teams.home, leagueData.league)
                                       ? "shadow-lg drop-shadow-xl"
                                       : ""
                                   }`}
                                   style={{
                                     aspectRatio: "1/1",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                     objectFit: "cover",
                                     objectPosition: "center",
                                     ...(isNationalTeam(match.teams.home, leagueData.league) && {
