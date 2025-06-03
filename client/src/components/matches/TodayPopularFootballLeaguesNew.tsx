@@ -1102,7 +1102,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Updated home team logo dimensions */}
-                              <div className="flex-shrink-0 mx-1 flex items-center justify-center relative overflow-visible">
+                              <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <img
                                   src={
                                     match.teams.home.id
@@ -1111,20 +1111,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   }
                                   alt={match.teams.home.name}
                                   title={match.teams.home.name}
-                                  className={`w-9 h-9 rounded-full relative z-10 ${
+                                  className={`w-9 h-9 ${
                                     isNationalTeam(
                                       match.teams.home,
                                       leagueData.league
                                     )
-                                      ? "object-cover"
+                                      ? "rounded-full object-cover"
                                       : "object-contain"
                                   }`}
                                   style={{
-                                    width: "48px",
-                                    height: "48px",
-                                    minWidth: "48px",
-                                    minHeight: "48px",
-                                    transform: "translateX(-6px)",
+                                    width: "36px",
+                                    height: "36px",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                   }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
@@ -1344,12 +1343,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   }
                                   alt={match.teams.away.name}
                                   title={match.teams.away.name}
-                                  className={`w-9 h-9 rounded-full ${
+                                  className={`w-9 h-9 ${
                                     isNationalTeam(
                                       match.teams.away,
                                       leagueData.league
                                     )
-                                      ? "object-cover"
+                                      ? "rounded-full object-cover"
                                       : "object-contain"
                                   }`}
                                   style={{
