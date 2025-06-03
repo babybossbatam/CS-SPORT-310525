@@ -1222,6 +1222,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       toggleStarMatch(match.fixture.id);
                                     }}
                                     className="match-star-button"
+                                    style={{ left: '-16px' }}
                                     title="Add to favorites"
                                   >
                                     <Star
