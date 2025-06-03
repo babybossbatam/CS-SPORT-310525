@@ -1115,13 +1115,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=42`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=50`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "42px",
-                                    height: "42px",
-                                    minWidth: "42px",
-                                    minHeight: "42px",
+                                    width: "50px",
+                                    height: "50px",
+                                    minWidth: "50px",
+                                    minHeight: "50px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.home.name}
@@ -1341,13 +1341,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=42`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=50`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: "42px",
-                                    height: "42px",
-                                    minWidth: "42px",
-                                    minHeight: "42px",
+                                    width: "50px",
+                                    height: "50px",
+                                    minWidth: "50px",
+                                    minHeight: "50px",
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
