@@ -256,12 +256,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     />
                   </div>
 
-                  {/* Score/Time Center */}
+                  {/* Time Center */}
                   <div
                     className="flex flex-col items-center justify-center px-4 flex-shrink-0 mb-4"
                     style={{ marginTop: "0px" }}
                   >
-                    <div className="text-xs font-semibold mb-0.5">
+                    <div className="text-lg font-bold text-gray-800">
                       {match.fixture.status.short === "FT" ? (
                         <span className="text-gray-600">Ended</span>
                       ) : match.fixture.status.short === "HT" ? (
@@ -279,15 +279,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                           {format(parseISO(match.fixture.date), "HH:mm")}
                         </span>
                       )}
-                    </div>
-                    <div className="text-lg font-bold flex items-center gap-2">
-                      <span className="text-black">
-                        {match.goals?.home ?? 0}
-                      </span>
-                      <span className="text-gray-400">-</span>
-                      <span className="text-black">
-                        {match.goals?.away ?? 0}
-                      </span>
                     </div>
                   </div>
 
