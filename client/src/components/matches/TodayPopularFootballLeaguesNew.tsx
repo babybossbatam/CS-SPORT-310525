@@ -913,7 +913,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       )}
                     </>
                   )}
-                  {/*                  Matches - Show for all leagues */}
+                  {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
                     <div className="space-y-0">
                       {leagueData.matches
@@ -1117,6 +1117,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       : ""
                                   }`}
                                   style={{
+                                    aspectRatio: "1/1",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                     objectFit: "cover",
                                     objectPosition: "center",
                                     ...(isNationalTeam(match.teams.home, leagueData.league) && {
@@ -1353,6 +1356,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       : ""
                                   }`}
                                   style={{
+                                    aspectRatio: "1/1",
+                                    minWidth: "36px",
+                                    minHeight: "36px",
                                     objectFit: "cover",
                                     objectPosition: "center",
                                     ...(isNationalTeam(match.teams.away, leagueData.league) && {
