@@ -755,7 +755,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               return;
                             }
                             // For England specifically, ensure we try the correct flag first
-                            if (countryData.country ===`England' && !target.src.includes('fallback-logo.svg')) {
+                            if (countryData.country === 'England' && !target.src.includes('fallback-logo.svg')) {
                               if (!target.src.includes('gb-eng')) {
                                 // First try the England flag
                                 target.src = 'https://flagcdn.com/w40/gb-eng.png';
@@ -908,7 +908,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img 
                                           src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
-                                          className={`w-9 h-9 object-contain`}
+                                          className="w-9 h-9 object-contain"
                                           style={{
                                             aspectRatio: "1/1",
                                             minWidth: "36px",
