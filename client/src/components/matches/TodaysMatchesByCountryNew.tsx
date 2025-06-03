@@ -236,7 +236,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, 'yyyy-MM-dd');
   };
 
-  // Simple date filtering - extract date part directly without timezone conversion
+  // Enhanced timezone-inclusive date filtering
   const allFixtures = fixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date) {
       console.log(`❌ [DEBUG] Filtering out fixture with no date:`, fixture.fixture?.id);
@@ -245,29 +245,50 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     try {
       const fixtureUTCDate = fixture.fixture.date;
-      
-      // Extract date part directly from fixture date string (YYYY-MM-DD)
-      // Example: "2025-06-03T10:30:00+00:00" -> "2025-06-03"
-      const fixtureDatePart = fixtureUTCDate.split('T')[0];
+      const fixtureClientDate = getFixtureClientDate(fixtureUTCDate);
 
-      // Direct date comparison without any timezone conversion
-      if (fixtureDatePart === selectedDate) {
-        console.log(`✅ [DEBUG] Date match (direct comparison):`, {
+      // Primary check: exact client date match
+      if (fixtureClientDate === selectedDate) {
+        console.log(`✅ [DEBUG] Date match (client timezone):`, {
           fixtureId: fixture.fixture.id,
           fixtureUTCDate,
-          fixtureDatePart,
+          fixtureClientDate,
           selectedDate,
           status: fixture.fixture.status?.short,
-          matchType: 'direct-date-match'
+          matchType: 'exact-client'
         });
         return true;
       }
 
-      console.log(`❌ [DEBUG] Date mismatch:`, {
+      // Secondary check: timezone-inclusive matching
+      // Include fixtures from ±1 day that might be relevant due to timezone differences
+      const targetDate = new Date(selectedDate);
+      const fixtureDate = new Date(fixtureUTCDate);
+
+      // Calculate date difference in days
+      const timeDiff = Math.abs(fixtureDate.getTime() - targetDate.getTime());
+      const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+
+      // Include fixtures within 1.5 days to capture timezone edge cases
+      if (daysDiff <= 1.5) {
+        console.log(`✅ [DEBUG] Date match (timezone-inclusive):`, {
+          fixtureId: fixture.fixture.id,
+          fixtureUTCDate,
+          fixtureClientDate,
+          selectedDate,
+          daysDiff: daysDiff.toFixed(2),
+          status: fixture.fixture.status?.short,
+          matchType: 'timezone-inclusive'
+        });
+        return true;
+      }
+
+      console.log(`❌ [DEBUG] Date mismatch (all checks failed):`, {
         fixtureId: fixture.fixture.id,
         fixtureUTCDate,
-        fixtureDatePart,
+        fixtureClientDate,
         selectedDate,
+        daysDiff: daysDiff.toFixed(2),
         status: fixture.fixture.status?.short
       });
 

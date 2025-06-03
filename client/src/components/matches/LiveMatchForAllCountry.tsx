@@ -103,7 +103,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     }
   };
 
-  // Use only the live fixtures data - no date filtering needed for live matches
+  // Use only the live fixtures data
   const allFixtures = fixtures;
 
   // Group live fixtures by country and league with comprehensive null checks
