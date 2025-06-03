@@ -20,7 +20,7 @@ import {
   isFixtureOnLocalDate,
 } from "@/lib/dateUtilsUpdated";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import { shouldExcludeFixture } from "@/lib/exclusionFilters";
+import { shouldExcludeFromPopularLeagues, isPopularLeagueSuitable, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
 import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
@@ -244,14 +244,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     const finalFiltered = filtered.filter((fixture) => {
-      // Apply exclusion filters
+      // Apply popular league exclusion filters
       if (
-        shouldExcludeFixture(
+        shouldExcludeFromPopularLeagues(
           fixture.league.name,
           fixture.teams.home.name,
           fixture.teams.away.name,
+          fixture.league.country
         )
       ) {
+        return false;
+      }
+
+      // Additional check for restricted US leagues
+      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
         return false;
       }
 
@@ -338,8 +344,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
 
-      // Check if fixture should be excluded using centralized filter
-      if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
+      // Check if fixture should be excluded using popular league specialized filter
+      if (shouldExcludeFromPopularLeagues(leagueName, homeTeamName, awayTeamName, country)) {
+        return acc;
+      }
+
+      // Additional check for restricted US leagues
+      if (isRestrictedUSLeague(league.id, country)) {
         return acc;
       }
 
