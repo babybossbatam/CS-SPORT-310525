@@ -289,34 +289,17 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                       const fixtureDate = parseISO(match.fixture.date);
 
                       // Live matches
-                      if (
-                        [
-                          "LIVE",
-                          "1H",
-                          "HT",
-                          "2H",
-                          "ET",
-                          "BT",
-                          "P",
-                          "INT",
-                        ].includes(status)
-                      ) {
+                      if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                         return (
                           <div className="relative">
                             <div className="text-lg font-bold flex items-center gap-2">
-                              <span className="text-black">
-                                {match.goals?.home ?? 0}
-                              </span>
+                              <span className="text-black">{match.goals.home ?? 0}</span>
                               <span className="text-gray-400">-</span>
-                              <span className="text-black">
-                                {match.goals?.away ?? 0}
-                              </span>
+                              <span className="text-black">{match.goals.away ?? 0}</span>
                             </div>
                             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
                               <span className="text-red-600 animate-pulse bg-white px-1 rounded">
-                                {status === "HT"
-                                  ? "HT"
-                                  : `${match.fixture.status.elapsed || 0}'`}
+                                {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
                               </span>
                             </div>
                           </div>

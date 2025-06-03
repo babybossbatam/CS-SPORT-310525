@@ -247,31 +247,31 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Additional smart filtering using MySmartDateLabeling for enhanced accuracy
   const smartFilteredFixtures = allFixtures.filter((fixture: any) => {
     if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) return true;
-    
+
     const smartResult = MySmartDateLabeling.getSmartDateLabel(
       fixture.fixture.date,
       fixture.fixture.status.short
     );
-    
+
     // For selected date filtering, accept matches that smart labeling considers appropriate
     const isSelectedToday = isDateStringToday(selectedDate);
     const isSelectedYesterday = isDateStringYesterday(selectedDate);
     const isSelectedTomorrow = isDateStringTomorrow(selectedDate);
-    
+
     // Strict matching: only include if smart labeling matches selected date type
     if (isSelectedToday && smartResult.label === 'today') return true;
     if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
     if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
-    
+
     // For matches with finished/live status, use standard date matching as fallback
     const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-    
+
     if (finishedStatuses.includes(fixture.fixture.status.short) || 
         liveStatuses.includes(fixture.fixture.status.short)) {
       return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
     }
-    
+
     // For not started matches, strictly follow smart date labeling - no fallback
     return false;
   });
@@ -755,7 +755,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               return;
                             }
                             // For England specifically, ensure we try the correct flag first
-                            if (countryData.country === 'England' && !target.src.includes('fallback-logo.svg')) {
+                            if (countryData.country ===`England' && !target.src.includes('fallback-logo.svg')) {
                               if (!target.src.includes('gb-eng')) {
                                 // First try the England flag
                                 target.src = 'https://flagcdn.com/w40/gb-eng.png';
@@ -947,101 +947,117 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         {(() => {
                                           const status = match.fixture.status.short;
                                           const fixtureDate = parseISO(match.fixture.date);
-                                          const matchDate = safeSubstring(match.fixture.date, 0, 10);
 
                                           // Live matches
                                           if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
                                             return (
-                                              <>
-                                                <div className="text-xs text-red-600 font-semibold mb-1 animate-pulse">
-                                                  LIVE
-                                                </div>
-                                                <div className="text-lg font-bold text-red-600 flex items-center gap-2">
-                                                  <span>{match.goals.home ?? 0}</span>
+                                              <div className="relative">
+                                                <div className="text-lg font-bold flex items-center gap-2">
+                                                  <span className="text-black">{match.goals.home ?? 0}</span>
                                                   <span className="text-gray-400">-</span>
-                                                  <span>{match.goals.away ?? 0}</span>
+                                                  <span className="text-black">{match.goals.away ?? 0}</span>
                                                 </div>
-                                                <div className="text-xs text-red-600 font-semibold mt-1 animate-pulse">
-                                                  {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                                  <span className="text-red-600 animate-pulse bg-white px-1 rounded">
+                                                    {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                                  </span>
                                                 </div>
-                                              </>
+                                              </div>
                                             );
-                                          }                                          // All finished match statuses
+                                          }
+                                          // All finished match statuses
                                           if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
                                             // Check if we have actual numerical scores
                                             const homeScore = match.goals.home;
                                             const awayScore = match.goals.away;
-                                            const hasValidScores = (homeScore !== null && homeScore !== undefined) &&
-(awayScore !== null && awayScore !== undefined) &&
-                                              !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
+                                            const hasValidScores = homeScore !== null && homeScore !== undefined && 
+                                                                   awayScore !== null && awayScore !== undefined &&
+                                                                   !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
 
                                             if (hasValidScores) {
                                               return (
-                                                <>
-                                                  <div className="text-xs text-gray-600 font-semibold mb-1">
-                                                    {status === 'FT' ? 'ENDED' : status}
-                                                  </div>
-                                                  <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                                    <span>{homeScore}</span>
+                                                <div className="relative">
+                                                  <div className="text-lg font-bold flex items-center gap-2">
+                                                    <span className="text-black">{homeScore}</span>
                                                     <span className="text-gray-400">-</span>
-                                                    <span>{awayScore}</span>
+                                                    <span className="text-black">{awayScore}</span>
                                                   </div>
-                                                  <div className="text-xs text-gray-500 mt-1">
-                                                    {status === 'FT' ? 'FT' : status}
+                                                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                                    <span className="text-gray-600 bg-white px-1 rounded">
+                                                      {status === 'FT' ? 'Ended' : 
+                                                       status === 'AET' ? 'AET' : 
+                                                       status === 'PEN' ? 'PEN' : 
+                                                       status === 'AWD' ? 'Awarded' : 
+                                                       status === 'WO' ? 'Walkover' : 
+                                                       status === 'ABD' ? 'Abandoned' : 
+                                                       status === 'CANC' ? 'Cancelled' : 
+                                                       status === 'SUSP' ? 'Suspended' : status}
+                                                    </span>
                                                   </div>
-                                                </>
+                                                </div>
                                               );
                                             } else {
-                                              // Match is finished but no valid score data - remove background for cancelled
-                                              const statusText = status === 'FT' ? 'No Score' :
-                                                status === 'CANC' ? 'Cancelled' :
-                                                  status === 'ABD' ? 'Abandoned' :
-                                                    status === 'SUSP' ? 'Suspended' : 'No Score';
+                                              // Match is finished but no valid score data
+                                              const statusText = status === 'FT' ? 'No Score' : 
+                                                               status === 'AET' ? 'AET' : 
+                                                               status === 'PEN' ? 'PEN' : 
+                                                               status === 'AWD' ? 'Awarded' : 
+                                                               status === 'WO' ? 'Walkover' : 
+                                                               status === 'ABD' ? 'Abandoned' : 
+                                                               status === 'CANC' ? 'Cancelled' : 
+                                                               status === 'SUSP' ? 'Suspended' : 'No Score';
 
                                               return (
-                                                <>
-                                                  <div className="text-sm font-medium text-gray-600 text-center">
-                                                    {statusText}
-                                                  </div>
-                                                  <div className="text-xs text-gray-500 mt-1">
+                                                <div className="relative">
+                                                  <div className="text-sm font-medium text-gray-900">
                                                     {format(fixtureDate, 'HH:mm')}
                                                   </div>
-                                                </>
+                                                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                                    <span className="text-gray-600 bg-white px-1 rounded">
+                                                      {statusText}
+                                                    </span>
+                                                  </div>
+                                                </div>
                                               );
                                             }
                                           }
-
-                                          // Postponed or delayed matches - remove background for cancelled
+                                          // Postponed or delayed matches
                                           if (['PST', 'CANC', 'ABD', 'SUSP', 'AWD', 'WO'].includes(status)) {
-                                            const statusText = status === 'PST' ? 'Post.' :
-                                              status === 'CANC' ? 'Canc.' :
-                                                status === 'ABD' ? 'Aband.' :
-                                                  status === 'SUSP' ? 'Susp.' :
-                                                    status === 'AWD' ? 'Award.' :
-                                                      status === 'WO' ? 'W.O.' : status;
+                                            const statusText = status === 'PST' ? 'Postponed' : 
+                                                             status === 'CANC' ? 'Cancelled' : 
+                                                             status === 'ABD' ? 'Abandoned' : 
+                                                             status === 'SUSP' ? 'Suspended' : 
+                                                             status === 'AWD' ? 'Awarded' : 
+                                                             status === 'WO' ? 'Walkover' : status;
 
                                             return (
-                                              <>
-                                                <div className="text-sm font-medium text-gray-600 text-center">
-                                                  {statusText}
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                              <div className="relative">
+                                                <div className="text-sm font-medium text-gray-900">
                                                   {format(fixtureDate, 'HH:mm')}
                                                 </div>
-                                              </>
+                                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                                  <span className="text-red-600 bg-white px-1 rounded">
+                                                    {statusText}
+                                                  </span>
+                                                </div>
+                                              </div>
                                             );
                                           }
 
-                                          // Upcoming matches (NS = Not Started, TBD = ToBe Determined)
+                                          // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                           return (
-                                            <>
-                                              <div className="text-sm font-medium text-black">
+                                            <div className="relative flex items-center justify-center h-full">
+                                              <div className="text-base font-medium text-black">
                                                 {status === 'TBD' ? 'TBD' : format(fixtureDate, 'HH:mm')}
                                               </div>
                                               {status === 'TBD' && (
-                                                <div className="text-xs text-gray-500 mt-1">Time TBD</div>
+                                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
+                                                  <span className="text-gray-500 bg-white px-1 rounded">
+                                                    Time TBD
+                                                  </span>
+                                                </div>
                                               )}
-                                            </>
+                                            </div>
                                           );
                                         })()}
                                       </div>
