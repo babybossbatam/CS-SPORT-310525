@@ -293,9 +293,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
           <div className="space-y-0">
             {Object.entries(matchesByTime).map(([timeSlot, matches]) => (
               <div key={timeSlot}>
-                <div className="bg-gray-100 py-2 px-3 text-sm font-semibold text-gray-700">
-                  {timeSlot}
-                </div>
+                
                 {matches.map((match: any) => (
                   <div
                     key={match.fixture.id}
