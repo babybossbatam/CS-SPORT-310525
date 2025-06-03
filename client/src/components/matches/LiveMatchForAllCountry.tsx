@@ -254,7 +254,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-base font-bold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 ">
+      <h3 className="text-base font-semibold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 ">
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive
