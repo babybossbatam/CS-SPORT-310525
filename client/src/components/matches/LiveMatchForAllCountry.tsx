@@ -462,7 +462,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                       </div>
                                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
                                         <span className="text-red-600 animate-pulse bg-white px-1 rounded">
-                                          {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                          {status === 'HT' ? 'Halftime' : `${match.fixture.status.elapsed || 0}'`}
                                         </span>
                                       </div>
                                     </div>
