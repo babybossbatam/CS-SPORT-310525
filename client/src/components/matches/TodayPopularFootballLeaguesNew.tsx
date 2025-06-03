@@ -231,25 +231,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const todayDate = new Date().toISOString().slice(0, 10);
         const yesterdayDate = subDays(new Date(), 1).toISOString().slice(0, 10);
         const tomorrowDate = addDays(new Date(), 1).toISOString().slice(0, 10);
-        
+
         const isSelectedToday = selectedDate === todayDate;
         const isSelectedYesterday = selectedDate === yesterdayDate;
         const isSelectedTomorrow = selectedDate === tomorrowDate;
-        
+
         // Strict matching: only include if smart labeling matches selected date type
         if (isSelectedToday && smartResult.label === 'today') return true;
         if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
         if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
-        
+
         // For matches with finished/live status, use standard date matching as fallback
         const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
         const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-        
+
         if (finishedStatuses.includes(fixture.fixture.status.short) || 
             liveStatuses.includes(fixture.fixture.status.short)) {
           return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
         }
-        
+
         // For not started matches, strictly follow smart date labeling - no fallback
         return false;
       }
@@ -791,7 +791,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       return false;
     }
   };
-  
+
 
   if (isLoading || isFetching) {
     return (
@@ -1199,16 +1199,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     height: "36px",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    filter: "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-                                    transition: "all 0.2s ease",
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    (e.target as HTMLImageElement).style.filter = "brightness(120%) contrast(125%) drop-shadow(0 4px 8px rgba(0,0,0,0.2))";
-                                    (e.target as HTMLImageElement).style.transform = "scale(1.05)";
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    (e.target as HTMLImageElement).style.filter = "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))";
-                                    (e.target as HTMLImageElement).style.transform = "scale(1)";
+                                    filter: "brightness(115%) contrast(120%) saturate(110%) drop-shadow(0 3px 6px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.08))",
                                   }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
@@ -1441,16 +1432,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     height: "36px",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    filter: "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-                                    transition: "all 0.2s ease",
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    (e.target as HTMLImageElement).style.filter = "brightness(120%) contrast(125%) drop-shadow(0 4px 8px rgba(0,0,0,0.2))";
-                                    (e.target as HTMLImageElement).style.transform = "scale(1.05)";
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    (e.target as HTMLImageElement).style.filter = "brightness(110%) contrast(115%) drop-shadow(0 2px 4px rgba(0,0,0,0.1))";
-                                    (e.target as HTMLImageElement).style.transform = "scale(1)";
+                                    filter: "brightness(115%) contrast(120%) saturate(110%) drop-shadow(0 3px 6px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.08))",
                                   }}
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
