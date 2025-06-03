@@ -1104,9 +1104,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 </div>
                               </div>
 
+                              {/* Updated home team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  className={`bg-cover bg-center bg-no-repeat ${
+                                    isNationalTeam(match.teams.home, leagueData.league) 
+                                      ? "w-9 h-9" 
+                                      : "w-9 h-9"
+                                  }`}
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
@@ -1324,10 +1329,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 })()}
                               </div>
 
-
+                              {/* Updated away team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
-                                  className="w-9 h-9 bg-cover bg-center bg-no-repeat"
+                                  className={`bg-cover bg-center bg-no-repeat ${
+                                    isNationalTeam(match.teams.away, leagueData.league) 
+                                      ? "w-9 h-9" 
+                                      : "w-9 h-9"
+                                  }`}
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
