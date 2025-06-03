@@ -1103,21 +1103,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               {/* Updated home team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                <div
-                                  className="bg-cover bg-center bg-no-repeat rounded-full"
+                                <img
+                                  src={
+                                    match.teams.home.id
+                                      ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                      : "/assets/fallback-logo.svg"
+                                  }
+                                  alt={match.teams.home.name}
+                                  title={match.teams.home.name}
+                                  className={`w-9 h-9 rounded-full ${
+                                    isNationalTeam(
+                                      match.teams.home,
+                                      leagueData.league
+                                    )
+                                      ? "object-cover"
+                                      : "object-contain"
+                                  }`}
                                   style={{
-                                    backgroundImage: `url(${
-                                      match.teams.home.id
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    })`,
                                     width: "36px",
                                     height: "36px",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    backgroundColor: "transparent",
                                   }}
-                                  title={match.teams.home.name}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                                  }}
                                 />
                               </div>
 
@@ -1325,21 +1335,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               {/* Updated away team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                <div
-                                  className="bg-cover bg-center bg-no-repeat rounded-full"
+                                <img
+                                  src={
+                                    match.teams.away.id
+                                      ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                      : "/assets/fallback-logo.svg"
+                                  }
+                                  alt={match.teams.away.name}
+                                  title={match.teams.away.name}
+                                  className={`w-9 h-9 rounded-full ${
+                                    isNationalTeam(
+                                      match.teams.away,
+                                      leagueData.league
+                                    )
+                                      ? "object-cover"
+                                      : "object-contain"
+                                  }`}
                                   style={{
-                                    backgroundImage: `url(${
-                                      match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    })`,
                                     width: "36px",
                                     height: "36px",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    backgroundColor: "transparent",
                                   }}
-                                  title={match.teams.away.name}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                                  }}
                                 />
                               </div>
 

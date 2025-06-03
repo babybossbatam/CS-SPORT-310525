@@ -403,9 +403,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 src={match.teams.home.logo}
                                 alt={`${match.teams.home.name} logo`}
                                 title={match.teams.home.name}
-                                className="w-9 h-9 object-contain"
+                                className={`w-9 h-9 rounded-full ${
+                                  isNationalTeam(match.teams.home, leagueData.league)
+                                    ? "object-cover"
+                                    : "object-contain"
+                                }`}
                                 loading="lazy"
-                                style={{ maxWidth: '36px', maxHeight: '36px', width: 'auto', height: 'auto' }}
+                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px' }}
                                 onError={createTeamLogoErrorHandler(match.teams.home, isNationalTeam(match.teams.home, leagueData.league))}
                               />
                             </div>
@@ -444,9 +448,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 src={match.teams.away.logo}
                                 alt={`${match.teams.away.name} logo`}
                                 title={match.teams.away.name}
-                                className="w-9 h-9 object-contain"
+                                className={`w-9 h-9 rounded-full ${
+                                  isNationalTeam(match.teams.away, leagueData.league)
+                                    ? "object-cover"
+                                    : "object-contain"
+                                }`}
                                 loading="lazy"
-                                style={{ maxWidth: '36px', maxHeight: '36px', width: 'auto', height: 'auto' }}
+                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px' }}
                                 onError={createTeamLogoErrorHandler(match.teams.away, isNationalTeam(match.teams.away, leagueData.league))}
                               />
                             </div>
