@@ -463,13 +463,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
           if (!acc[countryKey].leagues[leagueId]) {
             const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
             const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
-            const isWomensNationsLeague = league.name.toLowerCase().includes('uefa nations league') && league.name.toLowerCase().includes('women');
 
-            const isWomensNationsLeague = league.name.toLowerCase().includes('uefa nations league') && league.name.toLowerCase().includes('women');
             acc[countryKey].leagues[leagueId] = {
               league: { ...league, country: countryKey },
               matches: [],
-              isPopular: isWomensNationsLeague ? false : (POPULAR_LEAGUES.includes(leagueId) || isUnrestrictedCountry),
+              isPopular: POPULAR_LEAGUES.includes(leagueId) || isUnrestrictedCountry,
               isFriendlies: league.name.toLowerCase().includes("friendlies"),
             };
           }
@@ -888,22 +886,23 @@ const TodayPopularFootballLeaguesNew: React.FC<
         (countryData: any, countryIndex: number) =>
           Object.values(countryData.leagues)
             .sort((a: any, b: any) => {
-              // Check for Women's Nations League
+              // Check for UEFA Nations League - Women first (lowest priority)
               const aIsWomensNationsLeague = a.league.name?.toLowerCase().includes('uefa nations league') && a.league.name?.toLowerCase().includes('women');
               const bIsWomensNationsLeague = b.league.name?.toLowerCase().includes('uefa nations league') && b.league.name?.toLowerCase().includes('women');
               
-              // Women's Nations League always goes to bottom (return 1 means "a" goes after "b")
-              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1;
-              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1;
-              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0;
+              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
+              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
+              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
 
-              // Normal sorting for non-women's leagues
+              // Prioritize leagues that are popular for this specific country
               if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
               if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
 
+              // Then globally popular leagues
               if (a.isPopular && !b.isPopular) return -1;
               if (!a.isPopular && b.isPopular) return 1;
 
+              // Finally alphabetical
               return a.league.name.localeCompare(b.league.name);
             })
             .map((leagueData: any, leagueIndex: number) => {
