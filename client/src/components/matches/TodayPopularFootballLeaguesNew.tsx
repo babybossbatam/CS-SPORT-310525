@@ -1111,7 +1111,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.home.name}
-                                  className={`w-9 h-9 object-cover rounded-full ${
+                                  className={`w-9 h-9 object-contain rounded-full ${
                                     isNationalTeam(match.teams.home, leagueData.league)
                                       ? "shadow-lg drop-shadow-xl"
                                       : ""
@@ -1120,8 +1120,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     aspectRatio: "1/1",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    objectFit: "cover",
+                                    objectFit: "contain",
                                     objectPosition: "center",
+                                    backgroundColor: "transparent",
                                     ...(isNationalTeam(match.teams.home, leagueData.league) && {
                                       background: "linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.1) 100%)",
                                       backgroundBlendMode: "overlay",
@@ -1350,7 +1351,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "/assets/fallback-logo.svg"
                                   }
                                   alt={match.teams.away.name}
-                                  className={`w-9 h-9 object-cover rounded-full ${
+                                  className={`w-9 h-9 object-contain rounded-full ${
                                     isNationalTeam(match.teams.away, leagueData.league)
                                       ? "shadow-lg drop-shadow-xl"
                                       : ""
@@ -1359,8 +1360,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     aspectRatio: "1/1",
                                     minWidth: "36px",
                                     minHeight: "36px",
-                                    objectFit: "cover",
+                                    objectFit: "contain",
                                     objectPosition: "center",
+                                    backgroundColor: "transparent",
                                     ...(isNationalTeam(match.teams.away, leagueData.league) && {
                                       background: "linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.1) 100%)",
                                       backgroundBlendMode: "overlay",
