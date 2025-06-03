@@ -1096,7 +1096,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               />
                             </button>
 
-                            <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
+                            <div className="flex items-center px-3 flex-1 min-h-[60px]">
                               {/* Home Team */}
                               <div className="flex items-center flex-1 min-w-0">
                                 <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
