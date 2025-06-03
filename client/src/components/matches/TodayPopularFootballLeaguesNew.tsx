@@ -1110,12 +1110,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   className={`bg-cover bg-center bg-no-repeat ${
                                     isNationalTeam(match.teams.home, leagueData.league) 
                                       ? "" 
-                                      : "h-9 w-9"
+                                      : "h-10 w-10"
                                   }`}
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.home.id 
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=${isNationalTeam(match.teams.home, leagueData.league) ? 50 : 36}`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=${isNationalTeam(match.teams.home, leagueData.league) ? 50 : 40}`
                                         : "/assets/fallback-logo.svg"
                                     })`,
                                     width: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
@@ -1336,12 +1336,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   className={`bg-cover bg-center bg-no-repeat ${
                                     isNationalTeam(match.teams.away, leagueData.league) 
                                       ? "" 
-                                      : "h-9 w-9"
+                                      : "h-10 w-10"
                                   }`}
                                   style={{
                                     backgroundImage: `url(${
                                       match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=${isNationalTeam(match.teams.away, leagueData.league) ? 40 : 36}`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=${isNationalTeam(match.teams.away, leagueData.league) ? 40 : 40}`
                                         : "/assets/fallback-logo.svg"
                                     })`,
                                     width: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
