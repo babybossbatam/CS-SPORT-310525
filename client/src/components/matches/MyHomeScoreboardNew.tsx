@@ -11,6 +11,13 @@ import { apiRequest } from '@/lib/queryClient';
 import { getCurrentUTCDateString } from '@/lib/dateUtilsTodayMatch';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 import FixedMatchTimer from './FixedMatchTimer';
+import { 
+  getCachedFixturesForDate, 
+  cacheFixturesForDate, 
+  backgroundCachePastDates,
+  shouldFetchFresh,
+  getEnhancedCacheStats 
+} from '@/lib/fixtureCache';
 
 interface MyHomeScoreboardNewProps {
   filterByPopularCountry?: boolean;
