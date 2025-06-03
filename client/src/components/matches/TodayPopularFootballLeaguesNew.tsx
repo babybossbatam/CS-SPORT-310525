@@ -1098,30 +1098,51 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                             <div className="flex items-center px-3 py-3 flex-1 min-h-[60px]">
                               {/* Home Team */}
-                              <div className="flex items-center flex-1 min-w-0">
-                                <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
-                                  {match.teams.home.name || "Unknown Team"}
-                                </div>
+                              <div className="text-right text-sm text-gray-900 min-w-0 flex-1 pr-2 truncate">
+                                {match.teams.home.name || "Unknown Team"}
                               </div>
 
                               {/* Updated home team logo dimensions */}
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
                                   className={`bg-cover bg-center bg-no-repeat ${
-                                    isNationalTeam(match.teams.home, leagueData.league) 
-                                      ? "" 
+                                    isNationalTeam(
+                                      match.teams.home,
+                                      leagueData.league,
+                                    )
+                                      ? ""
                                       : "h-10 w-10"
                                   }`}
                                   style={{
                                     backgroundImage: `url(${
-                                      match.teams.home.id 
+                                      match.teams.home.id
                                         ? `/api/team-logo/square/${match.teams.home.id}?size=${isNationalTeam(match.teams.home, leagueData.league) ? 50 : 40}`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
-                                    height: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
-                                    minWidth: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
-                                    minHeight: isNationalTeam(match.teams.home, leagueData.league) ? "50px" : undefined,
+                                    width: isNationalTeam(
+                                      match.teams.home,
+                                      leagueData.league,
+                                    )
+                                      ? "50px"
+                                      : undefined,
+                                    height: isNationalTeam(
+                                      match.teams.home,
+                                      leagueData.league,
+                                    )
+                                      ? "50px"
+                                      : undefined,
+                                    minWidth: isNationalTeam(
+                                      match.teams.home,
+                                      leagueData.league,
+                                    )
+                                      ? "50px"
+                                      : undefined,
+                                    minHeight: isNationalTeam(
+                                      match.teams.home,
+                                      leagueData.league,
+                                    )
+                                      ? "50px"
+                                      : undefined,
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.home.name}
@@ -1334,20 +1355,43 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                 <div
                                   className={`bg-cover bg-center bg-no-repeat ${
-                                    isNationalTeam(match.teams.away, leagueData.league) 
-                                      ? "" 
-                                      : "h-10 w-10"
+                                    isNationalTeam(
+                                      match.teams.away,
+                                      leagueData.league,
+                                    )
+                                      ? ""
+                                      : "h-9 w-9"
                                   }`}
                                   style={{
                                     backgroundImage: `url(${
-                                      match.teams.away.id 
+                                      match.teams.away.id
                                         ? `/api/team-logo/square/${match.teams.away.id}?size=${isNationalTeam(match.teams.away, leagueData.league) ? 40 : 40}`
                                         : "/assets/fallback-logo.svg"
                                     })`,
-                                    width: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
-                                    height: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
-                                    minWidth: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
-                                    minHeight: isNationalTeam(match.teams.away, leagueData.league) ? "40px" : undefined,
+                                    width: isNationalTeam(
+                                      match.teams.away,
+                                      leagueData.league,
+                                    )
+                                      ? "40px"
+                                      : undefined,
+                                    height: isNationalTeam(
+                                      match.teams.away,
+                                      leagueData.league,
+                                    )
+                                      ? "40px"
+                                      : undefined,
+                                    minWidth: isNationalTeam(
+                                      match.teams.away,
+                                      leagueData.league,
+                                    )
+                                      ? "40px"
+                                      : undefined,
+                                    minHeight: isNationalTeam(
+                                      match.teams.away,
+                                      leagueData.league,
+                                    )
+                                      ? "40px"
+                                      : undefined,
                                     backgroundColor: "transparent",
                                   }}
                                   title={match.teams.away.name}
