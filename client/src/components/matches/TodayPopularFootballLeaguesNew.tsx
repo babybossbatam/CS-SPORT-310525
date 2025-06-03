@@ -1208,7 +1208,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Score/Time Center - Fixed width to maintain position */}
-                              <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
+                              <div className="flex flex-col items-center justify-center px-2 w-[80px] flex-shrink-0 relative h-12 mx-auto">
                                 {(() => {
                                   const status = match.fixture.status.short;
                                   const fixtureDate = parseISO(
