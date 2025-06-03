@@ -421,7 +421,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           if (!acc[countryKey].leagues[leagueId]) {
             const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
             const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
-            
+
             acc[countryKey].leagues[leagueId] = {
               league: { ...league, country: countryKey },
               matches: [],
@@ -461,7 +461,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
       const isPopularForCountry = countryPopularLeagues.includes(leagueId);
       const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
-      
+
       // For unrestricted countries (Brazil, Colombia, Saudi Arabia, Europe, South America, World), 
       // consider all leagues as "popular" to show them all
       const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
@@ -474,7 +474,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (!acc[country].leagues[leagueId]) {
         const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
         const isUnrestrictedCountry = unrestrictedCountries.includes(country);
-        
+
         acc[country].leagues[leagueId] = {
           league: {
             ...league,
@@ -1352,7 +1352,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
 
                               {/* Updated away team logo dimensions */}
-                              <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                              <div className="flex-shrink-0 mx-2 flex items-center justify-center">
                                 <img
                                   src={
                                     match.teams.away.id
@@ -1381,11 +1381,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 />
                               </div>
 
-                              {/* Away Team */}
-                              <div className="flex items-center flex-1 min-w-0">
-                                <div className="text-left text-sm text-gray-900 min-w-0 flex-1 pl-2 truncate">
-                                  {match.teams.away.name || "Unknown Team"}
-                                </div>
+                              {/* Away Team - Fixed width for consistency */}
+                              <div className="text-left text-sm text-gray-900 w-[120px] pl-2 truncate flex-shrink-0">
+                                {match.teams.away.name || "Unknown Team"}
                               </div>
                             </div>
                           </div>
