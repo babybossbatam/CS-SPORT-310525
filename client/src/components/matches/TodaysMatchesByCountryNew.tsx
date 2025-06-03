@@ -29,6 +29,7 @@ import { getCachedFixturesForDate, cacheFixturesForDate } from '@/lib/fixtureCac
 import { getCachedCountryName, setCachedCountryName } from '@/lib/countryCache';
 import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
+import "../../styles/MyLogoPositioning.css";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -72,17 +73,17 @@ const shortenTeamName = (teamName: string): string => {
   // If still too long (more than 12 characters), intelligently shorten multi-word names
   if (shortened.length > 12) {
     const words = shortened.split(' ');
-    
+
     if (words.length > 1) {
       // For multi-word names, shorten the last word progressively
       const lastWordIndex = words.length - 1;
       const lastWord = words[lastWordIndex];
-      
+
       if (lastWord.length > 4) {
         // First try 3 characters
         words[lastWordIndex] = lastWord.substring(0, 3);
         shortened = words.join(' ');
-        
+
         // If still too long, try 2 characters for the last word
         if (shortened.length > 12) {
           words[lastWordIndex] = lastWord.substring(0, 2);
@@ -286,7 +287,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       'palestine state': 'Palestine',
       'palestine (state of)': 'Palestine',
       'congo democratic republic': 'Democratic Republic of Congo',
-      'congo (the democratic republic of the)': 'Democratic Republic of Congo',
+      'congo (the democratic republic of)': 'Democratic Republic of Congo',
       'lao people\'s democratic republic': 'Laos',
       'lao people\'s democratic republic (the)': 'Laos'
     };
@@ -963,7 +964,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 .map((match: any) => (
                                   <div
                                     key={match.fixture.id}
-                                    className="bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                    className="match-card-container flex items-center justify-between py-2 px-3 transition-colors cursor-pointer border-b border-gray-100 last:border-b-0"
                                   >
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="flex items-center px-3 py-2">
@@ -976,14 +977,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img 
                                           src={match.teams.home.logo || '/assets/fallback-logo.png'} 
                                           alt={match.teams.home.name}
-                                          className="w-9 h-9 object-contain"
-                                          style={{
-                                            aspectRatio: "1/1",
-                                            minWidth: "36px",
-                                            minHeight: "36px",
-                                            objectFit: "cover",
-                                            objectPosition: "center",
-                                          }}
+                                          className="team-logo"
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target.src !== '/assets/fallback-logo.png') {
@@ -1117,31 +1111,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         <img
                                           src={match.teams.away.logo || '/assets/fallback-logo.png'}
                                           alt={match.teams.away.name}
-                                          className={`w-9 h-9 ${
-                                            // Apply ball effect to country flags in international competitions
-                                            (countryData.country === 'World' || 
-                                             countryData.country === 'Europe' || 
-                                             countryData.country === 'South America' || 
-                                             countryData.country === 'International' ||
-                                             match.league?.name?.toLowerCase().includes('international') ||
-                                             match.league?.name?.toLowerCase().includes('friendlies') ||
-                                             match.league?.name?.toLowerCase().includes('nations league') ||
-                                             match.league?.name?.toLowerCase().includes('world cup') ||
-                                             match.league?.name?.toLowerCase().includes('euro') ||
-                                             match.league?.name?.toLowerCase().includes('copa america') ||
-                                             match.league?.name?.toLowerCase().includes('uefa') ||
-                                             match.league?.name?.toLowerCase().includes('conmebol') ||
-                                             match.league?.name?.toLowerCase().includes('fifa'))
-                                              ? 'object-cover country-flag-ball rounded-full'
-                                              : 'object-contain'
-                                          }`}
-                                          style={{
-                                            aspectRatio: "1/1",
-                                            minWidth: "36px",
-                                            minHeight: "36px",
-                                            objectFit: "cover",
-                                            objectPosition: "center",
-                                          }}
+                                          className="team-logo"
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target.src !== '/assets/fallback-logo.png') {
