@@ -254,17 +254,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
     
     // For selected date filtering, accept matches that smart labeling considers appropriate
-    const selectedDateObj = new Date(selectedDate);
     const isSelectedToday = isDateStringToday(selectedDate);
     const isSelectedYesterday = isDateStringYesterday(selectedDate);
     const isSelectedTomorrow = isDateStringTomorrow(selectedDate);
     
+    // Strict matching: only include if smart labeling matches selected date type
     if (isSelectedToday && smartResult.label === 'today') return true;
     if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
     if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
     
-    // Fallback to standard date matching
-    return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+    // For matches with finished/live status, use standard date matching as fallback
+    const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
+    const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
+    
+    if (finishedStatuses.includes(fixture.fixture.status.short) || 
+        liveStatuses.includes(fixture.fixture.status.short)) {
+      return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+    }
+    
+    // For not started matches, strictly follow smart date labeling - no fallback
+    return false;
   });
 
   // Log filtering statistics
