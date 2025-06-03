@@ -35,6 +35,7 @@ import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
+import { isNationalTeam } from "../../lib/teamLogoSources";
 
 interface TodayPopularFootballLeaguesNewProps {
   selectedDate: string;
