@@ -139,6 +139,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Removed league restrictions for Brazil, Colombia, Saudi Arabia, Europe, South America, World
     // These countries will now show all their leagues (exclusion filtering will be applied later)
     USA: [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
+    "United States": [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
