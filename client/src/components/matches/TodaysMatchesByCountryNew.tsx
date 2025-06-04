@@ -874,6 +874,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 </div>
               </div>
             ))}
+```
           </div>
         </CardContent>
       </Card>
@@ -1109,7 +1110,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         if (!a.isPopular && b.isPopular) return 1;
                         return a.league.name.localeCompare(b.league.name);
                       })
-                      .map((leagueData: any) => (
+                      .map((leagueData: any) => {
+                        const isLeagueExpanded = expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`);
+
+                        return (
                         <div
                           key={leagueData.league.id}
                           className="border-b border-gray-200 last:border-b-0"
@@ -1117,7 +1121,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           {/* League Header - Now clickable */}
                           <button
                             onClick={() => toggleLeague(countryData.country, leagueData.league.id)}
-                            className="w-full flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px] transition-colors cursor-pointer group"
+                            className={`w-full flex items-start gap-2 p-3 bg-white border-b border-stone-200 pb-[12px] mb-[0px] transition-colors cursor-pointer group`}
                           >
                             <img
                               src={
@@ -1552,7 +1556,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             </div>
                           )}
                         </div>
-                      ))}
+                      );
+                      })}
                   </div>
                 )}
               </div>
