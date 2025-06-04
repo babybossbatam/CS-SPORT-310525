@@ -234,6 +234,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const isSelectedYesterday = selectedDate === yesterdayDate;
     const isSelectedTomorrow = selectedDate === tomorrowDate;
 
+    // Debug: Show what date context we're working with
+    console.log(`📅 [DATE CONTEXT] Selected Date Analysis:`, {
+      selectedDate,
+      todayDate,
+      yesterdayDate,
+      tomorrowDate,
+      isSelectedToday,
+      isSelectedYesterday,
+      isSelectedTomorrow,
+      currentTime: new Date().toISOString(),
+      currentLocalTime: new Date().toLocaleString()
+    });
+
     const filtered = fixtures.filter((fixture) => {
       // Apply smart date filtering first
       if (fixture.fixture.date && fixture.fixture.status?.short) {
@@ -242,22 +255,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
           fixture.fixture.status.short
         );
 
-        // Debug logging for NS matches
-        if (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD' || fixture.fixture.status.short === 'PST') {
-          console.log(`🎯 [NS DEBUG] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            smartLabel: smartResult.label,
-            smartReason: smartResult.reason,
-            selectedDate,
-            isSelectedToday,
-            isSelectedYesterday,
-            isSelectedTomorrow,
-            willInclude: (isSelectedToday && smartResult.label === 'today') || 
-                         (isSelectedYesterday && smartResult.label === 'yesterday') || 
-                         (isSelectedTomorrow && smartResult.label === 'tomorrow')
-          });
-        }
+        // Debug logging for ALL matches to understand filtering
+        console.log(`🔍 [FILTER DEBUG] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+          fixtureDate: fixture.fixture.date,
+          status: fixture.fixture.status.short,
+          smartLabel: smartResult.label,
+          smartReason: smartResult.reason,
+          selectedDate,
+          selectedDateType: isSelectedToday ? 'TODAY' : isSelectedYesterday ? 'YESTERDAY' : isSelectedTomorrow ? 'TOMORROW' : 'CUSTOM',
+          willInclude: (isSelectedToday && smartResult.label === 'today') || 
+                       (isSelectedYesterday && smartResult.label === 'yesterday') || 
+                       (isSelectedTomorrow && smartResult.label === 'tomorrow'),
+          currentTime: new Date().toISOString(),
+          fixtureLocalTime: new Date(fixture.fixture.date).toLocaleString(),
+          hoursDifference: Math.round((new Date(fixture.fixture.date).getTime() - new Date().getTime()) / (1000 * 60 * 60))
+        });
 
         // For selected date filtering, accept matches that smart labeling considers appropriate
 
