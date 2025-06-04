@@ -1243,9 +1243,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     />
                                   </button>
 
-                                  <div className="match-content-container">
+                                  <div 
+                                    className="match-content-container"
+                                    style={{
+                                      position: 'relative',
+                                      zIndex: 5,
+                                      marginLeft: '-2.5rem',
+                                      paddingLeft: '3.25rem'
+                                    }}
+                                  >
                                   {/* Home Team - Fixed width to prevent overflow */}
-                                  <div className="flex items-center py-2">
+                                  <div className="flex items-center py-2"></div>
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
