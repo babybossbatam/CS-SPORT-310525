@@ -1029,8 +1029,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           timeFilterActive && showTop20 ? 20 : undefined,
                         )
                         .sort((a: any, b: any) => {
-                          const aStatus = a.fixture.status.short;
-                          const bStatus = b.fixture.status.short;
                           const aDate = parseISO(a.fixture.date);
                           const bDate = parseISO(b.fixture.date);
 
@@ -1044,81 +1042,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           const bTime = bDate.getTime();
                           const nowTime = now.getTime();
 
-                          // Define status categories
-                          const aLive = [
-                            "LIVE",
-                            "1H",
-                            "HT",
-                            "2H",
-                            "ET",
-                            "BT",
-                            "P",
-                            "INT",
-                          ].includes(aStatus);
-                          const bLive = [
-                            "LIVE",
-                            "1H",
-                            "HT",
-                            "2H",
-                            "ET",
-                            "BT",
-                            "P",
-                            "INT",
-                          ].includes(bStatus);
+                          // Calculate absolute time distance from current time
+                          const aDistance = Math.abs(aTime - nowTime);
+                          const bDistance = Math.abs(bTime - nowTime);
 
-                          const aFinished = [
-                            "FT",
-                            "AET",
-                            "PEN",
-                            "AWD",
-                            "WO",
-                            "ABD",
-                            "CANC",
-                            "SUSP",
-                          ].includes(aStatus);
-                          const bFinished = [
-                            "FT",
-                            "AET",
-                            "PEN",
-                            "AWD",
-                            "WO",
-                            "ABD",
-                            "CANC",
-                            "SUSP",
-                          ].includes(bStatus);
-
-                          const aUpcoming = aStatus === "NS" || aStatus === "TBD" || aStatus === "PST";
-                          const bUpcoming = bStatus === "NS" || bStatus === "TBD" || bStatus === "PST";
-
-                          // Priority 1: LIVE matches first
-                          if (aLive && !bLive) return -1;
-                          if (!aLive && bLive) return 1;
-
-                          // If both are live, sort by elapsed time (earliest start first)
-                          if (aLive && bLive) {
-                            const aElapsed = Number(a.fixture.status.elapsed) || 0;
-                            const bElapsed = Number(b.fixture.status.elapsed) || 0;
-                            return aElapsed - bElapsed;
-                          }
-
-                          // Priority 2: Upcoming matches by nearest time
-                          if (aUpcoming && !bUpcoming) return -1;
-                          if (!aUpcoming && bUpcoming) return 1;
-
-                          // If both are upcoming, sort by nearest to current time
-                          if (aUpcoming && bUpcoming) {
-                            const aDistance = Math.abs(aTime - nowTime);
-                            const bDistance = Math.abs(bTime - nowTime);
-                            return aDistance - bDistance;
-                          }
-
-                          // Priority 3: Finished matches by most recent first
-                          if (aFinished && bFinished) {
-                            return bTime - aTime; // Most recent first
-                          }
-
-                          // Default fallback - shouldn't reach here
-                          return aTime - bTime;
+                          // Sort by nearest time to current time (smallest distance first)
+                          return aDistance - bDistance;
                         })
                         .map((match: any) => (
                           <LazyMatchItem key={match.fixture.id}>
