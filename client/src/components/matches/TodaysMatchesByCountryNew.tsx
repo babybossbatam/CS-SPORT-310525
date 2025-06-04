@@ -883,6 +883,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                     
                                       
+                                        <img
+                                      src={
                                         match.teams.home.logo ||
                                         "/assets/fallback-logo.png"
                                       }
