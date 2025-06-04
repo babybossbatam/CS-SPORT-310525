@@ -1165,11 +1165,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             />
                             <div className="flex flex-col flex-1 text-left">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-sm text-gray-800 group-hover:underline transition-all duration-200">
+                                <span className="font-semibold text-gray-800 group-hover:underline transition-all duration-200" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                                   {safeSubstring(leagueData.league.name, 0) ||
                                     "Unknown League"}
                                 </span>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-gray-500" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                                   ({leagueData.matches.length})
                                 </span>
                                 {(() => {
