@@ -146,9 +146,14 @@ export function shouldExcludeFromPopularLeagues(
   const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
   const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
 
+  // FIRST: Check for UEFA Nations League Women specifically - always exclude
+  if (league.includes("uefa nations league") && (league.includes("women") || league.includes("womens"))) {
+    return true; // Exclude UEFA Nations League Women
+  }
+
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition =
-    // UEFA competitions
+    // UEFA competitions (but women's already excluded above)
     league.includes("uefa") ||
     league.includes("champions league") ||
     league.includes("europa league") ||
