@@ -1003,7 +1003,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               {safeSubstring(leagueData.league.name, 0) ||
                                 "Unknown League"}
                             </span>
-                            <span className="text-gray-600" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
+                            <span className="text-gray-600" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                               {leagueData.league.country || "Unknown Country"}
                             </span>
                           </div>
