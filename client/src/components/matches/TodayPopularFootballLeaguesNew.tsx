@@ -1204,7 +1204,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="match-content-container">
                                 {/* Home Team Name - positioned further left */}
-                                <div className="home-team-name">
+                                <div className={`home-team-name ${
+                                  match.goals.home !== null && match.goals.away !== null && 
+                                  match.goals.home > match.goals.away ? 'winner' : ''
+                                }`}>
                                   {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                 </div>
 
@@ -1449,7 +1452,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
-                                <div className="away-team-name">
+                                <div className={`away-team-name ${
+                                  match.goals.home !== null && match.goals.away !== null && 
+                                  match.goals.away > match.goals.home ? 'winner' : ''
+                                }`}>
                                   {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                                 </div>
                               </div>

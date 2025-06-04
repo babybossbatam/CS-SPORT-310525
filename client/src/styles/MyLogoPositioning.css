@@ -73,7 +73,7 @@
   text-align: right;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: calc(14px * 0.95);
-  font-weight: 600;
+  font-weight: 400;
   color: #1a1a1a;
   flex: 1;
   padding-right: 0.75rem;
@@ -87,7 +87,7 @@
   text-align: left;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: calc(14px * 0.95);
-  font-weight: 600;
+  font-weight: 400;
   color: #1a1a1a;
   flex: 1;
   padding-left: 0.75rem;
@@ -103,6 +103,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Winning team styles */
+.home-team-name.winner {
+  font-weight: 600;
+}
+
+.away-team-name.winner {
+  font-weight: 600;
 }
 
 .team-logo {
