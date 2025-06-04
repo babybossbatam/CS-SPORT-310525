@@ -365,3 +365,46 @@
   max-height: none;
   padding-bottom: 0;
 }
+
+/* League matches container animations */
+.league-matches-container {
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Keyframe animations for league expand/collapse */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* League header hover effects */
+.league-header-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.league-header-button:hover {
+  background-color: rgb(249 250 251);
+  transform: translateX(2px);
+}

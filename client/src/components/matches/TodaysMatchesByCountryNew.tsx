@@ -136,6 +136,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
+  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
+    new Set(),
+  );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   // Initialize flagMap with immediate synchronous values for better rendering
@@ -287,6 +290,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
+    setExpandedLeagues(new Set());
   }, [selectedDate]);
 
   // Country code to full name mapping with caching
@@ -745,6 +749,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries(newExpanded);
   };
 
+  const toggleLeague = (country: string, leagueId: number) => {
+    const leagueKey = `${country}-${leagueId}`;
+    const newExpanded = new Set(expandedLeagues);
+    if (newExpanded.has(leagueKey)) {
+      newExpanded.delete(leagueKey);
+    } else {
+      newExpanded.add(leagueKey);
+    }
+    setExpandedLeagues(newExpanded);
+  };
+
   const toggleStarMatch = (fixtureId: number) => {
     const newStarred = new Set(starredMatches);
     if (newStarred.has(fixtureId)) {
@@ -1099,8 +1114,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           key={leagueData.league.id}
                           className="border-b border-gray-200 last:border-b-0"
                         >
-                          {/* League Header */}
-                          <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px]">
+                          {/* League Header - Now clickable */}
+                          <button
+                            onClick={() => toggleLeague(countryData.country, leagueData.league.id)}
+                            className="w-full flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px] hover:bg-gray-50 transition-colors cursor-pointer"
+                          >
                             <img
                               src={
                                 leagueData.league.logo ||
@@ -1114,7 +1132,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   "/assets/fallback-logo.svg";
                               }}
                             />
-                            <div className="flex flex-col">
+                            <div className="flex flex-col text-left">
                               <span className="font-semibold text-base text-gray-800">
                                 {safeSubstring(leagueData.league.name, 0) ||
                                   "Unknown League"}
@@ -1123,17 +1141,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 {leagueData.league.country || "Unknown Country"}
                               </span>
                             </div>
-                            <div className="flex gap-1 ml-auto">
+                            <div className="flex gap-2 ml-auto items-center">
                               {leagueData.isPopular && (
                                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
                                   Popular
                                 </span>
                               )}
+                              <span className="text-xs text-gray-500">
+                                ({leagueData.matches.length})
+                              </span>
+                              {expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) ? (
+                                <ChevronUp className="h-4 w-4 text-gray-500 chevron-icon rotated" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4 text-gray-500 chevron-icon" />
+                              )}
                             </div>
-                          </div>
+                          </button>
 
-                          {/* Matches */}
-                          <div className="space-y-0">
+                          {/* Matches - Only show when league is expanded */}
+                          {expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) && (
+                            <div className="space-y-0 league-matches-container"
+                              style={{
+                                animation: expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) 
+                                  ? 'slideDown 0.3s ease-out' 
+                                  : 'slideUp 0.3s ease-out'
+                              }}
+                            >
                             {leagueData.matches
                               .sort((a: any, b: any) => {
                                 // Priority order: Live > Upcoming > Ended
@@ -1521,7 +1554,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   </div>
                                 </div>
                               ))}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                   </div>
