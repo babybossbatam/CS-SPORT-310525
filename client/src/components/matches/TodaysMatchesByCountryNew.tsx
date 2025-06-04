@@ -1261,9 +1261,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     </div>
 
                                     <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                      <img</old_str>
-
-                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                       <img
                                         src={
                                           match.teams.home.logo ||
