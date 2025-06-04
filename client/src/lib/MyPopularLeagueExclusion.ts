@@ -249,13 +249,6 @@ export function isRestrictedUSLeague(
   leagueId: number,
   country: string,
 ): boolean {
-  const countryLower = safeSubstring(country, 0).toLowerCase();
-
-  if (countryLower.includes("usa") || countryLower.includes("united states")) {
-    // Only allow MLS (253) and MLS Next Pro (254) for popular leagues display
-    const allowedUSALeagues = [253, 254, "MLS", "MLS Next Pro"];
-    return !allowedUSALeagues.includes(leagueId);
-  }
-
+  // USA restrictions removed - allow all USA leagues through
   return false;
 }
