@@ -1121,6 +1121,42 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 </span>
                               )}
                             </div>
+
+                            {/* Match Card Content */}
+                            <div className="flex items-center w-full mt-2">
+                              {/* Home Team */}
+                              <div className="text-right text-sm text-gray-900 w-[90px] pr-1 truncate flex-shrink-0">
+                                Sample Home Team
+                              </div>
+
+                              <div className="flex-shrink-0 flex items-center justify-center">
+                                <img
+                                  src="/assets/fallback-logo.png"
+                                  alt="Home Team"
+                                  className="team-logo"
+                                />
+                              </div>
+
+                              {/* Score/Time Center */}
+                              <div className="flex flex-col items-center justify-center px-2 w-[70px] flex-shrink-0 relative h-12">
+                                <div className="text-base font-medium text-black">
+                                  15:30
+                                </div>
+                              </div>
+
+                              <div className="flex-shrink-0 flex items-center justify-center">
+                                <img
+                                  src="/assets/fallback-logo.png"
+                                  alt="Away Team"
+                                  className="team-logo"
+                                />
+                              </div>
+
+                              {/* Away Team */}
+                              <div className="text-left text-sm text-gray-900 w-[90px] pl-1 truncate flex-shrink-0">
+                                Sample Away Team
+                              </div>
+                            </div>
                           </div>
 
                           {/* Matches */}
