@@ -213,7 +213,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Simple filtering operations
+  // Smart filtering operations
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
@@ -221,27 +221,30 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const startTime = Date.now();
 
     const filtered = fixtures.filter((fixture) => {
-      // Simple date filtering - just match the date
-      if (fixture.fixture.date) {
-        const dateResult = SimpleDateFilter.isFixtureOnDate(fixture.fixture.date, selectedDate);
+      // Apply smart time filtering first - this will exclude 00:00:00 NS matches
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short
+        );
 
-        if (dateResult.isMatch) {
-          console.log(`✅ [SIMPLE FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+        // Only include matches that smart filter labels as "today"
+        if (smartResult.label !== 'today') {
+          console.log(`❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
             fixtureDate: fixture.fixture.date,
-            extractedDate: dateResult.fixtureDate,
-            selectedDate: dateResult.selectedDate,
-            status: fixture.fixture.status?.short
-          });
-          return true;
-        } else {
-          console.log(`❌ [SIMPLE FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            reason: dateResult.reason,
-            fixtureDate: fixture.fixture.date,
-            extractedDate: dateResult.fixtureDate,
-            selectedDate: dateResult.selectedDate
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label
           });
           return false;
         }
+
+        console.log(`✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+          fixtureDate: fixture.fixture.date,
+          status: fixture.fixture.status.short,
+          reason: smartResult.reason,
+          label: smartResult.label
+        });
       }
 
       // Client-side filtering for popular leagues and countries
@@ -653,62 +656,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   }, [filteredCountries]);
 
-  // Apply smart time filters using MySmartTimeFilter
+  // Time filtering is now just for additional time-based sorting when active
   const timeFilteredCountries = useMemo(() => {
-    if (!timeFilterActive) return sortedCountries;
-
-    return sortedCountries
-      .map((countryData) => {
-        const updatedLeagues = Object.entries(countryData.leagues).reduce(
-          (acc: any, [leagueId, leagueData]: any) => {
-            const updatedMatches = leagueData.matches.filter((match: any) => {
-              if (!match?.fixture?.date || !match?.fixture?.status?.short) return false;
-
-              try {
-                // Use MySmartTimeFilter to determine if match should be included
-                const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-                  match.fixture.date,
-                  match.fixture.status.short
-                );
-
-                const shouldInclude = smartResult.label === 'today';
-
-                if (!shouldInclude) {
-                  console.log(`❌ [TodayPopularFootballLeagues] Excluded match:`, {
-                    fixtureId: match.fixture.id,
-                    teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                    status: match.fixture.status.short,
-                    time: match.fixture.date,
-                    reason: smartResult.reason,
-                    label: smartResult.label
-                  });
-                }
-
-                return shouldInclude;
-              } catch (error) {
-                console.error('Error filtering match with MySmartTimeFilter:', error);
-                return false;
-              }
-            });
-
-            if (updatedMatches.length > 0) {
-              acc[leagueId] = {
-                ...leagueData,
-                matches: updatedMatches,
-              };
-            }
-            return acc;
-          },
-          {},
-        );
-
-        return {
-          ...countryData,
-          leagues: updatedLeagues,
-        };
-      })
-      .filter((countryData) => Object.keys(countryData.leagues).length > 0);
-  }, [sortedCountries, timeFilterActive]);
+    // Smart filtering is already applied in filteredFixtures, so just return sorted countries
+    // timeFilterActive now only affects sorting/prioritization, not inclusion/exclusion
+    return sortedCountries;
+  }, [sortedCountries]);
 
   // Apply live filters
   const liveFilteredCountries = useMemo(() => {
