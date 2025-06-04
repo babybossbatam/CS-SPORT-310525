@@ -256,17 +256,35 @@ export function isRestrictedUSLeague(
     
     // Check by league ID first
     if (allowedUSALeagueIds.includes(leagueId)) {
+      console.log(`✅ [DEBUG] Allowing US League by ID:`, {
+        leagueId,
+        leagueName,
+        country,
+        reason: 'Allowed league ID'
+      });
       return false; // Allow - not restricted
     }
     
-    // Check by league name as fallback
-    if (leagueNameLower.includes("major league soccer") || 
-        leagueNameLower.includes("mls next pro") ||
-        leagueNameLower === "mls") {
+    // Check by league name as fallback (more permissive matching)
+    if (leagueNameLower.includes("mls") || 
+        leagueNameLower.includes("major league soccer") || 
+        leagueNameLower.includes("mls next pro")) {
+      console.log(`✅ [DEBUG] Allowing US League by name:`, {
+        leagueId,
+        leagueName,
+        country,
+        reason: 'Allowed league name'
+      });
       return false; // Allow - not restricted
     }
     
     // If neither ID nor name matches allowed leagues, restrict it
+    console.log(`🚫 [DEBUG] Restricting US League:`, {
+      leagueId,
+      leagueName,
+      country,
+      reason: 'Not in allowed US leagues'
+    });
     return true;
   }
 
