@@ -138,7 +138,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     France: [61, 66], // Ligue 1, Coupe de France
     // Removed league restrictions for Brazil, Colombia, Saudi Arabia, Europe, South America, World
     // These countries will now show all their leagues (exclusion filtering will be applied later)
-    USA: [253, 254, 968], // Major League Soccer (MLS), MLS Next Pro, and additional MLS leagues
+    USA: [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
@@ -146,14 +146,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Flatten popular leagues for backward compatibility
   const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
-  
-  // Ensure US leagues are included in popular leagues
-  const US_LEAGUE_IDS = [253, 254, 968]; // MLS, MLS Next Pro
-  US_LEAGUE_IDS.forEach(id => {
-    if (!POPULAR_LEAGUES.includes(id)) {
-      POPULAR_LEAGUES.push(id);
-    }
-  });
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -282,7 +274,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const leagueName = fixture.league?.name?.toLowerCase() || "";
       const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
       const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
-
+      
       // Early exclusion for women's competitions and other unwanted matches
       if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
         return false;
@@ -336,13 +328,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country, fixture.league.name)) {
-        console.log(`🚫 [DEBUG] Restricted US League filtered out:`, {
-          leagueId: fixture.league.id,
-          leagueName: fixture.league.name,
-          country: fixture.league.country,
-          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
-        });
+      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
         return false;
       }
 
@@ -437,7 +423,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(league.id, country, league.name)) {
+      if (isRestrictedUSLeague(league.id, country)) {
         return acc;
       }
 
