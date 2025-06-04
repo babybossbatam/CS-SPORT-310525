@@ -94,7 +94,7 @@ export class MySmartDateLabeling {
     if (notStartedStatuses.includes(matchStatus) && isExactMidnight && isTargetToday) {
       effectiveFixture = new Date(fixture);
       effectiveFixture.setDate(effectiveFixture.getDate() + 1);
-      effectiveFixture.setHours(0, 1, 0, 0); // Move to 00:01 of next day
+      effectiveFixture.setHours(0, 0, 0, 0); // Keep original 00:00 time on next day
       adjustedForMidnight = true;
     }
 
