@@ -1258,7 +1258,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
                                         "Unknown Team"}
-                                    </div></old_str>
+                                    </div>
+
+                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center"></old_str>
 
                                     <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                       <img
