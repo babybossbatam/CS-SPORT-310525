@@ -1,4 +1,3 @@
-
 import { parseISO, isValid, format, differenceInHours, isSameDay, isAfter, isBefore } from 'date-fns';
 
 export interface SmartDateResult {
@@ -13,7 +12,7 @@ export interface SmartDateResult {
  * If match is not started, compare current time vs fixture time to determine actual date label
  */
 export class MySmartDateLabeling {
-  
+
   /**
    * Determine smart date label based on match status and time comparison
    */
@@ -24,7 +23,7 @@ export class MySmartDateLabeling {
   ): SmartDateResult {
     const now = currentTime || new Date();
     const fixture = parseISO(fixtureDate);
-    
+
     if (!isValid(fixture)) {
       return {
         label: 'today',
@@ -36,7 +35,7 @@ export class MySmartDateLabeling {
 
     const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-    
+
     // For finished matches, use enhanced logic
     if (finishedStatuses.includes(matchStatus)) {
       return this.getFinishedMatchDateLabel(fixture, now);
@@ -62,12 +61,12 @@ export class MySmartDateLabeling {
   private static getSmartTimeBasedLabel(fixture: Date, now: Date): SmartDateResult {
     const nowTime = now.getTime();
     const fixtureTime = fixture.getTime();
-    
+
     // If fixture time has already passed, it should be considered "yesterday" 
     // even if it's the same calendar date
     if (fixtureTime < nowTime) {
       const hoursPassed = differenceInHours(now, fixture);
-      
+
       if (isSameDay(fixture, now)) {
         // Same calendar date but time has passed
         return {
@@ -90,12 +89,12 @@ export class MySmartDateLabeling {
     // If fixture time is in the future
     if (fixtureTime > nowTime) {
       const hoursUntil = differenceInHours(fixture, now);
-      
+
       if (isSameDay(fixture, now)) {
         // Same calendar date and time is in future - check if it's within today's range
         const endOfToday = new Date(now);
         endOfToday.setHours(23, 59, 59, 999);
-        
+
         if (fixtureTime <= endOfToday.getTime()) {
           // Match is still within today's time range (before 23:59:59)
           return {
@@ -117,13 +116,13 @@ export class MySmartDateLabeling {
         // Different calendar date - check if it's tomorrow or future
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
+
         if (isSameDay(fixture, tomorrow)) {
           // Special case: If current time is late (after midnight range) and fixture is early next day
           // Example: current time 10:30AM, fixture tomorrow 00:30AM
           const currentHour = now.getHours();
           const fixtureHour = fixture.getHours();
-          
+
           // If current time has passed midnight range (after 00:00) and fixture is in early hours
           if (currentHour > 0 && fixtureHour < currentHour) {
             return {
@@ -167,17 +166,17 @@ export class MySmartDateLabeling {
   private static getFinishedMatchDateLabel(fixture: Date, now: Date): SmartDateResult {
     const nowTime = now.getTime();
     const fixtureTime = fixture.getTime();
-    
+
     // Create today's time range boundaries (00:00:01 - 23:59:59)
     const todayStart = new Date(now);
     todayStart.setHours(0, 0, 1, 0); // 00:00:01
-    
+
     const todayEnd = new Date(now);
     todayEnd.setHours(23, 59, 59, 999); // 23:59:59
-    
+
     const todayStartTime = todayStart.getTime();
     const todayEndTime = todayEnd.getTime();
-    
+
     // If fixture time has already passed (which it should for finished matches)
     if (fixtureTime < nowTime) {
       // Check if finished match is within today's time range (00:00:01 - 23:59:59)
@@ -304,7 +303,7 @@ export class MySmartDateLabeling {
     const now = currentTime || new Date();
     const fixture = parseISO(fixtureDate);
     const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime);
-    
+
     return {
       label: result.label,
       reason: result.reason,
