@@ -877,7 +877,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined) {
+  const formatMatchTime = (dateString: string | null | undefined) => {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
