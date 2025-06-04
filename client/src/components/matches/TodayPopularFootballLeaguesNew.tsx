@@ -405,6 +405,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
+      // Debug: Log UEFA/FIFA competitions
+      const leagueName = fixture.league.name?.toLowerCase() || "";
+      if (leagueName.includes("uefa") || leagueName.includes("fifa") || leagueName.includes("champions") || leagueName.includes("europa") || leagueName.includes("conference")) {
+        console.log(`🏆 [UEFA/FIFA DEBUG] Found:`, {
+          leagueId: fixture.league.id,
+          leagueName: fixture.league.name,
+          country: fixture.league.country,
+          homeTeam: fixture.teams.home.name,
+          awayTeam: fixture.teams.away.name,
+          date: fixture.fixture.date,
+          status: fixture.fixture.status.short
+        });
+      }
+
       // Ensure league has required properties
       const league = fixture.league;
       if (!league.id || !league.name) {
