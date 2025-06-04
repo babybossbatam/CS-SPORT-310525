@@ -1248,7 +1248,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     </div>
 
                                     {/* Score/Time Center - Adjusted width and removed padding */}
-                                    <div className="flex flex-col items-center justify-center px-2 w-[70px] flex-shrink-0 relative h-12"></div_str>
+                                    <div className="flex flex-col items-center justify-center px-2 w-[70px] flex-shrink-0 relative h-12">
                                       {(() => {
                                         const status =
                                           match.fixture.status.short;
