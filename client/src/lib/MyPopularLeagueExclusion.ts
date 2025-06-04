@@ -130,7 +130,7 @@ export function shouldExcludeFromPopularLeagues(
   awayTeamName: string,
   country?: string | null,
 ): boolean {
-  // Only exclude fixtures with null, undefined, or invalid country values for data integrity
+  // Exclude fixtures with null, undefined, or invalid country values
   if (
     country !== undefined &&
     (!country ||
@@ -141,8 +141,66 @@ export function shouldExcludeFromPopularLeagues(
     return true;
   }
 
-  // All other matches are allowed through - no exclusions
-  return false;
+  // Convert inputs to lowercase with safe handling
+  const league = safeSubstring(leagueName, 0).toLowerCase();
+  const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
+  const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
+
+  // FIRST: Check for UEFA Nations League Women specifically - always exclude
+  if (
+    league.includes("uefa nations league") &&
+    (league.includes("women") || league.includes("womens"))
+  ) {
+    return true; // Exclude UEFA Nations League Women
+  }
+
+  // Check if this is a major international competition that should NEVER be excluded
+  const isMajorInternationalCompetition =
+    // UEFA competitions (but women's already excluded above)
+    league.includes("uefa") ||
+    league.includes("champions league") ||
+    league.includes("europa league") ||
+    league.includes("conference league") ||
+    league.includes("euro") ||
+    league.includes("european championship") ||
+    // FIFA competitions
+    league.includes("fifa") ||
+    league.includes("world cup") ||
+    league.includes("fifa club world cup") ||
+    // CONMEBOL competitions
+    league.includes("conmebol") ||
+    league.includes("copa america") ||
+    league.includes("copa libertadores") ||
+    league.includes("copa sudamericana") ||
+    league.includes("libertadores") ||
+    league.includes("sudamericana") ||
+    // Youth international tournaments (but exclude women's)
+    league.includes("tournoi maurice revello") ||
+    league.includes("maurice revello") ||
+    // International competitions (but exclude women's)
+    (league.includes("nations league") && !league.includes("women")) ||
+    (league.includes("confederation") && !league.includes("women")) ||
+    (league.includes("qualifying") &&
+      (league.includes("world cup") || league.includes("euro")) &&
+      !league.includes("women")) ||
+    (league.includes("international") &&
+      (league.includes("cup") || league.includes("championship")) &&
+      !league.includes("women")) ||
+    // Men's International Friendlies (excludes women's)
+    (league.includes("friendlies") && !league.includes("women"));
+
+  // If it's a major international competition, never exclude it
+  if (isMajorInternationalCompetition) {
+    return false;
+  }
+
+  // Check if any exclusion term exists in league or team names
+  return popularLeagueExclusionTerms.some(
+    (term) =>
+      league.includes(term) ||
+      homeTeam.includes(term) ||
+      awayTeam.includes(term),
+  );
 }
 
 /**
