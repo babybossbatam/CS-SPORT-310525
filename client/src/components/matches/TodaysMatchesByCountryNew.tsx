@@ -1101,10 +1101,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         }
                       }}
                     />
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="font-medium text-gray-900" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                       {countryData.country}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-gray-500" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                       ({totalMatches})
                     </span>
 
