@@ -1159,7 +1159,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             </div>
                           </button>
 
-                          {/* Matches - Only show when league is expanded */}
+                          {/* Matches - Only show when league is expanded (default collapsed) */}
                           {expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) && (
                             <div className="space-y-0 league-matches-container"
                               style={{
