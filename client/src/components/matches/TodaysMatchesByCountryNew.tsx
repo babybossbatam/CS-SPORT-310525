@@ -39,7 +39,6 @@ import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
-import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 
@@ -879,7 +878,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Format the time for display in user's local timezone
   const formatMatchTime = (dateString: string | null | undefined) => {
-    if (!dateString || typeof dateString !== "string") return "--:--";
+    if (!dateString```text
+|| typeof dateString !== "string") return "--:--";
 
     try {
       // Parse UTC time and convert to user's local timezone automatically
@@ -1092,7 +1092,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       .map((leagueData: any) => (
                         <div
                           key={leagueData.league.id}
-                          className="p-3 border-b border-gray-200 last:border-b-0"
+                          className="border-b border-gray-200 last:border-b-0"
                         >
                           {/* League Header */}
                           <div className="flex items-center gap-2 mb-0 bg-gray-50 border-b border-gray-200">
