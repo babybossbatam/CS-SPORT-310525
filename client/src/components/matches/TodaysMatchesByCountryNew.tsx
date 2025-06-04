@@ -39,7 +39,6 @@ import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
-import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 
@@ -878,8 +877,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined): string => {
-    if (!dateString || typeof dateString !== "string") return "--:--";
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    if (!dateString```text
+|| typeof dateString !== "string") return "--:--";
 
     try {
       // Parse UTC time and convert to user's local timezone automatically
@@ -1225,7 +1225,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       toggleStarMatch(match.fixture.id);
                                     }}
                                     className="match-star-button"
-                                    style={{ visibility: 'hidden' }}
                                     title="Add to favorites"
                                     onMouseEnter={(e) => {
                                       e.currentTarget
@@ -1250,8 +1249,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   <div className="match-content-container">
                                     {/* Home Team Name - positioned further left */}
                                     <div className="home-team-name">
-                                      {shortenTeamName(match.teams.home.name) ||
-                                        "Unknown Team"}
+                                      {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                     </div>
 
                                     {/* Home team logo - closer to center */}
@@ -1265,10 +1263,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className={`team-logo ${
-                                          isNationalTeam(match.teams.home, {
-                                            name: leagueData.league.name,
-                                            country: leagueData.league.country,
-                                          })
+                                          isNationalTeam(
+                                            match.teams.home,
+                                            { name: leagueData.league.name, country: leagueData.league.country }
+                                          )
                                             ? "national-team"
                                             : ""
                                         }`}
@@ -1279,8 +1277,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     {/* Score/Time Center - Fixed width and centered */}
                                     <div className="match-score-container">
                                       {(() => {
-                                        const status =
-                                          match.fixture.status.short;
+                                        const status = match.fixture.status.short;
                                         const fixtureDate = parseISO(
                                           match.fixture.date,
                                         );
@@ -1371,11 +1368,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                             ? "Walkover"
                                                             : status === "ABD"
                                                               ? "Abandoned"
-                                                              : status ===
-                                                                  "CANC"
+                                                              : status === "CANC"
                                                                 ? "Cancelled"
-                                                                : status ===
-                                                                    "SUSP"
+                                                                : status === "SUSP"
                                                                   ? "Suspended"
                                                                   : status}
                                                 </div>
@@ -1486,10 +1481,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
                                         className={`team-logo ${
-                                          isNationalTeam(match.teams.away, {
-                                            name: leagueData.league.name,
-                                            country: leagueData.league.country,
-                                          })
+                                          isNationalTeam(
+                                            match.teams.away,
+                                            { name: leagueData.league.name, country: leagueData.league.country }
+                                          )
                                             ? "national-team"
                                             : ""
                                         }`}
@@ -1499,8 +1494,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                     {/* Away Team Name - positioned further right */}
                                     <div className="away-team-name">
-                                      {shortenTeamName(match.teams.away.name) ||
-                                        "Unknown Team"}
+                                      {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                                     </div>
                                   </div>
                                 </div>
