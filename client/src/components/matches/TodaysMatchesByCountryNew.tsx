@@ -1223,7 +1223,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       e.stopPropagation();
                                       toggleStarMatch(match.fixture.id);
                                     }}
-                                    className="match-star-button"
+                                    className="match-star-button hidden"
                                     title="Add to favorites"
                                     onMouseEnter={(e) => {
                                       e.currentTarget
