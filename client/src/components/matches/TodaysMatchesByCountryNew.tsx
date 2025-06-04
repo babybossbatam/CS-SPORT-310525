@@ -1127,7 +1127,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   )}
                 </button>
                 {isExpanded && (
-                  <div className={`bg-gray-50 border-t border-gray-100 league-content ${
+                  <div className={`bg-gray-50 border-t border-stone-200 league-content ${
                     isExpanded ? "expanded" : "collapsed"
                   }`}>
                     {/* Sort leagues - popular first */}
@@ -1143,7 +1143,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         return (
                         <div
                           key={leagueData.league.id}
-                          className="border-b border-gray-200 last:border-b-0"
+                          className="border-b border-stone-200 last:border-b-0"
                         >
                           {/* League Header - Now clickable */}
                           <button
