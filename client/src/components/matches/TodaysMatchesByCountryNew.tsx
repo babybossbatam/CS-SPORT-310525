@@ -1008,7 +1008,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         );
                       })()}
                       alt={countryData.country}
-                      className="w-9 h-6 object-cover rounded-sm shadow-sm"
+                      className="w-5 h-3 object-cover rounded-sm shadow-sm"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         // For World flag, use fallback
