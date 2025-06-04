@@ -1137,10 +1137,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               }}
                             />
                             <div className="flex flex-col text-left">
-                              <span className="font-semibold text-sm text-gray-800 group-hover:underline transition-all duration-200">
-                                {safeSubstring(leagueData.league.name, 0) ||
-                                  "Unknown League"}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-sm text-gray-800 group-hover:underline transition-all duration-200">
+                                  {safeSubstring(leagueData.league.name, 0) ||
+                                    "Unknown League"}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  ({leagueData.matches.length})
+                                </span>
+                              </div>
                               <span className="text-xs text-gray-600">
                                 {leagueData.league.country || "Unknown Country"}
                               </span>
@@ -1151,9 +1156,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   Popular
                                 </span>
                               )}
-                              <span className="text-xs text-gray-500">
-                                ({leagueData.matches.length})
-                              </span>
                             </div>
                           </button>
 
