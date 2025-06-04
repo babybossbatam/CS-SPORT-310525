@@ -1215,47 +1215,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any) => (
                                 <div
                                   key={match.fixture.id}
-                                  className="match-card-container group"
+                                  className="py-2 border-b border-gray-100 last:border-b-0"
                                 >
-                                  {/* Star Button with true slide-in effect */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleStarMatch(match.fixture.id);
-                                    }}
-                                    className="match-star-button"
-                                    title="Add to favorites"
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget
-                                        .closest(".group")
-                                        ?.classList.add("disable-hover");
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget
-                                        .closest(".group")
-                                        ?.classList.remove("disable-hover");
-                                    }}
-                                  >
-                                    <Star
-                                      className={`match-star-icon ${
-                                        starredMatches.has(match.fixture.id)
-                                          ? "starred"
-                                          : ""
-                                      }`}
-                                    />
-                                  </button>
-
-                                  <div 
-                                    className="match-content-container"
-                                    style={{
-                                      position: 'relative',
-                                      zIndex: 5,
-                                      marginLeft: '-2.5rem',
-                                      paddingLeft: '3.25rem'
-                                    }}
-                                  >
-                                  {/* Home Team - Fixed width to prevent overflow */}
-                                  <div className="flex items-center py-2">
+                                  {/* Match Content */}
+                                  <div className="flex items-center">
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
@@ -1513,7 +1476,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.away.name) ||
                                         "Unknown Team"}
-                                    </div>
                                     </div>
                                   </div>
                                 </div>
