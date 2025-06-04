@@ -73,7 +73,15 @@ export class MySmartDateLabeling {
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
     const notStartedStatuses = ['NS', 'TBD', 'PST'];
 
-    // Special handling for midnight NS matches - move them to next day
+    // Check if target date is today relative to current time
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(target);
+    targetDate.setHours(0, 0, 0, 0);
+    const isTargetToday = targetDate.getTime() === today.getTime();
+
+    // Special handling for midnight NS matches
+    // ONLY move to next day if we're viewing TODAY's matches
     const fixtureHour = fixture.getHours();
     const fixtureMinute = fixture.getMinutes();
     const isExactMidnight = fixtureHour === 0 && fixtureMinute === 0;
@@ -82,7 +90,8 @@ export class MySmartDateLabeling {
     let adjustedForMidnight = false;
 
     // For NS matches at exactly 00:00, treat them as belonging to the next day
-    if (notStartedStatuses.includes(matchStatus) && isExactMidnight) {
+    // ONLY when viewing TODAY's matches
+    if (notStartedStatuses.includes(matchStatus) && isExactMidnight && isTargetToday) {
       effectiveFixture = new Date(fixture);
       effectiveFixture.setDate(effectiveFixture.getDate() + 1);
       effectiveFixture.setHours(0, 1, 0, 0); // Move to 00:01 of next day
