@@ -19,7 +19,6 @@ import {
   getFixtureLocalDate,
   isFixtureOnLocalDate,
   isFixtureOnClientDate,
-  isFixtureOnClientDate,
 } from "@/lib/dateUtilsUpdated";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeFromPopularLeagues, isPopularLeagueSuitable, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
