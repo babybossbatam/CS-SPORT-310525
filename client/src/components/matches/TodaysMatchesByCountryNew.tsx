@@ -1116,7 +1116,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           </div>
 
                           {/* Matches */}
-                          <div className="space-y-0 mt-3">
+                          <div className="space-y-0">
                             {leagueData.matches
                               .sort((a: any, b: any) => {
                                 // Priority order: Live > Upcoming > Ended
