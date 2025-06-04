@@ -270,10 +270,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
           country.includes(popularCountry.toLowerCase()),
       );
 
-      // Check if it's an international competition
+      // Apply exclusion check FIRST, before checking international competitions
       const leagueName = fixture.league?.name?.toLowerCase() || "";
+      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+      
+      // Early exclusion for women's competitions and other unwanted matches
+      if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
+        return false;
+      }
+
+      // Check if it's an international competition (after exclusion check)
       const isInternationalCompetition =
-        // UEFA competitions
+        // UEFA competitions (but women's already excluded above)
         leagueName.includes("champions league") ||
         leagueName.includes("europa league") ||
         leagueName.includes("conference league") ||
