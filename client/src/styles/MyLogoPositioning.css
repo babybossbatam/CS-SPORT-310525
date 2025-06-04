@@ -1,3 +1,4 @@
+
 /* MyLogoPositioning.css - Team Logo Positioning for Match Cards */
 
 /* Main match card container */
@@ -21,7 +22,7 @@
 /* Star button slide-in effect */
 .match-star-button {
   position: absolute;
-  left: 16px;
+  left: 0;
   top: 0;
   bottom: 0;
   width: 2.5rem;
@@ -194,30 +195,30 @@
     padding: 0.5rem;
     gap: 0.25rem;
   }
-
+  
   .home-team-name,
   .away-team-name {
     font-size: 0.75rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-
+  
   .team-logo {
     width: 32px;
     height: 32px;
     min-width: 32px;
     min-height: 32px;
   }
-
+  
   .match-score-container {
     width: 70px;
     padding: 0 0.5rem;
   }
-
+  
   .match-score-display {
     font-size: 1rem;
   }
-
+  
   .match-time-display {
     font-size: 0.875rem;
   }
