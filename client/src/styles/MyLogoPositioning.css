@@ -41,6 +41,11 @@
   transform: translateX(0);
 }
 
+/* Adjust match content to accommodate star button when visible */
+.match-card-container:hover .match-content-container {
+  padding-left: 2.5rem;
+}
+
 .match-star-icon {
   height: 1.25rem;
   width: 1.25rem;
