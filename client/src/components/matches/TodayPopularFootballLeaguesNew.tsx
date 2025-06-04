@@ -274,7 +274,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const leagueName = fixture.league?.name?.toLowerCase() || "";
       const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
       const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
-      
+
       // Early exclusion for women's competitions and other unwanted matches
       if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
         return false;
@@ -490,7 +490,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
           const leagueId = league.id;
 
           if (!acc[countryKey].leagues[leagueId]) {
-            const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
+            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
+            // consider all leagues as "popular" to show them all
+            const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United Arab Emirates', 'Europe', 'South America', 'World'];
             const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
 
             acc[countryKey].leagues[leagueId] = {
@@ -533,9 +535,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const isPopularForCountry = countryPopularLeagues.includes(leagueId);
       const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
-      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, Europe, South America, World), 
+      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
       // consider all leagues as "popular" to show them all
-      const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
+      const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United Arab Emirates', 'Europe', 'South America', 'World'];
       const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
       if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
@@ -543,7 +545,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       if (!acc[country].leagues[leagueId]) {
-        const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'Europe', 'South America', 'World'];
+        // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
+        // consider all leagues as "popular" to show them all
+        const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United Arab Emirates', 'Europe', 'South America', 'World'];
         const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
         acc[country].leagues[leagueId] = {
@@ -902,7 +906,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   return (
     <>
       {/* Header Section */}
-      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+      <<CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         {getHeaderTitle()}
       </CardHeader>
       {/* Create individual league cards from all countries */}
