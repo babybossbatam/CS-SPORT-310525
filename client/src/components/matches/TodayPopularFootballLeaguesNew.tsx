@@ -1029,46 +1029,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           timeFilterActive && showTop20 ? 20 : undefined,
                         )
                         .sort((a: any, b: any) => {
-                          // When time filter is active, prioritize by time more strictly
-                          if (timeFilterActive) {
-                            const aDate = parseISO(a.fixture.date);
-                            const bDate = parseISO(b.fixture.date);
-                            const now = new Date();
-
-                            // Ensure valid dates
-                            if (!isValid(aDate) || !isValid(bDate)) {
-                              return 0;
-                            }
-
-                            const aTime = aDate.getTime();
-                            const bTime = bDate.getTime();
-                            const nowTime = now.getTime();
-
-                            // Calculate time distance from now (absolute difference)
-                            const aDistance = Math.abs(aTime - nowTime);
-                            const bDistance = Math.abs(bTime - nowTime);
-
-                            // Sort by nearest time to current time first
-                            if (aDistance !== bDistance) {
-                              return aDistance - bDistance;
-                            }
-
-                            // If same distance, prioritize upcoming matches over past ones
-                            const aIsFuture = aTime > nowTime;
-                            const bIsFuture = bTime > nowTime;
-                            
-                            if (aIsFuture && !bIsFuture) return -1;
-                            if (!aIsFuture && bIsFuture) return 1;
-
-                            // If both are future or both are past, sort by actual time
-                            return aTime - bTime;
-                          }
-
-                          // Original sorting logic when time filter is not active
                           const aStatus = a.fixture.status.short;
                           const bStatus = b.fixture.status.short;
                           const aDate = parseISO(a.fixture.date);
-
                           const bDate = parseISO(b.fixture.date);
 
                           // Ensure valid dates
@@ -1079,22 +1042,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           const now = new Date();
                           const aTime = aDate.getTime();
                           const bTime = bDate.getTime();
-
-                          // Check if matches involve popular teams (with null safety)
-                          const aHasPopularTeam =
-                            (a.teams?.home?.id &&
-                              POPULAR_TEAMS.includes(a.teams.home.id)) ||
-                            (a.teams?.away?.id &&
-                              POPULAR_TEAMS.includes(a.teams.away.id));
-                          const bHasPopularTeam =
-                            (b.teams?.home?.id &&
-                              POPULAR_TEAMS.includes(b.teams.home.id)) ||
-                            (b.teams?.away?.id &&
-                              POPULAR_TEAMS.includes(b.teams.away.id));
-
-                          // Prioritize popular team matches first
-                          if (aHasPopularTeam && !bHasPopularTeam) return -1;
-                          if (!aHasPopularTeam && bHasPopularTeam) return 1;
+                          const nowTime = now.getTime();
 
                           // Define status categories
                           const aLive = [
@@ -1139,47 +1087,37 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             "SUSP",
                           ].includes(bStatus);
 
-                          const aUpcoming =
-                            aStatus === "NS" && !aLive && !aFinished;
-                          const bUpcoming =
-                            bStatus === "NS" && !bLive && !bFinished;
+                          const aUpcoming = aStatus === "NS" || aStatus === "TBD" || aStatus === "PST";
+                          const bUpcoming = bStatus === "NS" || bStatus === "TBD" || bStatus === "PST";
 
-                          // Assign priority scores (lower = higher priority)
-                          let aPriority = 0;
-                          let bPriority = 0;
+                          // Priority 1: LIVE matches first
+                          if (aLive && !bLive) return -1;
+                          if (!aLive && bLive) return 1;
 
-                          if (aLive) aPriority = 1;
-                          else if (aUpcoming) aPriority = 2;
-                          else if (aFinished) aPriority = 3;
-                          else aPriority = 4;
-
-                          if (bLive) bPriority = 1;
-                          else if (bUpcoming) bPriority = 2;
-                          else if (bFinished) bPriority = 3;
-                          else bPriority = 4;
-
-                          // Second sort by match status priority
-                          if (aPriority !== bPriority) {
-                            return aPriority - bPriority;
-                          }
-
-                          // If same priority, sort by time within category
+                          // If both are live, sort by elapsed time (earliest start first)
                           if (aLive && bLive) {
-                            // For live matches, show earliest start time first
-                            return aTime - bTime;
+                            const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                            const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                            return aElapsed - bElapsed;
                           }
 
+                          // Priority 2: Upcoming matches by nearest time
+                          if (aUpcoming && !bUpcoming) return -1;
+                          if (!aUpcoming && bUpcoming) return 1;
+
+                          // If both are upcoming, sort by nearest to current time
                           if (aUpcoming && bUpcoming) {
-                            // For upcoming matches, show earliest start time first
-                            return aTime - bTime;
+                            const aDistance = Math.abs(aTime - nowTime);
+                            const bDistance = Math.abs(bTime - nowTime);
+                            return aDistance - bDistance;
                           }
 
+                          // Priority 3: Finished matches by most recent first
                           if (aFinished && bFinished) {
-                            // For finished matches, show most recent first
-                            return bTime - aTime;
+                            return bTime - aTime; // Most recent first
                           }
 
-                          // Default time-based sorting
+                          // Default fallback - shouldn't reach here
                           return aTime - bTime;
                         })
                         .map((match: any) => (
