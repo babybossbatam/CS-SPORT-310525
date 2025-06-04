@@ -245,13 +245,29 @@ export function isPopularLeagueSuitable(
 export function isRestrictedUSLeague(
   leagueId: number,
   country: string,
+  leagueName?: string,
 ): boolean {
   const countryLower = safeSubstring(country, 0).toLowerCase();
 
   if (countryLower.includes("usa") || countryLower.includes("united states")) {
-    // Only allow MLS (253) and MLS Next Pro (254) for popular leagues display
-    const allowedUSALeagues = [253, 254];
-    return !allowedUSALeagues.includes(leagueId);
+    // Allow MLS and MLS Next Pro by both ID and name for robust matching
+    const allowedUSALeagueIds = [253, 254, 968]; // Known MLS and MLS Next Pro IDs
+    const leagueNameLower = safeSubstring(leagueName || "", 0).toLowerCase();
+    
+    // Check by league ID first
+    if (allowedUSALeagueIds.includes(leagueId)) {
+      return false; // Allow - not restricted
+    }
+    
+    // Check by league name as fallback
+    if (leagueNameLower.includes("major league soccer") || 
+        leagueNameLower.includes("mls next pro") ||
+        leagueNameLower === "mls") {
+      return false; // Allow - not restricted
+    }
+    
+    // If neither ID nor name matches allowed leagues, restrict it
+    return true;
   }
 
   return false;

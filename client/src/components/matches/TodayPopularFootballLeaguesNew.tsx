@@ -19,6 +19,7 @@ import {
   getFixtureLocalDate,
   isFixtureOnLocalDate,
   isFixtureOnClientDate,
+  isFixtureOnClientDate,
 } from "@/lib/dateUtilsUpdated";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeFromPopularLeagues, isPopularLeagueSuitable, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
@@ -274,7 +275,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const leagueName = fixture.league?.name?.toLowerCase() || "";
       const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
       const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
-      
+
       // Early exclusion for women's competitions and other unwanted matches
       if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
         return false;
@@ -328,7 +329,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
+      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country, fixture.league.name)) {
+        console.log(`🚫 [DEBUG] Restricted US League filtered out:`, {
+          leagueId: fixture.league.id,
+          leagueName: fixture.league.name,
+          country: fixture.league.country,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
+        });
         return false;
       }
 
@@ -423,7 +430,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(league.id, country)) {
+      if (isRestrictedUSLeague(league.id, country, league.name)) {
         return acc;
       }
 
