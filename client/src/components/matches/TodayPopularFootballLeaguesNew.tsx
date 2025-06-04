@@ -144,6 +144,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
+    Europe: [2, 3, 848, 5], // Champions League, Europa League, Conference League, UEFA Nations League
   };
 
   // Flatten popular leagues for backward compatibility
@@ -489,7 +490,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
             league.name.toLowerCase().includes("uefa") ||
             league.name.toLowerCase().includes("europe") ||
             league.name.toLowerCase().includes("champions") ||
-            league.name.toLowerCase().includes("conference")
+            league.name.toLowerCase().includes("conference") ||
+            league.name.toLowerCase().includes("nations league")
           ) {
             countryKey = "Europe";
           }

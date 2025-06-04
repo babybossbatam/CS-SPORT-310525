@@ -12,6 +12,7 @@ const POPULAR_LEAGUES = [
   { id: 78, name: 'Bundesliga', country: 'Germany' },
   { id: 2, name: 'Champions League', country: 'Europe' },
   { id: 848, name: 'Conference League', country: 'Europe' },
+  { id: 5, name: 'Nations League', country: 'Europe' },
   { id: 137, name: 'Coppa Italia', country: 'Italy' },
   { id: 3, name: 'Europa League', country: 'Europe' },
   { id: 45, name: 'FA Cup', country: 'England' },
@@ -72,6 +73,7 @@ const LeagueFilter = () => {
       case 'La Liga': return 'La Liga';
       case 'Bundesliga': return 'BundesLiga';
       case 'Serie A': return 'Serie A';
+      case 'Nations League': return 'UNL';
       default: return name.substring(0, 3);
     }
   };

@@ -428,6 +428,8 @@ export const groupFixturesByCountryAndLeague = (allFixtures: any[]) => {
           league.name.toLowerCase().includes('world') || 
           league.name.toLowerCase().includes('europe') ||
           league.name.toLowerCase().includes('uefa') ||
+          league.name.toLowerCase().includes('nations league') ||
+          league.name.toLowerCase().includes('uefa nations league') ||
           league.name.toLowerCase().includes('fifa') ||
           league.name.toLowerCase().includes('fifa club world cup') ||
           league.name.toLowerCase().includes('champions') ||

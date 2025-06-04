@@ -180,6 +180,7 @@ export function shouldExcludeFromPopularLeagues(
     league.includes("maurice revello") ||
     // International competitions (but exclude women's)
     (league.includes("nations league") && !league.includes("women")) ||
+    (league.includes("uefa nations league") && !league.includes("women")) ||
     (league.includes("confederation") && !league.includes("women")) ||
     (league.includes("qualifying") &&
       (league.includes("world cup") || league.includes("euro")) &&
@@ -222,6 +223,8 @@ export function isPopularLeagueSuitable(
     league.includes("champions league") ||
     league.includes("europa league") ||
     league.includes("conference league") ||
+    league.includes("nations league") ||
+    league.includes("uefa nations league") ||
     league.includes("world cup") ||
     league.includes("copa america") ||
     league.includes("copa libertadores") ||
