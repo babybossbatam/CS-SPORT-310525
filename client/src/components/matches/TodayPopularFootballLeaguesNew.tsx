@@ -1229,6 +1229,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         ? "national-team"
                                         : ""
                                     }`}
+                                    style={{ backgroundColor: "transparent" }}
                                     fallbackSrc="/assets/fallback-logo.svg"
                                   />
                                 </div>
