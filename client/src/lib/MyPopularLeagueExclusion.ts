@@ -100,6 +100,7 @@ export const popularLeagueExclusionTerms = [
   "usl league two",
   "usl championship",
   "usl league one",
+  "usl super league",
   "nwsl",
 
   // Additional filtering for cleaner popular league display
