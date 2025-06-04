@@ -37,7 +37,9 @@ import {
 } from "@/lib/fixtureCache";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
-import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
+import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
+import { isNationalTeam } from "../../lib/teamLogoSources";
+import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import "../../styles/MyLogoPositioning.css";
 
 // Helper function to shorten team names
