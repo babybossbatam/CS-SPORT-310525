@@ -1243,7 +1243,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                             : ""
                                         }`}
                                       />
-                                      />
                                     </button>
 
                                     <div className="match-content-container">
