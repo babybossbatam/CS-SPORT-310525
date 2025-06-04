@@ -124,6 +124,8 @@
   filter: brightness(100%) contrast(105%) saturate(100%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
   background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
 }
 
 .team-logo.national-team {
