@@ -1094,24 +1094,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           className="p-3 border-b border-gray-200 last:border-b-0"
                         >
                           {/* League Header */}
-                          <div className="flex items-center gap-2 mb-0 py-2 bg-gray-50 border-b border-gray-200">
+                          <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px]">
                             <img
-                              src={leagueData.league.logo}
-                              alt={leagueData.league.name}
-                              className="w-4 h-4 object-contain"
+                              src={leagueData.league.logo || "/assets/fallback-logo.svg"}
+                              alt={leagueData.league.name || "Unknown League"}
+                              className="w-9 h-9 object-contain mt-0.5 rounded-full"
+                              style={{ backgroundColor: "transparent" }}
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src =
                                   "/assets/fallback-logo.svg";
                               }}
                             />
-                            <span className="font-medium text-sm text-gray-700">
-                              {leagueData.league.name}
-                            </span>
-                            {leagueData.isPopular && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
-                                Popular
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-base text-gray-800">
+                                {safeSubstring(leagueData.league.name, 0) ||
+                                  "Unknown League"}
                               </span>
-                            )}
+                              <span className="text-xs text-gray-600">
+                                {leagueData.league.country || "Unknown Country"}
+                              </span>
+                            </div>
+                            <div className="flex gap-1 ml-auto">
+                              {leagueData.isPopular && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                  Popular
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           {/* Matches */}
