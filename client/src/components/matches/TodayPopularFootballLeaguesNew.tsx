@@ -15,11 +15,7 @@ import {
   subDays,
   addDays,
 } from "date-fns";
-import {
-  getFixtureLocalDate,
-  isFixtureOnLocalDate,
-  isFixtureOnClientDate,
-} from "@/lib/dateUtilsUpdated";
+// Removed complex date utilities - using simple date filtering now
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeFromPopularLeagues, isPopularLeagueSuitable, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
@@ -37,7 +33,7 @@ import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
-import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
+import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
@@ -218,105 +214,35 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Memoize expensive filtering operations
+  // Simple filtering operations
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    console.log(`Processing ${fixtures.length} fixtures for filtering`);
+    console.log(`Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
     const startTime = Date.now();
 
-    // Calculate date comparisons first
-    const todayDate = new Date().toISOString().slice(0, 10);
-    const yesterdayDate = subDays(new Date(), 1).toISOString().slice(0, 10);
-    const tomorrowDate = addDays(new Date(), 1).toISOString().slice(0, 10);
-
-    const isSelectedToday = selectedDate === todayDate;
-    const isSelectedYesterday = selectedDate === yesterdayDate;
-    const isSelectedTomorrow = selectedDate === tomorrowDate;
-
-    // Debug: Show what date context we're working with
-    console.log(`📅 [DATE CONTEXT] Selected Date Analysis:`, {
-      selectedDate,
-      todayDate,
-      yesterdayDate,
-      tomorrowDate,
-      isSelectedToday,
-      isSelectedYesterday,
-      isSelectedTomorrow,
-      currentTime: new Date().toISOString(),
-      currentLocalTime: new Date().toLocaleString()
-    });
-
     const filtered = fixtures.filter((fixture) => {
-      // Apply smart date filtering first
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartDateLabeling.getSmartDateLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short
-        );
-
-        // Debug logging for ALL matches to understand filtering
-        console.log(`🔍 [FILTER DEBUG] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-          fixtureDate: fixture.fixture.date,
-          status: fixture.fixture.status.short,
-          smartLabel: smartResult.label,
-          smartReason: smartResult.reason,
-          selectedDate,
-          selectedDateType: isSelectedToday ? 'TODAY' : isSelectedYesterday ? 'YESTERDAY' : isSelectedTomorrow ? 'TOMORROW' : 'CUSTOM',
-          willInclude: (isSelectedToday && smartResult.label === 'today') || 
-                       (isSelectedYesterday && smartResult.label === 'yesterday') || 
-                       (isSelectedTomorrow && smartResult.label === 'tomorrow'),
-          currentTime: new Date().toISOString(),
-          fixtureLocalTime: new Date(fixture.fixture.date).toLocaleString(),
-          hoursDifference: Math.round((new Date(fixture.fixture.date).getTime() - new Date().getTime()) / (1000 * 60 * 60))
-        });
-
-        // Special validation for NS matches with past dates (data inconsistency)
-        if (fixture.fixture.status.short === 'NS' && smartResult.timeComparison === 'ns-invalid-past-date') {
-          console.error(`❌ [SmartDateFilter] Match rejected:`, {
-            fixtureId: fixture.fixture.id,
-            expectedDate: selectedDate,
-            smartLabel: smartResult.label,
-            smartReason: smartResult.reason,
-            status: fixture.fixture.status.short
-          });
-          return false; // Reject invalid NS matches with past dates
-        }
-
-        // For selected date filtering, accept matches that smart labeling considers appropriate
-
-        // For NS matches, strictly apply smart date labeling - NO FALLBACK
-        if (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD' || fixture.fixture.status.short === 'PST') {
-          // Only show NS matches if smart labeling matches selected date type
-          if (isSelectedToday && smartResult.label === 'today') return true;
-          if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
-          if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
-          
-          // For NS matches, if smart labeling doesn't match selected date, exclude them
-          return false;
-        }
-
-        // For finished/live matches, strictly use smart labeling only - NO FALLBACK
-        const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
-        const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-
-        if (finishedStatuses.includes(fixture.fixture.status.short) || 
-            liveStatuses.includes(fixture.fixture.status.short)) {
-          // For finished/live matches, only use smart labeling
-          if (isSelectedToday && smartResult.label === 'today') return true;
-          if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
-          if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
-          
-          // No fallback - if smart labeling doesn't match, exclude the match
-          return false;
-        }
-
-        // For all other statuses, use smart labeling only
-        if (isSelectedToday && smartResult.label === 'today') return true;
-        if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
-        if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+      // Simple date filtering - just match the date
+      if (fixture.fixture.date) {
+        const dateResult = SimpleDateFilter.isFixtureOnDate(fixture.fixture.date, selectedDate);
         
-        return false;
+        if (dateResult.isMatch) {
+          console.log(`✅ [SIMPLE FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureDate: fixture.fixture.date,
+            extractedDate: dateResult.fixtureDate,
+            selectedDate: dateResult.selectedDate,
+            status: fixture.fixture.status?.short
+          });
+          return true;
+        } else {
+          console.log(`❌ [SIMPLE FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            reason: dateResult.reason,
+            fixtureDate: fixture.fixture.date,
+            extractedDate: dateResult.fixtureDate,
+            selectedDate: dateResult.selectedDate
+          });
+          return false;
+        }
       }
 
       // Client-side filtering for popular leagues and countries
@@ -873,16 +799,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
-  // Helper function to check if fixture date matches client date
-  const isFixtureOnLocalDate = (fixtureDate: string, selectedDate: string): boolean => {
-    try {
-      const fixtureLocalDate = getFixtureLocalDate(fixtureDate);
-      return fixtureLocalDate === selectedDate;
-    } catch (error) {
-      console.error("Error comparing fixture date:", error);
-      return false;
-    }
-  };
+  // Simple date comparison handled by SimpleDateFilter
 
 
   if (isLoading || isFetching) {
@@ -927,21 +844,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
   }
 
-  // Calculate date strings for comparison - use actual current date for reference
-  const actualCurrentDate = new Date();
-  const actualTodayString = format(actualCurrentDate, "yyyy-MM-dd");
-  const actualYesterdayString = format(
-    subDays(actualCurrentDate, 1),
-    "yyyy-MM-dd",
-  );
-  const actualTomorrowString = format(
-    addDays(actualCurrentDate, 1),
-    "yyyy-MM-dd",
-  );
+  // Simple date display
+  const currentDate = SimpleDateFilter.getCurrentDate();
 
-  // Get header title based on selected date with accurate date comparison
+  // Get header title 
   const getHeaderTitle = () => {
-    let baseTitle = "Popular Football Leagues";
+    const dateDisplayName = SimpleDateFilter.getDateDisplayName(selectedDate);
+    let baseTitle = dateDisplayName;
 
     // Add time filter indicator
     if (timeFilterActive && showTop20) {
