@@ -13,7 +13,8 @@ import {
   isDateStringToday,
   isDateStringYesterday,
   isDateStringTomorrow,
-  isFixtureOnClientDate 
+  isFixtureOnClientDate,
+  safeSubstring
 } from '@/lib/dateUtilsUpdated';
 import "@/styles/MyLogoPositioning.css";
 
