@@ -741,12 +741,39 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
+    const newExpandedLeagues = new Set(expandedLeagues);
+    
     if (newExpanded.has(country)) {
       newExpanded.delete(country);
+      // Remove all leagues for this country from expanded leagues
+      const countryData = fixturesByCountry[country];
+      if (countryData) {
+        Object.keys(countryData.leagues).forEach(leagueId => {
+          newExpandedLeagues.delete(`${country}-${leagueId}`);
+        });
+      }
     } else {
       newExpanded.add(country);
+      // Auto-expand the first league when country is expanded
+      const countryData = fixturesByCountry[country];
+      if (countryData && Object.keys(countryData.leagues).length > 0) {
+        // Sort leagues same way as in render (popular first, then alphabetical)
+        const sortedLeagues = Object.values(countryData.leagues)
+          .sort((a: any, b: any) => {
+            if (a.isPopular && !b.isPopular) return -1;
+            if (!a.isPopular && b.isPopular) return 1;
+            return a.league.name.localeCompare(b.league.name);
+          });
+        
+        if (sortedLeagues.length > 0) {
+          const firstLeague = sortedLeagues[0] as any;
+          newExpandedLeagues.add(`${country}-${firstLeague.league.id}`);
+        }
+      }
     }
+    
     setExpandedCountries(newExpanded);
+    setExpandedLeagues(newExpandedLeagues);
   };
 
   const toggleLeague = (country: string, leagueId: number) => {
