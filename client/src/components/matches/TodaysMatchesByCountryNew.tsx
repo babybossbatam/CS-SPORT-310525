@@ -40,6 +40,7 @@ import MyDateConversionFilter from "@/lib/MyDateConversionFilter";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
+import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 
 // Helper function to shorten team names
@@ -877,7 +878,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined) => {
+  const formatMatchTime = (dateString: string | null | undefined): string => {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
@@ -1224,6 +1225,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       toggleStarMatch(match.fixture.id);
                                     }}
                                     className="match-star-button"
+                                    style={{ visibility: 'hidden' }}
                                     title="Add to favorites"
                                     onMouseEnter={(e) => {
                                       e.currentTarget
