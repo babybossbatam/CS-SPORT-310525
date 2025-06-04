@@ -1172,6 +1172,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 <span className="text-xs text-gray-500">
                                   ({leagueData.matches.length})
                                 </span>
+                                {(() => {
+                                  const liveMatchesInLeague = leagueData.matches.filter((match: any) =>
+                                    ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+                                      match.fixture.status.short,
+                                    ),
+                                  ).length;
+                                  
+                                  if (liveMatchesInLeague > 0) {
+                                    return (
+                                      <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold animate-pulse">
+                                        {liveMatchesInLeague} LIVE
+                                      </span>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                               </div>
                               <span className="text-xs text-gray-600">
                                 {leagueData.league.country || "Unknown Country"}
