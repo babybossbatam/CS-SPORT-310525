@@ -147,7 +147,10 @@ export function shouldExcludeFromPopularLeagues(
   const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
 
   // FIRST: Check for UEFA Nations League Women specifically - always exclude
-  if (league.includes("uefa nations league") && (league.includes("women") || league.includes("womens"))) {
+  if (
+    league.includes("uefa nations league") &&
+    (league.includes("women") || league.includes("womens"))
+  ) {
     return true; // Exclude UEFA Nations League Women
   }
 
@@ -223,7 +226,7 @@ export function isPopularLeagueSuitable(
     league.includes("copa libertadores") ||
     league.includes("copa sudamericana") ||
     countryLower.includes("world") ||
-    countryLower.includes("europe") ||
+    countryLower.includes("europe") || 
     countryLower.includes("international");
 
   if (isMajorInternational && !league.includes("women")) {
@@ -250,7 +253,7 @@ export function isRestrictedUSLeague(
 
   if (countryLower.includes("usa") || countryLower.includes("united states")) {
     // Only allow MLS (253) and MLS Next Pro (254) for popular leagues display
-    const allowedUSALeagues = [253, 254];
+    const allowedUSALeagues = [253, 254, "MLS", "MLS Next Pro"];
     return !allowedUSALeagues.includes(leagueId);
   }
 
