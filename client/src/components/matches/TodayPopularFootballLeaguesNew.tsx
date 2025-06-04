@@ -1158,8 +1158,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           }
 
                           if (aUpcoming && bUpcoming) {
-                            // For upcoming matches, show earliest start time first
-                            return aTime - bTime;
+                            // For upcoming matches, show closest to current time first
+                            const nowTime = now.getTime();
+                            const aDistance = Math.abs(aTime - nowTime);
+                            const bDistance = Math.abs(bTime - nowTime);
+                            return aDistance - bDistance;
                           }
 
                           if (aFinished && bFinished) {
