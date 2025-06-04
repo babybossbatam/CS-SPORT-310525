@@ -121,9 +121,9 @@ export class MySmartDateLabeling {
     const nowTime = now.getTime();
     const fixtureTime = fixture.getTime();
 
-    // Create today's time range boundaries (00:00:01 - 23:59:59)
+    // Create today's time range boundaries (00:01:00 - 23:59:59)
     const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 1, 0); // 00:00:01
+    todayStart.setHours(0, 1, 0, 0); // 00:01:00
 
     const todayEnd = new Date(now);
     todayEnd.setHours(23, 59, 59, 999); // 23:59:59
@@ -133,7 +133,7 @@ export class MySmartDateLabeling {
 
     // If fixture time has already passed (which it should for finished matches)
     if (fixtureTime < nowTime) {
-      // Check if finished match is within today's time range (00:00:01 - 23:59:59)
+      // Check if finished match is within today's time range (00:01:00 - 23:59:59)
       if (fixtureTime >= todayStartTime && fixtureTime <= todayEndTime) {
         // Finished match from today's time range - count as "Today / Recent Match"
         const hoursPassed = differenceInHours(now, fixture);
@@ -181,7 +181,7 @@ export class MySmartDateLabeling {
   ): SmartDateResult {
     const fixtureTime = fixture.getTime();
     const targetStartOfDay = new Date(target);
-    targetStartOfDay.setHours(0, 0, 1, 0);
+    targetStartOfDay.setHours(0, 1, 0, 0);
     const targetEndOfDay = new Date(target);
     targetEndOfDay.setHours(23, 59, 59, 999);
 
