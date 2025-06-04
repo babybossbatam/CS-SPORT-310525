@@ -1219,13 +1219,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 >
                                   {/* Match Content */}
                                   <div className="flex items-center">
-                                    {/* Home Team - Fixed width to prevent overflow */}
-                                    <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
+                                    {/* Home Team - Adjusted width to prevent overflow */}
+                                    <div className="text-right text-sm text-gray-900 w-[90px] pr-1 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
                                         "Unknown Team"}
                                     </div>
 
-                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                                    <div className="flex-shrink-0 flex items-center justify-center">
                                       <img
                                         src={
                                           match.teams.home.logo ||
@@ -1247,8 +1247,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       />
                                     </div>
 
-                                    {/* Score/Time Center - Fixed width to maintain position */}
-                                    <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
+                                    {/* Score/Time Center - Adjusted width and removed padding */}
+                                    <div className="flex flex-col items-center justify-center px-2 w-[70px] flex-shrink-0 relative h-12"></div_str>
                                       {(() => {
                                         const status =
                                           match.fixture.status.short;
@@ -1450,7 +1450,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       })()}
                                     </div>
 
-                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                                    <div className="flex-shrink-0 flex items-center justify-center">
                                       <img
                                         src={
                                           match.teams.away.logo ||
@@ -1472,8 +1472,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       />
                                     </div>
 
-                                    {/* Away Team - Fixed width to prevent overflow */}
-                                    <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                                    {/* Away Team - Adjusted width to prevent overflow */}
+                                    <div className="text-left text-sm text-gray-900 w-[90px] pl-1 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.away.name) ||
                                         "Unknown Team"}
                                     </div>
