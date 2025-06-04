@@ -209,30 +209,32 @@ export class MyDateConversionFilter {
       let smartResult;
       let smartInfo;
 
-      // Use unified smart date labeling for all dates (today logic approach)
-      // Special handling for midnight NS matches to avoid date selector confusion
-      if (matchStatus === 'NS' && fixtureDate.includes('T00:00:00')) {
-        smartResult = MySmartDateLabeling.handleMidnightMatches(fixtureDate, matchStatus, selectedDate);
-      } else {
-        smartResult = MySmartDateLabeling.getSmartDateLabelForDate(fixtureDate, matchStatus, selectedDate);
-      }
-      
-      smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
-      
-      if (smartResult.isActualDate) {
-        shouldInclude = true;
+      // Check if this is a special date (today/yesterday/tomorrow) or custom date
+      if (selectedDate === todayString || selectedDate === yesterdayString || selectedDate === tomorrowString) {
+        // Use legacy smart date labeling with reference date for perspective-based filtering
+        const referenceDate = parseISO(selectedDate);
+        smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus, undefined, referenceDate);
+        smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
         
-        // Determine method based on selected date type
-        if (selectedDate === todayString) {
+        if (selectedDate === todayString && smartResult.label === 'today') {
+          shouldInclude = true;
           matchMethod = 'smart-today';
           matchReason = `Smart today: ${smartResult.reason}`;
-        } else if (selectedDate === yesterdayString) {
-          matchMethod = 'smart-yesterday';  
+        } else if (selectedDate === yesterdayString && smartResult.label === 'yesterday') {
+          shouldInclude = true;
+          matchMethod = 'smart-yesterday';
           matchReason = `Smart yesterday: ${smartResult.reason}`;
-        } else if (selectedDate === tomorrowString) {
+        } else if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') {
+          shouldInclude = true;
           matchMethod = 'smart-tomorrow';
           matchReason = `Smart tomorrow: ${smartResult.reason}`;
-        } else {
+        }
+      } else {
+        // Use new smart date labeling for any custom date
+        smartResult = MySmartDateLabeling.getSmartDateLabelForDate(fixtureDate, matchStatus, selectedDate);
+        
+        if (smartResult.isActualDate) {
+          shouldInclude = true;
           matchMethod = 'smart-custom-date';
           matchReason = `Smart custom date: ${smartResult.reason}`;
         }
