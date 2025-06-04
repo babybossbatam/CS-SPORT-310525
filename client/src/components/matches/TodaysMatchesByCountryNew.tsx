@@ -41,7 +41,6 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import "../../styles/MyLogoPositioning.css";
-import LazyImage from "../common/LazyImage";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -878,7 +877,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null |undefined) => {
+  const formatMatchTime = (dateString: string | null | undefined) => {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
@@ -1095,39 +1094,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           className="p-3 border-b border-gray-200 last:border-b-0"
                         >
                           {/* League Header */}
-                          <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px]">
+                          <div className="flex items-center gap-2 mb-0 py-2 bg-gray-50 border-b border-gray-200">
                             <img
-                              src={leagueData.league.logo || "/assets/fallback-logo.svg"}
-                              alt={leagueData.league.name || "Unknown League"}
-                              className="w-9 h-9 object-contain mt-0.5 rounded-full"
-                              style={{ backgroundColor: "transparent" }}
+                              src={leagueData.league.logo}
+                              alt={leagueData.league.name}
+                              className="w-4 h-4 object-contain"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src =
                                   "/assets/fallback-logo.svg";
                               }}
                             />
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-base text-gray-800">
-                                {safeSubstring(leagueData.league.name, 0) ||
-                                  "Unknown League"}
+                            <span className="font-medium text-sm text-gray-700">
+                              {leagueData.league.name}
+                            </span>
+                            {leagueData.isPopular && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
+                                Popular
                               </span>
-                              <span className="text-xs text-gray-600">
-                                {leagueData.league.country || "Unknown Country"}
-                              </span>
-                            </div>
-                            <div className="flex gap-1 ml-auto">
-                              {leagueData.isPopular && (
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                                  Popular
-                                </span>
-                              )}
-                            </div>
+                            )}
                           </div>
 
-                          
-
                           {/* Matches */}
-                          <div className="space-y-0">
+                          <div className="space-y-0 mt-3">
                             {leagueData.matches
                               .sort((a: any, b: any) => {
                                 // Priority order: Live > Upcoming > Ended
@@ -1227,39 +1215,40 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any) => (
                                 <div
                                   key={match.fixture.id}
-                                  className="border-b border-gray-100 last:border-b-0"
+                                  className="py-2 border-b border-gray-100 last:border-b-0"
                                 >
                                   {/* Match Content */}
                                   <div className="flex items-center">
-                                    {/* Home Team - Adjusted width to prevent overflow */}
-                                    <div className="text-right text-sm text-gray-900 w-[90px] pr-1 truncate flex-shrink-0">
+                                    {/* Home Team - Fixed width to prevent overflow */}
+                                    <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
                                         "Unknown Team"}
                                     </div>
 
-                                    <div className="flex-shrink-0 flex items-center justify-center">
-                                      <LazyImage
+                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                                      <img
                                         src={
-                                          match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                            : "/assets/fallback-logo.svg"
+                                          match.teams.home.logo ||
+                                          "/assets/fallback-logo.png"
                                         }
                                         alt={match.teams.home.name}
-                                        title={match.teams.home.name}
-                                        className={`team-logo ${
-                                          isNationalTeam(
-                                            match.teams.home,
-                                            leagueData.league
-                                          )
-                                            ? "national-team"
-                                            : ""
-                                        }`}
-                                        fallbackSrc="/assets/fallback-logo.svg"
+                                        className="team-logo"
+                                        onError={(e) => {
+                                          const target =
+                                            e.target as HTMLImageElement;
+                                          if (
+                                            target.src !==
+                                            "/assets/fallback-logo.png"
+                                          ) {
+                                            target.src =
+                                              "/assets/fallback-logo.png";
+                                          }
+                                        }}
                                       />
                                     </div>
 
-                                    {/* Score/Time Center - Adjusted width and removed padding */}
-                                    <div className="flex flex-col items-center justify-center px-2 w-[70px] flex-shrink-0 relative h-12">
+                                    {/* Score/Time Center - Fixed width to maintain position */}
+                                    <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
                                       {(() => {
                                         const status =
                                           match.fixture.status.short;
@@ -1461,29 +1450,30 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       })()}
                                     </div>
 
-                                    <div className="flex-shrink-0 flex items-center justify-center">
-                                      <LazyImage
+                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                                      <img
                                         src={
-                                          match.teams.away.id
-                                            ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                            : "/assets/fallback-logo.svg"
+                                          match.teams.away.logo ||
+                                          "/assets/fallback-logo.png"
                                         }
                                         alt={match.teams.away.name}
-                                        title={match.teams.away.name}
-                                        className={`team-logo ${
-                                          isNationalTeam(
-                                            match.teams.away,
-                                            leagueData.league
-                                          )
-                                            ? "national-team"
-                                            : ""
-                                        }`}
-                                        fallbackSrc="/assets/fallback-logo.svg"
+                                        className="team-logo"
+                                        onError={(e) => {
+                                          const target =
+                                            e.target as HTMLImageElement;
+                                          if (
+                                            target.src !==
+                                            "/assets/fallback-logo.png"
+                                          ) {
+                                            target.src =
+                                              "/assets/fallback-logo.png";
+                                          }
+                                        }}
                                       />
                                     </div>
 
-                                    {/* Away Team - Adjusted width to prevent overflow */}
-                                    <div className="text-left text-sm text-gray-900 w-[90px] pl-1 truncate flex-shrink-0">
+                                    {/* Away Team - Fixed width to prevent overflow */}
+                                    <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.away.name) ||
                                         "Unknown Team"}
                                     </div>
