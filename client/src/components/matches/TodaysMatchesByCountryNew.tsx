@@ -884,10 +884,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     
                                       
                                         <img
-                                      src={
-                                        match.teams.home.logo ||
-                                        "/assets/fallback-logo.png"
-                                      }
+                                          src={
+                                            match.teams.home.logo ||
+                                            "/assets/fallback-logo.png"
+                                          }
                                       alt={match.teams.home.name}
                                       className="team-logo"
                                       onError={(e) => {
