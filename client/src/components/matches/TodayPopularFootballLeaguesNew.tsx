@@ -125,6 +125,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     "Saudi Arabia",
     "Egypt",
     "Colombia",
+    "United States",
+    "USA",
+    "US",
     "United Arab Emirates",
     "United-Arab-Emirates",
   ];
@@ -136,10 +139,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     Italy: [135, 137], // Serie A, Coppa Italia
     Germany: [78, 81], // Bundesliga, DFB Pokal
     France: [61, 66], // Ligue 1, Coupe de France
-    // Removed league restrictions for Brazil, Colombia, Saudi Arabia, Europe, South America, World
+    // Removed league restrictions for Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World
     // These countries will now show all their leagues (exclusion filtering will be applied later)
-    USA: [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
-    "United States": [253, 254], // Only Major League Soccer (MLS) and MLS Next Pro
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
