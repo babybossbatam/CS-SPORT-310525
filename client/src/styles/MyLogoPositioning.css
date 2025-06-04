@@ -122,7 +122,8 @@
   object-fit: cover;
   border-radius: 50%;
   filter: brightness(100%) contrast(105%) saturate(100%);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+  background-color: transparent !important;
 }
 
 .team-logo.national-team {
@@ -253,10 +254,7 @@
   }
 }
 
-/* Hover effects */
-.match-card-container:hover .team-logo {
-  filter: brightness(100%) contrast(105%) saturate(95%) drop-shadow(0 4px 8px rgba(0,0,0,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
+/* Hover effects - removed team logo hover effect */
 
 /* League header styling (if needed) */
 .league-header-container {
