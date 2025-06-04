@@ -1,4 +1,3 @@
-
 /* MyLogoPositioning.css - Team Logo Positioning for Match Cards */
 
 /* Main match card container */
@@ -196,30 +195,30 @@
     padding: 0.5rem;
     gap: 0.25rem;
   }
-  
+
   .home-team-name,
   .away-team-name {
     font-size: 0.75rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-  
+
   .team-logo {
     width: 32px;
     height: 32px;
     min-width: 32px;
     min-height: 32px;
   }
-  
+
   .match-score-container {
     width: 70px;
     padding: 0 0.5rem;
   }
-  
+
   .match-score-display {
     font-size: 1rem;
   }
-  
+
   .match-time-display {
     font-size: 0.875rem;
   }
@@ -315,11 +314,6 @@
   transition: all 0.2s ease-in-out;
 }
 
-.country-header-button:hover {
-  background-color: rgb(249 250 251);
-  transform: translateX(2px);
-}
-
 .country-header-button.expanded {
   background-color: rgb(243 244 246);
   border-bottom: 2px solid rgb(59 130 246);
@@ -407,4 +401,15 @@
 .league-header-button:hover {
   background-color: rgb(249 250 251);
   transform: translateX(2px);
+}
+
+/* Country header button styles */
+.country-header-button {
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.country-header-button:hover {
+  background-color: #f9fafb;
 }
