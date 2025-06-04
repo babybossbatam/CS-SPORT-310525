@@ -105,30 +105,11 @@ export class MySmartDateLabeling {
 
   /**
    * Smart time-based labeling for not started matches
-   * For NS matches, use standard date comparison since they haven't started yet
-   * This ensures NS matches follow the correct logic:
-   * - NS matches within today's calendar date → "today"  
-   * - NS matches outside today's calendar date → "tomorrow"
+   * For NS matches, check if fixture is within today's time range (00:01:00-23:59:59)
+   * - NS matches within today's time range → "today"  
+   * - NS matches outside today's time range → "tomorrow"
    */
   private static getSmartTimeBasedLabel(fixture: Date, now: Date): SmartDateResult {
-    // For not started matches (NS), always use standard date comparison
-    // since they haven't started yet and shouldn't be affected by time ranges
-    return this.getStandardDateLabel(fixture, now);
-  }
-
-  /**
-   * Smart time-based labeling for not started matches with reference date
-   */
-  private static getSmartTimeBasedLabelWithReference(fixture: Date, reference: Date): SmartDateResult {
-    // For not started matches (NS), always use standard date comparison with reference
-    // since they haven't started yet and shouldn't be affected by time ranges
-    return this.getStandardDateLabelWithReference(fixture, reference);
-  }
-
-  /**
-   * Enhanced date labeling for finished matches
-   */
-  private static getFinishedMatchDateLabel(fixture: Date, now: Date): SmartDateResult {
     const nowTime = now.getTime();
     const fixtureTime = fixture.getTime();
 
@@ -142,50 +123,37 @@ export class MySmartDateLabeling {
     const todayStartTime = todayStart.getTime();
     const todayEndTime = todayEnd.getTime();
 
-    // If fixture time has already passed (which it should for finished matches)
-    if (fixtureTime < nowTime) {
-      // Check if finished match is within today's time range (00:01:00 - 23:59:59)
-      if (fixtureTime >= todayStartTime && fixtureTime <= todayEndTime) {
-        // Finished match from today's time range - count as "Today / Recent Match"
-        const hoursPassed = differenceInHours(now, fixture);
-        return {
-          label: 'today',
-          reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, within today's range)`,
-          isActualDate: true,
-          timeComparison: 'finished-within-today-range'
-        };
-      } else {
-        // Finished match outside today's time range - count as "Yesterday"
-        if (isSameDay(fixture, now)) {
-          // Same calendar date but outside time range (edge case)
-          const hoursPassed = differenceInHours(now, fixture);
-          return {
-            label: 'yesterday',
-            reason: `Finished match from ${format(fixture, 'HH:mm')} (${hoursPassed}h ago, outside today's range)`,
-            isActualDate: false,
-            timeComparison: 'finished-same-day-outside-range'
-          };
-        } else {
-          // Different calendar date and outside time range
-          return {
-            label: 'yesterday',
-            reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (outside today's range)`,
-            isActualDate: true,
-            timeComparison: 'finished-previous-date-outside-range'
-          };
-        }
-      }
+    // Check if NS fixture is within today's time range
+    if (fixtureTime >= todayStartTime && fixtureTime <= todayEndTime) {
+      return {
+        label: 'today',
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (within today's time range 00:01-23:59)`,
+        isActualDate: true,
+        timeComparison: 'ns-within-today-range'
+      };
+    } else if (fixtureTime > todayEndTime) {
+      // Future NS match outside today's range
+      return {
+        label: 'tomorrow',
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (future, outside today's time range)`,
+        isActualDate: false,
+        timeComparison: 'ns-future-outside-range'
+      };
+    } else {
+      // Past NS match outside today's range (edge case - shouldn't happen normally)
+      return {
+        label: 'tomorrow',
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (past NS match, treated as future)`,
+        isActualDate: false,
+        timeComparison: 'ns-past-outside-range'
+      };
     }
-
-    // Fallback to standard labeling for edge cases
-    return this.getStandardDateLabel(fixture, now);
   }
 
   /**
-   * Enhanced date labeling for finished matches with reference date
+   * Smart time-based labeling for not started matches with reference date
    */
-  private static getFinishedMatchDateLabelWithReference(fixture: Date, now: Date, reference: Date): SmartDateResult {
-    const nowTime = now.getTime();
+  private static getSmartTimeBasedLabelWithReference(fixture: Date, reference: Date): SmartDateResult {
     const fixtureTime = fixture.getTime();
 
     // Create reference date's time range boundaries (00:01:00 - 23:59:59)
@@ -198,26 +166,109 @@ export class MySmartDateLabeling {
     const referenceStartTime = referenceStart.getTime();
     const referenceEndTime = referenceEnd.getTime();
 
-    // If fixture time has already passed (which it should for finished matches)
-    if (fixtureTime < nowTime) {
-      // Check if finished match is within reference date's time range (00:01:00 - 23:59:59)
-      if (fixtureTime >= referenceStartTime && fixtureTime <= referenceEndTime) {
-        // Finished match from reference date's time range - count as "Today / Recent Match"
-        const hoursPassed = differenceInHours(now, fixture);
-        return {
-          label: 'today',
-          reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, within reference date's range)`,
-          isActualDate: true,
-          timeComparison: 'finished-within-reference-range'
-        };
-      } else {
-        // Use standard date comparison with reference for finished matches outside the range
-        return this.getStandardDateLabelWithReference(fixture, reference);
-      }
+    // Check if NS fixture is within reference date's time range
+    if (fixtureTime >= referenceStartTime && fixtureTime <= referenceEndTime) {
+      return {
+        label: 'today',
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (within reference date's time range 00:01-23:59)`,
+        isActualDate: true,
+        timeComparison: 'ns-within-reference-range'
+      };
+    } else if (fixtureTime > referenceEndTime) {
+      // Future NS match outside reference range
+      return {
+        label: 'tomorrow',
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (future, outside reference date's time range)`,
+        isActualDate: false,
+        timeComparison: 'ns-future-outside-reference-range'
+      };
+    } else {
+      // Past NS match outside reference range (edge case)
+      return {
+        label: 'tomorrow',
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (past NS match, treated as future)`,
+        isActualDate: false,
+        timeComparison: 'ns-past-outside-reference-range'
+      };
     }
+  }
 
-    // Fallback to standard labeling with reference for edge cases
-    return this.getStandardDateLabelWithReference(fixture, reference);
+  /**
+   * Enhanced date labeling for finished matches
+   * Finished matches outside time range (00:01:00-23:59:59) are labeled as "yesterday"
+   */
+  private static getFinishedMatchDateLabel(fixture: Date, now: Date): SmartDateResult {
+    const fixtureTime = fixture.getTime();
+
+    // Create today's time range boundaries (00:01:00 - 23:59:59)
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 1, 0, 0); // 00:01:00
+
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999); // 23:59:59
+
+    const todayStartTime = todayStart.getTime();
+    const todayEndTime = todayEnd.getTime();
+
+    // Check if finished match is within today's time range (00:01:00 - 23:59:59)
+    if (fixtureTime >= todayStartTime && fixtureTime <= todayEndTime) {
+      // Finished match from today's time range - count as "Today"
+      const hoursPassed = differenceInHours(now, fixture);
+      return {
+        label: 'today',
+        reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, within today's range)`,
+        isActualDate: true,
+        timeComparison: 'finished-within-today-range'
+      };
+    } else {
+      // Finished match outside today's time range - count as "Yesterday" (history)
+      const hoursPassed = differenceInHours(now, fixture);
+      return {
+        label: 'yesterday',
+        reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, outside today's range - history)`,
+        isActualDate: false,
+        timeComparison: 'finished-outside-range-history'
+      };
+    }
+  }
+
+  /**
+   * Enhanced date labeling for finished matches with reference date
+   * Finished matches outside reference time range are labeled as "yesterday"
+   */
+  private static getFinishedMatchDateLabelWithReference(fixture: Date, now: Date, reference: Date): SmartDateResult {
+    const fixtureTime = fixture.getTime();
+
+    // Create reference date's time range boundaries (00:01:00 - 23:59:59)
+    const referenceStart = new Date(reference);
+    referenceStart.setHours(0, 1, 0, 0); // 00:01:00
+
+    const referenceEnd = new Date(reference);
+    referenceEnd.setHours(23, 59, 59, 999); // 23:59:59
+
+    const referenceStartTime = referenceStart.getTime();
+    const referenceEndTime = referenceEnd.getTime();
+
+    // Check if finished match is within reference date's time range (00:01:00 - 23:59:59)
+    if (fixtureTime >= referenceStartTime && fixtureTime <= referenceEndTime) {
+      // Finished match from reference date's time range - count as "Today"
+      const hoursPassed = differenceInHours(now, fixture);
+      return {
+        label: 'today',
+        reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, within reference date's range)`,
+        isActualDate: true,
+        timeComparison: 'finished-within-reference-range'
+      };
+    } else {
+      // Finished match outside reference date's time range - count as "Yesterday" (history)
+      const hoursPassed = differenceInHours(now, fixture);
+      return {
+        label: 'yesterday',
+        reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, outside reference range - history)`,
+        isActualDate: false,
+        timeComparison: 'finished-outside-reference-range-history'
+      };
+    }
   }
 
   /**
@@ -284,6 +335,8 @@ export class MySmartDateLabeling {
 
   /**
    * Standard date labeling for finished/live matches
+   * Past dates (before yesterday) → "yesterday" (history)
+   * Future dates (after tomorrow) → "tomorrow" (future)
    */
   private static getStandardDateLabel(fixture: Date, now: Date): SmartDateResult {
     const today = new Date(now);
@@ -316,22 +369,24 @@ export class MySmartDateLabeling {
     } else if (isBefore(fixture, yesterday)) {
       return {
         label: 'yesterday',
-        reason: 'Match is from a past date',
+        reason: 'Match is from a past date (history - before yesterday)',
         isActualDate: false,
-        timeComparison: 'standard-past'
+        timeComparison: 'standard-past-history'
       };
     } else {
       return {
         label: 'tomorrow',
-        reason: 'Match is on a future date',
+        reason: 'Match is on a future date (after tomorrow)',
         isActualDate: false,
-        timeComparison: 'standard-future'
+        timeComparison: 'standard-future-after-tomorrow'
       };
     }
   }
 
   /**
    * Standard date labeling with reference date
+   * Past dates (before reference yesterday) → "yesterday" (history)
+   * Future dates (after reference tomorrow) → "tomorrow" (future)
    */
   private static getStandardDateLabelWithReference(fixture: Date, reference: Date): SmartDateResult {
     const today = new Date(reference);
@@ -364,16 +419,16 @@ export class MySmartDateLabeling {
     } else if (isBefore(fixture, yesterday)) {
       return {
         label: 'yesterday',
-        reason: 'Match is from a past date relative to reference',
+        reason: 'Match is from a past date relative to reference (history - before yesterday)',
         isActualDate: false,
-        timeComparison: 'standard-reference-past'
+        timeComparison: 'standard-reference-past-history'
       };
     } else {
       return {
         label: 'tomorrow',
-        reason: 'Match is on a future date relative to reference',
+        reason: 'Match is on a future date relative to reference (after tomorrow)',
         isActualDate: false,
-        timeComparison: 'standard-reference-future'
+        timeComparison: 'standard-reference-future-after-tomorrow'
       };
     }
   }
