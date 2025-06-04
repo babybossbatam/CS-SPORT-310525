@@ -427,10 +427,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         {/* Header showing filtered popular leagues */}
         <div className="flex items-start gap-2 p-2 bg-white border-b border-gray-200">
           <div className="flex flex-col">
-            <span className="font-semibold text-gray-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
               {getHeaderTitle()}
             </span>
-            <span className="text-gray-600" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
               {sortedMatches.length} matches
             </span>
           </div>

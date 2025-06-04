@@ -307,7 +307,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-base font-semibbold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3 ">
+      <h3 className="text-base font-semibbold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive
@@ -374,17 +374,17 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                     }}
                   />
                   <div className="flex flex-col flex-1">
-                    <span className="font-semibold text-gray-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                    <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                       {safeSubstring(leagueData.league.name, 0) ||
                         "Unknown League"}
                     </span>
-                    <span className="text-gray-600" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                    <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                       {leagueData.league.country || "Unknown Country"}
                     </span>
                   </div>
                   <div className="flex gap-1">
                     {leagueData.isPopular && (
-                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
+                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '11.3px' }}>
                         Popular
                       </span>
                     )}

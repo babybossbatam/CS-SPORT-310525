@@ -969,7 +969,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   return (
     <Card className="mt-4">
       <CardHeader className="flex flex-col space-y-1.5 p-2 border-b border-stone-200">
-        <h3 className="font-semibold" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>{getHeaderTitle()}</h3>
+        <h3 className="font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>{getHeaderTitle()}</h3>
       </CardHeader>
       <CardContent className="p-0">
         <div>
@@ -1099,21 +1099,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         }
                       }}
                     />
-                    <span className="font-medium text-gray-900" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
+                    <span className="font-medium text-gray-900" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                       {countryData.country}
                     </span>
-                    <span className="text-gray-500" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
+                    <span className="text-gray-500" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                       ({totalMatches})
                     </span>
 
                     {/* Live/Recent badges */}
                     {liveMatches > 0 && (
-                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium animate-pulse" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
+                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium animate-pulse" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                         {liveMatches} LIVE
                       </span>
                     )}
                     {recentMatches > 0 && !liveMatches && (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                         {recentMatches} Recent
                       </span>
                     )}
@@ -1163,11 +1163,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             />
                             <div className="flex flex-col flex-1 text-left">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-800 group-hover:underline transition-all duration-200" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                                <span className="font-semibold text-gray-800 group-hover:underline transition-all duration-200" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                                   {safeSubstring(leagueData.league.name, 0) ||
                                     "Unknown League"}
                                 </span>
-                                <span className="text-gray-500" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                                <span className="text-gray-500" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                                   ({leagueData.matches.length})
                                 </span>
                                 {(() => {
