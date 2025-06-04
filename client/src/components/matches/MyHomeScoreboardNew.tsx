@@ -18,6 +18,7 @@ import {
   shouldFetchFresh,
   getEnhancedCacheStats 
 } from '@/lib/fixtureCache';
+import { backgroundCache, prefetchMatchData } from '@/lib/backgroundCache';
 
 interface MyHomeScoreboardNewProps {
   filterByPopularCountry?: boolean;
@@ -241,7 +242,7 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
     return prioritized.slice(0, maxMatches);
   }, [allFixtures, filterByPopularCountry, maxMatches]);
 
-  // Auto-select match with countdown timer
+  // Auto-select match with countdown timer and prefetch data
   useEffect(() => {
     if (!scoreboard.length) return;
 
@@ -261,6 +262,14 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
     if (upcomingMatchIndex !== -1) {
       setCurrentIndex(upcomingMatchIndex);
     }
+
+    // Background prefetch for all scoreboard matches
+    scoreboard.forEach((match, index) => {
+      const priority = index === 0 ? 'high' : index < 3 ? 'normal' : 'low';
+      if (priority !== 'low') {
+        prefetchMatchData(match.fixture.id);
+      }
+    });
   }, [scoreboard]);
 
   // Update live timer
