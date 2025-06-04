@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Calendar, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { format, parseISO, isValid, differenceInHours } from "date-fns";
+import { format, parseISO, isValid, differenceInHours, subDays, addDays } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import { shouldExcludeFixture } from "@/lib/exclusionFilters";
+import { shouldExcludeFromPopularLeagues, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
-import { getCountryFlagWithFallback } from "@/lib/flagUtils";
+import { getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
+import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 import { 
   isDateStringToday,
   isDateStringYesterday,
@@ -31,8 +33,39 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
-  // Popular leagues for prioritization
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+  // Use the same popular countries and leagues as TodayPopularFootballLeaguesNew
+  const POPULAR_COUNTRIES_ORDER = [
+    "England",
+    "Spain",
+    "Italy",
+    "Germany",
+    "France",
+    "World",
+    "Europe",
+    "South America",
+    "Brazil",
+    "Saudi Arabia",
+    "Egypt",
+    "Colombia",
+    "United States",
+    "USA",
+    "US",
+    "United Arab Emirates",
+    "United-Arab-Emirates",
+  ];
+
+  const POPULAR_LEAGUES_BY_COUNTRY = {
+    England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
+    Spain: [140, 143], // La Liga, Copa del Rey
+    Italy: [135, 137], // Serie A, Coppa Italia
+    Germany: [78, 81], // Bundesliga, DFB Pokal
+    France: [61, 66], // Ligue 1, Coupe de France
+    "United Arab Emirates": [301], // UAE Pro League
+    Egypt: [233], // Egyptian Premier League (only major league)
+    International: [15], // FIFA Club World Cup as separate category
+  };
+
+  const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
   const toggleStarMatch = (fixtureId: number) => {
     const newStarred = new Set(starredMatches);
@@ -66,108 +99,260 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     refetchOnReconnect: false,
   });
 
-  // Use the main fixtures data directly since TodayPopularFootballLeaguesNew already handles smart date filtering
+  // Apply the same filtering logic as TodayPopularFootballLeaguesNew
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length) return [];
 
-  // Use only the main fixtures data
-  const allFixtures = fixtures;
+    console.log(`Processing ${fixtures.length} fixtures for filtering`);
+    const startTime = Date.now();
 
-  // Collect all matches from all leagues and add league info
-  const allMatches = allFixtures
-    .map((fixture: any) => ({
-      ...fixture,
-      leagueInfo: {
-        name: fixture.league?.name || "Unknown League",
-        country: fixture.league?.country || "Unknown Country",
-        logo: fixture.league?.logo || "/assets/fallback-logo.svg",
-      },
-    }))
-    .filter((fixture: any) => {
-      // Validate fixture structure
-      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+    const filtered = fixtures.filter((fixture) => {
+      // Apply smart date filtering first (same as TodayPopularFootballLeaguesNew)
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartDateLabeling.getSmartDateLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short
+        );
+
+        // For selected date filtering, accept matches that smart labeling considers appropriate
+        const todayDate = new Date().toISOString().slice(0, 10);
+        const yesterdayDate = subDays(new Date(), 1).toISOString().slice(0, 10);
+        const tomorrowDate = addDays(new Date(), 1).toISOString().slice(0, 10);
+
+        const isSelectedToday = selectedDate === todayDate;
+        const isSelectedYesterday = selectedDate === yesterdayDate;
+        const isSelectedTomorrow = selectedDate === tomorrowDate;
+
+        // Strict matching: only include if smart labeling matches selected date type
+        if (isSelectedToday && smartResult.label === 'today') return true;
+        if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+        if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+
+        // For matches with finished/live status, use standard date matching as fallback
+        const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
+        const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
+
+        if (finishedStatuses.includes(fixture.fixture.status.short) || 
+            liveStatuses.includes(fixture.fixture.status.short)) {
+          return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+        }
+
+        // For not started matches, strictly follow smart date labeling - no fallback
         return false;
       }
 
-      // Basic date validation - smart filtering is handled upstream
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const fixtureDate = parseISO(fixture.fixture.date);
-        if (!isValid(fixtureDate)) return false;
-        
-        // Simple date matching for basic validation
-        const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
-        if (fixtureLocalDate !== selectedDate) return false;
+      // Client-side filtering for popular leagues and countries (same as TodayPopularFootballLeaguesNew)
+      const leagueId = fixture.league?.id;
+      const country = fixture.league?.country?.toLowerCase() || "";
+
+      // Check if it's a popular league
+      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+      // Check if it's from a popular country
+      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+        (popularCountry) =>
+          country.includes(popularCountry.toLowerCase()),
+      );
+
+      // Apply exclusion check FIRST, before checking international competitions
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+
+      // Early exclusion for women's competitions and other unwanted matches
+      if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
+        return false;
       }
 
-      // Apply exclusion filters
-      const leagueName = fixture.league.name || "";
-      const homeTeamName = fixture.teams?.home?.name || "";
-      const awayTeamName = fixture.teams?.away?.name || "";
+      // Check if it's an international competition (after exclusion check)
+      const isInternationalCompetition =
+        // UEFA competitions (but women's already excluded above)
+        leagueName.includes("champions league") ||
+        leagueName.includes("europa league") ||
+        leagueName.includes("conference league") ||
+        leagueName.includes("uefa") ||
+        // FIFA competitions
+        leagueName.includes("world cup") ||
+        leagueName.includes("fifa club world cup") ||
+        leagueName.includes("fifa") ||
+        // CONMEBOL competitions
+        leagueName.includes("conmebol") ||
+        leagueName.includes("copa america") ||
+        leagueName.includes("copa libertadores") ||
+        leagueName.includes("copa sudamericana") ||
+        leagueName.includes("libertadores") ||
+        leagueName.includes("sudamericana") ||
+        // Men's International Friendlies (excludes women's)
+        (leagueName.includes("friendlies") &&
+          !leagueName.includes("women")) ||
+        (leagueName.includes("international") &&
+          !leagueName.includes("women")) ||
+        country.includes("world") ||
+        country.includes("europe") ||
+        country.includes("international");
 
-      // Skip exclusion filter for Egypt matches
-      if (fixture.league.country?.toLowerCase() !== "egypt") {
-        if (shouldExcludeFixture(leagueName, homeTeamName, awayTeamName)) {
-          return false;
-        }
+      return (
+        isPopularLeague ||
+        isFromPopularCountry ||
+        isInternationalCompetition
+      );
+    });
+
+    const finalFiltered = filtered.filter((fixture) => {
+      // Apply popular league exclusion filters (same as TodayPopularFootballLeaguesNew)
+      if (
+        shouldExcludeFromPopularLeagues(
+          fixture.league.name,
+          fixture.teams.home.name,
+          fixture.teams.away.name,
+          fixture.league.country
+        )
+      ) {
+        return false;
+      }
+
+      // Additional check for restricted US leagues
+      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
+        return false;
+      }
+
+      // Skip fixtures with null or undefined country
+      if (!fixture.league.country) {
+        return false;
+      }
+
+      const countryName = fixture.league.country?.toLowerCase() || "";
+      const leagueId = fixture.league.id;
+      const leagueNameLower = fixture.league.name?.toLowerCase() || "";
+
+      // Check for international competitions first
+      const isInternationalCompetition =
+        // UEFA competitions
+        leagueNameLower.includes("champions league") ||
+        leagueNameLower.includes("europa league") ||
+        leagueNameLower.includes("conference league") ||
+        leagueNameLower.includes("uefa") ||
+        leagueNameLower.includes("euro") ||
+        // FIFA competitions
+        leagueNameLower.includes("world cup") ||
+        leagueNameLower.includes("fifa club world cup") ||
+        leagueNameLower.includes("fifa cup") ||
+        leagueNameLower.includes("fifa") ||
+        // CONMEBOL competitions
+        leagueNameLower.includes("conmebol") ||
+        leagueNameLower.includes("copa america") ||
+        leagueNameLower.includes("copa libertadores") ||
+        leagueNameLower.includes("copa sudamericana") ||
+        leagueNameLower.includes("libertadores") ||
+        leagueNameLower.includes("sudamericana") ||
+        // Men's International Friendlies (excludes women's)
+        (leagueNameLower.includes("friendlies") &&
+          !leagueNameLower.includes("women")) ||
+        (leagueNameLower.includes("international") &&
+          !leagueNameLower.includes("women")) ||
+        countryName.includes("world") ||
+        countryName.includes("europe") ||
+        countryName.includes("international");
+
+      // Allow all international competitions through
+      if (isInternationalCompetition) {
+        return true;
+      }
+
+      // Check if it's a popular country
+      const matchingCountry = POPULAR_COUNTRIES_ORDER.find((country) =>
+        countryName.includes(country.toLowerCase()),
+      );
+
+      if (!matchingCountry) {
+        return false;
       }
 
       return true;
     });
 
-  // Filter for live matches only when both filters are active
-  const filteredMatches =
-    liveFilterActive && timeFilterActive
-      ? allMatches.filter((match: any) => {
-          const status = match.fixture.status.short;
-          return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-            status,
-          );
-        })
-      : allMatches;
-
-  // Sort all matches by priority: Live → Upcoming → Finished
-  const sortedMatches = filteredMatches.sort((a: any, b: any) => {
-    const aStatus = a.fixture.status.short;
-    const bStatus = b.fixture.status.short;
-    const aDate = parseISO(a.fixture.date);
-    const bDate = parseISO(b.fixture.date);
-
-    // Ensure valid dates
-    if (!isValid(aDate) || !isValid(bDate)) {
-      return 0;
-    }
-
-    const aTime = aDate.getTime();
-    const bTime = bDate.getTime();
-
-    // Check if matches are live
-    const aIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-      aStatus,
-    );
-    const bIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-      bStatus,
+    const endTime = Date.now();
+    console.log(
+      `Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
 
-    // Live matches first
-    if (aIsLive && !bIsLive) return -1;
-    if (!aIsLive && bIsLive) return 1;
+    return finalFiltered;
+  }, [fixtures, selectedDate]);
 
-    // If both are live, sort by elapsed time ascending (shorter elapsed time first)
-    if (aIsLive && bIsLive) {
-      const aElapsed = Number(a.fixture.status.elapsed) || 0;
-      const bElapsed = Number(b.fixture.status.elapsed) || 0;
-      return aElapsed - bElapsed; // Ascending order: shorter elapsed time first
+  // Apply time filtering to the popular league filtered fixtures
+  const timeFilteredMatches = useMemo(() => {
+    if (!timeFilterActive) return filteredFixtures;
+
+    return filteredFixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date) return false;
+
+      try {
+        const fixtureDate = parseISO(fixture.fixture.date);
+        if (!isValid(fixtureDate)) return false;
+
+        const now = new Date();
+        const hoursDifference = differenceInHours(fixtureDate, now);
+        return hoursDifference >= -2 && hoursDifference <= 12;
+      } catch (error) {
+        return false;
+      }
+    });
+  }, [filteredFixtures, timeFilterActive]);
+
+  // Apply live filtering if both filters are active
+  const finalMatches = useMemo(() => {
+    if (liveFilterActive && timeFilterActive) {
+      return timeFilteredMatches.filter((fixture) => {
+        const status = fixture.fixture.status.short;
+        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+      });
     }
+    return timeFilteredMatches;
+  }, [timeFilteredMatches, liveFilterActive, timeFilterActive]);
 
-    // Check if matches are finished
-    const aIsFinished = ["FT", "AET", "PEN"].includes(aStatus);
-    const bIsFinished = ["FT", "AET", "PEN"].includes(bStatus);
+  // Sort matches by priority and time
+  const sortedMatches = useMemo(() => {
+    return finalMatches.sort((a, b) => {
+      const aStatus = a.fixture.status.short;
+      const bStatus = b.fixture.status.short;
+      const aDate = parseISO(a.fixture.date);
+      const bDate = parseISO(b.fixture.date);
 
-    // Upcoming matches before finished matches
-    if (!aIsFinished && bIsFinished) return -1;
-    if (aIsFinished && !bIsFinished) return 1;
+      // Ensure valid dates
+      if (!isValid(aDate) || !isValid(bDate)) {
+        return 0;
+      }
 
-    // Within same category, sort by time
-    return aTime - bTime;
-  });
+      const aTime = aDate.getTime();
+      const bTime = bDate.getTime();
+
+      // Check if matches are live
+      const aIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+      const bIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+
+      // Live matches first
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+
+      // If both are live, sort by elapsed time ascending (shorter elapsed time first)
+      if (aIsLive && bIsLive) {
+        const aElapsed = Number(a.fixture.status.elapsed) || 0;
+        const bElapsed = Number(b.fixture.status.elapsed) || 0;
+        return aElapsed - bElapsed;
+      }
+
+      // Check if matches are finished
+      const aIsFinished = ["FT", "AET", "PEN"].includes(aStatus);
+      const bIsFinished = ["FT", "AET", "PEN"].includes(bStatus);
+
+      // Upcoming matches before finished matches
+      if (!aIsFinished && bIsFinished) return -1;
+      if (aIsFinished && !bIsFinished) return 1;
+
+      // Within same category, sort by time
+      return aTime - bTime;
+    });
+  }, [finalMatches]);
 
   // Get header title based on button states and selected date
   const getHeaderTitle = () => {
@@ -175,20 +360,20 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     if (liveFilterActive && timeFilterActive) {
       return "Popular Football Live Score";
     } else if (!liveFilterActive && timeFilterActive) {
-      return "All Matches by Time";
+      return "Popular Leagues by Time";
     }
 
     // Default behavior based on selected date
     const selectedDateObj = new Date(selectedDate);
 
     if (isToday(selectedDateObj)) {
-      return "Today's Matches by Time";
+      return "Today's Popular Leagues by Time";
     } else if (isYesterday(selectedDateObj)) {
-      return "Yesterday's Matches by Time";
+      return "Yesterday's Popular Leagues by Time";
     } else if (isTomorrow(selectedDateObj)) {
-      return "Tomorrow's Matches by Time";
+      return "Tomorrow's Popular Leagues by Time";
     } else {
-      return `Football Matches - ${format(selectedDateObj, "MMM d, yyyy")}`;
+      return `Popular Leagues - ${format(selectedDateObj, "MMM d, yyyy")}`;
     }
   };
 
@@ -224,7 +409,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     );
   }
 
-  if (!allFixtures.length) {
+  if (!sortedMatches.length) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
@@ -235,105 +420,18 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     );
   }
 
-  // Group matches by time slots with enhanced prioritization
-  const matchesByTime = allFixtures
-    .filter((fixture: any) => {
-      // Validate fixture structure
-      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-        return false;
-      }
-
-      const matchDate = parseISO(fixture.fixture.date);
-      if (!isValid(matchDate)) return false;
-
-      return true;
-    })
-    .reduce((acc: Record<string, any[]>, fixture: any) => {
-      const matchDate = parseISO(fixture.fixture.date);
-      if (!isValid(matchDate)) return acc;
-
-      const timeSlot = format(matchDate, "HH:00");
-
-      if (!acc[timeSlot]) {
-        acc[timeSlot] = [];
-      }
-
-      // Add other fixture details as needed
-      acc[timeSlot].push(fixture);
-      return acc;
-    }, {});
-
-    // Prioritize popular leagues and sort by time
-  const matchesByTimeWithPriority = useMemo(() => {
-    const timeGroups: Record<string, any[]> = {};
-
-    // Popular leagues for prioritization (matching MyPopularLeagueExclusion logic)
-    const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
-
-    filteredMatches.forEach((match: any) => {
-      const matchDate = parseISO(match.fixture.date);
-      if (!isValid(matchDate)) return;
-
-      const timeSlot = format(matchDate, "HH:00");
-
-      if (!timeGroups[timeSlot]) {
-        timeGroups[timeSlot] = [];
-      }
-
-      // Add priority flag for popular leagues
-      match.isPopularLeague = POPULAR_LEAGUES.includes(match.league.id);
-
-      timeGroups[timeSlot].push(match);
-    });
-
-    // Sort matches within each time slot by league priority and match importance
-    Object.keys(timeGroups).forEach(timeSlot => {
-      timeGroups[timeSlot].sort((a: any, b: any) => {
-        // First prioritize popular leagues
-        if (a.isPopularLeague && !b.isPopularLeague) return -1;
-        if (!a.isPopularLeague && b.isPopularLeague) return 1;
-
-        // Then by match status (live matches first)
-        const aStatus = a.fixture.status.short;
-        const bStatus = b.fixture.status.short;
-        const aIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-        const bIsLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
-
-        if (aIsLive && !bIsLive) return -1;
-        if (!aIsLive && bIsLive) return 1;
-
-        // Prioritize major international competitions
-        const aMajorInternational = a.league.name.toLowerCase().includes('champions league') ||
-                                   a.league.name.toLowerCase().includes('europa league') ||
-                                   a.league.name.toLowerCase().includes('world cup') ||
-                                   a.league.name.toLowerCase().includes('copa america');
-        const bMajorInternational = b.league.name.toLowerCase().includes('champions league') ||
-                                   b.league.name.toLowerCase().includes('europa league') ||
-                                   b.league.name.toLowerCase().includes('world cup') ||
-                                   b.league.name.toLowerCase().includes('copa america');
-
-        if (aMajorInternational && !bMajorInternational) return -1;
-        if (!aMajorInternational && bMajorInternational) return 1;
-
-        // Finally by league name
-        return a.league.name.localeCompare(b.league.name);
-      });
-    });
-
-    return timeGroups;
-  }, [filteredMatches]);
-
   return (
     <>
-      {/* Main Header */}
-
       {/* Single consolidated card with all matches sorted by time */}
       <Card className="mt-4 overflow-hidden">
-        {/* Header showing total matches */}
+        {/* Header showing filtered popular leagues */}
         <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200">
           <div className="flex flex-col">
             <span className="font-semibold text-base text-gray-800">
-              Popular Football Leagues
+              {getHeaderTitle()}
+            </span>
+            <span className="text-sm text-gray-600">
+              {sortedMatches.length} matches
             </span>
           </div>
           {liveFilterActive && timeFilterActive && (
@@ -349,179 +447,174 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         {/* All Matches */}
         <CardContent className="p-0">
           <div className="space-y-0">
-            {Object.entries(matchesByTime).map(([timeSlot, matches]) => (
-              <div key={timeSlot}>
+            {sortedMatches.map((match) => (
+              <div
+                key={match.fixture.id}
+                className="match-card-container group"
+              >
+                {/* Star Button with slide-in effect */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleStarMatch(match.fixture.id);
+                  }}
+                  className="match-star-button"
+                  title="Add to favorites"
+                  onMouseEnter={(e) => {
+                    e.currentTarget
+                      .closest(".group")
+                      ?.classList.add("disable-hover");
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget
+                      .closest(".group")
+                      ?.classList.remove("disable-hover");
+                  }}
+                >
+                  <Star
+                    className={`match-star-icon ${
+                      starredMatches.has(match.fixture.id) ? "starred" : ""
+                    }`}
+                  />
+                </button>
 
-                {matches.map((match: any) => (
-                  <div
-                    key={match.fixture.id}
-                    className="match-card-container group"
-                  >
-                    {/* Star Button with slide-in effect */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleStarMatch(match.fixture.id);
+                <div className="match-content-container">
+                  {/* Home Team - Fixed width to prevent overflow */}
+                  <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
+                    {match.teams.home.name || "Unknown Team"}
+                  </div>
+
+                  <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                    <img
+                      src={match.teams.home.logo || "/assets/fallback-logo.svg"}
+                      alt={match.teams.home.name}
+                      className="team-logo"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== "/assets/fallback-logo.svg") {
+                          target.src = "/assets/fallback-logo.svg";
+                        }
                       }}
-                      className="match-star-button"
-                      title="Add to favorites"
-                      onMouseEnter={(e) => {
-                        e.currentTarget
-                          .closest(".group")
-                          ?.classList.add("disable-hover");
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget
-                          .closest(".group")
-                          ?.classList.remove("disable-hover");
-                      }}
-                    >
-                      <Star
-                        className={`match-star-icon ${
-                          starredMatches.has(match.fixture.id) ? "starred" : ""
-                        }`}
-                      />
-                    </button>
+                    />
+                  </div>
 
-                    <div className="match-content-container">
-                    {/* Home Team - Fixed width to prevent overflow */}
-                    <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
-                      {match.teams.home.name || "Unknown Team"}
-                    </div>
+                  {/* Score/Time Center - Fixed width to maintain position */}
+                  <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
+                    {(() => {
+                      const status = match.fixture.status.short;
+                      const fixtureDate = parseISO(match.fixture.date);
 
-                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                      <img
-                        src={match.teams.home.logo || "/assets/fallback-logo.svg"}
-                        alt={match.teams.home.name}
-                        className="team-logo"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.src !== "/assets/fallback-logo.svg") {
-                            target.src = "/assets/fallback-logo.svg";
-                          }
-                        }}
-                      />
-                    </div>
+                      // Live matches
+                      if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+                        return (
+                          <div className="relative">
+                            <div className="text-lg font-bold flex items-center gap-2">
+                              <span className="text-black">{match.goals.home ?? 0}</span>
+                              <span className="text-gray-400">-</span>
+                              <span className="text-black">{match.goals.away ?? 0}</span>
+                            </div>
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                              <span className="text-red-600 animate-pulse bg-white px-1 rounded">
+                                {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
 
-                    {/* Score/Time Center - Fixed width to maintain position */}
-                    <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
-                      {(() => {
-                        const status = match.fixture.status.short;
-                        const fixtureDate = parseISO(match.fixture.date);
+                      // Finished matches
+                      if (
+                        [
+                          "FT",
+                          "AET",
+                          "PEN",
+                          "AWD",
+                          "WO",
+                          "ABD",
+                          "CANC",
+                          "SUSP",
+                        ].includes(status)
+                      ) {
+                        const homeScore = match.goals?.home;
+                        const awayScore = match.goals?.away;
+                        const hasValidScores =
+                          homeScore !== null &&
+                          homeScore !== undefined &&
+                          awayScore !== null &&
+                          awayScore !== undefined &&
+                          !isNaN(Number(homeScore)) &&
+                          !isNaN(Number(awayScore));
 
-                        // Live matches
-                        if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+                        if (hasValidScores) {
                           return (
                             <div className="relative">
                               <div className="text-lg font-bold flex items-center gap-2">
-                                <span className="text-black">{match.goals.home ?? 0}</span>
+                                <span className="text-black">{homeScore}</span>
                                 <span className="text-gray-400">-</span>
-                                <span className="text-black">{match.goals.away ?? 0}</span>
+                                <span className="text-black">{awayScore}</span>
                               </div>
                               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                <span className="text-red-600 animate-pulse bg-white px-1 rounded">
-                                  {status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`}
+                                <span className="text-gray-600 bg-white px-1 rounded">
+                                  {status === "FT" ? "Ended" : status}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="relative">
+                              <div className="text-sm font-medium text-gray-900">
+                                {format(fixtureDate, "HH:mm")}
+                              </div>
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                <span className="text-gray-600 bg-white px-1 rounded">
+                                  {status === "FT" ? "No Score" : status}
                                 </span>
                               </div>
                             </div>
                           );
                         }
+                      }
 
-                        // Finished matches
-                        if (
-                          [
-                            "FT",
-                            "AET",
-                            "PEN",
-                            "AWD",
-                            "WO",
-                            "ABD",
-                            "CANC",
-                            "SUSP",
-                          ].includes(status)
-                        ) {
-                          const homeScore = match.goals?.home;
-                          const awayScore = match.goals?.away;
-                          const hasValidScores =
-                            homeScore !== null &&
-                            homeScore !== undefined &&
-                            awayScore !== null &&
-                            awayScore !== undefined &&
-                            !isNaN(Number(homeScore)) &&
-                            !isNaN(Number(awayScore));
-
-                          if (hasValidScores) {
-                            return (
-                              <div className="relative">
-                                <div className="text-lg font-bold flex items-center gap-2">
-                                  <span className="text-black">{homeScore}</span>
-                                  <span className="text-gray-400">-</span>
-                                  <span className="text-black">{awayScore}</span>
-                                </div>
-                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                  <span className="text-gray-600 bg-white px-1 rounded">
-                                    {status === "FT" ? "Ended" : status}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          } else {
-                            return (
-                              <div className="relative">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {format(fixtureDate, "HH:mm")}
-                                </div>
-                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                  <span className="text-gray-600 bg-white px-1 rounded">
-                                    {status === "FT" ? "No Score" : status}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          }
-                        }
-
-                        // Upcoming matches
-                        return (
-                          <div className="relative flex items-center justify-center h-full">
-                            <div className="text-base font-medium text-black">
-                              {status === "TBD"
-                                ? "TBD"
-                                : format(fixtureDate, "HH:mm")}
-                            </div>
-                            {status === "TBD" && (
-                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
-                                <span className="text-gray-500 bg-white px-1 rounded">
-                                  Time TBD
-                                </span>
-                              </div>
-                            )}
+                      // Upcoming matches
+                      return (
+                        <div className="relative flex items-center justify-center h-full">
+                          <div className="text-base font-medium text-black">
+                            {status === "TBD"
+                              ? "TBD"
+                              : format(fixtureDate, "HH:mm")}
                           </div>
-                        );
-                      })()}
-                    </div>
-
-                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                      <img
-                        src={match.teams.away.logo || "/assets/fallback-logo.svg"}
-                        alt={match.teams.away.name}
-                        className="team-logo"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.src !== "/assets/fallback-logo.svg") {
-                            target.src = "/assets/fallback-logo.svg";
-                          }
-                        }}
-                      />
-                    </div>
-
-                    {/* Away Team - Fixed width for consistency */}
-                    <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
-                      {match.teams.away.name || "Unknown Team"}
-                    </div>
-                    </div>
+                          {status === "TBD" && (
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
+                              <span className="text-gray-500 bg-white px-1 rounded">
+                                Time TBD
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
-                ))}
+
+                  <div className="flex-shrink-0 mx-1 flex items-center justify-center">
+                    <img
+                      src={match.teams.away.logo || "/assets/fallback-logo.svg"}
+                      alt={match.teams.away.name}
+                      className="team-logo"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== "/assets/fallback-logo.svg") {
+                          target.src = "/assets/fallback-logo.svg";
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Away Team - Fixed width for consistency */}
+                  <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                    {match.teams.away.name || "Unknown Team"}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
