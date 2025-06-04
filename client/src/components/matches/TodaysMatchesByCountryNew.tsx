@@ -41,6 +41,7 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import "../../styles/MyLogoPositioning.css";
+import LazyImage from "../common/LazyImage";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -1134,16 +1135,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                               {/* Home team logo - closer to center */}
                               <div className="team-logo-container">
-                                <img
+                                <LazyImage
                                   src="/assets/fallback-logo.svg"
-                                  alt="Home Team"
+                                  alt="Sample Home Team"
+                                  title="Sample Home Team"
                                   className="team-logo"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    if (target.src !== "/assets/fallback-logo.svg") {
-                                      target.src = "/assets/fallback-logo.svg";
-                                    }
-                                  }}
+                                  fallbackSrc="/assets/fallback-logo.svg"
                                 />
                               </div>
 
@@ -1158,16 +1155,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                               {/* Away team logo - closer to center */}
                               <div className="team-logo-container">
-                                <img
+                                <LazyImage
                                   src="/assets/fallback-logo.svg"
-                                  alt="Away Team"
+                                  alt="Sample Away Team"
+                                  title="Sample Away Team"
                                   className="team-logo"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    if (target.src !== "/assets/fallback-logo.svg") {
-                                      target.src = "/assets/fallback-logo.svg";
-                                    }
-                                  }}
+                                  fallbackSrc="/assets/fallback-logo.svg"
                                 />
                               </div>
 
@@ -1290,24 +1283,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     </div>
 
                                     <div className="flex-shrink-0 flex items-center justify-center">
-                                      <img
+                                      <LazyImage
                                         src={
-                                          match.teams.home.logo ||
-                                          "/assets/fallback-logo.png"
+                                          match.teams.home.id
+                                            ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                            : "/assets/fallback-logo.svg"
                                         }
                                         alt={match.teams.home.name}
-                                        className="team-logo"
-                                        onError={(e) => {
-                                          const target =
-                                            e.target as HTMLImageElement;
-                                          if (
-                                            target.src !==
-                                            "/assets/fallback-logo.png"
-                                          ) {
-                                            target.src =
-                                              "/assets/fallback-logo.png";
-                                          }
-                                        }}
+                                        title={match.teams.home.name}
+                                        className={`team-logo ${
+                                          isNationalTeam(
+                                            match.teams.home,
+                                            leagueData.league
+                                          )
+                                            ? "national-team"
+                                            : ""
+                                        }`}
+                                        fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                     </div>
 
@@ -1515,24 +1507,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     </div>
 
                                     <div className="flex-shrink-0 flex items-center justify-center">
-                                      <img
+                                      <LazyImage
                                         src={
-                                          match.teams.away.logo ||
-                                          "/assets/fallback-logo.png"
+                                          match.teams.away.id
+                                            ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                            : "/assets/fallback-logo.svg"
                                         }
                                         alt={match.teams.away.name}
-                                        className="team-logo"
-                                        onError={(e) => {
-                                          const target =
-                                            e.target as HTMLImageElement;
-                                          if (
-                                            target.src !==
-                                            "/assets/fallback-logo.png"
-                                          ) {
-                                            target.src =
-                                              "/assets/fallback-logo.png";
-                                          }
-                                        }}
+                                        title={match.teams.away.name}
+                                        className={`team-logo ${
+                                          isNationalTeam(
+                                            match.teams.away,
+                                            leagueData.league
+                                          )
+                                            ? "national-team"
+                                            : ""
+                                        }`}
+                                        fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                     </div>
 
