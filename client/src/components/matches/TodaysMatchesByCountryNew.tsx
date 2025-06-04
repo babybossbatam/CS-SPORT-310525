@@ -1150,11 +1150,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               <span className="text-xs text-gray-500">
                                 ({leagueData.matches.length})
                               </span>
-                              {expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) ? (
-                                <ChevronUp className="h-4 w-4 text-gray-500 chevron-icon rotated" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4 text-gray-500 chevron-icon" />
-                              )}
                             </div>
                           </button>
 
