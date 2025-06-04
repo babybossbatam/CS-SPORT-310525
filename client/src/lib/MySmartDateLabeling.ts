@@ -168,36 +168,48 @@ export class MySmartDateLabeling {
     const nowTime = now.getTime();
     const fixtureTime = fixture.getTime();
     
+    // Create today's time range boundaries (00:00:01 - 23:59:59)
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 1, 0); // 00:00:01
+    
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999); // 23:59:59
+    
+    const todayStartTime = todayStart.getTime();
+    const todayEndTime = todayEnd.getTime();
+    
     // If fixture time has already passed (which it should for finished matches)
     if (fixtureTime < nowTime) {
-      if (isSameDay(fixture, now)) {
-        // Same calendar date - check if it was earlier today and should be considered "yesterday"
+      // Check if finished match is within today's time range (00:00:01 - 23:59:59)
+      if (fixtureTime >= todayStartTime && fixtureTime <= todayEndTime) {
+        // Finished match from today's time range - count as "Today / Recent Match"
         const hoursPassed = differenceInHours(now, fixture);
-        
-        // If significant time has passed, it might feel like "yesterday" to users
-        if (hoursPassed >= 6) {
+        return {
+          label: 'today',
+          reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, within today's range)`,
+          isActualDate: true,
+          timeComparison: 'finished-within-today-range'
+        };
+      } else {
+        // Finished match outside today's time range - count as "Yesterday"
+        if (isSameDay(fixture, now)) {
+          // Same calendar date but outside time range (edge case)
+          const hoursPassed = differenceInHours(now, fixture);
           return {
             label: 'yesterday',
-            reason: `Finished match from ${format(fixture, 'HH:mm')} (${hoursPassed}h ago)`,
+            reason: `Finished match from ${format(fixture, 'HH:mm')} (${hoursPassed}h ago, outside today's range)`,
             isActualDate: false,
-            timeComparison: 'finished-same-day-feels-yesterday'
+            timeComparison: 'finished-same-day-outside-range'
           };
         } else {
+          // Different calendar date and outside time range
           return {
-            label: 'today',
-            reason: `Finished match from earlier today at ${format(fixture, 'HH:mm')}`,
+            label: 'yesterday',
+            reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (outside today's range)`,
             isActualDate: true,
-            timeComparison: 'finished-same-day'
+            timeComparison: 'finished-previous-date-outside-range'
           };
         }
-      } else {
-        // Different calendar date and time has passed
-        return {
-          label: 'yesterday',
-          reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')}`,
-          isActualDate: true,
-          timeComparison: 'finished-previous-date'
-        };
       }
     }
 
