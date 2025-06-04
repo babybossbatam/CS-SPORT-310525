@@ -66,6 +66,8 @@
   flex: 1;
   min-height: 60px;
   gap: 0.5rem;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 /* Team name containers */
