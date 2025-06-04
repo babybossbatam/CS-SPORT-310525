@@ -242,7 +242,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const isSelectedYesterday = selectedDate === yesterdayDate;
         const isSelectedTomorrow = selectedDate === tomorrowDate;
 
-        // For NS matches, strictly apply smart date labeling
+        // For NS matches, strictly apply smart date labeling - NO FALLBACK
         if (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD' || fixture.fixture.status.short === 'PST') {
           // Only show NS matches if smart labeling matches selected date type
           if (isSelectedToday && smartResult.label === 'today') return true;
@@ -253,22 +253,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
           return false;
         }
 
-        // For finished/live matches, use standard date matching as fallback
+        // For finished/live matches, also strictly use smart labeling first
         const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
         const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
         if (finishedStatuses.includes(fixture.fixture.status.short) || 
             liveStatuses.includes(fixture.fixture.status.short)) {
-          // For finished/live matches, also check smart labeling first
+          // For finished/live matches, check smart labeling first
           if (isSelectedToday && smartResult.label === 'today') return true;
           if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
           if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
           
-          // Fallback to standard date matching for finished/live matches
+          // Only use fallback for finished/live matches if smart labeling doesn't match
           return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
         }
 
-        // For other statuses, use smart labeling
+        // For all other statuses, use smart labeling only
         if (isSelectedToday && smartResult.label === 'today') return true;
         if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
         if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
