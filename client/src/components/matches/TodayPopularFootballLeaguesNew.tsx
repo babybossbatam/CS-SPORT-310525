@@ -1153,8 +1153,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                           // If same priority, sort by time within category
                           if (aLive && bLive) {
-                            // For live matches, show earliest start time first
-                            return aTime - bTime;
+                            // For live matches, sort by elapsed time (smallest to highest)
+                            const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                            const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                            return aElapsed - bElapsed;
                           }
 
                           if (aUpcoming && bUpcoming) {
