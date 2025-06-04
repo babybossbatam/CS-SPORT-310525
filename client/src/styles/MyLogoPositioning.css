@@ -72,6 +72,7 @@
 .home-team-name {
   text-align: right;
   font-size: calc(0.875rem * 0.85);
+  font-weight: 600;
   color: rgb(17 24 39);
   flex: 1;
   padding-right: 0.75rem;
@@ -83,6 +84,7 @@
 .away-team-name {
   text-align: left;
   font-size: calc(0.875rem * 0.85);
+  font-weight: 600;
   color: rgb(17 24 39);
   flex: 1;
   padding-left: 0.75rem;
