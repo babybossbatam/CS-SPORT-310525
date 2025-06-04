@@ -73,6 +73,11 @@ export const popularLeagueExclusionTerms = [
   "oberliga schleswig",
   "oberliga thüringen",
 
+  // Additional regional/development leagues to exclude
+  "matogrossense",
+  "paraense b1",
+  "mls next pro",
+
   // Brazilian state leagues (lower-tier regional competitions)
   "amazonense",
   "baiano",
