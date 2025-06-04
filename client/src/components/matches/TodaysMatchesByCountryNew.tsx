@@ -878,7 +878,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined) => {
+  const formatMatchTime = (dateString: string | null | undefined): string => {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
@@ -1225,6 +1225,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       toggleStarMatch(match.fixture.id);
                                     }}
                                     className="match-star-button"
+                                    style={{ display: 'none' }}
                                     title="Add to favorites"
                                     onMouseEnter={(e) => {
                                       e.currentTarget
