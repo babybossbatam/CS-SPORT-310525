@@ -271,6 +271,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
           hoursDifference: Math.round((new Date(fixture.fixture.date).getTime() - new Date().getTime()) / (1000 * 60 * 60))
         });
 
+        // Special validation for NS matches with past dates (data inconsistency)
+        if (fixture.fixture.status.short === 'NS' && smartResult.timeComparison === 'ns-invalid-past-date') {
+          console.error(`❌ [SmartDateFilter] Match rejected:`, {
+            fixtureId: fixture.fixture.id,
+            expectedDate: selectedDate,
+            smartLabel: smartResult.label,
+            smartReason: smartResult.reason,
+            status: fixture.fixture.status.short
+          });
+          return false; // Reject invalid NS matches with past dates
+        }
+
         // For selected date filtering, accept matches that smart labeling considers appropriate
 
         // For NS matches, strictly apply smart date labeling - NO FALLBACK

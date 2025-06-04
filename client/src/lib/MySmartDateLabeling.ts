@@ -108,6 +108,7 @@ export class MySmartDateLabeling {
    * For NS matches, check if fixture is within today's time range (00:01:00-23:59:59)
    * - NS matches within today's time range → "today"  
    * - NS matches outside today's time range → "tomorrow"
+   * IMPORTANT: NS matches should NOT have past dates (data inconsistency)
    */
   private static getSmartTimeBasedLabel(fixture: Date, now: Date): SmartDateResult {
     // Convert fixture to local time for proper comparison
@@ -119,6 +120,26 @@ export class MySmartDateLabeling {
     const nowLocalDateString = format(nowLocal, 'yyyy-MM-dd');
     
     const fixtureTime = fixtureLocal.getTime();
+
+    // CRITICAL CHECK: NS matches should not have past dates
+    // This indicates data inconsistency - an NS match cannot be in the past
+    const nowTime = nowLocal.getTime();
+    if (fixtureTime < nowTime) {
+      console.warn(`⚠️ [Smart Date] INVALID NS MATCH - Past date detected:`, {
+        fixture: format(fixtureLocal, 'yyyy-MM-dd HH:mm:ss'),
+        current: format(nowLocal, 'yyyy-MM-dd HH:mm:ss'),
+        status: 'NS',
+        issue: 'NS match cannot have past date - data inconsistency'
+      });
+      
+      // Reject past NS matches as invalid - they should be PST, CANC, or have other status
+      return {
+        label: 'custom',
+        reason: `INVALID: NS match cannot have past date ${format(fixtureLocal, 'MMM dd, HH:mm')} - data inconsistency`,
+        isActualDate: false,
+        timeComparison: 'ns-invalid-past-date'
+      };
+    }
 
     // Create today's time range boundaries based on current LOCAL date (00:01:00 - 23:59:59)
     const todayStart = new Date(nowLocal);
@@ -138,7 +159,8 @@ export class MySmartDateLabeling {
       nowLocalDate: nowLocalDateString,
       todayRange: `${format(todayStart, 'yyyy-MM-dd HH:mm:ss')} - ${format(todayEnd, 'yyyy-MM-dd HH:mm:ss')}`,
       dateMatches: fixtureLocalDateString === nowLocalDateString,
-      withinTimeRange: fixtureTime >= todayStartTime && fixtureTime <= todayEndTime
+      withinTimeRange: fixtureTime >= todayStartTime && fixtureTime <= todayEndTime,
+      isFutureMatch: fixtureTime >= nowTime
     });
 
     // Primary check: Are we on the same local date?
@@ -165,22 +187,13 @@ export class MySmartDateLabeling {
       };
     }
 
-    // For any other date, determine if it's past or future
-    if (fixtureLocal < nowLocal) {
-      return {
-        label: 'yesterday',
-        reason: `NS match from ${format(fixtureLocal, 'MMM dd, HH:mm')} (past date)`,
-        isActualDate: false,
-        timeComparison: 'ns-past-date'
-      };
-    } else {
-      return {
-        label: 'tomorrow',
-        reason: `NS match from ${format(fixtureLocal, 'MMM dd, HH:mm')} (future date)`,
-        isActualDate: false,
-        timeComparison: 'ns-future-date'
-      };
-    }
+    // For future dates beyond tomorrow
+    return {
+      label: 'tomorrow',
+      reason: `NS match from ${format(fixtureLocal, 'MMM dd, HH:mm')} (future date)`,
+      isActualDate: false,
+      timeComparison: 'ns-future-date'
+    };
   }
 
   /**
