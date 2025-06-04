@@ -742,7 +742,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const toggleCountry = (country: string) => {
     const newExpanded = new Set(expandedCountries);
     const newExpandedLeagues = new Set(expandedLeagues);
-    
+
     if (newExpanded.has(country)) {
       newExpanded.delete(country);
       // Remove all leagues for this country from expanded leagues
@@ -764,14 +764,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             if (!a.isPopular && b.isPopular) return 1;
             return a.league.name.localeCompare(b.league.name);
           });
-        
+
         if (sortedLeagues.length > 0) {
           const firstLeague = sortedLeagues[0] as any;
           newExpandedLeagues.add(`${country}-${firstLeague.league.id}`);
         }
       }
     }
-    
+
     setExpandedCountries(newExpanded);
     setExpandedLeagues(newExpandedLeagues);
   };
@@ -877,8 +877,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
-    return (
-      <Card>
+    return (      <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <Skeleton className="h-4 w-4 rounded-full" />
@@ -901,7 +900,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 </div>
               </div>
             ))}
-```
           </div>
         </CardContent>
       </Card>
@@ -1178,7 +1176,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       match.fixture.status.short,
                                     ),
                                   ).length;
-                                  
+
                                   if (liveMatchesInLeague > 0) {
                                     return (
                                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold animate-pulse">
@@ -1342,7 +1340,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                   <div className="match-content-container">
                                     {/* Home Team Name - positioned further left */}
-                                    <div className="home-team-name">
+                                    <div className={`home-team-name ${
+                                      match.goals.home !== null && match.goals.away !== null && 
+                                      match.goals.home > match.goals.away ? 'winner' : ''
+                                    }`}>
                                       {shortenTeamName(match.teams.home.name) ||
                                         "Unknown Team"}
                                     </div>
@@ -1591,7 +1592,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     </div>
 
                                     {/* Away Team Name - positioned further right */}
-                                    <div className="away-team-name">
+                                    <div className={`away-team-name ${
+                                      match.goals.home !== null && match.goals.away !== null && 
+                                      match.goals.away > match.goals.home ? 'winner' : ''
+                                    }`}>
                                       {shortenTeamName(match.teams.away.name) ||
                                         "Unknown Team"}
                                     </div>

@@ -480,7 +480,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                 <div className="match-content-container">
                   {/* Home Team - Fixed width to prevent overflow */}
-                  <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
+                  <div className={`home-team-name ${
+                    match.goals.home !== null && match.goals.away !== null && 
+                    match.goals.home > match.goals.away ? 'winner' : ''
+                  }`}>
                     {match.teams.home.name || "Unknown Team"}
                   </div>
 
@@ -611,7 +614,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                   </div>
 
                   {/* Away Team - Fixed width for consistency */}
-                  <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                  <div className={`away-team-name ${
+                    match.goals.home !== null && match.goals.away !== null && 
+                    match.goals.away > match.goals.home ? 'winner' : ''
+                  }`}>
                     {match.teams.away.name || "Unknown Team"}
                   </div>
                 </div>
