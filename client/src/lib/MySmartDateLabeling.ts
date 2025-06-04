@@ -1,10 +1,11 @@
 import { parseISO, isValid, format, differenceInHours, isSameDay, isAfter, isBefore } from 'date-fns';
 
 export interface SmartDateResult {
-  label: 'today' | 'yesterday' | 'tomorrow';
+  label: 'today' | 'yesterday' | 'tomorrow' | 'custom';
   reason: string;
   isActualDate: boolean;
   timeComparison: string;
+  customDate?: string; // Store the actual date when using custom label
 }
 
 /**
@@ -14,7 +15,52 @@ export interface SmartDateResult {
 export class MySmartDateLabeling {
 
   /**
-   * Determine smart date label based on match status and time comparison
+   * Determine smart date label for a specific target date
+   */
+  static getSmartDateLabelForDate(
+    fixtureDate: string,
+    matchStatus: string,
+    targetDate: string,
+    currentTime?: Date
+  ): SmartDateResult {
+    const now = currentTime || new Date();
+    const fixture = parseISO(fixtureDate);
+    const target = parseISO(targetDate);
+
+    if (!isValid(fixture) || !isValid(target)) {
+      return {
+        label: 'custom',
+        reason: 'Invalid fixture or target date',
+        isActualDate: false,
+        timeComparison: 'invalid',
+        customDate: targetDate
+      };
+    }
+
+    const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
+    const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
+
+    // For finished matches, use enhanced logic with target date
+    if (finishedStatuses.includes(matchStatus)) {
+      return this.getFinishedMatchDateLabelForDate(fixture, target, targetDate, now);
+    }
+
+    // For live matches, use standard date comparison with target date
+    if (liveStatuses.includes(matchStatus)) {
+      return this.getStandardDateLabelForDate(fixture, target, targetDate);
+    }
+
+    // For not started matches, use smart time comparison with target date
+    if (matchStatus === 'NS' || matchStatus === 'TBD' || matchStatus === 'PST') {
+      return this.getStandardDateLabelForDate(fixture, target, targetDate);
+    }
+
+    // Default to standard date comparison for other statuses
+    return this.getStandardDateLabelForDate(fixture, target, targetDate);
+  }
+
+  /**
+   * Determine smart date label based on match status and time comparison (legacy method)
    */
   static getSmartDateLabel(
     fixtureDate: string,
@@ -125,6 +171,68 @@ export class MySmartDateLabeling {
   }
 
   /**
+   * Enhanced date labeling for finished matches with target date
+   */
+  private static getFinishedMatchDateLabelForDate(
+    fixture: Date, 
+    target: Date, 
+    targetDateString: string, 
+    now: Date
+  ): SmartDateResult {
+    const fixtureTime = fixture.getTime();
+    const targetStartOfDay = new Date(target);
+    targetStartOfDay.setHours(0, 0, 1, 0);
+    const targetEndOfDay = new Date(target);
+    targetEndOfDay.setHours(23, 59, 59, 999);
+
+    // Check if finished match falls within target date range
+    if (fixtureTime >= targetStartOfDay.getTime() && fixtureTime <= targetEndOfDay.getTime()) {
+      const hoursSinceMatch = differenceInHours(now, fixture);
+      return {
+        label: 'custom',
+        reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursSinceMatch}h ago, within target date)`,
+        isActualDate: true,
+        timeComparison: 'finished-within-target-date',
+        customDate: targetDateString
+      };
+    }
+
+    return {
+      label: 'custom',
+      reason: `Finished match outside target date range`,
+      isActualDate: false,
+      timeComparison: 'finished-outside-target-date',
+      customDate: targetDateString
+    };
+  }
+
+  /**
+   * Standard date labeling for any target date
+   */
+  private static getStandardDateLabelForDate(fixture: Date, target: Date, targetDateString: string): SmartDateResult {
+    const fixtureDate = format(fixture, 'yyyy-MM-dd');
+    const targetDate = format(target, 'yyyy-MM-dd');
+
+    if (fixtureDate === targetDate) {
+      return {
+        label: 'custom',
+        reason: `Match is on target date ${targetDate}`,
+        isActualDate: true,
+        timeComparison: 'standard-target-date',
+        customDate: targetDateString
+      };
+    }
+
+    return {
+      label: 'custom',
+      reason: `Match is not on target date ${targetDate}`,
+      isActualDate: false,
+      timeComparison: 'standard-not-target-date',
+      customDate: targetDateString
+    };
+  }
+
+  /**
    * Standard date labeling for finished/live matches
    */
   private static getStandardDateLabel(fixture: Date, now: Date): SmartDateResult {
@@ -194,6 +302,21 @@ export class MySmartDateLabeling {
   static isSmartTomorrow(fixtureDate: string, matchStatus: string, currentTime?: Date): boolean {
     const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime);
     return result.label === 'tomorrow';
+  }
+
+  /**
+   * Check if a fixture should be included for a specific target date
+   */
+  static isSmartMatchForDate(fixtureDate: string, matchStatus: string, targetDate: string, currentTime?: Date): boolean {
+    const result = this.getSmartDateLabelForDate(fixtureDate, matchStatus, targetDate, currentTime);
+    return result.isActualDate;
+  }
+
+  /**
+   * Get smart date result for any target date
+   */
+  static getSmartDateResultForDate(fixtureDate: string, matchStatus: string, targetDate: string, currentTime?: Date): SmartDateResult {
+    return this.getSmartDateLabelForDate(fixtureDate, matchStatus, targetDate, currentTime);
   }
 
   /**

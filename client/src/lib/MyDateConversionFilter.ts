@@ -181,6 +181,7 @@ export class MyDateConversionFilter {
       'smart-today': 0,
       'smart-yesterday': 0,
       'smart-tomorrow': 0,
+      'smart-custom-date': 0,
       '365scores': 0,
       'timezone-inclusive': 0,
       'exact-match': 0
@@ -195,29 +196,47 @@ export class MyDateConversionFilter {
         return;
       }
 
-      // Use smart date labeling
-      const smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus);
-      const smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
+      // Use smart date labeling for any date
+      const todayString = new Date().toISOString().split('T')[0];
+      const yesterdayString = new Date(Date.now() - 24*60*60*1000).toISOString().split('T')[0];
+      const tomorrowString = new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0];
       
       let shouldInclude = false;
       let matchMethod = '';
       let matchReason = '';
 
-      // Check if smart labeling matches selected date
-      if (selectedDate === new Date().toISOString().split('T')[0] && smartResult.label === 'today') {
-        shouldInclude = true;
-        matchMethod = 'smart-today';
-        matchReason = `Smart today: ${smartResult.reason}`;
-      } else if (selectedDate === new Date(Date.now() - 24*60*60*1000).toISOString().split('T')[0] && smartResult.label === 'yesterday') {
-        shouldInclude = true;
-        matchMethod = 'smart-yesterday';
-        matchReason = `Smart yesterday: ${smartResult.reason}`;
-      } else if (selectedDate === new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0] && smartResult.label === 'tomorrow') {
-        shouldInclude = true;
-        matchMethod = 'smart-tomorrow';
-        matchReason = `Smart tomorrow: ${smartResult.reason}`;
+      // Check if this is a special date (today/yesterday/tomorrow) or custom date
+      if (selectedDate === todayString || selectedDate === yesterdayString || selectedDate === tomorrowString) {
+        // Use legacy smart date labeling for today/yesterday/tomorrow
+        const smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus);
+        const smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
+        
+        if (selectedDate === todayString && smartResult.label === 'today') {
+          shouldInclude = true;
+          matchMethod = 'smart-today';
+          matchReason = `Smart today: ${smartResult.reason}`;
+        } else if (selectedDate === yesterdayString && smartResult.label === 'yesterday') {
+          shouldInclude = true;
+          matchMethod = 'smart-yesterday';
+          matchReason = `Smart yesterday: ${smartResult.reason}`;
+        } else if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') {
+          shouldInclude = true;
+          matchMethod = 'smart-tomorrow';
+          matchReason = `Smart tomorrow: ${smartResult.reason}`;
+        }
       } else {
-        // Fall back to standard date filtering
+        // Use new smart date labeling for any custom date
+        const smartResult = MySmartDateLabeling.getSmartDateLabelForDate(fixtureDate, matchStatus, selectedDate);
+        
+        if (smartResult.isActualDate) {
+          shouldInclude = true;
+          matchMethod = 'smart-custom-date';
+          matchReason = `Smart custom date: ${smartResult.reason}`;
+        }
+      }
+
+      // Fall back to standard date filtering if smart logic doesn't match
+      if (!shouldInclude) {
         const standardResult = this.isFixtureValidForDate(fixture, selectedDate);
         if (standardResult.isMatch) {
           shouldInclude = true;
