@@ -1109,7 +1109,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               {leagueData.league.name}
                             </span>
                             {leagueData.isPopular && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                                 Popular
                               </span>
                             )}
