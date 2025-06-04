@@ -1110,12 +1110,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                     {/* Live/Recent badges */}
                     {liveMatches > 0 && (
-                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold animate-pulse" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium animate-pulse" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                         {liveMatches} LIVE
                       </span>
                     )}
                     {recentMatches > 0 && !liveMatches && (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                         {recentMatches} Recent
                       </span>
                     )}
