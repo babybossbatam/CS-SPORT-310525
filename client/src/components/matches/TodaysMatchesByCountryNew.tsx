@@ -1253,12 +1253,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     }}
                                   >
                                   {/* Home Team - Fixed width to prevent overflow */}
-                                  <div className="flex items-center py-2"></div>
+                                  <div className="flex items-center py-2">
                                     {/* Home Team - Fixed width to prevent overflow */}
                                     <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
                                       {shortenTeamName(match.teams.home.name) ||
                                         "Unknown Team"}
-                                    </div>
+                                    </div></old_str>
 
                                     <div className="flex-shrink-0 mx-1 flex items-center justify-center">
                                       <img
