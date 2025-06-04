@@ -105,6 +105,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: none !important;
+  background-color: transparent !important;
 }
 
 /* Winning team styles */
@@ -122,13 +124,13 @@
   min-width: 34px;
   min-height: 34px;
   object-fit: cover;
+  border-radius: 50%;
   filter: brightness(100%) contrast(105%) saturate(100%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
-  background: transparent !important;
+  box-shadow: none !important;
+  background: none !important;
   background-color: transparent !important;
   border: none !important;
   outline: none !important;
-  border-radius: 0 !important;
 }
 
 .team-logo.national-team {
