@@ -1224,7 +1224,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any) => (
                                 <div
                                   key={match.fixture.id}
-                                  className="py-2 border-b border-gray-100 last:border-b-0"
+                                  className="border-b border-gray-100 last:border-b-0"
                                 >
                                   {/* Match Content */}
                                   <div className="flex items-center">
