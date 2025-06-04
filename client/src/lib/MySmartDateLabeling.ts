@@ -73,6 +73,22 @@ export class MySmartDateLabeling {
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
     const notStartedStatuses = ['NS', 'TBD', 'PST'];
 
+    // Special handling for midnight NS matches - move them to next day
+    const fixtureHour = fixture.getHours();
+    const fixtureMinute = fixture.getMinutes();
+    const isExactMidnight = fixtureHour === 0 && fixtureMinute === 0;
+
+    let effectiveFixture = fixture;
+    let adjustedForMidnight = false;
+
+    // For NS matches at exactly 00:00, treat them as belonging to the next day
+    if (notStartedStatuses.includes(matchStatus) && isExactMidnight) {
+      effectiveFixture = new Date(fixture);
+      effectiveFixture.setDate(effectiveFixture.getDate() + 1);
+      effectiveFixture.setHours(0, 1, 0, 0); // Move to 00:01 of next day
+      adjustedForMidnight = true;
+    }
+
     // Create target date's time range boundaries (00:01:00 - 23:59:59)
     const targetStartOfDay = new Date(target);
     targetStartOfDay.setHours(0, 1, 0, 0); // 00:01:00
@@ -80,7 +96,7 @@ export class MySmartDateLabeling {
     const targetEndOfDay = new Date(target);
     targetEndOfDay.setHours(23, 59, 59, 999); // 23:59:59
 
-    const fixtureTime = fixture.getTime();
+    const fixtureTime = effectiveFixture.getTime();
     const targetStartTime = targetStartOfDay.getTime();
     const targetEndTime = targetEndOfDay.getTime();
 
@@ -90,11 +106,12 @@ export class MySmartDateLabeling {
     // Handle NS (Not Started) matches
     if (notStartedStatuses.includes(matchStatus)) {
       if (isWithinTimeRange) {
+        const reasonSuffix = adjustedForMidnight ? ' (midnight match moved to next day)' : '';
         return {
           label: 'custom',
-          reason: `NS match within time range ${format(targetStartOfDay, 'HH:mm')}-${format(targetEndOfDay, 'HH:mm')}`,
+          reason: `NS match within time range ${format(targetStartOfDay, 'HH:mm')}-${format(targetEndOfDay, 'HH:mm')}${reasonSuffix}`,
           isActualDate: true,
-          timeComparison: 'ns-within-time-range',
+          timeComparison: adjustedForMidnight ? 'ns-midnight-moved-to-next-day' : 'ns-within-time-range',
           customDate: targetDateString
         };
       } else {
@@ -102,7 +119,7 @@ export class MySmartDateLabeling {
         if (fixtureTime > targetEndTime) {
           return {
             label: 'custom',
-            reason: `NS match scheduled for future date ${format(fixture, 'MMM dd, HH:mm')}`,
+            reason: `NS match scheduled for future date ${format(effectiveFixture, 'MMM dd, HH:mm')}`,
             isActualDate: false,
             timeComparison: 'ns-future-outside-range',
             customDate: targetDateString
@@ -111,7 +128,7 @@ export class MySmartDateLabeling {
           // NS match in the past (edge case - shouldn't happen normally)
           return {
             label: 'custom',
-            reason: `NS match scheduled for past date ${format(fixture, 'MMM dd, HH:mm')}`,
+            reason: `NS match scheduled for past date ${format(effectiveFixture, 'MMM dd, HH:mm')}`,
             isActualDate: false,
             timeComparison: 'ns-past-outside-range',
             customDate: targetDateString
@@ -290,9 +307,21 @@ export class MySmartDateLabeling {
     isWithinRange: boolean;
     status: string;
     decision: string;
+    midnightAdjusted: boolean;
   } {
     const fixture = parseISO(fixtureDate);
     const target = parseISO(targetDate);
+
+    // Check for midnight adjustment
+    const isExactMidnight = fixture.getHours() === 0 && fixture.getMinutes() === 0;
+    const midnightAdjusted = matchStatus === 'NS' && isExactMidnight;
+
+    let effectiveFixture = fixture;
+    if (midnightAdjusted) {
+      effectiveFixture = new Date(fixture);
+      effectiveFixture.setDate(effectiveFixture.getDate() + 1);
+      effectiveFixture.setHours(0, 1, 0, 0);
+    }
 
     const targetStartOfDay = new Date(target);
     targetStartOfDay.setHours(0, 1, 0, 0);
@@ -300,7 +329,7 @@ export class MySmartDateLabeling {
     const targetEndOfDay = new Date(target);
     targetEndOfDay.setHours(23, 59, 59, 999);
 
-    const fixtureTime = fixture.getTime();
+    const fixtureTime = effectiveFixture.getTime();
     const targetStartTime = targetStartOfDay.getTime();
     const targetEndTime = targetEndOfDay.getTime();
     const isWithinRange = fixtureTime >= targetStartTime && fixtureTime <= targetEndTime;
@@ -308,6 +337,9 @@ export class MySmartDateLabeling {
     let decision = '';
     if (matchStatus === 'NS') {
       decision = isWithinRange ? 'TODAY (within range)' : 'TOMORROW (outside range)';
+      if (midnightAdjusted) {
+        decision += ' [MIDNIGHT ADJUSTED]';
+      }
     } else if (['FT', 'AET', 'PEN'].includes(matchStatus)) {
       decision = isWithinRange ? 'TODAY (within range)' : 'YESTERDAY (outside range)';
     } else {
@@ -322,7 +354,8 @@ export class MySmartDateLabeling {
       targetEndTime,
       isWithinRange,
       status: matchStatus,
-      decision
+      decision,
+      midnightAdjusted
     };
   }
 }
