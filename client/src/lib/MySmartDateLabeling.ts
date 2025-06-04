@@ -57,107 +57,15 @@ export class MySmartDateLabeling {
 
   /**
    * Smart time-based labeling for not started matches
+   * For NS matches, use standard date comparison since they haven't started yet
+   * This ensures NS matches follow the correct logic:
+   * - NS matches within today's calendar date → "today"  
+   * - NS matches outside today's calendar date → "tomorrow"
    */
   private static getSmartTimeBasedLabel(fixture: Date, now: Date): SmartDateResult {
-    const nowTime = now.getTime();
-    const fixtureTime = fixture.getTime();
-
-    // If fixture time has already passed, it should be considered "yesterday" 
-    // even if it's the same calendar date
-    if (fixtureTime < nowTime) {
-      const hoursPassed = differenceInHours(now, fixture);
-
-      if (isSameDay(fixture, now)) {
-        // Same calendar date but time has passed
-        return {
-          label: 'yesterday',
-          reason: `Match time ${format(fixture, 'HH:mm')} has passed (${hoursPassed}h ago)`,
-          isActualDate: false,
-          timeComparison: 'time-passed-same-day'
-        };
-      } else {
-        // Different calendar date and time has passed
-        return {
-          label: 'yesterday',
-          reason: `Match date and time have passed`,
-          isActualDate: true,
-          timeComparison: 'date-and-time-passed'
-        };
-      }
-    }
-
-    // If fixture time is in the future
-    if (fixtureTime > nowTime) {
-      const hoursUntil = differenceInHours(fixture, now);
-
-      if (isSameDay(fixture, now)) {
-        // Same calendar date and time is in future - check if it's within today's range
-        const endOfToday = new Date(now);
-        endOfToday.setHours(23, 59, 59, 999);
-
-        if (fixtureTime <= endOfToday.getTime()) {
-          // Match is still within today's time range (before 23:59:59)
-          return {
-            label: 'today',
-            reason: `Match at ${format(fixture, 'HH:mm')} is upcoming (in ${hoursUntil}h)`,
-            isActualDate: true,
-            timeComparison: 'same-day-upcoming'
-          };
-        } else {
-          // This shouldn't happen as we already checked isSameDay, but keeping for safety
-          return {
-            label: 'today',
-            reason: `Match at ${format(fixture, 'HH:mm')} is upcoming (in ${hoursUntil}h)`,
-            isActualDate: true,
-            timeComparison: 'same-day-upcoming'
-          };
-        }
-      } else {
-        // Different calendar date - check if it's tomorrow or future
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        if (isSameDay(fixture, tomorrow)) {
-          // Special case: If current time is late (after midnight range) and fixture is early next day
-          // Example: current time 10:30AM, fixture tomorrow 00:30AM
-          const currentHour = now.getHours();
-          const fixtureHour = fixture.getHours();
-
-          // If current time has passed midnight range (after 00:00) and fixture is in early hours
-          if (currentHour > 0 && fixtureHour < currentHour) {
-            return {
-              label: 'tomorrow',
-              reason: `Match tomorrow at ${format(fixture, 'HH:mm')} (future match passed today's range)`,
-              isActualDate: true,
-              timeComparison: 'next-day-early-hours'
-            };
-          } else {
-            return {
-              label: 'tomorrow',
-              reason: `Match is tomorrow at ${format(fixture, 'HH:mm')}`,
-              isActualDate: true,
-              timeComparison: 'next-day'
-            };
-          }
-        } else {
-          // More than 1 day away
-          return {
-            label: 'tomorrow',
-            reason: `Match is in future (${format(fixture, 'MMM dd, HH:mm')})`,
-            isActualDate: false,
-            timeComparison: 'future-date'
-          };
-        }
-      }
-    }
-
-    // Exact same time (very unlikely but handle it)
-    return {
-      label: 'today',
-      reason: 'Match is happening now',
-      isActualDate: true,
-      timeComparison: 'exact-now'
-    };
+    // For not started matches (NS), always use standard date comparison
+    // since they haven't started yet and shouldn't be affected by time ranges
+    return this.getStandardDateLabel(fixture, now);
   }
 
   /**
