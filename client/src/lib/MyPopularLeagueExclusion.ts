@@ -87,6 +87,9 @@ export const popularLeagueExclusionTerms = [
   "copa espírito santo",
   "espirito santo",
   "paulista série b",
+  "matogrossense 2",
+  "paraense b1",
+  "copa do nordeste",
 
   // Women's leagues (additional exclusions)
   "liga femenina",
@@ -102,6 +105,7 @@ export const popularLeagueExclusionTerms = [
   "usl league one",
   "usl super league",
   "nwsl",
+  "mls next pro",
 
   // Additional filtering for cleaner popular league display
   "boys",
