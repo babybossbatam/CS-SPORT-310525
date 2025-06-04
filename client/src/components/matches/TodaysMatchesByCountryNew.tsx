@@ -877,7 +877,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined) => {
+  const formatMatchTime = (dateString: string | null | undefined) {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
@@ -1215,7 +1215,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any) => (
                                 <div
                                   key={match.fixture.id}
-                                  className="py-2 border-b border-gray-100 last:border-b-0"
+                                  className="border-b border-gray-100 last:border-b-0"
                                 >
                                   {/* Match Content */}
                                   <div className="flex items-center">
