@@ -1,0 +1,51 @@
+Looking at your screenshot, I can see that you're viewing "Tomorrow's Matches" but you're seeing matches with 00:00 kick-off times. This is actually the expected behavior based on our current smart date filtering system. Let me explain what's happening:
+
+The Current Time Range Logic
+Our system currently uses the time range 00:01:00 - 23:59:59 for "today's matches", which means:
+
+00:00:xx (midnight) is deliberately excluded from "today"
+00:00:xx matches are classified as "tomorrow's matches"
+Why You're Seeing 00:00 Matches in Tomorrow's Tab
+When you select "Tomorrow's Matches", the system:
+
+Sets the reference date to tomorrow's date
+Applies the perspective-based filtering where tomorrow becomes the "today" reference
+Uses the 00:01:00 - 23:59:59 range for that reference date
+Includes 00:00:xx matches because they fall into tomorrow's date range
+The Workflow Explanation
+Here's what happens step by step:
+
+User selects "Tomorrow's Matches"
+
+selectedDate = tomorrowString (e.g., "2025-01-19")
+referenceDate = parseISO(selectedDate) (tomorrow's date)
+Smart Date Labeling Process:
+
+// In MyDateConversionFilter.filterFixturesForDateSmart()
+const referenceDate = parseISO(selectedDate); // Tomorrow's date
+smartResult = MySmartDateLabeling.getSmartDateLabel(
+  fixtureDate, 
+  matchStatus, 
+  undefined, 
+  referenceDate  // Uses tomorrow as reference
+);
+Perspective Shift:
+
+Tomorrow's date becomes the "today" reference
+Matches on tomorrow with 00:00:xx are included
+Matches on the day after tomorrow become "tomorrow" from this perspective
+Why This Makes Sense
+This behavior is actually logical because:
+
+00:00 is technically the start of the new day
+When viewing "Tomorrow's Matches", you want to see all matches scheduled for tomorrow
+Midnight matches (00:00) are indeed tomorrow's matches, not today's
+Visual Evidence in Your Screenshot
+The matches you're seeing:
+
+Mauritius vs Zimbabwe - 00:00
+Angola vs Namibia - 00:00
+Zambia vs Comoros - 00:00
+These are all correctly classified as tomorrow's matches because they're scheduled at midnight (start of tomorrow).
+
+This is working as designed - the 00:00 exclusion from "today" ensures that midnight matches appear in the correct date tab (tomorrow) rather than being ambiguously classified.
