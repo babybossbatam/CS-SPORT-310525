@@ -166,6 +166,9 @@ export function shouldExcludeFromPopularLeagues(
     league.includes("copa sudamericana") ||
     league.includes("libertadores") ||
     league.includes("sudamericana") ||
+    // Youth international tournaments (but exclude women's)
+    league.includes("tournoi maurice revello") ||
+    league.includes("maurice revello") ||
     // International competitions (but exclude women's)
     (league.includes("nations league") && !league.includes("women")) ||
     (league.includes("confederation") && !league.includes("women")) ||
