@@ -211,8 +211,9 @@ export class MyDateConversionFilter {
 
       // Check if this is a special date (today/yesterday/tomorrow) or custom date
       if (selectedDate === todayString || selectedDate === yesterdayString || selectedDate === tomorrowString) {
-        // Use legacy smart date labeling for today/yesterday/tomorrow
-        smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus);
+        // Use legacy smart date labeling with reference date for perspective-based filtering
+        const referenceDate = parseISO(selectedDate);
+        smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus, undefined, referenceDate);
         smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
         
         if (selectedDate === todayString && smartResult.label === 'today') {

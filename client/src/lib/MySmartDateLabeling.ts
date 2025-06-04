@@ -65,9 +65,11 @@ export class MySmartDateLabeling {
   static getSmartDateLabel(
     fixtureDate: string,
     matchStatus: string,
-    currentTime?: Date
+    currentTime?: Date,
+    referenceDate?: Date
   ): SmartDateResult {
     const now = currentTime || new Date();
+    const reference = referenceDate || now;
     const fixture = parseISO(fixtureDate);
 
     if (!isValid(fixture)) {
@@ -82,23 +84,23 @@ export class MySmartDateLabeling {
     const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
-    // For finished matches, use enhanced logic
+    // For finished matches, use enhanced logic with reference date
     if (finishedStatuses.includes(matchStatus)) {
-      return this.getFinishedMatchDateLabel(fixture, now);
+      return this.getFinishedMatchDateLabelWithReference(fixture, now, reference);
     }
 
-    // For live matches, use standard date comparison
+    // For live matches, use standard date comparison with reference
     if (liveStatuses.includes(matchStatus)) {
-      return this.getStandardDateLabel(fixture, now);
+      return this.getStandardDateLabelWithReference(fixture, reference);
     }
 
-    // For not started matches (NS, TBD, PST), use smart time comparison
+    // For not started matches (NS, TBD, PST), use smart time comparison with reference
     if (matchStatus === 'NS' || matchStatus === 'TBD' || matchStatus === 'PST') {
-      return this.getSmartTimeBasedLabel(fixture, now);
+      return this.getSmartTimeBasedLabelWithReference(fixture, reference);
     }
 
-    // Default to standard date comparison for other statuses
-    return this.getStandardDateLabel(fixture, now);
+    // Default to standard date comparison with reference
+    return this.getStandardDateLabelWithReference(fixture, reference);
   }
 
   /**
@@ -112,6 +114,15 @@ export class MySmartDateLabeling {
     // For not started matches (NS), always use standard date comparison
     // since they haven't started yet and shouldn't be affected by time ranges
     return this.getStandardDateLabel(fixture, now);
+  }
+
+  /**
+   * Smart time-based labeling for not started matches with reference date
+   */
+  private static getSmartTimeBasedLabelWithReference(fixture: Date, reference: Date): SmartDateResult {
+    // For not started matches (NS), always use standard date comparison with reference
+    // since they haven't started yet and shouldn't be affected by time ranges
+    return this.getStandardDateLabelWithReference(fixture, reference);
   }
 
   /**
@@ -168,6 +179,45 @@ export class MySmartDateLabeling {
 
     // Fallback to standard labeling for edge cases
     return this.getStandardDateLabel(fixture, now);
+  }
+
+  /**
+   * Enhanced date labeling for finished matches with reference date
+   */
+  private static getFinishedMatchDateLabelWithReference(fixture: Date, now: Date, reference: Date): SmartDateResult {
+    const nowTime = now.getTime();
+    const fixtureTime = fixture.getTime();
+
+    // Create reference date's time range boundaries (00:01:00 - 23:59:59)
+    const referenceStart = new Date(reference);
+    referenceStart.setHours(0, 1, 0, 0); // 00:01:00
+
+    const referenceEnd = new Date(reference);
+    referenceEnd.setHours(23, 59, 59, 999); // 23:59:59
+
+    const referenceStartTime = referenceStart.getTime();
+    const referenceEndTime = referenceEnd.getTime();
+
+    // If fixture time has already passed (which it should for finished matches)
+    if (fixtureTime < nowTime) {
+      // Check if finished match is within reference date's time range (00:01:00 - 23:59:59)
+      if (fixtureTime >= referenceStartTime && fixtureTime <= referenceEndTime) {
+        // Finished match from reference date's time range - count as "Today / Recent Match"
+        const hoursPassed = differenceInHours(now, fixture);
+        return {
+          label: 'today',
+          reason: `Finished match from ${format(fixture, 'MMM dd, HH:mm')} (${hoursPassed}h ago, within reference date's range)`,
+          isActualDate: true,
+          timeComparison: 'finished-within-reference-range'
+        };
+      } else {
+        // Use standard date comparison with reference for finished matches outside the range
+        return this.getStandardDateLabelWithReference(fixture, reference);
+      }
+    }
+
+    // Fallback to standard labeling with reference for edge cases
+    return this.getStandardDateLabelWithReference(fixture, reference);
   }
 
   /**
@@ -281,26 +331,74 @@ export class MySmartDateLabeling {
   }
 
   /**
+   * Standard date labeling with reference date
+   */
+  private static getStandardDateLabelWithReference(fixture: Date, reference: Date): SmartDateResult {
+    const today = new Date(reference);
+    const yesterday = new Date(reference);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrow = new Date(reference);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (isSameDay(fixture, today)) {
+      return {
+        label: 'today',
+        reason: 'Match is on reference date (treated as today)',
+        isActualDate: true,
+        timeComparison: 'standard-reference-today'
+      };
+    } else if (isSameDay(fixture, yesterday)) {
+      return {
+        label: 'yesterday',
+        reason: 'Match is on day before reference date (treated as yesterday)',
+        isActualDate: true,
+        timeComparison: 'standard-reference-yesterday'
+      };
+    } else if (isSameDay(fixture, tomorrow)) {
+      return {
+        label: 'tomorrow',
+        reason: 'Match is on day after reference date (treated as tomorrow)',
+        isActualDate: true,
+        timeComparison: 'standard-reference-tomorrow'
+      };
+    } else if (isBefore(fixture, yesterday)) {
+      return {
+        label: 'yesterday',
+        reason: 'Match is from a past date relative to reference',
+        isActualDate: false,
+        timeComparison: 'standard-reference-past'
+      };
+    } else {
+      return {
+        label: 'tomorrow',
+        reason: 'Match is on a future date relative to reference',
+        isActualDate: false,
+        timeComparison: 'standard-reference-future'
+      };
+    }
+  }
+
+  /**
    * Check if a fixture should be labeled as "yesterday" based on smart logic
    */
-  static isSmartYesterday(fixtureDate: string, matchStatus: string, currentTime?: Date): boolean {
-    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime);
+  static isSmartYesterday(fixtureDate: string, matchStatus: string, currentTime?: Date, referenceDate?: Date): boolean {
+    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime, referenceDate);
     return result.label === 'yesterday';
   }
 
   /**
    * Check if a fixture should be labeled as "today" based on smart logic
    */
-  static isSmartToday(fixtureDate: string, matchStatus: string, currentTime?: Date): boolean {
-    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime);
+  static isSmartToday(fixtureDate: string, matchStatus: string, currentTime?: Date, referenceDate?: Date): boolean {
+    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime, referenceDate);
     return result.label === 'today';
   }
 
   /**
    * Check if a fixture should be labeled as "tomorrow" based on smart logic
    */
-  static isSmartTomorrow(fixtureDate: string, matchStatus: string, currentTime?: Date): boolean {
-    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime);
+  static isSmartTomorrow(fixtureDate: string, matchStatus: string, currentTime?: Date, referenceDate?: Date): boolean {
+    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime, referenceDate);
     return result.label === 'tomorrow';
   }
 
@@ -322,7 +420,7 @@ export class MySmartDateLabeling {
   /**
    * Get detailed info about smart date labeling decision
    */
-  static getSmartDateInfo(fixtureDate: string, matchStatus: string, currentTime?: Date): {
+  static getSmartDateInfo(fixtureDate: string, matchStatus: string, currentTime?: Date, referenceDate?: Date): {
     label: string;
     reason: string;
     isActualDate: boolean;
@@ -333,7 +431,7 @@ export class MySmartDateLabeling {
   } {
     const now = currentTime || new Date();
     const fixture = parseISO(fixtureDate);
-    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime);
+    const result = this.getSmartDateLabel(fixtureDate, matchStatus, currentTime, referenceDate);
 
     return {
       label: result.label,
