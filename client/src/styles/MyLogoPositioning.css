@@ -131,7 +131,7 @@
 /* Score display styles */
 .match-score-display {
   font-size: calc(1.125rem * 0.9);
-  font-weight: bold;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
