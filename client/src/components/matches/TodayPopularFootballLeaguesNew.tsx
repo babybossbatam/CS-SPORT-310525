@@ -493,7 +493,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           if (!acc[countryKey].leagues[leagueId]) {
             // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
             // consider all leagues as "popular" to show them all
-            const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United Arab Emirates', 'Europe', 'South America', 'World'];
+            const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
             const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
 
             acc[countryKey].leagues[leagueId] = {
@@ -538,7 +538,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
       // consider all leagues as "popular" to show them all
-      const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United Arab Emirates', 'Europe', 'South America', 'World'];
+      const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
       const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
       if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
@@ -548,7 +548,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (!acc[country].leagues[leagueId]) {
         // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
         // consider all leagues as "popular" to show them all
-        const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United Arab Emirates', 'Europe', 'South America', 'World'];
+        const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
         const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
         acc[country].leagues[leagueId] = {
