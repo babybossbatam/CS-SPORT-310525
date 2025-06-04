@@ -225,6 +225,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
     console.log(`Processing ${fixtures.length} fixtures for filtering`);
     const startTime = Date.now();
 
+    // Calculate date comparisons first
+    const todayDate = new Date().toISOString().slice(0, 10);
+    const yesterdayDate = subDays(new Date(), 1).toISOString().slice(0, 10);
+    const tomorrowDate = addDays(new Date(), 1).toISOString().slice(0, 10);
+
+    const isSelectedToday = selectedDate === todayDate;
+    const isSelectedYesterday = selectedDate === yesterdayDate;
+    const isSelectedTomorrow = selectedDate === tomorrowDate;
+
     const filtered = fixtures.filter((fixture) => {
       // Apply smart date filtering first
       if (fixture.fixture.date && fixture.fixture.status?.short) {
@@ -251,13 +260,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
         }
 
         // For selected date filtering, accept matches that smart labeling considers appropriate
-        const todayDate = new Date().toISOString().slice(0, 10);
-        const yesterdayDate = subDays(new Date(), 1).toISOString().slice(0, 10);
-        const tomorrowDate = addDays(new Date(), 1).toISOString().slice(0, 10);
-
-        const isSelectedToday = selectedDate === todayDate;
-        const isSelectedYesterday = selectedDate === yesterdayDate;
-        const isSelectedTomorrow = selectedDate === tomorrowDate;
 
         // For NS matches, strictly apply smart date labeling - NO FALLBACK
         if (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD' || fixture.fixture.status.short === 'PST') {
