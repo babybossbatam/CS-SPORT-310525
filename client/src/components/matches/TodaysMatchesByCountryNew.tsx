@@ -877,380 +877,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined) => {
-    if (!dateString || typeof dateString !== "string") return "--:--";
+  const formatMatchTime = (dateString: string
+// Removing mx-1 from the first div and px-4 from the second div as requested.
+                                  
 
-    try {
-      // Parse UTC time and convert to user's local timezone automatically
-      const utcDate = parseISO(dateString);
-      if (!isValid(utcDate)) return "--:--";
-
-      // format() automatically converts to user's local timezone
-      return format(utcDate, "HH:mm");
-    } catch (error) {
-      console.error("Error formatting match time:", error);
-      return "--:--";
-    }
-  };
-
-  const isMatchLive = (
-    status: string | null | undefined,
-    dateString: string | null | undefined,
-  ) => {
-    if (!status || !dateString) return false;
-
-    const liveStatuses = ["1H", "2H", "HT", "ET", "BT", "P", "LIVE", "INT"];
-
-    // Check if status indicates live match
-    if (liveStatuses.some((liveStatus) => status.includes(liveStatus))) {
-      return true;
-    }
-
-    // For "NS" (Not Started) status, check if match time is within reasonable live window
-    if (status === "NS") {
-      try {
-        const matchTime = new Date(dateString);
-        const now = new Date();
-        const diffInMinutes =
-          (now.getTime() - matchTime.getTime()) / (1000 * 60);
-
-        // Consider it live if it's within 15 minutes of start time
-        return diffInMinutes >= 0 && diffInMinutes <= 15;
-      } catch (error) {
-        console.error("Error checking live match status:", error);
-        return false;
-      }
-    }
-
-    return false;
-  };
-
-  return (
-    <Card className="mt-4">
-      <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[10px] pb-[10px] border-b border-stone-200">
-        <h3 className="text-sm font-semibold">{getHeaderTitle()}</h3>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div>
-          {/* Use sortedCountries directly */}
-          {sortedCountries.map((countryData: any) => {
-            const isExpanded = expandedCountries.has(countryData.country);
-            const totalMatches = Object.values(countryData.leagues).reduce(
-              (sum: number, league: any) => sum + league.matches.length,
-              0,
-            );
-
-            // Count live and recent matches for badge
-            const liveMatches = Object.values(countryData.leagues).reduce(
-              (count: number, league: any) => {
-                return (
-                  count +
-                  league.matches.filter((match: any) =>
-                    ["LIVE", "1H", "HT", "2H", "ET"].includes(
-                      match.fixture.status.short,
-                    ),
-                  ).length
-                );
-              },
-              0,
-            );
-
-            const recentMatches = Object.values(countryData.leagues).reduce(
-              (count: number, league: any) => {
-                return (
-                  count +
-                  league.matches.filter((match: any) => {
-                    const status = match.fixture.status.short;
-                    const hoursAgo = differenceInHours(
-                      new Date(),
-                      new Date(match.fixture.date),
-                    );
-                    return (
-                      ["FT", "AET", "PEN"].includes(status) && hoursAgo <= 3
-                    );
-                  }).length
-                );
-              },
-              0,
-            );
-
-            return (
-              <div
-                key={countryData.country}
-                className="border-b border-gray-100 last:border-b-0"
-              >
-                <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors pt-[12px] pb-[12px] font-normal text-[14px]"
-                >
-                  <div className="flex items-center gap-3 font-normal text-[14px]">
-                    <img
-                      src={(() => {
-                        if (countryData.country === "World") {
-                          return "/assets/world flag_new.png";
-                        }
-
-                        // For England specifically, always use the England flag
-                        if (countryData.country === "England") {
-                          return "https://flagcdn.com/w40/gb-eng.png";
-                        }
-
-                        // Check if we have a cached flag for other countries
-                        const cachedFlag = flagMap[countryData.country];
-                        if (cachedFlag) {
-                          return cachedFlag;
-                        }
-
-                        // For other countries, use the fallback sync function
-                        return (
-                          getCountryFlagWithFallbackSync(countryData.country) ||
-                          "/assets/fallback.svg"
-                        );
-                      })()}
-                      alt={countryData.country}
-                      className="w-9 h-6 object-cover rounded-sm shadow-sm"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        // For World flag, use fallback
-                        if (countryData.country === "World") {
-                          target.src = "/assets/fallback.svg";
-                          return;
-                        }
-                        // For England specifically, ensure we try the correct flag first
-                        if (
-                          countryData.country === "England" &&
-                          !target.src.includes("fallback-logo.svg")
-                        ) {
-                          if (!target.src.includes("gb-eng")) {
-                            // First try the England flag
-                            target.src = "https://flagcdn.com/w40/gb-eng.png";
-                            return;
-                          } else {
-                            // If England flag fails, use GB flag
-                            target.src = "https://flagcdn.com/w40/gb.png";
-                            return;
-                          }
-                        }
-                        // For other GB subdivisions
-                        if (
-                          (countryData.country === "Scotland" ||
-                            countryData.country === "Wales" ||
-                            countryData.country === "Northern Ireland") &&
-                          !target.src.includes("fallback-logo.svg")
-                        ) {
-                          if (
-                            target.src.includes("gb-sct") ||
-                            target.src.includes("gb-wls") ||
-                            target.src.includes("gb-nir")
-                          ) {
-                            target.src = "https://flagcdn.com/w40/gb.png"; // Fallback to GB flag
-                          } else if (target.src.includes("/gb.png")) {
-                            target.src = "/assets/fallback.svg";
-                          }
-                          return;
-                        }
-                        if (!target.src.includes("/assets/fallback.svg")) {
-                          target.src = "/assets/fallback.svg";
-                        }
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      {countryData.country}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      ({totalMatches})
-                    </span>
-
-                    {/* Live/Recent badges */}
-                    {liveMatches > 0 && (
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold animate-pulse">
-                        {liveMatches} LIVE
-                      </span>
-                    )}
-                    {recentMatches > 0 && !liveMatches && (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
-                        {recentMatches} Recent
-                      </span>
-                    )}
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
-                {isExpanded && (
-                  <div className="bg-gray-50 border-t border-gray-100">
-                    {/* Sort leagues - popular first */}
-                    {Object.values(countryData.leagues)
-                      .sort((a: any, b: any) => {
-                        if (a.isPopular && !b.isPopular) return -1;
-                        if (!a.isPopular && b.isPopular) return 1;
-                        return a.league.name.localeCompare(b.league.name);
-                      })
-                      .map((leagueData: any) => (
-                        <div
-                          key={leagueData.league.id}
-                          className="p-3 border-b border-gray-200 last:border-b-0"
-                        >
-                          {/* League Header */}
-                          <div className="flex items-center gap-2 mb-0 py-2 bg-gray-50 border-b border-gray-200">
-                            <img
-                              src={leagueData.league.logo}
-                              alt={leagueData.league.name}
-                              className="w-4 h-4 object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "/assets/fallback-logo.svg";
-                              }}
-                            />
-                            <span className="font-medium text-sm text-gray-700">
-                              {leagueData.league.name}
-                            </span>
-                            {leagueData.isPopular && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-auto">
-                                Popular
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Matches */}
-                          <div className="space-y-0 mt-3">
-                            {leagueData.matches
-                              .sort((a: any, b: any) => {
-                                // Priority order: Live > Upcoming > Ended
-                                const aStatus = a.fixture.status.short;
-                                const bStatus = b.fixture.status.short;
-                                const aDate = new Date(
-                                  a.fixture.date,
-                                ).getTime();
-                                const bDate = new Date(
-                                  b.fixture.date,
-                                ).getTime();
-
-                                // Define status categories
-                                const aLive = [
-                                  "LIVE",
-                                  "1H",
-                                  "HT",
-                                  "2H",
-                                  "ET",
-                                  "BT",
-                                  "P",
-                                  "INT",
-                                ].includes(aStatus);
-                                const bLive = [
-                                  "LIVE",
-                                  "1H",
-                                  "HT",
-                                  "2H",
-                                  "ET",
-                                  "BT",
-                                  "P",
-                                  "INT",
-                                ].includes(bStatus);
-
-                                const aUpcoming = aStatus === "NS" && !aLive;
-                                const bUpcoming = bStatus === "NS" && !bLive;
-
-                                const aEnded = [
-                                  "FT",
-                                  "AET",
-                                  "PEN",
-                                  "AWD",
-                                  "WO",
-                                  "ABD",
-                                  "CANC",
-                                  "SUSP",
-                                ].includes(aStatus);
-                                const bEnded = [
-                                  "FT",
-                                  "AET",
-                                  "PEN",
-                                  "AWD",
-                                  "WO",
-                                  "ABD",
-                                  "CANC",
-                                  "SUSP",
-                                ].includes(bStatus);
-
-                                // Assign priority scores (lower = higher priority)
-                                let aPriority = 0;
-                                let bPriority = 0;
-
-                                if (aLive) aPriority = 1;
-                                else if (aUpcoming) aPriority = 2;
-                                else if (aEnded) aPriority = 3;
-                                else aPriority = 4; // Other statuses
-
-                                if (bLive) bPriority = 1;
-                                else if (bUpcoming) bPriority = 2;
-                                else if (bEnded) bPriority = 3;
-                                else bPriority = 4; // Other statuses
-
-                                // First sort by priority
-                                if (aPriority !== bPriority) {
-                                  return aPriority - bPriority;
-                                }
-
-                                // If same priority, sort by time within category
-                                if (aLive && bLive) {
-                                  // For live matches, show earliest start time first
-                                  return aDate - bDate;
-                                }
-
-                                if (aUpcoming && bUpcoming) {
-                                  // For upcoming matches, show earliest start time first
-                                  return aDate - bDate;
-                                }
-
-                                if (aEnded && bEnded) {
-                                  // For ended matches, show most recent first
-                                  return bDate - aDate;
-                                }
-
-                                // Default time-based sorting
-                                return aDate - bDate;
-                              })
-                              .map((match: any) => (
-                                <div
-                                  key={match.fixture.id}
-                                  className="py-2 border-b border-gray-100 last:border-b-0"
-                                >
-                                  {/* Match Content */}
-                                  <div className="flex items-center">
-                                    {/* Home Team - Fixed width to prevent overflow */}
-                                    <div className="text-right text-sm text-gray-900 w-[100px] pr-2 truncate flex-shrink-0">
-                                      {shortenTeamName(match.teams.home.name) ||
-                                        "Unknown Team"}
-                                    </div>
-
-                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                      <img
-                                        src={
-                                          match.teams.home.logo ||
+                                    
+                                      
+                                        match.teams.home.logo ||
+                                        "/assets/fallback-logo.png"
+                                      }
+                                      alt={match.teams.home.name}
+                                      className="team-logo"
+                                      onError={(e) => {
+                                        const target =
+                                          e.target as HTMLImageElement;
+                                        if (
+                                          target.src !==
                                           "/assets/fallback-logo.png"
+                                        ) {
+                                          target.src =
+                                            "/assets/fallback-logo.png";
                                         }
-                                        alt={match.teams.home.name}
-                                        className="team-logo"
-                                        onError={(e) => {
-                                          const target =
-                                            e.target as HTMLImageElement;
-                                          if (
-                                            target.src !==
-                                            "/assets/fallback-logo.png"
-                                          ) {
-                                            target.src =
-                                              "/assets/fallback-logo.png";
-                                          }
-                                        }}
-                                      />
-                                    </div>
+                                      }}
+                                    />
+                                  
 
-                                    {/* Score/Time Center - Fixed width to maintain position */}
-                                    <div className="flex flex-col items-center justify-center px-4 w-[80px] flex-shrink-0 relative h-12">
-                                      {(() => {
-                                        const status =
+
+                                  {/* Score/Time Center - Fixed width to maintain position */}
+                                  
+                                      
                                           match.fixture.status.short;
                                         const fixtureDate = parseISO(
                                           match.fixture.date,
@@ -1270,26 +925,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           ].includes(status)
                                         ) {
                                           return (
-                                            <div className="relative">
-                                              <div className="text-lg font-bold flex items-center gap-2">
-                                                <span className="text-black">
+                                            
+                                              
+                                                
                                                   {match.goals.home ?? 0}
-                                                </span>
-                                                <span className="text-gray-400">
+                                                
+                                                
                                                   -
-                                                </span>
-                                                <span className="text-black">
+                                                
+                                                
                                                   {match.goals.away ?? 0}
-                                                </span>
-                                              </div>
-                                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                                <span className="text-red-600 animate-pulse bg-white px-1 rounded">
+                                                
+                                              
+                                              
+                                                
                                                   {status === "HT"
                                                     ? "HT"
                                                     : `${match.fixture.status.elapsed || 0}'`}
-                                                </span>
-                                              </div>
-                                            </div>
+                                                
+                                              
+                                            
                                           );
                                         }
                                         // All finished match statuses
@@ -1318,20 +973,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                           if (hasValidScores) {
                                             return (
-                                              <div className="relative">
-                                                <div className="text-lg font-bold flex items-center gap-2">
-                                                  <span className="text-black">
+                                              
+                                                
+                                                  
                                                     {homeScore}
-                                                  </span>
-                                                  <span className="text-gray-400">
+                                                  
+                                                  
                                                     -
-                                                  </span>
-                                                  <span className="text-black">
+                                                  
+                                                  
                                                     {awayScore}
-                                                  </span>
-                                                </div>
-                                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                                  <span className="text-gray-600 bg-white px-1 rounded">
+                                                  
+                                                
+                                                
+                                                  
                                                     {status === "FT"
                                                       ? "Ended"
                                                       : status === "AET"
@@ -1351,9 +1006,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                                       "SUSP"
                                                                     ? "Suspended"
                                                                     : status}
-                                                  </span>
-                                                </div>
-                                              </div>
+                                                  
+                                                
+                                              
                                             );
                                           } else {
                                             // Match is finished but no valid score data
@@ -1377,16 +1032,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                               : "No Score";
 
                                             return (
-                                              <div className="relative">
-                                                <div className="text-sm font-medium text-gray-900">
+                                              
+                                                
                                                   {format(fixtureDate, "HH:mm")}
-                                                </div>
-                                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                                  <span className="text-gray-600 bg-white px-1 rounded">
+                                                
+                                                
+                                                  
                                                     {statusText}
-                                                  </span>
-                                                </div>
-                                              </div>
+                                                  
+                                                
+                                              
                                             );
                                           }
                                         }
@@ -1417,80 +1072,80 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                         : status;
 
                                           return (
-                                            <div className="relative">
-                                              <div className="text-sm font-medium text-gray-900">
+                                            
+                                              
                                                 {format(fixtureDate, "HH:mm")}
-                                              </div>
-                                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                                <span className="text-red-600 bg-white px-1 rounded">
+                                              
+                                              
+                                                
                                                   {statusText}
-                                                </span>
-                                              </div>
-                                            </div>
+                                                
+                                              
+                                            
                                           );
                                         }
 
                                         // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                         return (
-                                          <div className="relative flex items-center justify-center h-full">
-                                            <div className="text-base font-medium text-black">
+                                          
+                                            
                                               {status === "TBD"
                                                 ? "TBD"
                                                 : format(fixtureDate, "HH:mm")}
-                                            </div>
+                                            
                                             {status === "TBD" && (
-                                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs">
-                                                <span className="text-gray-500 bg-white px-1 rounded">
+                                              
+                                                
                                                   Time TBD
-                                                </span>
-                                              </div>
+                                                
+                                              
                                             )}
-                                          </div>
+                                          
                                         );
                                       })()}
-                                    </div>
+                                    
+                                    
 
-                                    <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                                      <img
-                                        src={
-                                          match.teams.away.logo ||
+                                    
+                                      
+                                        match.teams.away.logo ||
+                                        "/assets/fallback-logo.png"
+                                      }
+                                      alt={match.teams.away.name}
+                                      className="team-logo"
+                                      onError={(e) => {
+                                        const target =
+                                          e.target as HTMLImageElement;
+                                        if (
+                                          target.src !==
                                           "/assets/fallback-logo.png"
+                                        ) {
+                                          target.src =
+                                            "/assets/fallback-logo.png";
                                         }
-                                        alt={match.teams.away.name}
-                                        className="team-logo"
-                                        onError={(e) => {
-                                          const target =
-                                            e.target as HTMLImageElement;
-                                          if (
-                                            target.src !==
-                                            "/assets/fallback-logo.png"
-                                          ) {
-                                            target.src =
-                                              "/assets/fallback-logo.png";
-                                          }
-                                        }}
-                                      />
-                                    </div>
+                                      }}
+                                    
+                                    
 
                                     {/* Away Team - Fixed width to prevent overflow */}
-                                    <div className="text-left text-sm text-gray-900 w-[100px] pl-2 truncate flex-shrink-0">
+                                    
                                       {shortenTeamName(match.teams.away.name) ||
                                         "Unknown Team"}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
+                                    
+                                  
+                                
+                              
+                          
+                        
                       ))}
-                  </div>
-                )}
-              </div>
+                  
+                
+              
             );
           })}
-        </div>
-      </CardContent>
-    </Card>
+        
+      
+    
   );
 };
 
