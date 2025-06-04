@@ -999,7 +999,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               >
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14px] country-header-button border-b border-stone-200 ${
+                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14px] country-header-button border-t border-stone-200 border-b border-stone-200 ${
                     isExpanded ? "expanded" : ""
                   }`}
                 >
