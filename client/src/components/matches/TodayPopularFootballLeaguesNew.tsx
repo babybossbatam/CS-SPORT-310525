@@ -999,11 +999,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             }}
                           />
                           <div className="flex flex-col flex-1">
-                            <span className="font-semibold text-gray-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                               {safeSubstring(leagueData.league.name, 0) ||
                                 "Unknown League"}
                             </span>
-                            <span className="text-gray-600" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                               {leagueData.league.country || "Unknown Country"}
                             </span>
                           </div>

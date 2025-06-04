@@ -292,14 +292,14 @@
 
 .league-name {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: calc(14px * 0.95);
+  font-size: 13.3px;
   font-weight: 600;
   color: rgb(31 41 55);
 }
 
 .league-country {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: calc(14px * 0.95);
+  font-size: 13.3px;
   color: rgb(75 85 99);
 }
 
