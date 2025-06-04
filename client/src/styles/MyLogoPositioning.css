@@ -291,3 +291,77 @@
 .match-card-container.disable-hover {
   background-color: white !important;
 }
+
+/* Collapse and expand animations for league sections */
+.league-section {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.league-section.collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.league-section.expanded {
+  max-height: 2000px; /* Large enough to accommodate content */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Country header collapse/expand button animation */
+.country-header-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.country-header-button:hover {
+  background-color: rgb(249 250 251);
+  transform: translateX(2px);
+}
+
+.country-header-button.expanded {
+  background-color: rgb(243 244 246);
+  border-bottom: 2px solid rgb(59 130 246);
+}
+
+/* Chevron icon rotation animation */
+.chevron-icon {
+  transition: transform 0.3s ease-in-out;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* League content slide animation */
+.league-content {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+.league-content.collapsed {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
+.league-content.expanded {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* Smooth height transition for country sections */
+.country-section {
+  transition: max-height 0.4s ease-in-out, padding 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.country-section.collapsed {
+  max-height: 60px; /* Height of just the header */
+  padding-bottom: 0;
+}
+
+.country-section.expanded {
+  max-height: none;
+  padding-bottom: 0;
+}

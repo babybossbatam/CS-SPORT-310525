@@ -977,11 +977,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             return (
               <div
                 key={countryData.country}
-                className="border-b border-gray-100 last:border-b-0"
+                className={`border-b border-gray-100 last:border-b-0 country-section ${
+                  isExpanded ? "expanded" : "collapsed"
+                }`}
               >
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors pt-[12px] pb-[12px] font-normal text-[14px]"
+                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14px] country-header-button ${
+                    isExpanded ? "expanded" : ""
+                  }`}
                 >
                   <div className="flex items-center gap-3 font-normal text-[14px]">
                     <img
@@ -1074,13 +1078,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                     )}
                   </div>
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                    <ChevronUp className={`h-4 w-4 text-gray-500 chevron-icon rotated`} />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <ChevronDown className={`h-4 w-4 text-gray-500 chevron-icon`} />
                   )}
                 </button>
                 {isExpanded && (
-                  <div className="bg-gray-50 border-t border-gray-100">
+                  <div className={`bg-gray-50 border-t border-gray-100 league-content ${
+                    isExpanded ? "expanded" : "collapsed"
+                  }`}>
                     {/* Sort leagues - popular first */}
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => {
