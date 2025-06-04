@@ -214,7 +214,6 @@ export class MyDateConversionFilter {
         // Use legacy smart date labeling with reference date for perspective-based filtering
         const referenceDate = parseISO(selectedDate);
         smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus, undefined, referenceDate);
-        smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
         
         if (selectedDate === todayString && smartResult.label === 'today') {
           shouldInclude = true;
@@ -261,8 +260,7 @@ export class MyDateConversionFilter {
           smartLabel: smartResult.label,
           smartReason: smartResult.reason,
           status: matchStatus,
-          selectedDate,
-          smartInfo
+          selectedDate
         });
       } else {
         rejectedFixtures.push({ fixture, reason: `Smart filter: expected ${selectedDate}, got ${smartResult.label}` });
@@ -272,8 +270,7 @@ export class MyDateConversionFilter {
           expectedDate: selectedDate,
           smartLabel: smartResult.label,
           smartReason: smartResult.reason,
-          status: matchStatus,
-          smartInfo
+          status: matchStatus
         });
       }
     });
