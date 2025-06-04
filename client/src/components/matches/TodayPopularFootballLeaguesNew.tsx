@@ -1451,7 +1451,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     style={{ 
                                       backgroundColor: "transparent",
                                       background: "none",
-                                      border: "none"
+                                      backgroundImage: "none",
+                                      border: "none",
+                                      boxShadow: "none"
                                     }}
                                     fallbackSrc="/assets/fallback-logo.svg"
                                   />
