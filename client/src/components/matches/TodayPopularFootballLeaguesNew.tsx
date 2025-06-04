@@ -405,8 +405,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
+      // Ensure league has required properties
+      const league = fixture.league;
+      if (!league.id || !league.name) {
+        console.warn("Invalid league data:", league);
+        return acc;
+      }
+
+      const country = league.country;
+
+      // Use centralized exclusion filter
+      const leagueName = league.name?.toLowerCase() || "";
+      const homeTeamName = fixture.teams?.home?.name || "";
+      const awayTeamName = fixture.teams?.away?.name || "";
+
       // Debug: Log UEFA/FIFA competitions
-      const leagueName = fixture.league.name?.toLowerCase() || "";
       if (leagueName.includes("uefa") || leagueName.includes("fifa") || leagueName.includes("champions") || leagueName.includes("europa") || leagueName.includes("conference")) {
         console.log(`🏆 [UEFA/FIFA DEBUG] Found:`, {
           leagueId: fixture.league.id,
@@ -418,20 +431,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
           status: fixture.fixture.status.short
         });
       }
-
-      // Ensure league has required properties
-      const league = fixture.league;
-      if (!league.id || !league.name) {
-        console.warn("Invalid league data:", league);
-        return acc;
-      }
-
-      const country = league.country;
-
-      // Use centralized exclusion filter
-      const leagueName = league.name || "";
-      const homeTeamName = fixture.teams?.home?.name || "";
-      const awayTeamName = fixture.teams?.away?.name || "";
 
       // Check if fixture should be excluded using popular league specialized filter
       if (shouldExcludeFromPopularLeagues(leagueName, homeTeamName, awayTeamName, country)) {
