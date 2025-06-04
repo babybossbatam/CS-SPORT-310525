@@ -1117,7 +1117,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           {/* League Header - Now clickable */}
                           <button
                             onClick={() => toggleLeague(countryData.country, leagueData.league.id)}
-                            className="w-full flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px] hover:bg-gray-50 transition-colors cursor-pointer"
+                            className="w-full flex items-start gap-2 p-3 bg-white border-b border-gray-200 pb-[12px] mb-[0px] transition-colors cursor-pointer group"
                           >
                             <img
                               src={
@@ -1133,7 +1133,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               }}
                             />
                             <div className="flex flex-col text-left">
-                              <span className="font-semibold text-base text-gray-800">
+                              <span className="font-semibold text-base text-gray-800 group-hover:underline transition-all duration-200">
                                 {safeSubstring(leagueData.league.name, 0) ||
                                   "Unknown League"}
                               </span>
