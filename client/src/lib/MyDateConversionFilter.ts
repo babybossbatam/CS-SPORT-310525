@@ -205,11 +205,15 @@ export class MyDateConversionFilter {
       let matchMethod = '';
       let matchReason = '';
 
+      // Initialize smartResult variable
+      let smartResult;
+      let smartInfo;
+
       // Check if this is a special date (today/yesterday/tomorrow) or custom date
       if (selectedDate === todayString || selectedDate === yesterdayString || selectedDate === tomorrowString) {
         // Use legacy smart date labeling for today/yesterday/tomorrow
-        const smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus);
-        const smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
+        smartResult = MySmartDateLabeling.getSmartDateLabel(fixtureDate, matchStatus);
+        smartInfo = MySmartDateLabeling.getSmartDateInfo(fixtureDate, matchStatus);
         
         if (selectedDate === todayString && smartResult.label === 'today') {
           shouldInclude = true;
@@ -226,7 +230,7 @@ export class MyDateConversionFilter {
         }
       } else {
         // Use new smart date labeling for any custom date
-        const smartResult = MySmartDateLabeling.getSmartDateLabelForDate(fixtureDate, matchStatus, selectedDate);
+        smartResult = MySmartDateLabeling.getSmartDateLabelForDate(fixtureDate, matchStatus, selectedDate);
         
         if (smartResult.isActualDate) {
           shouldInclude = true;
