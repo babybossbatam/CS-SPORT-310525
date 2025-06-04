@@ -1044,12 +1044,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             const bTime = bDate.getTime();
                             const nowTime = now.getTime();
 
-                            // Calculate time distance from now
+                            // Calculate time distance from now (absolute difference)
                             const aDistance = Math.abs(aTime - nowTime);
                             const bDistance = Math.abs(bTime - nowTime);
 
-                            // Prioritize matches closest to current time
-                            return aDistance - bDistance;
+                            // Sort by nearest time to current time first
+                            if (aDistance !== bDistance) {
+                              return aDistance - bDistance;
+                            }
+
+                            // If same distance, prioritize upcoming matches over past ones
+                            const aIsFuture = aTime > nowTime;
+                            const bIsFuture = bTime > nowTime;
+                            
+                            if (aIsFuture && !bIsFuture) return -1;
+                            if (!aIsFuture && bIsFuture) return 1;
+
+                            // If both are future or both are past, sort by actual time
+                            return aTime - bTime;
                           }
 
                           // Original sorting logic when time filter is not active
