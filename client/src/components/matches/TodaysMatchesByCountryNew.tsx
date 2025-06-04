@@ -970,8 +970,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   return (
     <Card className="mt-4">
-      <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[10px] pb-[10px] border-b border-stone-200">
-        <h3 className="text-sm font-semibold">{getHeaderTitle()}</h3>
+      <CardHeader className="flex flex-col space-y-1.5 p-2 border-b border-stone-200">
+        <h3 className="font-semibold" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>{getHeaderTitle()}</h3>
       </CardHeader>
       <CardContent className="p-0">
         <div>

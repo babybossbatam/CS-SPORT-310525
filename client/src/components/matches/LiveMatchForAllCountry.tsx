@@ -362,28 +362,34 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                 className={`overflow-hidden ${isFirstCard ? "" : "mt-4"}`}
               >
                 {/* League Header */}
-                <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200">
+                <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
                   <img
                     src={leagueData.league.logo || "/assets/fallback-logo.svg"}
                     alt={leagueData.league.name || "Unknown League"}
-                    className="w-6 h-6 object-contain mt-0.5"
+                    className="w-6 h-6 object-contain rounded-full"
+                    style={{ backgroundColor: "transparent" }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         "/assets/fallback-logo.svg";
                     }}
                   />
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-base text-gray-800">
-                      {leagueData.league.name || "Unknown League"}
+                  <div className="flex flex-col flex-1">
+                    <span className="font-semibold text-gray-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                      {safeSubstring(leagueData.league.name, 0) ||
+                        "Unknown League"}
                     </span>
-                    <span className="text-xs text-gray-600">
+                    <span className="text-gray-600" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                       {leagueData.league.country || "Unknown Country"}
                     </span>
                   </div>
-                  <div className="flex gap-1 ml-auto">
-                    <span className="relative flex h-3 w-3 mt-1"></span>
+                  <div className="flex gap-1">
+                    {leagueData.isPopular && (
+                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
+                        Popular
+                      </span>
+                    )}
                   </div>
-                </div>
+                </CardContent>
                 {/* Live Matches */}
                 <CardContent className="p-0">
                   <div className="space-y-0">

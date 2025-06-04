@@ -245,7 +245,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   return (
     <>
       {/* Main Header */}
-      <h3 className="text-base font-semibold text-gray-800 mt-4 bg-white border border-gray-200 p-3 ">
+      <h3 className="font-semibold text-gray-800 mt-4 bg-white border border-gray-200 p-2" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive

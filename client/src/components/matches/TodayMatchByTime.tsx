@@ -425,12 +425,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       {/* Single consolidated card with all matches sorted by time */}
       <Card className="mt-4 overflow-hidden">
         {/* Header showing filtered popular leagues */}
-        <div className="flex items-start gap-2 p-3 bg-white border-b border-gray-200">
+        <div className="flex items-start gap-2 p-2 bg-white border-b border-gray-200">
           <div className="flex flex-col">
-            <span className="font-semibold text-base text-gray-800">
+            <span className="font-semibold text-gray-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
               {getHeaderTitle()}
             </span>
-            <span className="text-sm text-gray-600">
+            <span className="text-gray-600" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
               {sortedMatches.length} matches
             </span>
           </div>
