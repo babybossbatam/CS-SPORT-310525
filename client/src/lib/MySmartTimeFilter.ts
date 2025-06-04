@@ -51,6 +51,19 @@ export class MySmartTimeFilter {
       // Check for NS (Not Started) matches
       const notStartedStatuses = ['NS', 'TBD', 'PST'];
       if (notStartedStatuses.includes(matchStatus)) {
+        // Check if fixture time is before current time (but match is NS)
+        // This indicates it should be TOMORROW since no match can be NS in the past
+        if (fixtureDate < selectedDate) {
+          return {
+            label: 'tomorrow',
+            reason: `NS match appears to be in past time - should be TOMORROW (fixture: ${format(fixtureDate, 'yyyy/MM/dd HH:mm:ss')} < current: ${format(selectedDate, 'yyyy/MM/dd HH:mm:ss')})`,
+            isWithinTimeRange: false,
+            matchStatus,
+            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+          };
+        }
+        
         if (isWithinTodayRange) {
           return {
             label: 'today',
@@ -182,10 +195,12 @@ export class MySmartTimeFilter {
     selectedDateTime?: string
   ): {
     todayFixtures: any[];
+    tomorrowFixtures: any[];
     rejectedFixtures: Array<{ fixture: any; reason: string }>;
     stats: {
       total: number;
       today: number;
+      tomorrow: number;
       rejected: number;
       statusBreakdown: {
         ns: number;
@@ -196,6 +211,7 @@ export class MySmartTimeFilter {
     };
   } {
     const todayFixtures: any[] = [];
+    const tomorrowFixtures: any[] = [];
     const rejectedFixtures: Array<{ fixture: any; reason: string }> = [];
     const statusBreakdown = { ns: 0, finished: 0, live: 0, other: 0 };
 
@@ -234,6 +250,23 @@ export class MySmartTimeFilter {
           selectedTime: smartResult.selectedTime,
           isWithinTimeRange: smartResult.isWithinTimeRange
         });
+      } else if (smartResult.label === 'tomorrow') {
+        tomorrowFixtures.push(fixture);
+        
+        // Update status breakdown for tomorrow
+        const status = fixture.fixture.status.short;
+        if (['NS', 'TBD', 'PST'].includes(status)) {
+          statusBreakdown.ns++;
+        }
+
+        console.log(`🌅 [MySmartTimeFilter] Fixture labeled as TOMORROW:`, {
+          fixtureId: fixture.fixture.id,
+          status: smartResult.matchStatus,
+          reason: smartResult.reason,
+          fixtureTime: smartResult.fixtureTime,
+          selectedTime: smartResult.selectedTime,
+          isWithinTimeRange: smartResult.isWithinTimeRange
+        });
       } else {
         rejectedFixtures.push({ fixture, reason: smartResult.reason });
         
@@ -248,10 +281,12 @@ export class MySmartTimeFilter {
 
     return {
       todayFixtures,
+      tomorrowFixtures,
       rejectedFixtures,
       stats: {
         total: fixtures.length,
         today: todayFixtures.length,
+        tomorrow: tomorrowFixtures.length,
         rejected: rejectedFixtures.length,
         statusBreakdown
       }
