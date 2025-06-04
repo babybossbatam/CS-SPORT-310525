@@ -12,9 +12,8 @@ import {
   parseISO,
   isValid,
   differenceInHours,
-  subDays,
-  addDays,
 } from "date-fns";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 // Removed complex date utilities - using simple date filtering now
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeFromPopularLeagues, isPopularLeagueSuitable, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
@@ -225,7 +224,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       // Simple date filtering - just match the date
       if (fixture.fixture.date) {
         const dateResult = SimpleDateFilter.isFixtureOnDate(fixture.fixture.date, selectedDate);
-        
+
         if (dateResult.isMatch) {
           console.log(`✅ [SIMPLE FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
             fixtureDate: fixture.fixture.date,
@@ -654,7 +653,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   }, [filteredCountries]);
 
-  // Apply time filters
+  // Apply smart time filters using MySmartTimeFilter
   const timeFilteredCountries = useMemo(() => {
     if (!timeFilterActive) return sortedCountries;
 
@@ -663,16 +662,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const updatedLeagues = Object.entries(countryData.leagues).reduce(
           (acc: any, [leagueId, leagueData]: any) => {
             const updatedMatches = leagueData.matches.filter((match: any) => {
-              if (!match?.fixture?.date) return false;
+              if (!match?.fixture?.date || !match?.fixture?.status?.short) return false;
 
               try {
-                const fixtureDate = parseISO(match.fixture.date);
-                if (!isValid(fixtureDate)) return false;
+                // Use MySmartTimeFilter to determine if match should be included
+                const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+                  match.fixture.date,
+                  match.fixture.status.short
+                );
 
-                const now = new Date();
-                const hoursDifference = differenceInHours(fixtureDate, now);
-                return hoursDifference >= -2 && hoursDifference <= 12;
+                const shouldInclude = smartResult.label === 'today';
+
+                if (!shouldInclude) {
+                  console.log(`❌ [TodayPopularFootballLeagues] Excluded match:`, {
+                    fixtureId: match.fixture.id,
+                    teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                    status: match.fixture.status.short,
+                    time: match.fixture.date,
+                    reason: smartResult.reason,
+                    label: smartResult.label
+                  });
+                }
+
+                return shouldInclude;
               } catch (error) {
+                console.error('Error filtering match with MySmartTimeFilter:', error);
                 return false;
               }
             });
