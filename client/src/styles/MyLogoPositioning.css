@@ -133,7 +133,7 @@
 }
 
 .team-logo.national-team {
-  border-radius: 50%;
+  border-radius: 50% !important;
   object-fit: cover;
 }
 
