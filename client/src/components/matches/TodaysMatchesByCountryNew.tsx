@@ -1095,7 +1095,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           className="p-3 border-b border-gray-200 last:border-b-0"
                         >
                           {/* League Header */}
-                          <div className="flex items-center gap-2 mb-0 py-2 bg-gray-50 border-b border-gray-200">
+                          <div className="flex items-center gap-2 mb-0 bg-gray-50 border-b border-gray-200">
                             <img
                               src={leagueData.league.logo}
                               alt={leagueData.league.name}
