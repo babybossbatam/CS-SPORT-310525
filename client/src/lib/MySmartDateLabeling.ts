@@ -110,10 +110,9 @@ export class MySmartDateLabeling {
    * - NS matches outside today's time range → "tomorrow"
    */
   private static getSmartTimeBasedLabel(fixture: Date, now: Date): SmartDateResult {
-    const nowTime = now.getTime();
     const fixtureTime = fixture.getTime();
 
-    // Create today's time range boundaries (00:01:00 - 23:59:59)
+    // Create today's time range boundaries based on current date (00:01:00 - 23:59:59)
     const todayStart = new Date(now);
     todayStart.setHours(0, 1, 0, 0); // 00:01:00
 
@@ -123,7 +122,15 @@ export class MySmartDateLabeling {
     const todayStartTime = todayStart.getTime();
     const todayEndTime = todayEnd.getTime();
 
-    // Check if NS fixture is within today's time range
+    // Debug logging for time range checking
+    console.log(`🕒 [Smart Date] Checking NS match:`, {
+      fixture: format(fixture, 'yyyy-MM-dd HH:mm:ss'),
+      current: format(now, 'yyyy-MM-dd HH:mm:ss'),
+      todayRange: `${format(todayStart, 'yyyy-MM-dd HH:mm:ss')} - ${format(todayEnd, 'yyyy-MM-dd HH:mm:ss')}`,
+      withinRange: fixtureTime >= todayStartTime && fixtureTime <= todayEndTime
+    });
+
+    // Check if NS fixture is within today's time range (00:01:00 - 23:59:59)
     if (fixtureTime >= todayStartTime && fixtureTime <= todayEndTime) {
       return {
         label: 'today',
@@ -131,21 +138,13 @@ export class MySmartDateLabeling {
         isActualDate: true,
         timeComparison: 'ns-within-today-range'
       };
-    } else if (fixtureTime > todayEndTime) {
-      // Future NS match outside today's range
-      return {
-        label: 'tomorrow',
-        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (future, outside today's time range)`,
-        isActualDate: false,
-        timeComparison: 'ns-future-outside-range'
-      };
     } else {
-      // Past NS match outside today's range (edge case - shouldn't happen normally)
+      // NS match outside today's time range → tomorrow
       return {
         label: 'tomorrow',
-        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (past NS match, treated as future)`,
+        reason: `NS match from ${format(fixture, 'MMM dd, HH:mm')} (outside today's time range 00:01-23:59)`,
         isActualDate: false,
-        timeComparison: 'ns-past-outside-range'
+        timeComparison: 'ns-outside-today-range'
       };
     }
   }

@@ -242,21 +242,37 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const isSelectedYesterday = selectedDate === yesterdayDate;
         const isSelectedTomorrow = selectedDate === tomorrowDate;
 
-        // Strict matching: only include if smart labeling matches selected date type
-        if (isSelectedToday && smartResult.label === 'today') return true;
-        if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
-        if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+        // For NS matches, strictly apply smart date labeling
+        if (fixture.fixture.status.short === 'NS' || fixture.fixture.status.short === 'TBD' || fixture.fixture.status.short === 'PST') {
+          // Only show NS matches if smart labeling matches selected date type
+          if (isSelectedToday && smartResult.label === 'today') return true;
+          if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+          if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+          
+          // For NS matches, if smart labeling doesn't match selected date, exclude them
+          return false;
+        }
 
-        // For matches with finished/live status, use standard date matching as fallback
+        // For finished/live matches, use standard date matching as fallback
         const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
         const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
         if (finishedStatuses.includes(fixture.fixture.status.short) || 
             liveStatuses.includes(fixture.fixture.status.short)) {
+          // For finished/live matches, also check smart labeling first
+          if (isSelectedToday && smartResult.label === 'today') return true;
+          if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+          if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+          
+          // Fallback to standard date matching for finished/live matches
           return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
         }
 
-        // For not started matches, strictly follow smart date labeling - no fallback
+        // For other statuses, use smart labeling
+        if (isSelectedToday && smartResult.label === 'today') return true;
+        if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
+        if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
+        
         return false;
       }
 
