@@ -973,10 +973,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 "/assets/fallback-logo.svg";
                             }}
                           />
-                          <span className="font-medium text-sm text-blue-800">
+                          <span className="font-medium text-blue-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                             {leagueData.league.name || "Unknown League"}
                           </span>
-                          <span className="text-xs text-blue-600">
+                          <span className="text-blue-600" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
                             {leagueData.matches.length}{" "}
                             {leagueData.matches.length === 1
                               ? "match"
@@ -999,18 +999,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             }}
                           />
                           <div className="flex flex-col flex-1">
-                            <span className="font-semibold text-sm text-gray-800">
+                            <span className="font-semibold text-gray-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                               {safeSubstring(leagueData.league.name, 0) ||
                                 "Unknown League"}
                             </span>
-                            <span className="text-xs text-gray-600">
+                            <span className="text-gray-600" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
                               {leagueData.league.country || "Unknown Country"}
                             </span>
                           </div>
                           <div className="flex gap-1">
                             {leagueData.isPopular &&
                               !leagueData.isPopularForCountry && (
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
                                   Popular
                                 </span>
                               )}
