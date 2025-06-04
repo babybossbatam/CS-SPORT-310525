@@ -1024,7 +1024,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               >
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14px] country-header-button border-b border-stone-200 ${
+                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 ${
                     isExpanded ? "expanded" : ""
                   }`}
                 >
@@ -1099,21 +1099,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         }
                       }}
                     />
-                    <span className="font-medium text-gray-900" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                    <span className="font-medium text-gray-900" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
                       {countryData.country}
                     </span>
-                    <span className="text-gray-500" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                    <span className="text-gray-500" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
                       ({totalMatches})
                     </span>
 
                     {/* Live/Recent badges */}
                     {liveMatches > 0 && (
-                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium animate-pulse" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium animate-pulse" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
                         {liveMatches} LIVE
                       </span>
                     )}
                     {recentMatches > 0 && !liveMatches && (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium" style={{ fontSize: 'calc(0.875rem * 0.85 * 1.05)' }}>
                         {recentMatches} Recent
                       </span>
                     )}
