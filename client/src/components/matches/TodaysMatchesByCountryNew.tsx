@@ -1124,52 +1124,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             </div>
                           </div>
 
-                          {/* Match Card Content - Enhanced version from TodayPopularFootballLeaguesNew */}
-                          <div className="match-card-container group w-full mt-2">
-                            {/* Match content container */}
-                            <div className="match-content-container">
-                              {/* Home Team Name - positioned further left */}
-                              <div className="home-team-name">
-                                Sample Home Team
-                              </div>
-
-                              {/* Home team logo - closer to center */}
-                              <div className="team-logo-container">
-                                <LazyImage
-                                  src="/assets/fallback-logo.svg"
-                                  alt="Sample Home Team"
-                                  title="Sample Home Team"
-                                  className="team-logo"
-                                  fallbackSrc="/assets/fallback-logo.svg"
-                                />
-                              </div>
-
-                              {/* Score/Time Center - Fixed width and centered */}
-                              <div className="match-score-container">
-                                <div className="relative flex items-center justify-center h-full">
-                                  <div className="match-time-display">
-                                    15:30
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Away team logo - closer to center */}
-                              <div className="team-logo-container">
-                                <LazyImage
-                                  src="/assets/fallback-logo.svg"
-                                  alt="Sample Away Team"
-                                  title="Sample Away Team"
-                                  className="team-logo"
-                                  fallbackSrc="/assets/fallback-logo.svg"
-                                />
-                              </div>
-
-                              {/* Away Team Name - positioned further right */}
-                              <div className="away-team-name">
-                                Sample Away Team
-                              </div>
-                            </div>
-                          </div>
+                          
 
                           {/* Matches */}
                           <div className="space-y-0">
