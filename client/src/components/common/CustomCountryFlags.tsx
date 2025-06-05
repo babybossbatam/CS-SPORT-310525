@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface CountryFlagColors {
@@ -224,12 +225,12 @@ const getDefaultColors = (countryName: string): CountryFlagColors => {
     a = ((a << 5) - a) + b.charCodeAt(0);
     return a & a;
   }, 0);
-
+  
   const colors = [
     '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
     '#800000', '#008000', '#000080', '#808000', '#800080', '#008080'
   ];
-
+  
   return {
     background: colors[Math.abs(hash) % colors.length],
     accent: colors[Math.abs(hash + 1) % colors.length],
@@ -258,10 +259,10 @@ const CustomCountryFlag: React.FC<CustomCountryFlagProps> = ({
   onClick 
 }) => {
   const uniqueId = `flag-${country.toLowerCase().replace(/\s+/g, '-')}-${Math.random().toString(36).substr(2, 9)}`;
-
+  
   // Check if we have a specific flag renderer for this country
   const flagRenderer = countryFlagRenderers[country];
-
+  
   let flagContent;
   if (flagRenderer) {
     // Use authentic flag design
@@ -306,78 +307,4 @@ export const getAllSupportedCountries = (): string[] => {
 // Export function to check if a country has a custom design
 export const hasCustomFlag = (country: string): boolean => {
   return country in countryFlagRenderers;
-};
-
-// Glossy template wrapper function
-export const wrapFlagWithGlossyTemplateAutoScale = (flagSVG: string): string => {
-  // Extract the viewBox or width/height from the SVG
-  const viewBoxMatch = flagSVG.match(/viewBox="([\d.\s]+)"/i);
-  let minX = 0, minY = 0, vbWidth = 640, vbHeight = 480; // defaults
-  if (viewBoxMatch) {
-    [minX, minY, vbWidth, vbHeight] = viewBoxMatch[1].split(/\s+/).map(Number);
-  } else {
-    // Fallback: try width/height attributes
-    const widthMatch = flagSVG.match(/width="(\d+)"/i);
-    const heightMatch = flagSVG.match(/height="(\d+)"/i);
-    vbWidth = widthMatch ? Number(widthMatch[1]) : 640;
-    vbHeight = heightMatch ? Number(heightMatch[1]) : 480;
-  }
-
-  // Calculate scale to fit the flag into a 96x96 box (with 2px margin)
-  const targetSize = 96;
-  const scale = Math.min(targetSize / vbWidth, targetSize / vbHeight);
-
-  // Center the flag in the 100x100 SVG
-  const xOffset = (100 - vbWidth * scale) / 2;
-  const yOffset = (100 - vbHeight * scale) / 2;
-
-  // Remove the outer <svg> tags
-  const innerFlag = flagSVG
-    .replace(/<svg[^>]*>/i, '')
-    .replace(/<\/svg>/i, '');
-
-  // Compose the glossy SVG
-  return `
-<svg width="100" height="100" viewBox="0 0 100 100">
-  <defs>
-    <clipPath id="circle">
-      <circle cx="50" cy="50" r="48"/>
-    </clipPath>
-  </defs>
-  <g clip-path="url(#circle)">
-    <g transform="translate(${xOffset},${yOffset}) scale(${scale})">
-      ${innerFlag}
-    </g>
-  </g>
-  <ellipse cx="50" cy="35" rx="35" ry="12" fill="white" opacity="0.18"/>
-  <ellipse cx="50" cy="90" rx="30" ry="6" fill="#000" opacity="0.12"/>
-  <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" stroke-width="2"/>
-</svg>
-  `;
-};
-
-// Function to get country flag with glossy template
-export const getCountryFlagWithGlossyTemplate = (country: string, size: number = 100): string => {
-  const uniqueId = `flag-${country.toLowerCase().replace(/\s+/g, '-')}-${Math.random().toString(36).substr(2, 9)}`;
-
-  // Check if we have a specific flag renderer for this country
-  const flagRenderer = countryFlagRenderers[country];
-
-  let flagContent;
-  if (flagRenderer) {
-    // Use authentic flag design
-    flagContent = flagRenderer(uniqueId);
-  } else {
-    // Use generic template with country-specific colors
-    const colors = getDefaultColors(country);
-    flagContent = createGenericFlag(colors, uniqueId);
-  }
-
-  // Create base SVG
-  const baseSVG = `<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-    ${flagContent}
-  </svg>`;
-
-  // Apply glossy template
-  return wrapFlagWithGlossyTemplateAutoScale(baseSVG);
 };
