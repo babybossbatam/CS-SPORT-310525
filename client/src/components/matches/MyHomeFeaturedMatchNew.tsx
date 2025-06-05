@@ -809,10 +809,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                               {currentMatch.goals.away ?? 0}
                                             </span>
                                           </div>
-                                          <div className="match-status-label status-live">
-                                            {status === "HT"
-                                              ? "Halftime"
-                                              : `${currentMatch.fixture.status.elapsed || 0}'`}
+                                          <div className="match-status-label status-live flex flex-col items-center">
+                                            <span className="text-red-600 font-semibold text-xs">LIVE</span>
+                                            <span className="text-red-600 font-semibold text-xs">
+                                              {status === "HT"
+                                                ? "HT"
+                                                : `${currentMatch.fixture.status.elapsed || 0}'`}
+                                            </span>
                                           </div>
                                         </div>
                                       );
