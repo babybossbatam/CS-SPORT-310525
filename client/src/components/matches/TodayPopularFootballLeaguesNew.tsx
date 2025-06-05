@@ -969,6 +969,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     <>
                       {leagueData.isFriendlies ? (
                         <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                          <img
+                            src={
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
+                            }
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-5 h-5 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/assets/fallback-logo.svg";
+                            }}
+                          />
                           <span className="font-medium text-blue-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                             {leagueData.league.name || "Unknown League"}
                           </span>
@@ -981,6 +994,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </div>
                       ) : (
                         <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                          <img
+                            src={
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
+                            }
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-6 h-6 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/assets/fallback-logo.svg";
+                            }}
+                          />
                           <div className="flex flex-col flex-1">
                             <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                               {safeSubstring(leagueData.league.name, 0) ||
@@ -1187,7 +1213,28 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                 </div>
 
-
+                                {/* Home team logo - closer to center */}
+                                <div className="team-logo-container">
+                                  <LazyImage
+                                    src={
+                                      match.teams.home.id
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.home.name}
+                                    title={match.teams.home.name}
+                                    className={`team-logo ${
+                                      isNationalTeam(
+                                        match.teams.home,
+                                        leagueData.league
+                                      )
+                                        ? "national-team"
+                                        : ""
+                                    }`}
+                                    style={{ backgroundColor: "transparent" }}
+                                    fallbackSrc="/assets/fallback-logo.svg"
+                                  />
+                                </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
                                 <div className="match-score-container">
