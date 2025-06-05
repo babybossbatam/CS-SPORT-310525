@@ -116,32 +116,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             exit={{ x: -100, opacity: 0 }}
             transition={{ type: "tween", duration: 0.2 }}
           >
-            {/* Header with league info and status */}
-            <div className="flex items-center justify-center gap-2 mb-2 mb-4">
-              <div className="flex items-center gap-2">
-                <img
-                  src={currentMatch.league.logo || '/assets/fallback-logo.svg'}
-                  alt={currentMatch.league.name}
-                  className="w-5 h-5 rounded object-contain"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    if (target.src !== '/assets/fallback-logo.svg') {
-                      target.src = '/assets/fallback-logo.svg';
-                    }
-                  }}
-                />
-                <span className="text-sm font-medium">{currentMatch.league.name}</span>
-              </div>
-
-              <span className="text-gray-400">-</span>
-
-              <div className="flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-indigo-600" />
-                <span className="text-sm font-medium text-indigo-800">
-                  {getMatchStatus(currentMatch)}
-                </span>
-              </div>
-            </div>
+            
 
             {/* Score display */}
             <div className="text-center mb-4">
