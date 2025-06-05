@@ -13,7 +13,7 @@ interface MyHomeFeaturedMatchNewProps {
   maxMatches?: number;
 }
 
-const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({ 
+const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({ 
   selectedDate,
   maxMatches = 8
 }) => {
@@ -204,4 +204,4 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   );
 };
 
-export default MyHomeFeaturedMatchNew;
+export default MyFeaturedMatchSlide;
