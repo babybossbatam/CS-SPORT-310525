@@ -1187,7 +1187,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                 </div>
 
-                                
+
 
                                 {/* Score/Time Center - Fixed width and centered */}
                                 <div className="match-score-container">
