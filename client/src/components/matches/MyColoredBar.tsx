@@ -89,11 +89,26 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
         </div>
       </div>
 
-      {/* VS section */}
+      {/* VS section with match info */}
       <div 
-        className="w-20 h-full flex flex-col items-center justify-center bg-white text-red-600 font-bold text-xl relative z-20"
+        className="w-24 h-full flex flex-col items-center justify-center bg-white text-red-600 font-bold text-lg relative z-20"
       >
-        <span className="font-bold">VS</span>
+        <div className="flex flex-col items-center justify-center">
+          {isLiveOrFinished && homeScore !== null && awayScore !== null ? (
+            <>
+              <div className="text-xs font-medium text-gray-600 mb-1">
+                {['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status) ? 'LIVE' : 'FT'}
+              </div>
+              <div className="flex items-center gap-1 text-lg font-bold">
+                <span>{homeScore}</span>
+                <span>-</span>
+                <span>{awayScore}</span>
+              </div>
+            </>
+          ) : (
+            <span className="font-bold">VS</span>
+          )}
+        </div>
       </div>
 
       {/* Away team section */}
