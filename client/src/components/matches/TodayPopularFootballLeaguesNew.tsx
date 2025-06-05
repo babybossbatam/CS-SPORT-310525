@@ -996,8 +996,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
                           <LazyImage
                             src={
-                              leagueData.league.logo ||
-                              "/assets/fallback-logo.svg"
+                              leagueData.league.id
+                                ? `/api/league-logo/${leagueData.league.id}?size=29`
+                                : leagueData.league.logo ||
+                                  "/assets/fallback-logo.svg"
                             }
                             alt={leagueData.league.name || "Unknown League"}
                             className="object-contain rounded-full"
