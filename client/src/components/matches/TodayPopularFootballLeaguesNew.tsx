@@ -1202,6 +1202,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       ? "starred"
                                       : ""
                                   }`}
+                                  }`}
                                 />
                               </button>
 
