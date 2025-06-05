@@ -1108,13 +1108,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       nameIncludesUefaNationsLeague: name.includes(
                         "uefa nations league",
                       ),
+                      exactNameMatch: name === "uefa nations league",
                     },
                   );
 
                   // Priority 1: UEFA Nations League (must come before Friendlies check)
                   if (name.includes("uefa nations league")) {
                     console.log(
-                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}" - SHOULD BE TOP PRIORITY`,
                     );
                     return 1;
                   }
