@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { getCountryFlagWithFallbackSync } from '../../lib/flagUtils';
 
 interface Team {
   id: number;
@@ -16,6 +17,9 @@ interface MyColoredBarProps {
   onClick?: () => void;
   getTeamColor: (teamId: number) => string;
   className?: string;
+  league?: {
+    country: string;
+  };
 }
 
 const MyColoredBar: React.FC<MyColoredBarProps> = ({
@@ -26,116 +30,116 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
   status,
   onClick,
   getTeamColor,
-  className = ""
+  className = "",
+  league
 }) => {
   const isLiveOrFinished = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT', 'FT', 'AET', 'PEN'].includes(status);
 
+  // Get country flags - fallback to team logos if no country info
+  const getHomeFlag = () => {
+    if (league?.country && league.country !== 'World') {
+      return getCountryFlagWithFallbackSync(league.country);
+    }
+    return homeTeam.logo || '/assets/fallback-logo.svg';
+  };
+
+  const getAwayFlag = () => {
+    if (league?.country && league.country !== 'World') {
+      return getCountryFlagWithFallbackSync(league.country);
+    }
+    return awayTeam.logo || '/assets/fallback-logo.svg';
+  };
+
   return (
     <div 
-      className={`flex relative h-[53px] rounded-md transition-all duration-300 ease-in-out opacity-100 mt-[-8px] ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`flex relative h-[60px] rounded-lg overflow-hidden transition-all duration-300 ease-in-out opacity-100 ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
     >
-      <div className="w-full h-full flex justify-between relative">
-        {/* Home team colored bar and logo */}
+      {/* Home team section */}
+      <div 
+        className="flex-1 h-full flex items-center justify-start pl-16 pr-4 relative"
+        style={{ 
+          background: getTeamColor(homeTeam.id),
+          transition: 'all 0.3s ease-in-out'
+        }}
+      >
+        {/* Home team flag circle */}
         <div 
-          className="h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
-          style={{ 
-            background: getTeamColor(homeTeam.id),
-            transition: 'all 0.3s ease-in-out'
-          }}
-        >
-          <div 
-            className="absolute text-white font-medium text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]"
-            style={{
-              top: "calc(50% - 8px)",
-              left: "40px"
-            }}
-          >
-            {homeTeam.name}
-          </div>
-          <div 
-            className="absolute left-[-32px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-            style={{
-              top: "calc(50% - 32px)",
-              cursor: onClick ? 'pointer' : 'default'
-            }}
-          >
-            <img
-              src={homeTeam.logo || '/assets/fallback-logo.svg'}
-              alt={homeTeam.name}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (target.src !== '/assets/fallback-logo.svg') {
-                  target.src = '/assets/fallback-logo.svg';
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        {/* VS section with score */}
-        <div 
-          className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
+          className="absolute left-2 w-12 h-12 bg-white rounded-full p-1 shadow-lg z-10"
           style={{
-            background: '#a00000',
-            left: 'calc(50% - 26px)',
-            top: 'calc(50% - 26px)',
-            minWidth: '52px'
+            top: "calc(50% - 24px)"
           }}
         >
-          {isLiveOrFinished ? (
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1 text-xs">
-                <span>{homeScore ?? 0}</span>
-                <span>-</span>
-                <span>{awayScore ?? 0}</span>
-              </div>
-              {['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status) && (
-                <div className="text-[8px] animate-pulse">LIVE</div>
-              )}
-            </div>
-          ) : (
-            <span className="vs-text font-bold">VS</span>
-          )}
+          <img
+            src={getHomeFlag()}
+            alt={homeTeam.name}
+            className="w-full h-full object-cover rounded-full"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src !== '/assets/fallback-logo.svg') {
+                target.src = '/assets/fallback-logo.svg';
+              }
+            }}
+          />
         </div>
 
-        {/* Away team colored bar and logo */}
+        {/* Home team name */}
+        <div className="text-white font-bold text-lg uppercase tracking-wide ml-2">
+          {homeTeam.name}
+        </div>
+      </div>
+
+      {/* VS section with score */}
+      <div 
+        className="w-20 h-full flex flex-col items-center justify-center bg-white text-red-600 font-bold text-xl relative z-20"
+      >
+        {isLiveOrFinished ? (
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1 text-lg font-bold">
+              <span>{homeScore ?? 0}</span>
+              <span>-</span>
+              <span>{awayScore ?? 0}</span>
+            </div>
+            {['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status) && (
+              <div className="text-xs animate-pulse">LIVE</div>
+            )}
+          </div>
+        ) : (
+          <span className="font-bold">VS</span>
+        )}
+      </div>
+
+      {/* Away team section */}
+      <div 
+        className="flex-1 h-full flex items-center justify-end pr-16 pl-4 relative"
+        style={{ 
+          background: getTeamColor(awayTeam.id),
+          transition: 'all 0.3s ease-in-out'
+        }}
+      >
+        {/* Away team name */}
+        <div className="text-white font-bold text-lg uppercase tracking-wide mr-2">
+          {awayTeam.name}
+        </div>
+
+        {/* Away team flag circle */}
         <div 
-          className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
-          style={{ 
-            background: getTeamColor(awayTeam.id),
-            transition: 'all 0.3s ease-in-out'
+          className="absolute right-2 w-12 h-12 bg-white rounded-full p-1 shadow-lg z-10"
+          style={{
+            top: "calc(50% - 24px)"
           }}
         >
-          <div 
-            className="absolute text-white font-medium text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px] text-right"
-            style={{
-              top: "calc(50% - 8px)",
-              right: "125px"
+          <img
+            src={getAwayFlag()}
+            alt={awayTeam.name}
+            className="w-full h-full object-cover rounded-full"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src !== '/assets/fallback-logo.svg') {
+                target.src = '/assets/fallback-logo.svg';
+              }
             }}
-          >
-            {awayTeam.name}
-          </div>
-          <div
-            className="absolute right-[41px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-            style={{
-              top: "calc(50% - 32px)",
-              cursor: onClick ? 'pointer' : 'default'
-            }}
-          >
-            <img
-              src={awayTeam.logo || '/assets/fallback-logo.svg'}
-              alt={awayTeam.name}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (target.src !== '/assets/fallback-logo.svg') {
-                  target.src = '/assets/fallback-logo.svg';
-                }
-              }}
-            />
-          </div>
+          />
         </div>
       </div>
     </div>
