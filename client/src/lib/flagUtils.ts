@@ -2281,3 +2281,4 @@ function getCached(cacheKey: string): string | undefined {
  * @param leagueFlag - Optional league flag URL
  * @returns string - Flag image URL
  */
+export const getCountryFlagWithFallbackFinal = getCountryFlagWithFallbackSync;
