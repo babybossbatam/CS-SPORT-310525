@@ -971,13 +971,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 const aPriority = getWorldLeaguePriority(a.league.name || '');
                 const bPriority = getWorldLeaguePriority(b.league.name || '');
 
-                if (aPriority !== bPriority) {
-                  return aPriority - bPriority;
-                }
+                return aPriority - bPriority;
               }
 
-              // For non-World countries, use alphabetical sorting
-              return a.league.name.localeCompare(b.league.name);
+              // For non-World countries, no additional sorting after popularity checks
+              return 0;
             })
             .map((leagueData: any, leagueIndex: number) => {
               const isFirstCard = countryIndex === 0 && leagueIndex === 0;
