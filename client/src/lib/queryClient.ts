@@ -89,17 +89,23 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
-      cacheTime: CACHE_DURATIONS.SIX_HOURS, // Keep unused data in cache for 6 hours
-      gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
-      retry: 1,
-      retryDelay: 2000,
-      refetchOnMount: false,
+      staleTime: 10 * 60 * 1000, // 10 minutes - longer stale time
+      cacheTime: 15 * 60 * 1000, // 15 minutes cache
       refetchOnReconnect: false,
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors
+        if (error?.response?.status >= 400 && error?.response?.status < 500) {
+          return false;
+        }
+        return failureCount < 2; // Reduce retry attempts
+      },
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 10000),
+      // Enable background refetch only for critical data
+      refetchInterval: false,
+      refetchIntervalInBackground: false,
     },
     mutations: {
-      retry: 1,
-      retryDelay: 2000
+      retry: 1, // Reduce mutation retries
     },
   },
 });
