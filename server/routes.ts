@@ -446,6 +446,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get popular leagues endpoint - MUST be before parameterized routes
+  apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
+    try {
+      console.log('API: Fetching popular leagues');
+      
+      // Try to get from cached leagues first
+      const allLeagues = await storage.getAllCachedLeagues();
+
+      // Define popular league IDs with priorities
+      const popularLeagueIds = [
+        { id: 2, priority: 1 }, // Champions League
+        { id: 39, priority: 2 }, // Premier League
+        { id: 140, priority: 3 }, // La Liga
+        { id: 135, priority: 4 }, // Serie A
+        { id: 78, priority: 5 }, // Bundesliga
+        { id: 3, priority: 6 }, // Europa League
+        { id: 137, priority: 7 }, // Coppa Italia
+        { id: 45, priority: 8 }, // FA Cup
+        { id: 40, priority: 9 }, // Community Shield
+        { id: 48, priority: 10 } // EFL Cup
+      ];
+
+      // If we have cached leagues, filter and sort them
+      if (allLeagues && allLeagues.length > 0) {
+        const popularLeagues = popularLeagueIds
+          .map(({ id, priority }) => {
+            const league = allLeagues.find(l => l.data?.league?.id === id);
+            return league ? { ...league.data, priority } : null;
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.priority - b.priority);
+
+        console.log(`API: Returning ${popularLeagues.length} popular leagues from cache`);
+        return res.json(popularLeagues);
+      }
+
+      // If no cached leagues, fetch from API and return popular ones
+      const leagues = await rapidApiService.getLeagues();
+      const popularLeagues = popularLeagueIds
+        .map(({ id, priority }) => {
+          const league = leagues.find(l => l.league?.id === id);
+          return league ? { ...league, priority } : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.priority - b.priority);
+
+      console.log(`API: Returning ${popularLeagues.length} popular leagues from API`);
+      res.json(popularLeagues);
+    } catch (error) {
+      console.error('Error fetching popular leagues:', error);
+      res.status(500).json({ error: 'Failed to fetch popular leagues' });
+    }
+  });
+
   apiRouter.get("/leagues", async (_req: Request, res: Response) => {
     try {
       // Check for cached leagues first
@@ -700,41 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get popular leagues endpoint
-  apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
-    try {
-      // Try to get from cached leagues first
-      const allLeagues = await storage.getAllCachedLeagues();
-
-      // Define popular league IDs with priorities
-      const popularLeagueIds = [
-        { id: 2, priority: 1 }, // Champions League
-        { id: 39, priority: 2 }, // Premier League
-        { id: 140, priority: 3 }, // La Liga
-        { id: 135, priority: 4 }, // Serie A
-        { id: 78, priority: 5 }, // Bundesliga
-        { id: 3, priority: 6 }, // Europa League
-        { id: 137, priority: 7 }, // Coppa Italia
-        { id: 45, priority: 8 }, // FA Cup
-        { id: 40, priority: 9 }, // Community Shield
-        { id: 48, priority: 10 } // EFL Cup
-      ];
-
-      // Filter and sort popular leagues
-      const popularLeagues = popularLeagueIds
-        .map(({ id, priority }) => {
-          const league = allLeagues.find(l => l.data.league.id === id);
-          return league ? { ...league.data, priority } : null;
-        })
-        .filter(Boolean)
-        .sort((a, b) => a.priority - b.priority);
-
-      res.json(popularLeagues);
-    } catch (error) {
-      console.error('Error fetching popular leagues:', error);
-      res.status(500).json({ error: 'Failed to fetch popular leagues' });
-    }
-  });
+  
 
   // Conference League fixtures endpoint (League ID 848)
   apiRouter.get("/conference-league/fixtures", async (_req: Request, res: Response) => {
