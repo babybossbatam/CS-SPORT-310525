@@ -717,14 +717,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Status */}
             <div className="text-center mb-2">
               <div className="text-xs font-medium text-gray-500">
-                {currentMatch.fixture.status.short === "FT" ? "Ended" :
-                 currentMatch.fixture.status.short === "AET" ? "Ended (AET)" :
-                 currentMatch.fixture.status.short === "PEN" ? "Ended (PEN)" :
-                 currentMatch.fixture.status.short === "1H" || 
-                 currentMatch.fixture.status.short === "2H" ? "Live" :
-                 currentMatch.fixture.status.short === "HT" ? "Half Time" :
-                 currentMatch.fixture.status.short === "NS" ? "Upcoming" :
-                 currentMatch.fixture.status.short}
+                VS
               </div>
             </div>
 
