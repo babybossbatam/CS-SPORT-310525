@@ -934,9 +934,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           ) {
                             target.src = currentMatch.teams.home.logo;
                           } else if (
-                            target.src !== "/assets/fallback-logo.svg"
+                            target.src !== "/assets/custom-logo.svg"
                           ) {
-                            target.src = "/assets/fallback-logo.svg";
+                            target.src = "/assets/custom-logo.svg";
                           }
                         }}
                       />
@@ -1005,7 +1005,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                      e.currentTarget.src = "/assets/custom-logo.svg";
                     }}
                   />
                 </div>
