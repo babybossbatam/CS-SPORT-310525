@@ -142,11 +142,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Main match display - Colored Bar */}
             <div className="relative">
               <MyColoredBar
-                homeTeam={currentMatch.teams.home}
-                awayTeam={currentMatch.teams.away}
-                homeScore={currentMatch.goals.home}
-                awayScore={currentMatch.goals.away}
-                status={currentMatch.fixture.status.short}
+                homeTeam={currentMatch.homeTeam}
+                awayTeam={currentMatch.awayTeam}
+                homeScore={currentMatch.score.home}
+                awayScore={currentMatch.score.away}
+                status={currentMatch.score.status}
                 onClick={handleMatchClick}
                 getTeamColor={getTeamColor}
                 className="mb-8"
@@ -171,8 +171,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   return (
                     <>
                       {formattedDate} | {timeOnly}
-                      {currentMatch.fixture.venue?.name
-                        ? ` | ${currentMatch.fixture.venue.name}`
+                      {currentMatch.fixture.venue
+                        ? ` | ${currentMatch.fixture.venue}`
                         : ""}
                     </>
                   );
