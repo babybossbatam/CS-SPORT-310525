@@ -3,9 +3,9 @@ import { countryCodeMap } from './flagUtils';
 
 // Authentic country flag designs (same as CustomCountryFlags.tsx)
 const createFranceFlag = () => `
-  <rect x="0" y="0" width="21.33" height="64" fill="#002654"/>
+  <rect x="0" y="0" width="21.33" height="64" fill="#0055A4"/>
   <rect x="21.33" y="0" width="21.34" height="64" fill="#FFFFFF"/>
-  <rect x="42.67" y="0" width="21.33" height="64" fill="#ED2939"/>
+  <rect x="42.67" y="0" width="21.33" height="64" fill="#EF4135"/>
 `;
 
 const createGermanyFlag = () => `
@@ -27,9 +27,9 @@ const createSpainFlag = () => `
 `;
 
 const createNetherlandsFlag = () => `
-  <rect x="0" y="0" width="64" height="21.33" fill="#21468B"/>
+  <rect x="0" y="0" width="64" height="21.33" fill="#AE1C28"/>
   <rect x="0" y="21.33" width="64" height="21.34" fill="#FFFFFF"/>
-  <rect x="0" y="42.67" width="64" height="21.33" fill="#AE1C28"/>
+  <rect x="0" y="42.67" width="64" height="21.33" fill="#21468B"/>
 `;
 
 const createBrazilFlag = () => `
@@ -124,6 +124,61 @@ const createSouthKoreaFlag = () => `
   <path d="M 32 24 A 8 8 0 0 0 32 40 A 4 4 0 0 1 32 32 A 4 4 0 0 0 32 24" fill="#003478"/>
 `;
 
+const createPortugalFlag = () => `
+  <rect x="0" y="0" width="25.6" height="64" fill="#046A38"/>
+  <rect x="25.6" y="0" width="38.4" height="64" fill="#DA020E"/>
+  <circle cx="25.6" cy="32" r="8" fill="#FFFF00" stroke="#046A38" stroke-width="1"/>
+`;
+
+const createTurkeyFlag = () => `
+  <rect x="0" y="0" width="64" height="64" fill="#E30A17"/>
+  <circle cx="24" cy="32" r="8" fill="#FFFFFF"/>
+  <circle cx="26" cy="32" r="6.4" fill="#E30A17"/>
+  <polygon points="38,26 40,30 44,30 41,33 42,37 38,35 34,37 35,33 32,30 36,30" fill="#FFFFFF"/>
+`;
+
+const createSwedenFlag = () => `
+  <rect x="0" y="0" width="64" height="64" fill="#006AA7"/>
+  <rect x="20" y="0" width="4" height="64" fill="#FECC00"/>
+  <rect x="0" y="30" width="64" height="4" fill="#FECC00"/>
+`;
+
+const createNorwayFlag = () => `
+  <rect x="0" y="0" width="64" height="64" fill="#BA0C2F"/>
+  <rect x="18" y="0" width="6" height="64" fill="#FFFFFF"/>
+  <rect x="0" y="29" width="64" height="6" fill="#FFFFFF"/>
+  <rect x="20" y="0" width="2" height="64" fill="#00205B"/>
+  <rect x="0" y="31" width="64" height="2" fill="#00205B"/>
+`;
+
+const createBelgiumFlag = () => `
+  <rect x="0" y="0" width="21.33" height="64" fill="#000000"/>
+  <rect x="21.33" y="0" width="21.34" height="64" fill="#FFD700"/>
+  <rect x="42.67" y="0" width="21.33" height="64" fill="#FF0000"/>
+`;
+
+const createSwitzerlandFlag = () => `
+  <rect x="0" y="0" width="64" height="64" fill="#FF0000"/>
+  <rect x="26" y="16" width="12" height="32" fill="#FFFFFF"/>
+  <rect x="16" y="26" width="32" height="12" fill="#FFFFFF"/>
+`;
+
+const createGreeceFlag = () => `
+  <rect x="0" y="0" width="64" height="64" fill="#0D5EAF"/>
+  <rect x="0" y="7.11" width="64" height="7.11" fill="#FFFFFF"/>
+  <rect x="0" y="21.33" width="64" height="7.11" fill="#FFFFFF"/>
+  <rect x="0" y="35.56" width="64" height="7.11" fill="#FFFFFF"/>
+  <rect x="0" y="49.78" width="64" height="7.11" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="25.6" height="35.56" fill="#0D5EAF"/>
+  <rect x="10.67" y="0" width="4.27" height="35.56" fill="#FFFFFF"/>
+  <rect x="0" y="14.22" width="25.6" height="4.27" fill="#FFFFFF"/>
+`;
+
+const createPolandFlag = () => `
+  <rect x="0" y="0" width="64" height="32" fill="#FFFFFF"/>
+  <rect x="0" y="32" width="64" height="32" fill="#DC143C"/>
+`;
+
 // Generic template for unmapped countries
 const createGenericFlag = (country: string) => `
   <rect width="64" height="64" fill="#CCCCCC"/>
@@ -154,6 +209,14 @@ const countryFlagRenderers: Record<string, () => string> = {
   'Australia': createAustraliaFlag,
   'South Korea': createSouthKoreaFlag,
   'South-Korea': createSouthKoreaFlag,
+  'Portugal': createPortugalFlag,
+  'Turkey': createTurkeyFlag,
+  'Sweden': createSwedenFlag,
+  'Norway': createNorwayFlag,
+  'Belgium': createBelgiumFlag,
+  'Switzerland': createSwitzerlandFlag,
+  'Greece': createGreeceFlag,
+  'Poland': createPolandFlag,
 };
 
 // Generate SVG content for a country
