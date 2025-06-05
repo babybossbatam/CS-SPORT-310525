@@ -216,7 +216,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     if (!fixtures?.length) return [];
 
     console.log(`🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
-    
+
     // Count COSAFA Cup matches in input
     const cosafaMatches = fixtures.filter(f => 
       f.league?.name?.toLowerCase().includes('cosafa') || 
@@ -233,7 +233,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         away: m.teams?.away?.name
       }))
     );
-    
+
     const startTime = Date.now();
 
     // Determine what type of date is selected
@@ -287,7 +287,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const isCOSAFAMatch = fixture.league?.name?.toLowerCase().includes('cosafa') || 
                              fixture.teams?.home?.name?.toLowerCase().includes('cosafa') ||
                              fixture.teams?.away?.name?.toLowerCase().includes('cosafa');
-        
+
         if (isCOSAFAMatch) {
           console.log(`🏆 [COSAFA SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
             fixtureId: fixture.fixture?.id,
@@ -442,14 +442,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     const endTime = Date.now();
-    
+
     // Count COSAFA Cup matches in final filtered results
     const finalCosafaMatches = finalFiltered.filter(f => 
       f.league?.name?.toLowerCase().includes('cosafa') || 
       f.teams?.home?.name?.toLowerCase().includes('cosafa') ||
       f.teams?.away?.name?.toLowerCase().includes('cosafa')
     );
-    
+
     console.log(`🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`);
     console.log(`🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`, 
       finalCosafaMatches.map(m => ({
@@ -1035,7 +1035,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           0,
                           timeFilterActive && showTop20 ? 20 : undefined,
                         )
-                        .sort((a: any, b: any) => {
+<replit_final_file>
+```                        .sort((a: any, b: any) => {
                           // When time filter is active, prioritize by time more strictly
                           if (timeFilterActive) {
                             const aDate = parseISO(a.fixture.date);
@@ -1059,11 +1060,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             return aDistance - bDistance;
                           }
 
-                          // Original sorting logic when time filter is not active
+                          // NEW SORTING LOGIC: Priority-based with alphabetical ordering
                           const aStatus = a.fixture.status.short;
                           const bStatus = b.fixture.status.short;
                           const aDate = parseISO(a.fixture.date);
-
                           const bDate = parseISO(b.fixture.date);
 
                           // Ensure valid dates
@@ -1071,31 +1071,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             return 0;
                           }
 
-                          const now = new Date();
                           const aTime = aDate.getTime();
                           const bTime = bDate.getTime();
-
-                          // Check if matches involve popular teams (with null safety)
-                          const aHasPopularTeam =
-                            (a.teams?.home?.id &&
-                              POPULAR_TEAMS.includes(a.teams.home.id)) ||
-                            (a.teams?.away?.id &&
-                              POPULAR_TEAMS.includes(a.teams.away.id));
-                          const bHasPopularTeam =
-                            (b.teams?.home?.id &&
-                              POPULAR_TEAMS.includes(b.teams.home.id)) ||
-                            (b.teams?.away?.id &&
-                              POPULAR_TEAMS.includes(b.teams.away.id));
-
-                          // Prioritize popular team matches first
-                          if (aHasPopularTeam && !bHasPopularTeam) return -1;
-                          if (!aHasPopularTeam && bHasPopularTeam) return 1;
 
                           // Define status categories
                           const aLive = [
                             "LIVE",
                             "1H",
-                            "HT",
+                            "HT", 
                             "2H",
                             "ET",
                             "BT",
@@ -1106,12 +1089,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             "LIVE",
                             "1H",
                             "HT",
-                            "2H",
+                            "2H", 
                             "ET",
                             "BT",
                             "P",
                             "INT",
                           ].includes(bStatus);
+
+                          const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+                          const bUpcoming = bStatus === "NS" || bStatus === "TBD";
 
                           const aFinished = [
                             "FT",
@@ -1125,7 +1111,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           ].includes(aStatus);
                           const bFinished = [
                             "FT",
-                            "AET",
+                            "AET", 
                             "PEN",
                             "AWD",
                             "WO",
@@ -1134,50 +1120,56 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             "SUSP",
                           ].includes(bStatus);
 
-                          const aUpcoming =
-                            aStatus === "NS" && !aLive && !aFinished;
-                          const bUpcoming =
-                            bStatus === "NS" && !bLive && !bFinished;
+                          // PRIORITY 1: LIVE matches always come first
+                          if (aLive && !bLive) return -1;
+                          if (!aLive && bLive) return 1;
 
-                          // Assign priority scores (lower = higher priority)
-                          let aPriority = 0;
-                          let bPriority = 0;
-
-                          if (aLive) aPriority = 1;
-                          else if (aUpcoming) aPriority = 2;
-                          else if (aFinished) aPriority = 3;
-                          else aPriority = 4;
-
-                          if (bLive) bPriority = 1;
-                          else if (bUpcoming) bPriority = 2;
-                          else if (bFinished) bPriority = 3;
-                          else bPriority = 4;
-
-                          // Second sort by match status priority
-                          if (aPriority !== bPriority) {
-                            return aPriority - bPriority;
-                          }
-
-                          // If same priority, sort by time within category
+                          // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
                           if (aLive && bLive) {
-                            // For live matches, sort by elapsed time (smallest to highest)
                             const aElapsed = Number(a.fixture.status.elapsed) || 0;
                             const bElapsed = Number(b.fixture.status.elapsed) || 0;
-                            return aElapsed - bElapsed;
+
+                            if (aElapsed !== bElapsed) {
+                              return aElapsed - bElapsed;
+                            }
+
+                            // If same elapsed time, sort alphabetically by home team name
+                            const aHomeTeam = a.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            return aHomeTeam.localeCompare(bHomeTeam);
                           }
 
+                          // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically
+                          if (aUpcoming && !bUpcoming) return -1;
+                          if (!aUpcoming && bUpcoming) return 1;
+
+                          // If both are upcoming, sort by time first, then alphabetically by home team
                           if (aUpcoming && bUpcoming) {
-                            // For upcoming matches, show earliest start time first
-                            return aTime - bTime;
+                            if (aTime !== bTime) {
+                              return aTime - bTime; // Earlier matches first
+                            }
+
+                            // If same time, sort alphabetically by home team name
+                            const aHomeTeam = a.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            return aHomeTeam.localeCompare(bHomeTeam);
                           }
 
+                          // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
+                          if (aFinished && !bFinished) return 1;
+                          if (!aFinished && bFinished) return -1;
+
+                          // If both are finished, sort alphabetically by home team name
                           if (aFinished && bFinished) {
-                            // For finished matches, show most recent first
-                            return bTime - aTime;
+                            const aHomeTeam = a.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            return aHomeTeam.localeCompare(bHomeTeam);
                           }
 
-                          // Default time-based sorting
-                          return aTime - bTime;
+                          // DEFAULT: For any other cases, sort alphabetically by home team name
+                          const aHomeTeam = a.teams?.home?.name || "";
+                          const bHomeTeam = b.teams?.home?.name || "";
+                          return aHomeTeam.localeCompare(bHomeTeam);
                         })
                         .map((match: any) => (
                           <LazyMatchItem key={match.fixture.id}>
