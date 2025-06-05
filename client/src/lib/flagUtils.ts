@@ -672,8 +672,6 @@ export async function getCountryFlagWithFallback(
 // Memory cache for flag URLs
 const flagCacheMem = new Map<string, string>();
 
-import { createCustomFlagFromCache, recreateAllNationalTeamFlags, generateAndCacheCustomFlag } from './flagColorExtractor';
-
 // Custom flag SVG mapping for countries we have created
 const customFlagSVGs: { [key: string]: string } = {
   // European countries
@@ -731,9 +729,6 @@ const customFlagSVGs: { [key: string]: string } = {
   'Australia': '/assets/flags/australia-flag.svg',
 };
 
-// Cache for generated custom flags
-const generatedCustomFlags = new Map<string, string>();
-
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
   const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
   console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
@@ -774,31 +769,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
       if (customFlagSVGs[cleanCountry]) {
         result = customFlagSVGs[cleanCountry];
         console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using custom SVG flag for ${cleanCountry}: ${result}`);
-      } else {
-        // PRIORITY 1.5: Generate custom flag from cached data if available
-        const cached = flagCache.getCached(`flag_${cleanCountry.toLowerCase().replace(/\s+/g, '_')}`);
-        if (cached && cached.url && !cached.url.includes('/assets/fallback-logo.svg')) {
-          // Check if we already generated a custom flag for this country
-          if (generatedCustomFlags.has(cleanCountry)) {
-            result = generatedCustomFlags.get(cleanCountry)!;
-            console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using cached custom generated flag for ${cleanCountry}`);
-          } else {
-            // Generate custom flag asynchronously and cache the original for now
-            createCustomFlagFromCache(cleanCountry).then(customFlag => {
-              generatedCustomFlags.set(cleanCountry, customFlag);
-              console.log(`✨ [flagUtils.ts] Generated custom flag for ${cleanCountry} from cached data`);
-              
-              // Update the main cache with the custom flag
-              flagCache.setCached(`flag_${cleanCountry.toLowerCase().replace(/\s+/g, '_')}`, customFlag, 'custom-generated', true);
-            }).catch(error => {
-              console.warn(`Failed to generate custom flag for ${cleanCountry}:`, error);
-            });
-            
-            // For now, use the cached original flag
-            result = cached.url;
-            console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Using cached flag for ${cleanCountry} while generating custom: ${result}`);
-          }
-        } else if (cleanCountry === 'World') {
+      } else if (cleanCountry === 'World') {
         result = '/assets/world_flag_new.png';
         console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
       } else if (cleanCountry === 'Europe') {
@@ -1680,16 +1651,6 @@ export async function testCountryMappingAgainstLiveData(fixtures: any[]): Promis
   }
 }
 
-/**
- * Recreate all national team flags with custom SVG design
- */
-export const recreateAllCustomFlags = recreateAllNationalTeamFlags;
-
-/**
- * Generate custom flag for specific country
- */
-export const generateCustomFlag = generateAndCacheCustomFlag;
-
 export const getFlagUrl = async (country: string): Promise<string> => {
   // Normalize country name
   const normalizedCountry = country.trim();
@@ -2178,49 +2139,6 @@ export function intelligentCacheCleanup(): void {
   console.log(`🗑️ Removed ${toRemove.length} least used flags from cache`);
 }
 
-// Global console functions for development and testing
-if (typeof window !== 'undefined') {
-  (window as any).recreateAllFlags = async () => {
-    const { recreateAllNationalTeamFlagsWithProgress, getCustomFlagStats } = await import('./flagRecreation');
-    
-    console.log('🎨 Starting recreation of all national team flags...');
-    console.log('📊 Initial stats:', getCustomFlagStats());
-    
-    await recreateAllNationalTeamFlagsWithProgress((progress, total, current) => {
-      const percentage = Math.round((progress / total) * 100);
-      console.log(`🔄 [${percentage}%] Processing ${current}... (${progress}/${total})`);
-    });
-    
-    console.log('🎉 Recreation completed!');
-    console.log('📊 Final stats:', getCustomFlagStats());
-  };
-
-  (window as any).getFlagStats = async () => {
-    const { getCustomFlagStats } = await import('./flagRecreation');
-    const stats = getCustomFlagStats();
-    console.log('📊 Custom Flag Statistics:', stats);
-    return stats;
-  };
-
-  (window as any).resetAllFlags = async () => {
-    const { resetToOriginalFlags } = await import('./flagRecreation');
-    await resetToOriginalFlags();
-    console.log('✅ All flags reset to original versions');
-  };
-
-  (window as any).generateCustomFlagFor = async (country: string) => {
-    console.log(`🎨 Generating custom flag for ${country}...`);
-    try {
-      const customFlag = await generateCustomFlag(country);
-      console.log(`✅ Custom flag generated for ${country}:`, customFlag.substring(0, 100) + '...');
-      return customFlag;
-    } catch (error) {
-      console.error(`❌ Failed to generate custom flag for ${country}:`, error);
-      throw error;
-    }
-  };
-}
-
 /**
  * Background refresh of stale cache entries
  */
@@ -2281,4 +2199,3 @@ function getCached(cacheKey: string): string | undefined {
  * @param leagueFlag - Optional league flag URL
  * @returns string - Flag image URL
  */
-export const getCountryFlagWithFallbackFinal = getCountryFlagWithFallbackSync;

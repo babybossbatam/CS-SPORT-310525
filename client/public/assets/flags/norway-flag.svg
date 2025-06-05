@@ -1,0 +1,30 @@
+
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleView">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circleView)">
+    <!-- Red background -->
+    <rect width="64" height="64" fill="#EF2B2D"/>
+    
+    <!-- White cross -->
+    <rect width="64" height="12" x="0" y="26" fill="#FFFFFF"/>
+    <rect width="12" height="64" x="18" y="0" fill="#FFFFFF"/>
+    
+    <!-- Blue cross -->
+    <rect width="64" height="8" x="0" y="28" fill="#002868"/>
+    <rect width="8" height="64" x="20" y="0" fill="#002868"/>
+    
+    <!-- Nordic cross pattern -->
+    <g opacity="0.3">
+      <circle cx="24" cy="16" r="2" fill="#FFFFFF"/>
+      <circle cx="24" cy="48" r="2" fill="#FFFFFF"/>
+      <circle cx="40" cy="32" r="2" fill="#FFFFFF"/>
+    </g>
+    
+    <!-- Glossy effect -->
+    <ellipse cx="32" cy="20" rx="22" ry="10" fill="white" opacity="0.3"/>
+  </g>
+</svg>

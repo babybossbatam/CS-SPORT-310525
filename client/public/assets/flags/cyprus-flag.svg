@@ -1,0 +1,25 @@
+
+<svg width="40" height="24" viewBox="0 0 40 24" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cyprusShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgba(0,0,0,0.3);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- White background -->
+  <rect width="40" height="24" fill="#ffffff" />
+  
+  <!-- Cyprus island outline (simplified) -->
+  <path d="M8 10 Q12 8 16 9 Q20 10 24 11 Q28 12 32 13 Q30 16 26 17 Q22 16 18 15 Q14 14 10 13 Q8 12 8 10 Z" fill="#ff8c00" />
+  
+  <!-- Olive branches -->
+  <path d="M12 16 Q14 18 16 17 Q18 16 20 17 Q22 18 24 17 Q26 16 28 17" stroke="#228b22" stroke-width="1.5" fill="none" />
+  <path d="M12 17 Q14 19 16 18 Q18 17 20 18 Q22 19 24 18 Q26 17 28 18" stroke="#228b22" stroke-width="1.5" fill="none" />
+  
+  <!-- Shadow overlay for depth -->
+  <rect width="40" height="24" fill="url(#cyprusShadow)" opacity="0.15" />
+  
+  <!-- Border -->
+  <rect width="40" height="24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="0.5" />
+</svg>
