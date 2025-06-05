@@ -42,6 +42,7 @@ import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import LazyImage from "../common/LazyImage";
 import LazyMatchItem from './LazyMatchItem';
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -388,53 +389,57 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Use MyDateConversionFilter with smart date labeling for better accuracy
-  const { validFixtures: allFixtures, stats } =
-    MyDateConversionFilter.filterFixturesForDateSmart(fixtures, selectedDate);
-
-  // Additional smart filtering using MySmartDateLabeling for enhanced accuracy
-  const smartFilteredFixtures = allFixtures.filter((fixture: any) => {
-    if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short)
-      return true;
-
-    const smartResult = MySmartDateLabeling.getSmartDateLabel(
-      fixture.fixture.date,
-      fixture.fixture.status.short,
-    );
-
-    // For selected date filtering, accept matches that smart labeling considers appropriate
-    const isSelectedToday = isDateStringToday(selectedDate);
-    const isSelectedYesterday = isDateStringYesterday(selectedDate);
-    const isSelectedTomorrow = isDateStringTomorrow(selectedDate);
-
-    // Strict matching: only include if smart labeling matches selected date type
-    if (isSelectedToday && smartResult.label === "today") return true;
-    if (isSelectedYesterday && smartResult.label === "yesterday") return true;
-    if (isSelectedTomorrow && smartResult.label === "tomorrow") return true;
-
-    // For matches with finished/live status, use standard date matching as fallback
-    const finishedStatuses = [
-      "FT",
-      "AET",
-      "PEN",
-      "AWD",
-      "WO",
-      "ABD",
-      "CANC",
-      "SUSP",
-    ];
-    const liveStatuses = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"];
-
-    if (
-      finishedStatuses.includes(fixture.fixture.status.short) ||
-      liveStatuses.includes(fixture.fixture.status.short)
-    ) {
-      return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+  // Apply smart time filtering directly
+  const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
+    if (!fixtures?.length) {
+      return {
+        validFixtures: [],
+        rejectedFixtures: [],
+        stats: { total: 0, valid: 0, rejected: 0, methods: {} }
+      };
     }
 
-    // For not started matches, strictly follow smart date labeling - no fallback
-    return false;
-  });
+    // Use MySmartTimeFilter directly for consistent filtering
+    const filtered = fixtures.filter(fixture => {
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+        return false;
+      }
+
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        selectedDate + 'T12:00:00Z'
+      );
+
+      // Determine what type of date is selected
+      const today = new Date();
+      const todayString = format(today, 'yyyy-MM-dd');
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = format(yesterday, 'yyyy-MM-dd');
+
+      // Match based on selected date type
+      if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
+      if (selectedDate === todayString && smartResult.label === 'today') return true;
+      if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
+
+      return false;
+    });
+
+    return {
+      validFixtures: filtered,
+      rejectedFixtures: [],
+      stats: {
+        total: fixtures.length,
+        valid: filtered.length,
+        rejected: fixtures.length - filtered.length,
+        methods: { 'smart-time-filter': filtered.length }
+      }
+    };
+  }, [fixtures, selectedDate]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
@@ -449,10 +454,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const filterAnalysis = {
     selectedDate,
     originalCount: fixtures.length,
-    filteredCount: allFixtures.length,
-    removedCount: fixtures.length - allFixtures.length,
+    filteredCount: validFixtures.length,
+    removedCount: fixtures.length - validFixtures.length,
     removedFixtures: fixtures
-      .filter((f) => !allFixtures.includes(f))
+      .filter((f) => !validFixtures.includes(f))
       .slice(0, 10)
       .map((f) => ({
         id: f.fixture?.id,
@@ -471,7 +476,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       ],
       filtered: [
         ...new Set(
-          allFixtures.map((f) => f.fixture?.status?.short).filter(Boolean),
+          validFixtures.map((f) => f.fixture?.status?.short).filter(Boolean),
         ),
       ],
     },
@@ -483,7 +488,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       ],
       filtered: [
         ...new Set(
-          allFixtures
+          validFixtures
             .map((f) => f.fixture?.date?.split("T")[0])
             .filter(Boolean),
         ),
@@ -494,7 +499,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   console.log(`📊 [DEBUG] Comprehensive Filtering Analysis:`, filterAnalysis);
 
   // Group fixtures by country and league with comprehensive null checks
-  const fixturesByCountry = smartFilteredFixtures.reduce(
+  const fixturesByCountry = validFixtures.reduce(
     (acc: any, fixture: any) => {
       // Validate fixture structure
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
@@ -680,7 +685,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       .slice(0, 5),
     pipeline: {
       step1_rawFixtures: fixtures.length,
-      step2_dateFiltered: allFixtures.length,
+      step2_dateFiltered: validFixtures.length,
       step3_countryGrouped: countryStats.reduce(
         (sum, c) => sum + c.totalMatches,
         0,
@@ -871,7 +876,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return "Yesterday's Football Results by Country";
     } else if (isDateStringTomorrow(selectedDate)) {
       return "Tomorrow's Football Matches by Country";
-    } else {
+    } else{
       return "Football Leagues by Country";
     }
   };
@@ -922,7 +927,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  if (!allFixtures.length) {
+  if (!validFixtures.length) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
