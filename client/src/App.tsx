@@ -149,10 +149,16 @@ function App() {
       console.log(`🌍 Force generating ${allCountries.length} flag SVGs...`);
       
       let generated = 0;
+      const generatedFlags: { [key: string]: string } = {};
+      
       for (const country of allCountries) {
         try {
           const colors = await extractColorsFromCachedFlag(country);
-          generateCustomSVGFlag(country, colors);
+          const svgContent = generateCustomSVGContent(country, colors);
+          const fileName = `${country.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-flag.svg`;
+          
+          // Store directly in session storage
+          generatedFlags[fileName] = svgContent;
           generated++;
           
           if (generated % 10 === 0) {
@@ -162,6 +168,9 @@ function App() {
           console.warn(`Failed to generate flag for ${country}:`, error);
         }
       }
+      
+      // Save all generated flags to session storage
+      sessionStorage.setItem('generatedFlags', JSON.stringify(generatedFlags));
       
       console.log(`✅ Force generated ${generated} flags for download!`);
       alert(`Force generated ${generated} flags! Now click "📥 Download Flags"`);

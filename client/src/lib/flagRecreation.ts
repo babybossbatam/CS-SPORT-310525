@@ -208,12 +208,11 @@ function extractDominantColors(data: Uint8ClampedArray): string[] {
   return sortedColors.length > 0 ? sortedColors : ['#3B82F6', '#EF4444'];
 }
 
-// Generate custom SVG flag using extracted colors and save as file
-export function generateCustomSVGFlag(country: string, colors: string[]): string {
+// Generate SVG content only (without saving to file)
+export function generateCustomSVGContent(country: string, colors: string[]): string {
   const [primaryColor, secondaryColor, tertiaryColor] = colors;
   
-  // Custom SVG template based on your existing design patterns
-  const svgContent = `<svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="flagGradient-${country.replace(/\s+/g, '')}" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
@@ -248,6 +247,12 @@ export function generateCustomSVGFlag(country: string, colors: string[]): string
         stroke="rgba(0,0,0,0.1)" 
         stroke-width="1"/>
 </svg>`;
+}
+
+// Generate custom SVG flag using extracted colors and save as file
+export function generateCustomSVGFlag(country: string, colors: string[]): string {
+  // Generate SVG content using helper function
+  const svgContent = generateCustomSVGContent(country, colors);
   
   // Save the SVG file to the flags directory
   saveSVGFlagToFile(country, svgContent);
