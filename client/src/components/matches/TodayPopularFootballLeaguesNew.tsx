@@ -969,19 +969,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     <>
                       {leagueData.isFriendlies ? (
                         <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
-                          <img
-                            src={
-                              leagueData.league.logo ||
-                              "/assets/fallback-logo.svg"
-                            }
-                            alt={leagueData.league.name || "Unknown League"}
-                            className="w-5 h-5 object-contain rounded-full"
-                            style={{ backgroundColor: "transparent" }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src =
-                                "/assets/fallback-logo.svg";
-                            }}
-                          />
                           <span className="font-medium text-blue-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                             {leagueData.league.name || "Unknown League"}
                           </span>
