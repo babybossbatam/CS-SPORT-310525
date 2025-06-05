@@ -995,7 +995,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       ) : (
                         <CardContent className="flex items-center gap-4 p-4 bg-white border-b border-gray-200">
                           
-<LazyImage
+<img
                             src={
                               leagueData.league.id
                                 ? `/api/league-logo/${leagueData.league.id}?size=48`
@@ -1016,7 +1016,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               borderRadius: "0",
                               objectFit: "contain"
                             }}
-                            fallbackSrc="/assets/fallback-logo.svg"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                            }}
                           />
                           <div className="flex flex-col flex-1">
                             <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '18px' }}>
