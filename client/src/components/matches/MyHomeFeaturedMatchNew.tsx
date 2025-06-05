@@ -141,6 +141,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           >
             {/* Main match display - Colored Bar */}
             <div className="relative">
+              {/* Match Status */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-200">
+                <span className="text-xs font-medium text-gray-700">
+                  {currentMatch.score.status}
+                </span>
+              </div>
+              
               <MyColoredBar
                 homeTeam={currentMatch.homeTeam}
                 awayTeam={currentMatch.awayTeam}
