@@ -961,13 +961,27 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   // Check if it's marked as friendlies or contains friendlies in name
                   const isFriendlies = leagueData.isFriendlies || name.includes('friendlies');
                   
-                  if (name.includes('uefa national league')) return 1;
+                  // Priority 1: UEFA National League
+                  if (name.includes('uefa nations league') || name.includes('uefa national league')) return 1;
+                  
+                  // Priority 2: Friendlies
                   if (isFriendlies) return 2;
+                  
+                  // Priority 3: World Cup Qualification Asia
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
+                  
+                  // Priority 4: World Cup Qualification CONCACAF
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) return 4;
+                  
+                  // Priority 5: World Cup Qualification Europe
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) return 5;
+                  
+                  // Priority 6: World Cup Qualification South America
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('south america')) return 6;
+                  
+                  // Priority 7: Tournoi Maurice Revello
                   if (name.includes('tournoi maurice revello')) return 7;
+                  
                   return 999; // Other leagues go to bottom
                 };
 
