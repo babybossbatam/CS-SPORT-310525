@@ -123,7 +123,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
-            top: "calc(50% + 35px)",
+            top: "calc(50% + 17.5px)",
             width: "max-content",
             fontFamily: "'Inter', system-ui, sans-serif",
             zIndex: 25,
