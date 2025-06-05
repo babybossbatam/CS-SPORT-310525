@@ -449,31 +449,23 @@ export function generateFlagSources(country: string): string[] {
   const cleanCountry = country.trim();
   const sources: string[] = [];
 
-  // Special cases for international competitions - use local file
-  if (cleanCountry === 'World') {
-    return ['/assets/world_flag_new.png'];
-  }
+  // 1. 365scores.com as PRIMARY source (high priority)
+  const country365 = cleanCountry.toLowerCase().replace(/\s+/g, '-');
+  sources.push(`https://365scores.com/assets/images/flags/${country365}.svg`);
 
-  if (cleanCountry === 'Europe') {
-    return ['https://flagcdn.com/w40/eu.png', 'https://media.api-sports.io/flags/eu.svg'];
-  }
+  // Alternative 365scores formats
+  sources.push(`https://365scores.com/assets/images/flags/${country365}.png`);
+  sources.push(`https://365scores.com/images/flags/${country365}.svg`);
 
+  // 2. Country code based approach (most reliable fallback)
   const countryCode = countryCodeMap[cleanCountry];
-
   if (countryCode) {
-    // 1. Primary: FlagCDN (most reliable for standard codes)
-    if (countryCode.length === 2) {
-      sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
-      sources.push(`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`);
-    }
-
-    // 2. Country Flags API (from simplelocalize.io recommendations)
-    if (countryCode.length === 2) {
-      sources.push(`https://countryflags.io/${countryCode.toLowerCase()}/flat/64.png`);
-    }
-
-    // 3. Secondary: API-Sports flags (good alternative)
+    sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
     sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
+    sources.push(`https://countryflags.io/${countryCode.toLowerCase()}/flat/64.png`);
+
+    // Additional formats for better coverage
+    sources.push(`https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`);
 
     // 4. Additional FlagCDN formats
     if (countryCode.length === 2) {
@@ -506,6 +498,9 @@ export function generateFlagSources(country: string): string[] {
     sources.push(`https://flagcdn.com/w40/${shortName}.png`);
     sources.push(`https://media.api-sports.io/flags/${shortName}.svg`);
   }
+
+  // 3. Try our API endpoint as fallback (which uses SportsRadar)
+  sources.push(`/api/flags/${encodeURIComponent(cleanCountry)}`);
 
   // 4. Alternative external source (RestCountries)
 
@@ -786,7 +781,8 @@ export function generateCountryFlagSources(country: string): string[] {
     if (countryCode.length === 2) {
       sources.push(`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`);
       sources.push(`https://countryflags.io/${countryCode.toLowerCase()}/flat/64.png`);
-      sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}/flat/64.png`);
+      sources<replit_final_file>
+.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}/flat/64.png`);
       sources.push(`https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`);
     }
   }
