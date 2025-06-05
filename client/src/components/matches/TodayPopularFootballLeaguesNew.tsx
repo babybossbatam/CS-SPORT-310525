@@ -226,6 +226,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = format(yesterday, 'yyyy-MM-dd');
 
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
