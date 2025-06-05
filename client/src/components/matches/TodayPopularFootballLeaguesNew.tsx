@@ -956,10 +956,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
               // Custom sorting for World leagues
               if (countryData.country === "World") {
-                const getWorldLeaguePriority = (leagueName: string) => {
-                  const name = leagueName.toLowerCase();
+                const getWorldLeaguePriority = (leagueData: any) => {
+                  const name = (leagueData.league?.name || '').toLowerCase();
+                  // Check if it's marked as friendlies or contains friendlies in name
+                  const isFriendlies = leagueData.isFriendlies || name.includes('friendlies');
+                  
                   if (name.includes('uefa national league')) return 1;
-                  if (name.includes('friendlies')) return 2;
+                  if (isFriendlies) return 2;
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) return 4;
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) return 5;
@@ -968,10 +971,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   return 999; // Other leagues go to bottom
                 };
 
-                const aPriority = getWorldLeaguePriority(a.league.name || '');
-                const bPriority = getWorldLeaguePriority(b.league.name || '');
+                const aPriority = getWorldLeaguePriority(a);
+                const bPriority = getWorldLeaguePriority(b);
 
-                return aPriority - bPriority;
+                if (aPriority !== bPriority) {
+                  return aPriority - bPriority;
+                }
+                
+                // If same priority, sort alphabetically by league name
+                const aName = a.league?.name || '';
+                const bName = b.league?.name || '';
+                return aName.localeCompare(bName);
               }
 
               // For non-World countries, no additional sorting after popularity checks
