@@ -92,13 +92,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge 
           variant="secondary" 
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+          className="bg-blue-600 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
         >
           Featured Match
         </Badge>
         <CardContent className="p-6 text-center">
-          <Trophy className="h-8 w-8 mx-auto mb-2 text-gray-400 animate-pulse" />
-          <p className="text-gray-500">Loading featured matches...</p>
+          <Trophy className="h-8 w-8 mx-auto mb-2 text-blue-500 animate-pulse" />
+          <p className="text-gray-600 font-medium">Loading today's featured match...</p>
+          <p className="text-gray-400 text-sm mt-1">Getting the first league match from popular leagues</p>
         </CardContent>
       </Card>
     );
@@ -110,7 +111,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge 
           variant="secondary" 
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+          className="bg-blue-600 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
         >
           Featured Match
         </Badge>
@@ -126,7 +127,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     <Card className="bg-white rounded-lg shadow-lg mb-8 overflow-hidden relative">
       <Badge 
         variant="secondary" 
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+        className="bg-blue-600 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
       >
         Featured Match
       </Badge>

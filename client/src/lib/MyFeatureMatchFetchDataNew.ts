@@ -182,9 +182,9 @@ const POPULAR_LEAGUES = [
 ];
 
 /**
- * Fetch and process featured match data from popular leagues
+ * Fetch and process featured match data from popular leagues (prioritizing first league match)
  */
-export const fetchFeaturedMatchData = async (selectedDate: string): Promise<FeatureMatchData[]> => {
+export const fetchFeaturedMatchData = async (selectedDate: string, maxMatches: number = 8): Promise<FeatureMatchData[]> => {
   try {
     // Fetch fixtures for the selected date
     const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
@@ -195,6 +195,40 @@ export const fetchFeaturedMatchData = async (selectedDate: string): Promise<Feat
     }
 
     console.log(`🔍 [FeatureMatch] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+
+    // Use the same popular countries and leagues as TodayPopularLeagueNew
+    const POPULAR_COUNTRIES_ORDER = [
+      "England",
+      "Spain",
+      "Italy", 
+      "Germany",
+      "France",
+      "World",
+      "Europe",
+      "South America",
+      "Brazil",
+      "Saudi Arabia",
+      "Egypt",
+      "Colombia",
+      "United States",
+      "USA",
+      "US",
+      "United Arab Emirates",
+      "United-Arab-Emirates",
+    ];
+
+    const POPULAR_LEAGUES_BY_COUNTRY = {
+      England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
+      Spain: [140, 143], // La Liga, Copa del Rey
+      Italy: [135, 137], // Serie A, Coppa Italia
+      Germany: [78, 81], // Bundesliga, DFB Pokal
+      France: [61, 66], // Ligue 1, Coupe de France
+      "United Arab Emirates": [301], // UAE Pro League
+      Egypt: [233], // Egyptian Premier League
+      International: [15], // FIFA Club World Cup
+    };
+
+    const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
     // Apply the same filtering logic as TodayPopularLeagueNew
     const filteredFixtures = fixtures.filter((fixture: any) => {
@@ -214,6 +248,101 @@ export const fetchFeaturedMatchData = async (selectedDate: string): Promise<Feat
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayString = format(yesterday, "yyyy-MM-dd");
+
+        // Filter based on smart time labels and selected date
+        if (selectedDate === todayString) {
+          return smartResult?.label !== "COMPLETED_YESTERDAY" && 
+                 smartResult?.label !== "SCHEDULED_TOMORROW";
+        } else if (selectedDate === tomorrowString) {
+          return smartResult?.label === "SCHEDULED_TOMORROW" || 
+                 smartResult?.label === "SCHEDULED_TODAY";
+        } else if (selectedDate === yesterdayString) {
+          return smartResult?.label === "COMPLETED_YESTERDAY" || 
+                 smartResult?.label === "COMPLETED_TODAY";
+        } else {
+          return smartResult?.label === "SCHEDULED_TODAY" || 
+                 smartResult?.label === "COMPLETED_TODAY";
+        }
+      }
+      return true;
+    });
+
+    // Filter for popular leagues only
+    const popularLeagueFixtures = filteredFixtures.filter((fixture: any) => {
+      return POPULAR_LEAGUES.includes(fixture.league?.id);
+    });
+
+    // Sort by country priority and then by time
+    const sortedFixtures = popularLeagueFixtures.sort((a: any, b: any) => {
+      // First priority: Country order
+      const aCountryIndex = POPULAR_COUNTRIES_ORDER.indexOf(a.league?.country?.name) ?? 999;
+      const bCountryIndex = POPULAR_COUNTRIES_ORDER.indexOf(b.league?.country?.name) ?? 999;
+      
+      if (aCountryIndex !== bCountryIndex) {
+        return aCountryIndex - bCountryIndex;
+      }
+
+      // Second priority: League order within country
+      const aLeagueIndex = POPULAR_LEAGUES.indexOf(a.league?.id) ?? 999;
+      const bLeagueIndex = POPULAR_LEAGUES.indexOf(b.league?.id) ?? 999;
+      
+      if (aLeagueIndex !== bLeagueIndex) {
+        return aLeagueIndex - bLeagueIndex;
+      }
+
+      // Third priority: Match time
+      const aTime = new Date(a.fixture.date).getTime();
+      const bTime = new Date(b.fixture.date).getTime();
+      return aTime - bTime;
+    });
+
+    // Take the first match as the primary featured match, then add others
+    const processedMatches: FeatureMatchData[] = [];
+    
+    for (const fixture of sortedFixtures.slice(0, maxMatches)) {
+      try {
+        const countryFlag = getCountryFlagWithFallbackSync(fixture.league?.country?.name || 'World');
+        
+        const matchData: FeatureMatchData = {
+          fixture: {
+            id: fixture.fixture.id,
+            date: fixture.fixture.date,
+            status: fixture.fixture.status?.long || 'Unknown',
+            venue: fixture.fixture.venue?.name
+          },
+          league: {
+            id: fixture.league.id,
+            name: fixture.league.name,
+            logo: fixture.league.logo,
+            country: fixture.league.country?.name || 'Unknown',
+            countryFlag: countryFlag
+          },
+          homeTeam: {
+            id: fixture.teams.home.id,
+            name: fixture.teams.home.name,
+            logo: fixture.teams.home.logo
+          },
+          awayTeam: {
+            id: fixture.teams.away.id,
+            name: fixture.teams.away.name,
+            logo: fixture.teams.away.logo
+          },
+          score: {
+            home: fixture.goals?.home ?? null,
+            away: fixture.goals?.away ?? null,
+            status: fixture.fixture.status?.long || 'Scheduled'
+          }
+        };
+
+        processedMatches.push(matchData);
+      } catch (error) {
+        console.error('Error processing fixture:', fixture.fixture.id, error);
+        continue;
+      }
+    }
+
+    console.log(`🔍 [FeatureMatch] Returning ${processedMatches.length} processed matches`);
+    return processedMatches;);
 
         const shouldInclude = (() => {
           if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
