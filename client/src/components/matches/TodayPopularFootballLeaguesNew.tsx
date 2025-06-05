@@ -998,7 +998,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 <img
                             src={
                               leagueData.league.id
-                                ? `/api/league-logo/${leagueData.league.id}?size=48`
+                                ? `/api/league-logo/${leagueData.league.id}?size=80`
                                 : leagueData.league.logo ||
                                   "/assets/fallback-logo.svg"
                             }
