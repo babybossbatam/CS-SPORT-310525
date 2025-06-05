@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -937,3 +936,122 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
       const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
+  };
+
+  const isMatchStarred = (matchId: number) => {
+    return starredMatches.has(matchId);
+  };
+
+  return (
+    <Card className="shadow-md rounded-lg">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <h4 className="text-sm font-semibold tracking-tight">
+          Today's Popular Leagues
+        </h4>
+        <div className="flex items-center space-x-2">
+          <Calendar className="h-4 w-4 text-gray-500" />
+          <span className="text-xs text-gray-500">{selectedDate}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        {isLoading || isFetching ? (
+          <div className="flex flex-col space-y-2 p-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : top20FilteredCountries.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">
+            No popular matches today.
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {top20FilteredCountries.map((countryData: any, index: number) => (
+              <li key={index} className="border-b last:border-none">
+                <button
+                  onClick={() => toggleCountry(countryData.country)}
+                  className="flex items-center justify-between w-full p-4 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <div className="flex items-center space-x-3">
+                    {countryData.flag && (
+                      <LazyImage
+                        src={countryData.flag}
+                        alt={`${countryData.country} Flag`}
+                        className="h-6 w-8 object-cover rounded-sm"
+                        width={32}
+                        height={24}
+                        priority={true}
+                      />
+                    )}
+                    <span className="text-sm font-medium">
+                      {countryData.country}
+                    </span>
+                  </div>
+                  {expandedCountries.has(countryData.country) ? (
+                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  )}
+                </button>
+                {expandedCountries.has(countryData.country) && (
+                  <ul className="space-y-2">
+                    {Object.entries(countryData.leagues).map(
+                      ([leagueId, leagueData]: any) => (
+                        <li key={leagueId} className="border-b last:border-none">
+                          <div className="flex items-center justify-between w-full p-4 hover:bg-gray-50 transition-colors duration-200">
+                            <div className="flex items-center space-x-3">
+                              {leagueData.league.logo && (
+                                <LazyImage
+                                  src={leagueData.league.logo}
+                                  alt={`${leagueData.league.name} Logo`}
+                                  className="h-5 w-5 object-cover rounded-full"
+                                  width={20}
+                                  height={20}
+                                  priority={true}
+                                />
+                              )}
+                              <span className="text-xs font-medium">
+                                {leagueData.league.name}
+                              </span>
+                            </div>
+                          </div>
+                          <ul className="space-y-1">
+                            {leagueData.matches.map((match: any) => (
+                              <LazyMatchItem
+                                key={match.fixture.id}
+                                match={match}
+                                toggleFavoriteTeam={toggleFavoriteTeam}
+                                isTeamFavorite={isTeamFavorite}
+                                toggleStarMatch={toggleStarMatch}
+                                isMatchStarred={isMatchStarred}
+                              />
+                            ))}
+                          </ul>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default memo(TodayPopularFootballLeaguesNew);

@@ -101,7 +101,6 @@ export const queryClient = new QueryClient({
       },
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 10000),
       // Enable background refetch only for critical data
-      refetchInterval: false,
       refetchIntervalInBackground: false,
     },
     mutations: {
