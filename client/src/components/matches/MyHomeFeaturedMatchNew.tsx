@@ -148,24 +148,39 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // Take only the required number of matches
         const finalMatches = featuredMatches.slice(0, maxMatches);
         
-        console.log('🔍 [FeaturedMatch] Returning', finalMatches.length, 'featured matches:', {
-          matches: finalMatches.map(m => ({
-            league: m.league.name,
-            homeTeam: m.teams.home.name,
-            awayTeam: m.teams.away.name,
-            status: m.fixture.status.short === 'NS' ? 'UPCOMING' : 
-                   ['1H', '2H', 'HT', 'LIVE', 'ET', 'BT', 'P'].includes(m.fixture.status.short) ? 'LIVE' : 
+        // Validate data structure before setting
+        const validMatches = finalMatches.filter(match => {
+          const isValid = match && 
+            match.teams && 
+            match.teams.home && 
+            match.teams.away && 
+            match.fixture && 
+            match.league;
+          
+          if (!isValid) {
+            console.warn('🔍 [FeaturedMatch] Invalid match data:', match);
+          }
+          return isValid;
+        });
+        
+        console.log('🔍 [FeaturedMatch] Returning', validMatches.length, 'featured matches:', {
+          matches: validMatches.map(m => ({
+            league: m.league?.name || 'Unknown League',
+            homeTeam: m.teams?.home?.name || 'Unknown Home',
+            awayTeam: m.teams?.away?.name || 'Unknown Away',
+            status: m.fixture?.status?.short === 'NS' ? 'UPCOMING' : 
+                   ['1H', '2H', 'HT', 'LIVE', 'ET', 'BT', 'P'].includes(m.fixture?.status?.short) ? 'LIVE' : 
                    'FINISHED'
           }))
         });
 
         // Cache the result
-        CacheManager.setCachedData(cacheKey, finalMatches);
+        CacheManager.setCachedData(cacheKey, validMatches);
         
         // Store in background cache as well
-        backgroundCache.set(`featured-matches-${currentDate}`, finalMatches, 15 * 60 * 1000);
+        backgroundCache.set(`featured-matches-${currentDate}`, validMatches, 15 * 60 * 1000);
 
-        setMatches(finalMatches);
+        setMatches(validMatches);
         setCurrentIndex(0);
         
       } catch (error) {
@@ -191,13 +206,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   };
 
   const handleMatchClick = () => {
-    if (currentMatch?.fixture?.id) {
+    if (isValidMatch && currentMatch.fixture.id) {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
   };
 
   // Get current match
   const currentMatch = matches[currentIndex];
+
+  // Validate current match has required data structure
+  const isValidMatch = currentMatch && 
+    currentMatch.teams && 
+    currentMatch.teams.home && 
+    currentMatch.teams.away && 
+    currentMatch.fixture && 
+    currentMatch.league;
 
   // Get match status display
   const getMatchStatus = (match) => {
@@ -244,7 +267,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }
 
   // No matches state
-  if (!currentMatch || matches.length === 0) {
+  if (!isValidMatch || matches.length === 0) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge 
@@ -310,10 +333,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           >
             {/* League Info */}
             <div className="flex items-center gap-2 mb-4">
-              {currentMatch.league.flag && (
+              {currentMatch.league?.flag && (
                 <img 
                   src={currentMatch.league.flag} 
-                  alt={currentMatch.league.country}
+                  alt={currentMatch.league.country || 'Country'}
                   className="w-4 h-4 rounded-sm object-cover"
                 />
               )}
@@ -374,7 +397,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <Clock className="h-3 w-3" />
                   {format(new Date(currentMatch.fixture.date), 'MMM dd, HH:mm')}
                 </div>
-                {currentMatch.fixture.venue?.name && (
+                {currentMatch.fixture?.venue?.name && (
                   <div className="flex items-center gap-1">
                     <Grid3X3 className="h-3 w-3" />
                     <span className="truncate max-w-[150px]">
