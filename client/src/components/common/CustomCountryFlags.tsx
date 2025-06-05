@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface CountryFlagColors {
@@ -225,12 +224,12 @@ const getDefaultColors = (countryName: string): CountryFlagColors => {
     a = ((a << 5) - a) + b.charCodeAt(0);
     return a & a;
   }, 0);
-  
+
   const colors = [
     '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
     '#800000', '#008000', '#000080', '#808000', '#800080', '#008080'
   ];
-  
+
   return {
     background: colors[Math.abs(hash) % colors.length],
     accent: colors[Math.abs(hash + 1) % colors.length],
@@ -259,10 +258,10 @@ const CustomCountryFlag: React.FC<CustomCountryFlagProps> = ({
   onClick 
 }) => {
   const uniqueId = `flag-${country.toLowerCase().replace(/\s+/g, '-')}-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   // Check if we have a specific flag renderer for this country
   const flagRenderer = countryFlagRenderers[country];
-  
+
   let flagContent;
   if (flagRenderer) {
     // Use authentic flag design
