@@ -895,44 +895,37 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     {currentMatch?.teams?.away?.name || "Away Team"}
                   </div>
 
-                  <div
-                    className="absolute z-20 w-[64px] h-[64px] rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-                    style={{
-                      cursor: "pointer",
-                      top: "calc(50% - 32px)",
-                      right: "87px",
-                      transform: "translateX(50%)",
-                      filter: "contrast(115%) brightness(105%)",
-                      boxShadow: "inset -8px -8px 16px rgba(0,0,0,0.3), inset 8px 8px 16px rgba(255,255,255,0.3), 4px 4px 12px rgba(0,0,0,0.4)",
-                      background: `
-                        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 70%),
-                        linear-gradient(to right, 
-                          #046A38 0%, 
-                          #046A38 40%, 
-                          #DC143C 40%, 
-                          #DC143C 100%
-                        )
-                      `,
-                      border: "2px solid rgba(255,255,255,0.2)",
-                    }}
-                    onClick={handleMatchClick}
-                  >
+                  {currentMatch?.teams?.away && (
                     <img
                       src={
-                        currentMatch?.teams?.away?.logo ||
+                        currentMatch.teams.away.logo ||
                         `/assets/fallback-logo.svg`
                       }
-                      alt={currentMatch?.teams?.away?.name || "Away Team"}
-                      className="w-full h-full object-contain rounded-full"
+                      alt={currentMatch.teams.away.name || "Away Team"}
+                      className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                       style={{
-                        position: "relative",
-                        zIndex: 1,
+                        cursor: "pointer",
+                        top: "calc(50% - 32px)",
+                        right: "87px",
+                        transform: "translateX(50%)",
+                        filter: "contrast(115%) brightness(105%)",
                       }}
+                      onClick={handleMatchClick}
                       onError={(e) => {
-                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                        const target = e.currentTarget;
+                        if (
+                          target.src.includes("sportmonks") &&
+                          currentMatch.teams.away.logo
+                        ) {
+                          target.src = currentMatch.teams.away.logo;
+                        } else if (
+                          target.src !== "/assets/fallback-logo.svg"
+                        ) {
+                          target.src = "/assets/fallback-logo.svg";
+                        }
                       }}
                     />
-                  </div>
+                  )}
                 </div>
               </div>
 
