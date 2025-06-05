@@ -1035,7 +1035,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           0,
                           timeFilterActive && showTop20 ? 20 : undefined,
                         )
-<replit_final_file>
                         .sort((a: any, b: any) => {
                           // When time filter is active, prioritize by time more strictly
                           if (timeFilterActive) {
