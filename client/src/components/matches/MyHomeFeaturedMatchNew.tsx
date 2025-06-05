@@ -1,29 +1,36 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Trophy, ChevronLeft, ChevronRight, BarChart3, Users, Clock, Grid3X3 } from 'lucide-react';
-import { useLocation } from 'wouter';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Trophy,
+  ChevronLeft,
+  ChevronRight,
+  BarChart3,
+  Users,
+  Clock,
+  Grid3X3,
+} from "lucide-react";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO, isValid } from 'date-fns';
-import { 
-  applyPriorityFiltering, 
-  groupFixturesByCountryAndLeague, 
+import { format, parseISO, isValid } from "date-fns";
+import {
+  applyPriorityFiltering,
+  groupFixturesByCountryAndLeague,
   filterPopularCountries,
   sortLeaguesByPriority,
-  getCountryFlag 
-} from '@/components/matches/MyNewPriorityFilters';
-import { CacheManager } from '@/lib/cachingHelper';
-import { backgroundCache } from '@/lib/backgroundCache';
+  getCountryFlag,
+} from "@/components/matches/MyNewPriorityFilters";
+import { CacheManager } from "@/lib/cachingHelper";
+import { backgroundCache } from "@/lib/backgroundCache";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
 }
 
-const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({ 
+const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   selectedDate,
-  maxMatches = 1
+  maxMatches = 1,
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,36 +38,50 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [loading, setLoading] = useState(true);
 
   // Get current date if not provided
-  const currentDate = selectedDate || new Date().toISOString().split('T')[0];
+  const currentDate = selectedDate || new Date().toISOString().split("T")[0];
 
   // Fetch featured match data using priority filters and caching
   useEffect(() => {
     const loadFeaturedMatches = async () => {
       try {
         setLoading(true);
-        
+
         // Check cache first
-        const cacheKey = ['featured-matches', currentDate];
+        const cacheKey = ["featured-matches", currentDate];
         const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
-        
+
         if (cachedData) {
-          console.log('🎯 [FeaturedMatch] Using cached data:', cachedData.length, 'matches');
+          console.log(
+            "🎯 [FeaturedMatch] Using cached data:",
+            cachedData.length,
+            "matches",
+          );
           setMatches(cachedData);
           setCurrentIndex(0);
           setLoading(false);
           return;
         }
 
-        console.log('🔍 [FeaturedMatch] Fetching fresh data for date:', currentDate);
+        console.log(
+          "🔍 [FeaturedMatch] Fetching fresh data for date:",
+          currentDate,
+        );
 
         // Fetch all fixtures for the date
-        const response = await fetch(`/api/fixtures/date/${currentDate}?all=true`);
+        const response = await fetch(
+          `/api/fixtures/date/${currentDate}?all=true`,
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const allFixtures = await response.json();
-        console.log('🔍 [FeaturedMatch] Found', allFixtures.length, 'total fixtures for', currentDate);
+        console.log(
+          "🔍 [FeaturedMatch] Found",
+          allFixtures.length,
+          "total fixtures for",
+          currentDate,
+        );
 
         if (!allFixtures || allFixtures.length === 0) {
           setMatches([]);
@@ -69,22 +90,30 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // Apply priority filtering using MyNewPriorityFilters
-        const filteredFixtures = applyPriorityFiltering(allFixtures, currentDate);
-        console.log('🔍 [FeaturedMatch] Filtered to', filteredFixtures.length, 'popular league fixtures');
+        const filteredFixtures = applyPriorityFiltering(
+          allFixtures,
+          currentDate,
+        );
+        console.log(
+          "🔍 [FeaturedMatch] Filtered to",
+          filteredFixtures.length,
+          "popular league fixtures",
+        );
 
         // Group by country and league
-        const groupedByCountry = groupFixturesByCountryAndLeague(filteredFixtures);
-        
+        const groupedByCountry =
+          groupFixturesByCountryAndLeague(filteredFixtures);
+
         // Filter to show only popular countries
         const popularCountries = filterPopularCountries(groupedByCountry);
-        
+
         // Flatten all leagues from popular countries
-        const allLeaguesFlat = popularCountries.flatMap(countryData => 
-          Object.values(countryData.leagues).map(leagueData => ({
+        const allLeaguesFlat = popularCountries.flatMap((countryData) =>
+          Object.values(countryData.leagues).map((leagueData) => ({
             ...leagueData,
             country: countryData.country,
-            flag: countryData.flag
-          }))
+            flag: countryData.flag,
+          })),
         );
 
         // Sort leagues by priority
@@ -92,12 +121,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Get featured matches (prioritize live matches, then upcoming, then recent)
         const featuredMatches = [];
-        
+
         for (const leagueData of sortedLeagues) {
           if (featuredMatches.length >= maxMatches) break;
-          
+
           const leagueMatches = leagueData.matches || [];
-          
+
           // Sort matches within league: Live > Upcoming (next 24h) > Recent finished
           const sortedMatches = leagueMatches.sort((a, b) => {
             const aStatus = a.fixture.status.short;
@@ -107,23 +136,49 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const now = new Date();
 
             // Priority 1: Live matches
-            const aIsLive = ['1H', '2H', 'HT', 'LIVE', 'ET', 'BT', 'P'].includes(aStatus);
-            const bIsLive = ['1H', '2H', 'HT', 'LIVE', 'ET', 'BT', 'P'].includes(bStatus);
-            
+            const aIsLive = [
+              "1H",
+              "2H",
+              "HT",
+              "LIVE",
+              "ET",
+              "BT",
+              "P",
+            ].includes(aStatus);
+            const bIsLive = [
+              "1H",
+              "2H",
+              "HT",
+              "LIVE",
+              "ET",
+              "BT",
+              "P",
+            ].includes(bStatus);
+
             if (aIsLive && !bIsLive) return -1;
             if (!aIsLive && bIsLive) return 1;
 
             // Priority 2: Upcoming matches (within next 24 hours)
-            const aIsUpcoming = aStatus === 'NS' && aDate > now && (aDate.getTime() - now.getTime()) < (24 * 60 * 60 * 1000);
-            const bIsUpcoming = bStatus === 'NS' && bDate > now && (bDate.getTime() - now.getTime()) < (24 * 60 * 60 * 1000);
-            
+            const aIsUpcoming =
+              aStatus === "NS" &&
+              aDate > now &&
+              aDate.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
+            const bIsUpcoming =
+              bStatus === "NS" &&
+              bDate > now &&
+              bDate.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
+
             if (aIsUpcoming && !bIsUpcoming) return -1;
             if (!aIsUpcoming && bIsUpcoming) return 1;
 
             // Priority 3: Recent finished matches (within last 6 hours)
-            const aIsRecentFinished = ['FT', 'AET', 'PEN'].includes(aStatus) && (now.getTime() - aDate.getTime()) < (6 * 60 * 60 * 1000);
-            const bIsRecentFinished = ['FT', 'AET', 'PEN'].includes(bStatus) && (now.getTime() - bDate.getTime()) < (6 * 60 * 60 * 1000);
-            
+            const aIsRecentFinished =
+              ["FT", "AET", "PEN"].includes(aStatus) &&
+              now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
+            const bIsRecentFinished =
+              ["FT", "AET", "PEN"].includes(bStatus) &&
+              now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
+
             if (aIsRecentFinished && !bIsRecentFinished) return -1;
             if (!aIsRecentFinished && bIsRecentFinished) return 1;
 
@@ -139,52 +194,113 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               league: {
                 ...bestMatch.league,
                 country: leagueData.country,
-                flag: leagueData.flag
-              }
+                flag: leagueData.flag,
+              },
             });
           }
         }
 
+        // Sort featured matches to prioritize UEFA Nations League first
+        const sortedFeaturedMatches = featuredMatches.sort((a, b) => {
+          // Priority 1: UEFA Nations League matches first
+          const aIsUEFANationsLeague = a.league?.name
+            ?.toLowerCase()
+            .includes("uefa nations league");
+          const bIsUEFANationsLeague = b.league?.name
+            ?.toLowerCase()
+            .includes("uefa nations league");
+
+          if (aIsUEFANationsLeague && !bIsUEFANationsLeague) return -1;
+          if (!aIsUEFANationsLeague && bIsUEFANationsLeague) return 1;
+
+          // Priority 2: Keep existing status-based sorting
+          const aStatus = a.fixture?.status?.short;
+          const bStatus = b.fixture?.status?.short;
+
+          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(
+            aStatus,
+          );
+          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(
+            bStatus,
+          );
+
+          if (aIsLive && !bIsLive) return -1;
+          if (!aIsLive && bIsLive) return 1;
+
+          // Priority 3: Recent finished matches
+          const now = new Date();
+          const aDate = new Date(a.fixture?.date);
+          const bDate = new Date(b.fixture?.date);
+
+          const aIsRecentFinished =
+            ["FT", "AET", "PEN"].includes(aStatus) &&
+            now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
+          const bIsRecentFinished =
+            ["FT", "AET", "PEN"].includes(bStatus) &&
+            now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
+
+          if (aIsRecentFinished && !bIsRecentFinished) return -1;
+          if (!aIsRecentFinished && bIsRecentFinished) return 1;
+
+          return 0;
+        });
+
         // Take only the required number of matches
-        const finalMatches = featuredMatches.slice(0, maxMatches);
-        
+        const finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
         // Validate data structure before setting
-        const validMatches = finalMatches.filter(match => {
-          const isValid = match && 
-            match.teams && 
-            match.teams.home && 
-            match.teams.away && 
-            match.fixture && 
+        const validMatches = finalMatches.filter((match) => {
+          const isValid =
+            match &&
+            match.teams &&
+            match.teams.home &&
+            match.teams.away &&
+            match.fixture &&
             match.league;
-          
+
           if (!isValid) {
-            console.warn('🔍 [FeaturedMatch] Invalid match data:', match);
+            console.warn("🔍 [FeaturedMatch] Invalid match data:", match);
           }
           return isValid;
         });
-        
-        console.log('🔍 [FeaturedMatch] Returning', validMatches.length, 'featured matches:', {
-          matches: validMatches.map(m => ({
-            league: m.league?.name || 'Unknown League',
-            homeTeam: m.teams?.home?.name || 'Unknown Home',
-            awayTeam: m.teams?.away?.name || 'Unknown Away',
-            status: m.fixture?.status?.short === 'NS' ? 'UPCOMING' : 
-                   ['1H', '2H', 'HT', 'LIVE', 'ET', 'BT', 'P'].includes(m.fixture?.status?.short) ? 'LIVE' : 
-                   'FINISHED'
-          }))
-        });
+
+        console.log(
+          "🔍 [FeaturedMatch] Returning",
+          validMatches.length,
+          "featured matches:",
+          {
+            matches: validMatches.map((m) => ({
+              league: m.league?.name || "Unknown League",
+              homeTeam: m.teams?.home?.name || "Unknown Home",
+              awayTeam: m.teams?.away?.name || "Unknown Away",
+              status:
+                m.fixture?.status?.short === "NS"
+                  ? "UPCOMING"
+                  : ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(
+                        m.fixture?.status?.short,
+                      )
+                    ? "LIVE"
+                    : "FINISHED",
+            })),
+          },
+        );
 
         // Cache the result
         CacheManager.setCachedData(cacheKey, validMatches);
-        
+
         // Store in background cache as well
-        backgroundCache.set(`featured-matches-${currentDate}`, validMatches, 15 * 60 * 1000);
+        backgroundCache.set(
+          `featured-matches-${currentDate}`,
+          validMatches,
+          15 * 60 * 1000,
+        );
 
         setMatches(validMatches);
         setCurrentIndex(0);
-        
       } catch (error) {
-        console.error('🔍 [FeaturedMatch] Error fetching featured matches:', error);
+        console.error(
+          "🔍 [FeaturedMatch] Error fetching featured matches:",
+          error,
+        );
         setMatches([]);
       } finally {
         setLoading(false);
@@ -197,12 +313,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Handle navigation (slide functions)
   const handlePrevious = () => {
     if (matches.length <= 1) return;
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : matches.length - 1));
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : matches.length - 1));
   };
 
   const handleNext = () => {
     if (matches.length <= 1) return;
-    setCurrentIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
+    setCurrentIndex((prev) => (prev < matches.length - 1 ? prev + 1 : 0));
   };
 
   const handleMatchClick = () => {
@@ -215,52 +331,57 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const currentMatch = matches[currentIndex];
 
   // Validate current match has required data structure
-  const isValidMatch = currentMatch && 
-    currentMatch.teams && 
-    currentMatch.teams.home && 
-    currentMatch.teams.away && 
-    currentMatch.fixture && 
+  const isValidMatch =
+    currentMatch &&
+    currentMatch.teams &&
+    currentMatch.teams.home &&
+    currentMatch.teams.away &&
+    currentMatch.fixture &&
     currentMatch.league;
 
   // Get match status display
   const getMatchStatus = (match) => {
     const status = match.fixture.status.short;
     const elapsed = match.fixture.status.elapsed;
-    
-    if (['1H', '2H'].includes(status)) {
+
+    if (["1H", "2H"].includes(status)) {
       return `${elapsed}'`;
     }
-    if (status === 'HT') return 'HT';
-    if (status === 'FT') return 'FT';
-    if (status === 'NS') {
+    if (status === "HT") return "HT";
+    if (status === "FT") return "FT";
+    if (status === "NS") {
       const matchDate = new Date(match.fixture.date);
-      return format(matchDate, 'HH:mm');
+      return format(matchDate, "HH:mm");
     }
     return status;
   };
 
   // Get match status color
   const getStatusColor = (status) => {
-    if (['1H', '2H', 'LIVE'].includes(status)) return 'bg-red-500';
-    if (status === 'HT') return 'bg-orange-500';
-    if (status === 'FT') return 'bg-gray-500';
-    return 'bg-blue-500';
+    if (["1H", "2H", "LIVE"].includes(status)) return "bg-red-500";
+    if (status === "HT") return "bg-orange-500";
+    if (status === "FT") return "bg-gray-500";
+    return "bg-blue-500";
   };
 
   // Loading state
   if (loading) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
-        <Badge 
-          variant="secondary" 
+        <Badge
+          variant="secondary"
           className="bg-blue-600 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
         >
           Featured Match
         </Badge>
         <CardContent className="p-6 text-center">
           <Trophy className="h-8 w-8 mx-auto mb-2 text-blue-500 animate-pulse" />
-          <p className="text-gray-600 font-medium">Loading today's featured match...</p>
-          <p className="text-gray-400 text-sm mt-1">Getting the best match from popular leagues</p>
+          <p className="text-gray-600 font-medium">
+            Loading today's featured match...
+          </p>
+          <p className="text-gray-400 text-sm mt-1">
+            Getting the best match from popular leagues
+          </p>
         </CardContent>
       </Card>
     );
@@ -270,8 +391,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   if (!isValidMatch || matches.length === 0) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
-        <Badge 
-          variant="secondary" 
+        <Badge
+          variant="secondary"
           className="bg-blue-600 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
         >
           Featured Match
@@ -279,7 +400,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         <CardContent className="p-6">
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <Trophy className="h-12 w-12 mb-3 opacity-50" />
-            <p className="text-lg font-medium mb-1">No featured matches available</p>
+            <p className="text-lg font-medium mb-1">
+              No featured matches available
+            </p>
             <p className="text-sm">Check back later for exciting matches</p>
           </div>
         </CardContent>
@@ -288,9 +411,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }
 
   return (
-    <Card className="bg-white rounded-lg shadow-lg mb-8 overflow-hidden relative cursor-pointer hover:shadow-xl transition-shadow duration-200" onClick={handleMatchClick}>
-      <Badge 
-        variant="secondary" 
+    <Card
+      className="bg-white rounded-lg shadow-lg mb-8 overflow-hidden relative cursor-pointer hover:shadow-xl transition-shadow duration-200"
+      onClick={handleMatchClick}
+    >
+      <Badge
+        variant="secondary"
         className="bg-blue-600 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
       >
         Featured Match
@@ -334,16 +460,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* League Info */}
             <div className="flex items-center gap-2 mb-4">
               {currentMatch.league?.flag && (
-                <img 
-                  src={currentMatch.league.flag} 
-                  alt={currentMatch.league.country || 'Country'}
+                <img
+                  src={currentMatch.league.flag}
+                  alt={currentMatch.league.country || "Country"}
                   className="w-4 h-4 rounded-sm object-cover"
                 />
               )}
               <span className="text-sm font-medium text-gray-600">
                 {currentMatch.league.name}
               </span>
-              <Badge 
+              <Badge
                 className={`text-xs px-2 py-1 text-white ${getStatusColor(currentMatch.fixture.status.short)}`}
               >
                 {getMatchStatus(currentMatch)}
@@ -354,8 +480,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <div className="flex items-center justify-between mb-4">
               {/* Home Team */}
               <div className="flex items-center gap-3 flex-1">
-                <img 
-                  src={currentMatch.teams.home.logo || '/assets/fallback-logo.svg'} 
+                <img
+                  src={
+                    currentMatch.teams.home.logo || "/assets/fallback-logo.svg"
+                  }
                   alt={currentMatch.teams.home.name}
                   className="w-8 h-8 object-contain"
                 />
@@ -366,14 +494,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               {/* Score */}
               <div className="flex items-center gap-2 px-4">
-                {currentMatch.goals.home !== null && currentMatch.goals.away !== null ? (
+                {currentMatch.goals.home !== null &&
+                currentMatch.goals.away !== null ? (
                   <div className="text-2xl font-bold text-gray-900">
                     {currentMatch.goals.home} - {currentMatch.goals.away}
                   </div>
                 ) : (
-                  <div className="text-lg font-medium text-gray-500">
-                    vs
-                  </div>
+                  <div className="text-lg font-medium text-gray-500">vs</div>
                 )}
               </div>
 
@@ -382,8 +509,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <span className="font-semibold text-gray-900 truncate">
                   {currentMatch.teams.away.name}
                 </span>
-                <img 
-                  src={currentMatch.teams.away.logo || '/assets/fallback-logo.svg'} 
+                <img
+                  src={
+                    currentMatch.teams.away.logo || "/assets/fallback-logo.svg"
+                  }
                   alt={currentMatch.teams.away.name}
                   className="w-8 h-8 object-contain"
                 />
@@ -395,7 +524,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {format(new Date(currentMatch.fixture.date), 'MMM dd, HH:mm')}
+                  {format(new Date(currentMatch.fixture.date), "MMM dd, HH:mm")}
                 </div>
                 {currentMatch.fixture?.venue?.name && (
                   <div className="flex items-center gap-1">
@@ -425,7 +554,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   setCurrentIndex(index);
                 }}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  index === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
+                  index === currentIndex ? "bg-blue-600" : "bg-gray-300"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
