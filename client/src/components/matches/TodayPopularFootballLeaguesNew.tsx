@@ -993,12 +993,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           </span>
                         </div>
                       ) : (
-                        <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                        <CardContent className="flex items-center gap-4 p-4 bg-white border-b border-gray-200">
                           
 <LazyImage
                             src={
                               leagueData.league.id
-                                ? `/api/league-logo/${leagueData.league.id}?size=29`
+                                ? `/api/league-logo/${leagueData.league.id}?size=48`
                                 : leagueData.league.logo ||
                                   "/assets/fallback-logo.svg"
                             }
@@ -1014,25 +1014,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               padding: "0",
                               margin: "0",
                               borderRadius: "0",
-                              width: "29px",
-                              height: "29px",
+                              width: "48px",
+                              height: "48px",
                               objectFit: "contain"
                             }}
                             fallbackSrc="/assets/fallback-logo.svg"
                           />
                           <div className="flex flex-col flex-1">
-                            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+                            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '18px' }}>
                               {safeSubstring(leagueData.league.name, 0) ||
                                 "Unknown League"}
                             </span>
-                            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+                            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '16px' }}>
                               {leagueData.league.country || "Unknown Country"}
                             </span>
                           </div>
                           <div className="flex gap-1">
                             {leagueData.isPopular &&
                               !leagueData.isPopularForCountry && (
-                                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
+                                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium" style={{ fontSize: '14px' }}>
                                   Popular
                                 </span>
                               )}
