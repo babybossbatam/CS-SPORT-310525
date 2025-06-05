@@ -134,12 +134,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
     Italy: [135, 137], // Serie A, Coppa Italia
     Germany: [78, 81], // Bundesliga, DFB Pokal
     France: [61, 66], // Ligue 1, Coupe de France
-    // Removed league restrictions for Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World
-    // These countries will now show all their leagues (exclusion filtering will be applied later)
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
-    Europe: [2, 3, 848, 5], // Champions League, Europa League, Conference League, UEFA Nations League
+    World: [914, 848], // COSAFA Cup and other world tournaments
   };
 
   // Flatten popular leagues for backward compatibility
@@ -246,7 +244,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
           if (selectedDate === todayString && smartResult.label === 'today') return true;
           if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
-          
+
           // Handle custom dates (dates that are not today/tomorrow/yesterday)
           if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
             if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
@@ -524,7 +522,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           const leagueId = league.id;
 
           if (!acc[countryKey].leagues[leagueId]) {
-            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
+            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, Europe, South America, World), 
             // consider all leagues as "popular" to show them all
             const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
             const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
