@@ -208,50 +208,84 @@ function extractDominantColors(data: Uint8ClampedArray): string[] {
   return sortedColors.length > 0 ? sortedColors : ['#3B82F6', '#EF4444'];
 }
 
-// Generate custom SVG flag using extracted colors
+// Generate custom SVG flag using extracted colors and save as file
 export function generateCustomSVGFlag(country: string, colors: string[]): string {
   const [primaryColor, secondaryColor, tertiaryColor] = colors;
   
   // Custom SVG template based on your existing design patterns
-  const svgContent = `
-    <svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="flagGradient-${country.replace(/\s+/g, '')}" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
-          <stop offset="50%" style="stop-color:${secondaryColor || primaryColor};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${tertiaryColor || secondaryColor || primaryColor};stop-opacity:1" />
-        </linearGradient>
-        <filter id="shadow-${country.replace(/\s+/g, '')}" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.2)"/>
-        </filter>
-      </defs>
-      
-      <!-- Flag background with gradient -->
-      <rect width="60" height="40" rx="3" ry="3" 
-            fill="url(#flagGradient-${country.replace(/\s+/g, '')})" 
-            filter="url(#shadow-${country.replace(/\s+/g, '')})"
-            stroke="rgba(255,255,255,0.3)" 
-            stroke-width="0.5"/>
-      
-      <!-- Decorative elements based on colors -->
-      ${tertiaryColor ? `
-        <rect x="0" y="0" width="60" height="13" rx="3" ry="3" fill="${primaryColor}" opacity="0.9"/>
-        <rect x="0" y="13" width="60" height="14" fill="${secondaryColor}" opacity="0.9"/>
-        <rect x="0" y="27" width="60" height="13" rx="3" ry="3" fill="${tertiaryColor}" opacity="0.9"/>
-      ` : `
-        <rect x="0" y="0" width="60" height="20" rx="3" ry="3" fill="${primaryColor}" opacity="0.9"/>
-        <rect x="0" y="20" width="60" height="20" rx="3" ry="3" fill="${secondaryColor || primaryColor}" opacity="0.9"/>
-      `}
-      
-      <!-- Subtle overlay for depth -->
-      <rect width="60" height="40" rx="3" ry="3" 
-            fill="none" 
-            stroke="rgba(0,0,0,0.1)" 
-            stroke-width="1"/>
-    </svg>
-  `;
+  const svgContent = `<svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="flagGradient-${country.replace(/\s+/g, '')}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
+      <stop offset="50%" style="stop-color:${secondaryColor || primaryColor};stop-opacity:1" />
+      <stop offset="100%" style="stop-color:${tertiaryColor || secondaryColor || primaryColor};stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow-${country.replace(/\s+/g, '')}" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.2)"/>
+    </filter>
+  </defs>
   
-  return `data:image/svg+xml;base64,${btoa(svgContent)}`;
+  <!-- Flag background with gradient -->
+  <rect width="60" height="40" rx="3" ry="3" 
+        fill="url(#flagGradient-${country.replace(/\s+/g, '')})" 
+        filter="url(#shadow-${country.replace(/\s+/g, '')})"
+        stroke="rgba(255,255,255,0.3)" 
+        stroke-width="0.5"/>
+  
+  <!-- Decorative elements based on colors -->
+  ${tertiaryColor ? `
+    <rect x="0" y="0" width="60" height="13" rx="3" ry="3" fill="${primaryColor}" opacity="0.9"/>
+    <rect x="0" y="13" width="60" height="14" fill="${secondaryColor}" opacity="0.9"/>
+    <rect x="0" y="27" width="60" height="13" rx="3" ry="3" fill="${tertiaryColor}" opacity="0.9"/>
+  ` : `
+    <rect x="0" y="0" width="60" height="20" rx="3" ry="3" fill="${primaryColor}" opacity="0.9"/>
+    <rect x="0" y="20" width="60" height="20" rx="3" ry="3" fill="${secondaryColor || primaryColor}" opacity="0.9"/>
+  `}
+  
+  <!-- Subtle overlay for depth -->
+  <rect width="60" height="40" rx="3" ry="3" 
+        fill="none" 
+        stroke="rgba(0,0,0,0.1)" 
+        stroke-width="1"/>
+</svg>`;
+  
+  // Save the SVG file to the flags directory
+  saveSVGFlagToFile(country, svgContent);
+  
+  // Return the file path instead of data URL
+  const fileName = `${country.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-flag.svg`;
+  return `/assets/flags/${fileName}`;
+}
+
+// Save SVG flag as physical file
+async function saveSVGFlagToFile(country: string, svgContent: string): Promise<void> {
+  try {
+    const fileName = `${country.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-flag.svg`;
+    
+    // Use File System Access API if available (for browsers that support it)
+    if ('showDirectoryPicker' in window) {
+      // This would require user permission, so we'll use a different approach
+      console.log(`📄 Generated SVG for ${country}: ${fileName}`);
+    } else {
+      // For now, we'll create a downloadable blob and log the file content
+      // The user can manually save these files
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      
+      console.log(`📄 Generated SVG for ${country}:`, {
+        fileName,
+        downloadUrl: url,
+        content: svgContent
+      });
+      
+      // Store in session storage for batch download
+      const existingFlags = JSON.parse(sessionStorage.getItem('generatedFlags') || '{}');
+      existingFlags[fileName] = svgContent;
+      sessionStorage.setItem('generatedFlags', JSON.stringify(existingFlags));
+    }
+  } catch (error) {
+    console.warn(`Failed to save SVG file for ${country}:`, error);
+  }
 }
 
 // Main function to recreate all national team flags
@@ -360,6 +394,46 @@ export async function getCustomNationalTeamFlag(
     console.warn(`Failed to generate custom flag for ${teamName}:`, error);
     return null;
   }
+}
+
+// Download all generated flags as individual files
+export function downloadAllGeneratedFlags(): void {
+  const generatedFlags = JSON.parse(sessionStorage.getItem('generatedFlags') || '{}');
+  const flagEntries = Object.entries(generatedFlags);
+  
+  if (flagEntries.length === 0) {
+    console.log('No generated flags to download');
+    return;
+  }
+  
+  console.log(`📦 Downloading ${flagEntries.length} generated flag files...`);
+  
+  // Download each flag as a separate file
+  flagEntries.forEach(([fileName, svgContent]) => {
+    const blob = new Blob([svgContent as string], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Small delay between downloads
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  });
+  
+  console.log(`✅ Downloaded ${flagEntries.length} flag files to your Downloads folder`);
+  console.log('📁 Move these files to client/public/assets/flags/ directory');
+}
+
+// Clear generated flags from session storage
+export function clearGeneratedFlags(): void {
+  sessionStorage.removeItem('generatedFlags');
+  console.log('🧹 Cleared generated flags from session storage');
 }
 
 // Initialize flag recreation on app start

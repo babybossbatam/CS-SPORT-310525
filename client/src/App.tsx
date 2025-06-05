@@ -104,10 +104,32 @@ function App() {
       const { recreateAllNationalTeamFlags } = await import('./lib/flagRecreation');
       const flags = await recreateAllNationalTeamFlags();
       console.log('🎨 Manually recreated flags:', Object.keys(flags).length);
-      alert(`Successfully recreated ${Object.keys(flags).length} flags!`);
+      alert(`Successfully recreated ${Object.keys(flags).length} flags! Check console for download instructions.`);
     } catch (error) {
       console.error('Failed to recreate flags:', error);
       alert('Failed to recreate flags. Check console for details.');
+    }
+  };
+
+  // Function to download all generated flags
+  const handleDownloadFlags = async () => {
+    try {
+      const { downloadAllGeneratedFlags } = await import('./lib/flagRecreation');
+      downloadAllGeneratedFlags();
+    } catch (error) {
+      console.error('Failed to download flags:', error);
+      alert('Failed to download flags. Check console for details.');
+    }
+  };
+
+  // Function to clear generated flags
+  const handleClearFlags = async () => {
+    try {
+      const { clearGeneratedFlags } = await import('./lib/flagRecreation');
+      clearGeneratedFlags();
+      alert('Cleared generated flags from storage');
+    } catch (error) {
+      console.error('Failed to clear flags:', error);
     }
   };
 
@@ -116,13 +138,27 @@ function App() {
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
         <div className="space-y-6">
-          {/* Temporary flag recreation button - remove after testing */}
-          <button 
-            onClick={handleFlagRecreation}
-            className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-600 z-50"
-          >
-            🎨 Recreate Flags
-          </button>
+          {/* Temporary flag management buttons - remove after testing */}
+          <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
+            <button 
+              onClick={handleFlagRecreation}
+              className="bg-blue-500 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-600 text-sm"
+            >
+              🎨 Recreate Flags
+            </button>
+            <button 
+              onClick={handleDownloadFlags}
+              className="bg-green-500 text-white px-4 py-2 rounded shadow-lg hover:bg-green-600 text-sm"
+            >
+              📥 Download Flags
+            </button>
+            <button 
+              onClick={handleClearFlags}
+              className="bg-red-500 text-white px-4 py-2 rounded shadow-lg hover:bg-red-600 text-sm"
+            >
+              🧹 Clear Cache
+            </button>
+          </div>
           <Router />
         </div>
       </main>
