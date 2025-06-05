@@ -2,6 +2,8 @@
  * Enhanced team logo sources with 365scores integration
  */
 
+import { createCustomStyledLogo } from './logoModifier';
+
 export interface TeamLogoSource {
   url: string;
   source: string;
@@ -178,7 +180,6 @@ export const getEnhancedTeamLogo = (
 
   // If custom styling is requested and it's a national team, use custom styled version
   if (useCustomStyling && isNational) {
-    const { createCustomStyledLogo } = require('./logoModifier');
     return createCustomStyledLogo(originalLogo, team.name, team.name, size);
   }
 
