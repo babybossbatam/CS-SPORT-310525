@@ -18,87 +18,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Mock data for design purposes
-  const mockMatches = [
-    {
-      fixture: {
-        id: 1,
-        date: '2025-06-01T03:00:00Z',
-        status: { short: 'NS' },
-        venue: { name: 'Allianz Arena' }
-      },
-      league: {
-        id: 2,
-        name: 'UEFA Champions League',
-        logo: '/assets/fallback-logo.svg'
-      },
-      teams: {
-        home: {
-          id: 529,
-          name: 'Barcelona',
-          logo: '/assets/fallback-logo.svg'
-        },
-        away: {
-          id: 541,
-          name: 'Real Madrid',
-          logo: '/assets/fallback-logo.svg'
-        }
-      },
-      goals: {
-        home: null,
-        away: null
-      }
-    },
-    {
-      fixture: {
-        id: 2,
-        date: '2025-05-29T18:00:00Z',
-        status: { short: 'LIVE' },
-        venue: { name: 'Old Trafford' }
-      },
-      league: {
-        id: 39,
-        name: 'Premier League',
-        logo: '/assets/fallback-logo.svg'
-      },
-      teams: {
-        home: {
-          id: 33,
-          name: 'Manchester United',
-          logo: '/assets/fallback-logo.svg'
-        },
-        away: {
-          id: 40,
-          name: 'Liverpool',
-          logo: '/assets/fallback-logo.svg'
-        }
-      },
-      goals: {
-        home: 2,
-        away: 1
-      }
-    }
-  ];
+  const [matches, setMatches] = useState<any[]>([]); // Initialize matches state
 
   // Handle navigation
   const handlePrevious = () => {
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : mockMatches.length - 1));
+    setCurrentIndex(prev => (prev > 0 ? prev - 1 : matches.length - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex(prev => (prev < mockMatches.length - 1 ? prev + 1 : 0));
+    setCurrentIndex(prev => (prev < matches.length - 1 ? prev + 1 : 0));
   };
 
   const handleMatchClick = () => {
-    if (mockMatches[currentIndex]) {
-      const match = mockMatches[currentIndex];
+    if (matches[currentIndex]) {
+      const match = matches[currentIndex];
       navigate(`/matches/${match.fixture.id}`);
     }
   };
 
   // Get current match
-  const currentMatch = mockMatches[currentIndex];
+  const currentMatch = matches[currentIndex];
 
   // Get match status for display
   const getMatchStatus = (fixture: any) => {
@@ -150,7 +89,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         Featured Match
       </Badge>
 
-      {mockMatches.length > 1 && (
+      {false && (
         <>
           <button
             onClick={handlePrevious}
@@ -263,7 +202,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               })()}
             </div>
 
-            
+
 
             {/* Action buttons */}
             <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
@@ -309,9 +248,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Carousel indicators */}
-            {mockMatches.length > 1 && (
+            {false && (
               <div className="flex justify-center gap-2 mt-4">
-                {mockMatches.map((_, index) => (
+                {matches.map((_, index) => (
                   <button
                     key={index}
                     className={`w-2 h-2 rounded-full transition-all duration-200 ${
