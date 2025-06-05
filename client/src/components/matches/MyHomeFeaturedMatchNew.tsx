@@ -735,17 +735,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             {/* Match content in TodayPopularLeagueNew style */}
             <div className="match-card-container group">
-              {/* Star Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-yellow-500 hover:text-yellow-600 p-1 rounded-full z-30 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100"
-                title="Add to favorites"
-              >
-                <Star className="h-3 w-3" />
-              </button>
-
               <div className="match-content-container p-4">
                 {/* Home Team Name - positioned further left */}
                 <div className="home-team-name text-sm font-medium text-gray-900 truncate flex-1">
