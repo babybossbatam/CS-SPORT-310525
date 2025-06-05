@@ -717,13 +717,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Status */}
             <div className="text-center mb-2">
               <div className="text-xs font-medium text-gray-500">
-                VS
+                {currentMatch.fixture.status.short === "FT" ? "Ended" :
+                 currentMatch.fixture.status.short === "AET" ? "Ended (AET)" :
+                 currentMatch.fixture.status.short === "PEN" ? "Ended (PEN)" :
+                 currentMatch.fixture.status.short === "1H" || 
+                 currentMatch.fixture.status.short === "2H" ? "Live" :
+                 currentMatch.fixture.status.short === "HT" ? "Half Time" :
+                 currentMatch.fixture.status.short === "NS" ? "Upcoming" :
+                 currentMatch.fixture.status.short}
               </div>
             </div>
 
             {/* Score */}
             <div className="flex items-center justify-center mb-4">
-              <div className="text-lg font-medium text-gray-500">VS</div>
+              <div className="text-lg font-medium text-gray-500">vs</div>
+              {currentMatch.goals.home !== null &&
+              currentMatch.goals.away !== null && (
+                <div className="text-2xl font-bold text-gray-900 mt-2">
+                  {currentMatch.goals.home} - {currentMatch.goals.away}
+                </div>
+              )}
             </div>
 
             {/* Match content in TodayPopularLeagueNew style */}
