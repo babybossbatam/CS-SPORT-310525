@@ -1,3 +1,4 @@
+typescript
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -817,55 +818,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                       );
                                     }
 
-                                    // All finished match statuses
-                                    if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                                      // Check if we have actual numerical scores
-                                      const homeScore = currentMatch.goals.home;
-                                      const awayScore = currentMatch.goals.away;
-                                      const hasValidScores =
-                                        homeScore !== null &&
-                                        homeScore !== undefined &&
-                                        awayScore !== null &&
-                                        awayScore !== undefined &&
-                                        !isNaN(Number(homeScore)) &&
-                                        !isNaN(Number(awayScore));
-
-                                      if (hasValidScores) {
-                                        return (
-                                          <div className="relative">
-                                            <div className="match-status-label status-ended">
-                                              {status === "FT"
-                                                ? "Ended"
-                                                : status === "AET"
-                                                  ? "AET"
-                                                  : status === "PEN"
-                                                    ? "PEN"
-                                                    : status === "AWD"
-                                                      ? "Awarded"
-                                                      : status === "WO"
-                                                        ? "Walkover"
-                                                        : status === "ABD"
-                                                          ? "Abandoned"
-                                                          : status === "CANC"
-                                                            ? "Cancelled"
-                                                            : status === "SUSP"
-                                                              ? "Suspended"
-                                                              : status}
-                                            </div>
-                                            <div className="match-score-display">
-                                              <span className="score-number">
-                                                {homeScore}
-                                              </span>
-                                              <span className="score-separator">
-                                                -
-                                              </span>
-                                              <span className="score-number">
-                                                {awayScore}                                              </span>
-                                            </div>
-                                          </div>
-                                        );
-                                      } else {
-                                        // Match is finished but no valid score data
+                                    // Match is finished but no valid score data
                                         const statusText =
                                           status === "FT"
                                             ? "No Score"
