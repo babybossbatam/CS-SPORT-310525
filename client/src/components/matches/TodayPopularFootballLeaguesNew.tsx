@@ -238,30 +238,30 @@ const TodayPopularFootballLeaguesNew: React.FC<
           selectedDate + 'T12:00:00Z' // Pass selected date as context
         );
 
-        // For tomorrow's date selection, only show tomorrow matches
-        if (isSelectedTomorrow) {
-          if (smartResult.label !== 'tomorrow') {
-            console.log(`❌ [TOMORROW FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
-              selectedDate
-            });
-            return false;
+        // Check if this match should be included based on the selected date
+        const shouldInclude = (() => {
+          if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
+          if (selectedDate === todayString && smartResult.label === 'today') return true;
+          if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
+          
+          // Handle custom dates (dates that are not today/tomorrow/yesterday)
+          if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
+            if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
           }
-        } else {
-          // For today's date selection, only show today matches
-          if (smartResult.label !== 'today') {
-            console.log(`❌ [TODAY FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
-              selectedDate
-            });
-            return false;
-          }
+
+          return false;
+        })();
+
+        if (!shouldInclude) {
+          console.log(`❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange
+          });
+          return false;
         }
 
         console.log(`✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
@@ -269,7 +269,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
           status: fixture.fixture.status.short,
           reason: smartResult.reason,
           label: smartResult.label,
-          selectedDate
+          selectedDate,
+          isWithinTimeRange: smartResult.isWithinTimeRange
         });
       }
 
@@ -842,15 +843,42 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Get header title 
   const getHeaderTitle = () => {
-    const dateDisplayName = SimpleDateFilter.getDateDisplayName(selectedDate);
-    let baseTitle = dateDisplayName;
+    const isDateStringToday = (date: string) => {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      return date === today;
+    };
 
-    // Add time filter indicator
-    if (timeFilterActive && showTop20) {
-      baseTitle += " (Top 20 by Time)";
+    const isDateStringTomorrow = (date: string) => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return date === format(tomorrow, 'yyyy-MM-dd');
+    };
+
+    const isDateStringYesterday = (date: string) => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      return date === format(yesterday, 'yyyy-MM-dd');
+    };
+
+    if (isDateStringToday(selectedDate)) {
+      return "Today's Popular Football Leagues";
+    } else if (isDateStringYesterday(selectedDate)) {
+      return "Yesterday's Popular Football Results";
+    } else if (isDateStringTomorrow(selectedDate)) {
+      return "Tomorrow's Popular Football Matches";
+    } else {
+      // Custom date - format it nicely
+      try {
+        const customDate = parseISO(selectedDate);
+        if (isValid(customDate)) {
+          return `${format(customDate, 'EEEE, MMMM do')} Popular Football Matches`;
+        } else {
+          return "Popular Football Matches";
+        }
+      } catch {
+        return "Popular Football Matches";
+      }
     }
-
-    return baseTitle;
   };
 
   // Format the time for display
