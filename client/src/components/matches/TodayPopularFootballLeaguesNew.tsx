@@ -961,11 +961,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   // Check if it's marked as friendlies or contains friendlies in name
                   const isFriendlies = leagueData.isFriendlies || name.includes('friendlies');
                   
-                  // Priority 1: UEFA Nations League
+                  // Priority 1: UEFA Nations League (must come before Friendlies check)
                   if (name.includes('uefa nations league')) return 1;
                   
-                  // Priority 2: Friendlies
-                  if (isFriendlies) return 2;
+                  // Priority 2: Friendlies (but exclude UEFA Nations League)
+                  if (isFriendlies && !name.includes('uefa nations league')) return 2;
                   
                   // Priority 3: World Cup Qualification Asia
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
