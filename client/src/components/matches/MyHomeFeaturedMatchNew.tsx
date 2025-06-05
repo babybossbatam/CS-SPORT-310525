@@ -830,7 +830,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                         !isNaN(Number(homeScore)) &&
                                         !isNaN(Number(awayScore));
 
-                                Removed broken div while keeping data content
                                       if (hasValidScores) {
                                         return (
                                           <div className="relative">
