@@ -626,9 +626,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
           }
 
           if (!acc[countryKey]) {
+            // Use custom flag if available, otherwise fallback to cached flag
+            const flagUrl = hasCustomFlag(countryKey) 
+              ? `data:image/svg+xml;base64,${btoa(getCountryFlagWithGlossyTemplate(countryKey))}` 
+              : getCountryFlagWithFallbackSync(countryKey);
+
             acc[countryKey] = {
               country: countryKey,
-              flag: getCountryFlagWithFallbackSync(countryKey),
+              flag: flagUrl,
               leagues: {},
               hasPopularLeague: true,
             };
@@ -683,9 +688,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       const leagueId = league.id;
       if (!acc[country]) {
+        // Use custom flag if available, otherwise fallback to cached flag
+        const flagUrl = hasCustomFlag(country) 
+          ? `data:image/svg+xml;base64,${btoa(getCountryFlagWithGlossyTemplate(country))}` 
+          : getCountryFlagWithFallbackSync(country, league.flag);
+
         acc[country] = {
           country,
-          flag: getCountryFlagWithFallbackSync(country, league.flag),
+          flag: flagUrl,
           leagues: {},
           hasPopularLeague: false,
         };
@@ -1031,6 +1041,27 @@ const TodayPopularFootballLeaguesNew: React.FC<
       title: "Removed from favorites",
       description: `Team has been removed from your favorites.`,
     });
+  };
+
+  // Mock functions for flag handling
+  const hasCustomFlag = (country: string): boolean => {
+    // Replace this with actual logic to check if a country has a custom flag
+    return ["England", "Spain", "Italy", "Germany", "France"].includes(country);
+  };
+
+  const getCountryFlagWithGlossyTemplate = (country: string): string => {
+    // Replace this with the actual implementation of the glossy flag template
+    const flag = getCountryFlagWithFallbackSync(country); // Get the base flag
+    // Create a simple SVG string with a placeholder for the flag image
+    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="flag_${country}" patternContentUnits="objectBoundingBox" width="1" height="1">
+                  <image x="0" y="0" width="1" height="1" preserveAspectRatio="xMidYMid slice" xlink:href="${flag}"></image>
+                </pattern>
+              </defs>
+              <circle cx="50" cy="50" r="48" fill="url(#flag_${country})" stroke="#ccc" strokeWidth="1"/>
+              <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.2)" />
+            </svg>`;
   };
 
   return (
