@@ -59,9 +59,19 @@ export class MySmartTimeFilter {
       const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
       const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
+      // Smart status converter implementation start
+      let convertedStatus = matchStatus;
+      if (notStartedStatuses.includes(matchStatus)) {
+          const now = new Date();
+          if (fixtureDate < now) {
+              convertedStatus = 'FT'; // Or any other status that fits your logic
+          }
+      }
+      // Smart status converter implementation end
+
       // TOMORROW DATE LOGIC
       if (isSelectedTomorrow) {
-        if (notStartedStatuses.includes(matchStatus)) {
+        if (notStartedStatuses.includes(convertedStatus)) {
           // 1. NS status: show only if fixture date matches selected date (tomorrow)
           if (fixtureDateString === selectedDateString) {
             return {
@@ -113,7 +123,7 @@ export class MySmartTimeFilter {
         // Get current time for comparison
         const now = new Date();
 
-        if (notStartedStatuses.includes(matchStatus)) {
+        if (notStartedStatuses.includes(convertedStatus)) {
           if (isWithinTodayRange) {
             // For NS matches, if current time has passed fixture time, move to tomorrow
             if (fixtureDate < now) {
@@ -180,7 +190,7 @@ export class MySmartTimeFilter {
       if (!isSelectedToday && !isSelectedTomorrow && !isSelectedYesterday) {
 
         // For NS (Not Started) matches on custom dates
-        if (notStartedStatuses.includes(matchStatus)) {
+        if (notStartedStatuses.includes(convertedStatus)) {
           if (fixtureDateString === selectedDateString) {
             return {
               label: 'custom',
