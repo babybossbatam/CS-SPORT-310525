@@ -1003,18 +1003,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   "/assets/fallback-logo.svg"
                             }
                             alt={leagueData.league.name || "Unknown League"}
-                            className="object-contain"
+                            className=""
                             style={{ 
                               backgroundColor: "transparent",
-                              background: "none",
+                              background: "transparent",
                               backgroundImage: "none",
                               border: "none",
                               boxShadow: "none",
                               outline: "none",
                               padding: "0",
                               margin: "0",
+                              borderRadius: "0",
                               width: "29px",
-                              height: "29px"
+                              height: "29px",
+                              objectFit: "contain"
                             }}
                             fallbackSrc="/assets/fallback-logo.svg"
                           />
