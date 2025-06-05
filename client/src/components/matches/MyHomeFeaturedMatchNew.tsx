@@ -903,17 +903,18 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       right: "87px",
                       transform: "translateX(50%)",
                       filter: "contrast(115%) brightness(105%)",
-                      boxShadow: "inset -8px -8px 16px rgba(0,0,0,0.3), inset 8px 8px 16px rgba(255,255,255,0.3), 4px 4px 12px rgba(0,0,0,0.4)",
+                      boxShadow: "inset -2px -2px 8px rgba(0,0,0,0.2), inset 2px 2px 8px rgba(255,255,255,0.3), 2px 2px 8px rgba(0,0,0,0.3)",
                       background: `
-                        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 70%),
+                        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 60%),
                         linear-gradient(to right, 
                           #046A38 0%, 
-                          #046A38 40%, 
-                          #DC143C 40%, 
+                          #046A38 45%, 
+                          #DC143C 45%, 
                           #DC143C 100%
                         )
                       `,
-                      border: "2px solid rgba(255,255,255,0.2)",
+                      border: "1px solid rgba(255,255,255,0.3)",
+                      overflow: "hidden",
                     }}
                     onClick={handleMatchClick}
                   >
@@ -924,10 +925,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch.teams.away.name || "Away Team"}
-                        className="w-full h-full object-contain rounded-full"
+                        className="w-[40px] h-[40px] object-contain rounded-full"
                         style={{
-                          position: "relative",
-                          zIndex: 1,
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          zIndex: 2,
+                          background: "rgba(255,255,255,0.9)",
+                          padding: "4px",
+                          borderRadius: "50%",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
                         }}
                         onError={(e) => {
                           e.currentTarget.src = "/assets/fallback-logo.svg";
