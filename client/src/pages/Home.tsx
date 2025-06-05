@@ -463,16 +463,11 @@ const Home = () => {
 
           {/* Right column (7 columns) */}
           <div className="lg:col-span-7 space-y-4">
-            <FeaturedMatch />
-<Card  className="shadow-md">
-
-  {/* New optimized featured match component for testing */}
-  <MyHomeFeaturedMatchNew 
-    selectedDate={selectedDate} 
-    maxMatches={8}
-  />
-  
-</Card>
+            {/* New optimized featured match component for testing */}
+            <MyHomeFeaturedMatchNew 
+              selectedDate={selectedDate} 
+              maxMatches={8}
+            />
             <Card className="shadow-md">
               <CardContent>
                 <HomeTopScorersList />
