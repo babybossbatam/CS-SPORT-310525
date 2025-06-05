@@ -827,16 +827,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                       if (hasValidScores) {
                                         return (
                                           <div className="relative">
-                                            <div className="match-score-display">
-                                              <span className="score-number">
-                                                {homeScore}
-                                              </span>
-                                              <span className="score-separator">
-                                                -
-                                              </span>
-                                              <span className="score-number">
-                                                {awayScore}                                              </span>
-                                            </div>
                                             <div className="match-status-label status-ended">
                                               {status === "FT"
                                                 ? "Ended"
@@ -855,6 +845,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                                             : status === "SUSP"
                                                               ? "Suspended"
                                                               : status}
+                                            </div>
+                                            <div className="match-score-display">
+                                              <span className="score-number">
+                                                {homeScore}
+                                              </span>
+                                              <span className="score-separator">
+                                                -
+                                              </span>
+                                              <span className="score-number">
+                                                {awayScore}                                              </span>
                                             </div>
                                           </div>
                                         );
