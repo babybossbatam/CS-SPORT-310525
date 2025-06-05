@@ -17,10 +17,9 @@ import { initializeFlagCachePersistence } from "./lib/flagUtils";
 // Initialize flag cache persistence
 initializeFlagCachePersistence();
 
-// Register service worker for caching - deferred for performance
+// Register service worker for caching
 if ('serviceWorker' in navigator) {
-  // Defer service worker registration to not block initial load
-  setTimeout(() => {
+  window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
         console.log('SW registered: ', registration);
@@ -28,7 +27,7 @@ if ('serviceWorker' in navigator) {
       .catch((registrationError) => {
         console.log('SW registration failed: ', registrationError);
       });
-  }, 1000);
+  });
 }
 
 createRoot(document.getElementById("root")!).render(

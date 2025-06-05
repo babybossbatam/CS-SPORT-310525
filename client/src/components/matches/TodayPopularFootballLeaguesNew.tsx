@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, memo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
@@ -20,10 +20,6 @@ import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
 import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
 import { POPULAR_LEAGUES } from "@/lib/constants";
-import { useCachedTeamLogo } from "../../lib/MyAPIFallback";
-import { isNationalTeam } from "../../lib/teamLogoSources";
-import { createFallbackHandler } from "../../lib/MyAPIFallback";
-import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import {
   DEFAULT_POPULAR_TEAMS,
   DEFAULT_POPULAR_LEAGUES,
@@ -31,11 +27,14 @@ import {
   isLiveMatch,
 } from "@/lib/matchFilters";
 import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
+import { createFallbackHandler } from "../../lib/MyAPIFallback";
+import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
+import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
+import { isNationalTeam } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
-import { LazyLoader } from '@/components/common/LazyLoader';
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -945,113 +944,688 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   };
 
-  const isMatchStarred = (matchId: number) => {
-    return starredMatches.has(matchId);
-  };
+  // Start with all countries collapsed by default
+  useEffect(() => {
+    // Reset to collapsed state when selected date changes
+    setExpandedCountries(new Set());
+  }, [selectedDate]);
 
-  return (
-    <Card className="shadow-md rounded-lg">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <h4 className="text-sm font-semibold tracking-tight">
-          Today's Popular Leagues
-        </h4>
-        <div className="flex items-center space-x-2">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <span className="text-xs text-gray-500">{selectedDate}</span>
-        </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        {isLoading || isFetching ? (
-          <div className="flex flex-col space-y-2 p-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center space-x-3">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-[250px]" />
-                  <Skeleton className="h-4 w-[200px]" />
+  // Simple date comparison handled by SimpleDateFilter
+
+  if (isLoading || isFetching) {
+    return (
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-3 w-40" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
                 </div>
               </div>
             ))}
           </div>
-        ) : top20FilteredCountries.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            No popular matches today.
-          </div>
-        ) : (
-          <ul className="space-y-2">
-            {top20FilteredCountries.map((countryData: any, index: number) => (
-              <li key={index} className="border-b last:border-none">
-                <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className="flex items-center justify-between w-full p-4 hover:bg-gray-50 transition-colors duration-200"
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!filteredFixtures.length) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No matches available for this date</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Simple date display
+  const currentDate = SimpleDateFilter.getCurrentDate();
+
+  // Get header title
+  const getHeaderTitle = () => {
+    return "Popular Football Leagues";
+  };
+
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    try {
+      if (!dateString) return "--:--";
+      const date = new Date(dateString);
+      return format(date, "HH:mm");
+    } catch (error) {
+      console.error("Error formatting match time:", error);
+      return "--:--";
+    }
+  };
+
+  const addFavoriteTeam = (team: any) => {
+    dispatch(userActions.addFavoriteTeam(team));
+    toast({
+      title: "Added to favorites",
+      description: `${team.name} has been added to your favorites.`,
+    });
+  };
+
+  const removeFavoriteTeam = (teamId: number) => {
+    dispatch(userActions.removeFavoriteTeam(teamId));
+    toast({
+      title: "Removed from favorites",
+      description: `Team has been removed from your favorites.`,
+    });
+  };
+
+  return (
+    <>
+      {/* Header Section */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        {getHeaderTitle()}
+      </CardHeader>
+      {/* Create individual league cards from all countries */}
+      {top20FilteredCountries.flatMap(
+        (countryData: any, countryIndex: number) =>
+          Object.values(countryData.leagues)
+            .sort((a: any, b: any) => {
+              // Check for UEFA Nations League - Women first (lowest priority)
+              const aIsWomensNationsLeague =
+                a.league.name?.toLowerCase().includes("uefa nations league") &&
+                a.league.name?.toLowerCase().includes("women");
+              const bIsWomensNationsLeague =
+                b.league.name?.toLowerCase().includes("uefa nations league") &&
+                b.league.name?.toLowerCase().includes("women");
+
+              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
+              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
+              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
+
+              //              // Prioritize leagues that are popular for this specific country
+              if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+              if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
+
+              // Then globally popular leagues
+              if (a.isPopular && !b.isPopular) return -1;
+              if (!a.isPopular && b.isPopular) return 1;
+
+              // Finally alphabetical
+              return a.league.name.localeCompare(b.league.name);
+            })
+            .map((leagueData: any, leagueIndex: number) => {
+              const isFirstCard = countryIndex === 0 && leagueIndex === 0;
+              return (
+                <Card
+                  key={`${countryData.country}-${leagueData.league.id}`}
+                  className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4"
                 >
-                  <div className="flex items-center space-x-3">
-                    {countryData.flag && (
-                      <LazyImage
-                        src={countryData.flag}
-                        alt={`${countryData.country} Flag`}
-                        className="h-6 w-8 object-cover rounded-sm"
-                        width={32}
-                        height={24}
-                        priority={true}
-                      />
-                    )}
-                    <span className="text-sm font-medium">
-                      {countryData.country}
-                    </span>
-                  </div>
-                  {expandedCountries.has(countryData.country) ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
-                {expandedCountries.has(countryData.country) && (
-                  <ul className="space-y-2">
-                    {Object.entries(countryData.leagues).map(
-                      ([leagueId, leagueData]: any) => (
-                        <li key={leagueId} className="border-b last:border-none">
-                          <div className="flex items-center justify-between w-full p-4 hover:bg-gray-50 transition-colors duration-200">
-                            <div className="flex items-center space-x-3">
-                              {leagueData.league.logo && (
-                                <LazyImage
-                                  src={leagueData.league.logo}
-                                  alt={`${leagueData.league.name} Logo`}
-                                  className="h-5 w-5 object-cover rounded-full"
-                                  width={20}
-                                  height={20}
-                                  priority={true}
-                                />
-                              )}
-                              <span className="text-xs font-medium">
-                                {leagueData.league.name}
-                              </span>
-                            </div>
+                  {/* League Header - Always show unless time filter is active */}
+                  {!timeFilterActive && (
+                    <>
+                      {leagueData.isFriendlies ? (
+                        <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                          <img
+                            src={
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
+                            }
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-5 h-5 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/assets/fallback-logo.svg";
+                            }}
+                          />
+                          <span
+                            className="font-medium text-blue-800"
+                            style={{ fontSize: "calc(0.875rem * 0.85)" }}
+                          >
+                            {leagueData.league.name || "Unknown League"}
+                          </span>
+                          <span
+                            className="text-blue-600"
+                            style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                          >
+                            {leagueData.matches.length}{" "}
+                            {leagueData.matches.length === 1
+                              ? "match"
+                              : "matches"}
+                          </span>
+                        </div>
+                      ) : (
+                        <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                          <img
+                            src={
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
+                            }
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-6 h-6 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/assets/fallback-logo.svg";
+                            }}
+                          />
+                          <div className="flex flex-col flex-1">
+                            <span
+                              className="font-semibold text-gray-800"
+                              style={{
+                                fontFamily:
+                                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                fontSize: "13.3px",
+                              }}
+                            >
+                              {safeSubstring(leagueData.league.name, 0) ||
+                                "Unknown League"}
+                            </span>
+                            <span
+                              className="text-gray-600"
+                              style={{
+                                fontFamily:
+                                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                fontSize: "13.3px",
+                              }}
+                            >
+                              {leagueData.league.country || "Unknown Country"}
+                            </span>
                           </div>
-                          <ul className="space-y-1">
-                            {leagueData.matches.map((match: any) => (
-                              <LazyMatchItem
-                                key={match.fixture.id}
-                                match={match}
-                                toggleFavoriteTeam={toggleFavoriteTeam}
-                                isTeamFavorite={isTeamFavorite}
-                                toggleStarMatch={toggleStarMatch}
-                                isMatchStarred={isMatchStarred}
-                              />
-                            ))}
-                          </ul>
-                        </li>
-                      ),
-                    )}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+                          <div className="flex gap-1">
+                            {leagueData.isPopular &&
+                              !leagueData.isPopularForCountry && (
+                                <span
+                                  className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                                  style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                                >
+                                  Popular
+                                </span>
+                              )}
+                          </div>
+                        </CardContent>
+                      )}
+                    </>
+                  )}
+                  {/* Matches - Show for all leagues */}
+                  <CardContent className="p-0">
+                    <div className="space-y-0">
+                      {leagueData.matches
+                        .slice(
+                          0,
+                          timeFilterActive && showTop20 ? 20 : undefined,
+                        )
+                        .sort((a: any, b: any) => {
+                          // When time filter is active, prioritize by time more strictly
+                          if (timeFilterActive) {
+                            const aDate = parseISO(a.fixture.date);
+                            const bDate = parseISO(b.fixture.date);
+                            const now = new Date();
+
+                            // Ensure valid dates
+                            if (!isValid(aDate) || !isValid(bDate)) {
+                              return 0;
+                            }
+
+                            const aTime = aDate.getTime();
+                            const bTime = bDate.getTime();
+                            const nowTime = now.getTime();
+
+                            // Calculate time distance from now
+                            const aDistance = Math.abs(aTime - nowTime);
+                            const bDistance = Math.abs(bTime - nowTime);
+
+                            // Prioritize matches closest to current time
+                            return aDistance - bDistance;
+                          }
+
+                          // NEW SORTING LOGIC: Priority-based with alphabetical ordering
+                          const aStatus = a.fixture.status.short;
+                          const bStatus = b.fixture.status.short;
+                          const aDate = parseISO(a.fixture.date);
+                          const bDate = parseISO(b.fixture.date);
+
+                          // Ensure valid dates
+                          if (!isValid(aDate) || !isValid(bDate)) {
+                            return 0;
+                          }
+
+                          const aTime = aDate.getTime();
+                          const bTime = bDate.getTime();
+                          // Define status categories
+                          const aLive = [
+                            "LIVE",
+                            "1H",
+                            "HT",
+                            "2H",
+                            "ET",
+                            "BT",
+                            "P",
+                            "INT",
+                          ].includes(aStatus);
+                          const bLive = [
+                            "LIVE",
+                            "1H",
+                            "HT",
+                            "2H",
+                            "ET",
+                            "BT",
+                            "P",
+                            "INT",
+                          ].includes(bStatus);
+
+                          const aUpcoming =
+                            aStatus === "NS" || aStatus === "TBD";
+                          const bUpcoming =
+                            bStatus === "NS" || bStatus === "TBD";
+
+                          const aFinished = [
+                            "FT",
+                            "AET",
+                            "PEN",
+                            "AWD",
+                            "WO",
+                            "ABD",
+                            "CANC",
+                            "SUSP",
+                          ].includes(aStatus);
+                          const bFinished = [
+                            "FT",
+                            "AET",
+                            "PEN",
+                            "AWD",
+                            "WO",
+                            "ABD",
+                            "CANC",
+                            "SUSP",
+                          ].includes(bStatus);
+
+                          // PRIORITY 1: LIVE matches always come first
+                          if (aLive && !bLive) return -1;
+                          if (!aLive && bLive) return 1;
+
+                          // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
+                          if (aLive && bLive) {
+                            const aElapsed =
+                              Number(a.fixture.status.elapsed) || 0;
+                            const bElapsed =
+                              Number(b.fixture.status.elapsed) || 0;
+
+                            if (aElapsed !== bElapsed) {
+                              return aElapsed - bElapsed;
+                            }
+
+                            // If same elapsed time, sort alphabetically by home team name
+                            const aHomeTeam = a.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            return aHomeTeam.localeCompare(bHomeTeam);
+                          }
+
+                          // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically
+                          if (aUpcoming && !bUpcoming) return -1;
+                          if (!aUpcoming && bUpcoming) return 1;
+
+                          // If both are upcoming, sort by time first, then alphabetically by home team
+                          if (aUpcoming && bUpcoming) {
+                            if (aTime !== bTime) {
+                              return aTime - bTime; // Earlier matches first
+                            }
+
+                            // If same time, sort alphabetically by home team name
+                            const aHomeTeam = a.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            return aHomeTeam.localeCompare(bHomeTeam);
+                          }
+
+                          // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
+                          if (aFinished && !bFinished) return 1;
+                          if (!aFinished && bFinished) return -1;
+
+                          // If both are finished, sort alphabetically by home team name
+                          if (aFinished && bFinished) {
+                            const aHomeTeam = a.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            return aHomeTeam.localeCompare(bHomeTeam);
+                          }
+
+                          // DEFAULT: For any other cases, sort alphabetically by home team name
+                          const aHomeTeam = a.teams?.home?.name || "";
+                          const bHomeTeam = b.teams?.home?.name || "";
+                          return aHomeTeam.localeCompare(bHomeTeam);
+                        })
+                        .map((match: any) => (
+                          <LazyMatchItem key={match.fixture.id}>
+                            <div
+                              key={match.fixture.id}
+                              className="match-card-container group"
+                            >
+                              {/* Star Button with true slide-in effect */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleStarMatch(match.fixture.id);
+                                }}
+                                className="match-star-button"
+                                title="Add to favorites"
+                                onMouseEnter={(e) => {
+                                  e.currentTarget
+                                    .closest(".group")
+                                    ?.classList.add("disable-hover");
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget
+                                    .closest(".group")
+                                    ?.classList.remove("disable-hover");
+                                }}
+                              >
+                                <Star
+                                  className={`match-star-icon ${
+                                    starredMatches.has(match.fixture.id)
+                                      ? "starred"
+                                      : ""
+                                  }`}
+                                />
+                              </button>
+
+                              <div className="match-content-container">
+                                {/* Home Team Name - positioned further left */}
+                                <div
+                                  className={`home-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.home > match.goals.away
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
+                                  {shortenTeamName(match.teams.home.name) ||
+                                    "Unknown Team"}
+                                </div>
+
+                                {/* Home team logo - closer to center */}
+                                <div className="team-logo-container">
+                                  <LazyImage
+                                    src={
+                                      match.teams.home.id
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.home.name}
+                                    title={match.teams.home.name}
+                                    className={`team-logo ${
+                                      isNationalTeam(
+                                        match.teams.home,
+                                        leagueData.league,
+                                      )
+                                        ? "national-team"
+                                        : ""
+                                    }`}
+                                    style={{ backgroundColor: "transparent" }}
+                                    fallbackSrc="/assets/fallback-logo.svg"
+                                  />
+                                </div>
+
+                                {/* Score/Time Center - Fixed width and centered */}
+                                <div className="match-score-container">
+                                  {(() => {
+                                    const status = match.fixture.status.short;
+                                    const fixtureDate = parseISO(
+                                      match.fixture.date,
+                                    );
+
+                                    // Live matches
+                                    if (
+                                      [
+                                        "LIVE",
+                                        "1H",
+                                        "HT",
+                                        "2H",
+                                        "ET",
+                                        "BT",
+                                        "P",
+                                        "INT",
+                                      ].includes(status)
+                                    ) {
+                                      return (
+                                        <div className="relative">
+                                          <div className="match-score-display">
+                                            <span className="score-number">
+                                              {match.goals.home ?? 0}
+                                            </span>
+                                            <span className="score-separator">
+                                              -
+                                            </span>
+                                            <span className="score-number">
+                                              {match.goals.away ?? 0}
+                                            </span>
+                                          </div>
+                                          <div className="match-status-label status-live">
+                                            {status === "HT"
+                                              ? "HT"
+                                              : `${match.fixture.status.elapsed || 0}'`}
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+
+                                    // All finished match statuses
+                                    if (
+                                      [
+                                        "FT",
+                                        "AET",
+                                        "PEN",
+                                        "AWD",
+                                        "WO",
+                                        "ABD",
+                                        "CANC",
+                                        "SUSP",
+                                      ].includes(status)
+                                    ) {
+                                      // Check if we have actual numerical scores
+                                      const homeScore = match.goals.home;
+                                      const awayScore = match.goals.away;
+                                      const hasValidScores =
+                                        homeScore !== null &&
+                                        homeScore !== undefined &&
+                                        awayScore !== null &&
+                                        awayScore !== undefined &&
+                                        !isNaN(Number(homeScore)) &&
+                                        !isNaN(Number(awayScore));
+
+                                      if (hasValidScores) {
+                                        return (
+                                          <div className="relative">
+                                            <div className="match-score-display">
+                                              <span className="score-number">
+                                                {homeScore}
+                                              </span>
+                                              <span className="score-separator">
+                                                -
+                                              </span>
+                                              <span className="score-number">
+                                                {awayScore}
+                                              </span>
+                                            </div>
+                                            <div className="match-status-label status-ended">
+                                              {status === "FT"
+                                                ? "Ended"
+                                                : status === "AET"
+                                                  ? "AET"
+                                                  : status === "PEN"
+                                                    ? "PEN"
+                                                    : status === "AWD"
+                                                      ? "Awarded"
+                                                      : status === "WO"
+                                                        ? "Walkover"
+                                                        : status === "ABD"
+                                                          ? "Abandoned"
+                                                          : status === "CANC"
+                                                            ? "Cancelled"
+                                                            : status === "SUSP"
+                                                              ? "Suspended"
+                                                              : status}
+                                            </div>
+                                          </div>
+                                        );
+                                      } else {
+                                        // Match is finished but no valid score data
+                                        const statusText =
+                                          status === "FT"
+                                            ? "No Score"
+                                            : status === "AET"
+                                              ? "AET"
+                                              : status === "PEN"
+                                                ? "PEN"
+                                                : status === "AWD"
+                                                  ? "Awarded"
+                                                  : status === "WO"
+                                                    ? "Walkover"
+                                                    : status === "ABD"
+                                                      ? "Abandoned"
+                                                      : status === "CANC"
+                                                        ? "Cancelled"
+                                                        : status === "SUSP"
+                                                          ? "Suspended"
+                                                          : "No Score";
+
+                                        return (
+                                          <div className="relative">
+                                            <div className="text-sm font-medium text-gray-900">
+                                              {format(fixtureDate, "HH:mm")}
+                                            </div>
+                                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                              <span className="text-gray-600 bg-white px-1 rounded">
+                                                {statusText}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                                    }
+
+                                    // Postponed or delayed matches
+                                    if (
+                                      [
+                                        "PST",
+                                        "CANC",
+                                        "ABD",
+                                        "SUSP",
+                                        "AWD",
+                                        "WO",
+                                      ].includes(status)
+                                    ) {
+                                      const statusText =
+                                        status === "PST"
+                                          ? "Postponed"
+                                          : status === "CANC"
+                                            ? "Cancelled"
+                                            : status === "ABD"
+                                              ? "Abandoned"
+                                              : status === "SUSP"
+                                                ? "Suspended"
+                                                : status === "AWD"
+                                                  ? "Awarded"
+                                                  : status === "WO"
+                                                    ? "Walkover"
+                                                    : status;
+
+                                      return (
+                                        <div className="relative">
+                                          <div className="text-sm font-medium text-gray-900">
+                                            {format(fixtureDate, "HH:mm")}
+                                          </div>
+                                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                            <span className="text-red-600 bg-white px-1 rounded">
+                                              {statusText}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+
+                                    // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                                    return (
+                                      <div className="relative flex items-center justify-center h-full">
+                                        <div className="match-time-display">
+                                          {status === "TBD"
+                                            ? "TBD"
+                                            : format(fixtureDate, "HH:mm")}
+                                        </div>
+                                        {status === "TBD" && (
+                                          <div className="match-status-label status-upcoming">
+                                            Time TBD
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+
+                                {/* Away team logo - closer to center */}
+                                <div className="team-logo-container">
+                                  <LazyImage
+                                    src={
+                                      match.teams.away.id
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.away.name}
+                                    title={match.teams.away.name}
+                                    className={`team-logo ${
+                                      isNationalTeam(
+                                        match.teams.away,
+                                        leagueData.league,
+                                      )
+                                        ? "national-team"
+                                        : ""
+                                    }`}
+                                    style={{
+                                      backgroundColor: "transparent",
+                                      background: "none",
+                                      backgroundImage: "none",
+                                      border: "none",
+                                      boxShadow: "none",
+                                    }}
+                                    fallbackSrc="/assets/fallback-logo.svg"
+                                  />
+                                </div>
+
+                                {/* Away Team Name - positioned further right */}
+                                <div
+                                  className={`away-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.away > match.goals.home
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
+                                  {shortenTeamName(match.teams.away.name) ||
+                                    "Unknown Team"}
+                                </div>
+                              </div>
+                            </div>
+                          </LazyMatchItem>
+                        ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }),
+      )}
+    </>
   );
 };
 
-export default memo(TodayPopularFootballLeaguesNew);
+export default TodayPopularFootballLeaguesNew;

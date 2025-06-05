@@ -10,7 +10,7 @@ import Home from "@/pages/Home";
 import Football from "@/pages/Football";
 import LiveMatches from "@/pages/LiveMatches";
 
-// Lazy load less critical components with prefetch hints
+// Lazy load less critical components
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Basketball = lazy(() => import("@/pages/Basketball"));
 const Baseball = lazy(() => import("@/pages/Baseball"));
@@ -65,33 +65,19 @@ function Router() {
   );
 }
 
-// Optimized preloading strategy
+// Preload commonly used components
 const preloadComponents = () => {
-  // Only preload on user interaction or when idle
-  const preloadOnIdle = () => {
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        import("@/pages/MatchDetails");
-        import("@/pages/MyScores");
-      });
-    } else {
-      setTimeout(() => {
-        import("@/pages/MatchDetails");
-        import("@/pages/MyScores");
-      }, 3000);
-    }
-  };
+  // Preload Basketball and MatchDetails as they're frequently accessed
+  const preloadBasketball = () => import("@/pages/Basketball");
+  const preloadMatchDetails = () => import("@/pages/MatchDetails");
+  const preloadMyScores = () => import("@/pages/MyScores");
   
-  // Preload on first user interaction
-  const preloadOnInteraction = () => {
-    import("@/pages/Basketball");
-    document.removeEventListener('mouseenter', preloadOnInteraction);
-    document.removeEventListener('touchstart', preloadOnInteraction);
-  };
-  
-  document.addEventListener('mouseenter', preloadOnInteraction, { once: true });
-  document.addEventListener('touchstart', preloadOnInteraction, { once: true });
-  preloadOnIdle();
+  // Delay preloading to not interfere with initial render
+  setTimeout(() => {
+    preloadBasketball();
+    preloadMatchDetails();
+    preloadMyScores();
+  }, 1000);
 };
 
 const setupCacheRefresh = () => {
@@ -113,22 +99,32 @@ const cleanupCacheRefresh = (interval: NodeJS.Timeout) => {
 };
 
 const preloadData = () => {
-  // Minimal preloading - only when needed
+  // Preload critical API data
   const preloadCriticalData = async () => {
     try {
-      // Only preload the most critical data after initial render
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          fetch('/api/fixtures/live').catch(() => {}); // Silently fail
-        });
-      }
+      // Preload popular leagues data
+      const popularLeaguesPromise = fetch('/api/leagues/popular');
+      
+      // Preload today's fixtures
+      const today = new Date().toISOString().split('T')[0];
+      const todayFixturesPromise = fetch(`/api/fixtures/date/${today}`);
+      
+      // Preload live matches
+      const liveMatchesPromise = fetch('/api/fixtures/live');
+      
+      // Wait for critical data without blocking UI
+      Promise.allSettled([
+        popularLeaguesPromise,
+        todayFixturesPromise,
+        liveMatchesPromise
+      ]);
     } catch (error) {
       debugLogger.error('Failed to preload data:', error);
     }
   };
   
-  // Minimal delay for critical render path
-  setTimeout(preloadCriticalData, 2000);
+  // Delay preloading to prioritize initial render
+  setTimeout(preloadCriticalData, 500);
 }
 
 
