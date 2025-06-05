@@ -114,14 +114,26 @@ class LeagueDataCache {
    */
   private normalizeLeagueData(apiData: any): LeagueData[] {
     if (Array.isArray(apiData)) {
-      return apiData.map((league, index) => ({
-        id: league.id || league.league_id,
-        name: league.name || league.league_name,
-        country: league.country || league.country_name || 'Unknown',
-        logo: league.logo || league.logo_url || `https://media.api-sports.io/football/leagues/${league.id}.png`,
-        priority: league.priority || index + 1,
-        type: this.determineLeagueType(league.name, league.country)
-      }));
+      return apiData.map((league, index) => {
+        // Ensure league object exists
+        if (!league || typeof league !== 'object') {
+          console.warn('Invalid league object:', league);
+          return null;
+        }
+
+        const leagueId = league.id || league.league_id || index;
+        const leagueName = league.name || league.league_name || `League ${leagueId}`;
+        const leagueCountry = league.country || league.country_name || 'Unknown';
+
+        return {
+          id: leagueId,
+          name: leagueName,
+          country: leagueCountry,
+          logo: league.logo || league.logo_url || `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+          priority: league.priority || index + 1,
+          type: this.determineLeagueType(leagueName, leagueCountry)
+        };
+      }).filter(Boolean); // Remove any null entries
     }
     
     return DEFAULT_LEAGUES;
@@ -131,10 +143,14 @@ class LeagueDataCache {
    * Determine if league is domestic or international
    */
   private determineLeagueType(name: string, country: string): 'domestic' | 'international' {
+    // Ensure name and country are strings with safe defaults
+    const safeName = (name || '').toString().toUpperCase();
+    const safeCountry = (country || '').toString().toLowerCase();
+    
     const internationalKeywords = ['UEFA', 'Champions', 'Europa', 'Conference', 'World', 'International'];
     const isInternational = internationalKeywords.some(keyword => 
-      name.toUpperCase().includes(keyword.toUpperCase())
-    ) || country.toLowerCase() === 'europe';
+      keyword && safeName.includes(keyword.toUpperCase())
+    ) || safeCountry === 'europe';
     
     return isInternational ? 'international' : 'domestic';
   }
