@@ -1433,4 +1433,52 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Away team logo - closer to center */}
                                 <div className="team-logo-container">
-                                  {
+                                  <LazyImage
+                                    src={
+                                      match.teams.away.id
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.away.name}
+                                    title={match.teams.away.name}
+                                    className={`team-logo ${
+                                      isNationalTeam(
+                                        match.teams.away,
+                                        leagueData.league
+                                      )
+                                        ? "national-team"
+                                        : ""
+                                    }`}
+                                    style={{ 
+                                      backgroundColor: "transparent",
+                                      background: "none",
+                                      backgroundImage: "none",
+                                      border: "none",
+                                      boxShadow: "none"
+                                    }}
+                                    fallbackSrc="/assets/fallback-logo.svg"
+                                  />
+                                </div>
+
+                                {/* Away Team Name - positioned further right */}
+                                <div className={`away-team-name ${
+                                  match.goals.home !== null && match.goals.away !== null && 
+                                  match.goals.away > match.goals.home ? 'winner' : ''
+                                }`}>
+                                  {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                                </div>
+                              </div>
+                            </div>
+                          </LazyMatchItem>
+                        ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }),
+      )}
+    </>
+  );
+};
+
+export default TodayPopularFootballLeaguesNew;
