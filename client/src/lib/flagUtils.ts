@@ -671,6 +671,18 @@ export async function getCountryFlagWithFallback(
 // Memory cache for flag URLs
 const flagCacheMem = new Map<string, string>();
 
+// Custom flag SVG mapping for countries we have created
+const customFlagSVGs: { [key: string]: string } = {
+  'Brazil': '/assets/flags/brazil-flag.svg',
+  'United States': '/assets/flags/usa-flag.svg',
+  'USA': '/assets/flags/usa-flag.svg',
+  'US': '/assets/flags/usa-flag.svg',
+  'Germany': '/assets/flags/germany-flag.svg',
+  'France': '/assets/flags/france-flag.svg',
+  'England': '/assets/flags/england-flag.svg',
+  'Spain': '/assets/flags/spain-flag.svg',
+};
+
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
   const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
   console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
@@ -711,8 +723,11 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
         result = '/assets/fallback-logo.svg';
         console.log(`❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`);
       } else {
-        // Special cases for international competitions
-        if (cleanCountry === 'World') {
+        // Check for custom SVG flags first
+        if (customFlagSVGs[cleanCountry]) {
+          result = customFlagSVGs[cleanCountry];
+          console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using custom SVG flag for ${cleanCountry}: ${result}`);
+        } else if (cleanCountry === 'World') {
           result = '/assets/world_flag_new.png';
           console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
         } else if (cleanCountry === 'Europe') {
