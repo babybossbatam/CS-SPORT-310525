@@ -184,7 +184,7 @@ const POPULAR_LEAGUES = [
 /**
  * Fetch and process featured match data from popular leagues
  */
-export const fetchFeatureMatchData = async (selectedDate: string): Promise<FeatureMatchData[]> => {
+export const fetchFeaturedMatchData = async (selectedDate: string): Promise<FeatureMatchData[]> => {
   try {
     // Fetch fixtures for the selected date
     const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
@@ -349,7 +349,7 @@ export const fetchFeatureMatchData = async (selectedDate: string): Promise<Featu
  * Get the top featured match for display
  */
 export const getTopFeatureMatch = async (selectedDate: string): Promise<FeatureMatchData | null> => {
-  const matches = await fetchFeatureMatchData(selectedDate);
+  const matches = await fetchFeaturedMatchData(selectedDate);
   return matches.length > 0 ? matches[0] : null;
 };
 
@@ -357,6 +357,6 @@ export const getTopFeatureMatch = async (selectedDate: string): Promise<FeatureM
  * Get multiple featured matches for carousel/slider
  */
 export const getFeaturedMatchesCarousel = async (selectedDate: string, limit: number = 6): Promise<FeatureMatchData[]> => {
-  const matches = await fetchFeatureMatchData(selectedDate);
+  const matches = await fetchFeaturedMatchData(selectedDate);
   return matches.slice(0, limit);
 };
