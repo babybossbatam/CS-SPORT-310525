@@ -1567,7 +1567,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                       if (hasValidScores) {
                                         return (
-                                          <div className="score-status-horizontal">
+                                          <div className="relative">
                                             <div className="match-score-display">
                                               <span className="score-number">
                                                 {homeScore}
@@ -1579,7 +1579,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                 {awayScore}
                                               </span>
                                             </div>
-                                            <div className="match-status-label status-ended inline">
+                                            <div className="match-status-label status-ended">
                                               {status === "FT"
                                                 ? "Ended"
                                                 : status === "AET"
