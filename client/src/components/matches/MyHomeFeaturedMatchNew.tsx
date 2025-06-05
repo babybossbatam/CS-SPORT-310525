@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trophy, ChevronLeft, ChevronRight, BarChart3, Users, Clock, Grid3X3 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isValid } from 'date-fns';
-import MyColoredBar from './MyColoredBar';
 import { fetchFeaturedMatchData } from '@/lib/MyFeatureMatchFetchDataNew';
 
 interface MyHomeFeaturedMatchNewProps {
@@ -61,10 +61,29 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get current match
   const currentMatch = matches[currentIndex];
 
-  // Dynamic team colors
-  const getTeamColor = (teamId: number) => {
-    const colors = ['#6f7c93', '#8b0000', '#1d3557', '#2a9d8f', '#e63946'];
-    return colors[teamId % colors.length];
+  // Get country flag URL from team logo URL
+  const getCountryFlag = (teamLogo: string, teamName: string) => {
+    // Simple country mapping based on team names
+    const countryMap = {
+      'Germany': 'https://flagcdn.com/w40/de.png',
+      'Portugal': 'https://flagcdn.com/w40/pt.png',
+      'Spain': 'https://flagcdn.com/w40/es.png',
+      'France': 'https://flagcdn.com/w40/fr.png',
+      'Italy': 'https://flagcdn.com/w40/it.png',
+      'England': 'https://flagcdn.com/w40/gb-eng.png',
+      'Brazil': 'https://flagcdn.com/w40/br.png',
+      'Argentina': 'https://flagcdn.com/w40/ar.png',
+    };
+
+    // Try to determine country from team name
+    for (const [country, flag] of Object.entries(countryMap)) {
+      if (teamName.toLowerCase().includes(country.toLowerCase())) {
+        return flag;
+      }
+    }
+
+    // Default fallback
+    return 'https://flagcdn.com/w40/xx.png';
   };
 
   // Loading state
@@ -104,7 +123,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }
 
   return (
-    <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
+    <Card className="bg-white rounded-lg shadow-lg mb-8 overflow-hidden relative">
       <Badge 
         variant="secondary" 
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
@@ -112,46 +131,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         Featured Match
       </Badge>
 
-      {/* Card Header with League Info */}
-      <div className="bg-gray-50 border-b px-4 py-3">
-        <div className="flex items-center justify-center gap-2">
-          {currentMatch?.league?.logo ? (
-            <img
-              src={currentMatch.league.logo}
-              alt={currentMatch.league.name}
-              className="w-6 h-6 object-contain"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/fallback-logo.svg";
-              }}
-            />
-          ) : (
-            <Trophy className="w-6 h-6 text-amber-500" />
-          )}
-          <span className="text-sm font-semibold text-gray-800">
-            {currentMatch?.league?.name || "League Name"}
-          </span>
-        </div>
-      </div>
-
+      {/* Navigation arrows */}
       {matches.length > 1 && (
         <>
           <button
             onClick={handlePrevious}
-            className="absolute left-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-r-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-900 p-2 rounded-full z-30 shadow-md transition-all duration-200"
           >
-            <ChevronLeft className="h-3 w-3" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
 
           <button
             onClick={handleNext}
-            className="absolute right-0 top-[45%] h-[14%] -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black px-1 rounded-l-full z-30 flex items-center border border-gray-200 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-105"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-900 p-2 rounded-full z-30 shadow-md transition-all duration-200"
           >
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-4 w-4" />
           </button>
         </>
       )}
 
-      <CardContent className="p-4 overflow-hidden">
+      <CardContent className="p-0 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
@@ -160,65 +159,162 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             exit={{ x: -100, opacity: 0 }}
             transition={{ type: "tween", duration: 0.2 }}
           >
-            {/* Main match display - Colored Bar */}
-            <div className="relative">
-              {/* Match Status - positioned above VS */}
-              <div className="absolute top-[calc(50%-40px)] left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-200">
-                <span className="text-xs font-medium text-gray-700">
-                  {currentMatch.score.status}
+            {/* League Header */}
+            <div className="bg-gray-50 border-b px-4 py-3">
+              <div className="flex items-center justify-center gap-2">
+                {currentMatch?.league?.logo ? (
+                  <img
+                    src={currentMatch.league.logo}
+                    alt={currentMatch.league.name}
+                    className="w-5 h-5 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                    }}
+                  />
+                ) : (
+                  <Trophy className="w-5 h-5 text-amber-500" />
+                )}
+                <span className="text-sm font-semibold text-gray-800">
+                  {currentMatch?.league?.name || "League Name"}
                 </span>
               </div>
-              
-              <MyColoredBar
-                homeTeam={currentMatch.homeTeam}
-                awayTeam={currentMatch.awayTeam}
-                homeScore={currentMatch.score.home}
-                awayScore={currentMatch.score.away}
-                status={currentMatch.score.status}
-                onClick={handleMatchClick}
-                getTeamColor={getTeamColor}
-                className="mb-8"
-              />
             </div>
 
-            {/* Venue Information */}
-            <div
-              className="text-center text-xs text-black font-medium mt-4"
-              style={{
-                fontSize: "0.875rem",
-                whiteSpace: "nowrap",
-                fontFamily: "'Inter', system-ui, sans-serif",
-              }}
-            >
-              {(() => {
-                try {
-                  const matchDate = parseISO(currentMatch.fixture.date);
-                  const formattedDate = format(matchDate, "EEEE, do MMM");
-                  const timeOnly = format(matchDate, "HH:mm");
+            {/* Match Status */}
+            <div className="text-center py-2 bg-gray-100">
+              <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                {currentMatch.score.status}
+              </span>
+            </div>
 
-                  return (
-                    <>
-                      {formattedDate} | {timeOnly}
-                      {currentMatch.fixture.venue
-                        ? ` | ${currentMatch.fixture.venue}`
-                        : ""}
-                    </>
-                  );
-                } catch (e) {
-                  return currentMatch.fixture.venue?.name || "";
+            {/* Score Section */}
+            <div className="text-center py-4 bg-white">
+              <div className="text-4xl font-bold text-gray-900 mb-2">
+                {currentMatch.score.home !== null && currentMatch.score.away !== null 
+                  ? `${currentMatch.score.home} - ${currentMatch.score.away}`
+                  : 'VS'
                 }
-              })()}
+              </div>
+            </div>
+
+            {/* Teams Section */}
+            <div className="relative bg-gradient-to-r from-gray-800 via-red-600 to-gray-800 py-8">
+              {/* Home Team */}
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
+                <div className="relative ml-4">
+                  {/* Country Flag */}
+                  <img
+                    src={getCountryFlag(currentMatch.homeTeam.logo, currentMatch.homeTeam.name)}
+                    alt="Country"
+                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://flagcdn.com/w40/xx.png";
+                    }}
+                  />
+                </div>
+                <div className="ml-4 text-white">
+                  <div className="font-bold text-lg uppercase tracking-wide">
+                    {currentMatch.homeTeam.name.toUpperCase()}
+                  </div>
+                </div>
+              </div>
+
+              {/* VS in center */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="bg-white text-red-600 font-bold text-xl px-4 py-2 rounded transform -skew-x-12">
+                  VS
+                </div>
+              </div>
+
+              {/* Away Team */}
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
+                <div className="mr-4 text-white text-right">
+                  <div className="font-bold text-lg uppercase tracking-wide">
+                    {currentMatch.awayTeam.name.toUpperCase()}
+                  </div>
+                </div>
+                <div className="relative mr-4">
+                  {/* Country Flag */}
+                  <img
+                    src={getCountryFlag(currentMatch.awayTeam.logo, currentMatch.awayTeam.name)}
+                    alt="Country"
+                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://flagcdn.com/w40/xx.png";
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Match Details */}
+            <div className="text-center py-3 bg-gray-50 border-b">
+              <div className="text-sm text-gray-700 font-medium">
+                {(() => {
+                  try {
+                    const matchDate = parseISO(currentMatch.fixture.date);
+                    const formattedDate = format(matchDate, "EEEE, do MMM");
+                    const timeOnly = format(matchDate, "HH:mm");
+
+                    return (
+                      <>
+                        {formattedDate} | {timeOnly}
+                        {currentMatch.fixture.venue
+                          ? ` | ${currentMatch.fixture.venue}`
+                          : ""}
+                      </>
+                    );
+                  } catch (e) {
+                    return currentMatch.fixture.venue?.name || "";
+                  }
+                })()}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-4 gap-0 bg-white">
+              <button
+                onClick={handleMatchClick}
+                className="flex flex-col items-center py-4 hover:bg-gray-50 transition-colors border-r border-gray-200"
+              >
+                <BarChart3 className="h-5 w-5 text-blue-600 mb-1" />
+                <span className="text-xs font-medium text-gray-700">Match Page</span>
+              </button>
+              
+              <button
+                onClick={handleMatchClick}
+                className="flex flex-col items-center py-4 hover:bg-gray-50 transition-colors border-r border-gray-200"
+              >
+                <Users className="h-5 w-5 text-blue-600 mb-1" />
+                <span className="text-xs font-medium text-gray-700">Lineups</span>
+              </button>
+              
+              <button
+                onClick={handleMatchClick}
+                className="flex flex-col items-center py-4 hover:bg-gray-50 transition-colors border-r border-gray-200"
+              >
+                <Clock className="h-5 w-5 text-blue-600 mb-1" />
+                <span className="text-xs font-medium text-gray-700">Stats</span>
+              </button>
+              
+              <button
+                onClick={handleMatchClick}
+                className="flex flex-col items-center py-4 hover:bg-gray-50 transition-colors"
+              >
+                <Grid3X3 className="h-5 w-5 text-blue-600 mb-1" />
+                <span className="text-xs font-medium text-gray-700">Bracket</span>
+              </button>
             </div>
 
             {/* Indicator dots for multiple matches */}
             {matches.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
+              <div className="flex justify-center gap-2 py-3 bg-gray-50">
                 {matches.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
                     className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                      index === currentIndex ? 'bg-indigo-600' : 'bg-gray-300'
+                      index === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
