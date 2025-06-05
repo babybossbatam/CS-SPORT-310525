@@ -98,11 +98,33 @@ function App() {
     };
   }, []);
 
+  // Temporary function for manual flag recreation
+  const handleFlagRecreation = async () => {
+    try {
+      const { recreateAllNationalTeamFlags } = await import('./lib/flagRecreation');
+      const flags = await recreateAllNationalTeamFlags();
+      console.log('🎨 Manually recreated flags:', Object.keys(flags).length);
+      alert(`Successfully recreated ${Object.keys(flags).length} flags!`);
+    } catch (error) {
+      console.error('Failed to recreate flags:', error);
+      alert('Failed to recreate flags. Check console for details.');
+    }
+  };
+
   return (
     <TooltipProvider>
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
-        <Router />
+        <div className="space-y-6">
+          {/* Temporary flag recreation button - remove after testing */}
+          <button 
+            onClick={handleFlagRecreation}
+            className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-600 z-50"
+          >
+            🎨 Recreate Flags
+          </button>
+          <Router />
+        </div>
       </main>
     </TooltipProvider>
   );
