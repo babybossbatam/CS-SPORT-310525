@@ -53,7 +53,6 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           >
             {homeTeam.name}
           </div>
-        </div>
           <div 
             className="absolute left-[-32px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
             style={{
@@ -118,7 +117,6 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           >
             {awayTeam.name}
           </div>
-        </div>
           <div
             className="absolute right-[41px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
             style={{
