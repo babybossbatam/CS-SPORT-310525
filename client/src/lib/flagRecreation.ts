@@ -327,7 +327,7 @@ export async function recreateAllNationalTeamFlags(): Promise<{ [country: string
         // Check if we already have a custom flag
         if (customFlagMapping[country]) {
           recreatedFlags[country] = customFlagMapping[country];
-          console.log(`✅ Using existing custom flag for ${country}`);
+          console.log(`✅ Using existing custom flag for ${country}: ${customFlagMapping[country]}`);
           return;
         }
         
@@ -353,7 +353,34 @@ export async function recreateAllNationalTeamFlags(): Promise<{ [country: string
     }
   }
   
-  console.log(`🏁 Completed flag recreation for ${Object.keys(recreatedFlags).length} countries`);
+  // Calculate statistics
+  const stats = {
+    totalProcessed: Object.keys(recreatedFlags).length,
+    newlyGenerated: 0,
+    existingCustom: 0,
+    apiFlags: 0
+  };
+
+  Object.entries(recreatedFlags).forEach(([country, flagPath]) => {
+    if (flagPath.startsWith('/assets/flags/') && customFlagMapping[country]) {
+      stats.existingCustom++;
+    } else if (flagPath.startsWith('/assets/flags/') && !customFlagMapping[country]) {
+      stats.newlyGenerated++;
+    } else {
+      stats.apiFlags++;
+    }
+  });
+
+  console.log(`🏁 Flag Recreation Summary:`);
+  console.log(`   📊 Total countries processed: ${stats.totalProcessed}`);
+  console.log(`   🆕 Newly generated SVG flags: ${stats.newlyGenerated}`);
+  console.log(`   ✅ Existing custom flags used: ${stats.existingCustom}`);
+  console.log(`   🌐 API flags retained: ${stats.apiFlags}`);
+  
+  // Show what's in session storage
+  const savedFlags = JSON.parse(sessionStorage.getItem('generatedFlags') || '{}');
+  console.log(`   💾 Flags saved to session storage: ${Object.keys(savedFlags).length}`);
+  
   return recreatedFlags;
 }
 
