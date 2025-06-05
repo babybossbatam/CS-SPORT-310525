@@ -946,7 +946,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
               if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
               if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
 
-              //              // Prioritize leagues that are popular for this specific country
+              // Prioritize leagues that are popular for this specific country
               if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
               if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
 
@@ -954,7 +954,29 @@ const TodayPopularFootballLeaguesNew: React.FC<
               if (a.isPopular && !b.isPopular) return -1;
               if (!a.isPopular && b.isPopular) return 1;
 
-              // Finally alphabetical
+              // Custom sorting for World leagues
+              if (countryData.country === "World") {
+                const getWorldLeaguePriority = (leagueName: string) => {
+                  const name = leagueName.toLowerCase();
+                  if (name.includes('uefa nations league') || name.includes('uefa national league')) return 1;
+                  if (name.includes('friendlies')) return 2;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) return 4;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) return 5;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('south america')) return 6;
+                  if (name.includes('tournoi maurice revello')) return 7;
+                  return 999; // Other leagues go to bottom
+                };
+
+                const aPriority = getWorldLeaguePriority(a.league.name || '');
+                const bPriority = getWorldLeaguePriority(b.league.name || '');
+
+                if (aPriority !== bPriority) {
+                  return aPriority - bPriority;
+                }
+              }
+
+              // For non-World countries, use alphabetical sorting
               return a.league.name.localeCompare(b.league.name);
             })
             .map((leagueData: any, leagueIndex: number) => {
