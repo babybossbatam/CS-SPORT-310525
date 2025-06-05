@@ -1577,7 +1577,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   <LazyImage
                                     src={
                                       match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=40`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=44`
                                         : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.away.name}
