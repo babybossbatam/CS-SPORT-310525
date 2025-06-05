@@ -896,42 +896,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Get header title 
   const getHeaderTitle = () => {
-    const isDateStringToday = (date: string) => {
-      const today = format(new Date(), 'yyyy-MM-dd');
-      return date === today;
-    };
-
-    const isDateStringTomorrow = (date: string) => {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      return date === format(tomorrow, 'yyyy-MM-dd');
-    };
-
-    const isDateStringYesterday = (date: string) => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      return date === format(yesterday, 'yyyy-MM-dd');
-    };
-
-    if (isDateStringToday(selectedDate)) {
-      return "Today's Popular Football Leagues";
-    } else if (isDateStringYesterday(selectedDate)) {
-      return "Yesterday's Popular Football Results";
-    } else if (isDateStringTomorrow(selectedDate)) {
-      return "Tomorrow's Popular Football Matches";
-    } else {
-      // Custom date - format it nicely
-      try {
-        const customDate = parseISO(selectedDate);
-        if (isValid(customDate)) {
-          return `${format(customDate, 'EEEE, MMMM do')} Popular Football Matches`;
-        } else {
-          return "Popular Football Matches";
-        }
-      } catch {
-        return "Popular Football Matches";
-      }
-    }
+    return "Popular Football Leagues";
   };
 
   // Format the time for display
