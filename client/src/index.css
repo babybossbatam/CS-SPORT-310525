@@ -1,4 +1,4 @@
-/* Import glossy round styles */
+/* Import glossy round styles first */
 @import './styles/GlossyRoundStyle.css';
 
 @tailwind base;
