@@ -1,0 +1,339 @@
+isFriendlies: league.name.toLowerCase().includes("friendlies"),
+        };
+      }
+
+      // Validate team data before adding
+      if (
+        fixture.teams.home &&
+        fixture.teams.away &&
+        fixture.teams.home.name &&
+        fixture.teams.away.name
+      ) {
+        acc[country].leagues[leagueId].matches.push({
+          ...fixture,
+          teams: {
+            home: {
+              ...fixture.teams.home,
+              logo: fixture.teams.home.logo || "/assets/fallback-logo.svg",
+            },
+            away: {
+              ...fixture.teams.away,
+              logo: fixture.teams.away.logo || "/assets/fallback-logo.svg",
+            },
+          },
+        });
+      }
+
+      return acc;
+    },
+    {},
+  );
+
+  // Filter to show only popular countries with badge system
+  const filteredCountries = Object.values(fixturesByCountry).filter(
+    (countryData: any) => {
+      return countryData.hasPopularLeague;
+    },
+  );
+
+  // Sort countries by the POPULAR_COUNTRIES_ORDER
+  const sortedCountries = useMemo(() => {
+    return filteredCountries.sort((a: any, b: any) => {
+      const getPopularCountryIndex = (country: string) => {
+        if (!country) return 999;
+        const index = POPULAR_COUNTRIES_ORDER.findIndex(
+          (pc) =>
+            safeSubstring(country, 0).toLowerCase() ===
+            safeSubstring(pc, 0).toLowerCase(),
+        );
+        return index === -1 ? 999 : index;
+      };
+
+      const aPopularIndex = getPopularCountryIndex(a.country);
+      const bPopularIndex = getPopularCountryIndex(b.country);
+
+      const aIsPopularCountry = aPopularIndex !== 999;
+      const bIsPopularCountry = bPopularIndex !== 999;
+
+      // Check if countries are World or Europe (International competitions)
+      const aIsWorldOrEurope = a.country === "World" || a.country === "Europe";
+      const bIsWorldOrEurope = b.country === "World" || b.country === "Europe";
+
+      // Priority order: Popular countries with badge leagues first
+      if (
+        aIsPopularCountry &&
+        a.hasPopularLeague &&
+        (!bIsPopularCountry || !b.hasPopularLeague)
+      )
+        return -1;
+      if (
+        bIsPopularCountry &&
+        b.hasPopularLeague &&
+        (!aIsPopularCountry || !a.hasPopularLeague)
+      )
+        return 1;
+
+      // Both are popular countries with badge leagues - sort by priority order
+      if (
+        aIsPopularCountry &&
+        a.hasPopularLeague &&
+        bIsPopularCountry &&
+        b.hasPopularLeague
+      ) {
+        return aPopularIndex - bPopularIndex;
+      }
+
+      // Default to alphabetical sorting for other cases
+      const countryA = a.country || "";
+      const countryB = b.country || "";
+      return countryA.localeCompare(countryB);
+    });
+  }, [filteredCountries]);
+
+  // Time filtering is now just for additional time-based sorting when active
+  const timeFilteredCountries = useMemo(() => {
+    // Smart filtering is already applied in filteredFixtures, so just return sorted countries
+    // timeFilterActive now only affects sorting/prioritization, not inclusion/exclusion
+    return sortedCountries;
+  }, [sortedCountries]);
+
+  // Apply live filters
+  const liveFilteredCountries = useMemo(() => {
+    if (!liveFilterActive) return timeFilteredCountries;
+
+    return timeFilteredCountries
+      .map((countryData) => {
+        const updatedLeagues = Object.entries(countryData.leagues).reduce(
+          (acc: any, [leagueId, leagueData]: any) => {
+            const updatedMatches = leagueData.matches.filter((match: any) => {
+              return (
+                match.fixture.status.short === "LIV" ||
+                match.fixture.status.short === "HT"
+              );
+            });
+
+            if (updatedMatches.length > 0) {
+              acc[leagueId] = {
+                ...leagueData,
+                matches: updatedMatches,
+              };
+            }
+            return acc;
+          },
+          {},
+        );
+
+        return {
+          ...countryData,
+          leagues: updatedLeagues,
+        };
+      })
+      .filter((countryData) => Object.keys(countryData.leagues).length > 0);
+  }, [timeFilteredCountries, liveFilterActive]);
+
+  // Apply top 20 filters (by default)
+  const top20FilteredCountries = useMemo(() => {
+    if (!showTop20) return liveFilteredCountries;
+    return liveFilteredCountries.slice(0, 20);
+  }, [liveFilteredCountries, showTop20]);
+
+  const toggleCountry = useCallback((country: string) => {
+    setExpandedCountries((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
+      }
+      return newExpanded;
+    });
+  }, []);
+
+  // Favorite team functionality
+  const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
+    try {
+      const isFavorite =
+        favoriteTeams?.some((team) => team.id === teamId) || false;
+
+      if (isFavorite) {
+        dispatch(userActions.removeFavoriteTeam(teamId));
+        toast({
+          title: "Removed from favorites",
+          description: `${teamName} has been removed from your favorites.`,
+        });
+      } else {
+        dispatch(userActions.addFavoriteTeam({ id: teamId, name: teamName }));
+        toast({
+          title: "Added to favorites",
+          description: `${teamName} has been added to your favorites.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling favorite team:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorites. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isTeamFavorite = (teamId: number) => {
+    return favoriteTeams?.some((team) => team.id === teamId) || false;
+  };
+
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches((prev) => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
+  };
+
+  // Start with all countries collapsed by default
+  useEffect(() => {
+    // Reset to collapsed state when selected date changes
+    setExpandedCountries(new Set());
+  }, [selectedDate]);
+
+  // Simple date comparison handled by SimpleDateFilter
+
+
+  if (isLoading || isFetching) {
+    return (
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-3 w-40" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!filteredFixtures.length) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No matches available for this date</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Simple date display
+  const currentDate = SimpleDateFilter.getCurrentDate();
+
+  // Get header title 
+  const getHeaderTitle = () => {
+    return "Popular Football Leagues";
+  };
+
+  // Format the time for display
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    try {
+      if (!dateString) return "--:--";
+      const date = new Date(dateString);
+      return format(date, "HH:mm");
+    } catch (error) {
+      console.error("Error formatting match time:", error);
+      return "--:--";
+    }
+  };
+
+  const addFavoriteTeam = (team: any) => {
+    dispatch(userActions.addFavoriteTeam(team));
+    toast({
+      title: "Added to favorites",
+      description: `${team.name} has been added to your favorites.`,
+    });
+  };
+
+  const removeFavoriteTeam = (teamId: number) => {
+    dispatch(userActions.removeFavoriteTeam(teamId));
+    toast({
+      title: "Removed from favorites",
+      description: `Team has been removed from your favorites.`,
+    });
+  };
+
+  return (
+    <>
+      {/* Header Section */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        {getHeaderTitle()}
+      </CardHeader>
+      {/* Create individual league cards from all countries */}
+      {top20FilteredCountries.flatMap(
+        (countryData: any, countryIndex: number) =>
+          Object.values(countryData.leagues)
+            .sort((a: any, b: any) => {
+              // Check for UEFA Nations League - Women first (lowest priority)
+              const aIsWomensNationsLeague = a.league.name?.toLowerCase().includes('uefa nations league') && a.league.name?.toLowerCase().includes('women');
+              const bIsWomensNationsLeague = b.league.name?.toLowerCase().includes('uefa nations league') && b.league.name?.toLowerCase().includes('women');
+
+              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
+              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
+              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
+
+              // Prioritize leagues that are popular for this specific country
+              if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
+              if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
+
+              // Then globally popular leagues
+              if (a.isPopular && !b.isPopular) return -1;
+              if (!a.isPopular && b.isPopular) return 1;
+
+              // Custom sorting for World leagues
+              if (countryData.country === "World") {
+                const getWorldLeaguePriority = (leagueData: any) => {
+                  const name = (leagueData.league?.name || '').toLowerCase();
+                  // Check if it's marked as friendlies or contains friendlies in name
+                  const isFriendlies = leagueData.isFriendlies || name.includes('friendlies');
+                  
+                  if (name.includes('uefa nations league')) return 1;
+                  if (isFriendlies) return 2;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) return 4;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) return 5;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('south america')) return 6;
+                  if (name.includes('tournoi maurice revello')) return 7;
+                  return 999; // Other leagues go to bottom
+                };
+
+                const aPriority = getWorldLeaguePriority(a);
+                const bPriority = getWorldLeaguePriority(b);
+
+                if (aPriority !== bPriority) {
+                  return aPriority - bPriority;
+                }
+                
+                // If same priority, sort alphabetically by league name
+                const aName = a.league?.name || '';
+                const bName = b.league?.name || '';
+                return aName.localeCompare(bName);
+              }
