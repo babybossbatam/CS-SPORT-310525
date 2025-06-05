@@ -1036,7 +1036,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           timeFilterActive && showTop20 ? 20 : undefined,
                         )
 <replit_final_file>
-```                        .sort((a: any, b: any) => {
+                        .sort((a: any, b: any) => {
                           // When time filter is active, prioritize by time more strictly
                           if (timeFilterActive) {
                             const aDate = parseISO(a.fixture.date);
@@ -1073,8 +1073,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                           const aTime = aDate.getTime();
                           const bTime = bDate.getTime();
-
-                          // Define status categories
+  // Define status categories
                           const aLive = [
                             "LIVE",
                             "1H",
