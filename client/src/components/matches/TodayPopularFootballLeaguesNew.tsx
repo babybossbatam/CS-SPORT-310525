@@ -30,7 +30,7 @@ import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
-import { isNationalTeam, getNationalTeamFlag } from "../../lib/teamLogoSources";
+import { isNationalTeam, getNationalTeamFlag, getEnhancedTeamLogo } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
@@ -110,6 +110,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [useCustomStyling, setUseCustomStyling] = useState<boolean>(false);
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -1036,8 +1037,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
   return (
     <>
       {/* Header Section */}
-      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        {getHeaderTitle()}
+      <CardHeader className="flex flex-row items-center justify-between p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        <span>{getHeaderTitle()}</span>
+        <button
+          onClick={() => setUseCustomStyling(!useCustomStyling)}
+          className={`px-3 py-1 text-xs rounded-full transition-colors ${
+            useCustomStyling 
+              ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+              : 'bg-gray-100 text-gray-600 border border-gray-300'
+          }`}
+          title="Toggle custom logo styling"
+        >
+          {useCustomStyling ? 'Custom Style' : 'Original'}
+        </button>
       </CardHeader>
       {/* Create individual league cards from all countries */}
       {top20FilteredCountries.flatMap(
@@ -1479,6 +1491,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div className="team-logo-container">
                                   <LazyImage
                                     src={(() => {
+                                      if (useCustomStyling) {
+                                        const originalLogo = match.teams.home.id
+                                          ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                          : "/assets/fallback-logo.svg";
+                                        return getEnhancedTeamLogo(match.teams.home, leagueData.league, true, 36);
+                                      }
+                                      
                                       const customFlag = getNationalTeamFlag(match.teams.home.name, leagueData.league);
                                       if (customFlag) {
                                         return customFlag;
@@ -1702,6 +1721,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div className="team-logo-container">
                                   <LazyImage
                                     src={(() => {
+                                      if (useCustomStyling) {
+                                        const originalLogo = match.teams.away.id
+                                          ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                          : "/assets/fallback-logo.svg";
+                                        return getEnhancedTeamLogo(match.teams.away, leagueData.league, true, 36);
+                                      }
+                                      
                                       const customFlag = getNationalTeamFlag(match.teams.away.name, leagueData.league);
                                       if (customFlag) {
                                         return customFlag;
