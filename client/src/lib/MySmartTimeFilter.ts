@@ -1,3 +1,4 @@
+
 import { parseISO, isValid, format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 
 export interface SmartTimeResult {
@@ -10,7 +11,7 @@ export interface SmartTimeResult {
 }
 
 export class MySmartTimeFilter {
-
+  
   /**
    * Check if a fixture should be labeled based on match status and selected date
    */
@@ -19,11 +20,11 @@ export class MySmartTimeFilter {
     matchStatus: string, 
     selectedDateTime?: string
   ): SmartTimeResult {
-
+    
     try {
       const fixtureDate = parseISO(fixtureDateTime);
       const selectedDate = selectedDateTime ? parseISO(selectedDateTime) : new Date();
-
+      
       if (!isValid(fixtureDate) || !isValid(selectedDate)) {
         return {
           label: 'custom',
@@ -38,7 +39,7 @@ export class MySmartTimeFilter {
       // Get date strings for comparison (without time)
       const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
       const selectedDateString = format(selectedDate, 'yyyy-MM-dd');
-
+      
       // Get actual today, tomorrow, yesterday dates
       const today = new Date();
       const todayString = format(today, 'yyyy-MM-dd');
@@ -59,36 +60,9 @@ export class MySmartTimeFilter {
       const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
       const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
-      // Smart status converter implementation start
-      let convertedStatus = matchStatus;
-      if (notStartedStatuses.includes(matchStatus)) {
-          const now = new Date();
-          
-          // Only convert to FT if the fixture is actually in the past AND on a past date
-          // Don't convert future dates even if the time has passed today
-          const fixtureDateOnly = format(fixtureDate, 'yyyy-MM-dd');
-          const todayDateOnly = format(now, 'yyyy-MM-dd');
-          
-          // Only convert if the fixture date is actually before today's date
-          if (fixtureDateOnly < todayDateOnly) {
-              convertedStatus = 'FT';
-              console.log(`🔄 [SMART STATUS] Converted NS to FT: ${fixtureDateOnly} < ${todayDateOnly}`);
-          }
-          // For same day fixtures, only convert if time has passed AND we're viewing today
-          else if (fixtureDateOnly === todayDateOnly && fixtureDate < now && isSelectedToday) {
-              convertedStatus = 'FT';
-              console.log(`🔄 [SMART STATUS] Converted NS to FT (same day): ${format(fixtureDate, 'HH:mm')} < ${format(now, 'HH:mm')}`);
-          }
-          // Keep NS status for future dates regardless of time
-          else {
-              console.log(`✅ [SMART STATUS] Keeping NS status: fixture=${fixtureDateOnly}, today=${todayDateOnly}, selected=${selectedDateString}`);
-          }
-      }
-      // Smart status converter implementation end
-
       // TOMORROW DATE LOGIC
       if (isSelectedTomorrow) {
-        if (notStartedStatuses.includes(convertedStatus)) {
+        if (notStartedStatuses.includes(matchStatus)) {
           // 1. NS status: show only if fixture date matches selected date (tomorrow)
           if (fixtureDateString === selectedDateString) {
             return {
@@ -128,52 +102,25 @@ export class MySmartTimeFilter {
         // Define today's time range (00:01:00 - 23:59:59)
         const todayStart = startOfDay(selectedDate);
         todayStart.setHours(0, 1, 0, 0); // 00:01:00
-
+        
         const todayEnd = endOfDay(selectedDate);
         todayEnd.setHours(23, 59, 59, 999); // 23:59:59
-
+        
         const isWithinTodayRange = isWithinInterval(fixtureDate, {
           start: todayStart,
           end: todayEnd
         });
 
-        // Get current time for comparison
-        const now = new Date();
-
-        if (notStartedStatuses.includes(convertedStatus)) {
+        if (notStartedStatuses.includes(matchStatus)) {
           if (isWithinTodayRange) {
-            // For NS matches, if current time has passed fixture time, move to tomorrow
-            if (fixtureDate < now) {
-              return {
-                label: 'custom',
-                reason: `NS match time has passed (${format(fixtureDate, 'HH:mm:ss')} < ${format(now, 'HH:mm:ss')}) - should be moved to tomorrow`,
-                isWithinTimeRange: false,
-                matchStatus,
-                fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-                selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-              };
-            }
-
-            // For NS matches on today's date that haven't passed yet
-            if (fixtureDateString === selectedDateString) {
-              return {
-                label: 'today',
-                reason: `NS match within today's time range and hasn't started yet (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
-                isWithinTimeRange: true,
-                matchStatus,
-                fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-                selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-              };
-            } else {
-              return {
-                label: 'custom',
-                reason: `NS match within today's time range but wrong date (${fixtureDateString} ≠ ${selectedDateString})`,
-                isWithinTimeRange: false,
-                matchStatus,
-                fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-                selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-              };
-            }
+            return {
+              label: 'today',
+              reason: `NS match within today's time range (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
+              isWithinTimeRange: true,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
           } else {
             return {
               label: 'custom',
@@ -205,8 +152,8 @@ export class MySmartTimeFilter {
 
       // CUSTOM DATE LOGIC (for dates that are not today/tomorrow/yesterday)
       if (!isSelectedToday && !isSelectedTomorrow && !isSelectedYesterday) {
-
-        // For NS (Not Started) matches on custom dates - use original status, not converted
+        
+        // For NS (Not Started) matches on custom dates
         if (notStartedStatuses.includes(matchStatus)) {
           if (fixtureDateString === selectedDateString) {
             return {
@@ -307,7 +254,7 @@ export class MySmartTimeFilter {
         isWithinTimeRange: false,
         matchStatus,
         fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-        selectedTime: selectedDateTime || new Date().toISOString()
+        selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
       };
 
     } catch (error) {
@@ -332,7 +279,7 @@ export class MySmartTimeFilter {
     try {
       const fixtureDate = parseISO(fixtureDateTime);
       const referenceDate = referenceDateTime ? parseISO(referenceDateTime) : new Date();
-
+      
       if (!isValid(fixtureDate) || !isValid(referenceDate)) {
         return false;
       }
@@ -340,10 +287,10 @@ export class MySmartTimeFilter {
       // Define today's time range (00:01:00 - 23:59:59)
       const todayStart = startOfDay(referenceDate);
       todayStart.setHours(0, 1, 0, 0);
-
+      
       const todayEnd = endOfDay(referenceDate);
       todayEnd.setHours(23, 59, 59, 999);
-
+      
       return isWithinInterval(fixtureDate, {
         start: todayStart,
         end: todayEnd
@@ -396,7 +343,7 @@ export class MySmartTimeFilter {
 
       if (smartResult.label === 'today') {
         todayFixtures.push(fixture);
-
+        
         // Update status breakdown
         const status = fixture.fixture.status.short;
         if (['NS', 'TBD', 'PST'].includes(status)) {
@@ -419,7 +366,7 @@ export class MySmartTimeFilter {
         });
       } else if (smartResult.label === 'tomorrow') {
         tomorrowFixtures.push(fixture);
-
+        
         // Update status breakdown for tomorrow
         const status = fixture.fixture.status.short;
         if (['NS', 'TBD', 'PST'].includes(status)) {
@@ -436,7 +383,7 @@ export class MySmartTimeFilter {
         });
       } else {
         rejectedFixtures.push({ fixture, reason: smartResult.reason });
-
+        
         console.log(`❌ [MySmartTimeFilter] Fixture rejected:`, {
           fixtureId: fixture.fixture.id,
           status: smartResult.matchStatus,
@@ -469,7 +416,7 @@ export class MySmartTimeFilter {
     selectedDateTime?: string
   ): void {
     const result = this.getSmartTimeLabel(fixtureDateTime, matchStatus, selectedDateTime);
-
+    
     console.log(`🔍 [MySmartTimeFilter] Debug Info:`, {
       input: {
         fixtureDateTime,
