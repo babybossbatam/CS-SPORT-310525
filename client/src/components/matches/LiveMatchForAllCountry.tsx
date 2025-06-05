@@ -16,6 +16,7 @@ import {
   isFixtureOnClientDate,
   safeSubstring
 } from '@/lib/dateUtilsUpdated';
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "@/styles/MyLogoPositioning.css";
 
 interface LiveMatchForAllCountryProps {
@@ -127,8 +128,37 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   // Use only the live fixtures data
   const allFixtures = fixtures;
 
-  // Group live fixtures by country and league with comprehensive null checks
-  const fixturesByCountry = allFixtures.reduce((acc: any, fixture: any) => {
+  // Apply smart time filtering first
+  const filteredFixtures = fixtures.filter((fixture: any) => {
+    if (fixture.fixture.date && fixture.fixture.status?.short) {
+      const today = new Date();
+      const todayString = format(today, 'yyyy-MM-dd');
+
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        todayString + 'T12:00:00Z' // Use today as context for live matches
+      );
+
+      // For live matches, we want to show matches that are live or recently finished today
+      if (smartResult.label === 'today' && smartResult.isWithinTimeRange) {
+        return true;
+      }
+
+      console.log(`❌ [LIVE FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+        fixtureDate: fixture.fixture.date,
+        status: fixture.fixture.status.short,
+        reason: smartResult.reason,
+        label: smartResult.label,
+        isWithinTimeRange: smartResult.isWithinTimeRange
+      });
+      return false;
+    }
+    return true;
+  });
+
+  // Group fixtures by country
+  const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
     // Validate fixture structure
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
       return acc;

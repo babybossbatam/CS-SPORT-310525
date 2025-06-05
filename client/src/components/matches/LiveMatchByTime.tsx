@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { countryCodeMap } from "@/lib/flagUtils";
-import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
 
 interface LiveMatchByTimeProps {
@@ -115,9 +115,13 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
   // Collect all matches from all leagues and add league info with smart date labeling
   const allMatches = allFixtures.map((fixture: any) => {
-    const smartResult = MySmartDateLabeling.getSmartDateLabel(
+    const today = new Date();
+    const todayString = format(today, 'yyyy-MM-dd');
+    
+    const smartResult = MySmartTimeFilter.getSmartTimeLabel(
       fixture.fixture.date,
-      fixture.fixture.status.short
+      fixture.fixture.status.short,
+      todayString + 'T12:00:00Z' // Use today as context for live matches
     );
 
     return {
@@ -129,7 +133,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
       },
       smartDateLabel: smartResult.label,
       smartDateReason: smartResult.reason,
-      isActualDate: smartResult.isActualDate
+      isActualDate: smartResult.isWithinTimeRange
     };
   });
 

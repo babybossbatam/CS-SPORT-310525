@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +16,7 @@ import {
   isDateStringTomorrow,
   isFixtureOnClientDate 
 } from '@/lib/dateUtilsUpdated';
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
 
 interface TodayMatchByTimeProps {
@@ -279,25 +279,73 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     return finalFiltered;
   }, [fixtures, selectedDate]);
 
-  // Apply time filtering to the popular league filtered fixtures
+  // Apply smart time filtering based on selected date
   const timeFilteredMatches = useMemo(() => {
-    if (!timeFilterActive) return filteredFixtures;
+    if (!fixtures?.length) return [];
 
-    return filteredFixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date) return false;
+    console.log(`Processing ${fixtures.length} fixtures for time filtering with date: ${selectedDate}`);
 
-      try {
-        const fixtureDate = parseISO(fixture.fixture.date);
-        if (!isValid(fixtureDate)) return false;
+    const filtered = fixtures.filter((fixture) => {
+      // Apply smart time filtering with selected date context
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          selectedDate + 'T12:00:00Z' // Pass selected date as context
+        );
 
-        const now = new Date();
-        const hoursDifference = differenceInHours(fixtureDate, now);
-        return hoursDifference >= -2 && hoursDifference <= 12;
-      } catch (error) {
-        return false;
+        // Determine what type of date is selected
+        const today = new Date();
+        const todayString = format(today, 'yyyy-MM-dd');
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayString = format(yesterday, 'yyyy-MM-dd');
+
+        // Check if this match should be included based on the selected date
+        const shouldInclude = (() => {
+          if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
+          if (selectedDate === todayString && smartResult.label === 'today') return true;
+          if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
+
+          // Handle custom dates (dates that are not today/tomorrow/yesterday)
+          if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
+            if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
+          }
+
+          return false;
+        })();
+
+        if (!shouldInclude) {
+          console.log(`❌ [TIME FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange
+          });
+          return false;
+        }
+
+        console.log(`✅ [TIME FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+          fixtureDate: fixture.fixture.date,
+          status: fixture.fixture.status.short,
+          reason: smartResult.reason,
+          label: smartResult.label,
+          selectedDate,
+          isWithinTimeRange: smartResult.isWithinTimeRange
+        });
       }
+
+      return true;
     });
-  }, [filteredFixtures, timeFilterActive]);
+
+    console.log(`Filtered ${fixtures.length} fixtures to ${filtered.length} for time filtering`);
+    return filtered;
+  }, [fixtures, selectedDate]);
 
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
