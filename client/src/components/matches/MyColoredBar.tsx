@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface Team {
@@ -31,38 +32,58 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
 
   return (
     <div 
-      className={`flex items-center h-16 rounded-full overflow-hidden shadow-lg relative ${onClick ? 'cursor-pointer hover:shadow-xl' : ''} ${className}`}
+      className={`flex relative h-[53px] rounded-md transition-all duration-300 ease-in-out opacity-100 mt-[-8px] ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
-      style={{
-        background: `linear-gradient(to right, ${getTeamColor(homeTeam.id)} 0%, ${getTeamColor(homeTeam.id)} 45%, #8B0000 45%, #8B0000 55%, ${getTeamColor(awayTeam.id)} 55%, ${getTeamColor(awayTeam.id)} 100%)`
-      }}
     >
-      {/* Home Team Side */}
-      <div className="flex items-center h-full w-[45%] relative">
-        {/* Home Team Logo Circle */}
-        <div className="absolute left-2 w-12 h-12 bg-white rounded-full p-1 shadow-lg z-10">
-          <img
-            src={homeTeam.logo || '/assets/fallback-logo.svg'}
-            alt={homeTeam.name}
-            className="w-full h-full object-contain rounded-full"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              if (target.src !== '/assets/fallback-logo.svg') {
-                target.src = '/assets/fallback-logo.svg';
-              }
+      <div className="w-full h-full flex justify-between relative">
+        {/* Home team colored bar and logo */}
+        <div 
+          className="h-full w-[calc(50%-67px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative" 
+          style={{ 
+            background: getTeamColor(homeTeam.id),
+            transition: 'all 0.3s ease-in-out'
+          }}
+        >
+          <div 
+            className="absolute text-white font-medium text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px]"
+            style={{
+              top: "calc(50% - 8px)",
+              left: "40px"
             }}
-          />
+          >
+            {homeTeam.name}
+          </div>
+          <div 
+            className="absolute left-[-32px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+            style={{
+              top: "calc(50% - 32px)",
+              cursor: onClick ? 'pointer' : 'default'
+            }}
+          >
+            <img
+              src={homeTeam.logo || '/assets/fallback-logo.svg'}
+              alt={homeTeam.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== '/assets/fallback-logo.svg') {
+                  target.src = '/assets/fallback-logo.svg';
+                }
+              }}
+            />
+          </div>
         </div>
 
-        {/* Home Team Name */}
-        <div className="ml-16 text-white font-bold text-sm uppercase tracking-wide truncate pr-4">
-          {homeTeam.name}
-        </div>
-      </div>
-
-      {/* VS Section in Middle */}
-      <div className="flex items-center justify-center w-[10%] h-full">
-        <div className="bg-white text-red-600 font-bold text-lg px-3 py-1 rounded-full shadow-md">
+        {/* VS section with score */}
+        <div 
+          className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden transition-all duration-300 ease-in-out hover:scale-110 opacity-100"
+          style={{
+            background: '#a00000',
+            left: 'calc(50% - 26px)',
+            top: 'calc(50% - 26px)',
+            minWidth: '52px'
+          }}
+        >
           {isLiveOrFinished ? (
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-xs">
@@ -75,31 +96,46 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
               )}
             </div>
           ) : (
-            'VS'
+            <span className="vs-text font-bold">VS</span>
           )}
         </div>
-      </div>
 
-      {/* Away Team Side */}
-      <div className="flex items-center justify-end h-full w-[45%] relative">
-        {/* Away Team Name */}
-        <div className="mr-16 text-white font-bold text-sm uppercase tracking-wide truncate pl-4 text-right">
-          {awayTeam.name}
-        </div>
-
-        {/* Away Team Logo Circle */}
-        <div className="absolute right-2 w-12 h-12 bg-white rounded-full p-1 shadow-lg z-10">
-          <img
-            src={awayTeam.logo || '/assets/fallback-logo.svg'}
-            alt={awayTeam.name}
-            className="w-full h-full object-contain rounded-full"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              if (target.src !== '/assets/fallback-logo.svg') {
-                target.src = '/assets/fallback-logo.svg';
-              }
+        {/* Away team colored bar and logo */}
+        <div 
+          className="h-full w-[calc(50%-67px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100" 
+          style={{ 
+            background: getTeamColor(awayTeam.id),
+            transition: 'all 0.3s ease-in-out'
+          }}
+        >
+          <div 
+            className="absolute text-white font-medium text-sm uppercase transition-all duration-300 ease-in-out opacity-100 max-w-[120px] truncate md:max-w-[200px] text-right"
+            style={{
+              top: "calc(50% - 8px)",
+              right: "125px"
             }}
-          />
+          >
+            {awayTeam.name}
+          </div>
+          <div
+            className="absolute right-[41px] z-20 w-[64px] h-[64px] bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:scale-110 opacity-100 contrast-125 brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+            style={{
+              top: "calc(50% - 32px)",
+              cursor: onClick ? 'pointer' : 'default'
+            }}
+          >
+            <img
+              src={awayTeam.logo || '/assets/fallback-logo.svg'}
+              alt={awayTeam.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== '/assets/fallback-logo.svg') {
+                  target.src = '/assets/fallback-logo.svg';
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

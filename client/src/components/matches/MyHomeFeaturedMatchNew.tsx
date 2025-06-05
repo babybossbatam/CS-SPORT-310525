@@ -27,40 +27,18 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const loadFeaturedMatches = async () => {
       try {
         setLoading(true);
-        console.log('🔍 Fetching featured matches for date:', selectedDate, 'maxMatches:', maxMatches);
         const featuredMatches = await fetchFeaturedMatchData(selectedDate, maxMatches);
-        console.log('📊 Featured matches received:', featuredMatches);
-        
-        // Ensure we have valid data
-        if (Array.isArray(featuredMatches) && featuredMatches.length > 0) {
-          setMatches(featuredMatches);
-          setCurrentIndex(0);
-        } else {
-          console.warn('No valid featured matches found');
-          setMatches([]);
-          setCurrentIndex(0);
-        }
+        setMatches(featuredMatches);
+        setCurrentIndex(0); // Reset to first match when data changes
       } catch (error) {
         console.error('Error loading featured matches:', error);
         setMatches([]);
-        setCurrentIndex(0);
       } finally {
         setLoading(false);
       }
     };
 
-    // Add a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.warn('Featured matches loading timeout');
-        setLoading(false);
-        setMatches([]);
-      }
-    }, 10000); // 10 second timeout
-
     loadFeaturedMatches();
-
-    return () => clearTimeout(timeoutId);
   }, [selectedDate, maxMatches]);
 
   // Handle navigation (slide functions)
@@ -121,7 +99,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         <CardContent className="p-6 text-center">
           <Trophy className="h-8 w-8 mx-auto mb-2 text-gray-400 animate-pulse" />
           <p className="text-gray-500">Loading featured matches...</p>
-          <p className="text-xs text-gray-400 mt-2">Date: {selectedDate || 'today'}</p>
         </CardContent>
       </Card>
     );
