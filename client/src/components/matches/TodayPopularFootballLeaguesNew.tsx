@@ -994,21 +994,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </div>
                       ) : (
                         <CardContent className="flex items-center gap-4 p-4 bg-white border-b border-gray-200">
-
-<img
-                            src={
-                              leagueData.league.id
-                                ? `/api/league-logo/${leagueData.league.id}?size=80`
-                                : leagueData.league.logo ||
-                                  "/assets/fallback-logo.svg"
-                            }
-                            alt={leagueData.league.name || "Unknown League"}
-                            className="w-20 h-20 min-w-20 min-h-20"
-                            
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                            }}
-                          />
                           <div className="flex flex-col flex-1">
                             <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '18px' }}>
                               {safeSubstring(leagueData.league.name, 0) ||
