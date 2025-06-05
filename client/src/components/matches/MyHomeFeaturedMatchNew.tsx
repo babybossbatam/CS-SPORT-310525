@@ -968,17 +968,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   navigate(`/match/${currentMatch.fixture.id}`)
                 }
               >
-                <svg
+                <img
+                  src="/assets/matchdetaillogo/MatchDetail.svg"
+                  alt="Match Page"
                   width="18"
                   height="18"
-                  viewBox="0 0 24 24"
                   className="text-gray-600"
-                >
-                  <path
-                    d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                />
                 <span className="text-[0.75rem] text-gray-600 mt-1">
                   Match Page
                 </span>
@@ -990,17 +986,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   navigate(`/match/${currentMatch.fixture.id}/lineups`)
                 }
               >
-                <svg
+                <img
+                  src="/assets/matchdetaillogo/lineups.svg"
+                  alt="Lineups"
                   width="18"
                   height="18"
-                  viewBox="0 0 24 24"
                   className="text-gray-600"
-                >
-                  <path
-                    d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM13 19V5H19V19H13Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                />
                 <span className="text-[0.75rem] text-gray-600 mt-1">
                   Lineups
                 </span>
@@ -1012,17 +1004,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   navigate(`/match/${currentMatch.fixture.id}/h2h`)
                 }
               >
-                <svg
+                <img
+                  src="/assets/matchdetaillogo/stats.svg"
+                  alt="H2H"
                   width="18"
                   height="18"
-                  viewBox="0 0 24 24"
                   className="text-gray-600"
-                >
-                  <path
-                    d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                />
                 <span className="text-[0.75rem] text-gray-600 mt-1">
                   H2H
                 </span>
@@ -1034,17 +1022,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   navigate(`/match/${currentMatch.fixture.id}/standings`)
                 }
               >
-                <svg
+                <img
+                  src="/assets/matchdetaillogo/standings.svg"
+                  alt="Standings"
                   width="18"
                   height="18"
-                  viewBox="0 0 24 24"
                   className="text-gray-600"
-                >
-                  <path
-                    d="M12 4C11.17 4 10.36 4.16 9.59 4.47L7.75 6.32L16.68 15.25L18.53 13.4C18.84 12.64 19 11.83 19 11C19 7.13 15.87 4 12 4M5.24 8.66L6.66 7.24L7.93 8.51C8.74 8.2 9.56 8 10.4 7.83L12.24 5.96L3.31 14.89L5.24 8.66M13.6 16.6L5.33 21.88C5.72 22.4 6.29 22.88 6.93 23.17L8.77 21.33L16.36 13.74L13.6 16.6M15.25 17.75L13.4 19.6C12.64 19.84 11.83 20 11 20C7.13 20 4 16.87 4 13C4 12.17 4.16 11.36 4.47 10.59L6.32 8.75L15.25 17.75Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                />
                 <span className="text-[0.75rem] text-gray-600 mt-1">
                   Standings
                 </span>
