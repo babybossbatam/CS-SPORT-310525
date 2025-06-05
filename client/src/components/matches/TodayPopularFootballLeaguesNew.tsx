@@ -1491,11 +1491,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 {/* Home team logo - closer to center */}
                                 <div className="team-logo-container">
                                   <LazyImage
-                                    src={
-                                      match.teams.home.id
+                                    src={(() => {
+                                      const isNational = isNationalTeam(
+                                        match.teams.home,
+                                        leagueData.league,
+                                      );
+                                      
+                                      // For national teams, try to use custom flag if available
+                                      if (isNational && hasCustomFlag(match.teams.home.name)) {
+                                        return `data:image/svg+xml;base64,${btoa(getCountryFlagWithGlossyTemplate(match.teams.home.name))}`;
+                                      }
+                                      
+                                      // Default team logo
+                                      return match.teams.home.id
                                         ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
+                                        : "/assets/fallback-logo.svg";
+                                    })()}
                                     alt={match.teams.home.name}
                                     title={match.teams.home.name}
                                     className={`team-logo ${
@@ -1710,11 +1721,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 {/* Away team logo - closer to center */}
                                 <div className="team-logo-container">
                                   <LazyImage
-                                    src={
-                                      match.teams.away.id
+                                    src={(() => {
+                                      const isNational = isNationalTeam(
+                                        match.teams.away,
+                                        leagueData.league,
+                                      );
+                                      
+                                      // For national teams, try to use custom flag if available
+                                      if (isNational && hasCustomFlag(match.teams.away.name)) {
+                                        return `data:image/svg+xml;base64,${btoa(getCountryFlagWithGlossyTemplate(match.teams.away.name))}`;
+                                      }
+                                      
+                                      // Default team logo
+                                      return match.teams.away.id
                                         ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
+                                        : "/assets/fallback-logo.svg";
+                                    })()}
                                     alt={match.teams.away.name}
                                     title={match.teams.away.name}
                                     className={`team-logo ${
