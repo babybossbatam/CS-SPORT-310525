@@ -111,7 +111,11 @@ const PopularLeaguesList = () => {
                 />
                 <div className="ml-3 flex-1">
                   <div className="text-sm">{league.name}</div>
-                  <div className="text-xs text-gray-500">{league.country}</div>
+                  {league.country && (
+                    <span className="text-xs text-gray-500 truncate">
+                      {typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown'}
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={(e) => {
