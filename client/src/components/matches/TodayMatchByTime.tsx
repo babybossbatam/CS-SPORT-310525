@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,7 +10,6 @@ import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeFromPopularLeagues, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
 import { getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
-import { MySmartDateLabeling } from "@/lib/MySmartDateLabeling";
 import { 
   isDateStringToday,
   isDateStringYesterday,
@@ -99,7 +99,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     refetchOnReconnect: false,
   });
 
-  // Apply the same filtering logic as TodayPopularFootballLeaguesNew
+  // Apply the same filtering logic as TodayPopularFootballLeaguesNew (without smart date filtering)
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
@@ -107,38 +107,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     const startTime = Date.now();
 
     const filtered = fixtures.filter((fixture) => {
-      // Apply smart date filtering first (same as TodayPopularFootballLeaguesNew)
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartDateLabeling.getSmartDateLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short
-        );
-
-        // For selected date filtering, accept matches that smart labeling considers appropriate
-        const todayDate = new Date().toISOString().slice(0, 10);
-        const yesterdayDate = subDays(new Date(), 1).toISOString().slice(0, 10);
-        const tomorrowDate = addDays(new Date(), 1).toISOString().slice(0, 10);
-
-        const isSelectedToday = selectedDate === todayDate;
-        const isSelectedYesterday = selectedDate === yesterdayDate;
-        const isSelectedTomorrow = selectedDate === tomorrowDate;
-
-        // Strict matching: only include if smart labeling matches selected date type
-        if (isSelectedToday && smartResult.label === 'today') return true;
-        if (isSelectedYesterday && smartResult.label === 'yesterday') return true;
-        if (isSelectedTomorrow && smartResult.label === 'tomorrow') return true;
-
-        // For matches with finished/live status, use standard date matching as fallback
-        const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
-        const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-
-        if (finishedStatuses.includes(fixture.fixture.status.short) || 
-            liveStatuses.includes(fixture.fixture.status.short)) {
-          return isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+      // Use simple date matching instead of smart date filtering
+      if (fixture.fixture.date) {
+        const isOnSelectedDate = isFixtureOnClientDate(fixture.fixture.date, selectedDate);
+        if (!isOnSelectedDate) {
+          return false;
         }
-
-        // For not started matches, strictly follow smart date labeling - no fallback
-        return false;
       }
 
       // Client-side filtering for popular leagues and countries (same as TodayPopularFootballLeaguesNew)
@@ -279,21 +253,16 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     return finalFiltered;
   }, [fixtures, selectedDate]);
 
-  // Use the same filtering logic as TodayPopularFootballLeaguesNew
-  const timeFilteredMatches = useMemo(() => {
-    return filteredFixtures; // Use the already filtered fixtures from above
-  }, [filteredFixtures]);
-
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
     if (liveFilterActive && timeFilterActive) {
-      return timeFilteredMatches.filter((fixture) => {
+      return filteredFixtures.filter((fixture) => {
         const status = fixture.fixture.status.short;
         return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
       });
     }
-    return timeFilteredMatches;
-  }, [timeFilteredMatches, liveFilterActive, timeFilterActive]);
+    return filteredFixtures;
+  }, [filteredFixtures, liveFilterActive, timeFilterActive]);
 
   // Sort matches by priority and time
   const sortedMatches = useMemo(() => {
@@ -412,9 +381,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         {getHeaderTitle()}
       </div>
       
-      {/* Single consolidated card with all matches sorted by time */}
+      {/* Single consolidated card with all matches sorted by time - no league headers */}
       <Card className="overflow-hidden">
-        {/* All Matches without league headers */}
         <CardContent className="p-0">
           <div className="space-y-0">
             {sortedMatches.map((match) => (
