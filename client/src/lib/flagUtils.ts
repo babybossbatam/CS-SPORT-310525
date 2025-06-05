@@ -681,6 +681,7 @@ const customFlagSVGs: { [key: string]: string } = {
   'France': '/assets/flags/france-flag.svg',
   'England': '/assets/flags/england-flag.svg',
   'Spain': '/assets/flags/spain-flag.svg',
+  'Portugal': '/assets/flags/portugal-flag.svg',
 };
 
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
@@ -706,35 +707,36 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No cache found for ${country}, generating sync...`);
 
   let result: string;
-  // Use league flag if available and valid
-  if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
-    result = leagueFlag;
-    console.log(`🏆 [flagUtils.ts:getCountryFlagWithFallbackSync] Using league flag for ${country}: ${leagueFlag}`);
+  
+  // Add comprehensive null/undefined check for country
+  if (!country || typeof country !== 'string' || country.trim() === '') {
+    result = '/assets/fallback-logo.svg';
+    console.log(`⚠️ [flagUtils.ts:getCountryFlagWithFallbackSync] Empty country, using fallback`);
   } else {
-    // Add comprehensive null/undefined check for country
-    if (!country || typeof country !== 'string' || country.trim() === '') {
-      result = '/assets/fallback-logo.svg';
-      console.log(`⚠️ [flagUtils.ts:getCountryFlagWithFallbackSync] Empty country, using fallback`);
-    } else {
-      const cleanCountry = country.trim();
+    const cleanCountry = country.trim();
 
-      // Special handling for Unknown country
-      if (cleanCountry === 'Unknown') {
-        result = '/assets/fallback-logo.svg';
-        console.log(`❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`);
+    // Special handling for Unknown country
+    if (cleanCountry === 'Unknown') {
+      result = '/assets/fallback-logo.svg';
+      console.log(`❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`);
+    } else {
+      // PRIORITY 1: Check for custom SVG flags first (for national teams)
+      if (customFlagSVGs[cleanCountry]) {
+        result = customFlagSVGs[cleanCountry];
+        console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using custom SVG flag for ${cleanCountry}: ${result}`);
+      } else if (cleanCountry === 'World') {
+        result = '/assets/world_flag_new.png';
+        console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
+      } else if (cleanCountry === 'Europe') {
+        result = 'https://flagcdn.com/w40/eu.png';
+        console.log(`🇪🇺 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Europe flag: ${result}`);
       } else {
-        // Check for custom SVG flags first
-        if (customFlagSVGs[cleanCountry]) {
-          result = customFlagSVGs[cleanCountry];
-          console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using custom SVG flag for ${cleanCountry}: ${result}`);
-        } else if (cleanCountry === 'World') {
-          result = '/assets/world_flag_new.png';
-          console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
-        } else if (cleanCountry === 'Europe') {
-          result = 'https://flagcdn.com/w40/eu.png';
-          console.log(`🇪🇺 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Europe flag: ${result}`);
+        // PRIORITY 2: Only use league flag if no custom SVG flag available
+        if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
+          result = leagueFlag;
+          console.log(`🏆 [flagUtils.ts:getCountryFlagWithFallbackSync] Using league flag for ${country}: ${leagueFlag}`);
         } else {
-          // Use country code mapping first for most reliable flags
+          // PRIORITY 3: Use country code mapping for other flags
           const countryCode = countryCodeMap[cleanCountry];
           console.log(`🔍 [flagUtils.ts:getCountryFlagWithFallbackSync] Country code lookup for "${cleanCountry}": ${countryCode || 'not found'}`);
 
