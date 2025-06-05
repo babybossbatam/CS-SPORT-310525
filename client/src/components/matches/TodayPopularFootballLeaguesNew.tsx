@@ -996,21 +996,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
                           <LazyImage
                             src={
-                              leagueData.league.id
-                                ? `/api/league-logo/${leagueData.league.id}?size=29`
-                                : leagueData.league.logo ||
-                                  "/assets/fallback-logo.svg"
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
                             }
                             alt={leagueData.league.name || "Unknown League"}
-                            className="object-contain rounded-full"
+                            className="w-6 h-6 object-contain rounded-full"
                             style={{ 
                               backgroundColor: "transparent",
                               background: "none",
                               backgroundImage: "none",
                               border: "none",
-                              boxShadow: "none",
-                              width: "29px",
-                              height: "29px"
+                              boxShadow: "none"
                             }}
                             fallbackSrc="/assets/fallback-logo.svg"
                           />
@@ -1444,7 +1440,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   <LazyImage
                                     src={
                                       match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=43`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
                                         : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.away.name}
@@ -1462,9 +1458,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       background: "none",
                                       backgroundImage: "none",
                                       border: "none",
-                                      boxShadow: "none",
-                                      width: "43px",
-                                      height: "43px"
+                                      boxShadow: "none"
                                     }}
                                     fallbackSrc="/assets/fallback-logo.svg"
                                   />
