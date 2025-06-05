@@ -714,17 +714,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </span>
             </div>
 
-            {/* Status */}
+            {/* VS Text Component */}
             <div className="text-center mb-2">
-              <div className="text-xs font-medium text-gray-500">
-                {currentMatch.fixture.status.short === "FT" ? "Ended" :
-                 currentMatch.fixture.status.short === "AET" ? "Ended (AET)" :
-                 currentMatch.fixture.status.short === "PEN" ? "Ended (PEN)" :
-                 currentMatch.fixture.status.short === "1H" || 
-                 currentMatch.fixture.status.short === "2H" ? "Live" :
-                 currentMatch.fixture.status.short === "HT" ? "Half Time" :
-                 currentMatch.fixture.status.short === "NS" ? "Upcoming" :
-                 currentMatch.fixture.status.short}
+              <div className="text-lg font-medium text-gray-700">
+                VS
               </div>
             </div>
 
@@ -852,7 +845,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                           </div>
                                         );
                                       } else {
-                                        // Match is finished but no valid score data
+                                        // Match is finished butThis commit replaces the status component with a VS text component.
+```typescript
+ no valid score data
                                         const statusText =
                                           status === "FT"
                                             ? "No Score"
