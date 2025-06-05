@@ -895,13 +895,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     {currentMatch?.teams?.away?.name || "Away Team"}
                   </div>
 
-                  <img
-                    src={
-                      currentMatch?.teams?.away?.logo ||
-                      `/assets/fallback-logo.svg`
-                    }
-                    alt={currentMatch?.teams?.away?.name || "Away Team"}
-                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  <div
+                    className="absolute z-20 w-[64px] h-[64px] rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                     style={{
                       cursor: "pointer",
                       top: "calc(50% - 32px)",
@@ -923,10 +918,23 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       border: "2px solid rgba(255,255,255,0.2)",
                     }}
                     onClick={handleMatchClick}
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
-                  />
+                  >
+                    <img
+                      src={
+                        currentMatch?.teams?.away?.logo ||
+                        `/assets/fallback-logo.svg`
+                      }
+                      alt={currentMatch?.teams?.away?.name || "Away Team"}
+                      className="w-full h-full object-contain rounded-full"
+                      style={{
+                        position: "relative",
+                        zIndex: 1,
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
