@@ -18,6 +18,8 @@ import {
 } from '@/lib/dateUtilsUpdated';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
+import LazyImage from "../common/LazyImage";
+import { isNationalTeam } from "../../lib/teamLogoSources";
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -425,17 +427,25 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     {match.teams.home.name || "Unknown Team"}
                   </div>
 
-                  <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                    <img
-                      src={match.teams.home.logo || "/assets/fallback-logo.svg"}
+                  <div className="team-logo-container">
+                    <LazyImage
+                      src={
+                        match.teams.home.id
+                          ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                          : "/assets/fallback-logo.svg"
+                      }
                       alt={match.teams.home.name}
-                      className="team-logo"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (target.src !== "/assets/fallback-logo.svg") {
-                          target.src = "/assets/fallback-logo.svg";
-                        }
-                      }}
+                      title={match.teams.home.name}
+                      className={`team-logo ${
+                        isNationalTeam(
+                          match.teams.home,
+                          { name: match.league?.name, country: match.league?.country }
+                        )
+                          ? "national-team"
+                          : ""
+                      }`}
+                      style={{ backgroundColor: "transparent" }}
+                      fallbackSrc="/assets/fallback-logo.svg"
                     />
                   </div>
 
@@ -537,17 +547,31 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     })()}
                   </div>
 
-                  <div className="flex-shrink-0 mx-1 flex items-center justify-center">
-                    <img
-                      src={match.teams.away.logo || "/assets/fallback-logo.svg"}
+                  <div className="team-logo-container">
+                    <LazyImage
+                      src={
+                        match.teams.away.id
+                          ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                          : "/assets/fallback-logo.svg"
+                      }
                       alt={match.teams.away.name}
-                      className="team-logo"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (target.src !== "/assets/fallback-logo.svg") {
-                          target.src = "/assets/fallback-logo.svg";
-                        }
+                      title={match.teams.away.name}
+                      className={`team-logo ${
+                        isNationalTeam(
+                          match.teams.away,
+                          { name: match.league?.name, country: match.league?.country }
+                        )
+                          ? "national-team"
+                          : ""
+                      }`}
+                      style={{ 
+                        backgroundColor: "transparent",
+                        background: "none",
+                        backgroundImage: "none",
+                        border: "none",
+                        boxShadow: "none"
                       }}
+                      fallbackSrc="/assets/fallback-logo.svg"
                     />
                   </div>
 
