@@ -741,10 +741,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Match content in TodayPopularLeagueNew style */}
-            <div className="match-card-container group">
-              
-
-              <div className="match-content-container p-4">
+            <div className="match-content-container p-4">
                 {/* Home Team Name - positioned further left */}
                 <div
                   className={`home-team-name text-sm font-medium text-gray-900 truncate flex-1 ${
@@ -973,7 +970,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {shortenTeamName ? shortenTeamName(currentMatch.teams.away.name) : currentMatch.teams.away.name}
                 </div>
               </div>
-            </div>
 
             {/* Match Info */}
             <div className="flex items-center justify-between text-sm text-gray-500">
