@@ -1,6 +1,4 @@
-The code has been modified to include lazy loading and memoization for performance optimization.
-```
-```replit_final_file
+
 import React, { useState, useMemo, useEffect, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
