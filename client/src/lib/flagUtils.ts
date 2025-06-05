@@ -79,7 +79,6 @@ const countryCodeMap: { [key: string]: string } = {
   'Monaco': 'MC',
   'Andorra': 'AD',
   'San Marino': 'SM',
-  'Bulgaria': 'BG',
   'Vatican City': 'VA',
   'Brazil': 'BR',
   'Argentina': 'AR',
@@ -672,68 +671,6 @@ export async function getCountryFlagWithFallback(
 // Memory cache for flag URLs
 const flagCacheMem = new Map<string, string>();
 
-import { createCustomFlagFromCache } from './flagColorExtractor';
-
-// Custom flag SVG mapping for countries we have created
-const customFlagSVGs: { [key: string]: string } = {
-  // European countries
-  'Germany': '/assets/flags/germany-flag.svg',
-  'France': '/assets/flags/france-flag.svg',
-  'England': '/assets/flags/england-flag.svg',
-  'Spain': '/assets/flags/spain-flag.svg',
-  'Portugal': '/assets/flags/portugal-flag.svg',
-  'Italy': '/assets/flags/italy-flag.svg',
-  'Netherlands': '/assets/flags/netherlands-flag.svg',
-  'Belgium': '/assets/flags/belgium-flag.svg',
-  'Croatia': '/assets/flags/croatia-flag.svg',
-  'Poland': '/assets/flags/poland-flag.svg',
-  'Turkey': '/assets/flags/turkey-flag.svg',
-  'Switzerland': '/assets/flags/switzerland-flag.svg',
-  'Denmark': '/assets/flags/denmark-flag.svg',
-  'Austria': '/assets/flags/austria-flag.svg',
-  'Scotland': '/assets/flags/scotland-flag.svg',
-  'Wales': '/assets/flags/wales-flag.svg',
-  'Czech Republic': '/assets/flags/czech-republic-flag.svg',
-  'Czechia': '/assets/flags/czech-republic-flag.svg',
-  'Ukraine': '/assets/flags/ukraine-flag.svg',
-  'Norway': '/assets/flags/norway-flag.svg',
-  'Sweden': '/assets/flags/sweden-flag.svg',
-  
-  // Additional Friendlies countries
-  'Bulgaria': '/assets/flags/bulgaria-flag.svg',
-  'Cyprus': '/assets/flags/cyprus-flag.svg',
-  'Finland': '/assets/flags/finland-flag.svg',
-  'Iceland': '/assets/flags/iceland-flag.svg',
-  'Luxembourg': '/assets/flags/luxembourg-flag.svg',
-  'Ireland': '/assets/flags/ireland-flag.svg',
-  'Malta': '/assets/flags/malta-flag.svg',
-  'Liechtenstein': '/assets/flags/liechtenstein-flag.svg',
-  'Andorra': '/assets/flags/andorra-flag.svg',
-  'San Marino': '/assets/flags/san-marino-flag.svg',
-  
-  // South American countries
-  'Brazil': '/assets/flags/brazil-flag.svg',
-  'Argentina': '/assets/flags/argentina-flag.svg',
-  'Colombia': '/assets/flags/colombia-flag.svg',
-  'Chile': '/assets/flags/chile-flag.svg',
-  'Uruguay': '/assets/flags/uruguay-flag.svg',
-  
-  // North American countries
-  'United States': '/assets/flags/usa-flag.svg',
-  'USA': '/assets/flags/usa-flag.svg',
-  'US': '/assets/flags/usa-flag.svg',
-  'Mexico': '/assets/flags/mexico-flag.svg',
-  'Canada': '/assets/flags/canada-flag.svg',
-  
-  // Asian/Oceanic countries
-  'Japan': '/assets/flags/japan-flag.svg',
-  'South Korea': '/assets/flags/south-korea-flag.svg',
-  'Australia': '/assets/flags/australia-flag.svg',
-};
-
-// Cache for generated custom flags
-const generatedCustomFlags = new Map<string, string>();
-
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
   const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
   console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
@@ -757,60 +694,32 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No cache found for ${country}, generating sync...`);
 
   let result: string;
-  
-  // Add comprehensive null/undefined check for country
-  if (!country || typeof country !== 'string' || country.trim() === '') {
-    result = '/assets/fallback-logo.svg';
-    console.log(`⚠️ [flagUtils.ts:getCountryFlagWithFallbackSync] Empty country, using fallback`);
+  // Use league flag if available and valid
+  if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
+    result = leagueFlag;
+    console.log(`🏆 [flagUtils.ts:getCountryFlagWithFallbackSync] Using league flag for ${country}: ${leagueFlag}`);
   } else {
-    const cleanCountry = country.trim();
-
-    // Special handling for Unknown country
-    if (cleanCountry === 'Unknown') {
+    // Add comprehensive null/undefined check for country
+    if (!country || typeof country !== 'string' || country.trim() === '') {
       result = '/assets/fallback-logo.svg';
-      console.log(`❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`);
+      console.log(`⚠️ [flagUtils.ts:getCountryFlagWithFallbackSync] Empty country, using fallback`);
     } else {
-      // PRIORITY 1: Check for custom SVG flags first (for national teams)
-      if (customFlagSVGs[cleanCountry]) {
-        result = customFlagSVGs[cleanCountry];
-        console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using custom SVG flag for ${cleanCountry}: ${result}`);
+      const cleanCountry = country.trim();
+
+      // Special handling for Unknown country
+      if (cleanCountry === 'Unknown') {
+        result = '/assets/fallback-logo.svg';
+        console.log(`❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`);
       } else {
-        // PRIORITY 1.5: Generate custom flag from cached data if available
-        const cached = flagCache.getCached(`flag_${cleanCountry.toLowerCase().replace(/\s+/g, '_')}`);
-        if (cached && cached.url && !cached.url.includes('/assets/fallback-logo.svg')) {
-          // Check if we already generated a custom flag for this country
-          if (generatedCustomFlags.has(cleanCountry)) {
-            result = generatedCustomFlags.get(cleanCountry)!;
-            console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using cached custom generated flag for ${cleanCountry}`);
-          } else {
-            // Generate custom flag asynchronously and cache the original for now
-            createCustomFlagFromCache(cleanCountry).then(customFlag => {
-              generatedCustomFlags.set(cleanCountry, customFlag);
-              console.log(`✨ [flagUtils.ts] Generated custom flag for ${cleanCountry} from cached data`);
-              
-              // Update the main cache with the custom flag
-              flagCache.setCached(`flag_${cleanCountry.toLowerCase().replace(/\s+/g, '_')}`, customFlag, 'custom-generated', true);
-            }).catch(error => {
-              console.warn(`Failed to generate custom flag for ${cleanCountry}:`, error);
-            });
-            
-            // For now, use the cached original flag
-            result = cached.url;
-            console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Using cached flag for ${cleanCountry} while generating custom: ${result}`);
-          }
-        } else if (cleanCountry === 'World') {
-        result = '/assets/world_flag_new.png';
-        console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
-      } else if (cleanCountry === 'Europe') {
-        result = 'https://flagcdn.com/w40/eu.png';
-        console.log(`🇪🇺 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Europe flag: ${result}`);
-      } else {
-        // PRIORITY 2: Only use league flag if no custom SVG flag available
-        if (leagueFlag && typeof leagueFlag === 'string' && leagueFlag.trim() !== '') {
-          result = leagueFlag;
-          console.log(`🏆 [flagUtils.ts:getCountryFlagWithFallbackSync] Using league flag for ${country}: ${leagueFlag}`);
+        // Special cases for international competitions
+        if (cleanCountry === 'World') {
+          result = '/assets/world_flag_new.png';
+          console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
+        } else if (cleanCountry === 'Europe') {
+          result = 'https://flagcdn.com/w40/eu.png';
+          console.log(`🇪🇺 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Europe flag: ${result}`);
         } else {
-          // PRIORITY 3: Use country code mapping for other flags
+          // Use country code mapping first for most reliable flags
           const countryCode = countryCodeMap[cleanCountry];
           console.log(`🔍 [flagUtils.ts:getCountryFlagWithFallbackSync] Country code lookup for "${cleanCountry}": ${countryCode || 'not found'}`);
 

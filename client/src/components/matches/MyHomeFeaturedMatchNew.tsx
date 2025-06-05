@@ -934,9 +934,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           ) {
                             target.src = currentMatch.teams.home.logo;
                           } else if (
-                            target.src !== "/assets/custom-logo.svg"
+                            target.src !== "/assets/fallback-logo.svg"
                           ) {
-                            target.src = "/assets/custom-logo.svg";
+                            target.src = "/assets/fallback-logo.svg";
                           }
                         }}
                       />
@@ -1005,7 +1005,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {
-                      e.currentTarget.src = "/assets/custom-logo.svg";
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
                     }}
                   />
                 </div>
@@ -1055,101 +1055,78 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             {/* Bottom navigation */}
             <div className="flex justify-around border-t border-gray-200 pt-4">
-                {/* Test SVG logo button */}
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/5"
-                  onClick={() => {
-                    console.log("Testing custom SVG logo");
-                    // Force show custom logo by triggering error on team logos
-                    const homeImg = document.querySelector('img[alt*="Home Team"], img[alt*="' + (currentMatch?.teams?.home?.name || 'Home') + '"]') as HTMLImageElement;
-                    const awayImg = document.querySelector('img[alt*="Away Team"], img[alt*="' + (currentMatch?.teams?.away?.name || 'Away') + '"]') as HTMLImageElement;
-                    if (homeImg) homeImg.src = "invalid-url-to-trigger-fallback";
-                    if (awayImg) awayImg.src = "invalid-url-to-trigger-fallback";
-                  }}
-                >
-                  <img
-                    src="/assets/custom-logo.svg"
-                    alt="Custom Logo"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Test SVG
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/5"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/MatchDetail.svg"
-                    alt="Match Page"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Match Page
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/5"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}/lineups`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/lineups.svg"
-                    alt="Lineups"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Lineups
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/5"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}/h2h`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/stats.svg"
-                    alt="H2H"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    H2H
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/5"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}/standings`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/standings.svg"
-                    alt="Standings"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Standings
-                  </span>
-                </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/MatchDetail.svg"
+                  alt="Match Page"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Match Page
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/lineups`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/lineups.svg"
+                  alt="Lineups"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Lineups
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/h2h`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/stats.svg"
+                  alt="H2H"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  H2H
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/standings`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/standings.svg"
+                  alt="Standings"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Standings
+                </span>
+              </button>
             </div>
           </div>
         </motion.div>
