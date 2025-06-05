@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { shouldExcludeFromPopularLeagues, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
+import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
 import MyColoredBar from './MyColoredBar';
 
 interface MyHomeFeaturedMatchNewProps {
@@ -18,7 +23,158 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [matches, setMatches] = useState<any[]>([]); // Initialize matches state
+
+  // Popular countries and leagues configuration (same as TodayPopularFootballLeaguesNew)
+  const POPULAR_COUNTRIES_ORDER = [
+    "England", "Spain", "Italy", "Germany", "France", "World", "Europe", 
+    "South America", "Brazil", "Saudi Arabia", "Egypt", "Colombia", 
+    "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates"
+  ];
+
+  const POPULAR_LEAGUES_BY_COUNTRY = {
+    England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
+    Spain: [140, 143], // La Liga, Copa del Rey
+    Italy: [135, 137], // Serie A, Coppa Italia
+    Germany: [78, 81], // Bundesliga, DFB Pokal
+    France: [61, 66], // Ligue 1, Coupe de France
+    "United Arab Emirates": [301], // UAE Pro League
+    Egypt: [233], // Egyptian Premier League
+    International: [15], // FIFA Club World Cup
+    World: [914, 848, 15], // COSAFA Cup, UEFA Conference League, FIFA Club World Cup
+  };
+
+  const POPULAR_LEAGUES = [...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(), 914];
+
+  // Fetch fixtures data
+  const { data: fixtures = [] } = useQuery({
+    queryKey: ["featured-fixtures-by-date", selectedDate],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+      const data = await response.json();
+      return data;
+    },
+    enabled: !!selectedDate,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+
+  // Filter and prioritize matches (same logic as TodayPopularFootballLeaguesNew)
+  const filteredMatches = useMemo(() => {
+    if (!fixtures?.length) return [];
+
+    const filtered = fixtures.filter((fixture: any) => {
+      // Apply smart time filtering
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          selectedDate + "T12:00:00Z"
+        );
+
+        const today = new Date();
+        const todayString = format(today, "yyyy-MM-dd");
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayString = format(yesterday, "yyyy-MM-dd");
+
+        const shouldInclude = (() => {
+          if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
+          if (selectedDate === todayString && smartResult.label === "today") return true;
+          if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
+          if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
+            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
+          }
+          return false;
+        })();
+
+        if (!shouldInclude) return false;
+      }
+
+      // Apply exclusion filters
+      if (shouldExcludeFromPopularLeagues(
+        fixture.league.name,
+        fixture.teams.home.name,
+        fixture.teams.away.name,
+        fixture.league.country
+      )) {
+        return false;
+      }
+
+      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
+        return false;
+      }
+
+      // Check for popular leagues/countries/international competitions
+      const leagueId = fixture.league?.id;
+      const country = fixture.league?.country?.toLowerCase() || "";
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+
+      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+        (popularCountry) => country.includes(popularCountry.toLowerCase())
+      );
+
+      const isInternationalCompetition =
+        leagueName.includes("champions league") ||
+        leagueName.includes("europa league") ||
+        leagueName.includes("conference league") ||
+        leagueName.includes("uefa") ||
+        leagueName.includes("world cup") ||
+        leagueName.includes("fifa club world cup") ||
+        leagueName.includes("fifa") ||
+        leagueName.includes("conmebol") ||
+        leagueName.includes("copa america") ||
+        leagueName.includes("copa libertadores") ||
+        leagueName.includes("copa sudamericana") ||
+        leagueName.includes("libertadores") ||
+        leagueName.includes("sudamericana") ||
+        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+        (leagueName.includes("international") && !leagueName.includes("women")) ||
+        country.includes("world") ||
+        country.includes("europe") ||
+        country.includes("international");
+
+      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
+    });
+
+    // Prioritize matches: LIVE > Popular teams > Finals/Semi-finals > Upcoming
+    const prioritized = filtered.sort((a: any, b: any) => {
+      const aStatus = a.fixture.status.short;
+      const bStatus = b.fixture.status.short;
+      
+      // Live matches first
+      const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+      const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+      
+      if (aLive && !bLive) return -1;
+      if (!aLive && bLive) return 1;
+      
+      // Check for finals/semi-finals
+      const aIsFinal = a.league?.round?.toLowerCase().includes("final") || 
+                      a.league?.round?.toLowerCase().includes("semi");
+      const bIsFinal = b.league?.round?.toLowerCase().includes("final") || 
+                      b.league?.round?.toLowerCase().includes("semi");
+      
+      if (aIsFinal && !bIsFinal) return -1;
+      if (!aIsFinal && bIsFinal) return 1;
+      
+      // Sort by time for same priority
+      const aDate = parseISO(a.fixture.date);
+      const bDate = parseISO(b.fixture.date);
+      
+      if (isValid(aDate) && isValid(bDate)) {
+        return aDate.getTime() - bDate.getTime();
+      }
+      
+      return 0;
+    });
+
+    return prioritized.slice(0, maxMatches);
+  }, [fixtures, selectedDate, maxMatches]);
+
+  const matches = filteredMatches;
 
   // Handle navigation
   const handlePrevious = () => {
@@ -39,7 +195,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get current match
   const currentMatch = matches[currentIndex];
 
-  // Get match status for display
+  // Get match status for display - includes bracket status
   const getMatchStatus = (fixture: any) => {
     const status = fixture.fixture.status.short;
 
@@ -51,6 +207,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Finished matches
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
       return 'Recent';
+    }
+
+    // For upcoming matches, show bracket status if available
+    if (fixture.league?.round) {
+      return fixture.league.round;
     }
 
     return 'Scheduled';
@@ -118,8 +279,28 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           >
             
 
-            {/* Score display */}
+            {/* League info and status */}
             <div className="text-center mb-4">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                {currentMatch.league?.logo && (
+                  <img
+                    src={currentMatch.league.logo}
+                    alt={currentMatch.league.name}
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                    }}
+                  />
+                )}
+                <span className="text-sm font-medium text-gray-700">
+                  {currentMatch.league?.name || "League"}
+                </span>
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                  {getMatchStatus(currentMatch)}
+                </span>
+              </div>
+              
+              {/* Score display */}
               {['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentMatch.fixture.status.short) || 
                ['FT', 'AET', 'PEN'].includes(currentMatch.fixture.status.short) ? (
                 <div className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
@@ -128,8 +309,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <span>{currentMatch.goals.away ?? 0}</span>
                 </div>
               ) : (
-                <div className="text-lg font-medium text-gray-600 mb-4">
-                  
+                <div className="text-lg font-medium text-gray-600">
+                  VS
                 </div>
               )}
             </div>
