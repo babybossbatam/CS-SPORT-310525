@@ -27,6 +27,7 @@ import {
   isLiveMatch,
 } from "@/lib/matchFilters";
 import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
+import { hasCustomFlag, getCountryFlagWithGlossyTemplate } from "../common/CustomCountryFlags";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -1043,26 +1044,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   };
 
-  // Mock functions for flag handling
-  const hasCustomFlag = (country: string): boolean => {
-    // Replace this with actual logic to check if a country has a custom flag
-    return ["England", "Spain", "Italy", "Germany", "France"].includes(country);
-  };
-
-  const getCountryFlagWithGlossyTemplate = (country: string): string => {
-    // Replace this with the actual implementation of the glossy flag template
-    const flag = getCountryFlagWithFallbackSync(country); // Get the base flag
-    // Create a simple SVG string with a placeholder for the flag image
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="flag_${country}" patternContentUnits="objectBoundingBox" width="1" height="1">
-                  <image x="0" y="0" width="1" height="1" preserveAspectRatio="xMidYMid slice" xlink:href="${flag}"></image>
-                </pattern>
-              </defs>
-              <circle cx="50" cy="50" r="48" fill="url(#flag_${country})" stroke="#ccc" strokeWidth="1"/>
-              <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.2)" />
-            </svg>`;
-  };
+  
 
   return (
     <>
