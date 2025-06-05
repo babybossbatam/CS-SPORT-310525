@@ -909,7 +909,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       transform: "translateX(50%)",
                       filter: "contrast(115%) brightness(105%)",
                       boxShadow: "inset -8px -8px 16px rgba(0,0,0,0.3), inset 8px 8px 16px rgba(255,255,255,0.3), 4px 4px 12px rgba(0,0,0,0.4)",
-                      background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), rgba(0,0,0,0.1))",
+                      background: `
+                        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 70%),
+                        linear-gradient(to bottom, 
+                          #000000 0%, 
+                          #000000 33.33%, 
+                          #DD0000 33.33%, 
+                          #DD0000 66.66%, 
+                          #FFCE00 66.66%, 
+                          #FFCE00 100%
+                        )
+                      `,
                       border: "2px solid rgba(255,255,255,0.2)",
                     }}
                     onClick={handleMatchClick}
