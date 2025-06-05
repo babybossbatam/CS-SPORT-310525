@@ -672,6 +672,8 @@ export async function getCountryFlagWithFallback(
 // Memory cache for flag URLs
 const flagCacheMem = new Map<string, string>();
 
+import { createCustomFlagFromCache } from './flagColorExtractor';
+
 // Custom flag SVG mapping for countries we have created
 const customFlagSVGs: { [key: string]: string } = {
   // European countries
@@ -729,6 +731,9 @@ const customFlagSVGs: { [key: string]: string } = {
   'Australia': '/assets/flags/australia-flag.svg',
 };
 
+// Cache for generated custom flags
+const generatedCustomFlags = new Map<string, string>();
+
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
   const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
   console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
@@ -769,7 +774,31 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
       if (customFlagSVGs[cleanCountry]) {
         result = customFlagSVGs[cleanCountry];
         console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using custom SVG flag for ${cleanCountry}: ${result}`);
-      } else if (cleanCountry === 'World') {
+      } else {
+        // PRIORITY 1.5: Generate custom flag from cached data if available
+        const cached = flagCache.getCached(`flag_${cleanCountry.toLowerCase().replace(/\s+/g, '_')}`);
+        if (cached && cached.url && !cached.url.includes('/assets/fallback-logo.svg')) {
+          // Check if we already generated a custom flag for this country
+          if (generatedCustomFlags.has(cleanCountry)) {
+            result = generatedCustomFlags.get(cleanCountry)!;
+            console.log(`🎨 [flagUtils.ts:getCountryFlagWithFallbackSync] Using cached custom generated flag for ${cleanCountry}`);
+          } else {
+            // Generate custom flag asynchronously and cache the original for now
+            createCustomFlagFromCache(cleanCountry).then(customFlag => {
+              generatedCustomFlags.set(cleanCountry, customFlag);
+              console.log(`✨ [flagUtils.ts] Generated custom flag for ${cleanCountry} from cached data`);
+              
+              // Update the main cache with the custom flag
+              flagCache.setCached(`flag_${cleanCountry.toLowerCase().replace(/\s+/g, '_')}`, customFlag, 'custom-generated', true);
+            }).catch(error => {
+              console.warn(`Failed to generate custom flag for ${cleanCountry}:`, error);
+            });
+            
+            // For now, use the cached original flag
+            result = cached.url;
+            console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Using cached flag for ${cleanCountry} while generating custom: ${result}`);
+          }
+        } else if (cleanCountry === 'World') {
         result = '/assets/world_flag_new.png';
         console.log(`🌍 [flagUtils.ts:getCountryFlagWithFallbackSync] Using local World flag: ${result}`);
       } else if (cleanCountry === 'Europe') {

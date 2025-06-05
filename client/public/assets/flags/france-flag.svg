@@ -1,0 +1,30 @@
+
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleView">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+    <radialGradient id="glossGradient" cx="0.3" cy="0.3" r="0.7">
+      <stop offset="0%" style="stop-color:white;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:white;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background circle with clip -->
+  <g clip-path="url(#circleView)">
+    <!-- Blue stripe (left) -->
+    <rect x="0" y="0" width="21.33" height="64" fill="#0055A4"/>
+    
+    <!-- White stripe (middle) -->
+    <rect x="21.33" y="0" width="21.33" height="64" fill="#FFFFFF"/>
+    
+    <!-- Red stripe (right) -->
+    <rect x="42.66" y="0" width="21.33" height="64" fill="#EF4135"/>
+  </g>
+  
+  <!-- Subtle glossy effect -->
+  <ellipse cx="32" cy="20" rx="20" ry="8" fill="url(#glossGradient)"/>
+  
+  <!-- Border for definition -->
+  <circle cx="32" cy="32" r="31" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.2"/>
+</svg>

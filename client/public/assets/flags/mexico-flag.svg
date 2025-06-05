@@ -1,0 +1,25 @@
+
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleView">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circleView)">
+    <!-- Mexico tricolor -->
+    <rect width="21" height="64" x="0" fill="#006847"/>
+    <rect width="22" height="64" x="21" fill="#FFFFFF"/>
+    <rect width="21" height="64" x="43" fill="#CE1126"/>
+    
+    <!-- Eagle emblem -->
+    <circle cx="32" cy="32" r="10" fill="#8B4513" opacity="0.8"/>
+    <circle cx="32" cy="32" r="6" fill="#654321" opacity="0.9"/>
+    
+    <!-- Eagle wings -->
+    <path d="M 26 28 Q 32 24 38 28 Q 32 32 26 28" fill="#8B4513" opacity="0.7"/>
+    <path d="M 26 36 Q 32 40 38 36 Q 32 32 26 36" fill="#8B4513" opacity="0.7"/>
+    
+    <!-- Glossy effect -->
+    <ellipse cx="32" cy="20" rx="22" ry="10" fill="white" opacity="0.3"/>
+  </g>
+</svg>

@@ -23,9 +23,6 @@ const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 
-// Import cache initialization
-import { initializeFlagRecreation } from './lib/flagRecreation';
-
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -89,142 +86,17 @@ function App() {
     // Preload critical data
     preloadData();
 
-    // Initialize flag recreation system
-    initializeFlagRecreation();
-
     // Cleanup on unmount
     return () => {
       cleanupCacheRefresh();
     };
   }, []);
 
-  // Temporary function for manual flag recreation
-  const handleFlagRecreation = async () => {
-    try {
-      const { recreateAllNationalTeamFlags } = await import('./lib/flagRecreation');
-      const flags = await recreateAllNationalTeamFlags();
-      console.log('🎨 Manually recreated flags:', Object.keys(flags).length);
-      alert(`Successfully recreated ${Object.keys(flags).length} flags! Check console for download instructions.`);
-    } catch (error) {
-      console.error('Failed to recreate flags:', error);
-      alert('Failed to recreate flags. Check console for details.');
-    }
-  };
-
-  // Function to download all generated flags
-  const handleDownloadFlags = async () => {
-    try {
-      const { downloadAllGeneratedFlags } = await import('./lib/flagRecreation');
-      downloadAllGeneratedFlags();
-    } catch (error) {
-      console.error('Failed to download flags:', error);
-      alert('Failed to download flags. Check console for details.');
-    }
-  };
-
-  // Function to force recreate all flags (including existing ones)
-  const handleForceRecreateAll = async () => {
-    try {
-      // Clear existing generated flags first
-      sessionStorage.removeItem('generatedFlags');
-      
-      const { extractColorsFromCachedFlag, generateCustomSVGFlag } = await import('./lib/flagRecreation');
-      const { flagCache } = await import('./lib/logoCache');
-      
-      console.log('🔥 Force recreating ALL flags...');
-      
-      // Get all countries from cache
-      const cache = (flagCache as any).cache;
-      const allCountries: string[] = [];
-      
-      if (cache instanceof Map) {
-        for (const [key] of cache.entries()) {
-          if (key.startsWith('flag_')) {
-            const country = key.replace('flag_', '').replace(/_/g, ' ');
-            allCountries.push(country);
-          }
-        }
-      }
-      
-      console.log(`🌍 Force generating ${allCountries.length} flag SVGs...`);
-      
-      let generated = 0;
-      const generatedFlags: { [key: string]: string } = {};
-      
-      for (const country of allCountries) {
-        try {
-          const colors = await extractColorsFromCachedFlag(country);
-          const svgContent = generateCustomSVGContent(country, colors);
-          const fileName = `${country.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-flag.svg`;
-          
-          // Store directly in session storage
-          generatedFlags[fileName] = svgContent;
-          generated++;
-          
-          if (generated % 10 === 0) {
-            console.log(`📈 Generated ${generated}/${allCountries.length} flags...`);
-          }
-        } catch (error) {
-          console.warn(`Failed to generate flag for ${country}:`, error);
-        }
-      }
-      
-      // Save all generated flags to session storage
-      sessionStorage.setItem('generatedFlags', JSON.stringify(generatedFlags));
-      
-      console.log(`✅ Force generated ${generated} flags for download!`);
-      alert(`Force generated ${generated} flags! Now click "📥 Download Flags"`);
-    } catch (error) {
-      console.error('Failed to force recreate flags:', error);
-      alert('Failed to force recreate flags. Check console for details.');
-    }
-  };
-
-  // Function to clear generated flags
-  const handleClearFlags = async () => {
-    try {
-      const { clearGeneratedFlags } = await import('./lib/flagRecreation');
-      clearGeneratedFlags();
-      alert('Cleared generated flags from storage');
-    } catch (error) {
-      console.error('Failed to clear flags:', error);
-    }
-  };
-
   return (
     <TooltipProvider>
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
-        <div className="space-y-6">
-          {/* Temporary flag management buttons - remove after testing */}
-          <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
-            <button 
-              onClick={handleFlagRecreation}
-              className="bg-blue-500 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-600 text-sm"
-            >
-              🎨 Recreate Flags
-            </button>
-            <button 
-              onClick={handleForceRecreateAll}
-              className="bg-purple-500 text-white px-4 py-2 rounded shadow-lg hover:bg-purple-600 text-sm"
-            >
-              🔥 Force All Flags
-            </button>
-            <button 
-              onClick={handleDownloadFlags}
-              className="bg-green-500 text-white px-4 py-2 rounded shadow-lg hover:bg-green-600 text-sm"
-            >
-              📥 Download Flags
-            </button>
-            <button 
-              onClick={handleClearFlags}
-              className="bg-red-500 text-white px-4 py-2 rounded shadow-lg hover:bg-red-600 text-sm"
-            >
-              🧹 Clear Cache
-            </button>
-          </div>
-          <Router />
-        </div>
+        <Router />
       </main>
     </TooltipProvider>
   );

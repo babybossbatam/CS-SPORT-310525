@@ -106,13 +106,17 @@ export const isNationalTeam = (team: any, league: any): boolean => {
 };
 
 /**
- * Get national team flag for team logo display
+ * Get custom flag URL for national teams in Nations League and international competitions
  */
-export const getNationalTeamFlag = (teamName: string, league?: { name?: string; country?: string }): string | null => {
-  // Check if it's a national team context
-  if (!isNationalTeam({ name: teamName }, league)) {
-    return null;
-  }
+export const getNationalTeamFlag = (teamName: string, league: any): string | null => {
+  if (!teamName || !league) return null;
+
+  const leagueName = league.name?.toLowerCase() || '';
+  const isNationsLeague = leagueName.includes('nations league') || leagueName.includes('uefa nations league');
+  const isInternationalMatch = leagueName.includes('international') || leagueName.includes('friendlies');
+
+  // Only use custom flags for Nations League and international matches
+  if (!isNationsLeague && !isInternationalMatch) return null;
 
   // Map team names to custom flag paths
   const customFlagMapping: { [key: string]: string } = {
@@ -138,7 +142,7 @@ export const getNationalTeamFlag = (teamName: string, league?: { name?: string; 
     'Ukraine': '/assets/flags/ukraine-flag.svg',
     'Norway': '/assets/flags/norway-flag.svg',
     'Sweden': '/assets/flags/sweden-flag.svg',
-
+    
     // Additional Friendlies countries
     'Bulgaria': '/assets/flags/bulgaria-flag.svg',
     'Cyprus': '/assets/flags/cyprus-flag.svg',
@@ -150,21 +154,21 @@ export const getNationalTeamFlag = (teamName: string, league?: { name?: string; 
     'Liechtenstein': '/assets/flags/liechtenstein-flag.svg',
     'Andorra': '/assets/flags/andorra-flag.svg',
     'San Marino': '/assets/flags/san-marino-flag.svg',
-
+    
     // South American teams
     'Brazil': '/assets/flags/brazil-flag.svg',
     'Argentina': '/assets/flags/argentina-flag.svg',
     'Colombia': '/assets/flags/colombia-flag.svg',
     'Chile': '/assets/flags/chile-flag.svg',
     'Uruguay': '/assets/flags/uruguay-flag.svg',
-
+    
     // North American teams
     'United States': '/assets/flags/usa-flag.svg',
     'USA': '/assets/flags/usa-flag.svg',
     'US': '/assets/flags/usa-flag.svg',
     'Mexico': '/assets/flags/mexico-flag.svg',
     'Canada': '/assets/flags/canada-flag.svg',
-
+    
     // Asian/Oceanic teams
     'Japan': '/assets/flags/japan-flag.svg',
     'South Korea': '/assets/flags/south-korea-flag.svg',
@@ -182,21 +186,6 @@ export const getNationalTeamFlag = (teamName: string, league?: { name?: string; 
     if (normalizedTeamName.includes(country.toLowerCase())) {
       return flagPath;
     }
-  }
-
-  // If no custom flag found, try to generate one from cached data
-  try {
-    // Import the recreation function dynamically to avoid circular dependencies
-    import('./flagRecreation').then(({ getCustomNationalTeamFlag }) => {
-      getCustomNationalTeamFlag(teamName, league).then(customFlag => {
-        if (customFlag && customFlag.startsWith('data:image/svg+xml')) {
-          // Cache the generated flag for future use
-          console.log(`🎨 Generated custom SVG flag for national team: ${teamName}`);
-        }
-      });
-    });
-  } catch (error) {
-    console.warn(`Failed to generate custom flag for ${teamName}:`, error);
   }
 
   return null;
