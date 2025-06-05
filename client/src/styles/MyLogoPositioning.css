@@ -65,78 +65,101 @@
   padding: 0.75rem;
   flex: 1;
   min-height: 60px;
-  gap: 0.5rem;
   background: transparent !important;
   background-color: transparent !important;
+  position: relative;
+  width: 100%;
 }
 
-/* Team name containers */
+/* Home team name - positioned on the left with flexible width that adapts */
 .home-team-name {
+  position: absolute;
+  left: 0.75rem;
+  right: calc(50% + 56px);
   text-align: right;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: calc(14px * 0.95);
-  font-weight: 400;
-  color: #1a1a1a;
-  flex: 1;
-  padding-right: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(75 85 99);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-}
-
-.away-team-name {
-  text-align: left;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: calc(14px * 0.95);
-  font-weight: 400;
-  color: #1a1a1a;
-  flex: 1;
-  padding-left: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-}
-
-/* Team logo containers */
-.team-logo-container {
-  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: none !important;
-  background-color: transparent !important;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
 }
 
-/* Winning team styles */
 .home-team-name.winner {
-  font-weight: 600;
+  font-weight: 700;
+  color: rgb(34 197 94);
+}
+
+/* Away team name - positioned on the right with flexible width that adapts */
+.away-team-name {
+  position: absolute;
+  right: 0.75rem;
+  left: calc(50% + 56px);
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(75 85 99);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  min-width: 0;
 }
 
 .away-team-name.winner {
-  font-weight: 600;
+  font-weight: 700;
+  color: rgb(34 197 94);
 }
 
-.team-logo {
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  min-height: 34px;
-  object-fit: cover;
-  filter: brightness(100%) contrast(105%) saturate(100%) drop-shadow(0 2px 4px rgba(0,0,0,0.15)) drop-shadow(0 1px 2px rgba(0,0,0,0.1));
-  background: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border: none !important;
-  outline: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+/* Team logo container with fixed center positioning */
+.team-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
 }
 
-.team-logo.national-team {
-  border-radius: 50% !important;
-  object-fit: cover;
+/* Position home team logo to the left of center - fixed distance */
+.match-content-container .team-logo-container:first-of-type {
+  left: calc(50% - 64px);
+}
+
+/* Position away team logo to the right of center - fixed distance */
+.match-content-container .team-logo-container:last-of-type {
+  right: calc(50% - 64px);
+}
+
+/* Match score container - absolutely centered and fixed */
+.match-score-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  min-width: 88px;
+  max-width: 88px;
+  flex-shrink: 0;
+  padding: 0.25rem 0;
+  z-index: 10;
+  background: transparent;
 }
 
 /* Score/Time center container */
