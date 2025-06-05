@@ -714,26 +714,46 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </span>
             </div>
 
-            {/* VS Text Component */}
+            {/* Status */}
             <div className="text-center mb-2">
-              <div className="text-lg font-medium text-gray-700">
-                VS
+              <div className="text-xs font-medium text-gray-500">
+                {currentMatch.fixture.status.short === "FT" ? "Ended" :
+                 currentMatch.fixture.status.short === "AET" ? "Ended (AET)" :
+                 currentMatch.fixture.status.short === "PEN" ? "Ended (PEN)" :
+                 currentMatch.fixture.status.short === "1H" || 
+                 currentMatch.fixture.status.short === "2H" ? "Live" :
+                 currentMatch.fixture.status.short === "HT" ? "Half Time" :
+                 currentMatch.fixture.status.short === "NS" ? "Upcoming" :
+                 currentMatch.fixture.status.short}
               </div>
             </div>
 
             {/* Score */}
             <div className="flex items-center justify-center mb-4">
-              <div className="text-lg font-medium text-gray-500">vs</div>
               {currentMatch.goals.home !== null &&
-              currentMatch.goals.away !== null && (
-                <div className="text-2xl font-bold text-gray-900 mt-2">
+              currentMatch.goals.away !== null ? (
+                <div className="text-3xl font-bold text-gray-900">
                   {currentMatch.goals.home} - {currentMatch.goals.away}
                 </div>
+              ) : (
+                <div className="text-lg font-medium text-gray-500">vs</div>
               )}
             </div>
 
             {/* Match content in TodayPopularLeagueNew style */}
-            <div className="match-content-container p-4">
+            <div className="match-card-container group">
+              {/* Star Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-yellow-500 hover:text-yellow-600 p-1 rounded-full z-30 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100"
+                title="Add to favorites"
+              >
+                <Star className="h-3 w-3" />
+              </button>
+
+              <div className="match-content-container p-4">
                 {/* Home Team Name - positioned further left */}
                 <div
                   className={`home-team-name text-sm font-medium text-gray-900 truncate flex-1 ${
@@ -845,9 +865,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                           </div>
                                         );
                                       } else {
-                                        // Match is finished butThis commit replaces the status component with a VS text component.
-```typescript
- no valid score data
+                                        // Match is finished but no valid score data
                                         const statusText =
                                           status === "FT"
                                             ? "No Score"
@@ -964,6 +982,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {shortenTeamName ? shortenTeamName(currentMatch.teams.away.name) : currentMatch.teams.away.name}
                 </div>
               </div>
+            </div>
 
             {/* Match Info */}
             <div className="flex items-center justify-between text-sm text-gray-500">

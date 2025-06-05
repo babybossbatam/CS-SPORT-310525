@@ -112,44 +112,6 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           <span className="vs-text font-bold">VS</span>
         </div>
 
-        {/* Match time display - positioned below VS */}
-        <div
-          className="absolute text-center text-black font-medium"
-          style={{
-            fontSize: "0.875rem",
-            whiteSpace: "nowrap",
-            overflow: "visible",
-            textAlign: "center",
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-            top: "calc(50% + 17.5px)",
-            width: "max-content",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            zIndex: 25,
-          }}
-        >
-          {(() => {
-            try {
-              const matchDate = parseISO(fixture.date);
-              const timeOnly = format(matchDate, "HH:mm");
-              
-              // Show different content based on match status
-              if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
-                return status === 'HT' ? 'HT' : 'LIVE';
-              } else if (['FT', 'AET', 'PEN'].includes(status)) {
-                return 'FT';
-              } else if (status === 'NS' || status === 'TBD') {
-                return timeOnly;
-              }
-              
-              return timeOnly;
-            } catch (e) {
-              return '--:--';
-            }
-          })()}
-        </div>
-
         {/* Match date and venue - centered below VS */}
         <div
           className="absolute text-center text-xs text-black font-medium"
