@@ -83,11 +83,31 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const featuredMatches = [];
 
-        // Fetch matches for today, tomorrow, and day after tomorrow
+        // Popular leagues and countries configuration (from TodayPopularLeague)
+        const POPULAR_LEAGUES = [
+          39, 45, 48, // England: Premier League, FA Cup, EFL Cup
+          140, 143, // Spain: La Liga, Copa del Rey
+          135, 137, // Italy: Serie A, Coppa Italia
+          78, 81, // Germany: Bundesliga, DFB Pokal
+          61, 66, // France: Ligue 1, Coupe de France
+          301, // UAE Pro League
+          233, // Egyptian Premier League
+          15, // FIFA Club World Cup
+          914, 848, // COSAFA Cup, UEFA Conference League
+          2, 3, // Champions League, Europa League
+        ];
+
+        const POPULAR_COUNTRIES_ORDER = [
+          "England", "Spain", "Italy", "Germany", "France", "World", "Europe",
+          "South America", "Brazil", "Saudi Arabia", "Egypt", "Colombia",
+          "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
+        ];
+
+        // Fetch matches for today, tomorrow, and day after tomorrow (top 2 leagues each)
         const datesToFetch = [
-          { date: todayString, maxLeagues: 3, maxMatches: 3 },
-          { date: tomorrowString, maxLeagues: 3, maxMatches: 3 },
-          { date: dayAfterTomorrowString, maxLeagues: 1, maxMatches: 1 },
+          { date: todayString, maxLeagues: 2, maxMatches: 2 },
+          { date: tomorrowString, maxLeagues: 2, maxMatches: 2 },
+          { date: dayAfterTomorrowString, maxLeagues: 2, maxMatches: 2 },
         ];
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
@@ -102,8 +122,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               `🔍 [FeaturedMatch] Found ${allFixtures.length} fixtures for ${date}`,
             );
 
-            // Filter fixtures using smart time filtering and exclusion
+            // Apply TodayPopularLeague filtering logic
             const filteredFixtures = allFixtures.filter((fixture) => {
+              if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+                return false;
+              }
+
+              // Apply MyFeaturedMatchExclusion
+              if (shouldExcludeFeaturedMatch(
+                fixture.league?.name || '',
+                fixture.teams?.home?.name || '',
+                fixture.teams?.away?.name || ''
+              )) {
+                return false;
+              }
+
               // Apply smart time filtering
               if (fixture.fixture.date && fixture.fixture.status?.short) {
                 const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -123,48 +156,108 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 if (!shouldInclude) return false;
               }
 
-              // Apply exclusion filters
-              if (shouldExcludeFeaturedMatch(
-                fixture.league?.name || '',
-                fixture.teams?.home?.name || '',
-                fixture.teams?.away?.name || ''
-              )) {
-                return false;
-              }
+              const league = fixture.league;
+              const country = league.country?.toLowerCase() || "";
+              const leagueId = league.id;
+              const leagueName = league.name?.toLowerCase() || "";
 
-              return true;
+              // Check if it's a popular league
+              const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+              // Check if it's from a popular country
+              const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+                (popularCountry) => country.includes(popularCountry.toLowerCase()),
+              );
+
+              // Check if it's an international competition
+              const isInternationalCompetition =
+                leagueName.includes("champions league") ||
+                leagueName.includes("europa league") ||
+                leagueName.includes("conference league") ||
+                leagueName.includes("uefa") ||
+                leagueName.includes("world cup") ||
+                leagueName.includes("fifa club world cup") ||
+                leagueName.includes("fifa") ||
+                leagueName.includes("conmebol") ||
+                leagueName.includes("copa america") ||
+                leagueName.includes("copa libertadores") ||
+                leagueName.includes("copa sudamericana") ||
+                leagueName.includes("libertadores") ||
+                leagueName.includes("sudamericana") ||
+                (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+                (leagueName.includes("international") && !leagueName.includes("women")) ||
+                country.includes("world") ||
+                country.includes("europe") ||
+                country.includes("international");
+
+              return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
             });
 
-            // Apply priority filtering using MyNewPriorityFilters
-            const priorityFilteredFixtures = applyPriorityFiltering(
-              filteredFixtures,
-              date,
-            );
+            // Group fixtures by country and league using TodayPopularLeague logic
+            const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
+              const league = fixture.league;
+              const country = league.country || "World";
+              const leagueId = league.id;
 
-            // Group by country and league
-            const groupedByCountry = groupFixturesByCountryAndLeague(priorityFilteredFixtures);
+              if (!acc[country]) {
+                acc[country] = {
+                  country,
+                  leagues: {},
+                  hasPopularLeague: false,
+                };
+              }
+
+              // Check if this is a popular league
+              const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+              const isPopularCountry = POPULAR_COUNTRIES_ORDER.includes(country);
+
+              if (isPopularLeague || isPopularCountry) {
+                acc[country].hasPopularLeague = true;
+              }
+
+              if (!acc[country].leagues[leagueId]) {
+                acc[country].leagues[leagueId] = {
+                  league: league,
+                  matches: [],
+                  isPopular: isPopularLeague || isPopularCountry,
+                };
+              }
+
+              acc[country].leagues[leagueId].matches.push(fixture);
+              return acc;
+            }, {});
 
             // Filter to show only popular countries
-            const popularCountries = filterPopularCountries(groupedByCountry);
-
-            // Flatten all leagues from popular countries
-            const allLeaguesFlat = popularCountries.flatMap((countryData) =>
-              Object.values(countryData.leagues).map((leagueData) => ({
-                ...leagueData,
-                country: countryData.country,
-                flag: countryData.flag,
-              })),
+            const filteredCountries = Object.values(fixturesByCountry).filter(
+              (countryData: any) => countryData.hasPopularLeague
             );
 
-            // Sort leagues by TodayPopularLeagueNew priority system
-            const sortedLeagues = allLeaguesFlat.sort((a, b) => {
-              const aCountry = a.country?.toLowerCase() || "";
-              const bCountry = b.country?.toLowerCase() || "";
-              const aLeagueName = a.league?.name?.toLowerCase() || "";
-              const bLeagueName = b.league?.name?.toLowerCase() || "";
+            // Sort countries by popular order
+            const sortedCountries = filteredCountries.sort((a: any, b: any) => {
+              const getPopularCountryIndex = (country: string) => {
+                const index = POPULAR_COUNTRIES_ORDER.findIndex(
+                  (pc) => pc.toLowerCase() === country.toLowerCase()
+                );
+                return index === -1 ? 999 : index;
+              };
 
-              // Helper function to get league priority (based on TodayPopularLeagueNew)
-              const getLeaguePriority = (leagueData) => {
+              const aPopularIndex = getPopularCountryIndex(a.country);
+              const bPopularIndex = getPopularCountryIndex(b.country);
+
+              return aPopularIndex - bPopularIndex;
+            });
+
+            // Get top leagues from all countries using TodayPopularLeague priority
+            const allLeaguesFlat = sortedCountries.flatMap((countryData: any) =>
+              Object.values(countryData.leagues).map((leagueData: any) => ({
+                ...leagueData,
+                country: countryData.country,
+              }))
+            );
+
+            // Sort leagues by TodayPopularLeague priority system
+            const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
+              const getLeaguePriority = (leagueData: any) => {
                 const name = (leagueData.league?.name || "").toLowerCase();
                 const country = (leagueData.country || "").toLowerCase();
 
@@ -248,18 +341,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
 
               // If same priority, sort alphabetically by league name
+              const aLeagueName = a.league?.name?.toLowerCase() || "";
+              const bLeagueName = b.league?.name?.toLowerCase() || "";
               return aLeagueName.localeCompare(bLeagueName);
             });
 
-            // Take only the required number of leagues for this date
+            // Take only the top 2 leagues for this date
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
 
             // Get matches from each top league
             for (const leagueData of topLeagues) {
               const leagueMatches = leagueData.matches || [];
 
-              // Sort matches within league using TodayPopularLeagueNew sorting
-              const sortedMatches = leagueMatches.sort((a, b) => {
+              // Sort matches within league using TodayPopularLeague sorting
+              const sortedMatches = leagueMatches.sort((a: any, b: any) => {
                 const aStatus = a.fixture.status.short;
                 const bStatus = b.fixture.status.short;
                 const aDate = parseISO(a.fixture.date);
@@ -281,7 +376,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const bUpcoming = bStatus === "NS" || bStatus === "TBD";
 
                 const aFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
-                const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
+                const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
 
                 // PRIORITY 1: LIVE matches always come first
                 if (aLive && !bLive) return -1;
@@ -302,7 +397,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   return aHomeTeam.localeCompare(bHomeTeam);
                 }
 
-                // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically
+                // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically by home team
                 if (aUpcoming && !bUpcoming) return -1;
                 if (!aUpcoming && bUpcoming) return 1;
 
@@ -335,7 +430,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return aHomeTeam.localeCompare(bHomeTeam);
               });
 
-              // Take only the required number of matches for this date
+              // Take only the top matches from this league for this date
               const topMatches = sortedMatches.slice(0, dateMaxMatches);
 
               // Add matches to featured collection
@@ -345,7 +440,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   league: {
                     ...match.league,
                     country: leagueData.country,
-                    flag: leagueData.flag,
                   },
                   dateContext: date, // Add context for which date this match is from
                 });
@@ -739,7 +833,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                 <div className="flex items-center gap-1.5 ml-2">
                   <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <Badge
+<Badge
                     variant="outline"
                     className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
                   >
