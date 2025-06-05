@@ -956,37 +956,88 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
               // Custom sorting for World leagues
               if (countryData.country === "World") {
+                console.log(`🌍 [WORLD SORTING DEBUG] Sorting World leagues:`, {
+                  leagueA: {
+                    name: a.league?.name,
+                    isFriendlies: a.isFriendlies,
+                    matchCount: a.matches?.length
+                  },
+                  leagueB: {
+                    name: b.league?.name,
+                    isFriendlies: b.isFriendlies,
+                    matchCount: b.matches?.length
+                  }
+                });
+
                 const getWorldLeaguePriority = (leagueData: any) => {
                   const name = (leagueData.league?.name || '').toLowerCase();
                   // Check if it's marked as friendlies or contains friendlies in name
                   const isFriendlies = leagueData.isFriendlies || name.includes('friendlies');
                   
+                  console.log(`🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}"`, {
+                    nameToLower: name,
+                    isFriendlies,
+                    leagueDataIsFriendlies: leagueData.isFriendlies,
+                    nameIncludesFriendlies: name.includes('friendlies'),
+                    nameIncludesUefaNationsLeague: name.includes('uefa nations league')
+                  });
+                  
                   // Priority 1: UEFA Nations League (must come before Friendlies check)
-                  if (name.includes('uefa nations league')) return 1;
+                  if (name.includes('uefa nations league')) {
+                    console.log(`✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}"`);
+                    return 1;
+                  }
                   
                   // Priority 2: Friendlies (but exclude UEFA Nations League)
-                  if (isFriendlies && !name.includes('uefa nations league')) return 2;
+                  if (isFriendlies && !name.includes('uefa nations league')) {
+                    console.log(`✅ [PRIORITY 2] Friendlies found: "${leagueData.league?.name}"`);
+                    return 2;
+                  }
                   
                   // Priority 3: World Cup Qualification Asia
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) {
+                    console.log(`✅ [PRIORITY 3] World Cup Qualification Asia found: "${leagueData.league?.name}"`);
+                    return 3;
+                  }
                   
                   // Priority 4: World Cup Qualification CONCACAF
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) return 4;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) {
+                    console.log(`✅ [PRIORITY 4] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`);
+                    return 4;
+                  }
                   
                   // Priority 5: World Cup Qualification Europe
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) return 5;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) {
+                    console.log(`✅ [PRIORITY 5] World Cup Qualification Europe found: "${leagueData.league?.name}"`);
+                    return 5;
+                  }
                   
                   // Priority 6: World Cup Qualification South America
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('south america')) return 6;
+                  if (name.includes('world cup') && name.includes('qualification') && name.includes('south america')) {
+                    console.log(`✅ [PRIORITY 6] World Cup Qualification South America found: "${leagueData.league?.name}"`);
+                    return 6;
+                  }
                   
                   // Priority 7: Tournoi Maurice Revello
-                  if (name.includes('tournoi maurice revello')) return 7;
+                  if (name.includes('tournoi maurice revello')) {
+                    console.log(`✅ [PRIORITY 7] Tournoi Maurice Revello found: "${leagueData.league?.name}"`);
+                    return 7;
+                  }
                   
+                  console.log(`❌ [PRIORITY 999] No priority match for: "${leagueData.league?.name}"`);
                   return 999; // Other leagues go to bottom
                 };
 
                 const aPriority = getWorldLeaguePriority(a);
                 const bPriority = getWorldLeaguePriority(b);
+
+                console.log(`🎯 [FINAL PRIORITY] Comparison result:`, {
+                  leagueA: a.league?.name,
+                  priorityA: aPriority,
+                  leagueB: b.league?.name,
+                  priorityB: bPriority,
+                  sortResult: aPriority - bPriority
+                });
 
                 if (aPriority !== bPriority) {
                   return aPriority - bPriority;
@@ -995,6 +1046,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 // If same priority, sort alphabetically by league name
                 const aName = a.league?.name || '';
                 const bName = b.league?.name || '';
+                console.log(`📝 [ALPHABETICAL] Same priority, sorting alphabetically:`, {
+                  aName,
+                  bName,
+                  result: aName.localeCompare(bName)
+                });
                 return aName.localeCompare(bName);
               }
 
