@@ -135,12 +135,12 @@
 
 /* Position home team logo to the left of center - fixed distance */
 .match-content-container .team-logo-container:first-of-type {
-  left: calc(50% - 64px);
+  left: calc(50% - 90px);
 }
 
 /* Position away team logo to the right of center - fixed distance */
 .match-content-container .team-logo-container:last-of-type {
-  right: calc(50% - 64px);
+  right: calc(50% - 90px);
 }
 
 /* Match score container - absolutely centered between team logos */
