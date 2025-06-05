@@ -824,7 +824,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch.teams.home.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-contain"
+                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
