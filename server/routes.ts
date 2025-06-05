@@ -1207,6 +1207,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint for 365scores league logos
+  apiRouter.get('/365scores/leagues/:leagueId/logo', async (req: Request, res: Response) => {
+    try {
+      let { leagueId } = req.params;
+
+      // If leagueId contains a URL, extract the actual league ID
+      if (leagueId.includes('http')) {
+        const urlDecoded = decodeURIComponent(leagueId);
+        const leagueIdMatch = urlDecoded.match(/\/leagues\/(\d+)\.png/);
+        if (leagueIdMatch && leagueIdMatch[1]) {
+          leagueId = leagueIdMatch[1];
+        } else {
+          console.warn(`Could not extract league ID from URL: ${urlDecoded}`);
+          return res.status(400).json({ error: 'Invalid league ID format' });
+        }
+      }
+
+      // Validate that leagueId is numeric
+      if (!/^\d+$/.test(leagueId)) {
+        console.warn(`Invalid league ID format: ${leagueId}`);
+        return res.status(400).json({ error: 'League ID must be numeric' });
+      }
+
+      console.log(`365scores: Fetching logo for league ID: ${leagueId}`);
+
+      // Try multiple 365scores logo formats for leagues
+      const logoUrls = [
+        `https://www.365scores.com/images/leagues/${leagueId}.png`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
+        `https://365scores.com/images/competitions/${leagueId}.png`,
+        `https://static.365scores.com/images/leagues/${leagueId}.png`
+      ];
+
+      for (const logoUrl of logoUrls) {
+        try {
+          const response = await fetch(logoUrl, {
+            headers: {
+              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
+              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            },
+            timeout: 5000
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get('content-type') || 'image/png';
+            const buffer = await response.arrayBuffer();
+
+            res.set('Content-Type', contentType);
+            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+            res.send(Buffer.from(buffer));
+            return;
+          }
+        } catch (error) {
+          console.warn(`365scores league logo URL failed: ${logoUrl}`, error);
+          continue;
+        }
+      }
+
+      console.warn(`365scores league logo not found for league: ${leagueId}`);
+      res.status(404).json({ error: 'League logo not found' });
+    } catch (error) {
+      console.error(`Error fetching 365scores league logo for ${req.params.leagueId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch league logo' });
+    }
+  });
+
   // New endpoint for square team logos
   apiRouter.get('/team-logo/square/:teamId', async (req: Request, res: Response) => {
     try {

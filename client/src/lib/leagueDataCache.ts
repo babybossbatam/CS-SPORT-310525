@@ -4,7 +4,7 @@
  * Handles caching and fetching of league information
  */
 
-import { leagueLogoCache, getLeagueLogoCacheKey } from './logoCache';
+import { leagueLogoCache, getLeagueLogoCacheKey, validateLogoUrl } from './logoCache';
 
 export interface LeagueData {
   id: number;
@@ -13,6 +13,80 @@ export interface LeagueData {
   logo: string;
   priority?: number;
   type?: 'domestic' | 'international';
+}
+
+/**
+ * Get league logo with 365scores integration and caching
+ */
+export async function getLeagueLogoWithCache(leagueId: number | string, leagueName?: string, originalUrl?: string): Promise<string> {
+  const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
+  
+  // Check cache first
+  const cached = leagueLogoCache.getCached(cacheKey);
+  if (cached) {
+    return cached.url;
+  }
+
+  // Generate sources including 365scores
+  const sources = [
+    // Original URL if provided
+    ...(originalUrl ? [{
+      url: originalUrl,
+      source: 'original',
+      priority: 1
+    }] : []),
+    
+    // 365scores sources
+    {
+      url: `/api/365scores/leagues/${leagueId}/logo`,
+      source: '365scores-proxy',
+      priority: 2
+    },
+    {
+      url: `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
+      source: '365scores-imagecache',
+      priority: 3
+    },
+    
+    // API Sports
+    {
+      url: `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+      source: 'api-sports',
+      priority: 4
+    },
+    
+    // Fallback
+    {
+      url: '/assets/fallback-logo.svg',
+      source: 'fallback',
+      priority: 999
+    }
+  ];
+
+  // Try each source
+  for (const source of sources.sort((a, b) => a.priority - b.priority)) {
+    try {
+      if (source.url.startsWith('/assets/')) {
+        leagueLogoCache.setCached(cacheKey, source.url, source.source, true);
+        return source.url;
+      }
+
+      // For external URLs, validate first
+      const response = await fetch(source.url, { method: 'HEAD' });
+      if (response.ok) {
+        leagueLogoCache.setCached(cacheKey, source.url, source.source, true);
+        console.log(`🏆 [getLeagueLogoWithCache] Cached league ${leagueId} from ${source.source}`);
+        return source.url;
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+
+  // Final fallback
+  const fallbackUrl = '/assets/fallback-logo.svg';
+  leagueLogoCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
+  return fallbackUrl;
 }
 
 interface CachedLeagueData {

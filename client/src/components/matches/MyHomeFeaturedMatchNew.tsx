@@ -694,16 +694,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           >
             {/* League Info with Logo */}
             <div className="flex items-center gap-2 mb-3">
-              {currentMatch.league?.logo && (
-                <img
-                  src={currentMatch.league.logo}
-                  alt={currentMatch.league.name}
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-              )}
+              <LazyImage
+                src={currentMatch.league?.logo || `/api/365scores/leagues/${currentMatch.league?.id}/logo`}
+                alt={currentMatch.league?.name || 'League logo'}
+                className="w-5 h-5 object-contain"
+                fallbackSrc="/assets/fallback-logo.svg"
+                onError={(e) => {
+                  // Try 365scores as fallback
+                  const target = e.currentTarget as HTMLImageElement;
+                  if (!target.src.includes('365scores') && currentMatch.league?.id) {
+                    target.src = `/api/365scores/leagues/${currentMatch.league.id}/logo`;
+                  } else if (!target.src.includes('fallback-logo.svg')) {
+                    target.src = "/assets/fallback-logo.svg";
+                  }
+                }}
+              />
               <span className="text-sm font-medium text-gray-700">
                 {currentMatch.league.name}
               </span>

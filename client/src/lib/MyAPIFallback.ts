@@ -23,7 +23,7 @@ export interface LeagueLogoOptions {
   size?: 'small' | 'medium' | 'large';
 }
 
-import { teamLogoCache, getTeamLogoCacheKey, validateLogoUrl } from './logoCache';
+import { teamLogoCache, getTeamLogoCacheKey, validateLogoUrl, leagueLogoCache } from './logoCache';
 
 /**
  * Validates if a URL is properly formatted and not already processed
@@ -259,7 +259,7 @@ export async function getCachedLeagueLogo(leagueId: number | string, leagueName?
   const cacheKey = `league_${leagueId}_${leagueName || 'unknown'}`;
 
   // Check cache first
-  const cached = teamLogoCache.getCached(cacheKey);
+  const cached = leagueLogoCache.getCached(cacheKey);
   if (cached) {
     return cached;
   }
@@ -270,25 +270,27 @@ export async function getCachedLeagueLogo(leagueId: number | string, leagueName?
     try {
       // For local assets, return immediately
       if (source.url.startsWith('/assets/')) {
-        teamLogoCache.setCached(cacheKey, source.url, source.source, true);
+        leagueLogoCache.setCached(cacheKey, source.url, source.source, true);
         return source.url;
       }
 
       // For external URLs, do a quick validation
       const isValid = await validateLogoUrl(source.url);
       if (isValid) {
-        teamLogoCache.setCached(cacheKey, source.url, source.source, true);
+        leagueLogoCache.setCached(cacheKey, source.url, source.source, true);
+        console.log(`✅ [getCachedLeagueLogo] Successfully cached league ${leagueId} from ${source.source}: ${source.url}`);
         return source.url;
       }
     } catch (error) {
-      // Continue to next source on error
+      console.warn(`❌ [getCachedLeagueLogo] Failed to load league ${leagueId} from ${source.source}:`, error);
       continue;
     }
   }
 
   // If all sources fail, return fallback and cache it
   const fallbackUrl = '/assets/fallback-logo.svg';
-  teamLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+  leagueLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+  console.warn(`🚫 [getCachedLeagueLogo] All sources failed for league ${leagueId}, using fallback`);
   return fallbackUrl;
 }
 
