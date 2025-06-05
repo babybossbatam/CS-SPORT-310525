@@ -730,13 +730,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             {/* Score */}
             <div className="flex items-center justify-center mb-4">
+              <div className="text-lg font-medium text-gray-500">vs</div>
               {currentMatch.goals.home !== null &&
-              currentMatch.goals.away !== null ? (
-                <div className="text-3xl font-bold text-gray-900">
+              currentMatch.goals.away !== null && (
+                <div className="text-2xl font-bold text-gray-900 mt-2">
                   {currentMatch.goals.home} - {currentMatch.goals.away}
                 </div>
-              ) : (
-                <div className="text-lg font-medium text-gray-500">vs</div>
               )}
             </div>
 
