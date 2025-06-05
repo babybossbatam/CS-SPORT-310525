@@ -63,8 +63,25 @@ export class MySmartTimeFilter {
       let convertedStatus = matchStatus;
       if (notStartedStatuses.includes(matchStatus)) {
           const now = new Date();
-          if (fixtureDate < now) {
-              convertedStatus = 'FT'; // Or any other status that fits your logic
+          
+          // Only convert to FT if the fixture is actually in the past AND on a past date
+          // Don't convert future dates even if the time has passed today
+          const fixtureDateOnly = format(fixtureDate, 'yyyy-MM-dd');
+          const todayDateOnly = format(now, 'yyyy-MM-dd');
+          
+          // Only convert if the fixture date is actually before today's date
+          if (fixtureDateOnly < todayDateOnly) {
+              convertedStatus = 'FT';
+              console.log(`🔄 [SMART STATUS] Converted NS to FT: ${fixtureDateOnly} < ${todayDateOnly}`);
+          }
+          // For same day fixtures, only convert if time has passed AND we're viewing today
+          else if (fixtureDateOnly === todayDateOnly && fixtureDate < now && isSelectedToday) {
+              convertedStatus = 'FT';
+              console.log(`🔄 [SMART STATUS] Converted NS to FT (same day): ${format(fixtureDate, 'HH:mm')} < ${format(now, 'HH:mm')}`);
+          }
+          // Keep NS status for future dates regardless of time
+          else {
+              console.log(`✅ [SMART STATUS] Keeping NS status: fixture=${fixtureDateOnly}, today=${todayDateOnly}, selected=${selectedDateString}`);
           }
       }
       // Smart status converter implementation end
@@ -189,8 +206,8 @@ export class MySmartTimeFilter {
       // CUSTOM DATE LOGIC (for dates that are not today/tomorrow/yesterday)
       if (!isSelectedToday && !isSelectedTomorrow && !isSelectedYesterday) {
 
-        // For NS (Not Started) matches on custom dates
-        if (notStartedStatuses.includes(convertedStatus)) {
+        // For NS (Not Started) matches on custom dates - use original status, not converted
+        if (notStartedStatuses.includes(matchStatus)) {
           if (fixtureDateString === selectedDateString) {
             return {
               label: 'custom',
