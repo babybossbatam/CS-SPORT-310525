@@ -30,7 +30,7 @@ import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
-import { isNationalTeam } from "../../lib/teamLogoSources";
+import { isNationalTeam, getNationalTeamFlag } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
@@ -1478,11 +1478,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 {/* Home team logo - closer to center */}
                                 <div className="team-logo-container">
                                   <LazyImage
-                                    src={
-                                      match.teams.home.id
+                                    src={(() => {
+                                      const customFlag = getNationalTeamFlag(match.teams.home.name, leagueData.league);
+                                      if (customFlag) {
+                                        return customFlag;
+                                      }
+                                      return match.teams.home.id
                                         ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
+                                        : "/assets/fallback-logo.svg";
+                                    })()}
                                     alt={match.teams.home.name}
                                     title={match.teams.home.name}
                                     className={`team-logo ${
@@ -1697,11 +1701,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 {/* Away team logo - closer to center */}
                                 <div className="team-logo-container">
                                   <LazyImage
-                                    src={
-                                      match.teams.away.id
+                                    src={(() => {
+                                      const customFlag = getNationalTeamFlag(match.teams.away.name, leagueData.league);
+                                      if (customFlag) {
+                                        return customFlag;
+                                      }
+                                      return match.teams.away.id
                                         ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
+                                        : "/assets/fallback-logo.svg";
+                                    })()}
                                     alt={match.teams.away.name}
                                     title={match.teams.away.name}
                                     className={`team-logo ${

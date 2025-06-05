@@ -1,0 +1,19 @@
+
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleView">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circleView)">
+    <!-- Turkey flag - Red background with crescent and star -->
+    <rect x="0" y="0" width="64" height="64" fill="#E30A17"/>
+    <!-- Crescent moon -->
+    <circle cx="24" cy="32" r="8" fill="#FFFFFF"/>
+    <circle cx="26" cy="32" r="6" fill="#E30A17"/>
+    <!-- Star -->
+    <polygon points="36,28 37,31 40,31 37.5,33 38.5,36 36,34 33.5,36 34.5,33 32,31 35,31" fill="#FFFFFF"/>
+  </g>
+  <!-- Glossy effect -->
+  <ellipse cx="32" cy="20" rx="22" ry="10" fill="white" opacity="0.2"/>
+</svg>

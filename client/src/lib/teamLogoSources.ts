@@ -1,4 +1,3 @@
-
 /**
  * Enhanced team logo sources with 365scores integration
  */
@@ -20,7 +19,7 @@ export interface TeamData {
  */
 export function getTeamLogoSources(team: TeamData, isNationalTeam = false): TeamLogoSource[] {
   const sources: TeamLogoSource[] = [];
-  
+
   // For national teams or international competitions, prioritize 365scores
   if (isNationalTeam && team?.id) {
     sources.push({
@@ -75,31 +74,92 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false): Team
   return sources.sort((a, b) => a.priority - b.priority);
 }
 
-/**
- * Check if team is likely a national team
- */
-export function isNationalTeam(team: TeamData, league?: any): boolean {
-  const teamName = team?.name?.toLowerCase() || '';
-  const leagueName = league?.name?.toLowerCase() || '';
-  const country = league?.country?.toLowerCase() || '';
-  
-  return (
-    teamName.includes('national') ||
-    teamName.includes(' u20') ||
-    teamName.includes(' u21') ||
-    teamName.includes(' u23') ||
-    teamName.endsWith(' w') || // Women's teams
-    country === 'world' ||
-    country === 'europe' ||
+export const isNationalTeam = (team: any, league: any): boolean => {
+  if (!team || !league) return false;
+
+  const teamName = team.name?.toLowerCase() || '';
+  const leagueName = league.name?.toLowerCase() || '';
+  const leagueCountry = league.country?.toLowerCase() || '';
+
+  // Check if it's an international competition
+  const isInternationalCompetition = 
+    leagueName.includes('nations league') ||
+    leagueName.includes('uefa nations league') ||
     leagueName.includes('international') ||
+    leagueName.includes('friendlies') ||
     leagueName.includes('world cup') ||
     leagueName.includes('euro') ||
     leagueName.includes('copa america') ||
     leagueName.includes('uefa') ||
     leagueName.includes('conmebol') ||
-    leagueName.includes('nations league')
-  );
-}
+    leagueName.includes('fifa') ||
+    leagueCountry.includes('world') ||
+    leagueCountry.includes('europe') ||
+    leagueCountry.includes('international');
+
+  // For international competitions, assume teams are national teams
+  if (isInternationalCompetition) {
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Get custom flag URL for national teams in Nations League and international competitions
+ */
+export const getNationalTeamFlag = (teamName: string, league: any): string | null => {
+  if (!teamName || !league) return null;
+
+  const leagueName = league.name?.toLowerCase() || '';
+  const isNationsLeague = leagueName.includes('nations league') || leagueName.includes('uefa nations league');
+  const isInternationalMatch = leagueName.includes('international') || leagueName.includes('friendlies');
+
+  // Only use custom flags for Nations League and international matches
+  if (!isNationsLeague && !isInternationalMatch) return null;
+
+  // Map team names to custom flag paths
+  const customFlagMapping: { [key: string]: string } = {
+    'Germany': '/assets/flags/germany-flag.svg',
+    'Portugal': '/assets/flags/portugal-flag.svg',
+    'France': '/assets/flags/france-flag.svg',
+    'Spain': '/assets/flags/spain-flag.svg',
+    'England': '/assets/flags/england-flag.svg',
+    'Italy': '/assets/flags/italy-flag.svg',
+    'Netherlands': '/assets/flags/netherlands-flag.svg',
+    'Belgium': '/assets/flags/belgium-flag.svg',
+    'Croatia': '/assets/flags/croatia-flag.svg',
+    'Poland': '/assets/flags/poland-flag.svg',
+    'Turkey': '/assets/flags/turkey-flag.svg',
+    'Switzerland': '/assets/flags/switzerland-flag.svg',
+    'Denmark': '/assets/flags/denmark-flag.svg',
+    'Austria': '/assets/flags/austria-flag.svg',
+    'Scotland': '/assets/flags/scotland-flag.svg',
+    'Wales': '/assets/flags/wales-flag.svg',
+    'Czech Republic': '/assets/flags/czech-republic-flag.svg',
+    'Czechia': '/assets/flags/czech-republic-flag.svg',
+    'Ukraine': '/assets/flags/ukraine-flag.svg',
+    'Brazil': '/assets/flags/brazil-flag.svg',
+    'United States': '/assets/flags/usa-flag.svg',
+    'USA': '/assets/flags/usa-flag.svg',
+    'US': '/assets/flags/usa-flag.svg',
+  };
+
+  // Try exact match first
+  if (customFlagMapping[teamName]) {
+    return customFlagMapping[teamName];
+  }
+
+  // Try partial matches for team names that might have variations
+  const normalizedTeamName = teamName.toLowerCase();
+  for (const [country, flagPath] of Object.entries(customFlagMapping)) {
+    if (normalizedTeamName.includes(country.toLowerCase())) {
+      return flagPath;
+    }
+  }
+
+  return null;
+};
 
 /**
  * Create enhanced error handler for team logos
@@ -111,7 +171,7 @@ export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = fals
   return function handleError(event: any) {
     const img = event.target as HTMLImageElement;
     const currentSrc = img.src;
-    
+
     // Find current source index
     const currentSourceIndex = sources.findIndex(source => currentSrc.includes(source.url.split('/').pop() || ''));
     if (currentSourceIndex >= 0) {

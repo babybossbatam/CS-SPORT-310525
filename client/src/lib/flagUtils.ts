@@ -682,6 +682,20 @@ const customFlagSVGs: { [key: string]: string } = {
   'England': '/assets/flags/england-flag.svg',
   'Spain': '/assets/flags/spain-flag.svg',
   'Portugal': '/assets/flags/portugal-flag.svg',
+  'Italy': '/assets/flags/italy-flag.svg',
+  'Netherlands': '/assets/flags/netherlands-flag.svg',
+  'Belgium': '/assets/flags/belgium-flag.svg',
+  'Croatia': '/assets/flags/croatia-flag.svg',
+  'Poland': '/assets/flags/poland-flag.svg',
+  'Turkey': '/assets/flags/turkey-flag.svg',
+  'Switzerland': '/assets/flags/switzerland-flag.svg',
+  'Denmark': '/assets/flags/denmark-flag.svg',
+  'Austria': '/assets/flags/austria-flag.svg',
+  'Scotland': '/assets/flags/scotland-flag.svg',
+  'Wales': '/assets/flags/wales-flag.svg',
+  'Czech Republic': '/assets/flags/czech-republic-flag.svg',
+  'Czechia': '/assets/flags/czech-republic-flag.svg',
+  'Ukraine': '/assets/flags/ukraine-flag.svg',
 };
 
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
