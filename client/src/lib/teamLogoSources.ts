@@ -114,16 +114,9 @@ export const getNationalTeamFlag = (teamName: string, league: any): string | nul
   const leagueName = league.name?.toLowerCase() || '';
   const isNationsLeague = leagueName.includes('nations league') || leagueName.includes('uefa nations league');
   const isInternationalMatch = leagueName.includes('international') || leagueName.includes('friendlies');
-  const isWorldCup = leagueName.includes('world cup');
-  const isInternationalCompetition = league.country === 'World' || league.country === 'Europe';
 
-  // Special case for Friendlies league - use custom friendlies flag for all teams
-  if (leagueName === 'friendlies' || (leagueName.includes('friendlies') && league.country === 'World')) {
-    return '/assets/flags/friendlies-flag.svg';
-  }
-
-  // Use custom flags for all international competitions
-  if (!isNationsLeague && !isInternationalMatch && !isWorldCup && !isInternationalCompetition) return null;
+  // Only use custom flags for Nations League and international matches
+  if (!isNationsLeague && !isInternationalMatch) return null;
 
   // Map team names to custom flag paths
   const customFlagMapping: { [key: string]: string } = {
