@@ -27,7 +27,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const loadFeaturedMatches = async () => {
       try {
         setLoading(true);
+        console.log('🔍 Fetching featured matches for date:', selectedDate, 'maxMatches:', maxMatches);
         const featuredMatches = await fetchFeaturedMatchData(selectedDate, maxMatches);
+        console.log('📊 Featured matches received:', featuredMatches);
         setMatches(featuredMatches);
         setCurrentIndex(0); // Reset to first match when data changes
       } catch (error) {
