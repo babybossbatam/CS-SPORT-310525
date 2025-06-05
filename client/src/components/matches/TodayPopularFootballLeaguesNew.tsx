@@ -134,16 +134,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
     Italy: [135, 137], // Serie A, Coppa Italia
     Germany: [78, 81], // Bundesliga, DFB Pokal
     France: [61, 66], // Ligue 1, Coupe de France
-    // Removed league restrictions for Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World
-    // These countries will now show all their leagues (exclusion filtering will be applied later)
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
     International: [15], // FIFA Club World Cup as separate category
-    Europe: [2, 3, 848, 5], // Champions League, Europa League, Conference League, UEFA Nations League
+    World: [914, 848, 15], // COSAFA Cup, UEFA Conference League, FIFA Club World Cup
   };
 
-  // Flatten popular leagues for backward compatibility
-  const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
+  // Flatten popular leagues for backward compatibility and add COSAFA Cup
+  const POPULAR_LEAGUES = [...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(), 914]; // 914 is COSAFA Cup
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -217,7 +215,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    console.log(`Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+    console.log(`🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+    
+    // Count COSAFA Cup matches in input
+    const cosafaMatches = fixtures.filter(f => 
+      f.league?.name?.toLowerCase().includes('cosafa') || 
+      f.teams?.home?.name?.toLowerCase().includes('cosafa') ||
+      f.teams?.away?.name?.toLowerCase().includes('cosafa')
+    );
+    console.log(`🏆 [COSAFA DEBUG] Found ${cosafaMatches.length} COSAFA Cup matches in input fixtures:`, 
+      cosafaMatches.map(m => ({
+        id: m.fixture?.id,
+        date: m.fixture?.date,
+        status: m.fixture?.status?.short,
+        league: m.league?.name,
+        home: m.teams?.home?.name,
+        away: m.teams?.away?.name
+      }))
+    );
+    
     const startTime = Date.now();
 
     // Determine what type of date is selected
@@ -246,7 +262,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
           if (selectedDate === todayString && smartResult.label === 'today') return true;
           if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
-          
+
           // Handle custom dates (dates that are not today/tomorrow/yesterday)
           if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
             if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
@@ -267,14 +283,32 @@ const TodayPopularFootballLeaguesNew: React.FC<
           return false;
         }
 
-        console.log(`✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-          fixtureDate: fixture.fixture.date,
-          status: fixture.fixture.status.short,
-          reason: smartResult.reason,
-          label: smartResult.label,
-          selectedDate,
-          isWithinTimeRange: smartResult.isWithinTimeRange
-        });
+        // Additional debug for COSAFA Cup matches
+        const isCOSAFAMatch = fixture.league?.name?.toLowerCase().includes('cosafa') || 
+                             fixture.teams?.home?.name?.toLowerCase().includes('cosafa') ||
+                             fixture.teams?.away?.name?.toLowerCase().includes('cosafa');
+        
+        if (isCOSAFAMatch) {
+          console.log(`🏆 [COSAFA SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureId: fixture.fixture?.id,
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange,
+            league: fixture.league?.name
+          });
+        } else {
+          console.log(`✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange
+          });
+        }
       }
 
       // Client-side filtering for popular leagues and countries
@@ -408,8 +442,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     const endTime = Date.now();
-    console.log(
-      `Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+    
+    // Count COSAFA Cup matches in final filtered results
+    const finalCosafaMatches = finalFiltered.filter(f => 
+      f.league?.name?.toLowerCase().includes('cosafa') || 
+      f.teams?.home?.name?.toLowerCase().includes('cosafa') ||
+      f.teams?.away?.name?.toLowerCase().includes('cosafa')
+    );
+    
+    console.log(`🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`);
+    console.log(`🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`, 
+      finalCosafaMatches.map(m => ({
+        id: m.fixture?.id,
+        date: m.fixture?.date,
+        status: m.fixture?.status?.short,
+        league: m.league?.name,
+        home: m.teams?.home?.name,
+        away: m.teams?.away?.name
+      }))
     );
 
     return finalFiltered;
@@ -524,7 +574,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           const leagueId = league.id;
 
           if (!acc[countryKey].leagues[leagueId]) {
-            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
+            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, Europe, South America, World), 
             // consider all leagues as "popular" to show them all
             const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
             const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);

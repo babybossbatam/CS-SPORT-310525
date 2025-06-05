@@ -1,4 +1,3 @@
-
 /**
  * Application-wide constants
  */
@@ -19,3 +18,20 @@ export const CACHE_STALE_TIMES = {
   LEAGUES: 14400000,         // 4 hours (increased from 60 minutes)
   MATCH_DETAILS: 3600000,    // 1 hour (increased from 30 minutes)
 };
+
+export const POPULAR_LEAGUES = [
+  // UEFA competitions
+  2, 3, 848, // Champions League, Europa League, Conference League
+
+  // Top European leagues
+  39, 140, 135, 78, 61, // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+
+  // Other major leagues
+  88, 253, 71, // Eredivisie, Major League Soccer, Serie A Brazil
+
+  // International competitions
+  1, 4, 15, // World Cup, Euro Championship, FIFA Club World Cup
+
+  // African competitions
+  914, // COSAFA Cup
+];
