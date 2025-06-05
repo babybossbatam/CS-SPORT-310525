@@ -1112,16 +1112,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     },
                   );
 
-                  // Priority 1: UEFA Nations League (must come before Friendlies check)
-                  if (name.includes("uefa nations league")) {
+                  // Priority 1: UEFA Nations League (HIGHEST PRIORITY - must come before all others)
+                  if (name.includes("uefa nations league") && !name.includes("women")) {
                     console.log(
-                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}" - SHOULD BE TOP PRIORITY`,
+                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}" - TOP PRIORITY`,
                     );
                     return 1;
                   }
 
-                  // Priority 2: Friendlies (but exclude UEFA Nations League)
-                  if (isFriendlies && !name.includes("uefa nations league")) {
+                  // Priority 2: Friendlies (but exclude UEFA Nations League and women's matches)
+                  if (isFriendlies && !name.includes("uefa nations league") && !name.includes("women")) {
                     console.log(
                       `✅ [PRIORITY 2] Friendlies found: "${leagueData.league?.name}"`,
                     );
