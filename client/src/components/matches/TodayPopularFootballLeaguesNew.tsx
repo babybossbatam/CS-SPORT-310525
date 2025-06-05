@@ -7,16 +7,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import {
-  format,
-  parseISO,
-  isValid,
-  differenceInHours,
-} from "date-fns";
+import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 // Removed complex date utilities - using simple date filtering now
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import { shouldExcludeFromPopularLeagues, isPopularLeagueSuitable, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
+import {
+  shouldExcludeFromPopularLeagues,
+  isPopularLeagueSuitable,
+  isRestrictedUSLeague,
+} from "@/lib/MyPopularLeagueExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
 import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
@@ -43,32 +42,44 @@ const shortenTeamName = (teamName: string): string => {
 
   // Remove common suffixes that make names too long
   const suffixesToRemove = [
-    '-sc', '-SC', ' SC', ' FC', ' CF', ' United', ' City',
-    ' Islands', ' Republic', ' National Team', ' U23', ' U21', ' U20', ' U19'
+    "-sc",
+    "-SC",
+    " SC",
+    " FC",
+    " CF",
+    " United",
+    " City",
+    " Islands",
+    " Republic",
+    " National Team",
+    " U23",
+    " U21",
+    " U20",
+    " U19",
   ];
 
   let shortened = teamName;
   for (const suffix of suffixesToRemove) {
     if (shortened.endsWith(suffix)) {
-      shortened = shortened.replace(suffix, '');
+      shortened = shortened.replace(suffix, "");
       break;
     }
   }
 
   // Handle specific country name shortenings
   const countryMappings: { [key: string]: string } = {
-    'Cape Verde Islands': 'Cape Verde',
-    'Central African Republic': 'CAR',
-    'Dominican Republic': 'Dominican Rep',
-    'Bosnia and Herzegovina': 'Bosnia',
-    'Trinidad and Tobago': 'Trinidad',
-    'Papua New Guinea': 'Papua NG',
-    'United Arab Emirates': 'UAE',
-    'Saudi Arabia': 'Saudi',
-    'South Africa': 'S. Africa',
-    'New Zealand': 'New Zealand',
-    'Costa Rica': 'Costa Rica',
-    'Puerto Rico': 'Puerto Rico'
+    "Cape Verde Islands": "Cape Verde",
+    "Central African Republic": "CAR",
+    "Dominican Republic": "Dominican Rep",
+    "Bosnia and Herzegovina": "Bosnia",
+    "Trinidad and Tobago": "Trinidad",
+    "Papua New Guinea": "Papua NG",
+    "United Arab Emirates": "UAE",
+    "Saudi Arabia": "Saudi",
+    "South Africa": "S. Africa",
+    "New Zealand": "New Zealand",
+    "Costa Rica": "Costa Rica",
+    "Puerto Rico": "Puerto Rico",
   };
 
   // Check if the team name matches any country mappings
@@ -141,7 +152,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
   };
 
   // Flatten popular leagues for backward compatibility and add COSAFA Cup
-  const POPULAR_LEAGUES = [...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(), 914]; // 914 is COSAFA Cup
+  const POPULAR_LEAGUES = [
+    ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
+    914,
+  ]; // 914 is COSAFA Cup
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -215,36 +229,40 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    console.log(`🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+    console.log(
+      `🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+    );
 
     // Count COSAFA Cup matches in input
-    const cosafaMatches = fixtures.filter(f => 
-      f.league?.name?.toLowerCase().includes('cosafa') || 
-      f.teams?.home?.name?.toLowerCase().includes('cosafa') ||
-      f.teams?.away?.name?.toLowerCase().includes('cosafa')
+    const cosafaMatches = fixtures.filter(
+      (f) =>
+        f.league?.name?.toLowerCase().includes("cosafa") ||
+        f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
+        f.teams?.away?.name?.toLowerCase().includes("cosafa"),
     );
-    console.log(`🏆 [COSAFA DEBUG] Found ${cosafaMatches.length} COSAFA Cup matches in input fixtures:`, 
-      cosafaMatches.map(m => ({
+    console.log(
+      `🏆 [COSAFA DEBUG] Found ${cosafaMatches.length} COSAFA Cup matches in input fixtures:`,
+      cosafaMatches.map((m) => ({
         id: m.fixture?.id,
         date: m.fixture?.date,
         status: m.fixture?.status?.short,
         league: m.league?.name,
         home: m.teams?.home?.name,
-        away: m.teams?.away?.name
-      }))
+        away: m.teams?.away?.name,
+      })),
     );
 
     const startTime = Date.now();
 
     // Determine what type of date is selected
     const today = new Date();
-    const todayString = format(today, 'yyyy-MM-dd');
+    const todayString = format(today, "yyyy-MM-dd");
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = format(yesterday, 'yyyy-MM-dd');
+    const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
@@ -254,60 +272,84 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
           fixture.fixture.date,
           fixture.fixture.status.short,
-          selectedDate + 'T12:00:00Z' // Pass selected date as context
+          selectedDate + "T12:00:00Z", // Pass selected date as context
         );
 
         // Check if this match should be included based on the selected date
         const shouldInclude = (() => {
-          if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
-          if (selectedDate === todayString && smartResult.label === 'today') return true;
-          if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
+          if (
+            selectedDate === tomorrowString &&
+            smartResult.label === "tomorrow"
+          )
+            return true;
+          if (selectedDate === todayString && smartResult.label === "today")
+            return true;
+          if (
+            selectedDate === yesterdayString &&
+            smartResult.label === "yesterday"
+          )
+            return true;
 
           // Handle custom dates (dates that are not today/tomorrow/yesterday)
-          if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
-            if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
+          if (
+            selectedDate !== todayString &&
+            selectedDate !== tomorrowString &&
+            selectedDate !== yesterdayString
+          ) {
+            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
+              return true;
           }
 
           return false;
         })();
 
         if (!shouldInclude) {
-          console.log(`❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange
-          });
+          console.log(
+            `❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            },
+          );
           return false;
         }
 
         // Additional debug for COSAFA Cup matches
-        const isCOSAFAMatch = fixture.league?.name?.toLowerCase().includes('cosafa') || 
-                             fixture.teams?.home?.name?.toLowerCase().includes('cosafa') ||
-                             fixture.teams?.away?.name?.toLowerCase().includes('cosafa');
+        const isCOSAFAMatch =
+          fixture.league?.name?.toLowerCase().includes("cosafa") ||
+          fixture.teams?.home?.name?.toLowerCase().includes("cosafa") ||
+          fixture.teams?.away?.name?.toLowerCase().includes("cosafa");
 
         if (isCOSAFAMatch) {
-          console.log(`🏆 [COSAFA SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureId: fixture.fixture?.id,
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange,
-            league: fixture.league?.name
-          });
+          console.log(
+            `🏆 [COSAFA SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureId: fixture.fixture?.id,
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+              league: fixture.league?.name,
+            },
+          );
         } else {
-          console.log(`✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange
-          });
+          console.log(
+            `✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            },
+          );
         }
       }
 
@@ -320,8 +362,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       // Check if it's from a popular country
       const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-        (popularCountry) =>
-          country.includes(popularCountry.toLowerCase()),
+        (popularCountry) => country.includes(popularCountry.toLowerCase()),
       );
 
       // Apply exclusion check FIRST, before checking international competitions
@@ -330,7 +371,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
 
       // Early exclusion for women's competitions and other unwanted matches
-      if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
+      if (
+        shouldExcludeFromPopularLeagues(
+          fixture.league.name,
+          fixture.teams.home.name,
+          fixture.teams.away.name,
+          country,
+        )
+      ) {
         return false;
       }
 
@@ -353,8 +401,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         leagueName.includes("libertadores") ||
         leagueName.includes("sudamericana") ||
         // Men's International Friendlies (excludes women's)
-        (leagueName.includes("friendlies") &&
-          !leagueName.includes("women")) ||
+        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
         (leagueName.includes("international") &&
           !leagueName.includes("women")) ||
         country.includes("world") ||
@@ -362,9 +409,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country.includes("international");
 
       return (
-        isPopularLeague ||
-        isFromPopularCountry ||
-        isInternationalCompetition
+        isPopularLeague || isFromPopularCountry || isInternationalCompetition
       );
     });
 
@@ -375,7 +420,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           fixture.league.name,
           fixture.teams.home.name,
           fixture.teams.away.name,
-          fixture.league.country
+          fixture.league.country,
         )
       ) {
         return false;
@@ -444,22 +489,26 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const endTime = Date.now();
 
     // Count COSAFA Cup matches in final filtered results
-    const finalCosafaMatches = finalFiltered.filter(f => 
-      f.league?.name?.toLowerCase().includes('cosafa') || 
-      f.teams?.home?.name?.toLowerCase().includes('cosafa') ||
-      f.teams?.away?.name?.toLowerCase().includes('cosafa')
+    const finalCosafaMatches = finalFiltered.filter(
+      (f) =>
+        f.league?.name?.toLowerCase().includes("cosafa") ||
+        f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
+        f.teams?.away?.name?.toLowerCase().includes("cosafa"),
     );
 
-    console.log(`🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`);
-    console.log(`🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`, 
-      finalCosafaMatches.map(m => ({
+    console.log(
+      `🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+    );
+    console.log(
+      `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
+      finalCosafaMatches.map((m) => ({
         id: m.fixture?.id,
         date: m.fixture?.date,
         status: m.fixture?.status?.short,
         league: m.league?.name,
         home: m.teams?.home?.name,
-        away: m.teams?.away?.name
-      }))
+        away: m.teams?.away?.name,
+      })),
     );
 
     return finalFiltered;
@@ -488,7 +537,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const awayTeamName = fixture.teams?.away?.name || "";
 
       // Debug: Log UEFA/FIFA competitions
-      if (leagueName.includes("uefa") || leagueName.includes("fifa") || leagueName.includes("champions") || leagueName.includes("europa") || leagueName.includes("conference")) {
+      if (
+        leagueName.includes("uefa") ||
+        leagueName.includes("fifa") ||
+        leagueName.includes("champions") ||
+        leagueName.includes("europa") ||
+        leagueName.includes("conference")
+      ) {
         console.log(`🏆 [UEFA/FIFA DEBUG] Found:`, {
           leagueId: fixture.league.id,
           leagueName: fixture.league.name,
@@ -496,12 +551,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
           homeTeam: fixture.teams.home.name,
           awayTeam: fixture.teams.away.name,
           date: fixture.fixture.date,
-          status: fixture.fixture.status.short
+          status: fixture.fixture.status.short,
         });
       }
 
       // Check if fixture should be excluded using popular league specialized filter
-      if (shouldExcludeFromPopularLeagues(leagueName, homeTeamName, awayTeamName, country)) {
+      if (
+        shouldExcludeFromPopularLeagues(
+          leagueName,
+          homeTeamName,
+          awayTeamName,
+          country,
+        )
+      ) {
         return acc;
       }
 
@@ -574,15 +636,30 @@ const TodayPopularFootballLeaguesNew: React.FC<
           const leagueId = league.id;
 
           if (!acc[countryKey].leagues[leagueId]) {
-            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, Europe, South America, World), 
+            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, Europe, South America, World),
             // consider all leagues as "popular" to show them all
-            const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
-            const isUnrestrictedCountry = unrestrictedCountries.includes(countryKey);
+            const unrestrictedCountries = [
+              "Brazil",
+              "Colombia",
+              "Saudi Arabia",
+              "USA",
+              "United States",
+              "United-States",
+              "US",
+              "United Arab Emirates",
+              "United-Arab-Emirates",
+              "Europe",
+              "South America",
+              "World",
+            ];
+            const isUnrestrictedCountry =
+              unrestrictedCountries.includes(countryKey);
 
             acc[countryKey].leagues[leagueId] = {
               league: { ...league, country: countryKey },
               matches: [],
-              isPopular: POPULAR_LEAGUES.includes(leagueId) || isUnrestrictedCountry,
+              isPopular:
+                POPULAR_LEAGUES.includes(leagueId) || isUnrestrictedCountry,
               isFriendlies: league.name.toLowerCase().includes("friendlies"),
             };
           }
@@ -619,9 +696,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const isPopularForCountry = countryPopularLeagues.includes(leagueId);
       const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
-      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
+      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
       // consider all leagues as "popular" to show them all
-      const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
+      const unrestrictedCountries = [
+        "Brazil",
+        "Colombia",
+        "Saudi Arabia",
+        "USA",
+        "United States",
+        "United-States",
+        "US",
+        "United Arab Emirates",
+        "United-Arab-Emirates",
+        "Europe",
+        "South America",
+        "World",
+      ];
       const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
       if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
@@ -629,9 +719,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       if (!acc[country].leagues[leagueId]) {
-        // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World), 
+        // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
         // consider all leagues as "popular" to show them all
-        const unrestrictedCountries = ['Brazil', 'Colombia', 'Saudi Arabia', 'USA', 'United States', 'United-States', 'US', 'United Arab Emirates', 'United-Arab-Emirates', 'Europe', 'South America', 'World'];
+        const unrestrictedCountries = [
+          "Brazil",
+          "Colombia",
+          "Saudi Arabia",
+          "USA",
+          "United States",
+          "United-States",
+          "US",
+          "United Arab Emirates",
+          "United-Arab-Emirates",
+          "Europe",
+          "South America",
+          "World",
+        ];
         const isUnrestrictedCountry = unrestrictedCountries.includes(country);
 
         acc[country].leagues[leagueId] = {
@@ -642,7 +745,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
               "https://media.api-sports.io/football/leagues/1.png",
           },
           matches: [],
-          isPopular: isPopularForCountry || isGloballyPopular || isUnrestrictedCountry,
+          isPopular:
+            isPopularForCountry || isGloballyPopular || isUnrestrictedCountry,
           isPopularForCountry: isPopularForCountry || isUnrestrictedCountry,
           isFriendlies: league.name.toLowerCase().includes("friendlies"),
         };
@@ -848,7 +952,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Simple date comparison handled by SimpleDateFilter
 
-
   if (isLoading || isFetching) {
     return (
       <Card>
@@ -862,8 +965,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
         <CardContent className="p-0">
           <div className="space-y-0">
             {[1, 2, 3].map((i) => (
-              <div```text
- key={i} className="border-b border-gray-100 last:border-b-0">
+              <div
+                text
+                key={i}
+                className="border-b border-gray-100 last:border-b-0"
+              >
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Skeleton className="w-6 h-4 rounded-sm" />
@@ -895,7 +1001,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Simple date display
   const currentDate = SimpleDateFilter.getCurrentDate();
 
-  // Get header title 
+  // Get header title
   const getHeaderTitle = () => {
     return "Popular Football Leagues";
   };
@@ -941,18 +1047,23 @@ const TodayPopularFootballLeaguesNew: React.FC<
             .sort((a: any, b: any) => {
               // Debug: Log all World leagues before sorting
               if (countryData.country === "World") {
-                console.log(`🌍 [WORLD DEBUG] All World leagues before sorting:`, 
+                console.log(
+                  `🌍 [WORLD DEBUG] All World leagues before sorting:`,
                   Object.values(countryData.leagues).map((league: any) => ({
                     id: league.league?.id,
                     name: league.league?.name,
                     isFriendlies: league.isFriendlies,
-                    matchCount: league.matches?.length
-                  }))
+                    matchCount: league.matches?.length,
+                  })),
                 );
               }
               // Check for UEFA Nations League - Women first (lowest priority)
-              const aIsWomensNationsLeague = a.league.name?.toLowerCase().includes('uefa nations league') && a.league.name?.toLowerCase().includes('women');
-              const bIsWomensNationsLeague = b.league.name?.toLowerCase().includes('uefa nations league') && b.league.name?.toLowerCase().includes('women');
+              const aIsWomensNationsLeague =
+                a.league.name?.toLowerCase().includes("uefa nations league") &&
+                a.league.name?.toLowerCase().includes("women");
+              const bIsWomensNationsLeague =
+                b.league.name?.toLowerCase().includes("uefa nations league") &&
+                b.league.name?.toLowerCase().includes("women");
 
               if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
               if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
@@ -972,71 +1083,109 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   leagueA: {
                     name: a.league?.name,
                     isFriendlies: a.isFriendlies,
-                    matchCount: a.matches?.length
+                    matchCount: a.matches?.length,
                   },
                   leagueB: {
                     name: b.league?.name,
                     isFriendlies: b.isFriendlies,
-                    matchCount: b.matches?.length
-                  }
+                    matchCount: b.matches?.length,
+                  },
                 });
 
                 const getWorldLeaguePriority = (leagueData: any) => {
-                  const name = (leagueData.league?.name || '').toLowerCase();
+                  const name = (leagueData.league?.name || "").toLowerCase();
                   // Check if it's marked as friendlies or contains friendlies in name
-                  const isFriendlies = leagueData.isFriendlies || name.includes('friendlies');
+                  const isFriendlies =
+                    leagueData.isFriendlies || name.includes("friendlies");
 
-                  console.log(`🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}"`, {
-                    nameToLower: name,
-                    isFriendlies,
-                    leagueDataIsFriendlies: leagueData.isFriendlies,
-                    nameIncludesFriendlies: name.includes('friendlies'),
-                    nameIncludesUefaNationsLeague: name.includes('uefa nations league')
-                  });
+                  console.log(
+                    `🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}"`,
+                    {
+                      nameToLower: name,
+                      isFriendlies,
+                      leagueDataIsFriendlies: leagueData.isFriendlies,
+                      nameIncludesFriendlies: name.includes("friendlies"),
+                      nameIncludesUefaNationsLeague: name.includes(
+                        "uefa nations league",
+                      ),
+                    },
+                  );
 
                   // Priority 1: UEFA Nations League (must come before Friendlies check)
-                  if (name.includes('uefa nations league')) {
-                    console.log(`✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}"`);
+                  if (name.includes("uefa nations league")) {
+                    console.log(
+                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}"`,
+                    );
                     return 1;
                   }
 
                   // Priority 2: Friendlies (but exclude UEFA Nations League)
-                  if (isFriendlies && !name.includes('uefa nations league')) {
-                    console.log(`✅ [PRIORITY 2] Friendlies found: "${leagueData.league?.name}"`);
+                  if (isFriendlies && !name.includes("uefa nations league")) {
+                    console.log(
+                      `✅ [PRIORITY 2] Friendlies found: "${leagueData.league?.name}"`,
+                    );
                     return 2;
                   }
 
                   // Priority 3: World Cup Qualification Asia
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) {
-                    console.log(`✅ [PRIORITY 3] World Cup Qualification Asia found: "${leagueData.league?.name}"`);
+                  if (
+                    name.includes("world cup") &&
+                    name.includes("qualification") &&
+                    name.includes("asia")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 3] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
+                    );
                     return 3;
                   }
 
                   // Priority 4: World Cup Qualification CONCACAF
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) {
-                    console.log(`✅ [PRIORITY 4] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`);
+                  if (
+                    name.includes("world cup") &&
+                    name.includes("qualification") &&
+                    name.includes("concacaf")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 4] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
+                    );
                     return 4;
                   }
 
                   // Priority 5: World Cup Qualification Europe
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('europe')) {
-                    console.log(`✅ [PRIORITY 5] World Cup Qualification Europe found: "${leagueData.league?.name}"`);
+                  if (
+                    name.includes("world cup") &&
+                    name.includes("qualification") &&
+                    name.includes("europe")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 5] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
+                    );
                     return 5;
                   }
 
                   // Priority 6: World Cup Qualification South America
-                  if (name.includes('world cup') && name.includes('qualification') && name.includes('south america')) {
-                    console.log(`✅ [PRIORITY 6] World Cup Qualification South America found: "${leagueData.league?.name}"`);
+                  if (
+                    name.includes("world cup") &&
+                    name.includes("qualification") &&
+                    name.includes("south america")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 6] World Cup Qualification South America found: "${leagueData.league?.name}"`,
+                    );
                     return 6;
                   }
 
                   // Priority 7: Tournoi Maurice Revello
-                  if (name.includes('tournoi maurice revello')) {
-                    console.log(`✅ [PRIORITY 7] Tournoi Maurice Revello found: "${leagueData.league?.name}"`);
+                  if (name.includes("tournoi maurice revello")) {
+                    console.log(
+                      `✅ [PRIORITY 7] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
+                    );
                     return 7;
                   }
 
-                  console.log(`❌ [PRIORITY 999] No priority match for: "${leagueData.league?.name}"`);
+                  console.log(
+                    `❌ [PRIORITY 999] No priority match for: "${leagueData.league?.name}"`,
+                  );
                   return 999; // Other leagues go to bottom
                 };
 
@@ -1048,7 +1197,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   priorityA: aPriority,
                   leagueB: b.league?.name,
                   priorityB: bPriority,
-                  sortResult: aPriority - bPriority
+                  sortResult: aPriority - bPriority,
                 });
 
                 if (aPriority !== bPriority) {
@@ -1056,13 +1205,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 }
 
                 // If same priority, sort alphabetically by league name
-                const aName = a.league?.name || '';
-                const bName = b.league?.name || '';
-                console.log(`📝 [ALPHABETICAL] Same priority, sorting alphabetically:`, {
-                  aName,
-                  bName,
-                  result: aName.localeCompare(bName)
-                });
+                const aName = a.league?.name || "";
+                const bName = b.league?.name || "";
+                console.log(
+                  `📝 [ALPHABETICAL] Same priority, sorting alphabetically:`,
+                  {
+                    aName,
+                    bName,
+                    result: aName.localeCompare(bName),
+                  },
+                );
                 return aName.localeCompare(bName);
               }
 
@@ -1094,10 +1246,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 "/assets/fallback-logo.svg";
                             }}
                           />
-                          <span className="font-medium text-blue-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
-                            {safeSubstring(leagueData.league.name, 0) || "Friendlies"}
+                          <span
+                            className="font-medium text-blue-800"
+                            style={{ fontSize: "calc(0.875rem * 0.85)" }}
+                          >
+                            {safeSubstring(leagueData.league.name, 0) ||
+                              "Friendlies"}
                           </span>
-                          <span className="text-blue-600" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
+                          <span
+                            className="text-blue-600"
+                            style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                          >
                             {leagueData.matches.length}{" "}
                             {leagueData.matches.length === 1
                               ? "match"
@@ -1120,25 +1279,43 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             }}
                           />
                           <div className="flex flex-col flex-1">
-                            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+                            <span
+                              className="font-semibold text-gray-800"
+                              style={{
+                                fontFamily:
+                                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                fontSize: "13.3px",
+                              }}
+                            >
                               {safeSubstring(leagueData.league.name, 0) ||
                                 "Unknown League"}
                             </span>
-                            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+                            <span
+                              className="text-gray-600"
+                              style={{
+                                fontFamily:
+                                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                fontSize: "13.3px",
+                              }}
+                            >
                               {leagueData.league.country || "Unknown Country"}
                             </span>
                           </div>
                           <div className="flex gap-1">
                             {leagueData.isPopular &&
                               !leagueData.isPopularForCountry && (
-                                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
+                                <span
+                                  className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                                  style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                                >
                                   Popular
                                 </span>
                               )}
                           </div>
                         </CardContent>
                       )}
-                    </>                  )}
+                    </>
+                  )}
                   {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
                     <div className="space-y-0">
@@ -1184,11 +1361,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                           const aTime = aDate.getTime();
                           const bTime = bDate.getTime();
-  // Define status categories
+                          // Define status categories
                           const aLive = [
                             "LIVE",
                             "1H",
-                            "HT", 
+                            "HT",
                             "2H",
                             "ET",
                             "BT",
@@ -1199,15 +1376,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             "LIVE",
                             "1H",
                             "HT",
-                            "2H", 
+                            "2H",
                             "ET",
                             "BT",
                             "P",
                             "INT",
                           ].includes(bStatus);
 
-                          const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-                          const bUpcoming = bStatus === "NS" || bStatus === "TBD";
+                          const aUpcoming =
+                            aStatus === "NS" || aStatus === "TBD";
+                          const bUpcoming =
+                            bStatus === "NS" || bStatus === "TBD";
 
                           const aFinished = [
                             "FT",
@@ -1221,7 +1400,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           ].includes(aStatus);
                           const bFinished = [
                             "FT",
-                            "AET", 
+                            "AET",
                             "PEN",
                             "AWD",
                             "WO",
@@ -1236,8 +1415,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                           // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
                           if (aLive && bLive) {
-                            const aElapsed = Number(a.fixture.status.elapsed) || 0;
-                            const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                            const aElapsed =
+                              Number(a.fixture.status.elapsed) || 0;
+                            const bElapsed =
+                              Number(b.fixture.status.elapsed) || 0;
 
                             if (aElapsed !== bElapsed) {
                               return aElapsed - bElapsed;
@@ -1317,11 +1498,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               <div className="match-content-container">
                                 {/* Home Team Name - positioned further left */}
-                                <div className={`home-team-name ${
-                                  match.goals.home !== null && match.goals.away !== null && 
-                                  match.goals.home > match.goals.away ? 'winner' : ''
-                                }`}>
-                                  {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+                                <div
+                                  className={`home-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.home > match.goals.away
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
+                                  {shortenTeamName(match.teams.home.name) ||
+                                    "Unknown Team"}
                                 </div>
 
                                 {/* Home team logo - closer to center */}
@@ -1337,7 +1524,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     className={`team-logo ${
                                       isNationalTeam(
                                         match.teams.home,
-                                        leagueData.league
+                                        leagueData.league,
                                       )
                                         ? "national-team"
                                         : ""
@@ -1556,28 +1743,34 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     className={`team-logo ${
                                       isNationalTeam(
                                         match.teams.away,
-                                        leagueData.league
+                                        leagueData.league,
                                       )
                                         ? "national-team"
                                         : ""
                                     }`}
-                                    style={{ 
+                                    style={{
                                       backgroundColor: "transparent",
                                       background: "none",
                                       backgroundImage: "none",
                                       border: "none",
-                                      boxShadow: "none"
+                                      boxShadow: "none",
                                     }}
                                     fallbackSrc="/assets/fallback-logo.svg"
                                   />
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
-                                <div className={`away-team-name ${
-                                  match.goals.home !== null && match.goals.away !== null && 
-                                  match.goals.away > match.goals.home ? 'winner' : ''
-                                }`}>
-                                  {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                                <div
+                                  className={`away-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.away > match.goals.home
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
+                                  {shortenTeamName(match.teams.away.name) ||
+                                    "Unknown Team"}
                                 </div>
                               </div>
                             </div>
