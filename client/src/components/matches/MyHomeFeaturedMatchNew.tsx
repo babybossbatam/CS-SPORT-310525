@@ -26,7 +26,6 @@ import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
-import { getFlagUrl, getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
@@ -44,7 +43,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [flagUrls, setFlagUrls] = useState<{[country: string]: string}>({});
 
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
@@ -534,27 +532,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         setMatches(validMatches);
         setCurrentIndex(0);
-
-        // Preload flags asynchronously for all matches
-        const preloadFlags = async () => {
-          const flagMap: {[country: string]: string} = {};
-          for (const match of validMatches) {
-            if (match.league?.country && !flagMap[match.league.country]) {
-              try {
-                const flagUrl = await getFlagUrl(match.league.country);
-                flagMap[match.league.country] = flagUrl;
-              } catch (error) {
-                console.warn(`Failed to preload flag for ${match.league.country}:`, error);
-                flagMap[match.league.country] = getCountryFlagWithFallbackSync(match.league.country);
-              }
-            }
-          }
-          setFlagUrls(flagMap);
-        };
-
-        if (validMatches.length > 0) {
-          preloadFlags();
-        }
       } catch (error) {
         console.error(
           "🔍 [FeaturedMatch] Error fetching featured matches:",
@@ -754,21 +731,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   className="w-5 h-5 object-contain mr-2"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-              ) : currentMatch?.league?.country ? (
-                <img
-                  src={flagUrls[currentMatch.league.country] || getCountryFlagWithFallbackSync(currentMatch.league.country)}
-                  alt={`${currentMatch.league.country} flag`}
-                  className="w-5 h-3 object-cover rounded-sm mr-2"
-                  onError={(e) => {
-                    // Fallback to sync flag system if async failed
-                    const fallbackFlag = getCountryFlagWithFallbackSync(currentMatch.league.country);
-                    if (e.currentTarget.src !== fallbackFlag) {
-                      e.currentTarget.src = fallbackFlag;
-                    } else {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }
                   }}
                 />
               ) : (
