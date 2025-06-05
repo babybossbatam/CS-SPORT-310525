@@ -79,6 +79,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Monaco': 'MC',
   'Andorra': 'AD',
   'San Marino': 'SM',
+  'Bulgaria': 'BG',
   'Vatican City': 'VA',
   'Brazil': 'BR',
   'Argentina': 'AR',
@@ -695,6 +696,18 @@ const customFlagSVGs: { [key: string]: string } = {
   'Ukraine': '/assets/flags/ukraine-flag.svg',
   'Norway': '/assets/flags/norway-flag.svg',
   'Sweden': '/assets/flags/sweden-flag.svg',
+  
+  // Additional Friendlies countries
+  'Bulgaria': '/assets/flags/bulgaria-flag.svg',
+  'Cyprus': '/assets/flags/cyprus-flag.svg',
+  'Finland': '/assets/flags/finland-flag.svg',
+  'Iceland': '/assets/flags/iceland-flag.svg',
+  'Luxembourg': '/assets/flags/luxembourg-flag.svg',
+  'Ireland': '/assets/flags/ireland-flag.svg',
+  'Malta': '/assets/flags/malta-flag.svg',
+  'Liechtenstein': '/assets/flags/liechtenstein-flag.svg',
+  'Andorra': '/assets/flags/andorra-flag.svg',
+  'San Marino': '/assets/flags/san-marino-flag.svg',
   
   // South American countries
   'Brazil': '/assets/flags/brazil-flag.svg',

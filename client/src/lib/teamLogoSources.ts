@@ -143,6 +143,18 @@ export const getNationalTeamFlag = (teamName: string, league: any): string | nul
     'Norway': '/assets/flags/norway-flag.svg',
     'Sweden': '/assets/flags/sweden-flag.svg',
     
+    // Additional Friendlies countries
+    'Bulgaria': '/assets/flags/bulgaria-flag.svg',
+    'Cyprus': '/assets/flags/cyprus-flag.svg',
+    'Finland': '/assets/flags/finland-flag.svg',
+    'Iceland': '/assets/flags/iceland-flag.svg',
+    'Luxembourg': '/assets/flags/luxembourg-flag.svg',
+    'Ireland': '/assets/flags/ireland-flag.svg',
+    'Malta': '/assets/flags/malta-flag.svg',
+    'Liechtenstein': '/assets/flags/liechtenstein-flag.svg',
+    'Andorra': '/assets/flags/andorra-flag.svg',
+    'San Marino': '/assets/flags/san-marino-flag.svg',
+    
     // South American teams
     'Brazil': '/assets/flags/brazil-flag.svg',
     'Argentina': '/assets/flags/argentina-flag.svg',
