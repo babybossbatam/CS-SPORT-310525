@@ -129,7 +129,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               ) : (
                 <div className="text-lg font-medium text-gray-600 mb-4">
-                  VS
+                  
                 </div>
               )}
             </div>
