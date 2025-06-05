@@ -692,42 +692,43 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             transition={{ duration: 0.3 }}
             className="p-6"
           >
-            {/* League Info */}
-            <div className="flex items-center gap-2 mb-4">
-              {currentMatch.league?.flag && (
+            {/* League Info with Logo */}
+            <div className="flex items-center gap-2 mb-3">
+              {currentMatch.league?.logo && (
                 <img
-                  src={currentMatch.league.flag}
-                  alt={currentMatch.league.country || "Country"}
-                  className="w-4 h-4 rounded-sm object-cover"
+                  src={currentMatch.league.logo}
+                  alt={currentMatch.league.name}
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = "/assets/fallback-logo.svg";
+                  }}
                 />
               )}
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-gray-700">
                 {currentMatch.league.name}
               </span>
-              <Badge
-                className={`text-xs px-2 py-1 text-white ${getStatusColor(currentMatch.fixture.status.short)}`}
-              >
-                {getMatchStatus(currentMatch)}
-              </Badge>
+            </div>
+
+            {/* Status */}
+            <div className="text-center mb-2">
+              <div className="text-xs font-medium text-gray-500">
+                {currentMatch.fixture.status.short === "FT" ? "Ended" :
+                 currentMatch.fixture.status.short === "AET" ? "Ended (AET)" :
+                 currentMatch.fixture.status.short === "PEN" ? "Ended (PEN)" :
+                 currentMatch.fixture.status.short === "1H" || 
+                 currentMatch.fixture.status.short === "2H" ? "Live" :
+                 currentMatch.fixture.status.short === "HT" ? "Half Time" :
+                 currentMatch.fixture.status.short === "NS" ? "Upcoming" :
+                 currentMatch.fixture.status.short}
+              </div>
             </div>
 
             {/* Score */}
             <div className="flex items-center justify-center mb-4">
               {currentMatch.goals.home !== null &&
               currentMatch.goals.away !== null ? (
-                <div className="flex flex-col items-center">
-                  <div className="text-2xl font-bold text-gray-900">
-                    {currentMatch.goals.home}-{currentMatch.goals.away}
-                  </div>
-                  <div className="text-xs font-semibold text-gray-600 mt-1">
-                    {currentMatch.fixture.status.short === "FT" ? "Ended" :
-                     currentMatch.fixture.status.short === "AET" ? "AET" :
-                     currentMatch.fixture.status.short === "PEN" ? "PEN" :
-                     currentMatch.fixture.status.short === "1H" || 
-                     currentMatch.fixture.status.short === "2H" ? "Live" :
-                     currentMatch.fixture.status.short === "HT" ? "HT" :
-                     currentMatch.fixture.status.short}
-                  </div>
+                <div className="text-3xl font-bold text-gray-900">
+                  {currentMatch.goals.home} - {currentMatch.goals.away}
                 </div>
               ) : (
                 <div className="text-lg font-medium text-gray-500">vs</div>
