@@ -728,16 +728,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             </div>
 
-            {/* Score */}
+            {/* Teams vs indicator */}
             <div className="flex items-center justify-center mb-4">
-              {currentMatch.goals.home !== null &&
-              currentMatch.goals.away !== null ? (
-                <div className="text-3xl font-bold text-gray-900">
-                  {currentMatch.goals.home} - {currentMatch.goals.away}
-                </div>
-              ) : (
-                <div className="text-lg font-medium text-gray-500">vs</div>
-              )}
+              <div className="text-lg font-medium text-gray-500">vs</div>
             </div>
 
             {/* Match content in TodayPopularLeagueNew style */}
@@ -755,15 +748,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               <div className="match-content-container p-4">
                 {/* Home Team Name - positioned further left */}
-                <div
-                  className={`home-team-name text-sm font-medium text-gray-900 truncate flex-1 ${
-                    currentMatch.goals.home !== null &&
-                    currentMatch.goals.away !== null &&
-                    currentMatch.goals.home > currentMatch.goals.away
-                      ? "font-bold"
-                      : ""
-                  }`}
-                >
+                <div className="home-team-name text-sm font-medium text-gray-900 truncate flex-1">
                   {shortenTeamName ? shortenTeamName(currentMatch.teams.home.name) : currentMatch.teams.home.name}
                 </div>
 
@@ -787,7 +772,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   />
                 </div>
 
-                {/* Score/Time Center - Fixed width and centered */}
+                {/* Status/Time Center - Fixed width and centered */}
                 <div className="match-score-container flex-shrink-0 text-center min-w-[80px]">
                   {(() => {
                                     const status = currentMatch.fixture.status.short;
@@ -797,17 +782,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
                                       return (
                                         <div className="relative">
-                                          <div className="match-score-display">
-                                            <span className="score-number">
-                                              {currentMatch.goals.home ?? 0}
-                                            </span>
-                                            <span className="score-separator">
-                                              -
-                                            </span>
-                                            <span className="score-number">
-                                              {currentMatch.goals.away ?? 0}
-                                            </span>
-                                          </div>
                                           <div className="match-status-label status-live flex flex-col items-center">
                                             <span className="text-red-600 font-semibold text-xs">LIVE</span>
                                             <span className="text-red-600 font-semibold text-xs">
@@ -822,86 +796,37 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                                     // All finished match statuses
                                     if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                                      // Check if we have actual numerical scores
-                                      const homeScore = currentMatch.goals.home;
-                                      const awayScore = currentMatch.goals.away;
-                                      const hasValidScores =
-                                        homeScore !== null &&
-                                        homeScore !== undefined &&
-                                        awayScore !== null &&
-                                        awayScore !== undefined &&
-                                        !isNaN(Number(homeScore)) &&
-                                        !isNaN(Number(awayScore));
+                                      const statusText =
+                                        status === "FT"
+                                          ? "Ended"
+                                          : status === "AET"
+                                            ? "AET"
+                                            : status === "PEN"
+                                              ? "PEN"
+                                              : status === "AWD"
+                                                ? "Awarded"
+                                                : status === "WO"
+                                                  ? "Walkover"
+                                                  : status === "ABD"
+                                                    ? "Abandoned"
+                                                    : status === "CANC"
+                                                      ? "Cancelled"
+                                                      : status === "SUSP"
+                                                        ? "Suspended"
+                                                        : status;
 
-                                      if (hasValidScores) {
-                                        return (
-                                          <div className="relative">
-                                            <div className="match-status-label status-ended">
-                                              {status === "FT"
-                                                ? "Ended"
-                                                : status === "AET"
-                                                  ? "AET"
-                                                  : status === "PEN"
-                                                    ? "PEN"
-                                                    : status === "AWD"
-                                                      ? "Awarded"
-                                                      : status === "WO"
-                                                        ? "Walkover"
-                                                        : status === "ABD"
-                                                          ? "Abandoned"
-                                                          : status === "CANC"
-                                                            ? "Cancelled"
-                                                            : status === "SUSP"
-                                                              ? "Suspended"
-                                                              : status}
-                                            </div>
-                                            <div className="match-score-display">
-                                              <span className="score-number">
-                                                {homeScore}
-                                              </span>
-                                              <span className="score-separator">
-                                                -
-                                              </span>
-                                              <span className="score-number">
-                                                {awayScore}
-                                              </span>
-                                            </div>
+                                      return (
+                                        <div className="relative">
+                                          <div className="text-sm font-medium text-gray-900">
+                                            {format(fixtureDate, "HH:mm")}
                                           </div>
-                                        );
-                                      } else {
-                                        // Match is finished but no valid score data
-                                        const statusText =
-                                          status === "FT"
-                                            ? "No Score"
-                                            : status === "AET"
-                                              ? "AET"
-                                              : status === "PEN"
-                                                ? "PEN"
-                                                : status === "AWD"
-                                                  ? "Awarded"
-                                                  : status === "WO"
-                                                    ? "Walkover"
-                                                    : status === "ABD"
-                                                      ? "Abandoned"
-                                                      : status === "CANC"
-                                                        ? "Cancelled"
-                                                        : status === "SUSP"
-                                                          ? "Suspended"
-                                                          : "No Score";
-
-                                        return (
-                                          <div className="relative">
-                                            <div className="text-sm font-medium text-gray-900">
-                                              {format(fixtureDate, "HH:mm")}
-                                            </div>
-                                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                              <span className="text-gray-600 bg-white px-1 rounded">
-                                                {statusText}
-                                              </span>
-                                            </div>
+                                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                            <span className="text-gray-600 bg-white px-1 rounded">
+                                              {statusText}
+                                            </span>
                                           </div>
-                                        );
-                                      }
+                                        </div>
+                                      );
                                     }
 
                                     // Postponed or delayed matches
@@ -974,15 +899,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {/* Away Team Name - positioned further right */}
-                <div
-                  className={`away-team-name text-sm font-medium text-gray-900 truncate flex-1 text-right ${
-                    currentMatch.goals.home !== null &&
-                    currentMatch.goals.away !== null &&
-                    currentMatch.goals.away > currentMatch.goals.home
-                      ? "font-bold"
-                      : ""
-                  }`}
-                >
+                <div className="away-team-name text-sm font-medium text-gray-900 truncate flex-1 text-right">
                   {shortenTeamName ? shortenTeamName(currentMatch.teams.away.name) : currentMatch.teams.away.name}
                 </div>
               </div>
