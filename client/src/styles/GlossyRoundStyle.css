@@ -1,0 +1,111 @@
+
+/* Glossy Round Style for Team Logos and Flags */
+.glossy-round {
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.glossy-round::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.2) 30%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glossy-round::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 40%;
+  height: 40%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  transform: rotate(-20deg);
+}
+
+/* Hover effect for interactive elements */
+.glossy-round:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 6px 20px rgba(0, 0, 0, 0.3),
+    inset 0 2px 6px rgba(255, 255, 255, 0.3);
+}
+
+/* Size variations */
+.glossy-round-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.glossy-round-md {
+  width: 48px;
+  height: 48px;
+}
+
+.glossy-round-lg {
+  width: 64px;
+  height: 64px;
+}
+
+.glossy-round-xl {
+  width: 80px;
+  height: 80px;
+}
+
+/* Flag specific styling for better contrast */
+.glossy-round-flag {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: #f8f9fa;
+}
+
+.glossy-round-flag::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.25) 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+}
+
+/* Team logo specific styling */
+.glossy-round-logo {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.glossy-round-logo::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}

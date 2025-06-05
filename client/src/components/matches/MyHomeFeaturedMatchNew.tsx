@@ -727,7 +727,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <img
                   src={currentMatch.league.logo}
                   alt={currentMatch.league.name}
-                  className="w-5 h-5 object-contain mr-2"
+                  className="w-5 h-5 object-contain mr-2 glossy-round glossy-round-sm glossy-round-logo"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.svg";
                   }}
@@ -824,12 +824,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch.teams.home.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                        className="absolute z-20 w-[64px] h-[64px] object-cover glossy-round glossy-round-logo"
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
                           left: "-32px",
-                          filter: "contrast(115%) brightness(105%)",
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -901,13 +900,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       `/assets/fallback-logo.svg`
                     }
                     alt={currentMatch?.teams?.away?.name || "Away Team"}
-                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                    className="absolute z-20 w-[64px] h-[64px] object-cover glossy-round glossy-round-logo transition-all duration-300 ease-in-out hover:scale-110"
                     style={{
                       cursor: "pointer",
                       top: "calc(50% - 32px)",
                       right: "87px",
                       transform: "translateX(50%)",
-                      filter: "contrast(115%) brightness(105%)",
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {

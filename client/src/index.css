@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import glossy round styles */
+@import './styles/GlossyRoundStyle.css';
+
 /* Disable card hover effect when star buttons are being hovered */
 .group.disable-hover:hover {
   background-color: white !important;
