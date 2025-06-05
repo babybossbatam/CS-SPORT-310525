@@ -915,6 +915,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       `,
                       border: "1px solid rgba(255,255,255,0.3)",
                       overflow: "hidden",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                     onClick={handleMatchClick}
                   >
@@ -925,17 +928,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch.teams.away.name || "Away Team"}
-                        className="w-[40px] h-[40px] object-contain rounded-full"
+                        className="w-[48px] h-[48px] object-contain"
                         style={{
-                          position: "absolute",
-                          top: "50%",
-                          left: "50%",
-                          transform: "translate(-50%, -50%)",
                           zIndex: 2,
-                          background: "rgba(255,255,255,0.9)",
-                          padding: "4px",
-                          borderRadius: "50%",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                          filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))",
+                          mixBlendMode: "normal",
                         }}
                         onError={(e) => {
                           e.currentTarget.src = "/assets/fallback-logo.svg";
