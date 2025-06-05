@@ -517,7 +517,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               {/* VS Divider */}
               <div className="flex items-center justify-center px-4">
-                <span className="text-gray-400 font-medium">VS</span>
+                VS
               </div>
 
               {/* Away Team */}
