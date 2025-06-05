@@ -279,73 +279,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     return finalFiltered;
   }, [fixtures, selectedDate]);
 
-  // Apply smart time filtering based on selected date
+  // Use the same filtering logic as TodayPopularFootballLeaguesNew
   const timeFilteredMatches = useMemo(() => {
-    if (!fixtures?.length) return [];
-
-    console.log(`Processing ${fixtures.length} fixtures for time filtering with date: ${selectedDate}`);
-
-    const filtered = fixtures.filter((fixture) => {
-      // Apply smart time filtering with selected date context
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + 'T12:00:00Z' // Pass selected date as context
-        );
-
-        // Determine what type of date is selected
-        const today = new Date();
-        const todayString = format(today, 'yyyy-MM-dd');
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = format(yesterday, 'yyyy-MM-dd');
-
-        // Check if this match should be included based on the selected date
-        const shouldInclude = (() => {
-          if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
-          if (selectedDate === todayString && smartResult.label === 'today') return true;
-          if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
-
-          // Handle custom dates (dates that are not today/tomorrow/yesterday)
-          if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
-            if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
-          }
-
-          return false;
-        })();
-
-        if (!shouldInclude) {
-          console.log(`❌ [TIME FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange
-          });
-          return false;
-        }
-
-        console.log(`✅ [TIME FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-          fixtureDate: fixture.fixture.date,
-          status: fixture.fixture.status.short,
-          reason: smartResult.reason,
-          label: smartResult.label,
-          selectedDate,
-          isWithinTimeRange: smartResult.isWithinTimeRange
-        });
-      }
-
-      return true;
-    });
-
-    console.log(`Filtered ${fixtures.length} fixtures to ${filtered.length} for time filtering`);
-    return filtered;
-  }, [fixtures, selectedDate]);
+    return filteredFixtures; // Use the already filtered fixtures from above
+  }, [filteredFixtures]);
 
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
@@ -470,29 +407,14 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   return (
     <>
+      {/* Header Section */}
+      <div className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        {getHeaderTitle()}
+      </div>
+      
       {/* Single consolidated card with all matches sorted by time */}
-      <Card className="mt-4 overflow-hidden">
-        {/* Header showing filtered popular leagues */}
-        <div className="flex items-start gap-2 p-2 bg-white border-b border-gray-200">
-          <div className="flex flex-col">
-            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
-              {getHeaderTitle()}
-            </span>
-            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
-              {sortedMatches.length} matches
-            </span>
-          </div>
-          {liveFilterActive && timeFilterActive && (
-            <div className="flex gap-1 ml-auto">
-              <span className="relative flex h-3 w-3 mt-1">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* All Matches */}
+      <Card className="overflow-hidden">
+        {/* All Matches without league headers */}
         <CardContent className="p-0">
           <div className="space-y-0">
             {sortedMatches.map((match) => (
