@@ -1232,31 +1232,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   {!timeFilterActive && (
                     <>
                       {leagueData.isFriendlies ? (
-                        <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                        <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-100 to-blue-200 border-b border-blue-300">
                           <img
                             src={
                               leagueData.league.logo ||
                               "/assets/fallback-logo.svg"
                             }
                             alt={leagueData.league.name || "Unknown League"}
-                            className="w-5 h-5 object-contain rounded-full"
+                            className="w-6 h-6 object-contain"
                             style={{ backgroundColor: "transparent" }}
                             onError={(e) => {
                               (e.target as HTMLImageElement).src =
                                 "/assets/fallback-logo.svg";
                             }}
                           />
-                          <span
-                            className="font-medium text-blue-800"
-                            style={{ fontSize: "calc(0.875rem * 0.85)" }}
-                          >
+                          <span className="font-semibold text-blue-900 text-sm">
                             {safeSubstring(leagueData.league.name, 0) ||
                               "Friendlies"}
                           </span>
-                          <span
-                            className="text-blue-600"
-                            style={{ fontSize: "calc(0.75rem * 0.85)" }}
-                          >
+                          <span className="text-blue-700 text-sm font-medium">
                             {leagueData.matches.length}{" "}
                             {leagueData.matches.length === 1
                               ? "match"
