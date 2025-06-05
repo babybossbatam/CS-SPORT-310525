@@ -13,7 +13,7 @@ export interface SmartTimeResult {
 export class MySmartTimeFilter {
   
   /**
-   * Check if a fixture should be labeled as "TODAY" based on match status and time range
+   * Check if a fixture should be labeled based on match status and selected date
    */
   static getSmartTimeLabel(
     fixtureDateTime: string, 
@@ -36,71 +36,59 @@ export class MySmartTimeFilter {
         };
       }
 
-      // Define today's time range (00:01:00 - 23:59:59)
-      const todayStart = startOfDay(selectedDate);
-      todayStart.setHours(0, 1, 0, 0); // 00:01:00
+      // Get date strings for comparison (without time)
+      const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+      const selectedDateString = format(selectedDate, 'yyyy-MM-dd');
       
-      const todayEnd = endOfDay(selectedDate);
-      todayEnd.setHours(23, 59, 59, 999); // 23:59:59
-      
-      const isWithinTodayRange = isWithinInterval(fixtureDate, {
-        start: todayStart,
-        end: todayEnd
-      });
+      // Get actual today, tomorrow, yesterday dates
+      const today = new Date();
+      const todayString = format(today, 'yyyy-MM-dd');
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = format(yesterday, 'yyyy-MM-dd');
 
-      // Check for NS (Not Started) matches
+      // Determine what type of date is selected
+      const isSelectedToday = selectedDateString === todayString;
+      const isSelectedTomorrow = selectedDateString === tomorrowString;
+      const isSelectedYesterday = selectedDateString === yesterdayString;
+
+      // Define status categories
       const notStartedStatuses = ['NS', 'TBD', 'PST'];
-      if (notStartedStatuses.includes(matchStatus)) {
-        // Check if fixture time is before current time (but match is NS)
-        // This indicates it should be TOMORROW since no match can be NS in the past
-        if (fixtureDate < selectedDate) {
-          return {
-            label: 'tomorrow',
-            reason: `NS match appears to be in past time - should be TOMORROW (fixture: ${format(fixtureDate, 'yyyy/MM/dd HH:mm:ss')} < current: ${format(selectedDate, 'yyyy/MM/dd HH:mm:ss')})`,
-            isWithinTimeRange: false,
-            matchStatus,
-            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-          };
-        }
-        
-        if (isWithinTodayRange) {
-          return {
-            label: 'today',
-            reason: `NS match within today's time range (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
-            isWithinTimeRange: true,
-            matchStatus,
-            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-          };
-        } else {
-          return {
-            label: 'custom',
-            reason: `NS match outside today's time range`,
-            isWithinTimeRange: false,
-            matchStatus,
-            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-          };
-        }
-      }
-
-      // Check for finished matches
       const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
-      if (finishedStatuses.includes(matchStatus)) {
-        if (isWithinTodayRange) {
-          return {
-            label: 'today',
-            reason: `Finished match within today's time range (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
-            isWithinTimeRange: true,
-            matchStatus,
-            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
-          };
-        } else {
+      const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
+
+      // TOMORROW DATE LOGIC
+      if (isSelectedTomorrow) {
+        if (notStartedStatuses.includes(matchStatus)) {
+          // 1. NS status: show only if fixture date matches selected date (tomorrow)
+          if (fixtureDateString === selectedDateString) {
+            return {
+              label: 'tomorrow',
+              reason: `NS match on tomorrow's date (${fixtureDateString} = ${selectedDateString})`,
+              isWithinTimeRange: true,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          } else {
+            // 2. NS but different date = today's matches, don't display
+            return {
+              label: 'custom',
+              reason: `NS match not on tomorrow's date (${fixtureDateString} ≠ ${selectedDateString}) - belongs to today`,
+              isWithinTimeRange: false,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          }
+        } else if (finishedStatuses.includes(matchStatus)) {
+          // 3. & 4. Finished matches on different date = today's/yesterday's matches, don't display
           return {
             label: 'custom',
-            reason: `Finished match outside today's time range`,
+            reason: `Finished match not on tomorrow's date (${fixtureDateString} ≠ ${selectedDateString}) - belongs to today/yesterday`,
             isWithinTimeRange: false,
             matchStatus,
             fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
@@ -109,13 +97,65 @@ export class MySmartTimeFilter {
         }
       }
 
-      // Check for live matches
-      const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-      if (liveStatuses.includes(matchStatus)) {
-        if (isWithinTodayRange) {
+      // TODAY DATE LOGIC  
+      if (isSelectedToday) {
+        // Define today's time range (00:01:00 - 23:59:59)
+        const todayStart = startOfDay(selectedDate);
+        todayStart.setHours(0, 1, 0, 0); // 00:01:00
+        
+        const todayEnd = endOfDay(selectedDate);
+        todayEnd.setHours(23, 59, 59, 999); // 23:59:59
+        
+        const isWithinTodayRange = isWithinInterval(fixtureDate, {
+          start: todayStart,
+          end: todayEnd
+        });
+
+        if (notStartedStatuses.includes(matchStatus)) {
+          if (isWithinTodayRange) {
+            return {
+              label: 'today',
+              reason: `NS match within today's time range (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
+              isWithinTimeRange: true,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          } else {
+            return {
+              label: 'custom',
+              reason: `NS match outside today's time range`,
+              isWithinTimeRange: false,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          }
+        }
+      }
+
+      // YESTERDAY DATE LOGIC
+      if (isSelectedYesterday) {
+        if (finishedStatuses.includes(matchStatus)) {
+          if (fixtureDateString === selectedDateString) {
+            return {
+              label: 'yesterday',
+              reason: `Finished match on yesterday's date (${fixtureDateString} = ${selectedDateString})`,
+              isWithinTimeRange: true,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          }
+        }
+      }
+
+      // GENERAL LOGIC FOR OTHER CASES
+      if (finishedStatuses.includes(matchStatus)) {
+        if (fixtureDateString === selectedDateString) {
           return {
-            label: 'today',
-            reason: `Live match within today's time range (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
+            label: isSelectedToday ? 'today' : isSelectedYesterday ? 'yesterday' : 'custom',
+            reason: `Finished match on selected date (${fixtureDateString} = ${selectedDateString})`,
             isWithinTimeRange: true,
             matchStatus,
             fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
@@ -123,14 +163,26 @@ export class MySmartTimeFilter {
           };
         } else {
           return {
-            label: 'today',
-            reason: `Live match (always considered today regardless of time range)`,
+            label: 'custom',
+            reason: `Finished match not on selected date (${fixtureDateString} ≠ ${selectedDateString})`,
             isWithinTimeRange: false,
             matchStatus,
             fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
             selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
           };
         }
+      }
+
+      // Live matches - always show if they're happening
+      if (liveStatuses.includes(matchStatus)) {
+        return {
+          label: 'today',
+          reason: `Live match (always considered today)`,
+          isWithinTimeRange: true,
+          matchStatus,
+          fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+          selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+        };
       }
 
       // Default case for unknown status

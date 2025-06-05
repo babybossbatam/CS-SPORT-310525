@@ -220,30 +220,56 @@ const TodayPopularFootballLeaguesNew: React.FC<
     console.log(`Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
     const startTime = Date.now();
 
+    // Determine what type of date is selected
+    const today = new Date();
+    const todayString = format(today, 'yyyy-MM-dd');
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+
+    const isSelectedTomorrow = selectedDate === tomorrowString;
+
     const filtered = fixtures.filter((fixture) => {
-      // Apply smart time filtering first - this will exclude 00:00:00 NS matches
+      // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
           fixture.fixture.date,
-          fixture.fixture.status.short
+          fixture.fixture.status.short,
+          selectedDate + 'T12:00:00Z' // Pass selected date as context
         );
 
-        // Only include matches that smart filter labels as "today"
-        if (smartResult.label !== 'today') {
-          console.log(`❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label
-          });
-          return false;
+        // For tomorrow's date selection, only show tomorrow matches
+        if (isSelectedTomorrow) {
+          if (smartResult.label !== 'tomorrow') {
+            console.log(`❌ [TOMORROW FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate
+            });
+            return false;
+          }
+        } else {
+          // For today's date selection, only show today matches
+          if (smartResult.label !== 'today') {
+            console.log(`❌ [TODAY FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate
+            });
+            return false;
+          }
         }
 
         console.log(`✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
           fixtureDate: fixture.fixture.date,
           status: fixture.fixture.status.short,
           reason: smartResult.reason,
-          label: smartResult.label
+          label: smartResult.label,
+          selectedDate
         });
       }
 
