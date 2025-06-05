@@ -8,7 +8,7 @@ interface FlagColors {
 }
 
 /**
- * Extract dominant colors from cached flag URLs
+ * Extract dominant colors from cached flag URLs with enhanced support
  */
 export async function extractColorsFromCachedFlag(country: string): Promise<FlagColors> {
   const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
@@ -22,14 +22,25 @@ export async function extractColorsFromCachedFlag(country: string): Promise<Flag
   console.log(`Extracting colors from cached flag for ${country}: ${cached.url}`);
 
   try {
+    // Skip already processed custom flags
+    if (cached.url.startsWith('data:image/svg+xml') && cached.url.includes('flagGradient')) {
+      console.log(`${country} already has custom SVG flag, using default colors for regeneration`);
+      return getDefaultCountryColors(country);
+    }
+
     // For SVG flags, we can parse common color patterns
     if (cached.url.includes('.svg')) {
       return await extractColorsFromSVG(cached.url, country);
     }
     
     // For PNG flags, use canvas-based color extraction
-    if (cached.url.includes('.png')) {
+    if (cached.url.includes('.png') || cached.url.includes('.jpg') || cached.url.includes('.jpeg')) {
       return await extractColorsFromImage(cached.url, country);
+    }
+
+    // For data URLs or other formats
+    if (cached.url.startsWith('data:')) {
+      return await extractColorsFromDataURL(cached.url, country);
     }
 
     // Fallback to known country colors
@@ -41,19 +52,30 @@ export async function extractColorsFromCachedFlag(country: string): Promise<Flag
 }
 
 /**
- * Extract colors from SVG flag URLs
+ * Extract colors from SVG flag URLs with enhanced parsing
  */
 async function extractColorsFromSVG(svgUrl: string, country: string): Promise<FlagColors> {
   try {
     const response = await fetch(svgUrl);
     const svgText = await response.text();
     
-    // Extract fill and stroke colors from SVG
+    // Extract fill and stroke colors from SVG with improved regex
     const colorMatches = svgText.match(/(fill|stroke)="([^"]+)"/g) || [];
-    const colors = colorMatches
-      .map(match => match.match(/"([^"]+)"/)?.[1])
-      .filter(color => color && color !== 'none' && color !== 'transparent')
-      .filter(color => color.startsWith('#') || color.startsWith('rgb'));
+    const styleMatches = svgText.match(/fill:\s*([^;]+)/g) || [];
+    const pathMatches = svgText.match(/fill="([^"]+)"/g) || [];
+    
+    const allMatches = [...colorMatches, ...styleMatches, ...pathMatches];
+    
+    const colors = allMatches
+      .map(match => {
+        const colorMatch = match.match(/"([^"]+)"/) || match.match(/:\s*([^;]+)/);
+        return colorMatch?.[1];
+      })
+      .filter(color => color && color !== 'none' && color !== 'transparent' && color !== 'inherit')
+      .filter(color => color.startsWith('#') || color.startsWith('rgb') || isNamedColor(color))
+      .map(color => isNamedColor(color) ? namedColorToHex(color) : color)
+      .filter((color, index, self) => self.indexOf(color) === index) // Remove duplicates
+      .slice(0, 5); // Take first 5 unique colors
 
     if (colors.length >= 2) {
       return {
@@ -67,6 +89,67 @@ async function extractColorsFromSVG(svgUrl: string, country: string): Promise<Fl
   }
 
   return getDefaultCountryColors(country);
+}
+
+/**
+ * Extract colors from data URLs
+ */
+async function extractColorsFromDataURL(dataUrl: string, country: string): Promise<FlagColors> {
+  try {
+    if (dataUrl.includes('svg+xml')) {
+      // Decode SVG data URL
+      const svgData = decodeURIComponent(dataUrl.split(',')[1]);
+      
+      const colorMatches = svgData.match(/(fill|stroke)="([^"]+)"/g) || [];
+      const colors = colorMatches
+        .map(match => match.match(/"([^"]+)"/)?.[1])
+        .filter(color => color && color !== 'none' && color !== 'transparent')
+        .filter(color => color.startsWith('#') || color.startsWith('rgb'))
+        .slice(0, 3);
+
+      if (colors.length >= 2) {
+        return {
+          primary: colors[0],
+          secondary: colors[1],
+          accent: colors[2]
+        };
+      }
+    }
+  } catch (error) {
+    console.warn(`Failed to extract colors from data URL for ${country}:`, error);
+  }
+
+  return getDefaultCountryColors(country);
+}
+
+/**
+ * Check if color is a named CSS color
+ */
+function isNamedColor(color: string): boolean {
+  const namedColors = ['red', 'blue', 'green', 'yellow', 'white', 'black', 'orange', 'purple', 'pink', 'brown', 'gray', 'grey'];
+  return namedColors.includes(color.toLowerCase());
+}
+
+/**
+ * Convert named color to hex
+ */
+function namedColorToHex(color: string): string {
+  const namedColorMap: { [key: string]: string } = {
+    'red': '#FF0000',
+    'blue': '#0000FF',
+    'green': '#008000',
+    'yellow': '#FFFF00',
+    'white': '#FFFFFF',
+    'black': '#000000',
+    'orange': '#FFA500',
+    'purple': '#800080',
+    'pink': '#FFC0CB',
+    'brown': '#A52A2A',
+    'gray': '#808080',
+    'grey': '#808080'
+  };
+  
+  return namedColorMap[color.toLowerCase()] || color;
 }
 
 /**
@@ -150,44 +233,73 @@ function extractDominantColors(imageData: Uint8ClampedArray): string[] {
  */
 export function generateCustomSVGFlag(country: string, colors: FlagColors): string {
   const { primary, secondary, accent } = colors;
+  const countryId = country.toLowerCase().replace(/\s+/g, '-');
   
-  // Use our custom logo design template
+  // Use our custom logo design template with enhanced design
   const customSVG = `
     <svg width="32" height="24" viewBox="0 0 32 24" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="flagGradient-${country}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="flagGradient-${countryId}" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:${primary};stop-opacity:1" />
+          <stop offset="50%" style="stop-color:${accent || secondary};stop-opacity:0.8" />
           <stop offset="100%" style="stop-color:${secondary};stop-opacity:1" />
         </linearGradient>
-        <filter id="shadow-${country}" x="-20%" y="-20%" width="140%" height="140%">
+        <radialGradient id="centerGradient-${countryId}" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" style="stop-color:${secondary};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${primary};stop-opacity:0.8" />
+        </radialGradient>
+        <filter id="shadow-${countryId}" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)"/>
+        </filter>
+        <filter id="glow-${countryId}">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
         </filter>
       </defs>
       
-      <!-- Flag background with gradient -->
-      <rect x="2" y="2" width="28" height="20" rx="2" ry="2" 
-            fill="url(#flagGradient-${country})" 
+      <!-- Flag background with enhanced gradient -->
+      <rect x="1" y="1" width="30" height="22" rx="3" ry="3" 
+            fill="url(#flagGradient-${countryId})" 
             stroke="${accent || secondary}" 
             stroke-width="0.5"
-            filter="url(#shadow-${country})"/>
+            filter="url(#shadow-${countryId})"/>
       
-      <!-- Central emblem inspired by our custom logo -->
-      <circle cx="16" cy="12" r="6" fill="${accent || primary}" opacity="0.8"/>
-      <circle cx="16" cy="12" r="4" fill="${secondary}" opacity="0.9"/>
-      <circle cx="16" cy="12" r="2" fill="${primary}"/>
+      <!-- Central emblem inspired by our custom logo with better design -->
+      <circle cx="16" cy="12" r="7" fill="url(#centerGradient-${countryId})" opacity="0.9"/>
+      <circle cx="16" cy="12" r="5" fill="${accent || primary}" opacity="0.7"/>
+      <circle cx="16" cy="12" r="3" fill="${secondary}" opacity="0.9"/>
+      <circle cx="16" cy="12" r="1.5" fill="${primary}" filter="url(#glow-${countryId})"/>
       
-      <!-- Corner accents -->
-      <circle cx="6" cy="6" r="1.5" fill="${accent || secondary}" opacity="0.6"/>
-      <circle cx="26" cy="6" r="1.5" fill="${accent || secondary}" opacity="0.6"/>
-      <circle cx="6" cy="18" r="1.5" fill="${accent || secondary}" opacity="0.6"/>
-      <circle cx="26" cy="18" r="1.5" fill="${accent || secondary}" opacity="0.6"/>
+      <!-- Decorative elements around center -->
+      <circle cx="10" cy="12" r="1" fill="${accent || secondary}" opacity="0.6"/>
+      <circle cx="22" cy="12" r="1" fill="${accent || secondary}" opacity="0.6"/>
+      <circle cx="16" cy="6" r="1" fill="${accent || secondary}" opacity="0.6"/>
+      <circle cx="16" cy="18" r="1" fill="${accent || secondary}" opacity="0.6"/>
       
-      <!-- Border -->
-      <rect x="2" y="2" width="28" height="20" rx="2" ry="2" 
+      <!-- Corner star-like accents -->
+      <polygon points="6,4 7,6 9,6 7.5,7.5 8,10 6,8.5 4,10 4.5,7.5 3,6 5,6" 
+               fill="${accent || secondary}" opacity="0.5" transform="scale(0.5)"/>
+      <polygon points="26,4 27,6 29,6 27.5,7.5 28,10 26,8.5 24,10 24.5,7.5 23,6 25,6" 
+               fill="${accent || secondary}" opacity="0.5" transform="scale(0.5)"/>
+      <polygon points="6,18 7,20 9,20 7.5,21.5 8,24 6,22.5 4,24 4.5,21.5 3,20 5,20" 
+               fill="${accent || secondary}" opacity="0.5" transform="scale(0.5)"/>
+      <polygon points="26,18 27,20 29,20 27.5,21.5 28,24 26,22.5 24,24 24.5,21.5 23,20 25,20" 
+               fill="${accent || secondary}" opacity="0.5" transform="scale(0.5)"/>
+      
+      <!-- Enhanced border with double line effect -->
+      <rect x="1" y="1" width="30" height="22" rx="3" ry="3" 
             fill="none" 
             stroke="${primary}" 
-            stroke-width="0.8" 
-            opacity="0.8"/>
+            stroke-width="1" 
+            opacity="0.9"/>
+      <rect x="2" y="2" width="28" height="20" rx="2" ry="2" 
+            fill="none" 
+            stroke="${secondary}" 
+            stroke-width="0.5" 
+            opacity="0.6"/>
     </svg>
   `;
 
@@ -260,5 +372,82 @@ export async function createCustomFlagFromCache(country: string): Promise<string
     // Fallback to default colors
     const defaultColors = getDefaultCountryColors(country);
     return generateCustomSVGFlag(country, defaultColors);
+  }
+}
+
+/**
+ * Recreate all national team flags using custom SVG design from cached data
+ */
+export async function recreateAllNationalTeamFlags(): Promise<{ [country: string]: string }> {
+  console.log('🎨 Starting recreation of all national team flags with custom SVG design...');
+  
+  // Get all cached flags
+  const cache = (flagCache as any).cache;
+  if (!(cache instanceof Map)) {
+    console.warn('Flag cache not available');
+    return {};
+  }
+
+  const customFlags: { [country: string]: string } = {};
+  const countries = Array.from(cache.keys())
+    .filter(key => key.startsWith('flag_'))
+    .map(key => key.replace('flag_', '').replace(/_/g, ' '))
+    .filter(country => country !== 'world' && country !== 'europe'); // Skip special cases
+
+  console.log(`🌍 Found ${countries.length} countries in cache to process`);
+
+  // Process countries in batches to avoid overwhelming the browser
+  const batchSize = 10;
+  for (let i = 0; i < countries.length; i += batchSize) {
+    const batch = countries.slice(i, i + batchSize);
+    console.log(`📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(countries.length / batchSize)}: ${batch.join(', ')}`);
+
+    const batchPromises = batch.map(async (country) => {
+      try {
+        const customFlag = await createCustomFlagFromCache(country);
+        customFlags[country] = customFlag;
+        
+        // Update the cache with the new custom flag
+        const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+        flagCache.setCached(cacheKey, customFlag, 'custom-generated', true);
+        
+        console.log(`✅ Generated custom flag for ${country}`);
+        return { country, success: true };
+      } catch (error) {
+        console.warn(`❌ Failed to generate custom flag for ${country}:`, error);
+        return { country, success: false };
+      }
+    });
+
+    await Promise.allSettled(batchPromises);
+
+    // Small delay between batches to prevent browser blocking
+    if (i + batchSize < countries.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
+  const successCount = Object.keys(customFlags).length;
+  console.log(`🎉 Completed! Generated ${successCount}/${countries.length} custom flags`);
+  
+  return customFlags;
+}
+
+/**
+ * Generate custom flag for a specific country and save to cache
+ */
+export async function generateAndCacheCustomFlag(country: string): Promise<string> {
+  try {
+    const customFlag = await createCustomFlagFromCache(country);
+    
+    // Update the cache
+    const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    flagCache.setCached(cacheKey, customFlag, 'custom-generated', true);
+    
+    console.log(`✅ Generated and cached custom flag for ${country}`);
+    return customFlag;
+  } catch (error) {
+    console.warn(`❌ Failed to generate custom flag for ${country}:`, error);
+    throw error;
   }
 }

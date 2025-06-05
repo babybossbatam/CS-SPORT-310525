@@ -672,7 +672,7 @@ export async function getCountryFlagWithFallback(
 // Memory cache for flag URLs
 const flagCacheMem = new Map<string, string>();
 
-import { createCustomFlagFromCache } from './flagColorExtractor';
+import { createCustomFlagFromCache, recreateAllNationalTeamFlags, generateAndCacheCustomFlag } from './flagColorExtractor';
 
 // Custom flag SVG mapping for countries we have created
 const customFlagSVGs: { [key: string]: string } = {
@@ -1680,6 +1680,16 @@ export async function testCountryMappingAgainstLiveData(fixtures: any[]): Promis
   }
 }
 
+/**
+ * Recreate all national team flags with custom SVG design
+ */
+export const recreateAllCustomFlags = recreateAllNationalTeamFlags;
+
+/**
+ * Generate custom flag for specific country
+ */
+export const generateCustomFlag = generateAndCacheCustomFlag;
+
 export const getFlagUrl = async (country: string): Promise<string> => {
   // Normalize country name
   const normalizedCountry = country.trim();
@@ -2166,6 +2176,49 @@ export function intelligentCacheCleanup(): void {
   });
 
   console.log(`🗑️ Removed ${toRemove.length} least used flags from cache`);
+}
+
+// Global console functions for development and testing
+if (typeof window !== 'undefined') {
+  (window as any).recreateAllFlags = async () => {
+    const { recreateAllNationalTeamFlagsWithProgress, getCustomFlagStats } = await import('./flagRecreation');
+    
+    console.log('🎨 Starting recreation of all national team flags...');
+    console.log('📊 Initial stats:', getCustomFlagStats());
+    
+    await recreateAllNationalTeamFlagsWithProgress((progress, total, current) => {
+      const percentage = Math.round((progress / total) * 100);
+      console.log(`🔄 [${percentage}%] Processing ${current}... (${progress}/${total})`);
+    });
+    
+    console.log('🎉 Recreation completed!');
+    console.log('📊 Final stats:', getCustomFlagStats());
+  };
+
+  (window as any).getFlagStats = async () => {
+    const { getCustomFlagStats } = await import('./flagRecreation');
+    const stats = getCustomFlagStats();
+    console.log('📊 Custom Flag Statistics:', stats);
+    return stats;
+  };
+
+  (window as any).resetAllFlags = async () => {
+    const { resetToOriginalFlags } = await import('./flagRecreation');
+    await resetToOriginalFlags();
+    console.log('✅ All flags reset to original versions');
+  };
+
+  (window as any).generateCustomFlagFor = async (country: string) => {
+    console.log(`🎨 Generating custom flag for ${country}...`);
+    try {
+      const customFlag = await generateCustomFlag(country);
+      console.log(`✅ Custom flag generated for ${country}:`, customFlag.substring(0, 100) + '...');
+      return customFlag;
+    } catch (error) {
+      console.error(`❌ Failed to generate custom flag for ${country}:`, error);
+      throw error;
+    }
+  };
 }
 
 /**
