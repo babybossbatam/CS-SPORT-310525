@@ -1440,7 +1440,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   <LazyImage
                                     src={
                                       match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=43`
                                         : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.away.name}
@@ -1458,7 +1458,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       background: "none",
                                       backgroundImage: "none",
                                       border: "none",
-                                      boxShadow: "none"
+                                      boxShadow: "none",
+                                      width: "43px",
+                                      height: "43px"
                                     }}
                                     fallbackSrc="/assets/fallback-logo.svg"
                                   />
