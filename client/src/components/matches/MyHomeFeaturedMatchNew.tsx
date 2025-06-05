@@ -476,6 +476,29 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </Badge>
             </div>
 
+            {/* Score */}
+            <div className="flex items-center justify-center mb-4">
+              {currentMatch.goals.home !== null &&
+              currentMatch.goals.away !== null ? (
+                <div className="flex flex-col items-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {currentMatch.goals.home}-{currentMatch.goals.away}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-600 mt-1">
+                    {currentMatch.fixture.status.short === "FT" ? "Ended" :
+                     currentMatch.fixture.status.short === "AET" ? "AET" :
+                     currentMatch.fixture.status.short === "PEN" ? "PEN" :
+                     currentMatch.fixture.status.short === "1H" || 
+                     currentMatch.fixture.status.short === "2H" ? "Live" :
+                     currentMatch.fixture.status.short === "HT" ? "HT" :
+                     currentMatch.fixture.status.short}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-lg font-medium text-gray-500">vs</div>
+              )}
+            </div>
+
             {/* Teams */}
             <div className="flex items-center justify-between mb-4">
               {/* Home Team */}
@@ -492,27 +515,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </span>
               </div>
 
-              {/* Score */}
-              <div className="flex items-center gap-2 px-4">
-                {currentMatch.goals.home !== null &&
-                currentMatch.goals.away !== null ? (
-                  <div className="flex flex-col items-center">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {currentMatch.goals.home}-{currentMatch.goals.away}
-                    </div>
-                    <div className="text-xs font-semibold text-gray-600 mt-1">
-                      {currentMatch.fixture.status.short === "FT" ? "Ended" :
-                       currentMatch.fixture.status.short === "AET" ? "AET" :
-                       currentMatch.fixture.status.short === "PEN" ? "PEN" :
-                       currentMatch.fixture.status.short === "1H" || 
-                       currentMatch.fixture.status.short === "2H" ? "Live" :
-                       currentMatch.fixture.status.short === "HT" ? "HT" :
-                       currentMatch.fixture.status.short}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-lg font-medium text-gray-500">vs</div>
-                )}
+              {/* VS Divider */}
+              <div className="flex items-center justify-center px-4">
+                <span className="text-gray-400 font-medium">VS</span>
               </div>
 
               {/* Away Team */}
