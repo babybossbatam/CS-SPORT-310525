@@ -795,8 +795,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           align-items: center;
           justify-content: space-between;
           width: 100%;
-          min-height: 60px;
-          padding: 12px 16px;
+          min-height: 90px;
+          padding: 18px 24px;
         }
 
         .home-team-name,
