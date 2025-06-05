@@ -1176,24 +1176,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             return bTime - aTime;
                           }
 
-                          // Default time-based sorting, then alphabetical by team names
-                          if (aTime !== bTime) {
-                            return aTime - bTime;
+                          // For matches with same time, sort alphabetically by team names
+                          if (aTime === bTime) {
+                            // Primary alphabetical sort: by home team name
+                            const aHomeTeam = match.teams?.home?.name || "";
+                            const bHomeTeam = b.teams?.home?.name || "";
+                            const homeComparison = aHomeTeam.localeCompare(bHomeTeam);
+                            
+                            if (homeComparison !== 0) {
+                              return homeComparison;
+                            }
+                            
+                            // Secondary alphabetical sort: by away team name if home teams are the same
+                            const aAwayTeam = match.teams?.away?.name || "";
+                            const bAwayTeam = b.teams?.away?.name || "";
+                            return aAwayTeam.localeCompare(bAwayTeam);
                           }
                           
-                          // Final sort: alphabetical by home team name, then away team name
-                          const aHomeTeam = match.teams?.home?.name || "";
-                          const bHomeTeam = b.teams?.home?.name || "";
-                          const homeComparison = aHomeTeam.localeCompare(bHomeTeam);
-                          
-                          if (homeComparison !== 0) {
-                            return homeComparison;
-                          }
-                          
-                          // If home teams are the same, sort by away team
-                          const aAwayTeam = match.teams?.away?.name || "";
-                          const bAwayTeam = b.teams?.away?.name || "";
-                          return aAwayTeam.localeCompare(bAwayTeam);
+                          // Default time-based sorting when times are different
+                          return aTime - bTime;
                         })
                         .map((match: any) => (
                           <LazyMatchItem key={match.fixture.id}>
