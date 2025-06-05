@@ -1013,7 +1013,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             }}
                           />
                           <span className="font-medium text-blue-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
-                            {leagueData.league.name || "Unknown League"}
+                            {safeSubstring(leagueData.league.name, 0) || "Friendlies"}
                           </span>
                           <span className="text-blue-600" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
                             {leagueData.matches.length}{" "}
