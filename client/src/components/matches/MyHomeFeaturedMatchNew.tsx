@@ -167,7 +167,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const getLeaguePriority = (leagueData) => {
                 const name = (leagueData.league?.name || "").toLowerCase();
                 const country = (leagueData.country || "").toLowerCase();
-                
+
                 // Check for UEFA Nations League - Women first (lowest priority)
                 const isWomensNationsLeague = name.includes("uefa nations league") && name.includes("women");
                 if (isWomensNationsLeague) return 999;
@@ -176,7 +176,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 if (country.includes("world") || country.includes("europe") || 
                     country.includes("international") || name.includes("uefa") ||
                     name.includes("fifa") || name.includes("conmebol")) {
-                  
+
                   // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
                   if (name.includes("uefa nations league") && !name.includes("women")) {
                     return 1;
@@ -367,7 +367,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const getLeaguePriority = (match) => {
             const name = (match.league?.name || "").toLowerCase();
             const country = (match.league?.country || "").toLowerCase();
-            
+
             // Check if it's marked as friendlies or contains friendlies in name
             const isFriendlies = name.includes("friendlies");
 
@@ -380,7 +380,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             if (country.includes("world") || country.includes("europe") || 
                 country.includes("international") || name.includes("uefa") ||
                 name.includes("fifa") || name.includes("conmebol")) {
-              
+
               // Priority 1: UEFA Nations League (HIGHEST PRIORITY - must come before all others)
               if (name.includes("uefa nations league") && !name.includes("women")) {
                 return 1;
@@ -784,76 +784,163 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 {/* Score/Time Center - Fixed width and centered */}
                 <div className="match-score-container flex-shrink-0 text-center min-w-[80px]">
                   {(() => {
-                    const status = currentMatch.fixture.status.short;
-                    const fixtureDate = parseISO(currentMatch.fixture.date);
+                                    const status = currentMatch.fixture.status.short;
+                                    const fixtureDate = parseISO(currentMatch.fixture.date);
 
-                    // Live matches
-                    if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                      return (
-                        <div className="relative">
-                          <div className="text-lg font-bold text-gray-900">
-                            <span>{currentMatch.goals.home ?? 0}</span>
-                            <span className="mx-1">-</span>
-                            <span>{currentMatch.goals.away ?? 0}</span>
-                          </div>
-                          <div className="text-xs font-semibold text-red-600">
-                            {status === "HT" ? "HT" : `${currentMatch.fixture.status.elapsed || 0}'`}
-                          </div>
-                        </div>
-                      );
-                    }
+                                    // Live matches
+                                    if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                                      return (
+                                        <div className="relative">
+                                          <div className="match-score-display">
+                                            <span className="score-number">
+                                              {currentMatch.goals.home ?? 0}
+                                            </span>
+                                            <span className="score-separator">
+                                              -
+                                            </span>
+                                            <span className="score-number">
+                                              {currentMatch.goals.away ?? 0}
+                                            </span>
+                                          </div>
+                                          <div className="match-status-label status-live">
+                                            {status === "HT"
+                                              ? "Halftime"
+                                              : `${currentMatch.fixture.status.elapsed || 0}'`}
+                                          </div>
+                                        </div>
+                                      );
+                                    }
 
-                    // Finished matches
-                    if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      const homeScore = currentMatch.goals.home;
-                      const awayScore = currentMatch.goals.away;
-                      const hasValidScores = homeScore !== null && homeScore !== undefined && 
-                                           awayScore !== null && awayScore !== undefined &&
-                                           !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
+                                    // All finished match statuses
+                                    if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                                      // Check if we have actual numerical scores
+                                      const homeScore = currentMatch.goals.home;
+                                      const awayScore = currentMatch.goals.away;
+                                      const hasValidScores =
+                                        homeScore !== null &&
+                                        homeScore !== undefined &&
+                                        awayScore !== null &&
+                                        awayScore !== undefined &&
+                                        !isNaN(Number(homeScore)) &&
+                                        !isNaN(Number(awayScore));
 
-                      if (hasValidScores) {
-                        return (
-                          <div className="relative">
-                            <div className="text-lg font-bold text-gray-900">
-                              <span>{homeScore}</span>
-                              <span className="mx-1">-</span>
-                              <span>{awayScore}</span>
-                            </div>
-                            <div className="text-xs font-semibold text-gray-600">
-                              {status === "FT" ? "Ended" : 
-                               status === "AET" ? "AET" :
-                               status === "PEN" ? "PEN" : status}
-                            </div>
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div className="relative">
-                            <div className="text-sm font-medium text-gray-900">
-                              {format(fixtureDate, "HH:mm")}
-                            </div>
-                            <div className="text-xs font-semibold text-gray-600">
-                              {status === "FT" ? "No Score" : status}
-                            </div>
-                          </div>
-                        );
-                      }
-                    }
+                                      if (hasValidScores) {
+                                        return (
+                                          <div className="relative">
+                                            <div className="match-score-display">
+                                              <span className="score-number">
+                                                {homeScore}
+                                              </span>
+                                              <span className="score-separator">
+                                                -
+                                              </span>
+                                              <span className="score-number">
+                                                {awayScore}                                              </span>
+                                            </div>
+                                            <div className="match-status-label status-ended">
+                                              {status === "FT"
+                                                ? "Ended"
+                                                : status === "AET"
+                                                  ? "AET"
+                                                  : status === "PEN"
+                                                    ? "PEN"
+                                                    : status === "AWD"
+                                                      ? "Awarded"
+                                                      : status === "WO"
+                                                        ? "Walkover"
+                                                        : status === "ABD"
+                                                          ? "Abandoned"
+                                                          : status === "CANC"
+                                                            ? "Cancelled"
+                                                            : status === "SUSP"
+                                                              ? "Suspended"
+                                                              : status}
+                                            </div>
+                                          </div>
+                                        );
+                                      } else {
+                                        // Match is finished but no valid score data
+                                        const statusText =
+                                          status === "FT"
+                                            ? "No Score"
+                                            : status === "AET"
+                                              ? "AET"
+                                              : status === "PEN"
+                                                ? "PEN"
+                                                : status === "AWD"
+                                                  ? "Awarded"
+                                                  : status === "WO"
+                                                    ? "Walkover"
+                                                    : status === "ABD"
+                                                      ? "Abandoned"
+                                                      : status === "CANC"
+                                                        ? "Cancelled"
+                                                        : status === "SUSP"
+                                                          ? "Suspended"
+                                                          : "No Score";
 
-                    // Upcoming matches
-                    return (
-                      <div className="relative flex flex-col items-center justify-center h-full">
-                        <div className="text-sm font-medium text-gray-900">
-                          {status === "TBD" ? "TBD" : format(fixtureDate, "HH:mm")}
-                        </div>
-                        {status === "TBD" && (
-                          <div className="text-xs font-semibold text-blue-600">
-                            Time TBD
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
+                                        return (
+                                          <div className="relative">
+                                            <div className="text-sm font-medium text-gray-900">
+                                              {format(fixtureDate, "HH:mm")}
+                                            </div>
+                                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                              <span className="text-gray-600 bg-white px-1 rounded">
+                                                {statusText}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                                    }
+
+                                    // Postponed or delayed matches
+                                    if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                      const statusText =
+                                        status === "PST"
+                                          ? "Postponed"
+                                          : status === "CANC"
+                                            ? "Cancelled"
+                                            : status === "ABD"
+                                              ? "Abandoned"
+                                              : status === "SUSP"
+                                                ? "Suspended"
+                                                : status === "AWD"
+                                                  ? "Awarded"
+                                                  : status === "WO"
+                                                    ? "Walkover"
+                                                    : status;
+
+                                      return (
+                                        <div className="relative">
+                                          <div className="text-sm font-medium text-gray-900">
+                                            {format(fixtureDate, "HH:mm")}
+                                          </div>
+                                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
+                                            <span className="text-red-600 bg-white px-1 rounded">
+                                              {statusText}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+
+                                    // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                                    return (
+                                      <div className="relative flex items-center justify-center h-full">
+                                        <div className="match-time-display">
+                                          {status === "TBD"
+                                            ? "TBD"
+                                            : format(fixtureDate, "HH:mm")}
+                                        </div>
+                                        {status === "TBD" && (
+                                          <div className="match-status-label status-upcoming">
+                                            Time TBD
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
                 </div>
 
                 {/* Away team logo - closer to center */}
