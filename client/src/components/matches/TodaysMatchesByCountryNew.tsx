@@ -1073,7 +1073,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 }`}
               >
                 <button
-                  onClick={() => toggleCountry(countryData.country)}
+                  onClick={() => toggleCountry(typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown')}
                   className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 ${
                     isExpanded ? "expanded" : ""
                   }`}
@@ -1081,39 +1081,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   <div className="flex items-center gap-3 font-normal text-[14px]">
                     <img
                       src={(() => {
-                        if (countryData.country === "World") {
+                        const countryName = typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown';
+                        
+                        if (countryName === "World") {
                           return "/assets/world flag_new.png";
                         }
 
                         // For England specifically, always use the England flag
-                        if (countryData.country === "England") {
+                        if (countryName === "England") {
                           return "https://flagcdn.com/w40/gb-eng.png";
                         }
 
                         // Check if we have a cached flag for other countries
-                        const cachedFlag = flagMap[countryData.country];
+                        const cachedFlag = flagMap[countryName];
                         if (cachedFlag) {
                           return cachedFlag;
                         }
 
                         // For other countries, use the fallback sync function
                         return (
-                          getCountryFlagWithFallbackSync(countryData.country) ||
+                          getCountryFlagWithFallbackSync(countryName) ||
                           "/assets/fallback.svg"
                         );
                       })()}
-                      alt={countryData.country}
+                      alt={typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown'}
                       className="w-5 h-3 object-cover rounded-sm shadow-sm"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
+                        const countryName = typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown';
+                        
                         // For World flag, use fallback
-                        if (countryData.country === "World") {
+                        if (countryName === "World") {
                           target.src = "/assets/fallback.svg";
                           return;
                         }
                         // For England specifically, ensure we try the correct flag first
                         if (
-                          countryData.country === "England" &&
+                          countryName === "England" &&
                           !target.src.includes("fallback-logo.svg")
                         ) {
                           if (!target.src.includes("gb-eng")) {
@@ -1128,9 +1132,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         }
                         // For other GB subdivisions
                         if (
-                          (countryData.country === "Scotland" ||
-                            countryData.country === "Wales" ||
-                            countryData.country === "Northern Ireland") &&
+                          (countryName === "Scotland" ||
+                            countryName === "Wales" ||
+                            countryName === "Northern Ireland") &&
                           !target.src.includes("fallback-logo.svg")
                         ) {
                           if (
@@ -1150,7 +1154,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       }}
                     />
                     <span className="font-medium text-gray-900" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
-                      {countryData.country}
+                      {typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown'}
                     </span>
                     <span className="text-gray-500" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                       ({totalMatches})
