@@ -1,0 +1,23 @@
+
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleView">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circleView)">
+    <!-- Chile flag design -->
+    <rect width="64" height="32" y="0" fill="#FFFFFF"/>
+    <rect width="64" height="32" y="32" fill="#D52B1E"/>
+    <rect width="22" height="32" x="0" y="0" fill="#0039A6"/>
+    
+    <!-- White star -->
+    <polygon points="11,10 13,16 19,16 14,20 16,26 11,22 6,26 8,20 3,16 9,16" fill="#FFFFFF"/>
+    
+    <!-- Star details -->
+    <circle cx="11" cy="16" r="2" fill="rgba(255,255,255,0.8)"/>
+    
+    <!-- Glossy effect -->
+    <ellipse cx="32" cy="20" rx="22" ry="10" fill="white" opacity="0.3"/>
+  </g>
+</svg>

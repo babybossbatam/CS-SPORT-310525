@@ -120,6 +120,7 @@ export const getNationalTeamFlag = (teamName: string, league: any): string | nul
 
   // Map team names to custom flag paths
   const customFlagMapping: { [key: string]: string } = {
+    // European teams
     'Germany': '/assets/flags/germany-flag.svg',
     'Portugal': '/assets/flags/portugal-flag.svg',
     'France': '/assets/flags/france-flag.svg',
@@ -139,10 +140,27 @@ export const getNationalTeamFlag = (teamName: string, league: any): string | nul
     'Czech Republic': '/assets/flags/czech-republic-flag.svg',
     'Czechia': '/assets/flags/czech-republic-flag.svg',
     'Ukraine': '/assets/flags/ukraine-flag.svg',
+    'Norway': '/assets/flags/norway-flag.svg',
+    'Sweden': '/assets/flags/sweden-flag.svg',
+    
+    // South American teams
     'Brazil': '/assets/flags/brazil-flag.svg',
+    'Argentina': '/assets/flags/argentina-flag.svg',
+    'Colombia': '/assets/flags/colombia-flag.svg',
+    'Chile': '/assets/flags/chile-flag.svg',
+    'Uruguay': '/assets/flags/uruguay-flag.svg',
+    
+    // North American teams
     'United States': '/assets/flags/usa-flag.svg',
     'USA': '/assets/flags/usa-flag.svg',
     'US': '/assets/flags/usa-flag.svg',
+    'Mexico': '/assets/flags/mexico-flag.svg',
+    'Canada': '/assets/flags/canada-flag.svg',
+    
+    // Asian/Oceanic teams
+    'Japan': '/assets/flags/japan-flag.svg',
+    'South Korea': '/assets/flags/south-korea-flag.svg',
+    'Australia': '/assets/flags/australia-flag.svg',
   };
 
   // Try exact match first

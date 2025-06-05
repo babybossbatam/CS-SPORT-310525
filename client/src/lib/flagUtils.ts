@@ -673,10 +673,7 @@ const flagCacheMem = new Map<string, string>();
 
 // Custom flag SVG mapping for countries we have created
 const customFlagSVGs: { [key: string]: string } = {
-  'Brazil': '/assets/flags/brazil-flag.svg',
-  'United States': '/assets/flags/usa-flag.svg',
-  'USA': '/assets/flags/usa-flag.svg',
-  'US': '/assets/flags/usa-flag.svg',
+  // European countries
   'Germany': '/assets/flags/germany-flag.svg',
   'France': '/assets/flags/france-flag.svg',
   'England': '/assets/flags/england-flag.svg',
@@ -696,6 +693,27 @@ const customFlagSVGs: { [key: string]: string } = {
   'Czech Republic': '/assets/flags/czech-republic-flag.svg',
   'Czechia': '/assets/flags/czech-republic-flag.svg',
   'Ukraine': '/assets/flags/ukraine-flag.svg',
+  'Norway': '/assets/flags/norway-flag.svg',
+  'Sweden': '/assets/flags/sweden-flag.svg',
+  
+  // South American countries
+  'Brazil': '/assets/flags/brazil-flag.svg',
+  'Argentina': '/assets/flags/argentina-flag.svg',
+  'Colombia': '/assets/flags/colombia-flag.svg',
+  'Chile': '/assets/flags/chile-flag.svg',
+  'Uruguay': '/assets/flags/uruguay-flag.svg',
+  
+  // North American countries
+  'United States': '/assets/flags/usa-flag.svg',
+  'USA': '/assets/flags/usa-flag.svg',
+  'US': '/assets/flags/usa-flag.svg',
+  'Mexico': '/assets/flags/mexico-flag.svg',
+  'Canada': '/assets/flags/canada-flag.svg',
+  
+  // Asian/Oceanic countries
+  'Japan': '/assets/flags/japan-flag.svg',
+  'South Korea': '/assets/flags/south-korea-flag.svg',
+  'Australia': '/assets/flags/australia-flag.svg',
 };
 
 export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: string): string => {
