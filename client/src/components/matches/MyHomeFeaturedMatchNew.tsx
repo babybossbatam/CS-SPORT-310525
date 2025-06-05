@@ -112,6 +112,27 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         Featured Match
       </Badge>
 
+      {/* Card Header with League Info */}
+      <div className="bg-gray-50 border-b px-4 py-3">
+        <div className="flex items-center justify-center gap-2">
+          {currentMatch?.league?.logo ? (
+            <img
+              src={currentMatch.league.logo}
+              alt={currentMatch.league.name}
+              className="w-6 h-6 object-contain"
+              onError={(e) => {
+                e.currentTarget.src = "/assets/fallback-logo.svg";
+              }}
+            />
+          ) : (
+            <Trophy className="w-6 h-6 text-amber-500" />
+          )}
+          <span className="text-sm font-semibold text-gray-800">
+            {currentMatch?.league?.name || "League Name"}
+          </span>
+        </div>
+      </div>
+
       {matches.length > 1 && (
         <>
           <button
