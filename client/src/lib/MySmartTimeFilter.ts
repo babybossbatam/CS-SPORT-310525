@@ -111,11 +111,27 @@ export class MySmartTimeFilter {
           end: todayEnd
         });
 
+        // Get current time for comparison
+        const now = new Date();
+
         if (notStartedStatuses.includes(matchStatus)) {
           if (isWithinTodayRange) {
+            // Additional check: NS matches that have already passed should not be in today
+            // They should be filtered out as they represent data inconsistency
+            if (fixtureDate < now) {
+              return {
+                label: 'custom',
+                reason: `NS match time has already passed (${format(fixtureDate, 'HH:mm:ss')} < ${format(now, 'HH:mm:ss')}) - should be finished or rescheduled`,
+                isWithinTimeRange: false,
+                matchStatus,
+                fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+                selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+              };
+            }
+
             return {
               label: 'today',
-              reason: `NS match within today's time range (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
+              reason: `NS match within today's time range and hasn't started yet (${format(todayStart, 'HH:mm:ss')} - ${format(todayEnd, 'HH:mm:ss')})`,
               isWithinTimeRange: true,
               matchStatus,
               fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
