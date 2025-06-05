@@ -23,6 +23,9 @@ const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 
+// Import cache initialization
+import { initializeFlagRecreation } from './lib/flagRecreation';
+
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -85,6 +88,9 @@ function App() {
 
     // Preload critical data
     preloadData();
+
+    // Initialize flag recreation system
+    initializeFlagRecreation();
 
     // Cleanup on unmount
     return () => {
