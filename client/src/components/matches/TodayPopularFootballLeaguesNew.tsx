@@ -994,7 +994,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </div>
                       ) : (
                         <CardContent className="flex items-center gap-4 p-4 bg-white border-b border-gray-200">
-                          
+
 <img
                             src={
                               leagueData.league.id
@@ -1004,18 +1004,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             }
                             alt={leagueData.league.name || "Unknown League"}
                             className="w-20 h-20 min-w-20 min-h-20"
-                            style={{ 
-                              backgroundColor: "transparent",
-                              background: "transparent",
-                              backgroundImage: "none",
-                              border: "none",
-                              boxShadow: "none",
-                              outline: "none",
-                              padding: "0",
-                              margin: "0",
-                              borderRadius: "0",
-                              objectFit: "contain"
-                            }}
+                            
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                             }}
