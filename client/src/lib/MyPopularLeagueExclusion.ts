@@ -110,6 +110,9 @@ export const popularLeagueExclusionTerms = [
   // Additional filtering for cleaner popular league display
   "boys",
   "kosice",
+  
+  // Regional competitions not suitable for popular leagues
+  "cosafa cup",
 ];
 
 // Safe substring function to handle null/undefined values
