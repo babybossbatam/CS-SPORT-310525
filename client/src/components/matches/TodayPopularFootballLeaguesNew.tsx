@@ -966,7 +966,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
           <div className="space-y-0">
             {[1, 2, 3].map((i) => (
               <div
-                text
                 key={i}
                 className="border-b border-gray-100 last:border-b-0"
               >

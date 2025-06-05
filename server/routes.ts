@@ -1,4 +1,3 @@
-
 import sharp from 'sharp';
 
 import express, { type Express, Request, Response } from "express";
@@ -320,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const fetchDate of datesToFetch) {
         try {
           let dateFixtures: any[] = [];
-          
+
           if (all === 'true') {
             dateFixtures = await rapidApiService.getFixturesByDate(fetchDate, true);
           } else {
@@ -451,42 +450,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Check for cached leagues first
       const cachedLeagues = await storage.getAllCachedLeagues();
-
-  // Popular leagues endpoint
-  apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
-    try {
-      // Try to get from cached leagues first
-      const allLeagues = await storage.getAllCachedLeagues();
-
-      // Define popular league IDs with priorities
-      const popularLeagueIds = [
-        { id: 2, priority: 1 }, // Champions League
-        { id: 39, priority: 2 }, // Premier League
-        { id: 140, priority: 3 }, // La Liga
-        { id: 135, priority: 4 }, // Serie A
-        { id: 78, priority: 5 }, // Bundesliga
-        { id: 3, priority: 6 }, // Europa League
-        { id: 137, priority: 7 }, // Coppa Italia
-        { id: 45, priority: 8 }, // FA Cup
-        { id: 40, priority: 9 }, // Community Shield
-        { id: 48, priority: 10 } // EFL Cup
-      ];
-
-      // Filter and sort popular leagues
-      const popularLeagues = popularLeagueIds
-        .map(({ id, priority }) => {
-          const league = allLeagues.find(l => l.data.league.id === id);
-          return league ? { ...league.data, priority } : null;
-        })
-        .filter(Boolean)
-        .sort((a, b) => a.priority - b.priority);
-
-      res.json(popularLeagues);
-    } catch (error) {
-      console.error('Error fetching popular leagues:', error);
-      res.status(500).json({ error: 'Failed to fetch popular leagues' });
-    }
-  });
 
       if (cachedLeagues && cachedLeagues.length > 0) {
         // Transform to the expected format
@@ -734,6 +697,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`Error fetching standings for league ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch standings data" });
+    }
+  });
+
+  // Get popular leagues endpoint
+  apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
+    try {
+      // Try to get from cached leagues first
+      const allLeagues = await storage.getAllCachedLeagues();
+
+      // Define popular league IDs with priorities
+      const popularLeagueIds = [
+        { id: 2, priority: 1 }, // Champions League
+        { id: 39, priority: 2 }, // Premier League
+        { id: 140, priority: 3 }, // La Liga
+        { id: 135, priority: 4 }, // Serie A
+        { id: 78, priority: 5 }, // Bundesliga
+        { id: 3, priority: 6 }, // Europa League
+        { id: 137, priority: 7 }, // Coppa Italia
+        { id: 45, priority: 8 }, // FA Cup
+        { id: 40, priority: 9 }, // Community Shield
+        { id: 48, priority: 10 } // EFL Cup
+      ];
+
+      // Filter and sort popular leagues
+      const popularLeagues = popularLeagueIds
+        .map(({ id, priority }) => {
+          const league = allLeagues.find(l => l.data.league.id === id);
+          return league ? { ...league.data, priority } : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.priority - b.priority);
+
+      res.json(popularLeagues);
+    } catch (error) {
+      console.error('Error fetching popular leagues:', error);
+      res.status(500).json({ error: 'Failed to fetch popular leagues' });
     }
   });
 
@@ -1193,7 +1192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { teamId } = req.params;
       const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
-      
+
       console.log(`Fetching and resizing team logo for ID: ${teamId} to ${size}x${size}`);
 
       // Validate teamId
@@ -1662,8 +1661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get available countries and their seasons
-  apiRouter.get('/countries', async (req: Request, res: Response) => {
-    try {
+  apiRouter.get('/countries', async (req: Request, res: Response) => {    try {
       console.log('API: Getting available countries and seasons');
 
       const allLeagues = await rapidApiService.getLeagues();
