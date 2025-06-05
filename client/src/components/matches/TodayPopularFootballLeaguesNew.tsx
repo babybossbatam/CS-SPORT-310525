@@ -969,6 +969,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     <>
                       {leagueData.isFriendlies ? (
                         <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                          <img
+                            src={
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
+                            }
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-5 h-5 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/assets/fallback-logo.svg";
+                            }}
+                          />
                           <span className="font-medium text-blue-800" style={{ fontSize: 'calc(0.875rem * 0.85)' }}>
                             {leagueData.league.name || "Unknown League"}
                           </span>
@@ -980,20 +993,33 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           </span>
                         </div>
                       ) : (
-                        <CardContent className="flex items-center gap-4 p-4 bg-white border-b border-gray-200">
+                        <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                          <img
+                            src={
+                              leagueData.league.logo ||
+                              "/assets/fallback-logo.svg"
+                            }
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-6 h-6 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/assets/fallback-logo.svg";
+                            }}
+                          />
                           <div className="flex flex-col flex-1">
-                            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '18px' }}>
+                            <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                               {safeSubstring(leagueData.league.name, 0) ||
                                 "Unknown League"}
                             </span>
-                            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '16px' }}>
+                            <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                               {leagueData.league.country || "Unknown Country"}
                             </span>
                           </div>
                           <div className="flex gap-1">
                             {leagueData.isPopular &&
                               !leagueData.isPopularForCountry && (
-                                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium" style={{ fontSize: '14px' }}>
+                                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'calc(0.75rem * 0.85)' }}>
                                   Popular
                                 </span>
                               )}
