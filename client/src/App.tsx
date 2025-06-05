@@ -122,6 +122,55 @@ function App() {
     }
   };
 
+  // Function to force recreate all flags (including existing ones)
+  const handleForceRecreateAll = async () => {
+    try {
+      // Clear existing generated flags first
+      sessionStorage.removeItem('generatedFlags');
+      
+      const { extractColorsFromCachedFlag, generateCustomSVGFlag } = await import('./lib/flagRecreation');
+      const { flagCache } = await import('./lib/logoCache');
+      
+      console.log('🔥 Force recreating ALL flags...');
+      
+      // Get all countries from cache
+      const cache = (flagCache as any).cache;
+      const allCountries: string[] = [];
+      
+      if (cache instanceof Map) {
+        for (const [key] of cache.entries()) {
+          if (key.startsWith('flag_')) {
+            const country = key.replace('flag_', '').replace(/_/g, ' ');
+            allCountries.push(country);
+          }
+        }
+      }
+      
+      console.log(`🌍 Force generating ${allCountries.length} flag SVGs...`);
+      
+      let generated = 0;
+      for (const country of allCountries) {
+        try {
+          const colors = await extractColorsFromCachedFlag(country);
+          generateCustomSVGFlag(country, colors);
+          generated++;
+          
+          if (generated % 10 === 0) {
+            console.log(`📈 Generated ${generated}/${allCountries.length} flags...`);
+          }
+        } catch (error) {
+          console.warn(`Failed to generate flag for ${country}:`, error);
+        }
+      }
+      
+      console.log(`✅ Force generated ${generated} flags for download!`);
+      alert(`Force generated ${generated} flags! Now click "📥 Download Flags"`);
+    } catch (error) {
+      console.error('Failed to force recreate flags:', error);
+      alert('Failed to force recreate flags. Check console for details.');
+    }
+  };
+
   // Function to clear generated flags
   const handleClearFlags = async () => {
     try {
@@ -145,6 +194,12 @@ function App() {
               className="bg-blue-500 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-600 text-sm"
             >
               🎨 Recreate Flags
+            </button>
+            <button 
+              onClick={handleForceRecreateAll}
+              className="bg-purple-500 text-white px-4 py-2 rounded shadow-lg hover:bg-purple-600 text-sm"
+            >
+              🔥 Force All Flags
             </button>
             <button 
               onClick={handleDownloadFlags}

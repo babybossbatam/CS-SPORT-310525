@@ -324,12 +324,8 @@ export async function recreateAllNationalTeamFlags(): Promise<{ [country: string
     
     await Promise.all(batch.map(async (country) => {
       try {
-        // Check if we already have a custom flag
-        if (customFlagMapping[country]) {
-          recreatedFlags[country] = customFlagMapping[country];
-          console.log(`✅ Using existing custom flag for ${country}: ${customFlagMapping[country]}`);
-          return;
-        }
+        // Generate SVG for all countries (don't skip existing custom flags)
+        // This ensures all flags are available for download
         
         // Extract colors from cached flag
         const colors = await extractColorsFromCachedFlag(country);
