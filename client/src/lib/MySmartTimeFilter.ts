@@ -150,7 +150,69 @@ export class MySmartTimeFilter {
         }
       }
 
-      // GENERAL LOGIC FOR OTHER CASES
+      // CUSTOM DATE LOGIC (for dates that are not today/tomorrow/yesterday)
+      if (!isSelectedToday && !isSelectedTomorrow && !isSelectedYesterday) {
+        
+        // For NS (Not Started) matches on custom dates
+        if (notStartedStatuses.includes(matchStatus)) {
+          if (fixtureDateString === selectedDateString) {
+            return {
+              label: 'custom',
+              reason: `NS match on selected custom date (${fixtureDateString} = ${selectedDateString})`,
+              isWithinTimeRange: true,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          } else {
+            return {
+              label: 'custom',
+              reason: `NS match not on selected custom date (${fixtureDateString} ≠ ${selectedDateString})`,
+              isWithinTimeRange: false,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          }
+        }
+
+        // For finished matches on custom dates
+        if (finishedStatuses.includes(matchStatus)) {
+          if (fixtureDateString === selectedDateString) {
+            return {
+              label: 'custom',
+              reason: `Finished match on selected custom date (${fixtureDateString} = ${selectedDateString})`,
+              isWithinTimeRange: true,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          } else {
+            return {
+              label: 'custom',
+              reason: `Finished match not on selected custom date (${fixtureDateString} ≠ ${selectedDateString})`,
+              isWithinTimeRange: false,
+              matchStatus,
+              fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+              selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            };
+          }
+        }
+
+        // For live matches on custom dates - show them regardless
+        if (liveStatuses.includes(matchStatus)) {
+          return {
+            label: 'custom',
+            reason: `Live match on custom date (${selectedDateString})`,
+            isWithinTimeRange: true,
+            matchStatus,
+            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
+            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+          };
+        }
+      }
+
+      // GENERAL LOGIC FOR TODAY/YESTERDAY CASES (fallback)
       if (finishedStatuses.includes(matchStatus)) {
         if (fixtureDateString === selectedDateString) {
           return {
@@ -176,8 +238,8 @@ export class MySmartTimeFilter {
       // Live matches - always show if they're happening
       if (liveStatuses.includes(matchStatus)) {
         return {
-          label: 'today',
-          reason: `Live match (always considered today)`,
+          label: isSelectedToday ? 'today' : 'custom',
+          reason: `Live match (${isSelectedToday ? 'considered today' : 'on custom date'})`,
           isWithinTimeRange: true,
           matchStatus,
           fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),

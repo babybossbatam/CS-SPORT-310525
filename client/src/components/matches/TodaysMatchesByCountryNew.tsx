@@ -425,18 +425,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
       if (selectedDate === todayString && smartResult.label === 'today') return true;
       if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
+      
+      // Handle custom dates (dates that are not today/tomorrow/yesterday)
+      if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
+        if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
+      }
 
       return false;
     });
 
+    const rejectedFixtures = fixtures.filter(f => !filtered.includes(f));
+    const labelCounts = filtered.reduce((acc, fixture) => {
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        selectedDate + 'T12:00:00Z'
+      );
+      acc[smartResult.label] = (acc[smartResult.label] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
     return {
       validFixtures: filtered,
-      rejectedFixtures: [],
+      rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' })),
       stats: {
         total: fixtures.length,
         valid: filtered.length,
         rejected: fixtures.length - filtered.length,
-        methods: { 'smart-time-filter': filtered.length }
+        methods: { 
+          'smart-time-filter': filtered.length,
+          ...labelCounts
+        }
       }
     };
   }, [fixtures, selectedDate]);
@@ -876,8 +895,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return "Yesterday's Football Results by Country";
     } else if (isDateStringTomorrow(selectedDate)) {
       return "Tomorrow's Football Matches by Country";
-    } else{
-      return "Football Leagues by Country";
+    } else {
+      // Custom date - format it nicely
+      try {
+        const customDate = parseISO(selectedDate);
+        if (isValid(customDate)) {
+          return `${format(customDate, 'EEEE, MMMM do')} Football Matches by Country`;
+        } else {
+          return "Football Matches by Country";
+        }
+      } catch {
+        return "Football Matches by Country";
+      }
     }
   };
 
