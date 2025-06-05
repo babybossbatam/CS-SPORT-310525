@@ -895,54 +895,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     {currentMatch?.teams?.away?.name || "Away Team"}
                   </div>
 
-                  <div
-                    className="absolute z-20 w-[64px] h-[64px] rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  <img
+                    src={
+                      currentMatch?.teams?.away?.logo ||
+                      `/assets/fallback-logo.svg`
+                    }
+                    alt={currentMatch?.teams?.away?.name || "Away Team"}
+                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                     style={{
                       cursor: "pointer",
                       top: "calc(50% - 32px)",
                       right: "87px",
                       transform: "translateX(50%)",
                       filter: "contrast(115%) brightness(105%)",
-                      // Soccer ball styling
-                      background: `
-                        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent 70%),
-                        radial-gradient(circle at 70% 20%, rgba(0,0,0,0.1), transparent 40%),
-                        conic-gradient(from 0deg, 
-                          #ffffff 0deg, #000000 36deg, #ffffff 72deg, 
-                          #000000 108deg, #ffffff 144deg, #000000 180deg,
-                          #ffffff 216deg, #000000 252deg, #ffffff 288deg,
-                          #000000 324deg, #ffffff 360deg
-                        )
-                      `,
-                      boxShadow: "inset -3px -3px 10px rgba(0,0,0,0.3), inset 3px 3px 10px rgba(255,255,255,0.5), 3px 3px 15px rgba(0,0,0,0.4)",
-                      border: "2px solid rgba(0,0,0,0.2)",
-                      overflow: "hidden",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
                     }}
                     onClick={handleMatchClick}
-                  >
-                    {currentMatch?.teams?.away && (
-                      <img
-                        src={
-                          currentMatch.teams.away.logo ||
-                          `/assets/fallback-logo.svg`
-                        }
-                        alt={currentMatch.teams.away.name || "Away Team"}
-                        className="w-[48px] h-[48px] object-contain rounded-full"
-                        style={{
-                          zIndex: 2,
-                          filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))",
-                          background: "rgba(255,255,255,0.9)",
-                          padding: "4px",
-                        }}
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
-                        }}
-                      />
-                    )}
-                  </div>
+                    onError={(e) => {
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                    }}
+                  />
                 </div>
               </div>
 
