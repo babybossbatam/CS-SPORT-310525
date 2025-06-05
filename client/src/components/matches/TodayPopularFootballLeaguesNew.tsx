@@ -1358,7 +1358,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   <LazyImage
                                     src={
                                       match.teams.home.id
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=40`
                                         : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.home.name}
@@ -1577,7 +1577,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   <LazyImage
                                     src={
                                       match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=40`
                                         : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.away.name}
