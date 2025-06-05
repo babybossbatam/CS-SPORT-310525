@@ -1,0 +1,85 @@
+10hook.js:608 The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at div
+    at _c9 (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/ui/card.tsx:20:11)
+    at PopularLeaguesList (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/components/leagues/PopularLeaguesList.tsx?t=1749116137137:29:24)
+    at div
+    at div
+    at div
+    at div
+    at Home (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/pages/Home.tsx?t=1749117829622:46:3)
+    at Route (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=0e23ef53:265:16)
+    at Switch (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=0e23ef53:321:17)
+    at Suspense
+    at Router
+    at main
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=0e23ef53:38:15)
+    at TooltipProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=0e23ef53:61:5)
+    at App (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/src/App.tsx?t=1749117829622&v=uN_UANV4KCZZGqriuwM2q:197:3)
+    at V (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=0e23ef53:44:25)
+    at J (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=0e23ef53:42:18)
+    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=0e23ef53:2805:3)
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=0e23ef53:923:11)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+logCapturedError @ chunk-RPCDYKBN.js?v=0e23ef53:14032
+update.callback @ chunk-RPCDYKBN.js?v=0e23ef53:14052
+callCallback @ chunk-RPCDYKBN.js?v=0e23ef53:11248
+commitUpdateQueue @ chunk-RPCDYKBN.js?v=0e23ef53:11265
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=0e23ef53:17093
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=0e23ef53:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=0e23ef53:17969
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=0e23ef53:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=0e23ef53:19353
+commitRoot @ chunk-RPCDYKBN.js?v=0e23ef53:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=0e23ef53:18760
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=0e23ef53:18718
+workLoop @ chunk-RPCDYKBN.js?v=0e23ef53:197
+flushWork @ chunk-RPCDYKBN.js?v=0e23ef53:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=0e23ef53:384Understand this error
+errorHandler.ts:72 Global error: Error: Objects are not valid as a React child (found: object with keys {code, flag, name}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-RPCDYKBN.js?v=0e23ef53:9934:17)
+    at reconcileChildFibers2 (chunk-RPCDYKBN.js?v=0e23ef53:10564:15)
+    at reconcileChildren (chunk-RPCDYKBN.js?v=0e23ef53:14292:37)
+    at updateHostComponent (chunk-RPCDYKBN.js?v=0e23ef53:14807:11)
+    at beginWork (chunk-RPCDYKBN.js?v=0e23ef53:15935:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=0e23ef53:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=0e23ef53:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=0e23ef53:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=0e23ef53:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=0e23ef53:18736:28)
+overrideMethod @ hook.js:608
+(anonymous) @ errorHandler.ts:72Understand this error
+chunk-RPCDYKBN.js?v=0e23ef53:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {code, flag, name}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-RPCDYKBN.js?v=0e23ef53:9934:17)
+    at reconcileChildFibers2 (chunk-RPCDYKBN.js?v=0e23ef53:10564:15)
+    at reconcileChildren (chunk-RPCDYKBN.js?v=0e23ef53:14292:37)
+    at updateHostComponent (chunk-RPCDYKBN.js?v=0e23ef53:14807:11)
+    at beginWork (chunk-RPCDYKBN.js?v=0e23ef53:15935:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=0e23ef53:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=0e23ef53:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=0e23ef53:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=0e23ef53:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=0e23ef53:18736:28)
+throwOnInvalidObjectType @ chunk-RPCDYKBN.js?v=0e23ef53:9934
+reconcileChildFibers2 @ chunk-RPCDYKBN.js?v=0e23ef53:10564
+reconcileChildren @ chunk-RPCDYKBN.js?v=0e23ef53:14292
+updateHostComponent @ chunk-RPCDYKBN.js?v=0e23ef53:14807
+beginWork @ chunk-RPCDYKBN.js?v=0e23ef53:15935
+beginWork$1 @ chunk-RPCDYKBN.js?v=0e23ef53:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=0e23ef53:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=0e23ef53:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=0e23ef53:19116
+recoverFromConcurrentError @ chunk-RPCDYKBN.js?v=0e23ef53:18736
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=0e23ef53:18684
+workLoop @ chunk-RPCDYKBN.js?v=0e23ef53:197
+flushWork @ chunk-RPCDYKBN.js?v=0e23ef53:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=0e23ef53:384Understand this error
