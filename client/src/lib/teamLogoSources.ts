@@ -114,11 +114,9 @@ export const getNationalTeamFlag = (teamName: string, league: any): string | nul
   const leagueName = league.name?.toLowerCase() || '';
   const isNationsLeague = leagueName.includes('nations league') || leagueName.includes('uefa nations league');
   const isInternationalMatch = leagueName.includes('international') || leagueName.includes('friendlies');
-  const isWorldCup = leagueName.includes('world cup');
-  const isInternationalCompetition = league.country === 'World' || league.country === 'Europe';
 
-  // Use custom flags for all international competitions
-  if (!isNationsLeague && !isInternationalMatch && !isWorldCup && !isInternationalCompetition) return null;
+  // Only use custom flags for Nations League and international matches
+  if (!isNationsLeague && !isInternationalMatch) return null;
 
   // Map team names to custom flag paths
   const customFlagMapping: { [key: string]: string } = {
@@ -161,34 +159,6 @@ export const getNationalTeamFlag = (teamName: string, league: any): string | nul
   }
 
   return null;
-};
-
-/**
- * Get enhanced team logo with optional custom styling
- */
-export const getEnhancedTeamLogo = (
-  team: TeamData, 
-  league: any, 
-  useCustomStyling: boolean = false, 
-  size: number = 36
-): string => {
-  const isNational = isNationalTeam(team, league);
-  const sources = getTeamLogoSources(team, isNational);
-  const originalLogo = sources[0]?.url || "/assets/fallback-logo.svg";
-
-  // If custom styling is requested and it's a national team, use custom styled version
-  if (useCustomStyling && isNational) {
-    const { createCustomStyledLogo } = require('./logoModifier');
-    return createCustomStyledLogo(originalLogo, team.name, team.name, size);
-  }
-
-  // For regular cases, check for custom flags first
-  const customFlag = getNationalTeamFlag(team.name || '', league);
-  if (customFlag && isNational) {
-    return customFlag;
-  }
-
-  return originalLogo;
 };
 
 /**
