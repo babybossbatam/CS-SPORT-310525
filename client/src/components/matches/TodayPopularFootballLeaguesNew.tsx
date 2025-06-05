@@ -1176,8 +1176,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             return bTime - aTime;
                           }
 
-                          // Default time-based sorting
-                          return aTime - bTime;
+                          // Default time-based sorting, then alphabetical by team names
+                          if (aTime !== bTime) {
+                            return aTime - bTime;
+                          }
+                          
+                          // Final sort: alphabetical by home team name, then away team name
+                          const aHomeTeam = match.teams?.home?.name || "";
+                          const bHomeTeam = b.teams?.home?.name || "";
+                          const homeComparison = aHomeTeam.localeCompare(bHomeTeam);
+                          
+                          if (homeComparison !== 0) {
+                            return homeComparison;
+                          }
+                          
+                          // If home teams are the same, sort by away team
+                          const aAwayTeam = match.teams?.away?.name || "";
+                          const bAwayTeam = b.teams?.away?.name || "";
+                          return aAwayTeam.localeCompare(bAwayTeam);
                         })
                         .map((match: any) => (
                           <LazyMatchItem key={match.fixture.id}>
