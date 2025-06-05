@@ -958,7 +958,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
               if (countryData.country === "World") {
                 const getWorldLeaguePriority = (leagueName: string) => {
                   const name = leagueName.toLowerCase();
-                  if (name.includes('uefa national league')) return 1;
+                  if (name.includes('uefa nations league')) return 1;
                   if (name.includes('friendlies')) return 2;
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('asia')) return 3;
                   if (name.includes('world cup') && name.includes('qualification') && name.includes('concacaf')) return 4;
