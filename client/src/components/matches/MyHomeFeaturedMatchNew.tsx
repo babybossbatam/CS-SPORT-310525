@@ -263,15 +263,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               })()}
             </div>
 
-            {/* Team names */}
-            <div className="flex justify-between items-center mb-4 px-4">
-              <div className="text-center flex-1">
-                <span className="text-sm font-medium">{currentMatch.teams.home.name}</span>
-              </div>
-              <div className="text-center flex-1">
-                <span className="text-sm font-medium">{currentMatch.teams.away.name}</span>
-              </div>
-            </div>
+            
 
             {/* Action buttons */}
             <div className="flex justify-around border-t border-gray-200 mt-2 pt-3">
