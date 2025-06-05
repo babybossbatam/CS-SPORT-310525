@@ -430,31 +430,49 @@ export function downloadAllGeneratedFlags(): void {
   
   if (flagEntries.length === 0) {
     console.log('No generated flags to download');
+    alert('No generated flags found. Please click "🎨 Recreate Flags" first.');
     return;
   }
   
   console.log(`📦 Downloading ${flagEntries.length} generated flag files...`);
   
-  // Download each flag as a separate file
-  flagEntries.forEach(([fileName, svgContent]) => {
-    const blob = new Blob([svgContent as string], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    link.style.display = 'none';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Small delay between downloads
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-  });
+  // Show user feedback
+  const startTime = Date.now();
   
-  console.log(`✅ Downloaded ${flagEntries.length} flag files to your Downloads folder`);
-  console.log('📁 Move these files to client/public/assets/flags/ directory');
+  // Download each flag as a separate file with delay to prevent browser blocking
+  flagEntries.forEach(([fileName, svgContent], index) => {
+    setTimeout(() => {
+      const blob = new Blob([svgContent as string], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL after a short delay
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      
+      // Show progress
+      console.log(`📥 Downloaded ${index + 1}/${flagEntries.length}: ${fileName}`);
+      
+      // Show completion message for the last file
+      if (index === flagEntries.length - 1) {
+        const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`✅ All ${flagEntries.length} flag files downloaded in ${totalTime}s`);
+        console.log('📁 Files are in your Downloads folder');
+        console.log('🔧 Next steps:');
+        console.log('   1. Move the SVG files to: client/public/assets/flags/');
+        console.log('   2. The custom flags will automatically be used in your app');
+        
+        alert(`✅ Downloaded ${flagEntries.length} flag files!\n\nFiles are in your Downloads folder.\nMove them to: client/public/assets/flags/`);
+      }
+    }, index * 100); // 100ms delay between downloads
+  });
 }
 
 // Clear generated flags from session storage
