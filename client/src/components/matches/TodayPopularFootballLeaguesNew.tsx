@@ -994,19 +994,27 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </div>
                       ) : (
                         <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
-                          <LazyImage
+                          
+<LazyImage
                             src={
-                              leagueData.league.logo ||
-                              "/assets/fallback-logo.svg"
+                              leagueData.league.id
+                                ? `/api/league-logo/${leagueData.league.id}?size=29`
+                                : leagueData.league.logo ||
+                                  "/assets/fallback-logo.svg"
                             }
                             alt={leagueData.league.name || "Unknown League"}
-                            className="w-6 h-6 object-contain rounded-full"
+                            className="object-contain"
                             style={{ 
                               backgroundColor: "transparent",
                               background: "none",
                               backgroundImage: "none",
                               border: "none",
-                              boxShadow: "none"
+                              boxShadow: "none",
+                              outline: "none",
+                              padding: "0",
+                              margin: "0",
+                              width: "29px",
+                              height: "29px"
                             }}
                             fallbackSrc="/assets/fallback-logo.svg"
                           />
