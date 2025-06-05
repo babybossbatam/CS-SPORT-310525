@@ -496,8 +496,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="flex items-center gap-2 px-4">
                 {currentMatch.goals.home !== null &&
                 currentMatch.goals.away !== null ? (
-                  <div className="text-2xl font-bold text-gray-900">
-                    {currentMatch.goals.home} - {currentMatch.goals.away}
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl font-bold text-gray-900">
+                      {currentMatch.goals.home}-{currentMatch.goals.away}
+                    </div>
+                    <div className="text-xs font-semibold text-gray-600 mt-1">
+                      {currentMatch.fixture.status.short === "FT" ? "Ended" :
+                       currentMatch.fixture.status.short === "AET" ? "AET" :
+                       currentMatch.fixture.status.short === "PEN" ? "PEN" :
+                       currentMatch.fixture.status.short === "1H" || 
+                       currentMatch.fixture.status.short === "2H" ? "Live" :
+                       currentMatch.fixture.status.short === "HT" ? "HT" :
+                       currentMatch.fixture.status.short}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-lg font-medium text-gray-500">vs</div>
