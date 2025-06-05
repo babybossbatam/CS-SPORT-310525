@@ -1213,28 +1213,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                 </div>
 
-                                {/* Home team logo - closer to center */}
-                                <div className="team-logo-container">
-                                  <LazyImage
-                                    src={
-                                      match.teams.home.id
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={match.teams.home.name}
-                                    title={match.teams.home.name}
-                                    className={`team-logo ${
-                                      isNationalTeam(
-                                        match.teams.home,
-                                        leagueData.league
-                                      )
-                                        ? "national-team"
-                                        : ""
-                                    }`}
-                                    style={{ backgroundColor: "transparent" }}
-                                    fallbackSrc="/assets/fallback-logo.svg"
-                                  />
-                                </div>
+                                
 
                                 {/* Score/Time Center - Fixed width and centered */}
                                 <div className="match-score-container">
