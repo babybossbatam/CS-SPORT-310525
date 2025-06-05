@@ -1534,7 +1534,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           </div>
                                           <div className="match-status-label status-live">
                                             {status === "HT"
-                                              ? "HT"
+                                              ? "Halftime"
                                               : `${match.fixture.status.elapsed || 0}'`}
                                           </div>
                                         </div>
