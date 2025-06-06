@@ -907,40 +907,65 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             )}
 
-          {/* Match status for matches without scores using grid */}
+          {/* Match status for matches without scores using grid - same layout as score display */}
           {currentMatch?.fixture?.status?.short &&
             !(["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
               currentMatch.fixture.status.short,
             )) && (
               <div className="match-score-container">
-                <div className="match-time-display">
+                {/* Status display - positioned same as score display */}
+                <div className="match-score-display mb-4" style={{ fontSize: "calc(1.125rem * 0.968)" }}>
+                  <span className="score-number">
+                    {(() => {
+                      const status = currentMatch?.fixture?.status?.short;
+                      const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                      // Live matches - show elapsed time
+                      if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                        if (status === "HT") {
+                          return "HT";
+                        }
+                        return `${elapsed || 0}'`;
+                      }
+
+                      // Finished matches
+                      if (status === "FT") return "Ended";
+                      if (status === "AET") return "After Extra Time";
+                      if (status === "PEN") return "After Penalties";
+                      if (status === "AWD") return "Awarded";
+                      if (status === "WO") return "Walkover";
+                      if (status === "ABD") return "Abandoned";
+                      if (status === "CANC") return "Cancelled";
+                      if (status === "SUSP") return "Suspended";
+
+                      // Half time
+                      if (status === "HT") return "Half Time";
+
+                      // Upcoming matches
+                      if (status === "NS") return "Upcoming";
+                      if (status === "TBD") return "Time TBD";
+                      if (status === "PST") return "Postponed";
+
+                      // Default
+                      return status || "Upcoming";
+                    })()}
+                  </span>
+                </div>
+
+                {/* Match status label positioned below - same as score version */}
+                <div className="match-status-label status-upcoming">
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
-                    const elapsed = currentMatch?.fixture?.status?.elapsed;
-
-                    // Live matches - show elapsed time
-                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                      if (status === "HT") {
-                        return "HT";
-                      }
-                      return `${elapsed || 0}'`;
-                    }
-
-                    // Finished matches
-                    if (status === "FT") return "Ended";
-                    if (status === "AET") return "After Extra Time";
-                    if (status === "PEN") return "After Penalties";
-                    if (status === "AWD") return "Awarded";
-                    if (status === "WO") return "Walkover";
-                    if (status === "ABD") return "Abandoned";
-                    if (status === "CANC") return "Cancelled";
-                    if (status === "SUSP") return "Suspended";
-
-                    // Half time
-                    if (status === "HT") return "Half Time";
 
                     // Upcoming matches
-                    if (status === "NS") return "Upcoming";
+                    if (status === "NS") {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        return format(matchDate, "HH:mm");
+                      } catch {
+                        return "Time TBD";
+                      }
+                    }
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
 
