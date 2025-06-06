@@ -941,19 +941,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       // Half time
                       if (status === "HT") return "Half Time";
 
-                      // Upcoming matches
-                      if (status === "NS") return "Upcoming";
+                      // Upcoming matches - hide text for NS
+                      if (status === "NS") return "";
                       if (status === "TBD") return "Time TBD";
                       if (status === "PST") return "Postponed";
 
                       // Default
-                      return status || "Upcoming";
+                      return status || "";
                     })()}
                   </span>
                 </div>
 
                 {/* Match status label positioned below - same as score version */}
-                <div className="match-status-label status-upcoming">
+                <div className="match-status-label status-upcoming" style={{
+                  fontSize: currentMatch?.fixture?.status?.short === "NS" ? "calc(1.5 * 1rem)" : "1rem"
+                }}>
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
 
