@@ -957,7 +957,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
 
-                    // Upcoming matches - hide all text for NS status
+                    // Upcoming matches - hide display
                     if (status === "NS") {
                       return "";
                     }
