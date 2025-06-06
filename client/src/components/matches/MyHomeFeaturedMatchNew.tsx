@@ -117,7 +117,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
-            const response = await apiRequest('GET', `/api/fixtures/date/${date}?all=true`);
+            const response = await apiRequest('GET', `/api/fixtures/date/${date}`);
             if (!response.ok) continue;
 
             const allFixtures = await response.json();
@@ -133,7 +133,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // ONLY keep fixtures from TOP 3 leagues
+              // ONLY keep fixtures from TOP 3 leagues (Premier League, La Liga, Serie A)
               const leagueId = fixture.league?.id;
               return TOP_3_LEAGUES.includes(leagueId);
             });
