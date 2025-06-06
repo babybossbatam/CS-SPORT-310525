@@ -867,7 +867,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <span className="score-separator">-</span>
                   <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
                 </div>
-                
+
                 {/* Match status label positioned below score */}
                 <div className="match-status-label status-live">
                   {(() => {
@@ -1053,17 +1053,39 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       `/assets/fallback-logo.svg`
                     }
                     alt={currentMatch?.teams?.away?.name || "Away Team"}
-                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110"
                     style={{
                       cursor: "pointer",
                       top: "calc(50% - 32px)",
                       right: "87px",
                       transform: "translateX(50%)",
-                      filter: "contrast(115%) brightness(105%)",
+                      filter: "contrast(120%) brightness(110%) saturate(110%)",
+                      boxShadow: `
+                        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+                        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+                        0 4px 8px rgba(0, 0, 0, 0.3),
+                        0 8px 16px rgba(0, 0, 0, 0.15),
+                        0 0 0 2px rgba(255, 255, 255, 0.1),
+                        0 0 0 3px rgba(0, 0, 0, 0.1)
+                      `,
+                      background: `
+                        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
+                        linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%, rgba(0, 0, 0, 0.1) 100%)
+                      `,
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      position: "relative",
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                      const target = e.currentTarget;
+                      if (
+                        target.src.includes("sportmonks") &&
+                        currentMatch.teams.away.logo
+                      ) {
+                        target.src = currentMatch.teams.away.logo;
+                      } else {
+                        target.src = "/assets/fallback-logo.svg";
+                      }
                     }}
                   />
                 </div>
