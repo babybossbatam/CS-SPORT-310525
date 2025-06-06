@@ -1123,10 +1123,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       "EEEE, do MMM",
                     );
                     const timeOnly = format(matchDate, "HH:mm");
+                    const isUpcoming = currentMatch.fixture.status.short === "NS" || currentMatch.fixture.status.short === "TBD";
 
                     return (
                       <>
-                        {formattedDate} | {timeOnly}
+                        {formattedDate}
+                        {!isUpcoming && ` | ${timeOnly}`}
                         {currentMatch.fixture.venue?.name
                           ? ` | ${currentMatch.fixture.venue.name}`
                           : ""}
