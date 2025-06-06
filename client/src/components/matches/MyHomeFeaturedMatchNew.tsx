@@ -817,17 +817,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           {/* League info section */}
           <div className="bg-white p-2 mt-6 relative">
             <div className="flex items-center justify-center">
-              {currentMatch?.league?.country && (
-                <img
-                  src={`https://media.api-sports.io/flags/${currentMatch.league.country.toLowerCase().replace(/\s+/g, '-')}.svg`}
-                  alt={`${currentMatch.league.country} flag`}
-                  className="w-4 h-3 object-contain mr-1"
-                  style={{ filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3))' }}
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-              )}
               {currentMatch?.league?.logo ? (
                 <img
                   src={currentMatch.league.logo}
