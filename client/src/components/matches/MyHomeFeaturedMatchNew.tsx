@@ -1137,7 +1137,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </span>
               </button>
             </div>
-          </div>
         </motion.div>
       </AnimatePresence>
 
