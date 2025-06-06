@@ -54,11 +54,11 @@ export const TodayMatchPageCard = ({
     if (liveFilterActive && timeFilterActive && selectedDate !== today) {
       // If both filters are active and date changes from today, activate time filter and deactivate live
       setLiveFilterActive(false);
-      setTimeFilterActive(true);
+      setTimeFilterActive(false);
     } else if (liveFilterActive && selectedDate !== today) {
       // If only live filter is active but date is not today, switch to time filter
       setLiveFilterActive(false);
-      setTimeFilterActive(true);
+      setTimeFilterActive(false);
     }
   }, [selectedDate, liveFilterActive, timeFilterActive]);
 
