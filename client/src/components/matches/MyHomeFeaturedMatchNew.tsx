@@ -835,7 +835,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
 <Badge
                     variant="outline"
-                    className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
+                    className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse"
                   >
                     LIVE
                   </Badge>
