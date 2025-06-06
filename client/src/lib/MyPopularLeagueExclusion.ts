@@ -113,6 +113,12 @@ export const popularLeagueExclusionTerms = [
   
   // Regional competitions not suitable for popular leagues
   "cosafa cup",
+  
+  // World Cup qualification exclusions for featured matches
+  "world cup - qualification asia",
+  "world cup - qualification concacaf",
+  "qualification asia",
+  "qualification concacaf",
 ];
 
 // Safe substring function to handle null/undefined values
@@ -185,13 +191,15 @@ export function shouldExcludeFromPopularLeagues(
     // Youth international tournaments (but exclude women's)
     league.includes("tournoi maurice revello") ||
     league.includes("maurice revello") ||
-    // International competitions (but exclude women's)
+    // International competitions (but exclude women's and Asia/CONCACAF qualifications)
     (league.includes("nations league") && !league.includes("women")) ||
     (league.includes("uefa nations league") && !league.includes("women")) ||
     (league.includes("confederation") && !league.includes("women")) ||
     (league.includes("qualifying") &&
       (league.includes("world cup") || league.includes("euro")) &&
-      !league.includes("women")) ||
+      !league.includes("women") &&
+      !league.includes("asia") &&
+      !league.includes("concacaf")) ||
     (league.includes("international") &&
       (league.includes("cup") || league.includes("championship")) &&
       !league.includes("women")) ||
