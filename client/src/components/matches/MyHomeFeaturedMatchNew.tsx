@@ -142,11 +142,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               // Additional featured match filtering - only allow top 3 priority international competitions
               const leagueName = fixture.league?.name?.toLowerCase() || '';
-              const country = fixture.league?.country?.toLowerCase() || '';
+              const leagueCountry = fixture.league?.country?.toLowerCase() || '';
               
               // If it's an international competition, only allow top 3 priorities
-              if (country.includes("world") || country.includes("europe") || 
-                  country.includes("international") || leagueName.includes("uefa") ||
+              if (leagueCountry.includes("world") || leagueCountry.includes("europe") || 
+                  leagueCountry.includes("international") || leagueName.includes("uefa") ||
                   leagueName.includes("fifa") || leagueName.includes("conmebol")) {
                 
                 // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
