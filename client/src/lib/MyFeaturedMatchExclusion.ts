@@ -1,4 +1,3 @@
-
 /**
  * Specialized exclusion filters for MyHomeFeaturedMatchNew component
  * This provides targeted filtering for the featured match display to ensure only high-quality matches are shown
@@ -23,7 +22,17 @@ export const featuredMatchExclusionTerms = [
   'futsal', 'indoor', 'beach', 'arena',
 
   // Esports and virtual competitions
-  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball'
+  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball',
+
+  // World Cup qualification exclusions (all regions for featured matches)
+  'world cup - qualification asia',
+  'world cup - qualification concacaf',
+  'qualification asia',
+  'qualification concacaf',
+
+  // Additional regional exclusions
+  'asia',
+  'concacaf'
 ];
 
 // Lower-tier league patterns that should be excluded from featured matches
@@ -34,7 +43,7 @@ export const lowerTierLeagueTerms = [
   'third division', '3rd division', 'fourth division', '4th division',
   'quinta division', 'sexta division',
   'relegation', 'promotion playoff',
-  
+
   // Specific lower-tier indicators
   'segunda b', 'tercera', 'cuarta',
   'division 3', 'division 4', 'division 5',
@@ -126,7 +135,7 @@ export const shouldExcludeFeaturedMatch = (
 export const getFeaturedMatchLeaguePriority = (match: any): number => {
   const name = (match.league?.name || "").toLowerCase();
   const country = (match.league?.country || "").toLowerCase();
-  
+
   // Check for women's competitions (lowest priority)
   const isWomensMatch = name.includes("women");
   if (isWomensMatch) return 999;
@@ -135,7 +144,7 @@ export const getFeaturedMatchLeaguePriority = (match: any): number => {
   if (country.includes("world") || country.includes("europe") || 
       country.includes("international") || name.includes("uefa") ||
       name.includes("fifa") || name.includes("conmebol")) {
-    
+
     // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
     if (name.includes("uefa nations league") && !name.includes("women")) {
       return 1;
@@ -204,7 +213,7 @@ export const isHighPriorityLeague = (match: any): boolean => {
 export const hasPopularTeams = (match: any, popularTeamIds: number[] = []): boolean => {
   const homeTeamId = match.teams?.home?.id;
   const awayTeamId = match.teams?.away?.id;
-  
+
   return popularTeamIds.includes(homeTeamId) || popularTeamIds.includes(awayTeamId);
 };
 
@@ -227,7 +236,7 @@ export const isFeaturedWorthy = (
   // Must be from a high-priority league OR have popular teams
   const isHighPriority = isHighPriorityLeague(match);
   const hasPopular = hasPopularTeams(match, popularTeamIds);
-  
+
   return isHighPriority || hasPopular;
 };
 
@@ -249,7 +258,7 @@ export const filterFeaturedMatches = (
     // First by league priority
     const aPriority = getFeaturedMatchLeaguePriority(a);
     const bPriority = getFeaturedMatchLeaguePriority(b);
-    
+
     if (aPriority !== bPriority) {
       return aPriority - bPriority;
     }
@@ -257,17 +266,17 @@ export const filterFeaturedMatches = (
     // Then by match status (live > upcoming > finished)
     const aStatus = a.fixture?.status?.short;
     const bStatus = b.fixture?.status?.short;
-    
+
     const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(aStatus);
     const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(bStatus);
-    
+
     if (aIsLive && !bIsLive) return -1;
     if (!aIsLive && bIsLive) return 1;
 
     // Then by popular teams
     const aHasPopular = hasPopularTeams(a, popularTeamIds);
     const bHasPopular = hasPopularTeams(b, popularTeamIds);
-    
+
     if (aHasPopular && !bHasPopular) return -1;
     if (!aHasPopular && bHasPopular) return 1;
 
