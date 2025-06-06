@@ -976,12 +976,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch.teams.home.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full shadow-2xl"
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
                           left: "-32px",
                           filter: "contrast(115%) brightness(105%)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.2), inset 0 -2px 8px rgba(0,0,0,0.1)",
+                          background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%)",
+                          border: "2px solid rgba(255,255,255,0.2)",
+                          backdropFilter: "blur(1px)",
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -1053,13 +1057,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       `/assets/fallback-logo.svg`
                     }
                     alt={currentMatch?.teams?.away?.name || "Away Team"}
-                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full shadow-2xl transition-all duration-300 ease-in-out hover:scale-110"
                     style={{
                       cursor: "pointer",
                       top: "calc(50% - 32px)",
                       right: "87px",
                       transform: "translateX(50%)",
                       filter: "contrast(115%) brightness(105%)",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.2), inset 0 -2px 8px rgba(0,0,0,0.1)",
+                      background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%)",
+                      border: "2px solid rgba(255,255,255,0.2)",
+                      backdropFilter: "blur(1px)",
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {
