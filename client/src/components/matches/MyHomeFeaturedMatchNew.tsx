@@ -948,8 +948,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     return status || "Upcoming";
                   })()}
                 </div>
-                <div className="additional-info">
-                  {/* Additional content can be added here */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-xs text-gray-500">
+                  {/* Additional content positioned absolutely below without affecting grid */}
                 </div>
               </div>
             )}
