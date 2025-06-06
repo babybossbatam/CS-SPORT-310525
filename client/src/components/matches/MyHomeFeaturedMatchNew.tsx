@@ -128,9 +128,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Explicit check to reject Friendlies and Tournoi Maurice Revello matches
+              // FIRST PRIORITY: Explicit check to reject Tournoi Maurice Revello matches (MUST BE FIRST)
               const leagueName = (fixture.league?.name || '').toLowerCase();
-              if (leagueName === 'friendlies' || leagueName === 'tournoi maurice revello') {
+              if (leagueName === 'tournoi maurice revello' || leagueName.includes('maurice revello')) {
+                console.log(`🚫 [FeaturedMatch] Explicitly rejecting Tournoi Maurice Revello match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`);
+                return false;
+              }
+
+              // SECOND: Explicit check to reject Friendlies matches
+              if (leagueName === 'friendlies') {
                 return false;
               }
 
