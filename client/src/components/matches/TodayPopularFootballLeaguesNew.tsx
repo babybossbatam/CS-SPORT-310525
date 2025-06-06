@@ -1475,8 +1475,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "Unknown Team"}
                                 </div>
 
-                                {/* Home team logo - closer to center */}
-                                <div className="team-logo-container">
+                                {/* Home team logo - grid area */}
+                                <div className="home-team-logo-container">
                                   {isNationalTeam(
                                     match.teams.home,
                                     leagueData.league,
@@ -1485,7 +1485,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       <LazyImage
                                         src={
                                           match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                                             : "/assets/fallback-logo.svg"
                                         }
                                         alt={match.teams.home.name}
@@ -1500,7 +1500,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     <LazyImage
                                       src={
                                         match.teams.home.id
-                                          ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                          ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                                           : "/assets/fallback-logo.svg"
                                       }
                                       alt={match.teams.home.name}
@@ -1708,8 +1708,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   })()}
                                 </div>
 
-                                {/* Away team logo - closer to center */}
-                                <div className="team-logo-container">
+                                {/* Away team logo - grid area */}
+                                <div className="away-team-logo-container">
                                   {isNationalTeam(
                                     match.teams.away,
                                     leagueData.league,
@@ -1718,7 +1718,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       <LazyImage
                                         src={
                                           match.teams.away.id
-                                            ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                                             : "/assets/fallback-logo.svg"
                                         }
                                         alt={match.teams.away.name}
@@ -1733,7 +1733,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     <LazyImage
                                       src={
                                         match.teams.away.id
-                                          ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                          ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                                           : "/assets/fallback-logo.svg"
                                       }
                                       alt={match.teams.away.name}
