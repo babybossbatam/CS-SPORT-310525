@@ -1097,9 +1097,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               </div>
 
-              {/* Match date and venue - centered below teams */}
+              {/* Match date and venue - aligned with VS component */}
               <div
-                className="absolute text-center text-xs text-black font-medium mt-4 pt-4"
+                className="absolute text-center text-xs text-black font-medium"
                 style={{
                   fontSize: "0.875rem",
                   whiteSpace: "nowrap",
@@ -1108,7 +1108,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   position: "absolute",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  bottom: "-25px",
+                  top: "calc(100% + 12px)",
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
