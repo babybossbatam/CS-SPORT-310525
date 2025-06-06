@@ -1012,8 +1012,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           mixBlendMode: "overlay",
                         }}
                       />
-                    </>
-                  )}
+                    )}
                   </div>
 
                   <div
