@@ -52,8 +52,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       try {
         setLoading(true);
 
-        // Check cache first
-        const cacheKey = ["featured-matches", currentDate];
+        // Check cache first - use 7-day range in cache key
+        const cacheKey = ["featured-matches-7day", currentDate];
         const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
 
         if (cachedData) {
@@ -73,14 +73,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           currentDate,
         );
 
-        // Get dates for today, tomorrow, and day after tomorrow
+        // Get dates for the next 7 days (1 week)
         const today = new Date();
-        const todayString = format(today, "yyyy-MM-dd");
-        const tomorrow = addDays(today, 1);
-        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-        const dayAfterTomorrow = addDays(today, 2);
-        const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
-
         const featuredMatches = [];
 
         // Popular leagues and countries configuration (from TodayPopularLeague)
@@ -103,12 +97,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
         ];
 
-        // Fetch matches for today, tomorrow, and day after tomorrow (top 2 leagues each)
-        const datesToFetch = [
-          { date: todayString, maxLeagues: 2, maxMatches: 2 },
-          { date: tomorrowString, maxLeagues: 2, maxMatches: 2 },
-          { date: dayAfterTomorrowString, maxLeagues: 2, maxMatches: 2 },
-        ];
+        // Fetch matches for the next 7 days (top 2 leagues each day)
+        const datesToFetch = [];
+        for (let i = 0; i < 7; i++) {
+          const currentDate = addDays(today, i);
+          const dateString = format(currentDate, "yyyy-MM-dd");
+          datesToFetch.push({ 
+            date: dateString, 
+            maxLeagues: 2, 
+            maxMatches: 2 
+          });
+        }
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
@@ -137,7 +136,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply smart time filtering
+              // Apply smart time filtering for the 7-day range
               if (fixture.fixture.date && fixture.fixture.status?.short) {
                 const smartResult = MySmartTimeFilter.getSmartTimeLabel(
                   fixture.fixture.date,
@@ -145,11 +144,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   date + "T12:00:00Z",
                 );
 
-                // Check if this match should be included based on the date
+                // Check if this match should be included based on the date within 7 days
+                const fixtureDate = new Date(fixture.fixture.date);
+                const currentDate = new Date(date);
+                const todayDate = new Date(today);
+                
+                // Calculate days difference
+                const daysDiff = Math.floor((currentDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
+                
                 const shouldInclude = (() => {
-                  if (date === tomorrowString && smartResult.label === "tomorrow") return true;
-                  if (date === todayString && smartResult.label === "today") return true;
-                  if (date === dayAfterTomorrowString && smartResult.isWithinTimeRange) return true;
+                  // Today's matches
+                  if (daysDiff === 0 && smartResult.label === "today") return true;
+                  // Tomorrow's matches
+                  if (daysDiff === 1 && smartResult.label === "tomorrow") return true;
+                  // Within the 7-day range
+                  if (daysDiff >= 0 && daysDiff < 7 && smartResult.isWithinTimeRange) return true;
                   return false;
                 })();
 
@@ -618,7 +627,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Store in background cache as well
         backgroundCache.set(
-          `featured-matches-${currentDate}`,
+          `featured-matches-7day-${currentDate}`,
           validMatches,
           15 * 60 * 1000,
         );
