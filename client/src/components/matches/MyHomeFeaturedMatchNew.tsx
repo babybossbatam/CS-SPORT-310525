@@ -779,30 +779,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         Featured Match
       </Badge>
 
-      {/* Navigation arrows */}
-      {matches.length > 1 && (
-        <>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePrevious();
-            }}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[58px] w-[26px] p-2 rounded-r-full z-40 flex items-center border border-black"
-          >
-            <ChevronLeft className="h-21 w-21" />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNext();
-            }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[58px] w-[26px] p-2 rounded-l-full z-40 flex items-center border border-black"
-          >
-            <ChevronRight className="h-37 w-37" />
-          </button>
-        </>
-      )}
+      
 
       <AnimatePresence mode="wait">
         <motion.div
