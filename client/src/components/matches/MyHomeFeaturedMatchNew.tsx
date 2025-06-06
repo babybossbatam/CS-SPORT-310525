@@ -870,14 +870,39 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   marginTop: "-15px"
                 }}
               >
-                {currentMatch?.fixture?.status?.short === "FT" ? "Ended" :
-                 currentMatch?.fixture?.status?.short === "AET" ? "After Extra Time" :
-                 currentMatch?.fixture?.status?.short === "PEN" ? "After Penalties" :
-                 currentMatch?.fixture?.status?.short === "1H" || 
-                 currentMatch?.fixture?.status?.short === "2H" ? "Live" :
-                 currentMatch?.fixture?.status?.short === "HT" ? "Half Time" :
-                 currentMatch?.fixture?.status?.short === "NS" ? "Upcoming" :
-                 currentMatch?.fixture?.status?.short}
+                {(() => {
+                  const status = currentMatch?.fixture?.status?.short;
+                  const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                  // Live matches - show elapsed time
+                  if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                    if (status === "HT") {
+                      return "HT";
+                    }
+                    return `${elapsed || 0}'`;
+                  }
+
+                  // Finished matches
+                  if (status === "FT") return "Ended";
+                  if (status === "AET") return "After Extra Time";
+                  if (status === "PEN") return "After Penalties";
+                  if (status === "AWD") return "Awarded";
+                  if (status === "WO") return "Walkover";
+                  if (status === "ABD") return "Abandoned";
+                  if (status === "CANC") return "Cancelled";
+                  if (status === "SUSP") return "Suspended";
+
+                  // Half time
+                  if (status === "HT") return "Half Time";
+
+                  // Upcoming matches
+                  if (status === "NS") return "Upcoming";
+                  if (status === "TBD") return "Time TBD";
+                  if (status === "PST") return "Postponed";
+
+                  // Default
+                  return status || "Upcoming";
+                })()}
               </div>
 
               {/* Score display for live and finished matches */}
