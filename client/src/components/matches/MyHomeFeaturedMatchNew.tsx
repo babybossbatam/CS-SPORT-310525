@@ -128,12 +128,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply MyFeaturedMatchExclusion
-              if (shouldExcludeFeaturedMatch(
+              // Apply MyFeaturedMatchExclusion (but be less restrictive)
+              const shouldExclude = shouldExcludeFeaturedMatch(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
                 fixture.teams?.away?.name || ''
-              )) {
+              );
+              
+              // Only exclude if it's a very low quality match and we have other options
+              if (shouldExclude && allFixtures.length > 50) {
                 return false;
               }
 
@@ -349,12 +352,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Take only the top 2 leagues for this date
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
 
-            // Check if the top 2 leagues are both Qualification Asia or CONCACAF
+            // More flexible quality check - only skip if ALL leagues are low quality
             if (topLeagues.length >= 2) {
               const topLeagueNames = topLeagues.map(league => league.league?.name?.toLowerCase() || "");
 
-              // Count how many of the top 2 are qualification tournaments
-              const qualificationCount = topLeagueNames.slice(0, 2).filter(name => {
+              // Count how many of the top leagues are qualification tournaments
+              const qualificationCount = topLeagueNames.filter(name => {
                 const isQualificationAsia = (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) ||
                                           (name.includes("qualification") && name.includes("asia"));
                 const isQualificationCONCACAF = (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) ||
@@ -363,27 +366,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return isQualificationAsia || isQualificationCONCACAF;
               }).length;
 
-              // If both top 2 leagues are qualification tournaments, skip this date
-              if (qualificationCount === 2) {
-                console.log(`🚫 [FeaturedMatch] Skipping ${date} - top 2 leagues are both qualification tournaments:`, topLeagueNames.slice(0, 2));
-                continue; // Skip to next date
-              }
-
-              // Also skip if we have qualification tournaments dominating
-              if (qualificationCount >= 1 && topLeagues.length >= 2) {
-                // Check if the non-qualification leagues are also low priority
-                const nonQualificationLeagues = topLeagues.filter((league, index) => {
-                  if (index >= 2) return false; // Only check top 2
-                  const name = league.league?.name?.toLowerCase() || "";
-                  const isQualification = (name.includes("qualification") && (name.includes("asia") || name.includes("concacaf")));
-                  return !isQualification;
-                });
-
-                // If we only have 1 non-qualification league and it's also low priority, skip
-                if (nonQualificationLeagues.length <= 1) {
-                  console.log(`🚫 [FeaturedMatch] Skipping ${date} - insufficient high-quality leagues (${qualificationCount} qualification + ${nonQualificationLeagues.length} other):`, topLeagueNames.slice(0, 2));
-                  continue; // Skip to next date
-                }
+              // Only skip if ALL top leagues are low-quality qualification tournaments
+              // Allow at least some matches to show up
+              if (qualificationCount >= topLeagues.length && topLeagues.length >= 2) {
+                console.log(`🚫 [FeaturedMatch] All ${topLeagues.length} leagues are qualification tournaments for ${date}:`, topLeagueNames);
+                // Don't skip entirely, just take fewer matches
               }
             }
 
@@ -613,7 +600,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
 
         // Take only the required number of matches
-        const finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
+        let finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
+        
+        // Fallback: if no matches found, try with less restrictive criteria
+        if (finalMatches.length === 0) {
+          console.log("🔄 [FeaturedMatch] No matches found with strict criteria, trying fallback...");
+          
+          // Get any popular league matches for today without strict filtering
+          try {
+            const fallbackResponse = await fetch(`/api/fixtures/date/${todayString}?all=true`);
+            if (fallbackResponse.ok) {
+              const fallbackFixtures = await fallbackResponse.json();
+              
+              // Take any matches from popular leagues
+              const fallbackMatches = fallbackFixtures.filter((fixture: any) => {
+                return fixture && fixture.teams && fixture.teams.home && fixture.teams.away && 
+                       fixture.fixture && fixture.league && POPULAR_LEAGUES.includes(fixture.league.id);
+              }).slice(0, 1); // Take at least one match
+              
+              if (fallbackMatches.length > 0) {
+                console.log("✅ [FeaturedMatch] Found fallback matches:", fallbackMatches.length);
+                finalMatches = fallbackMatches;
+              }
+            }
+          } catch (error) {
+            console.error("🔍 [FeaturedMatch] Fallback fetch failed:", error);
+          }
+        }
         // Validate data structure before setting
         const validMatches = finalMatches.filter((match) => {
           const isValid =
