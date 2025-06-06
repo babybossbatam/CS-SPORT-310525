@@ -128,7 +128,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply MyFeaturedMatchExclusion
+              // Apply MyFeaturedMatchExclusion - this will filter out World Cup Qualification Asia and CONCACAF
               if (shouldExcludeFeaturedMatch(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
