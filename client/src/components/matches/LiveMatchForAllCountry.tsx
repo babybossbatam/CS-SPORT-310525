@@ -338,8 +338,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   return (
     <>
-      {/* Main Header */}
-      <h3 className="text-base font-semibbold text-gray-800 mt-4 mb-0 bg-white border border-gray-200 p-3" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+      {/* Header Section */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive
@@ -347,7 +347,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             : !liveFilterActive && timeFilterActive
               ? "All Matches by Time"
               : "Popular Football Live Score"}
-      </h3>
+      </CardHeader>
       {/* Create individual league cards from all countries */}
       {processedCountries.flatMap((countryData: any, countryIndex: number) =>
         Object.values(countryData.leagues)

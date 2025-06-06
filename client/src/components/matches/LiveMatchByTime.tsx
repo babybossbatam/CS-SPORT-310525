@@ -250,8 +250,8 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
   return (
     <>
-      {/* Main Header */}
-      <h3 className="font-semibold text-gray-800 mt-4 bg-white border border-gray-200 p-2" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+      {/* Header Section */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         {liveFilterActive && timeFilterActive
           ? "Popular Football Live Score"
           : liveFilterActive && !timeFilterActive
@@ -259,7 +259,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
             : !liveFilterActive && timeFilterActive
               ? "All Matches by Time"
               : "Live Football Scores"}
-      </h3>
+      </CardHeader>
 
       {/* Single consolidated card with all matches sorted by time */}
       <Card className=" overflow-hidden">
