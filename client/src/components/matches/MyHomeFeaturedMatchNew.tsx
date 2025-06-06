@@ -190,7 +190,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           try {
             // Get dynamic TOP 3 leagues for this date
             const dynamicTop3Leagues = await getDynamicTop3Leagues(date);
-
+            
             if (dynamicTop3Leagues.length === 0) {
               console.log(`🔍 [FeaturedMatch] No dynamic TOP 3 leagues found for ${date}`);
               continue;
@@ -331,29 +331,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Take exactly the number of matches specified for this date
             const selectedMatches = sortedMatches.slice(0, dateMaxMatches);
 
-            // Add matches to featured collection with unique ID tracking
+            // Add matches to featured collection
             for (const match of selectedMatches) {
-              // Avoid duplicates by checking fixture ID
-              const isDuplicate = featuredMatches.some(existing => existing.fixture?.id === match.fixture?.id);
-
-              if (!isDuplicate) {
-                featuredMatches.push({
-                  ...match,
-                  league: {
-                    ...match.league,
-                    country: match.league.country,
-                  },
-                  dateContext: date, // Add context for which date this match is from
-                });
-              }
+              featuredMatches.push({
+                ...match,
+                league: {
+                  ...match.league,
+                  country: match.league.country,
+                },
+                dateContext: date, // Add context for which date this match is from
+              });
             }
 
-            const addedCount = selectedMatches.filter(match => 
-              !featuredMatches.slice(0, -selectedMatches.length).some(existing => existing.fixture?.id === match.fixture?.id)
-            ).length;
-
             console.log(
-              `🔍 [FeaturedMatch] Added ${addedCount} unique matches from ${date} (requested: ${dateMaxMatches})`,
+              `🔍 [FeaturedMatch] Added ${selectedMatches.length} matches from ${date} (requested: ${dateMaxMatches})`,
             );
           } catch (error) {
             console.error(`🔍 [FeaturedMatch] Error fetching data for ${date}:`, error);
@@ -415,22 +406,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         console.log(
-          "🔍 [FeaturedMatch] Returning matches from TodayPopularLeagueNew data:",
+          "🔍 [FeaturedMatch] Returning matches from TodayPopularLeagueNew data (max 6):",
           validMatches.length,
           "matches:",
           {
-            distribution: {
-              today: validMatches.filter(m => m.dateContext === todayString).length,
-              tomorrow: validMatches.filter(m => m.dateContext === tomorrowString).length,
-              dayAfter: validMatches.filter(m => m.dateContext === dayAfterTomorrowString).length
-            },
             matches: validMatches.map((m) => ({
-              fixtureId: m.fixture?.id || "Unknown ID",
               league: m.league?.name || "Unknown League",
               leagueId: m.league?.id || "Unknown ID",
               homeTeam: m.teams?.home?.name || "Unknown Home",
               awayTeam: m.teams?.away?.name || "Unknown Away",
-              dateContext: m.dateContext || "Unknown Date",
               status:
                 m.fixture?.status?.short === "NS"
                   ? "UPCOMING"
