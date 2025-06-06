@@ -941,47 +941,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       // Half time
                       if (status === "HT") return "Half Time";
 
-                      // Upcoming matches - hide text for NS
-                      if (status === "NS") return "";
+                      // Upcoming matches
+                      if (status === "NS") return "Upcoming";
                       if (status === "TBD") return "Time TBD";
                       if (status === "PST") return "Postponed";
 
                       // Default
-                      return status || "";
+                      return status || "Upcoming";
                     })()}
                   </span>
                 </div>
 
                 {/* Match status label positioned below - same as score version */}
-                <div className="match-status-label status-upcoming" style={{
-                  fontSize: currentMatch?.fixture?.status?.short === "NS" ? "calc(1.5 * 1rem)" : "1rem",
-                  marginTop: "16px"
-                }}>
+                <div className="match-status-label status-upcoming">
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
 
-                    // Upcoming matches - calculate days until match
+                    // Upcoming matches - hide all text for NS status
                     if (status === "NS") {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        const now = new Date();
-                        
-                        // Calculate difference in days
-                        const msToMatch = matchDate.getTime() - now.getTime();
-                        const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-                        
-                        if (daysToMatch === 0) {
-                          return "Today";
-                        } else if (daysToMatch === 1) {
-                          return "Tomorrow";
-                        } else if (daysToMatch > 1) {
-                          return `${daysToMatch} days`;
-                        } else {
-                          return ""; // Past date
-                        }
-                      } catch (e) {
-                        return "";
-                      }
+                      return "";
                     }
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
@@ -990,9 +968,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     return status || "";
                   })()}
                 </div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 text-xs text-gray-500" style={{
-                  bottom: "calc(100% + 20px)"
-                }}>
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-xs text-gray-500">
                   {/* Additional content positioned absolutely below without affecting grid */}
                 </div>
               </div>
