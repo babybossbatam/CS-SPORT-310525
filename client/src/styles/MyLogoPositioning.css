@@ -205,12 +205,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0 0.25rem;
   width: 80px;
   position: relative;
   height: 100%;
-  text-align: center;
-  place-self: center;
 }
 
 /* Score display styles */
@@ -219,10 +217,7 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  text-align: center;
 }
 
 .score-number {
@@ -279,9 +274,6 @@
   justify-content: center;
   height: 100%;
   letter-spacing: -0.02em;
-  text-align: center;
-  width: 100%;
-  place-self: center;
 }
 
 /* Responsive grid adjustments */
