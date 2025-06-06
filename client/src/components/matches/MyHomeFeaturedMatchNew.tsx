@@ -30,17 +30,36 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
 
-  // TOP 3 leagues only - Premier League, La Liga, Serie A
-  const TOP_3_LEAGUES = [39, 140, 135];
+  // Priority system for top-level matches
+  const getMatchPriority = (leagueData: any) => {
+    const name = (leagueData.league?.name || "").toLowerCase();
+    
+    // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
+    if (name.includes("uefa nations league") && !name.includes("women")) {
+      return 1;
+    }
 
-  // Get featured matches with simplified logic
+    // Priority 2: UEFA Euro and major tournaments
+    if (name.includes("uefa euro") && !name.includes("qualification") && !name.includes("women")) {
+      return 2;
+    }
+
+    // Priority 3: UEFA Euro qualification and other major qualifications
+    if (name.includes("uefa euro") && name.includes("qualification") && !name.includes("women")) {
+      return 3;
+    }
+
+    return 999; // Lower priority
+  };
+
+  // Get featured matches with priority-based logic
   useEffect(() => {
     const getFeaturedMatches = async () => {
       try {
         setLoading(true);
 
         // Check cache first
-        const cacheKey = ["featured-matches-simple", currentDate];
+        const cacheKey = ["featured-matches-priority", currentDate];
         const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
 
         if (cachedData) {
@@ -51,7 +70,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return;
         }
 
-        console.log("🔍 [FeaturedMatch] Getting top 3 matches from top 3 leagues for 3 days");
+        console.log("🔍 [FeaturedMatch] Getting top priority level 1-3 matches for 3 days");
 
         // Get dates for today, tomorrow, and day after tomorrow
         const today = new Date();
@@ -80,20 +99,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const allFixtures = await response.json();
             if (!allFixtures || allFixtures.length === 0) continue;
 
-            // Filter to ONLY TOP 3 leagues matches
-            const topLeagueFixtures = allFixtures.filter((fixture) => {
+            // Filter to ONLY priority level 1-3 matches
+            const priorityMatches = allFixtures.filter((fixture) => {
               if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
                 return false;
               }
 
-              const leagueId = fixture.league?.id;
-              return TOP_3_LEAGUES.includes(leagueId);
+              const priority = getMatchPriority(fixture);
+              return priority >= 1 && priority <= 3;
             });
 
-            console.log(`🔍 [FeaturedMatch] Found ${topLeagueFixtures.length} matches from top 3 leagues for ${label}`);
+            console.log(`🔍 [FeaturedMatch] Found ${priorityMatches.length} matches from priority levels 1-3 for ${label}`);
 
             // Sort matches by priority: Live > Upcoming > Finished
-            const sortedMatches = topLeagueFixtures.sort((a: any, b: any) => {
+            const sortedMatches = priorityMatches.sort((a: any, b: any) => {
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
               const aDate = parseISO(a.fixture.date);
@@ -196,7 +215,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Cache the result
         CacheManager.setCachedData(cacheKey, validMatches);
-        backgroundCache.set(`featured-matches-simple-${currentDate}`, validMatches, 15 * 60 * 1000);
+        backgroundCache.set(`featured-matches-priority-${currentDate}`, validMatches, 15 * 60 * 1000);
 
         setMatches(validMatches);
         setCurrentIndex(0);
@@ -300,7 +319,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             Loading featured matches...
           </p>
           <p className="text-gray-400 text-sm mt-1">
-            Top 3 matches from top 3 leagues
+            Top priority level 1-3 matches
           </p>
         </CardContent>
       </Card>
@@ -323,7 +342,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <p className="text-lg font-medium mb-1">
               No featured matches available
             </p>
-            <p className="text-sm">No matches from top 3 leagues found</p>
+            <p className="text-sm">No priority level 1-3 matches found</p>
           </div>
         </CardContent>
       </Card>
