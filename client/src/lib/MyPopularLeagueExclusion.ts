@@ -122,6 +122,9 @@ export const popularLeagueExclusionTerms = [
 
   // CONCACAF competitions exclusion
   "concacaf",
+
+  // Friendlies exclusion
+  "friendlies",
 ];
 
 // Safe substring function to handle null/undefined values
@@ -179,6 +182,11 @@ export function shouldExcludeFromPopularLeagues(
   // THIRD: Check for Asia competitions - always exclude
   if (league.includes("asia")) {
     return true; // Exclude all Asia competitions
+  }
+
+  // FOURTH: Check for Friendlies competitions - always exclude
+  if (league.includes("friendlies")) {
+    return true; // Exclude all Friendlies competitions
   }
 
   // Check if this is a major international competition that should NEVER be excluded
@@ -261,12 +269,7 @@ export function isPopularLeagueSuitable(
     countryLower.includes("europe") ||
     countryLower.includes("international");
 
-  if (
-    isMajorInternational &&
-    !league.includes("women") &&
-    !league.includes("concacaf") &&
-    !league.includes("asia")
-  ) {
+  if (isMajorInternational && !league.includes("women") && !league.includes("concacaf") && !league.includes("asia") && !league.includes("friendlies")) {
     return true;
   }
 
