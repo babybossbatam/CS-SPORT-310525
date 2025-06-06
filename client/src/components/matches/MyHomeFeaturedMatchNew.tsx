@@ -815,7 +815,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           onClick={handleMatchClick}
         >
           {/* League info section */}
-          <div className="bg-white p-2 mt-6 relative">
+          <div className="bg-white p-2 mt-6 relative mt-4">
             <div className="flex items-center justify-center">
               {currentMatch?.league?.logo ? (
                 <img
