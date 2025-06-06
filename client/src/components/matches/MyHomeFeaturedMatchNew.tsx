@@ -52,8 +52,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       try {
         setLoading(true);
 
-        // Check cache first - use 7-day range in cache key
-        const cacheKey = ["featured-matches-7day", currentDate];
+        // Check cache first
+        const cacheKey = ["featured-matches", currentDate];
         const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
 
         if (cachedData) {
@@ -73,8 +73,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           currentDate,
         );
 
-        // Get dates for the next 7 days (1 week)
+        // Get dates for today, tomorrow, and day after tomorrow
         const today = new Date();
+        const todayString = format(today, "yyyy-MM-dd");
+        const tomorrow = addDays(today, 1);
+        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+        const dayAfterTomorrow = addDays(today, 2);
+        const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
+
         const featuredMatches = [];
 
         // Popular leagues and countries configuration (from TodayPopularLeague)
@@ -97,17 +103,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
         ];
 
-        // Fetch matches for the next 7 days (top 2 leagues each day)
-        const datesToFetch = [];
-        for (let i = 0; i < 7; i++) {
-          const currentDate = addDays(today, i);
-          const dateString = format(currentDate, "yyyy-MM-dd");
-          datesToFetch.push({ 
-            date: dateString, 
-            maxLeagues: 2, 
-            maxMatches: 2 
-          });
-        }
+        // Fetch matches for today, tomorrow, and day after tomorrow (top 2 leagues each)
+        const datesToFetch = [
+          { date: todayString, maxLeagues: 2, maxMatches: 2 },
+          { date: tomorrowString, maxLeagues: 2, maxMatches: 2 },
+          { date: dayAfterTomorrowString, maxLeagues: 2, maxMatches: 2 },
+        ];
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
@@ -127,50 +128,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply MyFeaturedMatchExclusion (make it less restrictive for featured matches)
-              const leagueName = fixture.league?.name?.toLowerCase() || '';
-              const homeTeam = fixture.teams?.home?.name?.toLowerCase() || '';
-              const awayTeam = fixture.teams?.away?.name?.toLowerCase() || '';
-
-              // Only exclude very specific unwanted matches for featured matches
-              const shouldExcludeThisMatch = (
-                leagueName.includes('women') ||
-                leagueName.includes('youth') ||
-                leagueName.includes('u19') ||
-                leagueName.includes('u21') ||
-                leagueName.includes('reserve') ||
-                leagueName.includes('amateur') ||
-                homeTeam.includes('reserve') ||
-                awayTeam.includes('reserve')
-              );
-
-              if (shouldExcludeThisMatch) {
+              // Apply MyFeaturedMatchExclusion
+              if (shouldExcludeFeaturedMatch(
+                fixture.league?.name || '',
+                fixture.teams?.home?.name || '',
+                fixture.teams?.away?.name || ''
+              )) {
                 return false;
               }
 
-              // Simple date-based filtering instead of complex smart time filtering
-              const fixtureDate = new Date(fixture.fixture.date);
-              const currentDate = new Date(date);
-              const todayDate = new Date(today);
-              
-              // Calculate days difference
-              const daysDiff = Math.floor((currentDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
-              
-              // Include matches that are within 7 days and on the correct date
-              const fixtureDateString = fixtureDate.toISOString().split('T')[0];
-              const targetDateString = currentDate.toISOString().split('T')[0];
-              
-              // For featured matches, be more lenient - include if it's the right date
-              if (fixtureDateString === targetDateString && daysDiff >= 0 && daysDiff < 7) {
-                return true;
+              // Apply smart time filtering
+              if (fixture.fixture.date && fixture.fixture.status?.short) {
+                const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+                  fixture.fixture.date,
+                  fixture.fixture.status.short,
+                  date + "T12:00:00Z",
+                );
+
+                // Check if this match should be included based on the date
+                const shouldInclude = (() => {
+                  if (date === tomorrowString && smartResult.label === "tomorrow") return true;
+                  if (date === todayString && smartResult.label === "today") return true;
+                  if (date === dayAfterTomorrowString && smartResult.isWithinTimeRange) return true;
+                  return false;
+                })();
+
+                if (!shouldInclude) return false;
               }
-              
-              // Also include live matches regardless of date for featured display
-              if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status?.short)) {
-                return true;
-              }
-              
-              return false;
 
               const league = fixture.league;
               const country = league.country?.toLowerCase() || "";
@@ -271,37 +255,81 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }))
             );
 
-            // Simplified league priority system for featured matches
+            // Sort leagues by TodayPopularLeague priority system
             const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
               const getLeaguePriority = (leagueData: any) => {
                 const name = (leagueData.league?.name || "").toLowerCase();
-                const leagueId = leagueData.league?.id;
+                const country = (leagueData.country || "").toLowerCase();
 
-                // Skip women's leagues
-                if (name.includes("women")) return 999;
+                // Check for UEFA Nations League - Women first (lowest priority)
+                const isWomensNationsLeague = name.includes("uefa nations league") && name.includes("women");
+                if (isWomensNationsLeague) return 999;
 
-                // Top tier domestic leagues (highest priority)
-                const topDomesticLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-                if (topDomesticLeagues.includes(leagueId)) {
-                  return 1;
+                // Handle World leagues with specific priority order
+                if (country.includes("world") || country.includes("europe") || 
+                    country.includes("international") || name.includes("uefa") ||
+                    name.includes("fifa") || name.includes("conmebol")) {
+
+                  // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
+                  if (name.includes("uefa nations league") && !name.includes("women")) {
+                    return 1;
+                  }
+
+                  // Priority 2: Friendlies (but exclude UEFA Nations League and women's matches)
+                  if (name.includes("friendlies") && !name.includes("uefa nations league") && !name.includes("women")) {
+                    return 2;
+                  }
+
+                  // Priority 3: World Cup Qualification Asia
+                  if (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) {
+                    return 3;
+                  }
+
+                  // Priority 4: World Cup Qualification CONCACAF
+                  if (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) {
+                    return 4;
+                  }
+
+                  // Priority 5: World Cup Qualification Europe
+                  if (name.includes("world cup") && name.includes("qualification") && name.includes("europe")) {
+                    return 5;
+                  }
+
+                  // Priority 6: World Cup Qualification South America
+                  if (name.includes("world cup") && name.includes("qualification") && name.includes("south america")) {
+                    return 6;
+                  }
+
+                  // Priority 7: Tournoi Maurice Revello
+                  if (name.includes("tournoi maurice revello")) {
+                    return 7;
+                  }
+
+                  // Priority 8: Champions League
+                  if (name.includes("champions league")) {
+                    return 8;
+                  }
+
+                  // Priority 9: Europa League
+                  if (name.includes("europa league")) {
+                    return 9;
+                  }
+
+                  // Priority 10: Conference League
+                  if (name.includes("conference league")) {
+                    return 10;
+                  }
+
+                  return 50; // Other international competitions
                 }
 
-                // Champions League and Europa League
-                if (name.includes("champions league")) return 2;
-                if (name.includes("europa league")) return 3;
-                if (name.includes("conference league")) return 4;
+                // Handle domestic leagues
+                const popularLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+                if (popularLeagues.includes(leagueData.league?.id)) {
+                  return 15; // High priority for popular domestic leagues
+                }
 
-                // International competitions
-                if (name.includes("uefa nations league")) return 5;
-                if (name.includes("world cup")) return 6;
-                if (name.includes("copa america")) return 7;
-                if (name.includes("copa libertadores")) return 8;
-
-                // Other international matches
-                if (name.includes("friendlies")) return 9;
-
-                // Default priority for any other league
-                return 10;
+                return 100; // Default priority for other leagues
               };
 
               const aPriority = getLeaguePriority(a);
@@ -312,14 +340,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return aPriority - bPriority;
               }
 
-              // If same priority, prefer leagues with more matches
-              const aMatchCount = a.matches?.length || 0;
-              const bMatchCount = b.matches?.length || 0;
-              if (aMatchCount !== bMatchCount) {
-                return bMatchCount - aMatchCount;
-              }
-
-              // Finally, sort alphabetically by league name
+              // If same priority, sort alphabetically by league name
               const aLeagueName = a.league?.name?.toLowerCase() || "";
               const bLeagueName = b.league?.name?.toLowerCase() || "";
               return aLeagueName.localeCompare(bLeagueName);
@@ -554,18 +575,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
 
         // Take only the required number of matches
-        let finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
-
-        // Fallback: if no matches found, try with less restrictive filtering
-        if (finalMatches.length === 0 && featuredMatches.length > 0) {
-          console.log("🔍 [FeaturedMatch] No matches after sorting, using fallback with any available matches");
-          finalMatches = featuredMatches.slice(0, maxMatches);
-        }
-
-        // Last resort: if still no matches, log for debugging and continue
-        if (finalMatches.length === 0) {
-          console.log("🔍 [FeaturedMatch] No featured matches found in 7-day range, this may be expected for some date ranges");
-        }
+        const finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
         // Validate data structure before setting
         const validMatches = finalMatches.filter((match) => {
           const isValid =
@@ -608,7 +618,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Store in background cache as well
         backgroundCache.set(
-          `featured-matches-7day-${currentDate}`,
+          `featured-matches-${currentDate}`,
           validMatches,
           15 * 60 * 1000,
         );
