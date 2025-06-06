@@ -323,61 +323,108 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           }
         }
 
-        // Apply final priority-based sorting across all dates
-        const sortedFeaturedMatches = featuredMatches.sort((a, b) => {
-          const aStatus = a.fixture?.status?.short;
-          const bStatus = b.fixture?.status?.short;
-          const now = new Date();
-          const aDate = new Date(a.fixture?.date);
-          const bDate = new Date(b.fixture?.date);
+        // Instead of sorting all together, let's ensure we get representation from each date
+        // Group matches by their date labels
+        const matchesByDate = {
+          'Today': featuredMatches.filter(m => m.dateLabel === 'Today'),
+          'Tomorrow': featuredMatches.filter(m => m.dateLabel === 'Tomorrow'),
+          'Day After Tomorrow': featuredMatches.filter(m => m.dateLabel === 'Day After Tomorrow'),
+        };
 
-          // PRIORITY 1: LIVE matches always come first
-          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(aStatus);
-          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(bStatus);
-
-          if (aIsLive && !bIsLive) return -1;
-          if (!aIsLive && bIsLive) return 1;
-
-          if (aIsLive && bIsLive) {
-            const aElapsed = Number(a.fixture?.status?.elapsed) || 0;
-            const bElapsed = Number(b.fixture?.status?.elapsed) || 0;
-            return bElapsed - aElapsed; // Higher elapsed time first
-          }
-
-          // PRIORITY 2: Recent finished matches (within last 24 hours)
-          const aIsRecentFinished = 
-            ["FT", "AET", "PEN", "AWD", "WO"].includes(aStatus) &&
-            now.getTime() - aDate.getTime() < 24 * 60 * 60 * 1000 &&
-            now.getTime() - aDate.getTime() >= 0;
-          const bIsRecentFinished = 
-            ["FT", "AET", "PEN", "AWD", "WO"].includes(bStatus) &&
-            now.getTime() - bDate.getTime() < 24 * 60 * 60 * 1000 &&
-            now.getTime() - bDate.getTime() >= 0;
-
-          if (aIsRecentFinished && !bIsRecentFinished) return -1;
-          if (!aIsRecentFinished && bIsRecentFinished) return 1;
-
-          if (aIsRecentFinished && bIsRecentFinished) {
-            return bDate.getTime() - aDate.getTime(); // Most recent first
-          }
-
-          // PRIORITY 3: Upcoming matches
-          const aIsUpcoming = ["NS", "TBD", "PST"].includes(aStatus);
-          const bIsUpcoming = ["NS", "TBD", "PST"].includes(bStatus);
-
-          if (aIsUpcoming && !bIsUpcoming) return -1;
-          if (!aIsUpcoming && bIsUpcoming) return 1;
-
-          if (aIsUpcoming && bIsUpcoming) {
-            return aDate.getTime() - bDate.getTime(); // Earliest upcoming first
-          }
-
-          // FALLBACK: Sort by most recent
-          return bDate.getTime() - aDate.getTime();
+        console.log('🔍 [FeaturedMatch] Matches by date:', {
+          Today: matchesByDate.Today.length,
+          Tomorrow: matchesByDate.Tomorrow.length,
+          DayAfterTomorrow: matchesByDate['Day After Tomorrow'].length,
         });
 
-        // Take only 6 matches for the slide
-        const finalMatches = sortedFeaturedMatches.slice(0, 6);
+        // Sort each date group individually using the same priority logic
+        const sortByPriority = (matches) => {
+          return matches.sort((a, b) => {
+            const aStatus = a.fixture?.status?.short;
+            const bStatus = b.fixture?.status?.short;
+            const now = new Date();
+            const aDate = new Date(a.fixture?.date);
+            const bDate = new Date(b.fixture?.date);
+
+            // PRIORITY 1: LIVE matches always come first
+            const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(aStatus);
+            const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(bStatus);
+
+            if (aIsLive && !bIsLive) return -1;
+            if (!aIsLive && bIsLive) return 1;
+
+            if (aIsLive && bIsLive) {
+              const aElapsed = Number(a.fixture?.status?.elapsed) || 0;
+              const bElapsed = Number(b.fixture?.status?.elapsed) || 0;
+              return bElapsed - aElapsed;
+            }
+
+            // PRIORITY 2: Recent finished matches
+            const aIsRecentFinished = 
+              ["FT", "AET", "PEN", "AWD", "WO"].includes(aStatus) &&
+              now.getTime() - aDate.getTime() < 24 * 60 * 60 * 1000 &&
+              now.getTime() - aDate.getTime() >= 0;
+            const bIsRecentFinished = 
+              ["FT", "AET", "PEN", "AWD", "WO"].includes(bStatus) &&
+              now.getTime() - bDate.getTime() < 24 * 60 * 60 * 1000 &&
+              now.getTime() - bDate.getTime() >= 0;
+
+            if (aIsRecentFinished && !bIsRecentFinished) return -1;
+            if (!aIsRecentFinished && bIsRecentFinished) return 1;
+
+            if (aIsRecentFinished && bIsRecentFinished) {
+              return bDate.getTime() - aDate.getTime();
+            }
+
+            // PRIORITY 3: Upcoming matches
+            const aIsUpcoming = ["NS", "TBD", "PST"].includes(aStatus);
+            const bIsUpcoming = ["NS", "TBD", "PST"].includes(bStatus);
+
+            if (aIsUpcoming && !bIsUpcoming) return -1;
+            if (!aIsUpcoming && bIsUpcoming) return 1;
+
+            if (aIsUpcoming && bIsUpcoming) {
+              return aDate.getTime() - bDate.getTime();
+            }
+
+            return bDate.getTime() - aDate.getTime();
+          });
+        };
+
+        // Sort each date group
+        const sortedToday = sortByPriority(matchesByDate.Today);
+        const sortedTomorrow = sortByPriority(matchesByDate.Tomorrow);
+        const sortedDayAfter = sortByPriority(matchesByDate['Day After Tomorrow']);
+
+        // Now create final array ensuring representation from each date
+        const finalMatches = [];
+        
+        // Take up to 2 matches from each date, prioritizing today -> tomorrow -> day after
+        const maxPerDate = 2;
+        
+        // Add today's matches first (prioritize current day)
+        if (sortedToday.length > 0) {
+          finalMatches.push(...sortedToday.slice(0, maxPerDate));
+        }
+        
+        // Add tomorrow's matches
+        if (sortedTomorrow.length > 0) {
+          finalMatches.push(...sortedTomorrow.slice(0, maxPerDate));
+        }
+        
+        // Add day after tomorrow's matches
+        if (sortedDayAfter.length > 0) {
+          finalMatches.push(...sortedDayAfter.slice(0, maxPerDate));
+        }
+
+        console.log('🔍 [FeaturedMatch] Final distribution:', {
+          total: finalMatches.length,
+          byDate: finalMatches.map(m => ({ 
+            date: m.dateLabel, 
+            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
+            status: m.fixture?.status?.short 
+          }))
+        });
 
         // Validate matches
         const validMatches = finalMatches.filter((match) => {
