@@ -82,6 +82,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const allFeaturedMatches = [];
 
+        // Track seen matches to avoid duplicates
+        const seenMatches = new Set<string>();
+        const addedMatches = new Map<string, number>(); // Track how many matches per date
+
         // Fetch matches for today, tomorrow, and day after tomorrow
         const datesToFetch = [
           { date: todayString, label: "Today" },
@@ -142,20 +146,54 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return aDate.getTime() - bDate.getTime();
             });
 
-            // Take top 3 matches from this date
-            const topMatches = sortedMatches.slice(0, 3);
-            console.log(`🔍 [FeaturedMatch] Taking top 3 matches from ${label}:`, 
-              topMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
+            // Filter out duplicates and take unique matches
+            const uniqueMatches = [];
+            let addedForThisDate = 0;
+            const maxMatchesPerDate = 3;
 
-            allFeaturedMatches.push(...topMatches);
+            for (const match of sortedMatches) {
+              if (addedForThisDate >= maxMatchesPerDate) break;
+
+              // Create a unique identifier for the match
+              const matchKey = `${match.teams.home.name}-vs-${match.teams.away.name}-${match.league.name}`;
+              
+              // Check if this exact match already exists
+              if (!seenMatches.has(matchKey)) {
+                seenMatches.add(matchKey);
+                uniqueMatches.push(match);
+                addedForThisDate++;
+              } else {
+                console.log(`🔍 [FeaturedMatch] Skipping duplicate match: ${matchKey}`);
+              }
+            }
+
+            console.log(`🔍 [FeaturedMatch] Taking ${uniqueMatches.length} unique matches from ${label}:`, 
+              uniqueMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
+
+            addedMatches.set(date, uniqueMatches.length);
+            allFeaturedMatches.push(...uniqueMatches);
 
           } catch (error) {
             console.error(`🔍 [FeaturedMatch] Error fetching data for ${date}:`, error);
           }
         }
 
-        // Final sort of all matches: Live > Recent Finished > Upcoming
-        const finalSortedMatches = allFeaturedMatches.sort((a, b) => {
+        console.log(`🔍 [FeaturedMatch] Matches added per date:`, Object.fromEntries(addedMatches));
+
+        // Remove any remaining duplicates (extra safety check)
+        const finalUniqueMatches = [];
+        const finalSeenMatches = new Set<string>();
+
+        for (const match of allFeaturedMatches) {
+          const matchKey = `${match.teams.home.name}-vs-${match.teams.away.name}-${match.league.name}`;
+          if (!finalSeenMatches.has(matchKey)) {
+            finalSeenMatches.add(matchKey);
+            finalUniqueMatches.push(match);
+          }
+        }
+
+        // Final sort to prioritize variety while maintaining status priority
+        const finalSortedMatches = finalUniqueMatches.sort((a, b) => {
           const aStatus = a.fixture?.status?.short;
           const bStatus = b.fixture?.status?.short;
 
@@ -166,7 +204,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           if (aIsLive && !bIsLive) return -1;
           if (!aIsLive && bIsLive) return 1;
 
-          // Recent finished matches
+          // Recent finished matches (within last 6 hours)
           const now = new Date();
           const aDate = new Date(a.fixture?.date);
           const bDate = new Date(b.fixture?.date);
@@ -181,12 +219,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           if (aIsRecentFinished && !bIsRecentFinished) return -1;
           if (!aIsRecentFinished && bIsRecentFinished) return 1;
 
-          // Sort by match time
+          // Sort by match time for upcoming matches
           return aDate.getTime() - bDate.getTime();
         });
 
-        // Take maximum 9 matches total (3 from each day)
+        // Take maximum 9 unique matches total
         const finalMatches = finalSortedMatches.slice(0, 9);
+
+        console.log(`🔍 [FeaturedMatch] Final unique matches: ${finalMatches.length} (removed ${allFeaturedMatches.length - finalMatches.length} duplicates)`);
 
         // Validate data structure
         const validMatches = finalMatches.filter((match) => {
