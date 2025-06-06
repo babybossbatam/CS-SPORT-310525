@@ -1131,46 +1131,46 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     return 2;
                   }
 
-                  // Priority 3: Friendlies (but exclude UEFA Nations League and women's matches)
-                  if (isFriendlies && !name.includes("uefa nations league") && !name.includes("women")) {
-                    console.log(
-                      `✅ [PRIORITY 3] Friendlies found: "${leagueData.league?.name}"`,
-                    );
-                    return 3;
-                  }
-
-                  // Priority 4: World Cup Qualification Asia
-                  if (
-                    name.includes("world cup") &&
-                    name.includes("qualification") &&
-                    name.includes("asia")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 4] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
-                    );
-                    return 4;
-                  }
-
-                  // Priority 5: World Cup Qualification CONCACAF
-                  if (
-                    name.includes("world cup") &&
-                    name.includes("qualification") &&
-                    name.includes("concacaf")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 5] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
-                    );
-                    return 5;
-                  }
-
-                  // Priority 6: World Cup Qualification Europe
+                  // Priority 3: World Cup Qualification Europe
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("europe")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 6] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 3] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
+                    );
+                    return 3;
+                  }
+
+                  // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
+                  if (isFriendlies && !name.includes("uefa nations league") && !name.includes("women")) {
+                    console.log(
+                      `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
+                    );
+                    return 4;
+                  }
+
+                  // Priority 5: World Cup Qualification Asia
+                  if (
+                    name.includes("world cup") &&
+                    name.includes("qualification") &&
+                    name.includes("asia")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 5] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
+                    );
+                    return 5;
+                  }
+
+                  // Priority 6: World Cup Qualification CONCACAF
+                  if (
+                    name.includes("world cup") &&
+                    name.includes("qualification") &&
+                    name.includes("concacaf")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 6] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
                     );
                     return 6;
                   }
