@@ -134,7 +134,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 fixture.teams?.home?.name || '',
                 fixture.teams?.away?.name || ''
               );
-              
+
               // Always exclude low quality matches for featured display
               if (shouldExclude) {
                 return false;
@@ -143,12 +143,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               // Additional featured match filtering - only allow top 3 priority international competitions
               const leagueName = fixture.league?.name?.toLowerCase() || '';
               const leagueCountry = fixture.league?.country?.toLowerCase() || '';
-              
+
               // If it's an international competition, only allow top 3 priorities
               if (leagueCountry.includes("world") || leagueCountry.includes("europe") || 
                   leagueCountry.includes("international") || leagueName.includes("uefa") ||
                   leagueName.includes("fifa") || leagueName.includes("conmebol")) {
-                
+
                 // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
                 if (leagueName.includes("uefa nations league") && !leagueName.includes("women")) {
                   return true;
@@ -190,7 +190,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const league = fixture.league;
               const fixtureCountry = league.country?.toLowerCase() || "";
               const leagueId = league.id;
-              const leagueName = league.name?.toLowerCase() || "";
+              const leagueNameLower = league.name?.toLowerCase() || "";
 
               // Check if it's a popular league
               const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
@@ -202,24 +202,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               // Check if it's an international competition
               const isInternationalCompetition =
-                leagueName.includes("champions league") ||
-                leagueName.includes("europa league") ||
-                leagueName.includes("conference league") ||
-                leagueName.includes("uefa") ||
-                leagueName.includes("world cup") ||
-                leagueName.includes("fifa club world cup") ||
-                leagueName.includes("fifa") ||
-                leagueName.includes("conmebol") ||
-                leagueName.includes("copa america") ||
-                leagueName.includes("copa libertadores") ||
-                leagueName.includes("copa sudamericana") ||
-                leagueName.includes("libertadores") ||
-                leagueName.includes("sudamericana") ||
-                (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
-                (leagueName.includes("international") && !leagueName.includes("women")) ||
-                country.includes("world") ||
-                country.includes("europe") ||
-                country.includes("international");
+                leagueNameLower.includes("champions league") ||
+                leagueNameLower.includes("europa league") ||
+                leagueNameLower.includes("conference league") ||
+                leagueNameLower.includes("uefa") ||
+                leagueNameLower.includes("world cup") ||
+                leagueNameLower.includes("fifa club world cup") ||
+                leagueNameLower.includes("fifa") ||
+                leagueNameLower.includes("conmebol") ||
+                leagueNameLower.includes("copa america") ||
+                leagueNameLower.includes("copa libertadores") ||
+                leagueNameLower.includes("copa sudamericana") ||
+                leagueNameLower.includes("libertadores") ||
+                leagueNameLower.includes("sudamericana") ||
+                // Men's International Friendlies (excludes women's)
+                (leagueNameLower.includes("friendlies") && !leagueNameLower.includes("women")) ||
+                (leagueNameLower.includes("international") &&
+                  !leagueNameLower.includes("women")) ||
+                fixtureCountry.includes("world") ||
+                fixtureCountry.includes("europe") ||
+                fixtureCountry.includes("international");
 
               return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
             });
@@ -629,23 +631,23 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Take only the required number of matches
         let finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
-        
+
         // Fallback: if no matches found, try with less restrictive criteria
         if (finalMatches.length === 0) {
           console.log("🔄 [FeaturedMatch] No matches found with strict criteria, trying fallback...");
-          
+
           // Get any popular league matches for today without strict filtering
           try {
             const fallbackResponse = await fetch(`/api/fixtures/date/${todayString}?all=true`);
             if (fallbackResponse.ok) {
               const fallbackFixtures = await fallbackResponse.json();
-              
+
               // Take any matches from popular leagues
               const fallbackMatches = fallbackFixtures.filter((fixture: any) => {
                 return fixture && fixture.teams && fixture.teams.home && fixture.teams.away && 
                        fixture.fixture && fixture.league && POPULAR_LEAGUES.includes(fixture.league.id);
               }).slice(0, 1); // Take at least one match
-              
+
               if (fallbackMatches.length > 0) {
                 console.log("✅ [FeaturedMatch] Found fallback matches:", fallbackMatches.length);
                 finalMatches = fallbackMatches;
