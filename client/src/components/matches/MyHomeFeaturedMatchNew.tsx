@@ -989,7 +989,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     return status || "";
                   })()}
                 </div>
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-xs text-gray-500">
+                <div className="absolute left-1/2 transform -translate-x-1/2 text-xs text-gray-500" style={{
+                  bottom: "calc(100% + 20px)"
+                }}>
                   {/* Additional content positioned absolutely below without affecting grid */}
                 </div>
               </div>
