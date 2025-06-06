@@ -894,7 +894,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {/* Match status label positioned below score */}
-                <div className="match-status-label status-live" style={{ marginTop: "-0.8rem" }}>
+                <div className="match-status-label status-live" style={{ marginTop: "-0.5rem" }}>
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
                     const elapsed = currentMatch?.fixture?.status?.elapsed;
