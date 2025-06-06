@@ -957,9 +957,28 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
 
-                    // Upcoming matches - hide display
+                    // Upcoming matches - calculate days until match
                     if (status === "NS") {
-                      return "";
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date();
+                        
+                        // Calculate difference in days
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
+                        
+                        if (daysToMatch === 0) {
+                          return "Today";
+                        } else if (daysToMatch === 1) {
+                          return "Tomorrow";
+                        } else if (daysToMatch > 1) {
+                          return `${daysToMatch} days`;
+                        } else {
+                          return ""; // Past date
+                        }
+                      } catch (e) {
+                        return "";
+                      }
                     }
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
