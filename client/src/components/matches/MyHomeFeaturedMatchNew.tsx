@@ -129,6 +129,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
+              // Explicit check to reject Friendlies matches
+              const leagueName = (fixture.league?.name || '').toLowerCase();
+              if (leagueName === 'friendlies') {
+                return false;
+              }
+
               // Apply TodayPopularLeagueNew exclusion filters FIRST
               if (shouldExcludeFromPopularLeagues(
                 fixture.league?.name || '',
