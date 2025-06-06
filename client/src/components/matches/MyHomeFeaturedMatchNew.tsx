@@ -389,13 +389,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             return bElapsed - aElapsed; // Higher elapsed time first (more exciting)
           }
 
-          // PRIORITY 2: Recent finished matches (within last 6 hours)
+          // PRIORITY 2: Recent finished matches (within last 24 hours to show more finished matches)
           const aIsRecentFinished = 
             ["FT", "AET", "PEN", "AWD", "WO"].includes(aStatus) &&
-            now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
+            now.getTime() - aDate.getTime() < 24 * 60 * 60 * 1000 &&
+            now.getTime() - aDate.getTime() >= 0; // Must be in the past
           const bIsRecentFinished = 
             ["FT", "AET", "PEN", "AWD", "WO"].includes(bStatus) &&
-            now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
+            now.getTime() - bDate.getTime() < 24 * 60 * 60 * 1000 &&
+            now.getTime() - bDate.getTime() >= 0; // Must be in the past
 
           if (aIsRecentFinished && !bIsRecentFinished) return -1;
           if (!aIsRecentFinished && bIsRecentFinished) return 1;
@@ -467,8 +469,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             matches: validMatches.map((m, index) => {
               const status = m.fixture?.status?.short;
               const isLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(status);
+              const matchTime = new Date(m.fixture?.date).getTime();
+              const timeDiff = new Date().getTime() - matchTime;
+              const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
               const isRecentFinished = ["FT", "AET", "PEN", "AWD", "WO"].includes(status) &&
-                new Date().getTime() - new Date(m.fixture?.date).getTime() < 6 * 60 * 60 * 1000;
+                timeDiff < 24 * 60 * 60 * 1000 && timeDiff >= 0;
               const isUpcoming = ["NS", "TBD", "PST"].includes(status);
               
               let priority = 4; // Fallback
@@ -486,6 +491,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 dateContext: m.dateContext || "Unknown Date",
                 status: status,
                 statusLabel: isLive ? "LIVE" : isRecentFinished ? "RECENT" : isUpcoming ? "UPCOMING" : "OTHER",
+                timeDiff: isLive ? "LIVE" : isRecentFinished ? `${hoursAgo}h ago` : isUpcoming ? "Future" : `${hoursAgo}h ago`,
+                matchDate: m.fixture?.date || "Unknown Date",
               };
             }),
           },
