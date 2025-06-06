@@ -832,7 +832,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
               {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                 <div className="flex items-center gap-1.5 ml-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <div className="w-2 h-2 rounded-fullbg-red-500 animate-pulse" />
 <Badge
                     variant="outline"
                     className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse"
@@ -1142,7 +1142,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Bottom navigation */}
-            <div className="flex justify-around border-t border-gray-200 pt-4 mt-1">
+            <div className="flex justify-around border-t border-gray-200 pt-4 mt-4">
               <button
                 className="flex flex-col items-center cursor-pointer w-1/4"
                 onClick={() =>
