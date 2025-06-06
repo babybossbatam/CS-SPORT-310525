@@ -954,7 +954,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Match status label positioned below - same as score version */}
                 <div className="match-status-label status-upcoming" style={{
-                  fontSize: currentMatch?.fixture?.status?.short === "NS" ? "calc(1.5 * 1rem)" : "1rem"
+                  fontSize: currentMatch?.fixture?.status?.short === "NS" ? "calc(1.5 * 1rem)" : "1rem",
+                  marginTop: "16px"
                 }}>
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
