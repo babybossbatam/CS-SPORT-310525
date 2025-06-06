@@ -1055,8 +1055,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             </div>
 
+            {/* Navigation button */}
+            {matches.length > 1 && (
+              <div className="flex items-center justify-center px-4 pb-4 mt-[20px]">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNext();
+                  }}
+                  className="w-12 h-12 bg-gray-200 hover:bg-gray-300 border border-gray-300 rounded-full flex items-center justify-center transition-colors duration-200 relative overflow-hidden"
+                  style={{
+                    clipPath: 'circle(50% at 50% 50%)'
+                  }}
+                >
+                  <div className="w-6 h-6 border-r-2 border-b-2 border-gray-600 transform rotate-[-45deg] translate-x-[-1px]"></div>
+                </button>
+              </div>
+            )}
+
             {/* Live button */}
-            <div className="flex items-center justify-center px-4 pb-4 mt-[20px] text-[110.25%] h-9">
+            <div className="flex items-center justify-center px-4 pb-4 mt-[10px] text-[110.25%] h-9">
               <button
                 className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
                   getMatchStatusLabel(currentMatch) === "LIVE"
