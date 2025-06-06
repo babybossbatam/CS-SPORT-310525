@@ -1108,7 +1108,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   position: "absolute",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  bottom: "-45px",
+                  bottom: "-25px",
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
@@ -1139,88 +1139,82 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }
                 })()}
               </div>
+            </div>
 
-              {/* Bottom navigation - positioned below venue information */}
-              <div 
-                className="absolute left-0 right-0 flex justify-around border-t border-gray-200 pt-4"
-                style={{
-                  bottom: "-100px",
-                  width: "100%",
-                }}
+            {/* Bottom navigation */}
+            <div className="flex justify-around border-t border-gray-200 pt-4">
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}`)
+                }
               >
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/MatchDetail.svg"
-                    alt="Match Page"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Match Page
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}/lineups`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/lineups.svg"
-                    alt="Lineups"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Lineups
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}/h2h`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/stats.svg"
-                    alt="H2H"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    H2H
-                  </span>
-                </button>
-                <button
-                  className="flex flex-col items-center cursor-pointer w-1/4"
-                  onClick={() =>
-                    currentMatch?.fixture?.id &&
-                    navigate(`/match/${currentMatch.fixture.id}/standings`)
-                  }
-                >
-                  <img
-                    src="/assets/matchdetaillogo/standings.svg"
-                    alt="Standings"
-                    width="18"
-                    height="18"
-                    className="text-gray-600"
-                  />
-                  <span className="text-[0.75rem] text-gray-600 mt-1">
-                    Standings
-                  </span>
-                </button>
-              </div>
+                <img
+                  src="/assets/matchdetaillogo/MatchDetail.svg"
+                  alt="Match Page"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Match Page
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/lineups`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/lineups.svg"
+                  alt="Lineups"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Lineups
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/h2h`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/stats.svg"
+                  alt="H2H"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  H2H
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/standings`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/standings.svg"
+                  alt="Standings"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Standings
+                </span>
+              </button>
             </div>
         </motion.div>
       </AnimatePresence>
