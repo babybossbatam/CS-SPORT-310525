@@ -119,6 +119,9 @@ export const popularLeagueExclusionTerms = [
   "world cup - qualification concacaf",
   "qualification asia",
   "qualification concacaf",
+  
+  // CONCACAF competitions exclusion
+  "concacaf",
 ];
 
 // Safe substring function to handle null/undefined values
