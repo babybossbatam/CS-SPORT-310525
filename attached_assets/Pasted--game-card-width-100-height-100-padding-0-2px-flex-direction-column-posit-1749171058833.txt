@@ -1,0 +1,84 @@
+.game_card {
+  width: 100%;
+  height: 100%;
+  padding: 0 2px;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+  cursor: auto;
+  display: grid;
+  grid-template-columns: 1fr 32px 80px 32px 1fr;
+  grid-template-areas:
+    "status status status status status"
+    "home-competitor-name home-competitor-logo score away-competitor-logo away-competitor-name";
+  grid-template-rows: 14px 28px;
+  row-gap: 1px;
+  place-items: center;
+  justify-content: center;
+  color: $textSecondary;
+  font-size: 11px;
+}
+
+.scoreboard {
+  grid-template-columns: 1fr 32px auto 32px 1fr;
+  grid-template-rows: 16px 36px;
+}
+
+.full_scoreboard.scoreboard .game_card {
+  grid-template-columns: 1fr 32px auto 32px 1fr;
+  grid-template-rows: 16px 46px 24px;
+}
+
+.scoreboard .game_card {
+  grid-template-columns: 1fr 32px auto 32px 1fr;
+  grid-template-rows: 16px 36px;
+}
+
+.with_game_score.scoreboard .game_card {
+  grid-template-areas:
+    "status status status status status"
+    "home-competitor-name home-competitor-logo score away-competitor-logo away-competitor-name"
+    "game-score game-score game-score game-score game-score";
+  grid-template-rows: 16px 34px 14px;
+}
+
+.full_view .game_card {
+  grid-template-columns: 1fr 32px 80px 32px 1fr;
+  grid-template-areas:
+    "status status status status status"
+    "home-competitor-name home-competitor-logo score away-competitor-logo away-competitor-name"
+    "description description description description description";
+}
+
+.full_view.scoreboard .game_card {
+    grid-template-columns: 1fr 32px auto 32px 1fr;
+}
+
+.full_scoreboard.scoreboard .game_card {
+  grid-template-columns: 1fr 32px auto 32px 1fr;
+  grid-template-rows: 16px 46px auto;
+  grid-template-areas:
+    "status status status status status"
+    "home-competitor-name home-competitor-logo score away-competitor-logo away-competitor-name"
+    "game-score game-score game-score game-score game-score";
+}
+
+.full_scoreboard.scoreboard.full_view .game_card {
+  grid-template-columns: 1fr 32px auto 32px 1fr;
+  grid-template-rows: 16px 46px 34px;
+  grid-template-areas:
+    "status status status status status"
+    "home-competitor-name home-competitor-logo score away-competitor-logo away-competitor-name"
+    "game-score game-score game-score game-score game-score";
+}
+
+.full_scoreboard.scoreboard.full_view.has_odds .game_card {
+  grid-template-columns: 1fr 32px auto 32px 1fr;
+  grid-template-rows: 16px 46px 34px;
+  grid-template-areas:
+    "status status status status status"
+    "home-competitor-name home-competitor-logo score away-competitor-logo away-competitor-name"
+    "game-score game-score game-score game-score game-score"
+    "odds odds odds odds odds";
+}
+
