@@ -1693,7 +1693,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                     return (
                                       <div className="relative flex items-center justify-center h-full">
-                                        <div className="match-time-display" style={{ fontSize: '1.05em' }}>
+                                        <div className="match-time-display" style={{ fontSize: '1.1025em' }}>
                                           {status === "TBD"
                                             ? "TBD"
                                             : format(fixtureDate, "HH:mm")}
