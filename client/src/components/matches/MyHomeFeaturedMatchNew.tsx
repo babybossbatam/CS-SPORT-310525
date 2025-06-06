@@ -1142,7 +1142,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Bottom navigation */}
-            <div className="flex justify-around border-t border-gray-200 pt-0 mt-4 pb-4">
+            <div className="flex justify-around border-t border-gray-200 pt-4 mt-4 pb-4">
               <button
                 className="flex flex-col items-center cursor-pointer w-1/4"
                 onClick={() =>
