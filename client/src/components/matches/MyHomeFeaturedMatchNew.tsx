@@ -959,7 +959,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           } else if (daysToMatch === 1) {
                             return "Tomorrow";
                           } else if (daysToMatch > 1) {
-                            return `${daysToMatch} days`;
+                            return `${daysToMatch} Days`;
                           } else {
                             return "Today"; // Past date defaults to Today
                           }
