@@ -346,11 +346,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
 
             // Check if the top 2 leagues contain qualification tournaments we want to exclude
-            if (topLeagues.length >= 1) {
+            // Only skip if we're looking at future dates (not today/tomorrow) and all top leagues are low-priority qualifications
+            if (topLeagues.length >= 1 && dayOffset > 1) { // Only apply to dates beyond tomorrow
               const topLeagueNames = topLeagues.map(league => league.league?.name?.toLowerCase() || "");
 
-              // Count how many of the top leagues are qualification tournaments
-              const qualificationCount = topLeagueNames.filter(name => {
+              // Count how many of the top leagues are low-priority qualification tournaments
+              const lowPriorityQualificationCount = topLeagueNames.filter(name => {
                 const isQualificationAsia = (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) ||
                                           (name.includes("qualification") && name.includes("asia"));
                 const isQualificationCONCACAF = (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) ||
@@ -359,9 +360,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return isQualificationAsia || isQualificationCONCACAF;
               }).length;
 
-              // If ANY of the top leagues are qualification tournaments, skip this date
-              if (qualificationCount >= 1) {
-                console.log(`🚫 [FeaturedMatch] Skipping ${date} - found ${qualificationCount} qualification tournament(s) in top leagues:`, topLeagueNames);
+              // Only skip if ALL top leagues are low-priority qualifications (not mixed with better content)
+              if (lowPriorityQualificationCount === topLeagues.length && topLeagues.length >= 2) {
+                console.log(`🚫 [FeaturedMatch] Skipping ${date} (day +${dayOffset}) - all ${topLeagues.length} top leagues are qualification tournaments:`, topLeagueNames);
                 continue; // Skip to next date
               }
             }
