@@ -317,6 +317,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             }
 
             console.log(`🔍 [FeaturedMatch] Added ${matchesFromThisDate.length} matches from ${label}. Total: ${featuredMatches.length}`);
+            
+            console.log(`🔍 [FeaturedMatch] ${label} matches details:`, 
+              matchesFromThisDate.map(m => ({
+                teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
+                status: m.fixture?.status?.short,
+                date: m.fixture?.date,
+                league: m.league?.name,
+                dateLabel: m.dateLabel
+              }))
+            );
 
           } catch (error) {
             console.error(`🔍 [FeaturedMatch] Error processing ${label} (${date}):`, error);
@@ -422,13 +432,61 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           byDate: finalMatches.map(m => ({ 
             date: m.dateLabel, 
             teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-            status: m.fixture?.status?.short 
+            status: m.fixture?.status?.short,
+            league: m.league?.name,
+            fixtureDate: m.fixture?.date
+          }))
+        });
+
+        console.log('🔍 [FeaturedMatch] Detailed date analysis:', {
+          todayMatches: sortedToday.length,
+          tomorrowMatches: sortedTomorrow.length,
+          dayAfterMatches: sortedDayAfter.length,
+          todayDetails: sortedToday.slice(0, 2).map(m => ({
+            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
+            status: m.fixture?.status?.short,
+            date: m.fixture?.date,
+            league: m.league?.name
+          })),
+          tomorrowDetails: sortedTomorrow.slice(0, 2).map(m => ({
+            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
+            status: m.fixture?.status?.short,
+            date: m.fixture?.date,
+            league: m.league?.name
+          })),
+          dayAfterDetails: sortedDayAfter.slice(0, 2).map(m => ({
+            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
+            status: m.fixture?.status?.short,
+            date: m.fixture?.date,
+            league: m.league?.name
           }))
         });
 
         // Validate matches
         const validMatches = finalMatches.filter((match) => {
-          return match && match.teams && match.teams.home && match.teams.away && match.fixture && match.league;
+          const isValid = match && match.teams && match.teams.home && match.teams.away && match.fixture && match.league;
+          if (!isValid) {
+            console.log('🔍 [FeaturedMatch] Invalid match filtered out:', {
+              hasMatch: !!match,
+              hasTeams: !!match?.teams,
+              hasHome: !!match?.teams?.home,
+              hasAway: !!match?.teams?.away,
+              hasFixture: !!match?.fixture,
+              hasLeague: !!match?.league
+            });
+          }
+          return isValid;
+        });
+
+        console.log("🔍 [FeaturedMatch] Final valid matches being set to state:", {
+          totalValid: validMatches.length,
+          matches: validMatches.map(m => ({
+            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
+            status: m.fixture?.status?.short,
+            dateLabel: m.dateLabel,
+            league: m.league?.name,
+            fixtureDate: m.fixture?.date
+          }))
         });
 
         if (validMatches.length === 0) {
