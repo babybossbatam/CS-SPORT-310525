@@ -961,10 +961,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           } else if (daysToMatch > 1) {
                             return `${daysToMatch} days`;
                           } else {
-                            return ""; // Past date
+                            return "Today"; // Past date defaults to Today
                           }
                         } catch (e) {
-                          return "";
+                          return "Today";
                         }
                       }
                       if (status === "TBD") return "Time TBD";
