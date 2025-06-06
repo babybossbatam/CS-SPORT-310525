@@ -53,7 +53,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         setLoading(true);
 
         // Check cache first
-        const cacheKey = ["featured-matches-week", currentDate];
+        const cacheKey = ["featured-matches", currentDate];
         const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
 
         if (cachedData) {
@@ -69,12 +69,18 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         console.log(
-          "🔍 [FeaturedMatch] Fetching fresh data for week starting from:",
+          "🔍 [FeaturedMatch] Fetching fresh data for date:",
           currentDate,
         );
 
-        // Get dates for the next 7 days (one week)
+        // Get dates for today, tomorrow, and day after tomorrow
         const today = new Date();
+        const todayString = format(today, "yyyy-MM-dd");
+        const tomorrow = addDays(today, 1);
+        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+        const dayAfterTomorrow = addDays(today, 2);
+        const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
+
         const featuredMatches = [];
 
         // Popular leagues and countries configuration (from TodayPopularLeague)
@@ -97,20 +103,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
         ];
 
-        // Fetch matches for the next 7 days (top 2 leagues each day)
-        const datesToFetch = [];
-        for (let i = 0; i < 7; i++) {
-          const date = addDays(today, i);
-          const dateString = format(date, "yyyy-MM-dd");
-          datesToFetch.push({ 
-            date: dateString, 
-            maxLeagues: 2, 
-            maxMatches: 2,
-            dayOffset: i 
-          });
-        }
+        // Fetch matches for today, tomorrow, and day after tomorrow (top 2 leagues each)
+        const datesToFetch = [
+          { date: todayString, maxLeagues: 2, maxMatches: 2 },
+          { date: tomorrowString, maxLeagues: 2, maxMatches: 2 },
+          { date: dayAfterTomorrowString, maxLeagues: 2, maxMatches: 2 },
+        ];
 
-        for (const { date, maxLeagues, maxMatches: dateMaxMatches, dayOffset } of datesToFetch) {
+        for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
             const response = await fetch(`/api/fixtures/date/${date}?all=true`);
             if (!response.ok) continue;
@@ -137,7 +137,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply smart time filtering for the wider date range
+              // Apply smart time filtering
               if (fixture.fixture.date && fixture.fixture.status?.short) {
                 const smartResult = MySmartTimeFilter.getSmartTimeLabel(
                   fixture.fixture.date,
@@ -145,9 +145,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   date + "T12:00:00Z",
                 );
 
-                // Check if this match should be included based on the date (expanded to week)
-                const matchDate = format(parseISO(fixture.fixture.date), "yyyy-MM-dd");
-                const shouldInclude = matchDate === date;
+                // Check if this match should be included based on the date
+                const shouldInclude = (() => {
+                  if (date === tomorrowString && smartResult.label === "tomorrow") return true;
+                  if (date === todayString && smartResult.label === "today") return true;
+                  if (date === dayAfterTomorrowString && smartResult.isWithinTimeRange) return true;
+                  return false;
+                })();
 
                 if (!shouldInclude) return false;
               }
@@ -345,13 +349,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Take only the top 2 leagues for this date
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
 
-            // Check if the top 2 leagues contain qualification tournaments we want to exclude
-            // Only skip if we're looking at future dates (not today/tomorrow) and all top leagues are low-priority qualifications
-            if (topLeagues.length >= 1 && dayOffset > 1) { // Only apply to dates beyond tomorrow
+            // Check if the top 2 leagues are both Qualification Asia or CONCACAF
+            if (topLeagues.length >= 2) {
               const topLeagueNames = topLeagues.map(league => league.league?.name?.toLowerCase() || "");
 
-              // Count how many of the top leagues are low-priority qualification tournaments
-              const lowPriorityQualificationCount = topLeagueNames.filter(name => {
+              // Count how many of the top 2 are qualification tournaments
+              const qualificationCount = topLeagueNames.slice(0, 2).filter(name => {
                 const isQualificationAsia = (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) ||
                                           (name.includes("qualification") && name.includes("asia"));
                 const isQualificationCONCACAF = (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) ||
@@ -360,10 +363,27 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return isQualificationAsia || isQualificationCONCACAF;
               }).length;
 
-              // Only skip if ALL top leagues are low-priority qualifications (not mixed with better content)
-              if (lowPriorityQualificationCount === topLeagues.length && topLeagues.length >= 2) {
-                console.log(`🚫 [FeaturedMatch] Skipping ${date} (day +${dayOffset}) - all ${topLeagues.length} top leagues are qualification tournaments:`, topLeagueNames);
+              // If both top 2 leagues are qualification tournaments, skip this date
+              if (qualificationCount === 2) {
+                console.log(`🚫 [FeaturedMatch] Skipping ${date} - top 2 leagues are both qualification tournaments:`, topLeagueNames.slice(0, 2));
                 continue; // Skip to next date
+              }
+
+              // Also skip if we have qualification tournaments dominating
+              if (qualificationCount >= 1 && topLeagues.length >= 2) {
+                // Check if the non-qualification leagues are also low priority
+                const nonQualificationLeagues = topLeagues.filter((league, index) => {
+                  if (index >= 2) return false; // Only check top 2
+                  const name = league.league?.name?.toLowerCase() || "";
+                  const isQualification = (name.includes("qualification") && (name.includes("asia") || name.includes("concacaf")));
+                  return !isQualification;
+                });
+
+                // If we only have 1 non-qualification league and it's also low priority, skip
+                if (nonQualificationLeagues.length <= 1) {
+                  console.log(`🚫 [FeaturedMatch] Skipping ${date} - insufficient high-quality leagues (${qualificationCount} qualification + ${nonQualificationLeagues.length} other):`, topLeagueNames.slice(0, 2));
+                  continue; // Skip to next date
+                }
               }
             }
 
@@ -460,7 +480,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     country: leagueData.country,
                   },
                   dateContext: date, // Add context for which date this match is from
-                  dayOffset: dayOffset, // Add day offset for better context
                 });
               }
             }
@@ -637,7 +656,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Store in background cache as well
         backgroundCache.set(
-          `featured-matches-week-${currentDate}`,
+          `featured-matches-${currentDate}`,
           validMatches,
           15 * 60 * 1000,
         );
@@ -829,7 +848,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           initial={{ x: 300, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -300, opacity: 0 }}
-          transition={{ duration: 0.2 }}className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
           onClick={handleMatchClick}
         >
           {/* League info section */}
@@ -1016,48 +1036,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             )}
 
-            {/* Time indicator positioned above the entire scoreboard */}
-            {currentMatch?.fixture?.status?.short === "NS" && (
-              <div
-                className="absolute text-center text-xs text-black font-medium"
-                style={{
-                  fontSize: "0.875rem",
-                  whiteSpace: "nowrap",
-                  overflow: "visible",
-                  textAlign: "center",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  bottom: "-30px",
-                  width: "max-content",
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                  zIndex: 20,
-                }}
-              >
-                {(() => {
-                  try {
-                    const matchDate = parseISO(currentMatch.fixture.date);
-                    const now = new Date();
-
-                    // Calculate difference in days
-                    const msToMatch = matchDate.getTime() - now.getTime();
-                    const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-
-                    if (daysToMatch === 0) {
-                      return "Today";
-                    } else if (daysToMatch === 1) {
-                      return "Tomorrow";
-                    } else if (daysToMatch > 1) {
-                      return `${daysToMatch} days`;
-                    } else {
-                      return ""; // Past date
-                    }
-                  } catch (e) {
-                    return "";
-                  }
-                })()}
-              </div>
-            )}
-
             {/* Team scoreboard with colored bars */}
             <div className="relative">
               <div
@@ -1065,7 +1043,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 onClick={handleMatchClick}
                 style={{ cursor: "pointer" }}
               >
-                <div className="w-full h-full flex justify-between relative"></div>
+                <div className="w-full h-full flex justify-between relative">
                   {/* Home team colored bar and logo */}
                   <div
                     className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
@@ -1175,8 +1153,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   />
                 </div>
               </div>
-
-
 
               {/* Match date and venue - aligned with VS component */}
               <div
