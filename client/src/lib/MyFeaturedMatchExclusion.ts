@@ -30,13 +30,9 @@ export const featuredMatchExclusionTerms = [
 
   // World Cup qualification exclusions (all regions for featured matches)
   'world cup - qualification asia',
-  'world cup - qualification concacaf',
-  'world cup - qualification europe',
-  'world cup - qualification south america',
-  'qualification europe',
+  'world cup - qualification concacf',
   'qualification asia',
-  'qualification concacaf',
-  'qualification south america'
+  'qualification concacaf'
 ];
 
 // Lower-tier league patterns that should be excluded from featured matches
