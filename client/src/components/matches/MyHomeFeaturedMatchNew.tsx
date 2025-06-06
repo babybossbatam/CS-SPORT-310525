@@ -870,7 +870,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   marginTop: "-15px"
                 }}
               >
-                {currentMatch?.fixture?.status?.short === "FT" ? "Full Time" :
+                {currentMatch?.fixture?.status?.short === "FT" ? "Ended" :
                  currentMatch?.fixture?.status?.short === "AET" ? "After Extra Time" :
                  currentMatch?.fixture?.status?.short === "PEN" ? "After Penalties" :
                  currentMatch?.fixture?.status?.short === "1H" || 
