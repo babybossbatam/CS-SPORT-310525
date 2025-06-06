@@ -1006,28 +1006,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Half time
                     if (status === "HT") return "Half Time";
 
-                    // Upcoming matches - show days until match
+                    // Upcoming matches - don't show days here to avoid duplication with score display
                     if (status === "NS") {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        const now = new Date();
-
-                        // Calculate difference in days
-                        const msToMatch = matchDate.getTime() - now.getTime();
-                        const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-
-                        if (daysToMatch === 0) {
-                          return "Today";
-                        } else if (daysToMatch === 1) {
-                          return "Tomorrow";
-                        } else if (daysToMatch > 1) {
-                          return ""; // Don't show days here to avoid duplication
-                        } else {
-                          return "Today"; // Past date defaults to Today
-                        }
-                      } catch (e) {
-                        return "Today";
-                      }
+                      return ""; // Days are already shown in the score display section above
                     }
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
