@@ -26,7 +26,7 @@ import { backgroundCache } from "@/lib/backgroundCache";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 import LazyImage from "../common/LazyImage";
-import { isNationalTeam } from "../../lib/teamLogoSources";
+import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "../../lib/teamLogoSources";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 
 interface MyHomeFeaturedMatchNewProps {
@@ -971,10 +971,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   >
                     {currentMatch?.teams?.home && (
                       <img
-                        src={
-                          currentMatch.teams.home.logo ||
-                          `/assets/fallback-logo.svg`
-                        }
+                        src={(() => {
+                          const isNational = isNationalTeam(currentMatch.teams.home, currentMatch.league);
+                          const sources = getTeamLogoSources(currentMatch.teams.home, isNational);
+                          return sources[0]?.url || "/assets/fallback-logo.svg";
+                        })()}
                         alt={currentMatch.teams.home.name || "Home Team"}
                         className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
                         style={{
@@ -984,19 +985,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           filter: "contrast(115%) brightness(105%)",
                         }}
                         onClick={handleMatchClick}
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          if (
-                            target.src.includes("sportmonks") &&
-                            currentMatch.teams.home.logo
-                          ) {
-                            target.src = currentMatch.teams.home.logo;
-                          } else if (
-                            target.src !== "/assets/fallback-logo.svg"
-                          ) {
-                            target.src = "/assets/fallback-logo.svg";
-                          }
-                        }}
+                        onError={(() => {
+                          const isNational = isNationalTeam(currentMatch.teams.home, currentMatch.league);
+                          return createTeamLogoErrorHandler(currentMatch.teams.home, isNational);
+                        })()}
                       />
                     )}
                   </div>
@@ -1048,10 +1040,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
 
                   <img
-                    src={
-                      currentMatch?.teams?.away?.logo ||
-                      `/assets/fallback-logo.svg`
-                    }
+                    src={(() => {
+                      const isNational = isNationalTeam(currentMatch.teams.away, currentMatch.league);
+                      const sources = getTeamLogoSources(currentMatch.teams.away, isNational);
+                      return sources[0]?.url || "/assets/fallback-logo.svg";
+                    })()}
                     alt={currentMatch?.teams?.away?.name || "Away Team"}
                     className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                     style={{
@@ -1062,9 +1055,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       filter: "contrast(115%) brightness(105%)",
                     }}
                     onClick={handleMatchClick}
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
+                    onError={(() => {
+                      const isNational = isNationalTeam(currentMatch.teams.away, currentMatch.league);
+                      return createTeamLogoErrorHandler(currentMatch.teams.away, isNational);
+                    })()}
                   />
                 </div>
               </div>
