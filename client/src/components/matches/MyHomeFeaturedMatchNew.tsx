@@ -1189,7 +1189,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
-              ></div>
+              >
                 {(() => {
                   try {
                     const matchDate = parseISO(
