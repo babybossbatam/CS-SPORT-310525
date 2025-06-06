@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,102 +48,28 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
 
-  // Get TOP 3 leagues dynamically from TodayPopularLeagueNew data
-  const getDynamicTop3Leagues = async (dateString: string) => {
-    try {
-      const response = await apiRequest('GET', `/api/fixtures/date/${dateString}?all=true`);
-      if (!response.ok) return [];
+  // Popular countries prioritization - same as TodayPopularLeagueNew
+  const POPULAR_COUNTRIES_ORDER = [
+    "England",
+    "Spain",
+    "Italy",
+    "Germany",
+    "France",
+    "World",
+    "Europe",
+    "South America",
+    "Brazil",
+    "Saudi Arabia",
+    "Egypt",
+    "Colombia",
+    "United States",
+    "USA",
+    "US",
+    "United Arab Emirates",
+    "United-Arab-Emirates",
+  ];
 
-      const allFixtures = await response.json();
-      if (!allFixtures || allFixtures.length === 0) return [];
-
-      // Apply SAME filtering logic as TodayPopularLeagueNew
-      const POPULAR_COUNTRIES_ORDER = [
-        "England",
-        "Spain", 
-        "Italy",
-        "Germany",
-        "France",
-        "World",
-        "Europe",
-        "South America",
-        "Brazil",
-        "Saudi Arabia",
-        "Egypt",
-        "Colombia",
-        "United States",
-        "USA",
-        "US",
-        "United Arab Emirates",
-        "United-Arab-Emirates",
-      ];
-
-      // Filter fixtures EXACTLY like TodayPopularLeagueNew does
-      const filteredFixtures = allFixtures.filter((fixture) => {
-        if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-          return false;
-        }
-
-        // Apply exclusion filters first
-        if (
-          shouldExcludeFromPopularLeagues(
-            fixture.league.name,
-            fixture.teams.home.name,
-            fixture.teams.away.name,
-            fixture.league.country,
-          )
-        ) {
-          return false;
-        }
-
-        // Apply MyFeaturedMatchExclusion for additional filtering
-        if (
-          shouldExcludeFeaturedMatch(
-            fixture.league.name,
-            fixture.teams.home.name,
-            fixture.teams.away.name,
-          )
-        ) {
-          return false;
-        }
-
-        return true;
-      });
-
-      // Group by league and count matches
-      const leagueCounts = filteredFixtures.reduce((acc: any, fixture: any) => {
-        const leagueId = fixture.league.id;
-        if (!acc[leagueId]) {
-          acc[leagueId] = {
-            leagueId,
-            leagueName: fixture.league.name,
-            country: fixture.league.country,
-            matchCount: 0,
-            league: fixture.league,
-          };
-        }
-        acc[leagueId].matchCount++;
-        return acc;
-      }, {});
-
-      // Sort leagues by match count and get top 3
-      const sortedLeagues = Object.values(leagueCounts)
-        .sort((a: any, b: any) => b.matchCount - a.matchCount)
-        .slice(0, 3);
-
-      console.log(
-        `🎯 [FeaturedMatch] Dynamic TOP 3 leagues for ${dateString}:`,
-        sortedLeagues.map((l: any) => `${l.leagueName} (${l.matchCount} matches)`),
-      );
-
-      return sortedLeagues.map((l: any) => l.leagueId);
-    } catch (error) {
-      console.error(`🔍 [FeaturedMatch] Error getting dynamic leagues for ${dateString}:`, error);
-      return [];
-    }
-  };
-
-  // Fetch featured match data using dynamic TOP 3 leagues from TodayPopularLeagueNew for specific dates
+  // Fetch featured match data using same logic as TodayPopularLeagueNew
   useEffect(() => {
     const loadFeaturedMatches = async () => {
       try {
@@ -178,319 +105,516 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
 
         const featuredMatches = [];
-        const maxMatchesPerDate = 3;
-        const totalMaxMatches = 9; // 3 from each date
 
-        // Simple approach: Get matches for each specific date using TodayPopularLeagueNew logic
-        const datesToProcess = [
-          { date: todayString, label: 'Today' },
-          { date: tomorrowString, label: 'Tomorrow' },
-          { date: dayAfterTomorrowString, label: 'Day After Tomorrow' },
+        // Fetch matches for today, tomorrow, and day after tomorrow (TOP 3 leagues each)
+        const datesToFetch = [
+          { date: todayString, maxLeagues: 3, maxMatches: 2 },
+          { date: tomorrowString, maxLeagues: 3, maxMatches: 2 },
+          { date: dayAfterTomorrowString, maxLeagues: 3, maxMatches: 2 },
         ];
 
-        for (const { date, label } of datesToProcess) {
+        for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
-            console.log(`🔍 [FeaturedMatch] Processing ${label} (${date})`);
-
-            // Get dynamic TOP 3 leagues for this specific date (same as TodayPopularLeagueNew)
-            const dynamicTop3Leagues = await getDynamicTop3Leagues(date);
-
-            if (dynamicTop3Leagues.length === 0) {
-              console.log(`🔍 [FeaturedMatch] No dynamic TOP 3 leagues found for ${label} (${date})`);
-              continue;
-            }
-
-            console.log(`🔍 [FeaturedMatch] Dynamic TOP 3 leagues for ${label}:`, dynamicTop3Leagues);
-
-            // Fetch all fixtures for this date
             const response = await apiRequest('GET', `/api/fixtures/date/${date}?all=true`);
-            if (!response.ok) {
-              console.log(`🔍 [FeaturedMatch] Failed to fetch fixtures for ${label} (${date})`);
-              continue;
-            }
+            if (!response.ok) continue;
 
             const allFixtures = await response.json();
-            if (!allFixtures || allFixtures.length === 0) {
-              console.log(`🔍 [FeaturedMatch] No fixtures found for ${label} (${date})`);
-              continue;
-            }
+            if (!allFixtures || allFixtures.length === 0) continue;
 
-            // Filter to ONLY matches from the dynamic TOP 3 leagues for this date
-            const topLeagueMatches = allFixtures.filter((fixture) => {
+            console.log(
+              `🔍 [FeaturedMatch] Found ${allFixtures.length} fixtures for ${date}`,
+            );
+
+            // Apply EXACT same filtering logic as TodayPopularLeagueNew
+            const filteredFixtures = allFixtures.filter((fixture) => {
               if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
                 return false;
               }
 
-              const leagueId = fixture.league?.id;
-              const isFromTop3 = dynamicTop3Leagues.includes(leagueId);
+              // Apply smart time filtering to ensure correct date
+              if (fixture.fixture.date && fixture.fixture.status?.short) {
+                const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+                  fixture.fixture.date,
+                  fixture.fixture.status.short,
+                  date + "T12:00:00Z",
+                );
 
-              // Apply same exclusions as TodayPopularLeagueNew
-              if (isFromTop3) {
-                const shouldExclude = shouldExcludeFromPopularLeagues(
+                // Check if this match should be included based on the date
+                const shouldInclude = (() => {
+                  if (date === tomorrowString && smartResult.label === "tomorrow") return true;
+                  if (date === todayString && smartResult.label === "today") return true;
+                  if (date === dayAfterTomorrowString && smartResult.isWithinTimeRange) return true;
+                  return false;
+                })();
+
+                if (!shouldInclude) return false;
+              }
+
+              // Client-side filtering for popular leagues and countries - SAME AS TodayPopularLeagueNew
+              const leagueId = fixture.league?.id;
+              const country = fixture.league?.country?.toLowerCase() || "";
+
+              // Check if it's from a popular country
+              const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+                (popularCountry) => country.includes(popularCountry.toLowerCase()),
+              );
+
+              // Apply exclusion check FIRST, before checking international competitions
+              const leagueName = fixture.league?.name?.toLowerCase() || "";
+              const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+              const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+
+              // Early exclusion for women's competitions and other unwanted matches
+              if (
+                shouldExcludeFromPopularLeagues(
+                  fixture.league.name,
+                  fixture.teams.home.name,
+                  fixture.teams.away.name,
+                  country,
+                )
+              ) {
+                return false;
+              }
+
+              // Check if it's an international competition (after exclusion check)
+              const isInternationalCompetition =
+                // UEFA competitions (but women's already excluded above)
+                leagueName.includes("champions league") ||
+                leagueName.includes("europa league") ||
+                leagueName.includes("conference league") ||
+                leagueName.includes("uefa") ||
+                // FIFA competitions
+                leagueName.includes("world cup") ||
+                leagueName.includes("fifa club world cup") ||
+                leagueName.includes("fifa") ||
+                // CONMEBOL competitions
+                leagueName.includes("conmebol") ||
+                leagueName.includes("copa america") ||
+                leagueName.includes("copa libertadores") ||
+                leagueName.includes("copa sudamericana") ||
+                leagueName.includes("libertadores") ||
+                leagueName.includes("sudamericana") ||
+                // Men's International Friendlies (excludes women's)
+                (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+                (leagueName.includes("international") &&
+                  !leagueName.includes("women")) ||
+                country.includes("world") ||
+                country.includes("europe") ||
+                country.includes("international");
+
+              return isFromPopularCountry || isInternationalCompetition;
+            });
+
+            // Apply SAME final filtering as TodayPopularLeagueNew
+            const finalFiltered = filteredFixtures.filter((fixture) => {
+              // Apply popular league exclusion filters
+              if (
+                shouldExcludeFromPopularLeagues(
                   fixture.league.name,
                   fixture.teams.home.name,
                   fixture.teams.away.name,
                   fixture.league.country,
-                ) || shouldExcludeFeaturedMatch(
+                )
+              ) {
+                return false;
+              }
+
+              // Apply MyFeaturedMatchExclusion for additional filtering
+              if (
+                shouldExcludeFeaturedMatch(
                   fixture.league.name,
                   fixture.teams.home.name,
                   fixture.teams.away.name,
-                );
-
-                return !shouldExclude;
+                )
+              ) {
+                return false;
               }
 
-              return false;
+              // Additional check for restricted US leagues
+              if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
+                return false;
+              }
+
+              // Skip fixtures with null or undefined country
+              if (!fixture.league.country) {
+                return false;
+              }
+
+              const countryName = fixture.league.country?.toLowerCase() || "";
+              const leagueId = fixture.league.id;
+              const leagueNameLower = fixture.league.name?.toLowerCase() || "";
+
+              // Check for international competitions first
+              const isInternationalCompetition =
+                // UEFA competitions
+                leagueNameLower.includes("champions league") ||
+                leagueNameLower.includes("europa league") ||
+                leagueNameLower.includes("conference league") ||
+                leagueNameLower.includes("uefa") ||
+                leagueNameLower.includes("euro") ||
+                // FIFA competitions
+                leagueNameLower.includes("world cup") ||
+                leagueNameLower.includes("fifa club world cup") ||
+                leagueNameLower.includes("fifa cup") ||
+                leagueNameLower.includes("fifa") ||
+                // CONMEBOL competitions
+                leagueNameLower.includes("conmebol") ||
+                leagueNameLower.includes("copa america") ||
+                leagueNameLower.includes("copa libertadores") ||
+                leagueNameLower.includes("copa sudamericana") ||
+                leagueNameLower.includes("libertadores") ||
+                leagueNameLower.includes("sudamericana") ||
+                // Men's International Friendlies (excludes women's)
+                (leagueNameLower.includes("friendlies") &&
+                  !leagueNameLower.includes("women")) ||
+                (leagueNameLower.includes("international") &&
+                  !leagueNameLower.includes("women")) ||
+                countryName.includes("world") ||
+                countryName.includes("europe") ||
+                countryName.includes("international");
+
+              // Allow all international competitions through
+              if (isInternationalCompetition) {
+                return true;
+              }
+
+              // Check if it's a popular country
+              const matchingCountry = POPULAR_COUNTRIES_ORDER.find((country) =>
+                countryName.includes(country.toLowerCase()),
+              );
+
+              if (!matchingCountry) {
+                return false;
+              }
+
+              return true;
             });
 
-            console.log(`🔍 [FeaturedMatch] Found ${topLeagueMatches.length} valid matches from TOP 3 leagues for ${label}`);
+            // Group fixtures by country and league using SAME logic as TodayPopularLeagueNew
+            const fixturesByCountry = finalFiltered.reduce(
+              (acc: any, fixture: any) => {
+                if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+                  return acc;
+                }
 
-            if (topLeagueMatches.length === 0) continue;
+                const league = fixture.league;
+                if (!league.id || !league.name) {
+                  return acc;
+                }
 
-            // Sort matches using the same priority system as TodayPopularLeagueNew
-            const sortedMatches = topLeagueMatches.sort((a: any, b: any) => {
-              const aStatus = a.fixture.status.short;
-              const bStatus = b.fixture.status.short;
-              const aDate = parseISO(a.fixture.date);
-              const bDate = parseISO(b.fixture.date);
+                const country = league.country;
+                const leagueName = league.name?.toLowerCase() || "";
+                const homeTeamName = fixture.teams?.home?.name || "";
+                const awayTeamName = fixture.teams?.away?.name || "";
 
-              if (!isValid(aDate) || !isValid(bDate)) return 0;
+                // Check if fixture should be excluded using popular league specialized filter
+                if (
+                  shouldExcludeFromPopularLeagues(
+                    leagueName,
+                    homeTeamName,
+                    awayTeamName,
+                    country,
+                  )
+                ) {
+                  return acc;
+                }
 
-              const aTime = aDate.getTime();
-              const bTime = bDate.getTime();
+                // Apply MyFeaturedMatchExclusion for additional filtering
+                if (
+                  shouldExcludeFeaturedMatch(
+                    leagueName,
+                    homeTeamName,
+                    awayTeamName,
+                  )
+                ) {
+                  return acc;
+                }
 
-              // PRIORITY 1: LIVE matches first
-              const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-              const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+                // Additional check for restricted US leagues
+                if (isRestrictedUSLeague(league.id, country)) {
+                  return acc;
+                }
 
-              if (aLive && !bLive) return -1;
-              if (!aLive && bLive) return 1;
+                const leagueId = league.id;
+                if (!acc[country]) {
+                  acc[country] = {
+                    country,
+                    leagues: {},
+                    hasPopularLeague: false,
+                  };
+                }
 
-              if (aLive && bLive) {
-                const aElapsed = Number(a.fixture.status.elapsed) || 0;
-                const bElapsed = Number(b.fixture.status.elapsed) || 0;
-                if (aElapsed !== bElapsed) return aElapsed - bElapsed;
-                return (a.teams?.home?.name || "").localeCompare(b.teams?.home?.name || "");
-              }
+                // Mark as popular if it's shown in TodayPopularLeagueNew
+                acc[country].hasPopularLeague = true;
 
-              // PRIORITY 2: Upcoming matches second
-              const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-              const bUpcoming = bStatus === "NS" || bStatus === "TBD";
+                if (!acc[country].leagues[leagueId]) {
+                  acc[country].leagues[leagueId] = {
+                    league: {
+                      ...league,
+                      logo:
+                        league.logo ||
+                        "https://media.api-sports.io/football/leagues/1.png",
+                    },
+                    matches: [],
+                    isPopular: true,
+                    isPopularForCountry: true,
+                  };
+                }
 
-              if (aUpcoming && !bUpcoming) return -1;
-              if (!aUpcoming && bUpcoming) return 1;
+                // Validate team data before adding
+                if (
+                  fixture.teams.home &&
+                  fixture.teams.away &&
+                  fixture.teams.home.name &&
+                  fixture.teams.away.name
+                ) {
+                  acc[country].leagues[leagueId].matches.push({
+                    ...fixture,
+                    teams: {
+                      home: {
+                        ...fixture.teams.home,
+                        logo: fixture.teams.home.logo || "/assets/fallback-logo.svg",
+                      },
+                      away: {
+                        ...fixture.teams.away,
+                        logo: fixture.teams.away.logo || "/assets/fallback-logo.svg",
+                      },
+                    },
+                  });
+                }
 
-              if (aUpcoming && bUpcoming) {
-                if (aTime !== bTime) return aTime - bTime;
-                return (a.teams?.home?.name || "").localeCompare(b.teams?.home?.name || "");
-              }
-
-              // PRIORITY 3: Finished matches last
-              const aFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
-              const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
-
-              if (aFinished && !bFinished) return 1;
-              if (!aFinished && bFinished) return -1;
-
-              if (aFinished && bFinished) {
-                return (a.teams?.home?.name || "").localeCompare(b.teams?.home?.name || "");
-              }
-
-              return (a.teams?.home?.name || "").localeCompare(b.teams?.home?.name || "");
-            });
-
-            // Take up to 3 matches from this date
-            const matchesFromThisDate = sortedMatches.slice(0, maxMatchesPerDate);
-            
-            for (const match of matchesFromThisDate) {
-              if (featuredMatches.length >= totalMaxMatches) break;
-
-              // Avoid duplicates
-              const isDuplicate = featuredMatches.some(existing => existing.fixture?.id === match.fixture?.id);
-              if (!isDuplicate) {
-                featuredMatches.push({
-                  ...match,
-                  dateContext: date,
-                  dateLabel: label,
-                });
-              }
-            }
-
-            console.log(`🔍 [FeaturedMatch] Added ${matchesFromThisDate.length} matches from ${label}. Total: ${featuredMatches.length}`);
-            
-            console.log(`🔍 [FeaturedMatch] ${label} matches details:`, 
-              matchesFromThisDate.map(m => ({
-                teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-                status: m.fixture?.status?.short,
-                date: m.fixture?.date,
-                league: m.league?.name,
-                dateLabel: m.dateLabel
-              }))
+                return acc;
+              },
+              {},
             );
 
+            // Get countries that have matches
+            const countriesWithMatches = Object.values(fixturesByCountry).filter(
+              (countryData: any) => {
+                return countryData.hasPopularLeague;
+              }
+            );
+
+            // Sort countries by the POPULAR_COUNTRIES_ORDER - SAME as TodayPopularLeagueNew
+            const sortedCountries = countriesWithMatches.sort((a: any, b: any) => {
+              const getPopularCountryIndex = (country: string) => {
+                if (!country) return 999;
+                const index = POPULAR_COUNTRIES_ORDER.findIndex(
+                  (pc) =>
+                    pc.toLowerCase() === country.toLowerCase(),
+                );
+                return index === -1 ? 999 : index;
+              };
+
+              const aPopularIndex = getPopularCountryIndex(a.country);
+              const bPopularIndex = getPopularCountryIndex(b.country);
+
+              const aIsPopularCountry = aPopularIndex !== 999;
+              const bIsPopularCountry = bPopularIndex !== 999;
+
+              // Priority order: Popular countries with leagues first
+              if (
+                aIsPopularCountry &&
+                a.hasPopularLeague &&
+                (!bIsPopularCountry || !b.hasPopularLeague)
+              )
+                return -1;
+              if (
+                bIsPopularCountry &&
+                b.hasPopularLeague &&
+                (!aIsPopularCountry || !a.hasPopularLeague)
+              )
+                return 1;
+
+              // Both are popular countries with leagues - sort by priority order
+              if (
+                aIsPopularCountry &&
+                a.hasPopularLeague &&
+                bIsPopularCountry &&
+                b.hasPopularLeague
+              ) {
+                return aPopularIndex - bPopularIndex;
+              }
+
+              // Default to alphabetical sorting for other cases
+              const countryA = a.country || "";
+              const countryB = b.country || "";
+              return countryA.localeCompare(countryB);
+            });
+
+            // Get matches from the TOP 3 leagues that are shown in TodayPopularLeagueNew
+            let leagueCount = 0;
+            for (const countryData of sortedCountries) {
+              if (leagueCount >= maxLeagues) break;
+
+              const leagues = Object.values(countryData.leagues)
+                .filter((leagueData: any) => leagueData.matches.length > 0)
+                .slice(0, 3); // Only take TOP 3 leagues per country
+
+              // Get matches from each league
+              for (const leagueData of leagues) {
+                if (leagueCount >= maxLeagues) break;
+
+                const leagueMatches = leagueData.matches || [];
+
+                // Skip leagues with no matches
+                if (leagueMatches.length === 0) {
+                  continue;
+                }
+
+                // Sort matches within league using SAME sorting as TodayPopularLeagueNew
+                const sortedMatches = leagueMatches.sort((a: any, b: any) => {
+                  const aStatus = a.fixture.status.short;
+                  const bStatus = b.fixture.status.short;
+                  const aDate = parseISO(a.fixture.date);
+                  const bDate = parseISO(b.fixture.date);
+
+                  // Ensure valid dates
+                  if (!isValid(aDate) || !isValid(bDate)) {
+                    return 0;
+                  }
+
+                  const aTime = aDate.getTime();
+                  const bTime = bDate.getTime();
+
+                  // Define status categories
+                  const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+                  const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+
+                  const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+                  const bUpcoming = bStatus === "NS" || bStatus === "TBD";
+
+                  const aFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
+                  const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
+
+                  // PRIORITY 1: LIVE matches always come first
+                  if (aLive && !bLive) return -1;
+                  if (!aLive && bLive) return 1;
+
+                  // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
+                  if (aLive && bLive) {
+                    const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                    const bElapsed = Number(b.fixture.status.elapsed) || 0;
+
+                    if (aElapsed !== bElapsed) {
+                      return aElapsed - bElapsed;
+                    }
+
+                    // If same elapsed time, sort alphabetically by home team name
+                    const aHomeTeam = a.teams?.home?.name || "";
+                    const bHomeTeam = b.teams?.home?.name || "";
+                    return aHomeTeam.localeCompare(bHomeTeam);
+                  }
+
+                  // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically by home team
+                  if (aUpcoming && !bUpcoming) return -1;
+                  if (!aUpcoming && bUpcoming) return 1;
+
+                  // If both are upcoming, sort by time first, then alphabetically by home team
+                  if (aUpcoming && bUpcoming) {
+                    if (aTime !== bTime) {
+                      return aTime - bTime; // Earlier matches first
+                    }
+
+                    // If same time, sort alphabetically by home team name
+                    const aHomeTeam = a.teams?.home?.name || "";
+                    const bHomeTeam = b.teams?.home?.name || "";
+                    return aHomeTeam.localeCompare(bHomeTeam);
+                  }
+
+                  // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
+                  if (aFinished && !bFinished) return 1;
+                  if (!aFinished && bFinished) return -1;
+
+                  // If both are finished, sort alphabetically by home team name
+                  if (aFinished && bFinished) {
+                    const aHomeTeam = a.teams?.home?.name || "";
+                    const bHomeTeam = b.teams?.home?.name || "";
+                    return aHomeTeam.localeCompare(bHomeTeam);
+                  }
+
+                  // DEFAULT: For any other cases, sort alphabetically by home team name
+                  const aHomeTeam = a.teams?.home?.name || "";
+                  const bHomeTeam = b.teams?.home?.name || "";
+                  return aHomeTeam.localeCompare(bHomeTeam);
+                });
+
+                // Take only the top matches from this league for this date
+                const topMatches = sortedMatches.slice(0, dateMaxMatches);
+
+                // Add matches to featured collection
+                for (const match of topMatches) {
+                  featuredMatches.push({
+                    ...match,
+                    league: {
+                      ...match.league,
+                      country: countryData.country,
+                    },
+                    dateContext: date, // Add context for which date this match is from
+                  });
+                }
+
+                leagueCount++;
+              }
+            }
           } catch (error) {
-            console.error(`🔍 [FeaturedMatch] Error processing ${label} (${date}):`, error);
+            console.error(`🔍 [FeaturedMatch] Error fetching data for ${date}:`, error);
           }
         }
 
-        // Instead of sorting all together, let's ensure we get representation from each date
-        // Group matches by their date labels
-        const matchesByDate = {
-          'Today': featuredMatches.filter(m => m.dateLabel === 'Today'),
-          'Tomorrow': featuredMatches.filter(m => m.dateLabel === 'Tomorrow'),
-          'Day After Tomorrow': featuredMatches.filter(m => m.dateLabel === 'Day After Tomorrow'),
-        };
+        // Simple sorting: Live matches first, then by match status and time
+        const sortedFeaturedMatches = featuredMatches.sort((a, b) => {
+          const aStatus = a.fixture?.status?.short;
+          const bStatus = b.fixture?.status?.short;
 
-        console.log('🔍 [FeaturedMatch] Matches by date:', {
-          Today: matchesByDate.Today.length,
-          Tomorrow: matchesByDate.Tomorrow.length,
-          DayAfterTomorrow: matchesByDate['Day After Tomorrow'].length,
+          // Live matches first
+          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(aStatus);
+          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(bStatus);
+
+          if (aIsLive && !bIsLive) return -1;
+          if (!aIsLive && bIsLive) return 1;
+
+          // Recent finished matches
+          const now = new Date();
+          const aDate = new Date(a.fixture?.date);
+          const bDate = new Date(b.fixture?.date);
+
+          const aIsRecentFinished =
+            ["FT", "AET", "PEN"].includes(aStatus) &&
+            now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
+          const bIsRecentFinished =
+            ["FT", "AET", "PEN"].includes(bStatus) &&
+            now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
+
+          if (aIsRecentFinished && !bIsRecentFinished) return -1;
+          if (!aIsRecentFinished && bIsRecentFinished) return 1;
+
+          // Sort by match time (earliest first)
+          return aDate.getTime() - bDate.getTime();
         });
 
-        // Sort each date group individually using the same priority logic
-        const sortByPriority = (matches) => {
-          return matches.sort((a, b) => {
-            const aStatus = a.fixture?.status?.short;
-            const bStatus = b.fixture?.status?.short;
-            const now = new Date();
-            const aDate = new Date(a.fixture?.date);
-            const bDate = new Date(b.fixture?.date);
-
-            // PRIORITY 1: LIVE matches always come first
-            const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(aStatus);
-            const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(bStatus);
-
-            if (aIsLive && !bIsLive) return -1;
-            if (!aIsLive && bIsLive) return 1;
-
-            if (aIsLive && bIsLive) {
-              const aElapsed = Number(a.fixture?.status?.elapsed) || 0;
-              const bElapsed = Number(b.fixture?.status?.elapsed) || 0;
-              return bElapsed - aElapsed;
-            }
-
-            // PRIORITY 2: Recent finished matches
-            const aIsRecentFinished = 
-              ["FT", "AET", "PEN", "AWD", "WO"].includes(aStatus) &&
-              now.getTime() - aDate.getTime() < 24 * 60 * 60 * 1000 &&
-              now.getTime() - aDate.getTime() >= 0;
-            const bIsRecentFinished = 
-              ["FT", "AET", "PEN", "AWD", "WO"].includes(bStatus) &&
-              now.getTime() - bDate.getTime() < 24 * 60 * 60 * 1000 &&
-              now.getTime() - bDate.getTime() >= 0;
-
-            if (aIsRecentFinished && !bIsRecentFinished) return -1;
-            if (!aIsRecentFinished && bIsRecentFinished) return 1;
-
-            if (aIsRecentFinished && bIsRecentFinished) {
-              return bDate.getTime() - aDate.getTime();
-            }
-
-            // PRIORITY 3: Upcoming matches
-            const aIsUpcoming = ["NS", "TBD", "PST"].includes(aStatus);
-            const bIsUpcoming = ["NS", "TBD", "PST"].includes(bStatus);
-
-            if (aIsUpcoming && !bIsUpcoming) return -1;
-            if (!aIsUpcoming && bIsUpcoming) return 1;
-
-            if (aIsUpcoming && bIsUpcoming) {
-              return aDate.getTime() - bDate.getTime();
-            }
-
-            return bDate.getTime() - aDate.getTime();
-          });
-        };
-
-        // Sort each date group
-        const sortedToday = sortByPriority(matchesByDate.Today);
-        const sortedTomorrow = sortByPriority(matchesByDate.Tomorrow);
-        const sortedDayAfter = sortByPriority(matchesByDate['Day After Tomorrow']);
-
-        // Now create final array ensuring representation from each date
-        const finalMatches = [];
+        // Take only 6 total matches for the slide
+        const finalMatches = sortedFeaturedMatches.slice(0, 6);
         
-        // Take up to 2 matches from each date, prioritizing today -> tomorrow -> day after
-        const maxPerDate = 2;
-        
-        // Add today's matches first (prioritize current day)
-        if (sortedToday.length > 0) {
-          finalMatches.push(...sortedToday.slice(0, maxPerDate));
-        }
-        
-        // Add tomorrow's matches
-        if (sortedTomorrow.length > 0) {
-          finalMatches.push(...sortedTomorrow.slice(0, maxPerDate));
-        }
-        
-        // Add day after tomorrow's matches
-        if (sortedDayAfter.length > 0) {
-          finalMatches.push(...sortedDayAfter.slice(0, maxPerDate));
-        }
-
-        console.log('🔍 [FeaturedMatch] Final distribution:', {
-          total: finalMatches.length,
-          byDate: finalMatches.map(m => ({ 
-            date: m.dateLabel, 
-            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-            status: m.fixture?.status?.short,
-            league: m.league?.name,
-            fixtureDate: m.fixture?.date
-          }))
-        });
-
-        console.log('🔍 [FeaturedMatch] Detailed date analysis:', {
-          todayMatches: sortedToday.length,
-          tomorrowMatches: sortedTomorrow.length,
-          dayAfterMatches: sortedDayAfter.length,
-          todayDetails: sortedToday.slice(0, 2).map(m => ({
-            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-            status: m.fixture?.status?.short,
-            date: m.fixture?.date,
-            league: m.league?.name
-          })),
-          tomorrowDetails: sortedTomorrow.slice(0, 2).map(m => ({
-            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-            status: m.fixture?.status?.short,
-            date: m.fixture?.date,
-            league: m.league?.name
-          })),
-          dayAfterDetails: sortedDayAfter.slice(0, 2).map(m => ({
-            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-            status: m.fixture?.status?.short,
-            date: m.fixture?.date,
-            league: m.league?.name
-          }))
-        });
-
-        // Validate matches
+        // Validate data structure before setting
         const validMatches = finalMatches.filter((match) => {
-          const isValid = match && match.teams && match.teams.home && match.teams.away && match.fixture && match.league;
+          const isValid =
+            match &&
+            match.teams &&
+            match.teams.home &&
+            match.teams.away &&
+            match.fixture &&
+            match.league;
+
           if (!isValid) {
-            console.log('🔍 [FeaturedMatch] Invalid match filtered out:', {
-              hasMatch: !!match,
-              hasTeams: !!match?.teams,
-              hasHome: !!match?.teams?.home,
-              hasAway: !!match?.teams?.away,
-              hasFixture: !!match?.fixture,
-              hasLeague: !!match?.league
-            });
+            console.warn("🔍 [FeaturedMatch] Invalid match data:", match);
           }
           return isValid;
         });
 
-        console.log("🔍 [FeaturedMatch] Final valid matches being set to state:", {
-          totalValid: validMatches.length,
-          matches: validMatches.map(m => ({
-            teams: `${m.teams?.home?.name} vs ${m.teams?.away?.name}`,
-            status: m.fixture?.status?.short,
-            dateLabel: m.dateLabel,
-            league: m.league?.name,
-            fixtureDate: m.fixture?.date
-          }))
-        });
-
+        // Only show slides if we have matches from TodayPopularLeagueNew
         if (validMatches.length === 0) {
-          console.log("🔍 [FeaturedMatch] No valid matches found from TodayPopularLeagueNew TOP 3 leagues");
+          console.log("🔍 [FeaturedMatch] No matches found from TodayPopularLeagueNew");
           setMatches([]);
           setCurrentIndex(0);
           setLoading(false);
@@ -498,28 +622,43 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         console.log(
-          "🔍 [FeaturedMatch] Final featured matches:",
+          "🔍 [FeaturedMatch] Returning matches from TodayPopularLeagueNew data (max 6):",
           validMatches.length,
-          "matches (Priority: 1=LIVE, 2=Recent, 3=Upcoming):",
-          validMatches.map((m, index) => ({
-            index: index + 1,
-            league: m.league?.name || "Unknown League",
-            homeTeam: m.teams?.home?.name || "Unknown Home",
-            awayTeam: m.teams?.away?.name || "Unknown Away",
-            status: m.fixture?.status?.short || "Unknown Status",
-            dateLabel: m.dateLabel || "Unknown Date",
-            matchDate: m.fixture?.date || "Unknown Date",
-          }))
+          "matches:",
+          {
+            matches: validMatches.map((m) => ({
+              league: m.league?.name || "Unknown League",
+              homeTeam: m.teams?.home?.name || "Unknown Home",
+              awayTeam: m.teams?.away?.name || "Unknown Away",
+              status:
+                m.fixture?.status?.short === "NS"
+                  ? "UPCOMING"
+                  : ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(
+                        m.fixture?.status?.short,
+                      )
+                    ? "LIVE"
+                    : "FINISHED",
+            })),
+          },
         );
 
         // Cache the result
         CacheManager.setCachedData(cacheKey, validMatches);
-        backgroundCache.set(`featured-matches-${currentDate}`, validMatches, 15 * 60 * 1000);
+
+        // Store in background cache as well
+        backgroundCache.set(
+          `featured-matches-${currentDate}`,
+          validMatches,
+          15 * 60 * 1000,
+        );
 
         setMatches(validMatches);
         setCurrentIndex(0);
       } catch (error) {
-        console.error("🔍 [FeaturedMatch] Error fetching featured matches:", error);
+        console.error(
+          "🔍 [FeaturedMatch] Error fetching featured matches:",
+          error,
+        );
         setMatches([]);
       } finally {
         setLoading(false);
@@ -630,7 +769,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             Loading today's featured match...
           </p>
           <p className="text-gray-400 text-sm mt-1">
-            Getting matches from TOP 3 shown leagues
+            Getting matches from TodayPopularLeagueNew
           </p>
         </CardContent>
       </Card>
@@ -653,7 +792,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <p className="text-lg font-medium mb-1">
               No featured matches available
             </p>
-            <p className="text-sm">No matches from TOP 3 shown leagues today</p>
+            <p className="text-sm">No matches from TodayPopularLeagueNew today</p>
           </div>
         </CardContent>
       </Card>
