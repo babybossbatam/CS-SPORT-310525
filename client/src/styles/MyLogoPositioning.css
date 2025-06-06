@@ -109,6 +109,42 @@
   background-color: transparent !important;
 }
 
+/* Flag circle styles for circular team logos */
+.flag-circle {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.flag-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.flag-circle .gloss {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(120deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 60%);
+  pointer-events: none;
+}
+
+/* Responsive flag circle sizes */
+@media (max-width: 640px) {
+  .flag-circle {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 /* Winning team styles */
 .home-team-name.winner {
   font-weight: 600;

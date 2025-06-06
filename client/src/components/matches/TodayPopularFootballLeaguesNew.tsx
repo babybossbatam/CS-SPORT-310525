@@ -1477,25 +1477,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Home team logo - closer to center */}
                                 <div className="team-logo-container">
-                                  <LazyImage
-                                    src={
-                                      match.teams.home.id
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={match.teams.home.name}
-                                    title={match.teams.home.name}
-                                    className={`team-logo ${
-                                      isNationalTeam(
-                                        match.teams.home,
-                                        leagueData.league,
-                                      )
-                                        ? "national-team"
-                                        : ""
-                                    }`}
-                                    style={{ backgroundColor: "transparent" }}
-                                    fallbackSrc="/assets/fallback-logo.svg"
-                                  />
+                                  <div className="flag-circle">
+                                    <LazyImage
+                                      src={
+                                        match.teams.home.id
+                                          ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                          : "/assets/fallback-logo.svg"
+                                      }
+                                      alt={match.teams.home.name}
+                                      title={match.teams.home.name}
+                                      className="team-logo"
+                                      style={{ backgroundColor: "transparent" }}
+                                      fallbackSrc="/assets/fallback-logo.svg"
+                                    />
+                                    <div className="gloss"></div>
+                                  </div>
                                 </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
@@ -1696,31 +1692,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Away team logo - closer to center */}
                                 <div className="team-logo-container">
-                                  <LazyImage
-                                    src={
-                                      match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={match.teams.away.name}
-                                    title={match.teams.away.name}
-                                    className={`team-logo ${
-                                      isNationalTeam(
-                                        match.teams.away,
-                                        leagueData.league,
-                                      )
-                                        ? "national-team"
-                                        : ""
-                                    }`}
-                                    style={{
-                                      backgroundColor: "transparent",
-                                      background: "none",
-                                      backgroundImage: "none",
-                                      border: "none",
-                                      boxShadow: "none",
-                                    }}
-                                    fallbackSrc="/assets/fallback-logo.svg"
-                                  />
+                                  <div className="flag-circle">
+                                    <LazyImage
+                                      src={
+                                        match.teams.away.id
+                                          ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                          : "/assets/fallback-logo.svg"
+                                      }
+                                      alt={match.teams.away.name}
+                                      title={match.teams.away.name}
+                                      className="team-logo"
+                                      style={{ backgroundColor: "transparent" }}
+                                      fallbackSrc="/assets/fallback-logo.svg"
+                                    />
+                                    <div className="gloss"></div>
+                                  </div>
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
