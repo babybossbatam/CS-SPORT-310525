@@ -1055,46 +1055,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             </div>
 
-            {/* Navigation button */}
-            {matches.length > 1 && (
-              <div className="flex items-center justify-center px-4 pb-4 mt-[20px]">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNext();
-                  }}
-                  className="w-12 h-12 bg-gray-200 hover:bg-gray-300 border border-gray-300 rounded-full flex items-center justify-center transition-colors duration-200 relative overflow-hidden"
-                  style={{
-                    clipPath: 'circle(50% at 50% 50%)'
-                  }}
-                >
-                  <div className="w-6 h-6 border-r-2 border-b-2 border-gray-600 transform rotate-[-45deg] translate-x-[-1px]"></div>
-                </button>
-              </div>
-            )}
-
-            {/* Live button */}
-            <div className="flex items-center justify-center px-4 pb-4 mt-[10px] text-[110.25%] h-9">
-              <button
-                className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
-                  getMatchStatusLabel(currentMatch) === "LIVE"
-                    ? "bg-red-500 text-white hover:bg-red-600"
-                    : "bg-gray-300 text-black hover:bg-gray-400"
-                }`}
-                style={{ minWidth: "calc(2rem + 15px)" }}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span
-                    className={`animate-ping absolute inline-flex h-full w-full rounded-full ${getMatchStatusLabel(currentMatch) === "LIVE" ? "bg-white" : "bg-red-400"} opacity-75`}
-                  ></span>
-                  <span
-                    className={`relative inline-flex rounded-full h-2 w-2 ${getMatchStatusLabel(currentMatch) === "LIVE" ? "bg-white" : "bg-red-500"}`}
-                  ></span>
-                </span>
-                Live
-              </button>
-            </div>
-
             {/* Bottom navigation */}
             <div className="flex justify-around border-t border-gray-200 pt-4">
               <button
