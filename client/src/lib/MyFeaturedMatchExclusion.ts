@@ -17,7 +17,7 @@ export const featuredMatchExclusionTerms = [
   'juvenil', 'cadete', 'infantil',
 
   // Non-competitive matches
-  'test', 'testimonial', 'charity', 'exhibition',
+  'test', 'testimonial', 'charity', 'exhibition', 'friendlies',
 
   // Indoor/alternative formats
   'futsal', 'indoor', 'beach', 'arena',
