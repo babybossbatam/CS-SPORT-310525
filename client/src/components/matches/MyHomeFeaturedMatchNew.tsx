@@ -1012,21 +1012,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           mixBlendMode: "overlay",
                         }}
                       />
-                        onClick={handleMatchClick}
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          if (
-                            target.src.includes("sportmonks") &&
-                            currentMatch.teams.home.logo
-                          ) {
-                            target.src = currentMatch.teams.home.logo;
-                          } else if (
-                            target.src !== "/assets/fallback-logo.svg"
-                          ) {
-                            target.src = "/assets/fallback-logo.svg";
-                          }
-                        }}
-                      />
                     )}
                   </div>
 
