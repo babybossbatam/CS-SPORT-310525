@@ -1055,6 +1055,28 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             </div>
 
+            {/* Live button */}
+            <div className="flex items-center justify-center px-4 pb-4 mt-[20px] text-[110.25%] h-9">
+              <button
+                className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
+                  getMatchStatusLabel(currentMatch) === "LIVE"
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-gray-300 text-black hover:bg-gray-400"
+                }`}
+                style={{ minWidth: "calc(2rem + 15px)" }}
+              >
+                <span className="relative flex h-2 w-2">
+                  <span
+                    className={`animate-ping absolute inline-flex h-full w-full rounded-full ${getMatchStatusLabel(currentMatch) === "LIVE" ? "bg-white" : "bg-red-400"} opacity-75`}
+                  ></span>
+                  <span
+                    className={`relative inline-flex rounded-full h-2 w-2 ${getMatchStatusLabel(currentMatch) === "LIVE" ? "bg-white" : "bg-red-500"}`}
+                  ></span>
+                </span>
+                Live
+              </button>
+            </div>
+
             {/* Bottom navigation */}
             <div className="flex justify-around border-t border-gray-200 pt-4">
               <button
