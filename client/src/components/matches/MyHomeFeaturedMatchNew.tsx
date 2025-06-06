@@ -1021,7 +1021,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         } else if (daysToMatch === 1) {
                           return "Tomorrow";
                         } else if (daysToMatch > 1) {
-                          return `${daysToMatch} days`;
+                          return ""; // Don't show days here to avoid duplication
                         } else {
                           return "Today"; // Past date defaults to Today
                         }
