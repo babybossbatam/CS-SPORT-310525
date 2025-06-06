@@ -27,6 +27,9 @@ import {
   isPopularLeagueSuitable,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
+import {
+  shouldExcludeFeaturedMatch,
+} from "@/lib/MyFeaturedMatchExclusion";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -44,13 +47,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
-
-  // TOP 3 LEAGUES ONLY - exactly same as used in TodayPopularLeagueNew
-  const TOP_3_LEAGUES = [
-    39,  // Premier League (England)
-    140, // La Liga (Spain) 
-    135, // Serie A (Italy)
-  ];
 
   // Popular countries prioritization - same as TodayPopularLeagueNew
   const POPULAR_COUNTRIES_ORDER = [
@@ -158,9 +154,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const leagueId = fixture.league?.id;
               const country = fixture.league?.country?.toLowerCase() || "";
 
-              // Check if it's a TOP 3 league
-              const isTop3League = TOP_3_LEAGUES.includes(leagueId);
-
               // Check if it's from a popular country
               const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
                 (popularCountry) => country.includes(popularCountry.toLowerCase()),
@@ -209,9 +202,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 country.includes("europe") ||
                 country.includes("international");
 
-              return (
-                isTop3League || isFromPopularCountry || isInternationalCompetition
-              );
+              return isFromPopularCountry || isInternationalCompetition;
             });
 
             // Apply SAME final filtering as TodayPopularLeagueNew
@@ -223,6 +214,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   fixture.teams.home.name,
                   fixture.teams.away.name,
                   fixture.league.country,
+                )
+              ) {
+                return false;
+              }
+
+              // Apply MyFeaturedMatchExclusion for additional filtering
+              if (
+                shouldExcludeFeaturedMatch(
+                  fixture.league.name,
+                  fixture.teams.home.name,
+                  fixture.teams.away.name,
                 )
               ) {
                 return false;
@@ -317,6 +319,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   return acc;
                 }
 
+                // Apply MyFeaturedMatchExclusion for additional filtering
+                if (
+                  shouldExcludeFeaturedMatch(
+                    leagueName,
+                    homeTeamName,
+                    awayTeamName,
+                  )
+                ) {
+                  return acc;
+                }
+
                 // Additional check for restricted US leagues
                 if (isRestrictedUSLeague(league.id, country)) {
                   return acc;
@@ -331,12 +344,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   };
                 }
 
-                // Check if this is a TOP 3 league
-                const isTop3League = TOP_3_LEAGUES.includes(leagueId);
-                
-                if (isTop3League) {
-                  acc[country].hasPopularLeague = true;
-                }
+                // Mark as popular if it's shown in TodayPopularLeagueNew
+                acc[country].hasPopularLeague = true;
 
                 if (!acc[country].leagues[leagueId]) {
                   acc[country].leagues[leagueId] = {
@@ -347,8 +356,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         "https://media.api-sports.io/football/leagues/1.png",
                     },
                     matches: [],
-                    isPopular: isTop3League,
-                    isPopularForCountry: isTop3League,
+                    isPopular: true,
+                    isPopularForCountry: true,
                   };
                 }
 
@@ -379,15 +388,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {},
             );
 
-            // Get only TOP 3 leagues that have matches
-            const top3Countries = Object.values(fixturesByCountry).filter(
+            // Get countries that have matches
+            const countriesWithMatches = Object.values(fixturesByCountry).filter(
               (countryData: any) => {
                 return countryData.hasPopularLeague;
               }
             );
 
             // Sort countries by the POPULAR_COUNTRIES_ORDER - SAME as TodayPopularLeagueNew
-            const sortedCountries = top3Countries.sort((a: any, b: any) => {
+            const sortedCountries = countriesWithMatches.sort((a: any, b: any) => {
               const getPopularCountryIndex = (country: string) => {
                 if (!country) return 999;
                 const index = POPULAR_COUNTRIES_ORDER.findIndex(
@@ -403,7 +412,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aIsPopularCountry = aPopularIndex !== 999;
               const bIsPopularCountry = bPopularIndex !== 999;
 
-              // Priority order: Popular countries with TOP 3 leagues first
+              // Priority order: Popular countries with leagues first
               if (
                 aIsPopularCountry &&
                 a.hasPopularLeague &&
@@ -417,7 +426,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               )
                 return 1;
 
-              // Both are popular countries with TOP 3 leagues - sort by priority order
+              // Both are popular countries with leagues - sort by priority order
               if (
                 aIsPopularCountry &&
                 a.hasPopularLeague &&
@@ -433,19 +442,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return countryA.localeCompare(countryB);
             });
 
-            // Get matches from each TOP 3 league that has matches
+            // Get matches from the TOP 3 leagues that are shown in TodayPopularLeagueNew
+            let leagueCount = 0;
             for (const countryData of sortedCountries) {
-              const topLeagues = Object.values(countryData.leagues)
-                .filter((leagueData: any) => leagueData.isPopular && leagueData.matches.length > 0)
-                .sort((a: any, b: any) => {
-                  const aIndex = TOP_3_LEAGUES.indexOf(a.league.id);
-                  const bIndex = TOP_3_LEAGUES.indexOf(b.league.id);
-                  return aIndex - bIndex;
-                })
-                .slice(0, 3); // Only take TOP 3
+              if (leagueCount >= maxLeagues) break;
 
-              // Get matches from each top league - only if they have matches
-              for (const leagueData of topLeagues) {
+              const leagues = Object.values(countryData.leagues)
+                .filter((leagueData: any) => leagueData.matches.length > 0)
+                .slice(0, 3); // Only take TOP 3 leagues per country
+
+              // Get matches from each league
+              for (const leagueData of leagues) {
+                if (leagueCount >= maxLeagues) break;
+
                 const leagueMatches = leagueData.matches || [];
 
                 // Skip leagues with no matches
@@ -544,6 +553,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     dateContext: date, // Add context for which date this match is from
                   });
                 }
+
+                leagueCount++;
               }
             }
           } catch (error) {
@@ -584,6 +595,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Take only 6 total matches for the slide
         const finalMatches = sortedFeaturedMatches.slice(0, 6);
+        
         // Validate data structure before setting
         const validMatches = finalMatches.filter((match) => {
           const isValid =
@@ -600,9 +612,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return isValid;
         });
 
-        // Only show slides if we have matches from the TOP 3 leagues shown in TodayPopularLeagueNew
+        // Only show slides if we have matches from TodayPopularLeagueNew
         if (validMatches.length === 0) {
-          console.log("🔍 [FeaturedMatch] No matches found from TOP 3 leagues that are shown in TodayPopularLeagueNew");
+          console.log("🔍 [FeaturedMatch] No matches found from TodayPopularLeagueNew");
           setMatches([]);
           setCurrentIndex(0);
           setLoading(false);
@@ -610,7 +622,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         console.log(
-          "🔍 [FeaturedMatch] Returning TOP 3 leagues matches from TodayPopularLeagueNew data (max 6):",
+          "🔍 [FeaturedMatch] Returning matches from TodayPopularLeagueNew data (max 6):",
           validMatches.length,
           "matches:",
           {
@@ -757,7 +769,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             Loading today's featured match...
           </p>
           <p className="text-gray-400 text-sm mt-1">
-            Getting the best match from TOP 3 leagues
+            Getting matches from TodayPopularLeagueNew
           </p>
         </CardContent>
       </Card>
@@ -780,7 +792,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <p className="text-lg font-medium mb-1">
               No featured matches available
             </p>
-            <p className="text-sm">No matches from TOP 3 leagues today</p>
+            <p className="text-sm">No matches from TodayPopularLeagueNew today</p>
           </div>
         </CardContent>
       </Card>
@@ -850,7 +862,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                 <div className="flex items-center gap-1.5 ml-2">
                   <div className="w-2h-2 rounded-fullbg-red-500 animate-pulse" />
-<Badge
+                  <Badge
                     variant="outline"
                     className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse"
                   >
