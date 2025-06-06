@@ -1105,10 +1105,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   whiteSpace: "nowrap",
                   overflow: "visible",
                   textAlign: "center",
-                  position: "absolute",
+                  position: "flex",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  bottom: "calc(100% + 20px)",
+                  top: "calc(100% + 20px)",
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
@@ -1142,7 +1142,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Bottom navigation */}
-            <div className="flex justify-around border-t border-gray-200 pt-4 mt-8 pb-4">
+            <div className="flex justify-around border-t border-gray-200 pt-4 mt-4 pb-4">
               <button
                 className="flex flex-col items-center cursor-pointer w-1/4"
                 onClick={() =>
