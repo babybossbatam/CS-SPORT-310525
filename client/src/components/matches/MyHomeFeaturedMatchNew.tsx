@@ -939,7 +939,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             )) && (
               <div className="match-score-container">
                 {/* Status display - positioned same as score display */}
-                <div className="match-score-display mb-4" style={{ fontSize: "calc(1.125rem * 0.968)" }}>
+                <div className="match-score-display mb-4" style={{ fontSize: "calc(1.125rem * 0.968 * 1.1)" }}>
                   <span className="score-number">
                     {(() => {
                       const status = currentMatch?.fixture?.status?.short;
