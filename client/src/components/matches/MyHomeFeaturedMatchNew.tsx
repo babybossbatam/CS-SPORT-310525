@@ -1134,6 +1134,46 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               </div>
 
+              {/* Time indicator positioned above colored bar */}
+              <div
+                className="absolute text-center text-xs text-black font-medium"
+                style={{
+                  fontSize: "0.875rem",
+                  whiteSpace: "nowrap",
+                  overflow: "visible",
+                  textAlign: "center",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  top: "-25px",
+                  width: "max-content",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  zIndex: 20,
+                }}
+              >
+                {(() => {
+                  try {
+                    const matchDate = parseISO(currentMatch.fixture.date);
+                    const now = new Date();
+
+                    // Calculate difference in days
+                    const msToMatch = matchDate.getTime() - now.getTime();
+                    const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
+
+                    if (daysToMatch === 0) {
+                      return "Today";
+                    } else if (daysToMatch === 1) {
+                      return "Tomorrow";
+                    } else if (daysToMatch > 1) {
+                      return `${daysToMatch} days`;
+                    } else {
+                      return ""; // Past date
+                    }
+                  } catch (e) {
+                    return "";
+                  }
+                })()}
+              </div>
+
               {/* Match date and venue - aligned with VS component */}
               <div
                 className="absolute text-center text-xs text-black font-medium"
@@ -1149,7 +1189,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
-              >
+              ></div>
                 {(() => {
                   try {
                     const matchDate = parseISO(
