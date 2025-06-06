@@ -136,83 +136,25 @@ export const shouldExcludeFeaturedMatch = (
 };
 
 /**
- * Get league priority for featured match sorting
- * Higher priority leagues get lower numbers (appear first)
- * This aligns with the TodayPopularLeagueNew priority system
- */
-export const getFeaturedMatchLeaguePriority = (match: any): number => {
-  const name = (match.league?.name || "").toLowerCase();
-  const country = (match.league?.country || "").toLowerCase();
-
-  // Check for women's competitions (lowest priority)
-  const isWomensMatch = name.includes("women");
-  if (isWomensMatch) return 999;
-
-  // Handle World/International leagues with specific priority order
-  if (country.includes("world") || country.includes("europe") || 
-      country.includes("international") || name.includes("uefa") ||
-      name.includes("fifa") || name.includes("conmebol")) {
-
-    // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
-    if (name.includes("uefa nations league") && !name.includes("women")) {
-      return 1;
-    }
-
-    // Priority 2: Champions League
-    if (name.includes("champions league") && !name.includes("women")) {
-      return 2;
-    }
-
-    // Priority 3: Europa League
-    if (name.includes("europa league") && !name.includes("women")) {
-      return 3;
-    }
-
-    // Priority 4: Conference League
-    if (name.includes("conference league") && !name.includes("women")) {
-      return 4;
-    }
-
-    // Priority 5: World Cup related
-    if (name.includes("world cup") && !name.includes("women")) {
-      return 5;
-    }
-
-    // Priority 6: Euro Championship
-    if (name.includes("euro") && name.includes("championship") && !name.includes("women")) {
-      return 6;
-    }
-
-    // Priority 7: CONMEBOL competitions
-    if ((name.includes("copa america") || name.includes("libertadores") || 
-         name.includes("sudamericana")) && !name.includes("women")) {
-      return 7;
-    }
-
-    // Priority 8: International friendlies (but not women's)
-    if (name.includes("friendlies") && !name.includes("women")) {
-      return 8;
-    }
-
-    return 20; // Other international competitions
-  }
-
-  // Handle domestic leagues
-  const popularLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-  if (popularLeagues.includes(match.league?.id)) {
-    return 10; // High priority for top domestic leagues
-  }
-
-  // Other domestic leagues
-  return 50;
-};
-
-/**
  * Check if a match is from a high-priority league suitable for featuring
  */
 export const isHighPriorityLeague = (match: any): boolean => {
-  const priority = getFeaturedMatchLeaguePriority(match);
-  return priority <= 20; // Only international competitions and top domestic leagues
+  const name = (match.league?.name || "").toLowerCase();
+  const popularLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+  
+  // Popular domestic leagues
+  if (popularLeagues.includes(match.league?.id)) {
+    return true;
+  }
+
+  // Major international competitions
+  return (name.includes("champions league") ||
+          name.includes("europa league") ||
+          name.includes("conference league") ||
+          name.includes("uefa nations league") ||
+          name.includes("world cup") ||
+          name.includes("copa america") ||
+          name.includes("libertadores")) && !name.includes("women");
 };
 
 /**
@@ -261,17 +203,9 @@ export const filterFeaturedMatches = (
     isFeaturedWorthy(match, popularTeamIds)
   );
 
-  // Sort by priority and status
+  // Simple sorting by match status and time
   const sortedMatches = featuredCandidates.sort((a, b) => {
-    // First by league priority
-    const aPriority = getFeaturedMatchLeaguePriority(a);
-    const bPriority = getFeaturedMatchLeaguePriority(b);
-
-    if (aPriority !== bPriority) {
-      return aPriority - bPriority;
-    }
-
-    // Then by match status (live > upcoming > finished)
+    // Live matches first
     const aStatus = a.fixture?.status?.short;
     const bStatus = b.fixture?.status?.short;
 
