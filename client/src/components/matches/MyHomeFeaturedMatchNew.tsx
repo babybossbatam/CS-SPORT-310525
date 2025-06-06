@@ -179,14 +179,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const featuredMatches = [];
 
-        // Fetch exactly 3 matches from each day's dynamic TOP 3 leagues (total 9, but we'll limit to 8)
+        // Fetch matches for today, tomorrow, and day after tomorrow (dynamic TOP 3 leagues each)
         const datesToFetch = [
-          { date: todayString, maxMatches: 3 },
-          { date: tomorrowString, maxMatches: 3 },
-          { date: dayAfterTomorrowString, maxMatches: 2 }, // Only 2 from day after tomorrow to total 8
+          { date: todayString, maxLeagues: 3, maxMatches: 2 },
+          { date: tomorrowString, maxLeagues: 3, maxMatches: 2 },
+          { date: dayAfterTomorrowString, maxLeagues: 3, maxMatches: 2 },
         ];
 
-        for (const { date, maxMatches: dateMaxMatches } of datesToFetch) {
+        for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
             // Get dynamic TOP 3 leagues for this date
             const dynamicTop3Leagues = await getDynamicTop3Leagues(date);
@@ -251,107 +251,143 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return true;
             });
 
-            // Sort ALL matches from dynamic TOP 3 leagues using SAME sorting as TodayPopularLeagueNew
-            const sortedMatches = filteredFixtures.sort((a: any, b: any) => {
-              const aStatus = a.fixture.status.short;
-              const bStatus = b.fixture.status.short;
-              const aDate = parseISO(a.fixture.date);
-              const bDate = parseISO(b.fixture.date);
+            // Group fixtures by league
+            const fixturesByLeague = filteredFixtures.reduce(
+              (acc: any, fixture: any) => {
+                const leagueId = fixture.league.id;
 
-              // Ensure valid dates
-              if (!isValid(aDate) || !isValid(bDate)) {
-                return 0;
-              }
-
-              const aTime = aDate.getTime();
-              const bTime = bDate.getTime();
-
-              // Define status categories
-              const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-              const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
-
-              const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-              const bUpcoming = bStatus === "NS" || bStatus === "TBD";
-
-              const aFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
-              const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
-
-              // PRIORITY 1: LIVE matches always come first
-              if (aLive && !bLive) return -1;
-              if (!aLive && bLive) return 1;
-
-              // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
-              if (aLive && bLive) {
-                const aElapsed = Number(a.fixture.status.elapsed) || 0;
-                const bElapsed = Number(b.fixture.status.elapsed) || 0;
-
-                if (aElapsed !== bElapsed) {
-                  return aElapsed - bElapsed;
+                if (!acc[leagueId]) {
+                  acc[leagueId] = {
+                    league: fixture.league,
+                    matches: [],
+                  };
                 }
 
-                // If same elapsed time, sort alphabetically by home team name
-                const aHomeTeam = a.teams?.home?.name || "";
-                const bHomeTeam = b.teams?.home?.name || "";
-                return aHomeTeam.localeCompare(bHomeTeam);
-              }
+                acc[leagueId].matches.push(fixture);
+                return acc;
+              },
+              {},
+            );
 
-              // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically by home team
-              if (aUpcoming && !bUpcoming) return -1;
-              if (!aUpcoming && bUpcoming) return 1;
-
-              // If both are upcoming, sort by time first, then alphabetically by home team
-              if (aUpcoming && bUpcoming) {
-                if (aTime !== bTime) {
-                  return aTime - bTime; // Earlier matches first
-                }
-
-                // If same time, sort alphabetically by home team name
-                const aHomeTeam = a.teams?.home?.name || "";
-                const bHomeTeam = b.teams?.home?.name || "";
-                return aHomeTeam.localeCompare(bHomeTeam);
-              }
-
-              // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
-              if (aFinished && !bFinished) return 1;
-              if (!aFinished && bFinished) return -1;
-
-              // If both are finished, sort alphabetically by home team name
-              if (aFinished && bFinished) {
-                const aHomeTeam = a.teams?.home?.name || "";
-                const bHomeTeam = b.teams?.home?.name || "";
-                return aHomeTeam.localeCompare(bHomeTeam);
-              }
-
-              // DEFAULT: For any other cases, sort alphabetically by home team name
-              const aHomeTeam = a.teams?.home?.name || "";
-              const bHomeTeam = b.teams?.home?.name || "";
-              return aHomeTeam.localeCompare(bHomeTeam);
+            // Sort leagues by dynamic TOP 3 order (by match count)
+            const sortedLeagues = Object.values(fixturesByLeague).sort((a: any, b: any) => {
+              const aIndex = dynamicTop3Leagues.indexOf(a.league.id);
+              const bIndex = dynamicTop3Leagues.indexOf(b.league.id);
+              return aIndex - bIndex;
             });
 
-            // Take exactly the number of matches specified for this date
-            const selectedMatches = sortedMatches.slice(0, dateMaxMatches);
+            // Get matches from dynamic TOP 3 leagues only
+            let leagueCount = 0;
+            for (const leagueData of sortedLeagues) {
+              if (leagueCount >= maxLeagues) break;
 
-            // Add matches to featured collection
-            for (const match of selectedMatches) {
-              featuredMatches.push({
-                ...match,
-                league: {
-                  ...match.league,
-                  country: match.league.country,
-                },
-                dateContext: date, // Add context for which date this match is from
+              const leagueMatches = leagueData.matches || [];
+
+              // Skip leagues with no matches
+              if (leagueMatches.length === 0) {
+                continue;
+              }
+
+              // Sort matches within league using SAME sorting as TodayPopularLeagueNew
+              const sortedMatches = leagueMatches.sort((a: any, b: any) => {
+                const aStatus = a.fixture.status.short;
+                const bStatus = b.fixture.status.short;
+                const aDate = parseISO(a.fixture.date);
+                const bDate = parseISO(b.fixture.date);
+
+                // Ensure valid dates
+                if (!isValid(aDate) || !isValid(bDate)) {
+                  return 0;
+                }
+
+                const aTime = aDate.getTime();
+                const bTime = bDate.getTime();
+
+                // Define status categories
+                const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+                const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+
+                const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+                const bUpcoming = bStatus === "NS" || bStatus === "TBD";
+
+                const aFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
+                const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
+
+                // PRIORITY 1: LIVE matches always come first
+                if (aLive && !bLive) return -1;
+                if (!aLive && bLive) return 1;
+
+                // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
+                if (aLive && bLive) {
+                  const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                  const bElapsed = Number(b.fixture.status.elapsed) || 0;
+
+                  if (aElapsed !== bElapsed) {
+                    return aElapsed - bElapsed;
+                  }
+
+                  // If same elapsed time, sort alphabetically by home team name
+                  const aHomeTeam = a.teams?.home?.name || "";
+                  const bHomeTeam = b.teams?.home?.name || "";
+                  return aHomeTeam.localeCompare(bHomeTeam);
+                }
+
+                // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically by home team
+                if (aUpcoming && !bUpcoming) return -1;
+                if (!aUpcoming && bUpcoming) return 1;
+
+                // If both are upcoming, sort by time first, then alphabetically by home team
+                if (aUpcoming && bUpcoming) {
+                  if (aTime !== bTime) {
+                    return aTime - bTime; // Earlier matches first
+                  }
+
+                  // If same time, sort alphabetically by home team name
+                  const aHomeTeam = a.teams?.home?.name || "";
+                  const bHomeTeam = b.teams?.home?.name || "";
+                  return aHomeTeam.localeCompare(bHomeTeam);
+                }
+
+                // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
+                if (aFinished && !bFinished) return 1;
+                if (!aFinished && bFinished) return -1;
+
+                // If both are finished, sort alphabetically by home team name
+                if (aFinished && bFinished) {
+                  const aHomeTeam = a.teams?.home?.name || "";
+                  const bHomeTeam = b.teams?.home?.name || "";
+                  return aHomeTeam.localeCompare(bHomeTeam);
+                }
+
+                // DEFAULT: For any other cases, sort alphabetically by home team name
+                const aHomeTeam = a.teams?.home?.name || "";
+                const bHomeTeam = b.teams?.home?.name || "";
+                return aHomeTeam.localeCompare(bHomeTeam);
               });
-            }
 
-            console.log(
-              `🔍 [FeaturedMatch] Added ${selectedMatches.length} matches from ${date} (requested: ${dateMaxMatches})`,
-            );
+              // Take only the top matches from this league for this date
+              const topMatches = sortedMatches.slice(0, dateMaxMatches);
+
+              // Add matches to featured collection
+              for (const match of topMatches) {
+                featuredMatches.push({
+                  ...match,
+                  league: {
+                    ...match.league,
+                    country: match.league.country,
+                  },
+                  dateContext: date, // Add context for which date this match is from
+                });
+              }
+
+              leagueCount++;
+            }
           } catch (error) {
             console.error(`🔍 [FeaturedMatch] Error fetching data for ${date}:`, error);
           }
         }
 
-        // Final sorting: Prioritize live matches, then by date context and match importance
+        // Simple sorting: Live matches first, then by match status and time
         const sortedFeaturedMatches = featuredMatches.sort((a, b) => {
           const aStatus = a.fixture?.status?.short;
           const bStatus = b.fixture?.status?.short;
@@ -363,22 +399,27 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           if (aIsLive && !bIsLive) return -1;
           if (!aIsLive && bIsLive) return 1;
 
-          // Sort by date context (today first, then tomorrow, then day after)
-          const aDateOrder = a.dateContext === todayString ? 0 : a.dateContext === tomorrowString ? 1 : 2;
-          const bDateOrder = b.dateContext === todayString ? 0 : b.dateContext === tomorrowString ? 1 : 2;
-
-          if (aDateOrder !== bDateOrder) {
-            return aDateOrder - bDateOrder;
-          }
-
-          // Within same day, sort by match time
+          // Recent finished matches
+          const now = new Date();
           const aDate = new Date(a.fixture?.date);
           const bDate = new Date(b.fixture?.date);
+
+          const aIsRecentFinished =
+            ["FT", "AET", "PEN"].includes(aStatus) &&
+            now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
+          const bIsRecentFinished =
+            ["FT", "AET", "PEN"].includes(bStatus) &&
+            now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
+
+          if (aIsRecentFinished && !bIsRecentFinished) return -1;
+          if (!aIsRecentFinished && bIsRecentFinished) return 1;
+
+          // Sort by match time (earliest first)
           return aDate.getTime() - bDate.getTime();
         });
 
-        // Take exactly 8 total matches for the slide
-        const finalMatches = sortedFeaturedMatches.slice(0, 8);
+        // Take only 6 total matches for the slide
+        const finalMatches = sortedFeaturedMatches.slice(0, 6);
 
         // Validate data structure before setting
         const validMatches = finalMatches.filter((match) => {
