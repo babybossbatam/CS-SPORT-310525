@@ -103,11 +103,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
         ];
 
-        // Fetch matches for today, tomorrow, and day after tomorrow (top 2 leagues each)
+        // Fetch matches for today, tomorrow, and day after tomorrow (top 3 leagues each)
         const datesToFetch = [
-          { date: todayString, maxLeagues: 2, maxMatches: 2 },
-          { date: tomorrowString, maxLeagues: 2, maxMatches: 2 },
-          { date: dayAfterTomorrowString, maxLeagues: 2, maxMatches: 2 },
+          { date: todayString, maxLeagues: 3, maxMatches: 2 },
+          { date: tomorrowString, maxLeagues: 3, maxMatches: 2 },
+          { date: dayAfterTomorrowString, maxLeagues: 3, maxMatches: 2 },
         ];
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
@@ -346,7 +346,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return aLeagueName.localeCompare(bLeagueName);
             });
 
-            // Take only the top 2 leagues for this date
+            // Take only the top 3 leagues for this date
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
 
             // Get matches from each top league
