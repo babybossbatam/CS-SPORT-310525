@@ -821,7 +821,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <img
                   src={currentMatch.league.logo}
                   alt={currentMatch.league.name}
-                  className="w-5 h-5 object-contain mr-2 drop-shadow-md"
+                  className="w-5 h-5 object-contain mr-2 drop-shadow-lg"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.svg";
                   }}
