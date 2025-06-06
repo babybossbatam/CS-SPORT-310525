@@ -25,6 +25,7 @@ import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
+import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
@@ -134,11 +135,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply featured match exclusion filters FIRST
-              if (shouldExcludeFeaturedMatch(
+              // Apply TodayPopularLeagueNew exclusion filters FIRST
+              if (shouldExcludeFromPopularLeagues(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
-                fixture.teams?.away?.name || ''
+                fixture.teams?.away?.name || '',
+                fixture.league?.country
               )) {
                 return false;
               }

@@ -32,14 +32,7 @@ export const featuredMatchExclusionTerms = [
 
   // Additional regional exclusions
   'asia',
-  'concacaf',
-  
-  // Specific tournament and league exclusions for featured matches
-  'tournoi maurice revello',
-  'maurice revello',
-  'serie a',
-  'serie b',
-  'usa'
+  'concacaf'
 ];
 
 // Lower-tier league patterns that should be excluded from featured matches
