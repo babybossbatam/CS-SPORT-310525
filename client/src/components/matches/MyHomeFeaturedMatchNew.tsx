@@ -918,30 +918,31 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <span className="score-number">
                     {(() => {
                       const status = currentMatch?.fixture?.status?.short;
+                      const elapsed = currentMatch?.fixture?.status?.elapsed;
 
-                      // Upcoming matches - calculate days until match
-                      if (status === "NS") {
-                        try {
-                          const matchDate = parseISO(currentMatch.fixture.date);
-                          const now = new Date();
-
-                          // Calculate difference in days
-                          const msToMatch = matchDate.getTime() - now.getTime();
-                          const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-
-                          if (daysToMatch === 0) {
-                            return "Today";
-                          } else if (daysToMatch === 1) {
-                            return "Tomorrow";
-                          } else if (daysToMatch > 1) {
-                            return `${daysToMatch} days`;
-                          } else {
-                            return ""; // Past date
-                          }
-                        } catch (e) {
-                          return "";
+                      // Live matches - show elapsed time
+                      if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                        if (status === "HT") {
+                          return "HT";
                         }
+                        return `${elapsed || 0}'`;
                       }
+
+                      // Finished matches
+                      if (status === "FT") return "Ended";
+                      if (status === "AET") return "After Extra Time";
+                      if (status === "PEN") return "After Penalties";
+                      if (status === "AWD") return "Awarded";
+                      if (status === "WO") return "Walkover";
+                      if (status === "ABD") return "Abandoned";
+                      if (status === "CANC") return "Cancelled";
+                      if (status === "SUSP") return "Suspended";
+
+                      // Half time
+                      if (status === "HT") return "Half Time";
+
+                      // Upcoming matches - hide text for NS
+                      if (status === "NS") return "";
                       if (status === "TBD") return "Time TBD";
                       if (status === "PST") return "Postponed";
 
@@ -958,39 +959,40 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 }}>
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
-                    const elapsed = currentMatch?.fixture?.status?.elapsed;
 
-                    // Live matches - show elapsed time
-                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                      if (status === "HT") {
-                        return "HT";
+                    // Upcoming matches - calculate days until match
+                    if (status === "NS") {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date();
+                        
+                        // Calculate difference in days
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
+                        
+                        if (daysToMatch === 0) {
+                          return "Today";
+                        } else if (daysToMatch === 1) {
+                          return "Tomorrow";
+                        } else if (daysToMatch > 1) {
+                          return `${daysToMatch} days`;
+                        } else {
+                          return ""; // Past date
+                        }
+                      } catch (e) {
+                        return "";
                       }
-                      return `${elapsed || 0}'`;
                     }
-
-                    // Finished matches
-                    if (status === "FT") return "Ended";
-                    if (status === "AET") return "After Extra Time";
-                    if (status === "PEN") return "After Penalties";
-                    if (status === "AWD") return "Awarded";
-                    if (status === "WO") return "Walkover";
-                    if (status === "ABD") return "Abandoned";
-                    if (status === "CANC") return "Cancelled";
-                    if (status === "SUSP") return "Suspended";
-
-                    // Half time
-                    if (status === "HT") return "Half Time";
-
-                    // Upcoming matches
-                    if (status === "NS") return "Upcoming";
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
 
                     // Default
-                    return status || "Upcoming";
+                    return status || "";
                   })()}
                 </div>
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-xs text-gray-500">
+                <div className="absolute left-1/2 transform -translate-x-1/2 text-xs text-gray-500" style={{
+                  bottom: "calc(100% + 20px)"
+                }}>
                   {/* Additional content positioned absolutely below without affecting grid */}
                 </div>
               </div>
