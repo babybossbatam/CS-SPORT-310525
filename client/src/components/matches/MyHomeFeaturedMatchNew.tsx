@@ -25,6 +25,11 @@ import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
+import { 
+  getFeaturedMatchLeaguePriority, 
+  sortLeaguesForFeaturedMatch,
+  shouldExcludeFromFeaturedMatch 
+} from "@/lib/MyFeaturedMatchPriorityNew";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
@@ -34,44 +39,21 @@ interface MyHomeFeaturedMatchNewProps {
   maxMatches?: number;
 }
 
-// Specialized exclusion function for MyHomeFeaturedMatchNew
-const shouldExcludeFromFeaturedMatch = (leagueName: string, homeTeamName: string, awayTeamName: string): boolean => {
-  const lowerLeagueName = leagueName.toLowerCase();
-
-  // First priority: Explicitly exclude Tournoi Maurice Revello and its variations
-  if (lowerLeagueName.includes('tournoi maurice revello') || lowerLeagueName.includes('maurice revello') || lowerLeagueName.includes('tournoi maurice')) {
-    console.log(`🚫 [FeaturedMatch] EXPLICIT BLOCK: Tournoi Maurice Revello match excluded: ${homeTeamName} vs ${awayTeamName}`);
+// Use specialized exclusion function from the new priority system
+const shouldExcludeFromFeaturedMatchLocal = (leagueName: string, homeTeamName: string, awayTeamName: string): boolean => {
+  if (shouldExcludeFromFeaturedMatch(leagueName)) {
+    console.log(`🚫 [FeaturedMatch] EXPLICIT BLOCK: League excluded: "${leagueName}" - Match: ${homeTeamName} vs ${awayTeamName}`);
     return true;
   }
-
-  // Second priority: Exclude friendlies
-  if (lowerLeagueName === 'friendlies') {
-    console.log(`🚫 [FeaturedMatch] EXPLICIT BLOCK: Friendlies match excluded: ${homeTeamName} vs ${awayTeamName}`);
-    return true;
-  }
-
   return false;
 };
 
-// Specialized priority logic
+// Specialized priority logic using new priority system
 const getTopLeaguesForFeaturedMatch = (fixturesByCountry: any, maxLeagues: number) => {
   const POPULAR_COUNTRIES_ORDER = [
     "England", "Spain", "Italy", "Germany", "France", "World", "Europe",
     "South America", "Brazil", "Saudi Arabia", "Egypt", "Colombia",
     "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
-  ];
-
-  const POPULAR_LEAGUES = [
-    39, 45, 48, // England: Premier League, FA Cup, EFL Cup
-    140, 143, // Spain: La Liga, Copa del Rey
-    135, 137, // Italy: Serie A, Coppa Italia
-    78, 81, // Germany: Bundesliga, DFB Pokal
-    61, 66, // France: Ligue 1, Coupe de France
-    301, // UAE Pro League
-    233, // Egyptian Premier League
-    15, // FIFA Club World Cup
-    914, 848, // COSAFA Cup, UEFA Conference League
-    2, 3, // Champions League, Europa League
   ];
   
   // Filter to show only popular countries
@@ -105,194 +87,26 @@ const getTopLeaguesForFeaturedMatch = (fixturesByCountry: any, maxLeagues: numbe
     }))
   );
 
-  // Sort leagues using specialized priority logic
-  const sortedLeagues = allLeaguesFlat.sort((a: any, b: any) => {
-    const getLeaguePriority = (leagueData: any) => {
-      const name = (leagueData.league?.name || "").toLowerCase();
-      const country = (leagueData.country || "").toLowerCase();
-
-      // SAFETY CHECK: Block Tournoi Maurice Revello from getting any priority
-      if (name.includes("tournoi maurice revello") || name.includes("maurice revello") || name.includes("tournoi maurice")) {
-        console.log(`🚫 [FeaturedMatch] SAFETY BLOCK: Tournoi Maurice Revello rejected in priority calculation`);
-        return 9999; // Lowest possible priority to ensure exclusion
-      }
-
-      // Check for UEFA Nations League - Women first (lowest priority)
-      const isWomensNationsLeague = name.includes("uefa nations league") && name.includes("women");
-      if (isWomensNationsLeague) return 999;
-
-      // Handle World leagues with specific priority order
-      if (country.includes("world") || country.includes("europe") || 
-          country.includes("international") || name.includes("uefa") ||
-          name.includes("fifa") || name.includes("conmebol")) {
-
-        // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
-        if (name.includes("uefa nations league") && !name.includes("women")) {
-          return 1;
-        }
-
-        // Priority 2: Friendlies (but exclude UEFA Nations League and women's matches)
-        if (name.includes("friendlies") && !name.includes("uefa nations league") && !name.includes("women")) {
-          return 2;
-        }
-
-        // Priority 3: World Cup Qualification Asia
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) {
-          return 3;
-        }
-
-        // Priority 4: World Cup Qualification CONCACAF
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) {
-          return 4;
-        }
-
-        // Priority 5: World Cup Qualification Europe
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("europe")) {
-          return 5;
-        }
-
-        // Priority 6: World Cup Qualification South America
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("south america")) {
-          return 6;
-        }
-
-        // Priority 7: Tournoi Maurice Revello
-        if (name.includes("tournoi maurice revello")) {
-          return 7;
-        }
-
-        // Priority 8: Champions League
-        if (name.includes("champions league")) {
-          return 8;
-        }
-
-        // Priority 9: Europa League
-        if (name.includes("europa league")) {
-          return 9;
-        }
-
-        // Priority 10: Conference League
-        if (name.includes("conference league")) {
-          return 10;
-        }
-
-        return 50; // Other international competitions
-      }
-
-      // Handle domestic leagues
-      if (POPULAR_LEAGUES.includes(leagueData.league?.id)) {
-        return 15; // High priority for popular domestic leagues
-      }
-
-      return 100; // Default priority for other leagues
-    };
-
-    const aPriority = getLeaguePriority(a);
-    const bPriority = getLeaguePriority(b);
-
-    // If priorities are different, sort by priority
-    if (aPriority !== bPriority) {
-      return aPriority - bPriority;
-    }
-
-    // If same priority, sort alphabetically by league name
-    const aLeagueName = a.league?.name?.toLowerCase() || "";
-    const bLeagueName = b.league?.name?.toLowerCase() || "";
-    return aLeagueName.localeCompare(bLeagueName);
-  });
+  // Use the new specialized priority system
+  const sortedLeagues = sortLeaguesForFeaturedMatch(allLeaguesFlat);
 
   return sortedLeagues.slice(0, maxLeagues);
 };
 
 const sortMatchesByFeaturedPriority = (matches: any[]) => {
   return matches.sort((a, b) => {
-    const aCountry = a.league?.country?.toLowerCase() || "";
-    const bCountry = b.league?.country?.toLowerCase() || "";
     const aLeagueName = a.league?.name?.toLowerCase() || "";
     const bLeagueName = b.league?.name?.toLowerCase() || "";
 
-    // Helper function to get league priority (based on TodayPopularLeagueNew)
-    const getLeaguePriority = (match) => {
-      const name = (match.league?.name || "").toLowerCase();
-      const country = (match.league?.country || "").toLowerCase();
-
-      // Check if it's marked as friendlies or contains friendlies in name
-      const isFriendlies = name.includes("friendlies");
-
-      // Check for UEFA Nations League - Women first (lowest priority)
-      const isWomensNationsLeague =
-        name.includes("uefa nations league") && name.includes("women");
-      if (isWomensNationsLeague) return 999; // Lowest priority
-
-      // Handle World leagues with specific priority order
-      if (country.includes("world") || country.includes("europe") || 
-          country.includes("international") || name.includes("uefa") ||
-          name.includes("fifa") || name.includes("conmebol")) {
-
-        // Priority 1: UEFA Nations League (HIGHEST PRIORITY - must come before all others)
-        if (name.includes("uefa nations league") && !name.includes("women")) {
-          return 1;
-        }
-
-        // Priority 2: Friendlies (but exclude UEFA Nations League and women's matches)
-        if (isFriendlies && !name.includes("uefa nations league") && !name.includes("women")) {
-          return 2;
-        }
-
-        // Priority 3: World Cup Qualification Asia
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) {
-          return 3;
-        }
-
-        // Priority 4: World Cup Qualification CONCACAF
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) {
-          return 4;
-        }
-
-        // Priority 5: World Cup Qualification Europe
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("europe")) {
-          return 5;
-        }
-
-        // Priority 6: World Cup Qualification South America
-        if (name.includes("world cup") && name.includes("qualification") && name.includes("south america")) {
-          return 6;
-        }
-
-        // Priority 7: Tournoi Maurice Revello
-        if (name.includes("tournoi maurice revello")) {
-          return 7;
-        }
-
-        // Priority 8: Champions League
-        if (name.includes("champions league")) {
-          return 8;
-        }
-
-        // Priority 9: Europa League
-        if (name.includes("europa league")) {
-          return 9;
-        }
-
-        // Priority 10: Conference League
-        if (name.includes("conference league")) {
-          return 10;
-        }
-
-        return 50; // Other international competitions
-      }
-
-      // Handle domestic leagues
-      const popularLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-      if (popularLeagues.includes(match.league?.id)) {
-        return 15; // High priority for top domestic leagues
-      }
-
-      return 100; // Default priority for other leagues
-    };
-
-    const aPriority = getLeaguePriority(a);
-    const bPriority = getLeaguePriority(b);
+    // Use the specialized priority system
+    const aPriority = getFeaturedMatchLeaguePriority({
+      league: a.league,
+      country: a.league?.country
+    });
+    const bPriority = getFeaturedMatchLeaguePriority({
+      league: b.league,
+      country: b.league?.country
+    });
 
     // If priorities are different, sort by priority
     if (aPriority !== bPriority) {
@@ -424,7 +238,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
 
               // Apply specialized featured match exclusion
-              if (shouldExcludeFromFeaturedMatch(
+              if (shouldExcludeFromFeaturedMatchLocal(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
                 fixture.teams?.away?.name || ''
