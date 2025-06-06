@@ -359,9 +359,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Take only the TOP 3 leagues for this date (matching TodayPopularLeagueNew behavior)
             const topLeagues = sortedLeagues.slice(0, 3);
 
-            // Get matches from each top league
+            // Get matches from each top league - only if they have matches
             for (const leagueData of topLeagues) {
               const leagueMatches = leagueData.matches || [];
+
+              // Skip leagues with no matches
+              if (leagueMatches.length === 0) {
+                continue;
+              }
 
               // Sort matches within league using TodayPopularLeague sorting
               const sortedMatches = leagueMatches.sort((a: any, b: any) => {
@@ -601,6 +606,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           }
           return isValid;
         });
+
+        // Only show slides if we have matches from the TOP 3 leagues
+        if (validMatches.length === 0) {
+          console.log("🔍 [FeaturedMatch] No matches found from TOP 3 leagues, not showing any slides");
+          setMatches([]);
+          setCurrentIndex(0);
+          setLoading(false);
+          return;
+        }
 
         console.log(
           "🔍 [FeaturedMatch] Returning TOP 3 leagues featured matches:",
