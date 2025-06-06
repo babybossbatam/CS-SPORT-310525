@@ -16,35 +16,26 @@ export interface TeamData {
 }
 
 /**
- * Generate team logo sources with improved reliability
+ * Generate team logo sources with 365scores support
  */
 export function getTeamLogoSources(team: TeamData, isNationalTeam = false): TeamLogoSource[] {
   const sources: TeamLogoSource[] = [];
   
-  // For national teams, prioritize API-Sports original logo first
-  if (isNationalTeam && team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
+  // For national teams or international competitions, prioritize 365scores
+  if (isNationalTeam && team?.id) {
     sources.push({
-      url: team.logo,
-      source: 'api-sports-original',
-      priority: 1
-    });
-  }
-  
-  // For regular teams, prioritize original logo
-  if (!isNationalTeam && team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
-    sources.push({
-      url: team.logo,
-      source: 'api-sports-original',
+      url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
+      source: '365scores',
       priority: 1
     });
   }
 
-  // For national teams, add 365scores as secondary option with ID validation
-  if (isNationalTeam && team?.id && team.id > 0) {
+  // Original team logo
+  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
     sources.push({
-      url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
-      source: '365scores',
-      priority: 2
+      url: team.logo,
+      source: 'api-sports-original',
+      priority: isNationalTeam ? 2 : 1
     });
   }
 
@@ -92,20 +83,7 @@ export function isNationalTeam(team: TeamData, league?: any): boolean {
   const leagueName = league?.name?.toLowerCase() || '';
   const country = league?.country?.toLowerCase() || '';
   
-  // Common national team names
-  const nationalTeamNames = [
-    'spain', 'france', 'england', 'germany', 'italy', 'portugal', 'brazil', 
-    'argentina', 'netherlands', 'belgium', 'croatia', 'morocco', 'japan',
-    'south korea', 'mexico', 'poland', 'denmark', 'switzerland', 'austria',
-    'czech republic', 'ukraine', 'sweden', 'wales', 'scotland', 'norway'
-  ];
-  
-  const isDirectNationalTeam = nationalTeamNames.some(name => 
-    teamName === name || teamName === `${name} national team`
-  );
-  
   return (
-    isDirectNationalTeam ||
     teamName.includes('national') ||
     teamName.includes(' u20') ||
     teamName.includes(' u21') ||
@@ -119,13 +97,12 @@ export function isNationalTeam(team: TeamData, league?: any): boolean {
     leagueName.includes('copa america') ||
     leagueName.includes('uefa') ||
     leagueName.includes('conmebol') ||
-    leagueName.includes('nations league') ||
-    leagueName.includes('friendlies')
+    leagueName.includes('nations league')
   );
 }
 
 /**
- * Create enhanced error handler for team logos with validation
+ * Create enhanced error handler for team logos
  */
 export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = false) {
   const sources = getTeamLogoSources(team, isNationalTeam);
@@ -147,23 +124,6 @@ export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = fals
     if (currentIndex < sources.length) {
       const nextSource = sources[currentIndex];
       console.log(`🔄 Team logo fallback: Trying ${nextSource.source} for ${team.name}`);
-      
-      // For national teams, skip 365scores if it's returning club logos
-      if (isNationalTeam && nextSource.source === '365scores' && team?.name) {
-        const teamName = team.name.toLowerCase();
-        // Skip 365scores for obvious national team names
-        if (teamName.includes('spain') || teamName.includes('france') || teamName.includes('england') || teamName.includes('germany')) {
-          console.log(`⚠️ Skipping 365scores for national team ${team.name} - may return club logo`);
-          currentIndex++;
-          if (currentIndex < sources.length) {
-            img.src = sources[currentIndex].url;
-          } else {
-            img.src = '/assets/fallback-logo.png';
-          }
-          return;
-        }
-      }
-      
       img.src = nextSource.url;
     } else {
       console.warn(`❌ All team logo sources failed for ${team.name}, using final fallback`);
