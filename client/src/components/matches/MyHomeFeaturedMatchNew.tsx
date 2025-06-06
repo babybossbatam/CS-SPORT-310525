@@ -1,3 +1,5 @@
+typescript
+// Correcting the positioning of team names by removing mt-4 and adjusting top.
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -833,7 +835,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                 <div className="flex items-center gap-1.5 ml-2">
                   <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-<Badge
+                  <Badge
                     variant="outline"
                     className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse"
                   >
@@ -1004,7 +1006,404 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <div
                     className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                     style={{
+                      top: "calc(50% + 3px)",
+                      left: "120px",
+                      fontSize: "1.24rem",
+                      fontWeight: "normal",
+                    }}
+                  >
+                    {currentMatch?.teams?.home?.name || "TBD"}
+                  </div>
+
+                  {/* VS circle */}
+                  <div
+                    className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                    style={{
+                      background: "#a00000",
+                      left: "calc(50% - 26px)",
+                      top: "calc(50% - 26px)",
+                      minWidth: "52px",
+                    }}
+                  >
+                    <span className="vs-text font-bold">VS</span>
+                  </div>
+
+                  {/* Away team colored bar and logo */}
+                  <div
+                    className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
+                    style={{
+                      background: getTeamColor(currentMatch.teams.away.id),
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  ></div>
+
+                  <div
+                    className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                    style={{
                       top: "calc(50% - 13px)",
+                      right: "130px",
+                      fontSize: "1.24rem",
+                      fontWeight: "normal",
+                    }}
+                  >
+                    {currentMatch?.teams?.away?.name || "Away Team"}
+                  </div>
+
+                  <img
+                    src={
+                      currentMatch?.teams?.away?.logo ||
+                      `/assets/fallback-logo.svg`
+                    }
+                    alt={currentMatch?.teams?.away?.name || "Away Team"}
+                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110"
+                    style={{
+                      cursor: "pointer",
+                      top: "calc(50% - 32px)",
+                      right: "87px",
+                      transform: "translateX(50%)",
+                      filter: "contrast(120%) brightness(110%) saturate(110%)",
+                      boxShadow: `
+                        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+                        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+                        0 4px 8px rgba(0, 0, 0, 0.3),
+                        0 8px 16px rgba(0, 0, 0, 0.15),
+                        0 0 0 2px rgba(255, 255, 255, 0.1),
+                        0 0 0 3px rgba(0, 0, 0, 0.1)
+                      `,
+                      background: `
+                        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
+                        linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%, rgba(0, 0, 0, 0.1) 100%)
+                      `,
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      position: "relative",
+                    }}
+                    onClick={handleMatchClick}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (
+                        target.src.includes("sportmonks") &&
+                        currentMatch.teams.away.logo
+                      ) {
+                        target.src = currentMatch.teams.away.logo;
+                      } else {
+                        target.src = "/assets/fallback-logo.svg";
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Match date and venue - centered below teams */}
+              <div
+                className="absolute text-center text-xs text-black font-medium"
+                style={{
+                  fontSize: "0.875rem",
+                  whiteSpace: "nowrap",
+                  overflow: "visible",
+                  textAlign: "center",
+                  position: "absolute",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  bottom: "-25px",
+                  width: "max-content",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}
+              >
+                {(() => {
+                  try {
+                    const matchDate = parseISO(
+                      currentMatch.fixture.date,
+                    );
+                    const formattedDate = format(
+                      matchDate,
+                      "EEEE, do MMM",
+                    );
+                    const timeOnly = format(matchDate, "HH:mm");
+
+                    return (
+                      <>
+                        {formattedDate} | {timeOnly}
+                        {currentMatch.fixture.venue?.name
+                          ? ` | ${currentMatch.fixture.venue.name}`
+                          : ""}
+                      </>
+                    );
+                  } catch (e) {
+                    return currentMatch.fixture.venue?.name || "";
+                  }
+                })()}
+              </div>
+            </div>
+
+            {/* Bottom navigation */}
+            <div className="flex justify-around border-t border-gray-200 pt-4">
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/MatchDetail.svg"
+                  alt="Match Page"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Match Page
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/lineups`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/lineups.svg"
+                  alt="Lineups"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Lineups
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/h2h`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/stats.svg"
+                  alt="H2H"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  H2H
+                </span>
+              </button>
+              <button
+                className="flex flex-col items-center cursor-pointer w-1/4"
+                onClick={() =>
+                  currentMatch?.fixture?.id &&
+                  navigate(`/match/${currentMatch.fixture.id}/standings`)
+                }
+              >
+                <img
+                  src="/assets/matchdetaillogo/standings.svg"
+                  alt="Standings"
+                  width="18"
+                  height="18"
+                  className="text-gray-600"
+                />
+                <span className="text-[0.75rem] text-gray-600 mt-1">
+                  Standings
+                </span>
+              </button>
+            </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation dots */}
+      {matches.length > 1 && (
+        <div className="flex justify-center gap-2 py-2 mt-2">
+          {matches.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                index === currentIndex ? "bg-black" : "bg-gray-300"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+};
+
+export default MyFeaturedMatchSlide;
+                    variant="outline"
+                    className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse"
+                  >
+                    LIVE
+                  </Badge>
+                </div>
+              ) : (
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
+                    getMatchStatusLabel(currentMatch) === "FINISHED"
+                      ? "border-gray-500 text-gray-500"
+                      : "border-blue-500 text-blue-500"
+                  }`}
+                >
+                  {getMatchStatusLabel(currentMatch)}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Score display for live and finished matches using grid */}
+          {currentMatch?.fixture?.status?.short &&
+            (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+              currentMatch.fixture.status.short,
+            )) && (
+              <div className="match-score-container">
+                {/* Score using grid display - moved to top */}
+                <div className="match-score-display">
+                  <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
+                  <span className="score-separator">-</span>
+                  <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
+                </div>
+
+                {/* Match status label positioned below score */}
+                <div className="match-status-label status-live">
+                  {(() => {
+                    const status = currentMatch?.fixture?.status?.short;
+                    const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                    // Live matches - show elapsed time
+                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                      if (status === "HT") {
+                        return "HT";
+                      }
+                      return `${elapsed || 0}'`;
+                    }
+
+                    // Finished matches
+                    if (status === "FT") return "Ended";
+                    if (status === "AET") return "After Extra Time";
+                    if (status === "PEN") return "After Penalties";
+                    if (status === "AWD") return "Awarded";
+                    if (status === "WO") return "Walkover";
+                    if (status === "ABD") return "Abandoned";
+                    if (status === "CANC") return "Cancelled";
+                    if (status === "SUSP") return "Suspended";
+
+                    // Half time
+                    if (status === "HT") return "Half Time";
+
+                    // Upcoming matches
+                    if (status === "NS") return "Upcoming";
+                    if (status === "TBD") return "Time TBD";
+                    if (status === "PST") return "Postponed";
+
+                    // Default
+                    return status || "Upcoming";
+                  })()}
+                </div>
+              </div>
+            )}
+
+          {/* Match status for matches without scores using grid */}
+          {currentMatch?.fixture?.status?.short &&
+            !(["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+              currentMatch.fixture.status.short,
+            )) && (
+              <div className="match-score-container">
+                <div className="match-time-display">
+                  {(() => {
+                    const status = currentMatch?.fixture?.status?.short;
+                    const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                    // Live matches - show elapsed time
+                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                      if (status === "HT") {
+                        return "HT";
+                      }
+                      return `${elapsed || 0}'`;
+                    }
+
+                    // Finished matches
+                    if (status === "FT") return "Ended";
+                    if (status === "AET") return "After Extra Time";
+                    if (status === "PEN") return "After Penalties";
+                    if (status === "AWD") return "Awarded";
+                    if (status === "WO") return "Walkover";
+                    if (status === "ABD") return "Abandoned";
+                    if (status === "CANC") return "Cancelled";
+                    if (status === "SUSP") return "Suspended";
+
+                    // Half time
+                    if (status === "HT") return "Half Time";
+
+                    // Upcoming matches
+                    if (status === "NS") return "Upcoming";
+                    if (status === "TBD") return "Time TBD";
+                    if (status === "PST") return "Postponed";
+
+                    // Default
+                    return status || "Upcoming";
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Team scoreboard with colored bars */}
+            <div className="relative">
+              <div
+                className="flex relative h-[53px] rounded-md mb-8"
+                onClick={handleMatchClick}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="w-full h-full flex justify-between relative">
+                  {/* Home team colored bar and logo */}
+                  <div
+                    className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                    style={{
+                      background: getTeamColor(
+                        currentMatch?.teams?.home?.id || 0,
+                      ),
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  >
+                    {currentMatch?.teams?.home && (
+                      <img
+                        src={
+                          currentMatch.teams.home.logo ||
+                          `/assets/fallback-logo.svg`
+                        }
+                        alt={currentMatch.teams.home.name || "Home Team"}
+                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                        style={{
+                          cursor: "pointer",
+                          top: "calc(50% - 32px)",
+                          left: "-32px",
+                          filter: "contrast(115%) brightness(105%)",
+                        }}
+                        onClick={handleMatchClick}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (
+                            target.src.includes("sportmonks") &&
+                            currentMatch.teams.home.logo
+                          ) {
+                            target.src = currentMatch.teams.home.logo;
+                          } else if (
+                            target.src !== "/assets/fallback-logo.svg"
+                          ) {
+                            target.src = "/assets/fallback-logo.svg";
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  <div
+                    className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                    style={{
+                      top: "calc(50% + 3px)",
                       left: "120px",
                       fontSize: "1.24rem",
                       fontWeight: "normal",
