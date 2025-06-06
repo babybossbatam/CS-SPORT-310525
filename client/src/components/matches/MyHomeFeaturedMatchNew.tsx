@@ -128,15 +128,43 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply MyFeaturedMatchExclusion (but be less restrictive)
+              // Apply enhanced MyFeaturedMatchExclusion for top 3 priority matches only
               const shouldExclude = shouldExcludeFeaturedMatch(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
                 fixture.teams?.away?.name || ''
               );
               
-              // Only exclude if it's a very low quality match and we have other options
-              if (shouldExclude && allFixtures.length > 50) {
+              // Always exclude low quality matches for featured display
+              if (shouldExclude) {
+                return false;
+              }
+
+              // Additional featured match filtering - only allow top 3 priority international competitions
+              const leagueName = fixture.league?.name?.toLowerCase() || '';
+              const country = fixture.league?.country?.toLowerCase() || '';
+              
+              // If it's an international competition, only allow top 3 priorities
+              if (country.includes("world") || country.includes("europe") || 
+                  country.includes("international") || leagueName.includes("uefa") ||
+                  leagueName.includes("fifa") || leagueName.includes("conmebol")) {
+                
+                // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
+                if (leagueName.includes("uefa nations league") && !leagueName.includes("women")) {
+                  return true;
+                }
+
+                // Priority 2: Champions League
+                if (leagueName.includes("champions league") && !leagueName.includes("women")) {
+                  return true;
+                }
+
+                // Priority 3: Europa League  
+                if (leagueName.includes("europa league") && !leagueName.includes("women")) {
+                  return true;
+                }
+
+                // Exclude all other international competitions (including World Cup Qualification)
                 return false;
               }
 
