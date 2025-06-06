@@ -855,50 +855,97 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           </div>
 
-          {/* Match status */}
-          {(() => {
-            const status = currentMatch?.fixture?.status?.short;
-            const elapsed = currentMatch?.fixture?.status?.elapsed;
-
-            // Live matches - show elapsed time
-            if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-              if (status === "HT") {
-                return "HT";
-              }
-              return `${elapsed || 0}'`;
-            }
-
-            // Finished matches
-            if (status === "FT") return "Ended";
-            if (status === "AET") return "After Extra Time";
-            if (status === "PEN") return "After Penalties";
-            if (status === "AWD") return "Awarded";
-            if (status === "WO") return "Walkover";
-            if (status === "ABD") return "Abandoned";
-            if (status === "CANC") return "Cancelled";
-            if (status === "SUSP") return "Suspended";
-
-            // Half time
-            if (status === "HT") return "Half Time";
-
-            // Upcoming matches
-            if (status === "NS") return "Upcoming";
-            if (status === "TBD") return "Time TBD";
-            if (status === "PST") return "Postponed";
-
-            // Default
-            return status || "Upcoming";
-          })()}
-
           {/* Score display for live and finished matches */}
           {currentMatch?.fixture?.status?.short &&
             (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
               currentMatch.fixture.status.short,
             )) && (
-              <div className="text-2xl text-black-500 font-semibold flex items-center justify-center w-full">
-                <span>{currentMatch?.goals?.home ?? 0}</span>
-                <span className="text-2xl mx-2">-</span>
-                <span>{currentMatch?.goals?.away ?? 0}</span>
+              <div className="flex flex-col items-center justify-center w-full">
+                {/* Match status above score */}
+                <div className="text-sm text-gray-600 font-medium mb-1">
+                  {(() => {
+                    const status = currentMatch?.fixture?.status?.short;
+                    const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                    // Live matches - show elapsed time
+                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                      if (status === "HT") {
+                        return "HT";
+                      }
+                      return `${elapsed || 0}'`;
+                    }
+
+                    // Finished matches
+                    if (status === "FT") return "Ended";
+                    if (status === "AET") return "After Extra Time";
+                    if (status === "PEN") return "After Penalties";
+                    if (status === "AWD") return "Awarded";
+                    if (status === "WO") return "Walkover";
+                    if (status === "ABD") return "Abandoned";
+                    if (status === "CANC") return "Cancelled";
+                    if (status === "SUSP") return "Suspended";
+
+                    // Half time
+                    if (status === "HT") return "Half Time";
+
+                    // Upcoming matches
+                    if (status === "NS") return "Upcoming";
+                    if (status === "TBD") return "Time TBD";
+                    if (status === "PST") return "Postponed";
+
+                    // Default
+                    return status || "Upcoming";
+                  })()}
+                </div>
+                
+                {/* Score */}
+                <div className="text-2xl text-black-500 font-semibold flex items-center justify-center w-full">
+                  <span>{currentMatch?.goals?.home ?? 0}</span>
+                  <span className="text-2xl mx-2">-</span>
+                  <span>{currentMatch?.goals?.away ?? 0}</span>
+                </div>
+              </div>
+            )}
+
+          {/* Match status for matches without scores */}
+          {currentMatch?.fixture?.status?.short &&
+            !(["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+              currentMatch.fixture.status.short,
+            )) && (
+              <div className="text-center text-gray-600 font-medium">
+                {(() => {
+                  const status = currentMatch?.fixture?.status?.short;
+                  const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                  // Live matches - show elapsed time
+                  if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                    if (status === "HT") {
+                      return "HT";
+                    }
+                    return `${elapsed || 0}'`;
+                  }
+
+                  // Finished matches
+                  if (status === "FT") return "Ended";
+                  if (status === "AET") return "After Extra Time";
+                  if (status === "PEN") return "After Penalties";
+                  if (status === "AWD") return "Awarded";
+                  if (status === "WO") return "Walkover";
+                  if (status === "ABD") return "Abandoned";
+                  if (status === "CANC") return "Cancelled";
+                  if (status === "SUSP") return "Suspended";
+
+                  // Half time
+                  if (status === "HT") return "Half Time";
+
+                  // Upcoming matches
+                  if (status === "NS") return "Upcoming";
+                  if (status === "TBD") return "Time TBD";
+                  if (status === "PST") return "Postponed";
+
+                  // Default
+                  return status || "Upcoming";
+                })()}
               </div>
             )}
 
