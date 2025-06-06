@@ -82,8 +82,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const allFeaturedMatches = [];
 
-        // Track seen matches to avoid duplicates
+        // Track seen matches to avoid duplicates - now considering fixture ID and date
         const seenMatches = new Set<string>();
+        const seenTeamPairs = new Set<string>();
         const addedMatches = new Map<string, number>(); // Track how many matches per date
 
         // Fetch matches for today, tomorrow, and day after tomorrow
@@ -146,7 +147,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return aDate.getTime() - bDate.getTime();
             });
 
-            // Filter out duplicates and take unique matches
+            // Filter out duplicates using multiple strategies
             const uniqueMatches = [];
             let addedForThisDate = 0;
             const maxMatchesPerDate = 3;
@@ -154,21 +155,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             for (const match of sortedMatches) {
               if (addedForThisDate >= maxMatchesPerDate) break;
 
-              // Create a unique identifier for the match
-              const matchKey = `${match.teams.home.name}-vs-${match.teams.away.name}-${match.league.name}`;
+              // Create multiple unique identifiers to catch different types of duplicates
+              const fixtureKey = `fixture-${match.fixture.id}`;
+              const teamPairKey = `${match.teams.home.name}-vs-${match.teams.away.name}`;
+              const reverseTeamPairKey = `${match.teams.away.name}-vs-${match.teams.home.name}`;
+              const dateTeamKey = `${date}-${teamPairKey}`;
               
-              // Check if this exact match already exists
-              if (!seenMatches.has(matchKey)) {
-                seenMatches.add(matchKey);
+              // Check multiple conditions for duplicates
+              const isFixtureDuplicate = seenMatches.has(fixtureKey);
+              const isTeamPairDuplicate = seenTeamPairs.has(teamPairKey) || seenTeamPairs.has(reverseTeamPairKey);
+              
+              if (!isFixtureDuplicate && !isTeamPairDuplicate) {
+                // Add to all tracking sets
+                seenMatches.add(fixtureKey);
+                seenMatches.add(dateTeamKey);
+                seenTeamPairs.add(teamPairKey);
+                
                 uniqueMatches.push(match);
                 addedForThisDate++;
+                
+                console.log(`✅ [FeaturedMatch] Added unique match: ${teamPairKey} (Fixture ID: ${match.fixture.id})`);
               } else {
-                console.log(`🔍 [FeaturedMatch] Skipping duplicate match: ${matchKey}`);
+                console.log(`🔍 [FeaturedMatch] Skipping duplicate match: ${teamPairKey} (Fixture ID: ${match.fixture.id})`);
               }
             }
 
             console.log(`🔍 [FeaturedMatch] Taking ${uniqueMatches.length} unique matches from ${label}:`, 
-              uniqueMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
+              uniqueMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id})`));
 
             addedMatches.set(date, uniqueMatches.length);
             allFeaturedMatches.push(...uniqueMatches);
@@ -180,16 +193,36 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         console.log(`🔍 [FeaturedMatch] Matches added per date:`, Object.fromEntries(addedMatches));
 
-        // Remove any remaining duplicates (extra safety check)
+        // Enhanced final duplicate removal with fixture ID priority
         const finalUniqueMatches = [];
-        const finalSeenMatches = new Set<string>();
+        const finalSeenFixtures = new Set<number>();
+        const finalSeenTeamPairs = new Set<string>();
+
+        console.log(`🔍 [FeaturedMatch] Starting final duplicate removal. Total collected: ${allFeaturedMatches.length}`);
 
         for (const match of allFeaturedMatches) {
-          const matchKey = `${match.teams.home.name}-vs-${match.teams.away.name}-${match.league.name}`;
-          if (!finalSeenMatches.has(matchKey)) {
-            finalSeenMatches.add(matchKey);
-            finalUniqueMatches.push(match);
+          const fixtureId = match.fixture.id;
+          const teamPairKey = `${match.teams.home.name}-vs-${match.teams.away.name}`;
+          const reverseTeamPairKey = `${match.teams.away.name}-vs-${match.teams.home.name}`;
+          
+          // Check for fixture ID duplicate (most reliable)
+          if (finalSeenFixtures.has(fixtureId)) {
+            console.log(`🚫 [FeaturedMatch] Removed duplicate by fixture ID: ${teamPairKey} (ID: ${fixtureId})`);
+            continue;
           }
+          
+          // Check for team pair duplicate
+          if (finalSeenTeamPairs.has(teamPairKey) || finalSeenTeamPairs.has(reverseTeamPairKey)) {
+            console.log(`🚫 [FeaturedMatch] Removed duplicate by team pair: ${teamPairKey} (ID: ${fixtureId})`);
+            continue;
+          }
+          
+          // This is a unique match
+          finalSeenFixtures.add(fixtureId);
+          finalSeenTeamPairs.add(teamPairKey);
+          finalUniqueMatches.push(match);
+          
+          console.log(`✅ [FeaturedMatch] Kept unique match: ${teamPairKey} (ID: ${fixtureId}, League: ${match.league.name})`);
         }
 
         // Final sort to prioritize variety while maintaining status priority
