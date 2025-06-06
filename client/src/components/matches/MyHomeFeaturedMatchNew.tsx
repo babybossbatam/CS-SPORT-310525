@@ -167,7 +167,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const league = fixture.league;
               const country = league.country?.toLowerCase() || "";
               const leagueId = league.id;
-              const leagueName = league.name?.toLowerCase() || "";
 
               // Check if it's a popular league
               const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
