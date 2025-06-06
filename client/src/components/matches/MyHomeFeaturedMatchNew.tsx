@@ -972,10 +972,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     {currentMatch?.teams?.home && (
                       <img
                         src={
-                          currentMatch.teams.home.id
-                            ? `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v1/Competitors/${currentMatch.teams.home.id}`
-                            : currentMatch.teams.home.logo ||
-                              `/assets/fallback-logo.svg`
+                          currentMatch.teams.home.logo ||
+                          `/assets/fallback-logo.svg`
                         }
                         alt={currentMatch.teams.home.name || "Home Team"}
                         className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
@@ -989,7 +987,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         onError={(e) => {
                           const target = e.currentTarget;
                           if (
-                            target.src.includes("365scores") &&
+                            target.src.includes("sportmonks") &&
                             currentMatch.teams.home.logo
                           ) {
                             target.src = currentMatch.teams.home.logo;
@@ -1051,10 +1049,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   <img
                     src={
-                      currentMatch?.teams?.away?.id
-                        ? `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v1/Competitors/${currentMatch.teams.away.id}`
-                        : currentMatch?.teams?.away?.logo ||
-                          `/assets/fallback-logo.svg`
+                      currentMatch?.teams?.away?.logo ||
+                      `/assets/fallback-logo.svg`
                     }
                     alt={currentMatch?.teams?.away?.name || "Away Team"}
                     className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
@@ -1067,15 +1063,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {
-                      const target = e.currentTarget;
-                      if (
-                        target.src.includes("365scores") &&
-                        currentMatch.teams.away.logo
-                      ) {
-                        target.src = currentMatch.teams.away.logo;
-                      } else {
-                        target.src = "/assets/fallback-logo.svg";
-                      }
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
                     }}
                   />
                 </div>
