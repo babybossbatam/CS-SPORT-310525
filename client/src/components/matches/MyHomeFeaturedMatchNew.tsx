@@ -189,12 +189,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 leagueName.includes("copa sudamericana") ||
                 leagueName.includes("libertadores") ||
                 leagueName.includes("sudamericana") ||
-                // Men's International Friendlies (excludes women's)
-                (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
-                (leagueName.includes("international") && !leagueName.includes("women")) ||
-                country.includes("world") ||
-                country.includes("europe") ||
-                country.includes("international");
+                // Other international competitions (but exclude friendlies and women's)
+                (leagueName.includes("international") && !leagueName.includes("women") && !leagueName.includes("friendlies")) ||
+                (country.includes("world") && !leagueName.includes("friendlies")) ||
+                (country.includes("europe") && !leagueName.includes("friendlies")) ||
+                (country.includes("international") && !leagueName.includes("friendlies"));
 
               return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
             });
