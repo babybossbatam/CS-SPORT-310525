@@ -25,6 +25,7 @@ import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
+import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
@@ -103,11 +104,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates",
         ];
 
-        // Fetch matches for today, tomorrow, and day after tomorrow (top 3 leagues each)
+        // Fetch matches for today, tomorrow, and day after tomorrow (TOP 3 leagues each)
         const datesToFetch = [
-          { date: todayString, maxLeagues: 3, maxMatches: 2 },
-          { date: tomorrowString, maxLeagues: 3, maxMatches: 2 },
-          { date: dayAfterTomorrowString, maxLeagues: 3, maxMatches: 2 },
+          { date: todayString, maxLeagues: 3, maxMatches: 1 },
+          { date: tomorrowString, maxLeagues: 3, maxMatches: 1 },
+          { date: dayAfterTomorrowString, maxLeagues: 3, maxMatches: 1 },
         ];
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
@@ -122,17 +123,18 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               `🔍 [FeaturedMatch] Found ${allFixtures.length} fixtures for ${date}`,
             );
 
-            // Apply TodayPopularLeague filtering logic
+            // Apply TodayPopularLeagueNew filtering logic with exclusions
             const filteredFixtures = allFixtures.filter((fixture) => {
               if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
                 return false;
               }
 
-              // Apply MyFeaturedMatchExclusion - this will filter out World Cup Qualification Asia and CONCACAF
-              if (shouldExcludeFeaturedMatch(
+              // Apply TodayPopularLeagueNew exclusion filters FIRST
+              if (shouldExcludeFromPopularLeagues(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
-                fixture.teams?.away?.name || ''
+                fixture.teams?.away?.name || '',
+                fixture.league?.country
               )) {
                 return false;
               }
@@ -169,21 +171,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 (popularCountry) => country.includes(popularCountry.toLowerCase()),
               );
 
-              // Check if it's an international competition
+              // Check if it's an international competition (after exclusion check)
               const isInternationalCompetition =
+                // UEFA competitions (but women's already excluded above)
                 leagueName.includes("champions league") ||
                 leagueName.includes("europa league") ||
                 leagueName.includes("conference league") ||
                 leagueName.includes("uefa") ||
+                // FIFA competitions
                 leagueName.includes("world cup") ||
                 leagueName.includes("fifa club world cup") ||
                 leagueName.includes("fifa") ||
+                // CONMEBOL competitions
                 leagueName.includes("conmebol") ||
                 leagueName.includes("copa america") ||
                 leagueName.includes("copa libertadores") ||
                 leagueName.includes("copa sudamericana") ||
                 leagueName.includes("libertadores") ||
                 leagueName.includes("sudamericana") ||
+                // Men's International Friendlies (excludes women's)
                 (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
                 (leagueName.includes("international") && !leagueName.includes("women")) ||
                 country.includes("world") ||
@@ -346,8 +352,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return aLeagueName.localeCompare(bLeagueName);
             });
 
-            // Take only the top 3 leagues for this date
-            const topLeagues = sortedLeagues.slice(0, maxLeagues);
+            // Take only the TOP 3 leagues for this date (matching TodayPopularLeagueNew behavior)
+            const topLeagues = sortedLeagues.slice(0, 3);
 
             // Get matches from each top league
             for (const leagueData of topLeagues) {
@@ -593,12 +599,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
 
         console.log(
-          "🔍 [FeaturedMatch] Returning",
+          "🔍 [FeaturedMatch] Returning TOP 3 leagues featured matches:",
           validMatches.length,
-          "featured matches:",
+          "matches:",
           {
             matches: validMatches.map((m) => ({
               league: m.league?.name || "Unknown League",
+              country: m.league?.country || "Unknown Country",
               homeTeam: m.teams?.home?.name || "Unknown Home",
               awayTeam: m.teams?.away?.name || "Unknown Away",
               status:
