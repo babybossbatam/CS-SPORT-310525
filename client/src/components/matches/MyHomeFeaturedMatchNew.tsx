@@ -562,35 +562,81 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           }
         }
 
-        // Simple sorting: Live matches first, then by match status and time
+        // Apply EXACT same sorting logic as TodayPopularLeagueNew for consistency
         const sortedFeaturedMatches = featuredMatches.sort((a, b) => {
           const aStatus = a.fixture?.status?.short;
           const bStatus = b.fixture?.status?.short;
+          const aDate = parseISO(a.fixture?.date);
+          const bDate = parseISO(b.fixture?.date);
 
-          // Live matches first
-          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(aStatus);
-          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(bStatus);
+          // Ensure valid dates
+          if (!isValid(aDate) || !isValid(bDate)) {
+            return 0;
+          }
 
-          if (aIsLive && !bIsLive) return -1;
-          if (!aIsLive && bIsLive) return 1;
+          const aTime = aDate.getTime();
+          const bTime = bDate.getTime();
 
-          // Recent finished matches
-          const now = new Date();
-          const aDate = new Date(a.fixture?.date);
-          const bDate = new Date(b.fixture?.date);
+          // Define status categories - SAME as TodayPopularLeagueNew
+          const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+          const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
 
-          const aIsRecentFinished =
-            ["FT", "AET", "PEN"].includes(aStatus) &&
-            now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
-          const bIsRecentFinished =
-            ["FT", "AET", "PEN"].includes(bStatus) &&
-            now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
+          const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+          const bUpcoming = bStatus === "NS" || bStatus === "TBD";
 
-          if (aIsRecentFinished && !bIsRecentFinished) return -1;
-          if (!aIsRecentFinished && bIsRecentFinished) return 1;
+          const aFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
+          const bFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
 
-          // Sort by match time (earliest first)
-          return aDate.getTime() - bDate.getTime();
+          // PRIORITY 1: LIVE matches always come first
+          if (aLive && !bLive) return -1;
+          if (!aLive && bLive) return 1;
+
+          // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
+          if (aLive && bLive) {
+            const aElapsed = Number(a.fixture?.status?.elapsed) || 0;
+            const bElapsed = Number(b.fixture?.status?.elapsed) || 0;
+
+            if (aElapsed !== bElapsed) {
+              return aElapsed - bElapsed;
+            }
+
+            // If same elapsed time, sort alphabetically by home team name
+            const aHomeTeam = a.teams?.home?.name || "";
+            const bHomeTeam = b.teams?.home?.name || "";
+            return aHomeTeam.localeCompare(bHomeTeam);
+          }
+
+          // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically by home team
+          if (aUpcoming && !bUpcoming) return -1;
+          if (!aUpcoming && bUpcoming) return 1;
+
+          // If both are upcoming, sort by time first, then alphabetically by home team
+          if (aUpcoming && bUpcoming) {
+            if (aTime !== bTime) {
+              return aTime - bTime; // Earlier matches first
+            }
+
+            // If same time, sort alphabetically by home team name
+            const aHomeTeam = a.teams?.home?.name || "";
+            const bHomeTeam = b.teams?.home?.name || "";
+            return aHomeTeam.localeCompare(bHomeTeam);
+          }
+
+          // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
+          if (aFinished && !bFinished) return 1;
+          if (!aFinished && bFinished) return -1;
+
+          // If both are finished, sort alphabetically by home team name
+          if (aFinished && bFinished) {
+            const aHomeTeam = a.teams?.home?.name || "";
+            const bHomeTeam = b.teams?.home?.name || "";
+            return aHomeTeam.localeCompare(bHomeTeam);
+          }
+
+          // DEFAULT: For any other cases, sort alphabetically by home team name
+          const aHomeTeam = a.teams?.home?.name || "";
+          const bHomeTeam = b.teams?.home?.name || "";
+          return aHomeTeam.localeCompare(bHomeTeam);
         });
 
         // Take only 6 total matches for the slide
