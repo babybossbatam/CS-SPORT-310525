@@ -188,7 +188,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
 
               const league = fixture.league;
-              const country = league.country?.toLowerCase() || "";
+              const fixtureCountry = league.country?.toLowerCase() || "";
               const leagueId = league.id;
               const leagueName = league.name?.toLowerCase() || "";
 
