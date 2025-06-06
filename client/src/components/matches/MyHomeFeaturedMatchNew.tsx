@@ -981,7 +981,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
                           left: "-32px",
-                          filter: "contrast(115%) brightness(105%) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3))",
+                          filter: "contrast(115%) brightness(105%) drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))",
                         }}
                         onClick={handleMatchClick}
                         onError={(e) => {
@@ -1059,7 +1059,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       top: "calc(50% - 32px)",
                       right: "87px",
                       transform: "translateX(50%)",
-                      filter: "contrast(115%) brightness(105%) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3))",
+                      filter: "contrast(115%) brightness(105%) drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))",
                     }}
                     onClick={handleMatchClick}
                     onError={(e) => {
