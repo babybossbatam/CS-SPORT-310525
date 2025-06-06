@@ -1644,10 +1644,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             <div className="text-sm font-medium text-gray-900">
                                               {format(fixtureDate, "HH:mm")}
                                             </div>
-                                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                              <span className="text-gray-600 bg-white px-1 rounded">
-                                                {statusText}
-                                              </span>
+                                            <div className="match-status-label status-postponed">
+                                              {statusText}
                                             </div>
                                           </div>
                                         );
@@ -1685,10 +1683,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-xs font-semibold">
-                                            <span className="text-red-600 bg-white px-1 rounded">
-                                              {statusText}
-                                            </span>
+                                          <div className="match-status-label status-postponed">
+                                            {statusText}
                                           </div>
                                         </div>
                                       );
