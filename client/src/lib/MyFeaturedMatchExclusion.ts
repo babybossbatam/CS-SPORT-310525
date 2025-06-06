@@ -38,7 +38,11 @@ export const lowerTierLeagueTerms = [
   // Specific lower-tier indicators
   'segunda b', 'tercera', 'cuarta',
   'division 3', 'division 4', 'division 5',
-  'liga regional', 'liga provincial'
+  'liga regional', 'liga provincial',
+  
+  // World Cup qualifications (less prestigious than main tournaments)
+  'world cup - qualification asia',
+  'world cup - qualification concacaf'
 ];
 
 // Teams that should be excluded from featured matches (reserve teams, etc.)
