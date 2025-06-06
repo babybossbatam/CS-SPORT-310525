@@ -400,6 +400,15 @@
   background-color: white !important;
 }
 
+/* Status label hover effects to match card background */
+.match-card-container:hover .match-status-label {
+  background-color: rgb(249 250 251) !important;
+}
+
+.match-card-container.disable-hover .match-status-label {
+  background-color: white !important;
+}
+
 /* Collapse and expand animations for league sections */
 .league-section {
   transition: all 0.3s ease-in-out;
