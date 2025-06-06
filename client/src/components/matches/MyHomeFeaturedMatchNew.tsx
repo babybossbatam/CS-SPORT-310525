@@ -859,7 +859,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Match time/status and score display */}
             <div
               className="h-[98px] flex flex-col justify-center"
-              style={{ marginBottom: "-5px" }}
             >
               {/* Match status */}
               <div className="text-center text-black"
