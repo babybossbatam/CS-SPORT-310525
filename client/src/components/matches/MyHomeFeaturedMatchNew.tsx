@@ -367,35 +367,58 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           }
         }
 
-        // Simple sorting: Live matches first, then by match status and time
+        // Priority-based sorting: LIVE matches first, then recent finished matches, then upcoming matches
         const sortedFeaturedMatches = featuredMatches.sort((a, b) => {
           const aStatus = a.fixture?.status?.short;
           const bStatus = b.fixture?.status?.short;
-
-          // Live matches first
-          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(aStatus);
-          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(bStatus);
-
-          if (aIsLive && !bIsLive) return -1;
-          if (!aIsLive && bIsLive) return 1;
-
-          // Recent finished matches
           const now = new Date();
           const aDate = new Date(a.fixture?.date);
           const bDate = new Date(b.fixture?.date);
 
-          const aIsRecentFinished =
-            ["FT", "AET", "PEN"].includes(aStatus) &&
+          // PRIORITY 1: LIVE matches always come first
+          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(aStatus);
+          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(bStatus);
+
+          if (aIsLive && !bIsLive) return -1;
+          if (!aIsLive && bIsLive) return 1;
+
+          // If both are live, sort by elapsed time (most progressed first)
+          if (aIsLive && bIsLive) {
+            const aElapsed = Number(a.fixture?.status?.elapsed) || 0;
+            const bElapsed = Number(b.fixture?.status?.elapsed) || 0;
+            return bElapsed - aElapsed; // Higher elapsed time first (more exciting)
+          }
+
+          // PRIORITY 2: Recent finished matches (within last 6 hours)
+          const aIsRecentFinished = 
+            ["FT", "AET", "PEN", "AWD", "WO"].includes(aStatus) &&
             now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
-          const bIsRecentFinished =
-            ["FT", "AET", "PEN"].includes(bStatus) &&
+          const bIsRecentFinished = 
+            ["FT", "AET", "PEN", "AWD", "WO"].includes(bStatus) &&
             now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
 
           if (aIsRecentFinished && !bIsRecentFinished) return -1;
           if (!aIsRecentFinished && bIsRecentFinished) return 1;
 
-          // Sort by match time (earliest first)
-          return aDate.getTime() - bDate.getTime();
+          // If both are recent finished, sort by most recent first
+          if (aIsRecentFinished && bIsRecentFinished) {
+            return bDate.getTime() - aDate.getTime(); // Most recent first
+          }
+
+          // PRIORITY 3: Upcoming matches
+          const aIsUpcoming = ["NS", "TBD", "PST"].includes(aStatus);
+          const bIsUpcoming = ["NS", "TBD", "PST"].includes(bStatus);
+
+          if (aIsUpcoming && !bIsUpcoming) return -1;
+          if (!aIsUpcoming && bIsUpcoming) return 1;
+
+          // If both are upcoming, sort by earliest match time first
+          if (aIsUpcoming && bIsUpcoming) {
+            return aDate.getTime() - bDate.getTime(); // Earliest upcoming first
+          }
+
+          // FALLBACK: All other matches (old finished matches, etc.) - sort by most recent
+          return bDate.getTime() - aDate.getTime();
         });
 
         // Take only 6 total matches for the slide
@@ -438,24 +461,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         console.log(
           "🔍 [FeaturedMatch] Returning matches from TodayPopularLeagueNew data:",
           validMatches.length,
-          "matches:",
+          "matches (Priority: 1=LIVE, 2=Recent, 3=Upcoming):",
           {
             distribution: matchesByDay,
-            matches: validMatches.map((m) => ({
-              league: m.league?.name || "Unknown League",
-              leagueId: m.league?.id || "Unknown ID",
-              homeTeam: m.teams?.home?.name || "Unknown Home",
-              awayTeam: m.teams?.away?.name || "Unknown Away",
-              dateContext: m.dateContext || "Unknown Date",
-              status:
-                m.fixture?.status?.short === "NS"
-                  ? "UPCOMING"
-                  : ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(
-                        m.fixture?.status?.short,
-                      )
-                    ? "LIVE"
-                    : "FINISHED",
-            })),
+            matches: validMatches.map((m, index) => {
+              const status = m.fixture?.status?.short;
+              const isLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(status);
+              const isRecentFinished = ["FT", "AET", "PEN", "AWD", "WO"].includes(status) &&
+                new Date().getTime() - new Date(m.fixture?.date).getTime() < 6 * 60 * 60 * 1000;
+              const isUpcoming = ["NS", "TBD", "PST"].includes(status);
+              
+              let priority = 4; // Fallback
+              if (isLive) priority = 1;
+              else if (isRecentFinished) priority = 2;
+              else if (isUpcoming) priority = 3;
+
+              return {
+                index: index + 1,
+                priority: priority,
+                league: m.league?.name || "Unknown League",
+                leagueId: m.league?.id || "Unknown ID",
+                homeTeam: m.teams?.home?.name || "Unknown Home",
+                awayTeam: m.teams?.away?.name || "Unknown Away",
+                dateContext: m.dateContext || "Unknown Date",
+                status: status,
+                statusLabel: isLive ? "LIVE" : isRecentFinished ? "RECENT" : isUpcoming ? "UPCOMING" : "OTHER",
+              };
+            }),
           },
         );
 
