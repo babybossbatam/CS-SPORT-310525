@@ -1016,6 +1016,48 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               </div>
             )}
 
+            {/* Time indicator positioned above the entire scoreboard */}
+            {currentMatch?.fixture?.status?.short === "NS" && (
+              <div
+                className="absolute text-center text-xs text-black font-medium"
+                style={{
+                  fontSize: "0.875rem",
+                  whiteSpace: "nowrap",
+                  overflow: "visible",
+                  textAlign: "center",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  top: "-30px",
+                  width: "max-content",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  zIndex: 20,
+                }}
+              >
+                {(() => {
+                  try {
+                    const matchDate = parseISO(currentMatch.fixture.date);
+                    const now = new Date();
+
+                    // Calculate difference in days
+                    const msToMatch = matchDate.getTime() - now.getTime();
+                    const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
+
+                    if (daysToMatch === 0) {
+                      return "Today";
+                    } else if (daysToMatch === 1) {
+                      return "Tomorrow";
+                    } else if (daysToMatch > 1) {
+                      return `${daysToMatch} days`;
+                    } else {
+                      return ""; // Past date
+                    }
+                  } catch (e) {
+                    return "";
+                  }
+                })()}
+              </div>
+            )}
+
             {/* Team scoreboard with colored bars */}
             <div className="relative">
               <div
@@ -1023,7 +1065,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 onClick={handleMatchClick}
                 style={{ cursor: "pointer" }}
               >
-                <div className="w-full h-full flex justify-between relative">
+                <div className="w-full h-full flex justify-between relative"></div>
                   {/* Home team colored bar and logo */}
                   <div
                     className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
