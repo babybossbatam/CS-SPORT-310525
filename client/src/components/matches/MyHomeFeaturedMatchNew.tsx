@@ -860,7 +860,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
               currentMatch.fixture.status.short,
             )) && (
-              <div className="flex flex-col items-center justify-center w-full py-0">
+              <div className="flex flex-col items-center justify-center w-full">
                 {/* Match status above score */}
                 <div className="text-sm text-gray-600 font-medium mb-1">
                   {(() => {
