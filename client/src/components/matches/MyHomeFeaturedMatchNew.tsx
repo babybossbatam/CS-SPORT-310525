@@ -885,7 +885,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
                   currentMatch.fixture.status.short,
                 )) && (
-                  <div className="text-2xl text-black-500 font-bold flex items-center justify-center w-full">
+                  <div className="text-2xl text-black-500 font-semibold flex items-center justify-center w-full">
                     <span>{currentMatch?.goals?.home ?? 0}</span>
                     <span className="text-2xl mx-2">-</span>
                     <span>{currentMatch?.goals?.away ?? 0}</span>
