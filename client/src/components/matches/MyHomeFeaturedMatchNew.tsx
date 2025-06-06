@@ -948,6 +948,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     return status || "Upcoming";
                   })()}
                 </div>
+                <div className="additional-info">
+                  {/* Additional content can be added here */}
+                </div>
               </div>
             )}
 
