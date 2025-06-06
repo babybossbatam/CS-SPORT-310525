@@ -862,7 +862,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             )) && (
               <div className="match-score-container">
                 {/* Score using grid display - moved to top */}
-                <div className="match-score-display mb-4">
+                <div className="match-score-display mb-4" style={{ fontSize: "calc(1.125rem * 0.968)" }}>
                   <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
                   <span className="score-separator">-</span>
                   <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
