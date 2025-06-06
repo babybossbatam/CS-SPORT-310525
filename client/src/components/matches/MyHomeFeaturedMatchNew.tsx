@@ -1135,7 +1135,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               </div>
 
-              {/* Time indicator positioned above colored bar */}
+              {/* Time indicator positioned higher above colored bar */}
               <div
                 className="absolute text-center text-xs text-black font-medium"
                 style={{
@@ -1145,7 +1145,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   textAlign: "center",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  top: "-25px",
+                  top: "-45px",
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                   zIndex: 20,
