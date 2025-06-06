@@ -128,43 +128,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Apply enhanced MyFeaturedMatchExclusion for top 3 priority matches only
-              const shouldExclude = shouldExcludeFeaturedMatch(
+              // Apply MyFeaturedMatchExclusion
+              if (shouldExcludeFeaturedMatch(
                 fixture.league?.name || '',
                 fixture.teams?.home?.name || '',
                 fixture.teams?.away?.name || ''
-              );
-
-              // Always exclude low quality matches for featured display
-              if (shouldExclude) {
-                return false;
-              }
-
-              // Additional featured match filtering - only allow top 3 priority international competitions
-              const leagueName = fixture.league?.name?.toLowerCase() || '';
-              const leagueCountry = fixture.league?.country?.toLowerCase() || '';
-
-              // If it's an international competition, only allow top 3 priorities
-              if (leagueCountry.includes("world") || leagueCountry.includes("europe") || 
-                  leagueCountry.includes("international") || leagueName.includes("uefa") ||
-                  leagueName.includes("fifa") || leagueName.includes("conmebol")) {
-
-                // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
-                if (leagueName.includes("uefa nations league") && !leagueName.includes("women")) {
-                  return true;
-                }
-
-                // Priority 2: Champions League
-                if (leagueName.includes("champions league") && !leagueName.includes("women")) {
-                  return true;
-                }
-
-                // Priority 3: Europa League  
-                if (leagueName.includes("europa league") && !leagueName.includes("women")) {
-                  return true;
-                }
-
-                // Exclude all other international competitions (including World Cup Qualification)
+              )) {
                 return false;
               }
 
@@ -188,9 +157,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
 
               const league = fixture.league;
-              const fixtureCountry = league.country?.toLowerCase() || "";
+              const country = league.country?.toLowerCase() || "";
               const leagueId = league.id;
-              const leagueNameLower = league.name?.toLowerCase() || "";
+              const leagueName = league.name?.toLowerCase() || "";
 
               // Check if it's a popular league
               const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
@@ -202,26 +171,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               // Check if it's an international competition
               const isInternationalCompetition =
-                leagueNameLower.includes("champions league") ||
-                leagueNameLower.includes("europa league") ||
-                leagueNameLower.includes("conference league") ||
-                leagueNameLower.includes("uefa") ||
-                leagueNameLower.includes("world cup") ||
-                leagueNameLower.includes("fifa club world cup") ||
-                leagueNameLower.includes("fifa") ||
-                leagueNameLower.includes("conmebol") ||
-                leagueNameLower.includes("copa america") ||
-                leagueNameLower.includes("copa libertadores") ||
-                leagueNameLower.includes("copa sudamericana") ||
-                leagueNameLower.includes("libertadores") ||
-                leagueNameLower.includes("sudamericana") ||
-                // Men's International Friendlies (excludes women's)
-                (leagueNameLower.includes("friendlies") && !leagueNameLower.includes("women")) ||
-                (leagueNameLower.includes("international") &&
-                  !leagueNameLower.includes("women")) ||
-                fixtureCountry.includes("world") ||
-                fixtureCountry.includes("europe") ||
-                fixtureCountry.includes("international");
+                leagueName.includes("champions league") ||
+                leagueName.includes("europa league") ||
+                leagueName.includes("conference league") ||
+                leagueName.includes("uefa") ||
+                leagueName.includes("world cup") ||
+                leagueName.includes("fifa club world cup") ||
+                leagueName.includes("fifa") ||
+                leagueName.includes("conmebol") ||
+                leagueName.includes("copa america") ||
+                leagueName.includes("copa libertadores") ||
+                leagueName.includes("copa sudamericana") ||
+                leagueName.includes("libertadores") ||
+                leagueName.includes("sudamericana") ||
+                (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+                (leagueName.includes("international") && !leagueName.includes("women")) ||
+                country.includes("world") ||
+                country.includes("europe") ||
+                country.includes("international");
 
               return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
             });
@@ -381,28 +348,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             // Take only the top 2 leagues for this date
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
-
-            // More flexible quality check - only skip if ALL leagues are low quality
-            if (topLeagues.length >= 2) {
-              const topLeagueNames = topLeagues.map(league => league.league?.name?.toLowerCase() || "");
-
-              // Count how many of the top leagues are qualification tournaments
-              const qualificationCount = topLeagueNames.filter(name => {
-                const isQualificationAsia = (name.includes("world cup") && name.includes("qualification") && name.includes("asia")) ||
-                                          (name.includes("qualification") && name.includes("asia"));
-                const isQualificationCONCACAF = (name.includes("world cup") && name.includes("qualification") && name.includes("concacaf")) ||
-                                              (name.includes("qualification") && name.includes("concacaf"));
-
-                return isQualificationAsia || isQualificationCONCACAF;
-              }).length;
-
-              // Only skip if ALL top leagues are low-quality qualification tournaments
-              // Allow at least some matches to show up
-              if (qualificationCount >= topLeagues.length && topLeagues.length >= 2) {
-                console.log(`🚫 [FeaturedMatch] All ${topLeagues.length} leagues are qualification tournaments for ${date}:`, topLeagueNames);
-                // Don't skip entirely, just take fewer matches
-              }
-            }
 
             // Get matches from each top league
             for (const leagueData of topLeagues) {
@@ -630,33 +575,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
 
         // Take only the required number of matches
-        let finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
-
-        // Fallback: if no matches found, try with less restrictive criteria
-        if (finalMatches.length === 0) {
-          console.log("🔄 [FeaturedMatch] No matches found with strict criteria, trying fallback...");
-
-          // Get any popular league matches for today without strict filtering
-          try {
-            const fallbackResponse = await fetch(`/api/fixtures/date/${todayString}?all=true`);
-            if (fallbackResponse.ok) {
-              const fallbackFixtures = await fallbackResponse.json();
-
-              // Take any matches from popular leagues
-              const fallbackMatches = fallbackFixtures.filter((fixture: any) => {
-                return fixture && fixture.teams && fixture.teams.home && fixture.teams.away && 
-                       fixture.fixture && fixture.league && POPULAR_LEAGUES.includes(fixture.league.id);
-              }).slice(0, 1); // Take at least one match
-
-              if (fallbackMatches.length > 0) {
-                console.log("✅ [FeaturedMatch] Found fallback matches:", fallbackMatches.length);
-                finalMatches = fallbackMatches;
-              }
-            }
-          } catch (error) {
-            console.error("🔍 [FeaturedMatch] Fallback fetch failed:", error);
-          }
-        }
+        const finalMatches = sortedFeaturedMatches.slice(0, maxMatches);
         // Validate data structure before setting
         const validMatches = finalMatches.filter((match) => {
           const isValid =
@@ -878,7 +797,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               e.stopPropagation();
               handleNext();
             }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 rounded-full shadow-lg borderborder-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl"
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 rounded-full shadow-lg border border-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -999,31 +918,30 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   <span className="score-number">
                     {(() => {
                       const status = currentMatch?.fixture?.status?.short;
-                      const elapsed = currentMatch?.fixture?.status?.elapsed;
 
-                      // Live matches - show elapsed time
-                      if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                        if (status === "HT") {
-                          return "HT";
+                      // Upcoming matches - calculate days until match
+                      if (status === "NS") {
+                        try {
+                          const matchDate = parseISO(currentMatch.fixture.date);
+                          const now = new Date();
+
+                          // Calculate difference in days
+                          const msToMatch = matchDate.getTime() - now.getTime();
+                          const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
+
+                          if (daysToMatch === 0) {
+                            return "Today";
+                          } else if (daysToMatch === 1) {
+                            return "Tomorrow";
+                          } else if (daysToMatch > 1) {
+                            return `${daysToMatch} days`;
+                          } else {
+                            return ""; // Past date
+                          }
+                        } catch (e) {
+                          return "";
                         }
-                        return `${elapsed || 0}'`;
                       }
-
-                      // Finished matches
-                      if (status === "FT") return "Ended";
-                      if (status === "AET") return "After Extra Time";
-                      if (status === "PEN") return "After Penalties";
-                      if (status === "AWD") return "Awarded";
-                      if (status === "WO") return "Walkover";
-                      if (status === "ABD") return "Abandoned";
-                      if (status === "CANC") return "Cancelled";
-                      if (status === "SUSP") return "Suspended";
-
-                      // Half time
-                      if (status === "HT") return "Half Time";
-
-                      // Upcoming matches - hide text for NS
-                      if (status === "NS") return "";
                       if (status === "TBD") return "Time TBD";
                       if (status === "PST") return "Postponed";
 
@@ -1040,40 +958,39 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 }}>
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
+                    const elapsed = currentMatch?.fixture?.status?.elapsed;
 
-                    // Upcoming matches - calculate days until match
-                    if (status === "NS") {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        const now = new Date();
-
-                        // Calculate difference in days
-                        const msToMatch = matchDate.getTime() - now.getTime();
-                        const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-
-                        if (daysToMatch === 0) {
-                          return "Today";
-                        } else if (daysToMatch === 1) {
-                          return "Tomorrow";
-                        } else if (daysToMatch > 1) {
-                          return `${daysToMatch} days`;
-                        } else {
-                          return ""; // Past date
-                        }
-                      } catch (e) {
-                        return "";
+                    // Live matches - show elapsed time
+                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                      if (status === "HT") {
+                        return "HT";
                       }
+                      return `${elapsed || 0}'`;
                     }
+
+                    // Finished matches
+                    if (status === "FT") return "Ended";
+                    if (status === "AET") return "After Extra Time";
+                    if (status === "PEN") return "After Penalties";
+                    if (status === "AWD") return "Awarded";
+                    if (status === "WO") return "Walkover";
+                    if (status === "ABD") return "Abandoned";
+                    if (status === "CANC") return "Cancelled";
+                    if (status === "SUSP") return "Suspended";
+
+                    // Half time
+                    if (status === "HT") return "Half Time";
+
+                    // Upcoming matches
+                    if (status === "NS") return "Upcoming";
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
 
                     // Default
-                    return status || "";
+                    return status || "Upcoming";
                   })()}
                 </div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 text-xs text-gray-500" style={{
-                  bottom: "calc(100% + 20px)"
-                }}>
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-xs text-gray-500">
                   {/* Additional content positioned absolutely below without affecting grid */}
                 </div>
               </div>

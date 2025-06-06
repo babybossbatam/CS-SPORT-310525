@@ -23,16 +23,7 @@ export const featuredMatchExclusionTerms = [
   'futsal', 'indoor', 'beach', 'arena',
 
   // Esports and virtual competitions
-  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball',
-
-  // Regional exclusions for featured matches
-  'asia', 'concacaf',
-
-  // World Cup qualification exclusions (all regions for featured matches)
-  'world cup - qualification asia',
-  'world cup - qualification concacf',
-  'qualification asia',
-  'qualification concacaf'
+  'esoccer', 'e-soccer', 'esports', 'virtual', 'cyber', 'pes', 'efootball'
 ];
 
 // Lower-tier league patterns that should be excluded from featured matches
