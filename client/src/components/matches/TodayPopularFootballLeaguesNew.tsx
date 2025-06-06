@@ -1491,7 +1491,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className="team-logo"
-                                        style={{ backgroundColor: "transparent" }}
+                                        style={{ 
+                                          backgroundColor: "transparent",
+                                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                        }}
                                         fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                       <div className="gloss"></div>
@@ -1506,7 +1509,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       alt={match.teams.home.name}
                                       title={match.teams.home.name}
                                       className="team-logo"
-                                      style={{ backgroundColor: "transparent" }}
+                                      style={{ 
+                                        backgroundColor: "transparent",
+                                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                      }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
                                   )}
@@ -1724,7 +1730,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
                                         className="team-logo"
-                                        style={{ backgroundColor: "transparent" }}
+                                        style={{ 
+                                          backgroundColor: "transparent",
+                                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                        }}
                                         fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                       <div className="gloss"></div>
@@ -1739,7 +1748,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       alt={match.teams.away.name}
                                       title={match.teams.away.name}
                                       className="team-logo"
-                                      style={{ backgroundColor: "transparent" }}
+                                      style={{ 
+                                        backgroundColor: "transparent",
+                                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                      }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
                                   )}
