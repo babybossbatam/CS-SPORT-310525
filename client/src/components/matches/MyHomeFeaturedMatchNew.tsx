@@ -1108,7 +1108,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   position: "absolute",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  top: "calc(100% + 12px)",
+                  top: "calc(100% + 16px)",
                   width: "max-content",
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
