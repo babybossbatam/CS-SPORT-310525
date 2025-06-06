@@ -171,6 +171,11 @@ export function shouldExcludeFromPopularLeagues(
     return true; // Exclude UEFA Nations League Women
   }
 
+  // SECOND: Check for CONCACAF competitions - always exclude
+  if (league.includes("concacaf")) {
+    return true; // Exclude all CONCACAF competitions
+  }
+
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition =
     // UEFA competitions (but women's already excluded above)
@@ -251,7 +256,7 @@ export function isPopularLeagueSuitable(
     countryLower.includes("europe") || 
     countryLower.includes("international");
 
-  if (isMajorInternational && !league.includes("women")) {
+  if (isMajorInternational && !league.includes("women") && !league.includes("concacaf")) {
     return true;
   }
 
