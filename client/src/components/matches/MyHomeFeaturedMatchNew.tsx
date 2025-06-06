@@ -1099,7 +1099,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               {/* Match date and venue - centered below teams */}
               <div
-                className="absolute text-center text-xs text-black font-medium mt-4"
+                className="absolute text-center text-xs text-black font-medium mt-4 pt-4"
                 style={{
                   fontSize: "0.875rem",
                   whiteSpace: "nowrap",
