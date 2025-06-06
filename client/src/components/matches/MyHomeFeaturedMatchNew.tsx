@@ -47,31 +47,102 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
 
-  // TOP 3 leagues only - same as TodayPopularLeagueNew
-  const TOP_3_LEAGUES = [39, 140, 135]; // Premier League, La Liga, Serie A
+  // Get TOP 3 leagues dynamically from TodayPopularLeagueNew data
+  const getDynamicTop3Leagues = async (dateString: string) => {
+    try {
+      const response = await apiRequest('GET', `/api/fixtures/date/${dateString}?all=true`);
+      if (!response.ok) return [];
 
-  // Popular countries prioritization - same as TodayPopularLeagueNew
-  const POPULAR_COUNTRIES_ORDER = [
-    "England",
-    "Spain",
-    "Italy",
-    "Germany",
-    "France",
-    "World",
-    "Europe",
-    "South America",
-    "Brazil",
-    "Saudi Arabia",
-    "Egypt",
-    "Colombia",
-    "United States",
-    "USA",
-    "US",
-    "United Arab Emirates",
-    "United-Arab-Emirates",
-  ];
+      const allFixtures = await response.json();
+      if (!allFixtures || allFixtures.length === 0) return [];
 
-  // Fetch featured match data using EXACT same logic as TodayPopularLeagueNew
+      // Apply SAME filtering logic as TodayPopularLeagueNew
+      const POPULAR_COUNTRIES_ORDER = [
+        "England",
+        "Spain", 
+        "Italy",
+        "Germany",
+        "France",
+        "World",
+        "Europe",
+        "South America",
+        "Brazil",
+        "Saudi Arabia",
+        "Egypt",
+        "Colombia",
+        "United States",
+        "USA",
+        "US",
+        "United Arab Emirates",
+        "United-Arab-Emirates",
+      ];
+
+      // Filter fixtures EXACTLY like TodayPopularLeagueNew does
+      const filteredFixtures = allFixtures.filter((fixture) => {
+        if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+          return false;
+        }
+
+        // Apply exclusion filters first
+        if (
+          shouldExcludeFromPopularLeagues(
+            fixture.league.name,
+            fixture.teams.home.name,
+            fixture.teams.away.name,
+            fixture.league.country,
+          )
+        ) {
+          return false;
+        }
+
+        // Apply MyFeaturedMatchExclusion for additional filtering
+        if (
+          shouldExcludeFeaturedMatch(
+            fixture.league.name,
+            fixture.teams.home.name,
+            fixture.teams.away.name,
+          )
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+
+      // Group by league and count matches
+      const leagueCounts = filteredFixtures.reduce((acc: any, fixture: any) => {
+        const leagueId = fixture.league.id;
+        if (!acc[leagueId]) {
+          acc[leagueId] = {
+            leagueId,
+            leagueName: fixture.league.name,
+            country: fixture.league.country,
+            matchCount: 0,
+            league: fixture.league,
+          };
+        }
+        acc[leagueId].matchCount++;
+        return acc;
+      }, {});
+
+      // Sort leagues by match count and get top 3
+      const sortedLeagues = Object.values(leagueCounts)
+        .sort((a: any, b: any) => b.matchCount - a.matchCount)
+        .slice(0, 3);
+
+      console.log(
+        `🎯 [FeaturedMatch] Dynamic TOP 3 leagues for ${dateString}:`,
+        sortedLeagues.map((l: any) => `${l.leagueName} (${l.matchCount} matches)`),
+      );
+
+      return sortedLeagues.map((l: any) => l.leagueId);
+    } catch (error) {
+      console.error(`🔍 [FeaturedMatch] Error getting dynamic leagues for ${dateString}:`, error);
+      return [];
+    }
+  };
+
+  // Fetch featured match data using dynamic TOP 3 leagues from TodayPopularLeagueNew
   useEffect(() => {
     const loadFeaturedMatches = async () => {
       try {
@@ -108,7 +179,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const featuredMatches = [];
 
-        // Fetch matches for today, tomorrow, and day after tomorrow (TOP 3 leagues each)
+        // Fetch matches for today, tomorrow, and day after tomorrow (dynamic TOP 3 leagues each)
         const datesToFetch = [
           { date: todayString, maxLeagues: 3, maxMatches: 2 },
           { date: tomorrowString, maxLeagues: 3, maxMatches: 2 },
@@ -117,7 +188,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         for (const { date, maxLeagues, maxMatches: dateMaxMatches } of datesToFetch) {
           try {
-            const response = await apiRequest('GET', `/api/fixtures/date/${date}`);
+            // Get dynamic TOP 3 leagues for this date
+            const dynamicTop3Leagues = await getDynamicTop3Leagues(date);
+            
+            if (dynamicTop3Leagues.length === 0) {
+              console.log(`🔍 [FeaturedMatch] No dynamic TOP 3 leagues found for ${date}`);
+              continue;
+            }
+
+            const response = await apiRequest('GET', `/api/fixtures/date/${date}?all=true`);
             if (!response.ok) continue;
 
             const allFixtures = await response.json();
@@ -127,19 +206,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               `🔍 [FeaturedMatch] Found ${allFixtures.length} fixtures for ${date}`,
             );
 
-            // Filter to ONLY TOP 3 leagues - NO OTHER FILTERING
+            // Filter to ONLY dynamic TOP 3 leagues that are shown in TodayPopularLeagueNew
             const topLeagueFixtures = allFixtures.filter((fixture) => {
               if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
                 return false;
               }
 
-              // ONLY keep fixtures from TOP 3 leagues (Premier League, La Liga, Serie A)
+              // ONLY keep fixtures from dynamic TOP 3 leagues
               const leagueId = fixture.league?.id;
-              return TOP_3_LEAGUES.includes(leagueId);
+              return dynamicTop3Leagues.includes(leagueId);
             });
 
             console.log(
-              `🔍 [FeaturedMatch] Found ${topLeagueFixtures.length} TOP 3 league fixtures for ${date}`,
+              `🔍 [FeaturedMatch] Found ${topLeagueFixtures.length} dynamic TOP 3 league fixtures for ${date}`,
             );
 
             if (topLeagueFixtures.length === 0) continue;
@@ -190,14 +269,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {},
             );
 
-            // Sort leagues by TOP_3_LEAGUES order
+            // Sort leagues by dynamic TOP 3 order (by match count)
             const sortedLeagues = Object.values(fixturesByLeague).sort((a: any, b: any) => {
-              const aIndex = TOP_3_LEAGUES.indexOf(a.league.id);
-              const bIndex = TOP_3_LEAGUES.indexOf(b.league.id);
+              const aIndex = dynamicTop3Leagues.indexOf(a.league.id);
+              const bIndex = dynamicTop3Leagues.indexOf(b.league.id);
               return aIndex - bIndex;
             });
 
-            // Get matches from TOP 3 leagues only
+            // Get matches from dynamic TOP 3 leagues only
             let leagueCount = 0;
             for (const leagueData of sortedLeagues) {
               if (leagueCount >= maxLeagues) break;
@@ -358,9 +437,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return isValid;
         });
 
-        // Only show slides if we have matches from TOP 3 leagues
+        // Only show slides if we have matches from dynamic TOP 3 leagues
         if (validMatches.length === 0) {
-          console.log("🔍 [FeaturedMatch] No matches found from TOP 3 leagues");
+          console.log("🔍 [FeaturedMatch] No matches found from TodayPopularLeagueNew TOP 3 leagues");
           setMatches([]);
           setCurrentIndex(0);
           setLoading(false);
@@ -368,7 +447,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         console.log(
-          "🔍 [FeaturedMatch] Returning TOP 3 league matches only (max 6):",
+          "🔍 [FeaturedMatch] Returning matches from TodayPopularLeagueNew data (max 6):",
           validMatches.length,
           "matches:",
           {
@@ -516,7 +595,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             Loading today's featured match...
           </p>
           <p className="text-gray-400 text-sm mt-1">
-            Getting TOP 3 league matches only
+            Getting matches from TOP 3 shown leagues
           </p>
         </CardContent>
       </Card>
@@ -539,7 +618,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <p className="text-lg font-medium mb-1">
               No featured matches available
             </p>
-            <p className="text-sm">No matches from TOP 3 leagues today</p>
+            <p className="text-sm">No matches from TOP 3 shown leagues today</p>
           </div>
         </CardContent>
       </Card>
