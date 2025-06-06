@@ -861,7 +861,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               currentMatch.fixture.status.short,
             )) && (
               <div className="match-score-container">
-                {/* Match status label positioned above score */}
+                {/* Score using grid display - moved to top */}
+                <div className="match-score-display">
+                  <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
+                  <span className="score-separator">-</span>
+                  <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
+                </div>
+                
+                {/* Match status label positioned below score */}
                 <div className="match-status-label status-live">
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
@@ -896,13 +903,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Default
                     return status || "Upcoming";
                   })()}
-                </div>
-                
-                {/* Score using grid display */}
-                <div className="match-score-display">
-                  <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
-                  <span className="score-separator">-</span>
-                  <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
                 </div>
               </div>
             )}
