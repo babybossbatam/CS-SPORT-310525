@@ -110,16 +110,16 @@ export const popularLeagueExclusionTerms = [
   // Additional filtering for cleaner popular league display
   "boys",
   "kosice",
-  
+
   // Regional competitions not suitable for popular leagues
   "cosafa cup",
-  
+
   // World Cup qualification exclusions for featured matches
   "world cup - qualification asia",
   "world cup - qualification concacaf",
   "qualification asia",
   "qualification concacaf",
-  
+
   // CONCACAF competitions exclusion
   "concacaf",
 ];
@@ -258,10 +258,15 @@ export function isPopularLeagueSuitable(
     league.includes("copa libertadores") ||
     league.includes("copa sudamericana") ||
     countryLower.includes("world") ||
-    countryLower.includes("europe") || 
+    countryLower.includes("europe") ||
     countryLower.includes("international");
 
-  if (isMajorInternational && !league.includes("women") && !league.includes("concacaf") && !league.includes("asia")) {
+  if (
+    isMajorInternational &&
+    !league.includes("women") &&
+    !league.includes("concacaf") &&
+    !league.includes("asia")
+  ) {
     return true;
   }
 
