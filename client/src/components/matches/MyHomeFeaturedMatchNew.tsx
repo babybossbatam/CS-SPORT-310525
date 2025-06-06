@@ -787,7 +787,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               e.stopPropagation();
               handlePrevious();
             }}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 rounded-full shadow-lg border border-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl"
+            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 shadow-lg border border-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl overflow-hidden"
+            style={{
+              clipPath: 'circle(50% at 100% 50%)',
+              borderRadius: '50px 0 0 50px'
+            }}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -797,7 +801,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               e.stopPropagation();
               handleNext();
             }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 rounded-full shadow-lg border border-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl"
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 shadow-lg border border-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl overflow-hidden"
+            style={{
+              clipPath: 'circle(50% at 0% 50%)',
+              borderRadius: '0 50px 50px 0'
+            }}
           >
             <ChevronRight className="h-5 w-5" />
           </button>
