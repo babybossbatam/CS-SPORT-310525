@@ -957,14 +957,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
 
-                    // Upcoming matches
+                    // Upcoming matches - hide time display
                     if (status === "NS") {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        return format(matchDate, "HH:mm");
-                      } catch {
-                        return "Time TBD";
-                      }
+                      return "Upcoming";
                     }
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
