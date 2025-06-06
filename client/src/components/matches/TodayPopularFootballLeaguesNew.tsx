@@ -934,7 +934,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
-      const newStarred = new Set(prev);
+      const newStarred =new Set(prev);
       if (newStarred.has(matchId)) {
         newStarred.delete(matchId);
       } else {
