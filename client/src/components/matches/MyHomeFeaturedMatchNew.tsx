@@ -855,14 +855,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           </div>
 
-          {/* Score display for live and finished matches */}
+          {/* Score display for live and finished matches using grid */}
           {currentMatch?.fixture?.status?.short &&
             (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
               currentMatch.fixture.status.short,
             )) && (
-              <div className="flex flex-col items-center justify-center w-full">
-                {/* Match status above score */}
-                <div className="text-sm text-gray-600 font-medium mb-1">
+              <div className="match-score-container">
+                {/* Match status label positioned above score */}
+                <div className="match-status-label status-live">
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
                     const elapsed = currentMatch?.fixture?.status?.elapsed;
@@ -898,54 +898,56 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   })()}
                 </div>
                 
-                {/* Score */}
-                <div className="text-2xl text-black-500 font-semibold flex items-center justify-center w-full">
-                  <span>{currentMatch?.goals?.home ?? 0}</span>
-                  <span className="text-2xl mx-2">-</span>
-                  <span>{currentMatch?.goals?.away ?? 0}</span>
+                {/* Score using grid display */}
+                <div className="match-score-display">
+                  <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
+                  <span className="score-separator">-</span>
+                  <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
                 </div>
               </div>
             )}
 
-          {/* Match status for matches without scores */}
+          {/* Match status for matches without scores using grid */}
           {currentMatch?.fixture?.status?.short &&
             !(["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
               currentMatch.fixture.status.short,
             )) && (
-              <div className="text-center text-gray-600 font-medium">
-                {(() => {
-                  const status = currentMatch?.fixture?.status?.short;
-                  const elapsed = currentMatch?.fixture?.status?.elapsed;
+              <div className="match-score-container">
+                <div className="match-time-display">
+                  {(() => {
+                    const status = currentMatch?.fixture?.status?.short;
+                    const elapsed = currentMatch?.fixture?.status?.elapsed;
 
-                  // Live matches - show elapsed time
-                  if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                    if (status === "HT") {
-                      return "HT";
+                    // Live matches - show elapsed time
+                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                      if (status === "HT") {
+                        return "HT";
+                      }
+                      return `${elapsed || 0}'`;
                     }
-                    return `${elapsed || 0}'`;
-                  }
 
-                  // Finished matches
-                  if (status === "FT") return "Ended";
-                  if (status === "AET") return "After Extra Time";
-                  if (status === "PEN") return "After Penalties";
-                  if (status === "AWD") return "Awarded";
-                  if (status === "WO") return "Walkover";
-                  if (status === "ABD") return "Abandoned";
-                  if (status === "CANC") return "Cancelled";
-                  if (status === "SUSP") return "Suspended";
+                    // Finished matches
+                    if (status === "FT") return "Ended";
+                    if (status === "AET") return "After Extra Time";
+                    if (status === "PEN") return "After Penalties";
+                    if (status === "AWD") return "Awarded";
+                    if (status === "WO") return "Walkover";
+                    if (status === "ABD") return "Abandoned";
+                    if (status === "CANC") return "Cancelled";
+                    if (status === "SUSP") return "Suspended";
 
-                  // Half time
-                  if (status === "HT") return "Half Time";
+                    // Half time
+                    if (status === "HT") return "Half Time";
 
-                  // Upcoming matches
-                  if (status === "NS") return "Upcoming";
-                  if (status === "TBD") return "Time TBD";
-                  if (status === "PST") return "Postponed";
+                    // Upcoming matches
+                    if (status === "NS") return "Upcoming";
+                    if (status === "TBD") return "Time TBD";
+                    if (status === "PST") return "Postponed";
 
-                  // Default
-                  return status || "Upcoming";
-                })()}
+                    // Default
+                    return status || "Upcoming";
+                  })()}
+                </div>
               </div>
             )}
 
