@@ -349,6 +349,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Take only the top 2 leagues for this date
             const topLeagues = sortedLeagues.slice(0, maxLeagues);
 
+            // Check if the top 2 leagues are both Qualification Asia or CONCACAF
+            if (topLeagues.length >= 2) {
+              const topLeagueNames = topLeagues.map(league => league.league?.name?.toLowerCase() || "");
+
+              // Count how many of the top 2 are qualification tournaments
+              const qualificationCount = topLeagueNames.slice(0, 2).filter(name => {
+                const isQualificationAsia = name.includes("world cup") && name.includes("qualification") && name.includes("asia");
+                const isQualificationCONCACAF = name.includes("world cup") && name.includes("qualification") && name.includes("concacaf");
+                const isGeneralAsia = name.includes("asia") && name.includes("qualification");
+                const isGeneralCONCACAF = name.includes("concacaf") && name.includes("qualification");
+
+                return isQualificationAsia || isQualificationCONCACAF || isGeneralAsia || isGeneralCONCACAF;
+              }).length;
+
+              // If both top 2 leagues are qualification tournaments, skip this date
+              if (qualificationCount === 2) {
+                console.log(`🚫 [FeaturedMatch] Skipping ${date} - top 2 leagues are both qualification tournaments:`, topLeagueNames.slice(0, 2));
+                continue; // Skip to next date
+              }
+
+              // Also skip if we have qualification tournaments dominating (more than 50% of top leagues)
+              if (topLeagues.length >= 3 && qualificationCount >= Math.ceil(topLeagues.length * 0.6)) {
+                console.log(`🚫 [FeaturedMatch] Skipping ${date} - qualification tournaments dominating (${qualificationCount}/${topLeagues.length}):`, topLeagueNames);
+                continue; // Skip to next date
+              }
+            }
+
             // Get matches from each top league
             for (const leagueData of topLeagues) {
               const leagueMatches = leagueData.matches || [];
@@ -797,7 +824,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               e.stopPropagation();
               handleNext();
             }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 rounded-full shadow-lg border border-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl"
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 w-10 h-10 rounded-full shadow-lg borderborder-gray-200 z-40 flex items-center justify-center transition-all duration-200 hover:shadow-xl"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -965,11 +992,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       try {
                         const matchDate = parseISO(currentMatch.fixture.date);
                         const now = new Date();
-                        
+
                         // Calculate difference in days
                         const msToMatch = matchDate.getTime() - now.getTime();
                         const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-                        
+
                         if (daysToMatch === 0) {
                           return "Today";
                         } else if (daysToMatch === 1) {
