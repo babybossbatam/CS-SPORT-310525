@@ -957,15 +957,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {(() => {
                     const status = currentMatch?.fixture?.status?.short;
 
-                    // Upcoming matches - hide time display
+                    // Upcoming matches - hide display
                     if (status === "NS") {
-                      return "Upcoming";
+                      return "";
                     }
                     if (status === "TBD") return "Time TBD";
                     if (status === "PST") return "Postponed";
 
                     // Default
-                    return status || "Upcoming";
+                    return status || "";
                   })()}
                 </div>
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-xs text-gray-500">
