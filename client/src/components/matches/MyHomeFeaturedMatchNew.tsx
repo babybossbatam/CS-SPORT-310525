@@ -65,19 +65,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
-  // Get featured matches with priority-based logic
+  // Get featured matches from cached popular leagues data
   useEffect(() => {
     const getFeaturedMatches = async () => {
       try {
         setLoading(true);
 
         // Check cache first
-        const cacheKey = ["featured-matches-priority", currentDate];
-        const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
+        const cacheKey = ["featured-matches-from-popular-cache", currentDate];
+        const cachedData = CacheManager.getCachedData(cacheKey, 10 * 60 * 1000); // 10 minutes cache
 
         if (cachedData) {
           console.log(
-            "🎯 [FeaturedMatch] Using cached data:",
+            "🎯 [FeaturedMatch] Using cached featured matches:",
             cachedData.length,
             "matches",
           );
@@ -88,7 +88,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         console.log(
-          "🔍 [FeaturedMatch] Getting top priority level 1-3 matches for 3 days",
+          "🔍 [FeaturedMatch] Extracting featured matches from popular leagues cache",
         );
 
         // Get dates for today, tomorrow, and day after tomorrow
@@ -100,13 +100,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
 
         const allFeaturedMatches = [];
-
-        // Track seen matches to avoid duplicates - now considering fixture ID and date
         const seenMatches = new Set<string>();
-        const seenTeamPairs = new Set<string>();
-        const addedMatches = new Map<string, number>(); // Track how many matches per date
 
-        // Fetch matches for today, tomorrow, and day after tomorrow
+        // Fetch matches from popular leagues cache for each date
         const datesToFetch = [
           { date: todayString, label: "Today" },
           { date: tomorrowString, label: "Tomorrow" },
@@ -116,50 +112,89 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const { date, label } of datesToFetch) {
           try {
             console.log(
-              `🔍 [FeaturedMatch] Fetching ${label} matches for ${date}`,
+              `🔍 [FeaturedMatch] Getting ${label} matches from popular leagues cache for ${date}`,
             );
 
-            const response = await apiRequest(
-              "GET",
-              `/api/fixtures/date/${date}?all=true`,
+            // Try to get cached popular leagues data
+            const popularLeaguesCacheKey = ["all-fixtures-by-date", date];
+            const popularLeaguesData = CacheManager.getCachedData(
+              popularLeaguesCacheKey,
+              30 * 60 * 1000, // 30 minutes - same as popular leagues cache
             );
-            if (!response.ok) continue;
 
-            const allFixtures = await response.json();
-            if (!allFixtures || allFixtures.length === 0) continue;
+            if (!popularLeaguesData || popularLeaguesData.length === 0) {
+              console.log(
+                `🔍 [FeaturedMatch] No cached popular leagues data for ${label}, skipping`,
+              );
+              continue;
+            }
 
-            // Apply only exclusion filter
-            const validMatches = allFixtures.filter(
+            // Apply exclusion filter to get valid matches
+            const validMatches = popularLeaguesData.filter(
               (fixture) => !shouldExcludeMatch(fixture),
             );
 
             console.log(
-              `🔍 [FeaturedMatch] Found ${validMatches.length} valid matches for ${label}`,
+              `🔍 [FeaturedMatch] Found ${validMatches.length} valid matches for ${label} from popular leagues cache`,
             );
 
-            // Take matches without complex filtering
-            const matchesToAdd = validMatches.slice(0, 10); // Take first 10 matches per date
+            // Prioritize matches by:
+            // 1. Live matches first
+            // 2. Popular leagues (Champions League, Europa League, Premier League, etc.)
+            // 3. Popular teams
+            // 4. Upcoming matches in chronological order
+            const prioritizedMatches = validMatches.sort((a, b) => {
+              // Priority 1: Live matches
+              const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(a.fixture?.status?.short);
+              const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(b.fixture?.status?.short);
+              
+              if (aLive && !bLive) return -1;
+              if (!aLive && bLive) return 1;
+
+              // Priority 2: Popular leagues (UEFA competitions, top 5 leagues)
+              const popularLeagueIds = [2, 3, 848, 39, 140, 135, 78, 61]; // Champions League, Europa League, Conference League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+              const aPopularLeague = popularLeagueIds.includes(a.league?.id);
+              const bPopularLeague = popularLeagueIds.includes(b.league?.id);
+              
+              if (aPopularLeague && !bPopularLeague) return -1;
+              if (!aPopularLeague && bPopularLeague) return 1;
+
+              // Priority 3: By fixture date (earlier matches first for upcoming)
+              const aDate = new Date(a.fixture?.date || 0);
+              const bDate = new Date(b.fixture?.date || 0);
+              return aDate.getTime() - bDate.getTime();
+            });
+
+            // Take top matches for this date, avoiding duplicates
+            const matchesToAdd = [];
+            for (const match of prioritizedMatches) {
+              const matchKey = `${match.fixture?.id}-${match.teams?.home?.name}-${match.teams?.away?.name}`;
+              
+              if (!seenMatches.has(matchKey) && matchesToAdd.length < 4) {
+                seenMatches.add(matchKey);
+                matchesToAdd.push(match);
+              }
+            }
+
             allFeaturedMatches.push(...matchesToAdd);
 
             console.log(
               `🔍 [FeaturedMatch] Taking ${matchesToAdd.length} matches from ${label}:`,
               matchesToAdd.map(
                 (m) =>
-                  `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id}`,
+                  `${m.teams?.home?.name} vs ${m.teams?.away?.name} (ID: ${m.fixture?.id}, League: ${m.league?.name})`,
               ),
             );
           } catch (error) {
             console.error(
-              `🔍 [FeaturedMatch] Error fetching data for ${date}:`,
+              `🔍 [FeaturedMatch] Error extracting data for ${date}:`,
               error,
             );
           }
         }
 
-        // Take first 9 matches total
+        // Take first 9 matches total and validate
         const finalMatches = allFeaturedMatches.slice(0, 9);
-
-        console.log(`🔍 [FeaturedMatch] Final matches: ${finalMatches.length}`);
 
         // Validate data structure
         const validMatches = finalMatches.filter((match) => {
@@ -178,7 +213,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
 
         console.log(
-          "🔍 [FeaturedMatch] Final matches:",
+          "🔍 [FeaturedMatch] Final featured matches from popular cache:",
           validMatches.length,
           "matches:",
           validMatches.map((m) => ({
@@ -192,16 +227,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // Cache the result
         CacheManager.setCachedData(cacheKey, validMatches);
         backgroundCache.set(
-          `featured-matches-priority-${currentDate}`,
+          `featured-matches-from-popular-cache-${currentDate}`,
           validMatches,
-          15 * 60 * 1000,
+          10 * 60 * 1000,
         );
 
         setMatches(validMatches);
         setCurrentIndex(0);
       } catch (error) {
         console.error(
-          "🔍 [FeaturedMatch] Error getting featured matches:",
+          "🔍 [FeaturedMatch] Error getting featured matches from popular cache:",
           error,
         );
         setMatches([]);
