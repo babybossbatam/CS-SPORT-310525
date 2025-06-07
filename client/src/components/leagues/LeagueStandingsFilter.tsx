@@ -72,10 +72,13 @@ const LeagueStandingsFilter = () => {
       const leagues = await getPopularLeagues();
       setPopularLeagues(leagues);
 
-      // Set default selection to first league
+      // Set default selection to first league with valid ID
       if (leagues.length > 0) {
-        setSelectedLeague(leagues[0].id.toString());
-        setSelectedLeagueName(leagues[0].name);
+        const firstValidLeague = leagues.find(league => league && league.id && league.name);
+        if (firstValidLeague) {
+          setSelectedLeague(firstValidLeague.id.toString());
+          setSelectedLeagueName(firstValidLeague.name);
+        }
       }
     } catch (error) {
       console.error('Failed to load league data:', error);
@@ -134,8 +137,8 @@ const LeagueStandingsFilter = () => {
           value={selectedLeague} 
           onValueChange={(value) => {
             setSelectedLeague(value);
-            const league = popularLeagues.find(l => l && l.id && l.id.toString() === value);
-            if (league) {
+            const league = popularLeagues.find(l => l && l.id && l.name && l.id.toString() === value);
+            if (league && league.name) {
               setSelectedLeagueName(league.name);
             }
           }}
@@ -156,7 +159,7 @@ const LeagueStandingsFilter = () => {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {popularLeagues.filter(league => league && league.id && league.name).map((league) => (
+            {popularLeagues.filter(league => league && league.id && league.name && league.logo).map((league) => (
               <SelectItem key={league.id} value={league.id.toString()}>
                 <div className="flex items-center gap-2">
                   <img
