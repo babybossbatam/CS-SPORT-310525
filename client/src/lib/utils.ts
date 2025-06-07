@@ -565,16 +565,29 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       requestBody = JSON.stringify(options);
     }
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: requestBody,
-      credentials: 'same-origin',
-      mode: 'cors',
-      signal: controller.signal,
-    });
+    // Attempt the fetch with better error handling
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: requestBody,
+        credentials: 'same-origin',
+        mode: 'cors',
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      // Handle fetch-specific errors immediately
+      clearTimeout(timeoutId);
+      
+      const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
+      console.error(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
+      
+      // For fetch failures, immediately return an error response
+      throw new Error(`Network Error: Failed to connect to server at ${url}. ${fetchErrorMessage}`);
+    }
 
     clearTimeout(timeoutId);
 
@@ -589,16 +602,16 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     
     if (error instanceof Error && error.name === 'AbortError') {
       console.error(`🚫 API request timeout for ${method} ${endpoint} after ${options?.timeout || 15000}ms`);
-    } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
-      console.error(`🌐 Network error for ${method} ${endpoint}: ${errorMessage}`);
+    } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch') || errorMessage.includes('Network Error')) {
+      console.error(`🌐 Network connectivity issue for ${method} ${endpoint}: ${errorMessage}`);
     } else {
       console.error(`❌ API request error for ${method} ${endpoint}:`, error);
     }
     
-    // Create a more detailed error response
-    const createErrorResponse = (statusText: string): Response => ({
+    // Create a more detailed error response that properly indicates network failure
+    const createErrorResponse = (statusText: string, isNetworkError = false): Response => ({
       ok: false,
-      status: 0,
+      status: isNetworkError ? 0 : 500,
       statusText,
       headers: new Headers(),
       redirected: false,
@@ -608,19 +621,25 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       bodyUsed: false,
       json: async () => ({ 
         error: true, 
-        message: 'Failed to connect to server',
-        details: statusText
+        message: isNetworkError ? 'Network connectivity failed' : 'Server error',
+        details: statusText,
+        networkError: isNetworkError
       }),
-      text: async () => `Network Error: ${statusText}`,
+      text: async () => `${isNetworkError ? 'Network' : 'Server'} Error: ${statusText}`,
       blob: async () => new Blob(),
       arrayBuffer: async () => new ArrayBuffer(0),
       formData: async () => new FormData(),
       clone: function() {
-        return createErrorResponse(statusText);
+        return createErrorResponse(statusText, isNetworkError);
       }
     } as Response);
 
-    return createErrorResponse(errorMessage);
+    const isNetworkError = errorMessage.includes('Failed to fetch') || 
+                          errorMessage.includes('NetworkError') || 
+                          errorMessage.includes('Network Error') ||
+                          errorMessage.includes('fetch');
+
+    return createErrorResponse(errorMessage, isNetworkError);
   } finally {
     // Ensure timeout is always cleared
     clearTimeout(timeoutId);

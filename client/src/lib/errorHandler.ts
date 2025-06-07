@@ -100,8 +100,10 @@ export const setupGlobalErrorHandlers = () => {
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message?.includes('Failed to fetch') || 
-          error.message?.includes('not 2xx response')) {
-        console.log('🌐 Network error detected, attempting recovery...');
+          error.message?.includes('not 2xx response') ||
+          error.message?.includes('Network Error') ||
+          error.message?.includes('NetworkError')) {
+        console.log('🌐 Network connectivity issue detected, attempting recovery...');
         handleNetworkRecovery();
         return;
       }
@@ -111,6 +113,14 @@ export const setupGlobalErrorHandlers = () => {
         console.log('🖼️ Frame-related error detected, suppressing cascade...');
         return;
       }
+    }
+    
+    // Handle string errors that might be fetch-related
+    if (typeof error === 'string' && 
+        (error.includes('Failed to fetch') || error.includes('Network'))) {
+      console.log('🌐 Network error string detected, attempting recovery...');
+      handleNetworkRecovery();
+      return;
     }
   });
   

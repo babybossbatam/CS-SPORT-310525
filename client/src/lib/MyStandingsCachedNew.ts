@@ -334,6 +334,21 @@ class StandingsCache {
         timeout: 10000 // 10 second timeout
       });
 
+      // Check for network connectivity issues first
+      if (response.status === 0) {
+        console.warn(`🌐 Network connectivity failed for league ${leagueId}`);
+        
+        // For network errors, always use cached data if available (regardless of age)
+        if (anyCached) {
+          const age = Date.now() - anyCached.timestamp;
+          const ageHours = Math.floor(age / (60 * 60 * 1000));
+          console.log(`🔄 Using cached data for league ${leagueId} (age: ${ageHours}h) due to network failure`);
+          return anyCached.data;
+        }
+        
+        return null;
+      }
+
       if (!response.ok) {
         const errorMsg = `Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`;
         console.warn(`❌ ${errorMsg}`);
