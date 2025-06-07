@@ -93,9 +93,13 @@ const countryCodeMap: { [key: string]: string } = {
   'Ecuador': 'EC',
   'Venezuela': 'VE',
   'venezuela': 'VE', // Add lowercase variant
+  'VENEZUELA': 'VE', // Add uppercase variant
   'Venezuela (Bolivarian Republic of)': 'VE', // Add official name variant
   'Venezuela (Bolivarian Republic)': 'VE', // Add alternative variant
   'Bolivarian Republic of Venezuela': 'VE', // Add alternative order
+  'Venezuelan': 'VE', // Add adjective form
+  'VE': 'VE', // Direct code mapping
+  'VEN': 'VE', // Alternative code mapping
   'Guyana': 'GY',
   'Suriname': 'SR',
   'French Guiana': 'GF',
@@ -679,10 +683,46 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
   console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
 
+  // IMMEDIATE VENEZUELA FIX - Force correct flag before any cache checks
+  const normalizedCountry = country.trim().toLowerCase();
+  if (normalizedCountry.includes('venezuela') || normalizedCountry === 've' || normalizedCountry === 'ven') {
+    const correctVenezuelaFlag = 'https://flagcdn.com/w40/ve.png';
+    console.log(`🇻🇪 [flagUtils.ts:getCountryFlagWithFallbackSync] VENEZUELA FORCE FIX: ${correctVenezuelaFlag}`);
+    
+    // Clear any corrupted cache entries
+    const venezuelaCacheKeys = [
+      'flag_venezuela',
+      'flag_venezuela_(bolivarian_republic_of)',
+      'flag_venezuela_(bolivarian_republic)',
+      'flag_bolivarian_republic_of_venezuela',
+      `${country}-${leagueFlag || ''}`
+    ];
+    
+    venezuelaCacheKeys.forEach(key => {
+      (flagCache as any).cache?.delete(key);
+      flagCacheMem.delete(key);
+    });
+    
+    // Cache the correct flag
+    const mainCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-force-fix', true);
+    flagCacheMem.set(`${country}-${leagueFlag || ''}`, correctVenezuelaFlag);
+    
+    return correctVenezuelaFlag;
+  }
+
   // Check main flagCache first before memory cache
   const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
   const cached = flagCache.getCached(flagCacheKey);
   if (cached) {
+    // Additional Venezuela corruption check
+    if (country.toLowerCase().includes('venezuela') && cached.url.includes('/co.png')) {
+      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION in cache: ${cached.url}`);
+      const correctFlag = 'https://flagcdn.com/w40/ve.png';
+      flagCache.setCached(flagCacheKey, correctFlag, 'venezuela-corruption-fix', true);
+      return correctFlag;
+    }
+    
     console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Main cache hit for ${country}: ${cached.url} | Source: ${cached.source}`);
     return cached.url;
   }
@@ -691,6 +731,15 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   const cacheKey = `${country}-${leagueFlag || ''}`;
   if (flagCacheMem.has(cacheKey)) {
     const memCached = flagCacheMem.get(cacheKey)!;
+    
+    // Additional Venezuela corruption check in memory cache
+    if (country.toLowerCase().includes('venezuela') && memCached.includes('/co.png')) {
+      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION in memory cache: ${memCached}`);
+      const correctFlag = 'https://flagcdn.com/w40/ve.png';
+      flagCacheMem.set(cacheKey, correctFlag);
+      return correctFlag;
+    }
+    
     console.log(`🧠 [flagUtils.ts:getCountryFlagWithFallbackSync] Memory cache hit for ${country}: ${memCached}`);
     return memCached;
   }
@@ -732,6 +781,12 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
             if (countryCode.length === 2) {
               result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
               console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${result}`);
+              
+              // EXTRA VENEZUELA CHECK: Ensure VE code gives correct flag
+              if (countryCode.toLowerCase() === 've' && !result.includes('/ve.png')) {
+                result = 'https://flagcdn.com/w40/ve.png';
+                console.log(`🇻🇪 [flagUtils.ts:getCountryFlagWithFallbackSync] CORRECTED Venezuela flag URL: ${result}`);
+              }
             } else if (countryCode.startsWith('GB-')) {
               // For GB subdivision codes like GB-ENG, GB-SCT, etc., try FlagCDN first
               result = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
