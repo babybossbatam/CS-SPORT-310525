@@ -583,7 +583,17 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       ok: false,
       status: 0,
       statusText: error instanceof Error ? error.message : 'Network connection error',
-      json: async () => ({ error: true, message: 'Failed to connect to server' })
-    };
+      json: async () => ({ error: true, message: 'Failed to connect to server' }),
+      text: async () => 'Network Error',
+      blob: async () => new Blob(),
+      arrayBuffer: async () => new ArrayBuffer(0),
+      formData: async () => new FormData(),
+      clone: () => ({
+        ok: false,
+        status: 0,
+        statusText: error instanceof Error ? error.message : 'Network connection error',
+        json: async () => ({ error: true, message: 'Failed to connect to server' })
+      })
+    } as Response;
   }
 };
