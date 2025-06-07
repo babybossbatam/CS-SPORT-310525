@@ -53,26 +53,34 @@ const LeagueStandingsFilter = () => {
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
   useEffect(() => {
-    const loadLeagues = async () => {
-      try {
-        setLeaguesLoading(true);
-        const leagues = await getPopularLeagues();
-        setPopularLeagues(leagues);
-
-        // Set default selection to first league
-        if (leagues.length > 0) {
-          setSelectedLeague(leagues[0].id.toString());
-          setSelectedLeagueName(leagues[0].name);
-        }
-      } catch (error) {
-        console.error('Failed to load league data:', error);
-      } finally {
-        setLeaguesLoading(false);
-      }
-    };
-
     loadLeagues();
   }, []);
+
+  const getPopularLeagues = async () => {
+    const response = await fetch('/api/leagues');
+    if (!response.ok) {
+      throw new Error('Failed to fetch leagues');
+    }
+    return response.json();
+  };
+
+  const loadLeagues = async () => {
+    try {
+      setLeaguesLoading(true);
+      const leagues = await getPopularLeagues();
+      setPopularLeagues(leagues);
+
+      // Set default selection to first league
+      if (leagues.length > 0) {
+        setSelectedLeague(leagues[0].id.toString());
+        setSelectedLeagueName(leagues[0].name);
+      }
+    } catch (error) {
+      console.error('Failed to load league data:', error);
+    } finally {
+      setLeaguesLoading(false);
+    }
+  };
 
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
