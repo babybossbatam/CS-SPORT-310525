@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Users, TrendingUp, Calendar, MapPin, Star, Globe, Filter } from 'lucide-react';
+import { Trophy, Users, TrendingUp, Calendar, MapPin, Star, Globe, Filter, AlertCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/utils';
 import { CACHE_DURATIONS } from '@/lib/cacheConfig';
 import { getPopularLeagues } from '@/lib/leagueDataCache';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 // Types for league data
 interface League {
@@ -172,14 +173,16 @@ const LeagueStandingsFilter: React.FC = () => {
     queryFn: async () => {
       try {
         const response = await apiRequest('GET', '/api/leagues');
+        
+        // Handle network errors gracefully
         if (!response.ok) {
-          // Handle network errors gracefully
           if (response.status === 0) {
             console.warn('Network connectivity issue, using cached popular leagues');
             return popularLeagues.length > 0 ? popularLeagues : TOP_10_MAJOR_LEAGUES;
           }
           throw new Error(`Failed to fetch leagues: ${response.statusText}`);
         }
+        
         const data = await response.json();
 
         // If API returns error, use cached data
@@ -190,15 +193,17 @@ const LeagueStandingsFilter: React.FC = () => {
 
         return data;
       } catch (error) {
-        console.error('Error fetching leagues:', error);
-        // Fallback to popular leagues on any error
+        console.warn('Error fetching leagues, using fallback data:', error);
+        // Always return fallback data instead of throwing
         return popularLeagues.length > 0 ? popularLeagues : TOP_10_MAJOR_LEAGUES;
       }
     },
     staleTime: CACHE_DURATIONS.LEAGUES,
     gcTime: CACHE_DURATIONS.LEAGUES * 2,
-    retry: 1,
-    enabled: true
+    retry: false, // Disable retry to prevent multiple failed requests
+    enabled: true,
+    // Prevent query from throwing errors by using error boundary
+    throwOnError: false
   });
 
   // Apply 5 filter mechanisms to popular leagues
@@ -297,16 +302,23 @@ const LeagueStandingsFilter: React.FC = () => {
   }, [leaguesData, popularLeagues]);
 
   return (
-    <Card className="w-full max-w-6xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-yellow-500" />
-          League Standings Filter - Top 10 Major Leagues
-          <Badge variant="outline" className="ml-2">
-            {filteredLeagues.length} leagues
-          </Badge>
-        </CardTitle>
-      </CardHeader>
+    <ErrorBoundary>
+      <Card className="w-full max-w-6xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            League Standings Filter - Top 10 Major Leagues
+            <Badge variant="outline" className="ml-2">
+              {filteredLeagues.length} leagues
+            </Badge>
+            {error && (
+              <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Offline Mode
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
       <CardContent className="space-y-6">
         {/* 5 Filter Mechanisms */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
@@ -550,6 +562,7 @@ const LeagueStandingsFilter: React.FC = () => {
         )}
       </CardContent>
     </Card>
+    </ErrorBoundary>
   );
 };
 
