@@ -661,6 +661,11 @@ export async function getCountryFlagWithFallback(
     return '/assets/fallback-logo.svg';
   }
 
+  // Special handling for European Union
+  if (cleanCountry === 'Europe' || cleanCountry === 'European Union' || cleanCountry === 'EU') {
+    return 'EU_FLAG_COMPONENT'; // Special marker for EU flag component
+  }
+
   // Generate flag sources and find working one
   const sources = generateFlagSources(cleanCountry);
 

@@ -35,6 +35,7 @@ import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
+import EUFlag from "../common/EUFlag";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1266,19 +1267,26 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         />
                       </button>
                       
-                      <img
-                        src={
-                          leagueData.league.logo ||
-                          "/assets/fallback-logo.svg"
-                        }
-                        alt={leagueData.league.name || "Unknown League"}
-                        className="w-6 h-6 object-contain rounded-full"
-                        style={{ backgroundColor: "transparent" }}
-                        onError={(e) => {
-                          console.log(`🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`);
-                          (e.target as HTMLImageElement).src =
-                            "/assets/fallback-logo.svg";
-                        }}
+                      {/* Special handling for European Union leagues */}
+                      {(leagueData.league.country === 'Europe' || 
+                        leagueData.league.country === 'European Union' ||
+                        countryData.flag === 'EU_FLAG_COMPONENT') ? (
+                        <EUFlag size={24} className="rounded-full" />
+                      ) : (
+                        <img
+                          src={
+                            leagueData.league.logo ||
+                            "/assets/fallback-logo.svg"
+                          }
+                          alt={leagueData.league.name || "Unknown League"}
+                          className="w-6 h-6 object-contain rounded-full"
+                          style={{ backgroundColor: "transparent" }}
+                          onError={(e) => {
+                            console.log(`🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`);
+                            (e.target as HTMLImageElement).src =
+                              "/assets/fallback-logo.svg";
+                          }}
+                      )}
                         onLoad={() => {
                           // Debug Venezuela specifically
                           if (leagueData.league.country === 'Venezuela') {
