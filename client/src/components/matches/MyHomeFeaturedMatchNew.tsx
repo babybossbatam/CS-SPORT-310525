@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Trophy,
   ChevronLeft,
@@ -303,37 +304,40 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     getFeaturedMatches();
   }, [currentDate, maxMatches]);
 
-  // Handle navigation
-  const handlePrevious = () => {
-    if (matches.length <= 1) return;
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : matches.length - 1));
-  };
+  // Memoize current match
+  const currentMatch = useMemo(() => matches[currentIndex], [matches, currentIndex]);
 
-  const handleNext = () => {
-    if (matches.length <= 1) return;
-    setCurrentIndex((prev) => (prev < matches.length - 1 ? prev + 1 : 0));
-  };
-
-  const handleMatchClick = () => {
-    if (isValidMatch && currentMatch.fixture.id) {
-      navigate(`/match/${currentMatch.fixture.id}`);
-    }
-  };
-
-  // Get current match
-  const currentMatch = matches[currentIndex];
-
-  // Validate current match
-  const isValidMatch =
+  // Memoize match validation
+  const isValidMatch = useMemo(() => 
     currentMatch &&
     currentMatch.teams &&
     currentMatch.teams.home &&
     currentMatch.teams.away &&
     currentMatch.fixture &&
-    currentMatch.league;
+    currentMatch.league,
+    [currentMatch]
+  );
 
-  // Get match status display
-  const getMatchStatus = (match) => {
+  // Memoize navigation handlers
+  const handlePrevious = useCallback(() => {
+    if (matches.length <= 1) return;
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : matches.length - 1));
+  }, [matches.length]);
+
+  const handleNext = useCallback(() => {
+    if (matches.length <= 1) return;
+    setCurrentIndex((prev) => (prev < matches.length - 1 ? prev + 1 : 0));
+  }, [matches.length]);
+
+  const handleMatchClick = useCallback(() => {
+    if (isValidMatch && currentMatch.fixture.id) {
+      navigate(`/match/${currentMatch.fixture.id}`);
+    }
+  }, [isValidMatch, currentMatch, navigate]);
+
+  // Memoize match status functions for better performance
+  const getMatchStatus = useCallback((match) => {
+    if (!match) return "";
     const status = match.fixture.status.short;
     const elapsed = match.fixture.status.elapsed;
 
@@ -347,10 +351,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return format(matchDate, "HH:mm");
     }
     return status;
-  };
+  }, []);
 
-  // Get match status label
-  const getMatchStatusLabel = (match) => {
+  const getMatchStatusLabel = useCallback((match) => {
     if (!match) return "";
 
     const { fixture } = match;
@@ -362,10 +365,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     } else {
       return "UPCOMING";
     }
-  };
+  }, []);
 
-  // Team color helper function
-  const getTeamColor = (teamId) => {
+  const getTeamColor = useCallback((teamId) => {
     const colors = [
       "#6f7c93", // blue-gray
       "#8b0000", // dark red
@@ -374,9 +376,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       "#e63946", // red
     ];
     return colors[teamId % colors.length];
-  };
+  }, []);
 
-  // Loading state
+  // Loading state with proper skeleton
   if (loading) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
@@ -386,14 +388,89 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         >
           Featured Match
         </Badge>
-        <CardContent className="p-6 text-center">
-          <Trophy className="h-8 w-8 mx-auto mb-2 text-blue-500 animate-pulse" />
-          <p className="text-gray-600 font-medium">
-            Loading featured matches...
-          </p>
-          <p className="text-gray-400 text-sm mt-1">
-            Top priority level 1-3 matches
-          </p>
+        
+        {/* Skeleton loading content */}
+        <CardContent className="p-0">
+          {/* League info skeleton */}
+          <div className="bg-white p-2 mt-6 relative mt-4 mb-4">
+            <div className="flex items-center justify-center">
+              <div className="w-5 h-5 bg-gray-200 rounded mr-2 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded w-32 animate-pulse" />
+              <div className="h-6 bg-gray-200 rounded w-16 ml-2 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Score display skeleton */}
+          <div className="match-score-container">
+            <div className="match-score-display mb-4 flex items-center justify-center">
+              <div className="h-8 bg-gray-200 rounded w-20 animate-pulse" />
+            </div>
+            <div className="match-status-label flex justify-center">
+              <div className="h-5 bg-gray-200 rounded w-16 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Team scoreboard skeleton */}
+          <div className="relative px-6">
+            <div className="flex relative h-[53px] rounded-md mb-8">
+              <div className="w-full h-full flex justify-between relative">
+                {/* Home team skeleton */}
+                <div className="h-full w-[calc(50%-16px)] ml-[77px] bg-gray-300 animate-pulse relative">
+                  <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
+                       style={{
+                         top: "calc(50% - 32px)",
+                         left: "-32px"
+                       }} />
+                </div>
+
+                <div className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
+                     style={{
+                       top: "calc(50% - 12px)",
+                       left: "120px"
+                     }} />
+
+                {/* VS circle skeleton */}
+                <div className="absolute bg-gray-300 rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 animate-pulse"
+                     style={{
+                       left: "calc(50% - 26px)",
+                       top: "calc(50% - 26px)"
+                     }}>
+                  <div className="h-3 bg-gray-400 rounded w-6" />
+                </div>
+
+                {/* Away team skeleton */}
+                <div className="h-full w-[calc(50%-26px)] mr-[87px] bg-gray-300 animate-pulse" />
+
+                <div className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
+                     style={{
+                       top: "calc(50% - 12px)",
+                       right: "130px"
+                     }} />
+
+                <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
+                     style={{
+                       top: "calc(50% - 32px)",
+                       right: "87px",
+                       transform: "translateX(50%)"
+                     }} />
+              </div>
+            </div>
+
+            {/* Match date skeleton */}
+            <div className="flex justify-center mt-8">
+              <div className="h-4 bg-gray-200 rounded w-48 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Bottom navigation skeleton */}
+          <div className="flex justify-around border-t border-gray-200 pt-4 mt-12 pb-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex flex-col items-center w-1/4">
+                <div className="w-[18px] h-[18px] bg-gray-200 rounded animate-pulse mb-1" />
+                <div className="h-3 bg-gray-200 rounded w-12 animate-pulse" />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
@@ -474,6 +551,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   src={currentMatch.league.logo}
                   alt={currentMatch.league.name}
                   className="w-5 h-5 object-contain mr-2 drop-shadow-md"
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.svg";
                   }}
@@ -599,7 +678,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <img
                         src={currentMatch.teams.home.logo || `/assets/fallback-logo.svg`}
                         alt={currentMatch.teams.home.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-opacity duration-200"
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
@@ -607,8 +686,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                         }}
                         onClick={handleMatchClick}
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                           e.currentTarget.src = "/assets/fallback-logo.svg";
+                        }}
+                        onLoad={(e) => {
+                          e.currentTarget.style.opacity = "1";
                         }}
                       />
                     )}
@@ -672,8 +756,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                     }}
                     onClick={handleMatchClick}
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       e.currentTarget.src = "/assets/fallback-logo.svg";
+                    }}
+                    onLoad={(e) => {
+                      e.currentTarget.style.opacity = "1";
                     }}
                   />
                 </div>
