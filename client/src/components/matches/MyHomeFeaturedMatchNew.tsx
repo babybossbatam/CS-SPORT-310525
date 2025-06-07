@@ -612,7 +612,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   ? ""
                   : currentMatch?.fixture?.status?.short || "Upcoming"}
             </div>
-          </div>
+        </motion.div>
 
           {/* Team scoreboard with colored bars */}
           <div className="relative">
