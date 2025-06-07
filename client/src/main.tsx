@@ -17,11 +17,18 @@ import { initializeFlagCachePersistence } from "./lib/flagUtils";
 // Initialize flag cache persistence
 initializeFlagCachePersistence();
 
+// Initialize error handlers before rendering
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+
+
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="light">
+        <ErrorBoundary>
         <App />
+        </ErrorBoundary>
       </ThemeProvider>
     </QueryClientProvider>
   </Provider>

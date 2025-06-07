@@ -621,5 +621,8 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     } as Response);
 
     return createErrorResponse(errorMessage);
+  } finally {
+    // Ensure timeout is always cleared
+    clearTimeout(timeoutId);
   }
 };

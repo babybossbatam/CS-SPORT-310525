@@ -1,3 +1,6 @@
+# Applying the changes to import the error handler and initialize it in the App component.
+```
+```replit_final_file
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +13,7 @@ import { usePrefetchStandings } from '@/lib/MyStandingsCachedNew';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
+import { setupGlobalErrorHandlers } from './lib/errorHandler';
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -96,6 +100,10 @@ function AppContent() {
 }
 
 function App() {
+  // Initialize global error handlers
+  React.useEffect(() => {
+    setupGlobalErrorHandlers();
+  }, []);
 
   useEffect(() => {
     // Initialize cache refresh system
