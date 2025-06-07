@@ -147,7 +147,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               // Priority 1: Live matches
               const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(a.fixture?.status?.short);
               const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(b.fixture?.status?.short);
-              
+
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
@@ -155,7 +155,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const popularLeagueIds = [2, 3, 848, 39, 140, 135, 78, 61]; // Champions League, Europa League, Conference League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1
               const aPopularLeague = popularLeagueIds.includes(a.league?.id);
               const bPopularLeague = popularLeagueIds.includes(b.league?.id);
-              
+
               if (aPopularLeague && !bPopularLeague) return -1;
               if (!aPopularLeague && bPopularLeague) return 1;
 
@@ -169,7 +169,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const matchesToAdd = [];
             for (const match of prioritizedMatches) {
               const matchKey = `${match.fixture?.id}-${match.teams?.home?.name}-${match.teams?.away?.name}`;
-              
+
               if (!seenMatches.has(matchKey) && matchesToAdd.length < 4) {
                 seenMatches.add(matchKey);
                 matchesToAdd.push(match);
@@ -558,7 +558,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               justifyContent: "flex-start",
               alignItems: "center",
               position: "relative",
-              paddingTop: "8px",
+              paddingTop: "0px",
             }}
           >
             {/* Match status display */}
@@ -617,7 +617,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               ) : null}
             </div>
 
-            
+
           </div>
 
           {/* Team scoreboard with colored bars */}
