@@ -657,7 +657,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           </div>
 
-          {/* Score area using flexbox positioning */}
+          {/* Combined Score and Status Display */}
           <div
             className="score-area"
             style={{
@@ -665,69 +665,76 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               gridArea: "score",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "flex-start",
+              justifyContent: "center",
               alignItems: "center",
               position: "relative",
-              paddingTop: "0px",
+              fontSize: "calc(1.125rem * 0.968)",
+              fontWeight: "600",
+              textAlign: "center",
             }}
           >
-            {/* Match status display */}
-            <div
-              className="match-status-display"
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                color: getMatchStatusLabel(currentMatch) === "LIVE" ? "#dc2626" : "#6b7280",
-                marginBottom: "2px",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              {(() => {
-                const status = currentMatch?.fixture?.status?.short;
-                const elapsed = currentMatch?.fixture?.status?.elapsed;
+            {(() => {
+              const status = currentMatch?.fixture?.status?.short;
+              const elapsed = currentMatch?.fixture?.status?.elapsed;
+              const isLive = getMatchStatusLabel(currentMatch) === "LIVE";
+              const hasScore = currentMatch?.fixture?.status?.short &&
+                ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(status);
 
-                if (["1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                  return `${elapsed || 0}'`;
-                }
-                if (status === "HT") return "HALFTIME";
-                if (status === "FT") return "FULL TIME";
-                if (status === "AET") return "AFTER EXTRA TIME";
-                if (status === "PEN") return "PENALTIES";
-                if (status === "NS") return "UPCOMING";
-                return status || "UPCOMING";
-              })()}
-            </div>
+              // Combined display logic
+              if (hasScore) {
+                // Show status and score together
+                const statusText = (() => {
+                  if (["1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                    return `${elapsed || 0}'`;
+                  }
+                  if (status === "HT") return "HT";
+                  if (status === "FT") return "FT";
+                  if (status === "AET") return "AET";
+                  if (status === "PEN") return "PEN";
+                  return status || "";
+                })();
 
-            {/* Main score/time display */}
-            <div
-              className="match-score-display"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "calc(1.125rem * 0.968)",
-                flex: "1",
-              }}
-            >
-              {currentMatch?.fixture?.status?.short &&
-              ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-                currentMatch.fixture.status.short,
-              ) ? (
-                // Score display for live and finished matches
-                <>
-                  <span className="score-number">
-                    {currentMatch?.goals?.home ?? 0}
-                  </span>
-                  <span className="score-separator">-</span>
-                  <span className="score-number">
-                    {currentMatch?.goals?.away ?? 0}
-                  </span>
-                </>
-              ) : null}
-            </div>
+                const scoreText = `${currentMatch?.goals?.home ?? 0}-${currentMatch?.goals?.away ?? 0}`;
+                
+                return (
+                  <div style={{ 
+                    color: isLive ? "#dc2626" : "#1a1a1a",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "2px"
+                  }}>
+                    <div style={{ 
+                      fontSize: "0.75rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px"
+                    }}>
+                      {statusText}
+                    </div>
+                    <div style={{ fontSize: "1.125rem" }}>
+                      {scoreText}
+                    </div>
+                  </div>
+                );
+              } else {
+                // Show only status for upcoming matches
+                const statusText = (() => {
+                  if (status === "NS") return "UPCOMING";
+                  return status || "UPCOMING";
+                })();
 
-
+                return (
+                  <div style={{ 
+                    color: "#6b7280",
+                    fontSize: "0.875rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px"
+                  }}>
+                    {statusText}
+                  </div>
+                );
+              }
+            })()}
           </div>
 
           {/* Team scoreboard with colored bars */}
