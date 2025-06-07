@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from './utils';
 import { CACHE_DURATIONS } from './cacheConfig';
-import { CacheManager } from './fixtureCache';
+import { fixtureCache } from './fixtureCache';
 
 // Standing types
 interface TeamStanding {
@@ -100,15 +100,10 @@ interface StandingsStorageCache {
 // Get popular leagues from TodayPopularFootballLeaguesNew cached data
 const getPopularLeaguesFromCache = (): number[] => {
   try {
-    // Get cached popular league data from TodayPopularFootballLeaguesNew
-    const cacheKeys = ['all-fixtures-by-date'];
     const today = new Date().toISOString().split('T')[0];
     
     // Try to get cached fixture data to extract league IDs
-    const cachedFixtures = CacheManager.getCachedData(
-      ['all-fixtures-by-date', today],
-      30 * 60 * 1000 // 30 minutes
-    );
+    const cachedFixtures = fixtureCache.getCachedFixturesForDate(today);
     
     if (cachedFixtures && Array.isArray(cachedFixtures)) {
       // Extract unique league IDs from cached fixtures
@@ -119,7 +114,7 @@ const getPopularLeaguesFromCache = (): number[] => {
       )];
       
       console.log(`📊 [StandingsCache] Found ${leagueIds.length} leagues from TodayPopularLeagueNew cache`);
-      return leagueIds;
+      return leagueIds.length > 0 ? leagueIds : [39, 140, 135, 78, 2, 3];
     }
     
     // Fallback to essential popular leagues if no cache
