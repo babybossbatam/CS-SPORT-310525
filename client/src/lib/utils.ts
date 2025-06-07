@@ -540,16 +540,35 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     return `bg-gradient-to-l from-${color}-${lighterIntensity} to-${color}-${intensityNum}`;
   }
 }
-export const apiRequest = async (method: string, endpoint: string, body?: any) => {
+export const apiRequest = async (method: string, endpoint: string, options?: any) => {
   const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
 
   try {
-    const response = await fetch(`${baseUrl}${endpoint}`, {
+    let url = `${baseUrl}${endpoint}`;
+    let requestBody: string | undefined;
+
+    // Handle GET requests with query parameters
+    if (method.toUpperCase() === 'GET' && options?.params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value));
+        }
+      });
+      if (searchParams.toString()) {
+        url += `?${searchParams.toString()}`;
+      }
+    } else if (method.toUpperCase() !== 'GET' && options) {
+      // For non-GET requests, use options as request body
+      requestBody = JSON.stringify(options);
+    }
+
+    const response = await fetch(url, {
       method,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: requestBody,
       credentials: 'same-origin',
       mode: 'cors',
     });
