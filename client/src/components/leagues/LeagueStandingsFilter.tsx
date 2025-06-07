@@ -1,568 +1,300 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { apiRequest } from '@/lib/queryClient';
+import { usePopularLeagueStandings, useLeagueStandings } from '@/lib/MyStandingsCachedNew';
+import { format, parseISO } from 'date-fns';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Users, TrendingUp, Calendar, MapPin, Star, Globe, Filter, AlertCircle } from 'lucide-react';
-import { apiRequest } from '@/lib/utils';
-import { CACHE_DURATIONS } from '@/lib/cacheConfig';
-import { getPopularLeagues } from '@/lib/leagueDataCache';
-import ErrorBoundary from '@/components/common/ErrorBoundary';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
-// Types for league data
-interface League {
+interface LeagueData {
   id: number;
   name: string;
   logo: string;
-  country: string;
-  type: string;
-  season: number;
-  priority?: number;
-  popularity?: number;
 }
 
-// Filter mechanism types
-interface FilterCriteria {
-  geographical: 'major-europe' | 'major-south-america' | 'major-asia' | 'all';
-  competitionLevel: 'top-tier' | 'continental' | 'domestic' | 'all';
-  popularity: 'high' | 'medium' | 'low' | 'all';
-  season: 'current' | 'previous' | 'all';
-  leagueType: 'league' | 'cup' | 'international' | 'all';
-}
-
-// Top 10 Major Leagues Configuration with 5 Filter Mechanisms
-const TOP_10_MAJOR_LEAGUES = [
-  { 
-    id: 39, name: 'Premier League', country: 'England', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/39.png',
-    priority: 1, popularity: 100, region: 'Europe', tier: 'top-tier'
-  },
-  { 
-    id: 140, name: 'La Liga', country: 'Spain', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/140.png',
-    priority: 2, popularity: 95, region: 'Europe', tier: 'top-tier'
-  },
-  { 
-    id: 135, name: 'Serie A', country: 'Italy', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/135.png',
-    priority: 3, popularity: 90, region: 'Europe', tier: 'top-tier'
-  },
-  { 
-    id: 78, name: 'Bundesliga', country: 'Germany', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/78.png',
-    priority: 4, popularity: 85, region: 'Europe', tier: 'top-tier'
-  },
-  { 
-    id: 61, name: 'Ligue 1', country: 'France', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/61.png',
-    priority: 5, popularity: 80, region: 'Europe', tier: 'top-tier'
-  },
-  { 
-    id: 2, name: 'UEFA Champions League', country: 'World', type: 'Cup', 
-    logo: 'https://media.api-sports.io/football/leagues/2.png',
-    priority: 6, popularity: 98, region: 'Europe', tier: 'continental'
-  },
-  { 
-    id: 3, name: 'UEFA Europa League', country: 'World', type: 'Cup', 
-    logo: 'https://media.api-sports.io/football/leagues/3.png',
-    priority: 7, popularity: 75, region: 'Europe', tier: 'continental'
-  },
-  { 
-    id: 848, name: 'UEFA Europa Conference League', country: 'World', type: 'Cup', 
-    logo: 'https://media.api-sports.io/football/leagues/848.png',
-    priority: 8, popularity: 70, region: 'Europe', tier: 'continental'
-  },
-  { 
-    id: 71, name: 'Brasileirão Serie A', country: 'Brazil', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/71.png',
-    priority: 9, popularity: 65, region: 'South America', tier: 'top-tier'
-  },
-  { 
-    id: 128, name: 'Argentine Liga Profesional', country: 'Argentina', type: 'League', 
-    logo: 'https://media.api-sports.io/football/leagues/128.png',
-    priority: 10, popularity: 60, region: 'South America', tier: 'top-tier'
-  }
-];
-
-// 5 Filter Mechanisms
-const FILTER_MECHANISMS = {
-  geographical: [
-    { value: 'major-europe', label: 'Major European Leagues', icon: '🇪🇺' },
-    { value: 'major-south-america', label: 'Major South American', icon: '🌎' },
-    { value: 'major-asia', label: 'Major Asian Leagues', icon: '🌏' },
-    { value: 'all', label: 'All Regions', icon: '🌍' }
-  ],
-  competitionLevel: [
-    { value: 'top-tier', label: 'Top Tier Leagues', icon: '👑' },
-    { value: 'continental', label: 'Continental Cups', icon: '🏆' },
-    { value: 'domestic', label: 'Domestic Cups', icon: '🥇' },
-    { value: 'all', label: 'All Competitions', icon: '⚽' }
-  ],
-  popularity: [
-    { value: 'high', label: 'High Popularity (80+)', icon: '🔥' },
-    { value: 'medium', label: 'Medium Popularity (60-79)', icon: '⭐' },
-    { value: 'low', label: 'Lower Popularity (<60)', icon: '🌟' },
-    { value: 'all', label: 'All Popularity Levels', icon: '📊' }
-  ],
-  season: [
-    { value: 'current', label: 'Current Season 2024/25', icon: '📅' },
-    { value: 'previous', label: 'Previous Season 2023/24', icon: '📜' },
-    { value: 'all', label: 'All Seasons', icon: '🗓️' }
-  ],
-  leagueType: [
-    { value: 'league', label: 'League Championships', icon: '🏅' },
-    { value: 'cup', label: 'Cup Competitions', icon: '🏆' },
-    { value: 'international', label: 'International', icon: '🌐' },
-    { value: 'all', label: 'All Types', icon: '⚽' }
-  ]
-};
-
-const LeagueStandingsFilter: React.FC = () => {
-  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
-  const [leagues, setLeagues] = useState<League[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  // 5 Filter Mechanisms State
-  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>({
-    geographical: 'all',
-    competitionLevel: 'all',
-    popularity: 'all',
-    season: 'current',
-    leagueType: 'all'
-  });
-
-  // Get popular leagues from cache
-  const [popularLeagues, setPopularLeagues] = useState<League[]>([]);
-
-  // Fetch popular leagues data from cache
-  useEffect(() => {
-    const loadPopularLeagues = async () => {
-      try {
-        const cachedLeagues = await getPopularLeagues();
-        if (cachedLeagues && cachedLeagues.length > 0) {
-          // Convert cached leagues to our format and merge with top 10 major leagues
-          const formattedLeagues = cachedLeagues.slice(0, 10).map((league, index) => ({
-            id: league.id,
-            name: league.name,
-            logo: league.logo,
-            country: typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown',
-            type: league.type || 'League',
-            season: new Date().getFullYear(),
-            priority: index + 1,
-            popularity: 100 - (index * 5) // Decreasing popularity
-          }));
-          setPopularLeagues(formattedLeagues);
-        } else {
-          // Fallback to hardcoded top 10 major leagues
-          setPopularLeagues(TOP_10_MAJOR_LEAGUES);
-        }
-      } catch (error) {
-        console.warn('Failed to load popular leagues from cache, using fallback:', error);
-        setPopularLeagues(TOP_10_MAJOR_LEAGUES);
-      }
+interface Standing {
+  rank: number;
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  points: number;
+  goalsDiff: number;
+  all: {
+    played: number;
+    win: number;
+    draw: number;
+    lose: number;
+    goals: {
+      for: number;
+      against: number;
     };
+  };
+  form: string;
+  description?: string; // Added description property
+}
 
-    loadPopularLeagues();
+const LeagueStandingsFilter = () => {
+  const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
+  const [selectedLeague, setSelectedLeague] = useState('');
+  const [selectedLeagueName, setSelectedLeagueName] = useState('');
+  const [leaguesLoading, setLeaguesLoading] = useState(true);
+
+  const getPopularLeagues = async () => {
+    const response = await fetch('/api/leagues');
+    if (!response.ok) {
+      throw new Error('Failed to fetch leagues');
+    }
+    return response.json();
+  };
+
+  const loadLeagues = async () => {
+    try {
+      setLeaguesLoading(true);
+      const leagues = await getPopularLeagues();
+      setPopularLeagues(leagues);
+
+      // Set default selection to first league with valid ID
+      if (leagues.length > 0) {
+        const firstValidLeague = leagues.find(league => league && league.id && league.name);
+        if (firstValidLeague) {
+          setSelectedLeague(firstValidLeague.id.toString());
+          setSelectedLeagueName(firstValidLeague.name);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load league data:', error);
+    } finally {
+      setLeaguesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLeagues();
   }, []);
 
-  // Fetch leagues data with error handling
-  const { data: leaguesData, isLoading, error } = useQuery({
-    queryKey: ['leagues'],
+  // Get today's date string for daily caching
+  const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+  const { data: standings, isLoading: standingsLoading } = useLeagueStandings(
+    selectedLeague && selectedLeague !== '' ? parseInt(selectedLeague) : 0
+  );
+
+  const { data: fixtures, isLoading: fixturesLoading } = useQuery({
+    queryKey: ['fixtures', selectedLeague, todayDateKey],
     queryFn: async () => {
-      try {
-        const response = await apiRequest('GET', '/api/leagues');
-        
-        // Handle network errors gracefully
-        if (!response.ok) {
-          if (response.status === 0) {
-            console.warn('Network connectivity issue, using cached popular leagues');
-            return popularLeagues.length > 0 ? popularLeagues : TOP_10_MAJOR_LEAGUES;
-          }
-          throw new Error(`Failed to fetch leagues: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-
-        // If API returns error, use cached data
-        if (data.error) {
-          console.warn('API returned error, using cached popular leagues:', data.message);
-          return popularLeagues.length > 0 ? popularLeagues : TOP_10_MAJOR_LEAGUES;
-        }
-
-        return data;
-      } catch (error) {
-        console.warn('Error fetching leagues, using fallback data:', error);
-        // Always return fallback data instead of throwing
-        return popularLeagues.length > 0 ? popularLeagues : TOP_10_MAJOR_LEAGUES;
-      }
+      const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/fixtures`);
+      return response.json();
     },
-    staleTime: CACHE_DURATIONS.LEAGUES,
-    gcTime: CACHE_DURATIONS.LEAGUES * 2,
-    retry: false, // Disable retry to prevent multiple failed requests
-    enabled: true,
-    // Prevent query from throwing errors by using error boundary
-    throwOnError: false
+    enabled: !!selectedLeague && selectedLeague !== '', // Only run when we have a valid league ID
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
+    refetchOnMount: false, // Don't refetch on mount if data exists for today
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
-  // Apply 5 filter mechanisms to popular leagues
-  const filteredLeagues = useMemo(() => {
-    let filtered = popularLeagues;
+  const isLoading = standingsLoading || fixturesLoading || leaguesLoading;
 
-    // 1. Geographical Filter
-    if (filterCriteria.geographical !== 'all') {
-      filtered = filtered.filter(league => {
-        switch (filterCriteria.geographical) {
-          case 'major-europe':
-            return ['England', 'Spain', 'Italy', 'Germany', 'France', 'World'].includes(league.country);
-          case 'major-south-america':
-            return ['Brazil', 'Argentina', 'Colombia', 'Chile'].includes(league.country);
-          case 'major-asia':
-            return ['Japan', 'South Korea', 'China', 'Saudi Arabia'].includes(league.country);
-          default:
-            return true;
-        }
-      });
-    }
-
-    // 2. Competition Level Filter
-    if (filterCriteria.competitionLevel !== 'all') {
-      filtered = filtered.filter(league => {
-        switch (filterCriteria.competitionLevel) {
-          case 'top-tier':
-            return league.type === 'League' && league.priority <= 5;
-          case 'continental':
-            return league.type === 'Cup' && league.country === 'World';
-          case 'domestic':
-            return league.type === 'Cup' && league.country !== 'World';
-          default:
-            return true;
-        }
-      });
-    }
-
-    // 3. Popularity Filter
-    if (filterCriteria.popularity !== 'all') {
-      filtered = filtered.filter(league => {
-        const popularity = league.popularity || 50;
-        switch (filterCriteria.popularity) {
-          case 'high':
-            return popularity >= 80;
-          case 'medium':
-            return popularity >= 60 && popularity < 80;
-          case 'low':
-            return popularity < 60;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // 4. League Type Filter
-    if (filterCriteria.leagueType !== 'all') {
-      filtered = filtered.filter(league => {
-        switch (filterCriteria.leagueType) {
-          case 'league':
-            return league.type === 'League';
-          case 'cup':
-            return league.type === 'Cup' && league.country !== 'World';
-          case 'international':
-            return league.country === 'World';
-          default:
-            return true;
-        }
-      });
-    }
-
-    // 5. Season Filter (for future implementation)
-    // Currently just shows current season data
-
-    return filtered.slice(0, 10); // Always show only top 10
-  }, [popularLeagues, filterCriteria]);
-
-  useEffect(() => {
-    if (leaguesData && Array.isArray(leaguesData)) {
-      // Merge API data with popular leagues, prioritizing popular leagues
-      const formattedLeagues = leaguesData.slice(0, 10).map((item: any, index: number) => ({
-        id: item.league?.id || item.id,
-        name: item.league?.name || item.name,
-        logo: item.league?.logo || item.logo,
-        country: item.country?.name || item.country || 'Unknown',
-        type: item.league?.type || item.type || 'League',
-        season: new Date().getFullYear(),
-        priority: index + 1,
-        popularity: 100 - (index * 3)
-      }));
-      setLeagues(formattedLeagues);
-    } else {
-      // Fallback to popular leagues if API fails
-      setLeagues(popularLeagues);
-    }
-  }, [leaguesData, popularLeagues]);
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>League Standings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <ErrorBoundary>
-      <Card className="w-full max-w-6xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-yellow-500" />
-            League Standings Filter - Top 10 Major Leagues
-            <Badge variant="outline" className="ml-2">
-              {filteredLeagues.length} leagues
-            </Badge>
-            {error && (
-              <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Offline Mode
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-      <CardContent className="space-y-6">
-        {/* 5 Filter Mechanisms */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Geographic Region
-            </label>
-            <Select 
-              value={filterCriteria.geographical} 
-              onValueChange={(value) => setFilterCriteria(prev => ({...prev, geographical: value as any}))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FILTER_MECHANISMS.geographical.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{option.icon}</span>
-                      {option.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Competition Level
-            </label>
-            <Select 
-              value={filterCriteria.competitionLevel} 
-              onValueChange={(value) => setFilterCriteria(prev => ({...prev, competitionLevel: value as any}))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FILTER_MECHANISMS.competitionLevel.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{option.icon}</span>
-                      {option.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              Popularity Level
-            </label>
-            <Select 
-              value={filterCriteria.popularity} 
-              onValueChange={(value) => setFilterCriteria(prev => ({...prev, popularity: value as any}))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FILTER_MECHANISMS.popularity.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{option.icon}</span>
-                      {option.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Season
-            </label>
-            <Select 
-              value={filterCriteria.season} 
-              onValueChange={(value) => setFilterCriteria(prev => ({...prev, season: value as any}))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FILTER_MECHANISMS.season.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{option.icon}</span>
-                      {option.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              League Type
-            </label>
-            <Select 
-              value={filterCriteria.leagueType} 
-              onValueChange={(value) => setFilterCriteria(prev => ({...prev, leagueType: value as any}))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FILTER_MECHANISMS.leagueType.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{option.icon}</span>
-                      {option.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-end">
-            <Button 
-              variant="outline" 
-              onClick={() => setFilterCriteria({
-                geographical: 'all',
-                competitionLevel: 'all',
-                popularity: 'all',
-                season: 'current',
-                leagueType: 'all'
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <Select 
+          value={selectedLeague} 
+          onValueChange={(value) => {
+            setSelectedLeague(value);
+            const league = popularLeagues.find(l => l && l.id && l.name && l.id.toString() === value);
+            if (league && league.name) {
+              setSelectedLeagueName(league.name);
+            }
+          }}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue>
+              <div className="flex items-center gap-2">
+                <img
+                  src={popularLeagues.find(l => l && l.id && l.id.toString() === selectedLeague)?.logo}
+                  alt={selectedLeagueName}
+                  className="h-5 w-5 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                  }}
+                />
+                {selectedLeagueName}
+              </div>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {popularLeagues.filter(league => league && league.id && league.name && league.logo).map((league) => (
+              <SelectItem key={league.id} value={league.id.toString()}>
+                <div className="flex items-center gap-2">
+                  <img
+                    src={league.logo}
+                    alt={league.name}
+                    className="h-5 w-5 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                  {league.name}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </CardHeader>
+      <CardContent>
+        <div className="relative">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                  <TableHead className="w-[40px] text-center">#</TableHead>
+                  <TableHead className="pl-4">Team</TableHead>
+                  <TableHead className="text-center">P</TableHead>
+                  <TableHead className="text-center">F:A</TableHead>
+                  <TableHead className="text-center">+/-</TableHead>
+                  <TableHead className="text-center">PTS</TableHead>
+                  <TableHead className="text-center">W</TableHead>
+                  <TableHead className="text-center">D</TableHead>
+                  <TableHead className="text-center">L</TableHead>
+                  <TableHead className="text-center">Form</TableHead>
+                  <TableHead className="text-center">Next</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+              {standings?.slice(0, 7).map((standing: Standing) => {
+                const stats = standing.all;
+                return (
+                  <TableRow key={standing.team.id} className="border-b border-gray-100">
+                      <TableCell className="font-medium text-[0.9em] text-center">{standing.rank}</TableCell>
+                      <TableCell className="flex flex-col font-normal pl-4">
+                        <div className="flex items-center">
+                          <img
+                            src={standing.team.logo}
+                            alt={standing.team.name}
+                            className="mr-2 h-5 w-5 rounded-full"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                            }}
+                          />
+                          <span className="text-[0.9em]">{standing.team.name}</span>
+                          {standing.rank === 1 && <span className="ml-2">👑</span>}
+                        </div>
+                        {standing.description && (
+                          <span className="text-[0.75em] text-yellow-500">
+                            {standing.rank === 1 ? 'Won title • CAF Champions League' : standing.description}
+                          </span>
+                        )}
+                      </TableCell>
+                    <TableCell className="text-center text-[0.9em]">{stats.played}</TableCell>
+                    <TableCell className="text-center text-[0.9em]">{stats.goals.for}:{stats.goals.against}</TableCell>
+                    <TableCell className="text-center text-[0.9em]">{standing.goalsDiff}</TableCell>
+                    <TableCell className="text-center font-bold text-[0.9em]">{standing.points}</TableCell>
+                    <TableCell className="text-center text-[0.9em]">{stats.win}</TableCell>
+                    <TableCell className="text-center text-[0.9em]">{stats.draw}</TableCell>
+                    <TableCell className="text-center text-[0.9em]">{stats.lose}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex gap-1 justify-center">
+                        {standing.form?.split('').map((result, i) => (
+                          <span
+                            key={i}
+                            className={`w-2 h-2 rounded-full ${
+                              result === 'W' ? 'bg-green-500' :
+                              result === 'D' ? 'bg-gray-500' :
+                              'bg-red-500'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-2 py-2 relative group">
+                      <div className="flex items-center justify-center gap-2">
+                        {standings?.find(opponent => 
+                          opponent.team.id !== standing.team.id && 
+                          opponent.rank > standing.rank
+                        ) && (
+                          <>
+                            <img 
+                              src={standings.find(opponent => 
+                                opponent.team.id !== standing.team.id && 
+                                opponent.rank > standing.rank
+                              )?.team.logo} 
+                              alt={`Next opponent: ${standings.find(opponent => 
+                                opponent.team.id !== standing.team.id && 
+                                opponent.rank > standing.rank
+                              )?.team.name}`}
+                              className="w-4 h-4 hover:scale-110 transition-transform"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                              }}
+                            />
+                            <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
+                              <div className="text-xs">
+                                <span className="font-medium">{standing.team.name}</span>
+                                <span className="mx-2">vs</span>
+                                <span className="font-medium">
+                                  {standings.find(opponent => 
+                                    opponent.team.id !== standing.team.id && 
+                                    opponent.rank > standing.rank
+                                  )?.team.name}
+                                </span>
+                                <div className="text-gray-500 mt-1">
+                                  {(() => {
+                                    const nextMatch = fixtures?.find(f => 
+                                      (f.teams.home.id === standing.team.id || f.teams.away.id === standing.team.id) &&
+                                      new Date(f.fixture.date) > new Date()
+                                    );
+                                    return nextMatch ? format(parseISO(nextMatch.fixture.date), 'dd/MM/yyyy') : 'No upcoming matches';
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
               })}
-              className="w-full"
-            >
-              Reset Filters
-            </Button>
-          </div>
+            </TableBody>
+          </Table>
         </div>
-
-        {/* League Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            Select League (Top 10 Major Leagues)
-          </label>
-          {isLoading ? (
-            <Skeleton className="h-10 w-full" />
-          ) : (
-            <Select value={selectedLeague?.toString() || ''} onValueChange={(value) => setSelectedLeague(parseInt(value))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose from top 10 major leagues..." />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredLeagues.map((league) => (
-                  <SelectItem key={league.id} value={league.id.toString()}>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src={league.logo} 
-                        alt={league.name}
-                        className="w-5 h-5 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/assets/fallback-logo.png';
-                        }}
-                      />
-                      <span className="font-medium">{league.name}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {league.country}
-                      </Badge>
-                      {league.priority && league.priority <= 3 && (
-                        <Badge variant="default" className="text-xs bg-yellow-500">
-                          Top {league.priority}
-                        </Badge>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        {/* Error State with Network Error Handling */}
-        {error && (
-          <div className="text-center py-8">
-            <div className="text-amber-500 mb-2">
-              <Users className="h-8 w-8 mx-auto mb-2" />
-              <p className="font-medium">Network Issue Detected</p>
-              <p className="text-sm text-gray-500">
-                Using cached data from top 10 major leagues ({filteredLeagues.length} leagues available)
-              </p>
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.reload()} 
-                className="mt-2 text-xs"
-              >
-                Retry Connection
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* League Stats Summary for Top 10 Major Leagues */}
-        {filteredLeagues.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 p-4 bg-blue-50 rounded-lg">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{filteredLeagues.length}</div>
-              <div className="text-xs text-gray-500">Filtered Leagues</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {filteredLeagues.filter(l => l.type === 'League').length}
-              </div>
-              <div className="text-xs text-gray-500">Domestic Leagues</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {filteredLeagues.filter(l => l.type === 'Cup').length}
-              </div>
-              <div className="text-xs text-gray-500">Cup Competitions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {new Set(filteredLeagues.map(l => l.country)).size}
-              </div>
-              <div className="text-xs text-gray-500">Countries</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {Math.round(filteredLeagues.reduce((acc, l) => acc + (l.popularity || 50), 0) / filteredLeagues.length)}
-              </div>
-              <div className="text-xs text-gray-500">Avg Popularity</div>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
-    </ErrorBoundary>
   );
 };
 
