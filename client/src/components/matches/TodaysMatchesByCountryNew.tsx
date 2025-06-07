@@ -43,7 +43,6 @@ import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import LazyImage from "../common/LazyImage";
 import LazyMatchItem from './LazyMatchItem';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { SmartFlag } from "../common/SmartFlag";
 
 // Helper function to shorten team names
 const shortenTeamName = (teamName: string): string => {
@@ -426,7 +425,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
       if (selectedDate === todayString && smartResult.label === 'today') return true;
       if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
-
+      
       // Handle custom dates (dates that are not today/tomorrow/yesterday)
       if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
         if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
@@ -448,7 +447,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return {
       validFixtures: filtered,
-      rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' }),
+      rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' })),
       stats: {
         total: fixtures.length,
         valid: filtered.length,
@@ -876,7 +875,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return "bg-blue-100 text-blue-700";
   };
 
-  //Modified code to import and use the SmartFlag component for displaying country flags.```text
   // Get header title based on button states and selected date (client timezone aware)
   const getHeaderTitle = () => {
     // Check for different button states first
@@ -1081,12 +1079,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   }`}
                 >
                   <div className="flex items-center gap-3 font-normal text-[14px]">
-                    <SmartFlag
+                    <img
                       src={(() => {
                         const countryName = typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown';
-
+                        
                         if (countryName === "World") {
                           return "/assets/world flag_new.png";
+                        }
+
+                        // For England specifically, always use the England flag
+                        if (countryName === "England") {
+                          return "https://flagcdn.com/w40/gb-eng.png";
+                        }
+
+                        // Check if we have a cached flag for other countries
+                        const cachedFlag = flagMap[countryName];
+                        if (cachedFlag) {
+                          return cachedFlag;
                         }
 
                         // For other countries, use the fallback sync function
@@ -1096,8 +1105,53 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         );
                       })()}
                       alt={typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown'}
-                      size={20}
-                      className="object-cover rounded-sm shadow-sm"
+                      className="w-5 h-3 object-cover rounded-sm shadow-sm"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        const countryName = typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown';
+                        
+                        // For World flag, use fallback
+                        if (countryName === "World") {
+                          target.src = "/assets/fallback.svg";
+                          return;
+                        }
+                        // For England specifically, ensure we try the correct flag first
+                        if (
+                          countryName === "England" &&
+                          !target.src.includes("fallback-logo.svg")
+                        ) {
+                          if (!target.src.includes("gb-eng")) {
+                            // First try the England flag
+                            target.src = "https://flagcdn.com/w40/gb-eng.png";
+                            return;
+                          } else {
+                            // If England flag fails, use GB flag
+                            target.src = "https://flagcdn.com/w40/gb.png";
+                            return;
+                          }
+                        }
+                        // For other GB subdivisions
+                        if (
+                          (countryName === "Scotland" ||
+                            countryName === "Wales" ||
+                            countryName === "Northern Ireland") &&
+                          !target.src.includes("fallback-logo.svg")
+                        ) {
+                          if (
+                            target.src.includes("gb-sct") ||
+                            target.src.includes("gb-wls") ||
+                            target.src.includes("gb-nir")
+                          ) {
+                            target.src = "https://flagcdn.com/w40/gb.png"; // Fallback to GB flag
+                          } else if (target.src.includes("/gb.png")) {
+                            target.src = "/assets/fallback.svg";
+                          }
+                          return;
+                        }
+                        if (!target.src.includes("/assets/fallback.svg")) {
+                          target.src = "/assets/fallback.svg";
+                        }
+                      }}
                     />
                     <span className="font-medium text-gray-900" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
                       {typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown'}
