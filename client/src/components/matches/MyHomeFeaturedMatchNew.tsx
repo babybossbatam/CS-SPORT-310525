@@ -65,11 +65,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
-  // Get featured matches from cached popular leagues data
+  // Get featured matches from TodayPopularFootballLeaguesNew cached data
   useEffect(() => {
     const getFeaturedMatches = async () => {
       try {
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === STARTING FEATURED MATCH FETCH ===");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === STARTING FEATURED MATCH FETCH FROM POPULAR LEAGUES CACHE ===");
         console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current date:", currentDate);
         console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Max matches:", maxMatches);
         
@@ -80,7 +80,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const cachedData = CacheManager.getCachedData(cacheKey, 10 * 60 * 1000); // 10 minutes cache
 
         if (cachedData) {
-          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ CACHE HIT - Using cached data");
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ CACHE HIT - Using cached featured matches");
           console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cached matches count:", cachedData.length);
           console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache data preview:", cachedData.slice(0, 2).map(m => ({
             id: m.fixture?.id,
@@ -96,7 +96,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return;
         }
 
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ CACHE MISS - Fetching new data");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ CACHE MISS - Extracting from TodayPopularFootballLeaguesNew data");
         console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache key:", cacheKey);
 
         // Get dates for today, tomorrow, and day after tomorrow
@@ -115,7 +115,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const allFeaturedMatches = [];
         const seenMatches = new Set<string>();
 
-        // Fetch matches from popular leagues cache for each date
+        // Extract matches from TodayPopularFootballLeaguesNew cache data for each date
         const datesToFetch = [
           { date: todayString, label: "Today" },
           { date: tomorrowString, label: "Tomorrow" },
@@ -128,46 +128,22 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           try {
             console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] === PROCESSING ${label.toUpperCase()} (${date}) ===`);
 
-            // Try to get cached popular leagues data
+            // Use the same cache key that TodayPopularFootballLeaguesNew uses
             const popularLeaguesCacheKey = ["all-fixtures-by-date", date];
             let popularLeaguesData = CacheManager.getCachedData(
               popularLeaguesCacheKey,
-              30 * 60 * 1000, // 30 minutes - same as popular leagues cache
+              30 * 60 * 1000, // 30 minutes - same as TodayPopularFootballLeaguesNew
             );
 
             console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Cache key for ${label}:`, popularLeaguesCacheKey);
             console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Raw cache data length for ${label}:`, popularLeaguesData?.length || 0);
 
             if (!popularLeaguesData || popularLeaguesData.length === 0) {
-              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No cached data for ${label} - FETCHING FROM API`);
-              
-              // Fetch from API if cache is empty
-              try {
-                const response = await apiRequest('GET', `/api/fixtures/date/${date}?all=true`);
-                if (response.ok) {
-                  popularLeaguesData = await response.json();
-                  console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ Fetched ${popularLeaguesData?.length || 0} fixtures from API for ${label}`);
-                  
-                  // Cache the data for future use
-                  if (popularLeaguesData && popularLeaguesData.length > 0) {
-                    CacheManager.setCachedData(popularLeaguesCacheKey, popularLeaguesData);
-                  }
-                } else {
-                  console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ API request failed for ${label}:`, response.status);
-                  continue;
-                }
-              } catch (apiError) {
-                console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ API request error for ${label}:`, apiError);
-                continue;
-              }
-            }
-
-            if (!popularLeaguesData || popularLeaguesData.length === 0) {
-              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No data available for ${label} - SKIPPING`);
+              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No cached data for ${label} - SKIPPING`);
               continue;
             }
 
-            // Apply exclusion filter to get valid matches
+            // Apply exclusion filter to get valid matches (same as TodayPopularFootballLeaguesNew)
             const validMatches = popularLeaguesData.filter(
               (fixture) => !shouldExcludeMatch(fixture),
             );
@@ -326,7 +302,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     };
 
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚀 INITIATING getFeaturedMatches()");
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚀 INITIATING getFeaturedMatches() from TodayPopularFootballLeaguesNew cache");
     getFeaturedMatches();
   }, [currentDate, maxMatches]);
 
