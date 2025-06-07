@@ -93,6 +93,9 @@ const countryCodeMap: { [key: string]: string } = {
   'Ecuador': 'EC',
   'Venezuela': 'VE',
   'venezuela': 'VE', // Add lowercase variant
+  'Venezuela (Bolivarian Republic of)': 'VE', // Add official name variant
+  'Venezuela (Bolivarian Republic)': 'VE', // Add alternative variant
+  'Bolivarian Republic of Venezuela': 'VE', // Add alternative order
   'Guyana': 'GY',
   'Suriname': 'SR',
   'French Guiana': 'GF',
@@ -755,6 +758,13 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   flagCacheMem.set(cacheKey, result);
   console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Stored in memory cache: ${cacheKey} -> ${result}`);
 
+  // Special correction for Venezuela to prevent Colombia flag cache corruption
+  if (country.toLowerCase().includes('venezuela') && result.includes('/co.png')) {
+    console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] Detected Venezuela using Colombia flag, correcting...`);
+    result = 'https://flagcdn.com/w40/ve.png';
+    console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Corrected Venezuela flag to: ${result}`);
+  }
+
   // Also cache in the main flag cache if it's a valid flag URL (not API endpoint)
   if (result && !result.startsWith('/api/') && result !== '/assets/fallback-logo.svg') {
     const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
@@ -1098,42 +1108,53 @@ export function debugCountryMapping(country: string): void {
  * Clear Venezuela flag cache specifically for debugging
  */
 export function clearVenezuelaFlagCache(): void {
-  const cacheKey = 'flag_venezuela';
-  const cached = flagCache.getCached(cacheKey);
-  if (cached) {
-    console.log(`🗑️ Clearing Venezuela flag cache:`, {
-      cacheKey,
-      oldUrl: cached.url,
-      oldSource: cached.source,
-      age: Math.round((Date.now() - cached.timestamp) / 1000 / 60) + ' minutes'
-    });
-    
-    // Clear from cache
-    (flagCache as any).cache.delete(cacheKey);
-    
-    // Also clear from localStorage
-    try {
-      const storedCache = localStorage.getItem('cssport_flag_cache');
-      if (storedCache) {
-        const cacheData = JSON.parse(storedCache);
-        if (cacheData.flags) {
-          cacheData.flags = cacheData.flags.filter(([key]: any) => key !== cacheKey);
-          localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
-          console.log(`🗑️ Cleared Venezuela flag from localStorage`);
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to clear Venezuela flag from localStorage:', error);
+  // Clear all possible Venezuela cache entries
+  const venezuelaCacheKeys = [
+    'flag_venezuela',
+    'flag_venezuela_(bolivarian_republic_of)',
+    'flag_venezuela_(bolivarian_republic)',
+    'flag_bolivarian_republic_of_venezuela'
+  ];
+  
+  venezuelaCacheKeys.forEach(cacheKey => {
+    const cached = flagCache.getCached(cacheKey);
+    if (cached) {
+      console.log(`🗑️ Clearing Venezuela flag cache:`, {
+        cacheKey,
+        oldUrl: cached.url,
+        oldSource: cached.source,
+        age: Math.round((Date.now() - cached.timestamp) / 1000 / 60) + ' minutes'
+      });
+      
+      // Clear from cache
+      (flagCache as any).cache.delete(cacheKey);
     }
-    
-    // Generate correct flag and re-cache
-    const correctFlag = 'https://flagcdn.com/w40/ve.png';
-    flagCache.setCached(cacheKey, correctFlag, 'manual-correction', true);
-    
-    console.log(`✅ Venezuela flag cache corrected to: ${correctFlag}`);
-  } else {
-    console.log(`ℹ️ No Venezuela flag cache found`);
+  });
+  
+  // Also clear from localStorage
+  try {
+    const storedCache = localStorage.getItem('cssport_flag_cache');
+    if (storedCache) {
+      const cacheData = JSON.parse(storedCache);
+      if (cacheData.flags) {
+        cacheData.flags = cacheData.flags.filter(([key]: any) => 
+          !venezuelaCacheKeys.includes(key)
+        );
+        localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
+        console.log(`🗑️ Cleared all Venezuela flags from localStorage`);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to clear Venezuela flags from localStorage:', error);
   }
+  
+  // Generate correct flag and re-cache for all variants
+  const correctFlag = 'https://flagcdn.com/w40/ve.png';
+  venezuelaCacheKeys.forEach(cacheKey => {
+    flagCache.setCached(cacheKey, correctFlag, 'manual-correction', true);
+  });
+  
+  console.log(`✅ Venezuela flag cache corrected to: ${correctFlag} for all variants`);
 }
 
 /**
