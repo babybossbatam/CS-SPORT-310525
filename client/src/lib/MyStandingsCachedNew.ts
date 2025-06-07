@@ -189,9 +189,13 @@ class StandingsCache {
     };
 
     this.memoryCache.set(cacheKey, cacheItem);
-    this.saveToStorage();
-
-    console.log(`💾 Cached standings for league ${leagueId} (${data.league.name})`);
+    
+    try {
+      this.saveToStorage();
+      console.log(`💾 Successfully cached standings for league ${leagueId} (${data.league.name}) with key: ${cacheKey}`);
+    } catch (error) {
+      console.error(`❌ Failed to save standings cache to localStorage for league ${leagueId}:`, error);
+    }
   }
 
   // Log cache statistics
@@ -283,21 +287,21 @@ class StandingsCache {
       return anyCached.data;
     }
 
-    // For popular leagues, NEVER make API calls from the frontend
+    // For popular leagues, only avoid API calls if we have some form of fallback
     const isPopularLeague = [2, 3, 39, 140, 135, 78, 848, 15].includes(leagueId);
     if (isPopularLeague) {
-      console.log(`🚫 Avoiding API call for popular league ${leagueId} - will return null instead of failing`);
-      return null;
+      console.log(`⚠️ Popular league ${leagueId} has no cached data - proceeding with cautious API call`);
+      // Continue to API call but with extra error handling
     }
 
     try {
-      console.log(`🔍 Fetching fresh standings for league ${leagueId}`);
+      console.log(`🔍 Fetching fresh standings for league ${leagueId} (season: ${season || 'current'})`);
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined
       });
 
       if (!response.ok) {
-        console.warn(`Failed to fetch standings for league ${leagueId}: ${response.status}`);
+        console.warn(`❌ Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`);
         
         // If we have ANY cached data (even expired), use it as fallback
         const fallbackCached = this.memoryCache.get(cacheKey);
@@ -306,6 +310,7 @@ class StandingsCache {
           return fallbackCached.data;
         }
         
+        console.log(`❌ No fallback cache available for league ${leagueId}`);
         return null;
       }
 
@@ -328,9 +333,11 @@ class StandingsCache {
       // Cache the fetched data
       if (data && data.league) {
         this.setCachedStandings(leagueId, data, season);
+        console.log(`✅ Successfully fetched and cached standings for league ${leagueId} (${data.league.name}) - ${data.league.standings?.[0]?.length || 0} teams`);
+      } else {
+        console.warn(`⚠️ API returned data but missing league structure for league ${leagueId}`);
       }
 
-      console.log(`✅ Fetched and cached standings for league ${leagueId} (${data?.league?.name || 'Unknown'})`);
       return data;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
