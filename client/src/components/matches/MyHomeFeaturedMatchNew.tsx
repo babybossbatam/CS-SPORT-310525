@@ -589,45 +589,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               ) : null}
             </div>
 
-            {/* Status label - positioned absolutely */}
-            <div
-              className="match-status-label"
-              style={{
-                position: "absolute",
-                bottom: "4px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                fontSize: "0.875rem",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {currentMatch?.fixture?.status?.short &&
-              ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-                currentMatch.fixture.status.short,
-              )
-                ? // Live/Finished status
-                  (() => {
-                    const status = currentMatch?.fixture?.status?.short;
-                    const elapsed = currentMatch?.fixture?.status?.elapsed;
-
-                    if (
-                      ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
-                        status,
-                      )
-                    ) {
-                      if (status === "HT") return "HT";
-                      return `${elapsed || 0}'`;
-                    }
-                    if (status === "FT") return "Ended";
-                    if (status === "AET") return "After Extra Time";
-                    if (status === "PEN") return "After Penalties";
-                    return status || "Upcoming";
-                  })()
-                : // Upcoming match status
-                  currentMatch?.fixture?.status?.short === "NS"
-                  ? ""
-                  : currentMatch?.fixture?.status?.short || "Upcoming"}
-            </div>
+            
           </div>
 
           {/* Team scoreboard with colored bars */}
