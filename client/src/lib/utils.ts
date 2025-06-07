@@ -583,7 +583,12 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       clearTimeout(timeoutId);
       
       const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
-      console.error(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
+      console.warn(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
+      
+      // For network failures, try to use fallback/cached data if available
+      const isNetworkError = fetchErrorMessage.includes('Failed to fetch') || 
+                            fetchErrorMessage.includes('NetworkError') ||
+                            fetchErrorMessage.includes('TypeError');
       
       // Create a proper error response object that indicates network failure
       const createNetworkErrorResponse = (): Response => ({
@@ -598,9 +603,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         bodyUsed: false,
         json: async () => ({ 
           error: true, 
-          message: 'Network connectivity failed',
+          message: isNetworkError ? 'Network connectivity issue - please check your connection' : 'Request failed',
           details: fetchErrorMessage,
-          networkError: true
+          networkError: isNetworkError
         }),
         text: async () => `Network Error: ${fetchErrorMessage}`,
         blob: async () => new Blob(),
