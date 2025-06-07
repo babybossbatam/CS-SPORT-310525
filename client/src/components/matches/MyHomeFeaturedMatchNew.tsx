@@ -551,38 +551,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     {currentMatch?.goals?.away ?? 0}
                   </span>
                 </>
-              ) : (
-                // Upcoming time display
-                <span
-                  className="score-number"
-                  style={{ fontSize: "calc(1.125rem * 0.968 * 1.1)" }}
-                >
-                  {(() => {
-                    const status = currentMatch?.fixture?.status?.short;
-
-                    if (status === "NS") {
-                      try {
-                        const matchDate = parseISO(currentMatch.fixture.date);
-                        const now = new Date();
-                        const msToMatch = matchDate.getTime() - now.getTime();
-                        const daysToMatch = Math.ceil(
-                          msToMatch / (1000 * 60 * 60 * 24),
-                        );
-
-                        if (daysToMatch === 0) return "Today";
-                        else if (daysToMatch === 1) return "Tomorrow";
-                        else if (daysToMatch > 1) return `${daysToMatch} Days`;
-                        else return "Today";
-                      } catch (e) {
-                        return "Today";
-                      }
-                    }
-                    if (status === "TBD") return "Time TBD";
-                    if (status === "PST") return "Postponed";
-                    return status || "";
-                  })()}
-                </span>
-              )}
+              ) : null}
             </div>
 
             {/* Status label - positioned absolutely */}
