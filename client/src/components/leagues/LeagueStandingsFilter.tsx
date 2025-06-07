@@ -554,6 +554,3 @@ const LeagueStandingsFilter: React.FC = () => {
 };
 
 export default LeagueStandingsFilter;
-```
-
-The code has been modified to include 5 filter mechanisms, integrate with popular leagues data, show only top 10 major leagues, and add error handling.
