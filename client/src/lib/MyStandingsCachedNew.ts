@@ -291,9 +291,13 @@ class StandingsCache {
       return anyCached.data;
     }
 
-    // PRIORITY 3: Make controlled API calls
+    // PRIORITY 3: For popular leagues without any cache, refetch the popular league standings data
+    if (isPopularLeague && !anyCached) {
+      console.log(`⚠️ Popular league ${leagueId} has no cached data - proceeding with cautious API call`);
+    }
+
     try {
-      console.log(`🔍 Making API call for league ${leagueId} (season: ${season || 'current'})`);
+      console.log(`🔍 Fetching fresh standings for league ${leagueId} (season: ${season || 'current'})`);
       
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined,
