@@ -58,10 +58,6 @@ const LeagueStandingsFilter = () => {
   const [selectedLeagueName, setSelectedLeagueName] = useState('');
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
-  useEffect(() => {
-    loadLeagues();
-  }, []);
-
   const getPopularLeagues = async () => {
     const response = await fetch('/api/leagues');
     if (!response.ok) {
@@ -87,6 +83,10 @@ const LeagueStandingsFilter = () => {
       setLeaguesLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadLeagues();
+  }, []);
 
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
