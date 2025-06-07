@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from './utils';
 import { CACHE_DURATIONS } from './cacheConfig';
+import { CacheManager } from './fixtureCache';
 
 // Standing types
 interface TeamStanding {
@@ -568,8 +569,22 @@ export function useBatchStandings(leagueIds: number[], season?: number) {
  * Hook to fetch popular league standings (optimized batch request)
  */
 export function usePopularLeagueStandings(season?: number) {
-  const dynamicLeagues = React.useMemo(() => getPopularLeaguesFromCache(), []);
-  return useBatchStandings(dynamicLeagues, season);
+  // Use static fallback leagues to prevent React hooks queue issues
+  const fallbackLeagues = [39, 140, 135, 78, 2, 3]; // Premier League, La Liga, Serie A, Bundesliga, Champions League, Europa League
+  
+  const dynamicLeagues = React.useMemo(() => {
+    try {
+      return getPopularLeaguesFromCache();
+    } catch (error) {
+      console.warn('Failed to get dynamic leagues, using fallback:', error);
+      return fallbackLeagues;
+    }
+  }, []);
+
+  // Ensure we always have valid league IDs
+  const validLeagues = dynamicLeagues.length > 0 ? dynamicLeagues : fallbackLeagues;
+  
+  return useBatchStandings(validLeagues, season);
 }
 
 /**
@@ -655,13 +670,23 @@ export function usePrefetchStandings() {
   const prefetchPopularLeaguesStandings = React.useCallback((season?: number) => {
     const currentYear = new Date().getFullYear();
     const targetSeason = season || currentYear;
-    const dynamicLeagues = getPopularLeaguesFromCache();
+    const fallbackLeagues = [39, 140, 135, 78, 2, 3];
+    
+    let dynamicLeagues;
+    try {
+      dynamicLeagues = getPopularLeaguesFromCache();
+    } catch (error) {
+      console.warn('Failed to get dynamic leagues for prefetch, using fallback:', error);
+      dynamicLeagues = fallbackLeagues;
+    }
 
-    console.log(`🔄 [StandingsCache] Prefetching standings for ${dynamicLeagues.length} leagues from TodayPopularLeagueNew`);
+    const validLeagues = dynamicLeagues.length > 0 ? dynamicLeagues : fallbackLeagues;
+
+    console.log(`🔄 [StandingsCache] Prefetching standings for ${validLeagues.length} leagues`);
 
     queryClient.prefetchQuery({
-      queryKey: ['batch-standings', dynamicLeagues.sort((a, b) => a - b), targetSeason],
-      queryFn: () => standingsCache.fetchBatchStandings(dynamicLeagues, season),
+      queryKey: ['batch-standings', validLeagues.sort((a, b) => a - b), targetSeason],
+      queryFn: () => standingsCache.fetchBatchStandings(validLeagues, season),
       ...STANDINGS_CACHE_CONFIG,
     });
   }, [queryClient]);
