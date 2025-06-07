@@ -583,27 +583,43 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      console.error(`API request timeout for ${method} ${endpoint}`);
+    
+    // Log the error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error(`🚫 API request timeout for ${method} ${endpoint} after ${options?.timeout || 15000}ms`);
+    } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
+      console.error(`🌐 Network error for ${method} ${endpoint}: ${errorMessage}`);
     } else {
-      console.error(`API request error for ${method} ${endpoint}:`, error);
+      console.error(`❌ API request error for ${method} ${endpoint}:`, error);
     }
-    // Instead of throwing, return a response-like object that indicates failure
-    return {
+    
+    // Create a more detailed error response
+    const createErrorResponse = (statusText: string): Response => ({
       ok: false,
       status: 0,
-      statusText: error instanceof Error ? error.message : 'Network connection error',
-      json: async () => ({ error: true, message: 'Failed to connect to server' }),
-      text: async () => 'Network Error',
+      statusText,
+      headers: new Headers(),
+      redirected: false,
+      type: 'error',
+      url: '',
+      body: null,
+      bodyUsed: false,
+      json: async () => ({ 
+        error: true, 
+        message: 'Failed to connect to server',
+        details: statusText
+      }),
+      text: async () => `Network Error: ${statusText}`,
       blob: async () => new Blob(),
       arrayBuffer: async () => new ArrayBuffer(0),
       formData: async () => new FormData(),
-      clone: () => ({
-        ok: false,
-        status: 0,
-        statusText: error instanceof Error ? error.message : 'Network connection error',
-        json: async () => ({ error: true, message: 'Failed to connect to server' })
-      })
-    } as Response;
+      clone: function() {
+        return createErrorResponse(statusText);
+      }
+    } as Response);
+
+    return createErrorResponse(errorMessage);
   }
 };

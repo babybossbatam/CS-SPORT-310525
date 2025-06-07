@@ -335,18 +335,34 @@ class StandingsCache {
       });
 
       if (!response.ok) {
-        console.warn(`❌ Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`);
+        const errorMsg = `Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`;
+        console.warn(`❌ ${errorMsg}`);
         
         // If we have any cached data (even expired), use it as fallback
         if (anyCached) {
-          console.log(`🔄 Falling back to expired cache for league ${leagueId}`);
+          const age = Date.now() - anyCached.timestamp;
+          const ageHours = Math.floor(age / (60 * 60 * 1000));
+          console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to API error`);
           return anyCached.data;
         }
         
         return null;
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.warn(`❌ Failed to parse JSON response for league ${leagueId}:`, jsonError);
+        
+        // If we have any cached data, use it as fallback
+        if (anyCached) {
+          console.log(`🔄 Falling back to expired cache for league ${leagueId} due to JSON parse error`);
+          return anyCached.data;
+        }
+        
+        return null;
+      }
 
       // Check if the response indicates an error
       if (data.error) {
@@ -432,7 +448,20 @@ class StandingsCache {
           const standings = await this.performIndividualFetch(leagueId, season);
           return { leagueId, standings };
         } catch (error) {
-          console.error(`Error in batch fetch for league ${leagueId}:`, error);
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`❌ Error in batch fetch for league ${leagueId}: ${errorMsg}`);
+          
+          // Check if we have any cached data for this league as fallback
+          const cacheKey = this.getStandingsKey(leagueId, season);
+          const cachedData = this.memoryCache.get(cacheKey);
+          
+          if (cachedData) {
+            const age = Date.now() - cachedData.timestamp;
+            const ageHours = Math.floor(age / (60 * 60 * 1000));
+            console.log(`🔄 Using cached data for league ${leagueId} in batch (age: ${ageHours}h) due to fetch error`);
+            return { leagueId, standings: cachedData.data };
+          }
+          
           return { leagueId, standings: null };
         }
       });
