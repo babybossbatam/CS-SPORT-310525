@@ -69,6 +69,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   useEffect(() => {
     const getFeaturedMatches = async () => {
       try {
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === STARTING FEATURED MATCH FETCH ===");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current date:", currentDate);
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Max matches:", maxMatches);
+        
         setLoading(true);
 
         // Check cache first
@@ -76,20 +80,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const cachedData = CacheManager.getCachedData(cacheKey, 10 * 60 * 1000); // 10 minutes cache
 
         if (cachedData) {
-          console.log(
-            "🎯 [FeaturedMatch] Using cached featured matches:",
-            cachedData.length,
-            "matches",
-          );
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ CACHE HIT - Using cached data");
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cached matches count:", cachedData.length);
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache data preview:", cachedData.slice(0, 2).map(m => ({
+            id: m.fixture?.id,
+            homeTeam: m.teams?.home?.name,
+            awayTeam: m.teams?.away?.name,
+            league: m.league?.name,
+            status: m.fixture?.status?.short
+          })));
+          
           setMatches(cachedData);
           setCurrentIndex(0);
           setLoading(false);
           return;
         }
 
-        console.log(
-          "🔍 [FeaturedMatch] Extracting featured matches from popular leagues cache",
-        );
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ CACHE MISS - Fetching new data");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache key:", cacheKey);
 
         // Get dates for today, tomorrow, and day after tomorrow
         const today = new Date();
@@ -98,6 +106,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const tomorrowString = format(tomorrow, "yyyy-MM-dd");
         const dayAfterTomorrow = addDays(today, 2);
         const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
+
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Date processing:");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Today:", todayString);
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Tomorrow:", tomorrowString);
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Day After Tomorrow:", dayAfterTomorrowString);
 
         const allFeaturedMatches = [];
         const seenMatches = new Set<string>();
@@ -109,11 +122,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           { date: dayAfterTomorrowString, label: "Day After Tomorrow" },
         ];
 
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Processing dates:", datesToFetch.map(d => d.label));
+
         for (const { date, label } of datesToFetch) {
           try {
-            console.log(
-              `🔍 [FeaturedMatch] Getting ${label} matches from popular leagues cache for ${date}`,
-            );
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] === PROCESSING ${label.toUpperCase()} (${date}) ===`);
 
             // Try to get cached popular leagues data
             const popularLeaguesCacheKey = ["all-fixtures-by-date", date];
@@ -122,10 +135,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               30 * 60 * 1000, // 30 minutes - same as popular leagues cache
             );
 
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Cache key for ${label}:`, popularLeaguesCacheKey);
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Raw cache data length for ${label}:`, popularLeaguesData?.length || 0);
+
             if (!popularLeaguesData || popularLeaguesData.length === 0) {
-              console.log(
-                `🔍 [FeaturedMatch] No cached popular leagues data for ${label}, skipping`,
-              );
+              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No cached data for ${label} - SKIPPING`);
               continue;
             }
 
@@ -134,9 +148,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               (fixture) => !shouldExcludeMatch(fixture),
             );
 
-            console.log(
-              `🔍 [FeaturedMatch] Found ${validMatches.length} valid matches for ${label} from popular leagues cache`,
-            );
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Valid matches after exclusion for ${label}:`, validMatches.length);
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Excluded ${popularLeaguesData.length - validMatches.length} matches for ${label}`);
+
+            // Analyze match statuses before prioritization
+            const statusCounts = validMatches.reduce((acc, match) => {
+              const status = match.fixture?.status?.short || 'UNKNOWN';
+              acc[status] = (acc[status] || 0) + 1;
+              return acc;
+            }, {});
+
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Match status breakdown for ${label}:`, statusCounts);
 
             // Prioritize matches by:
             // 1. Live matches first
@@ -165,26 +187,44 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return aDate.getTime() - bDate.getTime();
             });
 
+            // Analyze top matches after prioritization
+            const topMatches = prioritizedMatches.slice(0, 10);
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Top 10 prioritized matches for ${label}:`);
+            topMatches.forEach((match, idx) => {
+              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ${idx + 1}. ${match.teams?.home?.name} vs ${match.teams?.away?.name} (${match.league?.name}, Status: ${match.fixture?.status?.short})`);
+            });
+
             // Take top matches for this date, avoiding duplicates
             const matchesToAdd = [];
+            let duplicateCount = 0;
+            
             for (const match of prioritizedMatches) {
               const matchKey = `${match.fixture?.id}-${match.teams?.home?.name}-${match.teams?.away?.name}`;
 
-              if (!seenMatches.has(matchKey) && matchesToAdd.length < 4) {
+              if (seenMatches.has(matchKey)) {
+                duplicateCount++;
+                continue;
+              }
+
+              if (matchesToAdd.length < 4) {
                 seenMatches.add(matchKey);
                 matchesToAdd.push(match);
+              } else {
+                break;
               }
             }
 
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Duplicate detection for ${label}:`);
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] - Duplicates found: ${duplicateCount}`);
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] - Matches added: ${matchesToAdd.length}/4`);
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] - Total seen matches: ${seenMatches.size}`);
+
             allFeaturedMatches.push(...matchesToAdd);
 
-            console.log(
-              `🔍 [FeaturedMatch] Taking ${matchesToAdd.length} matches from ${label}:`,
-              matchesToAdd.map(
-                (m) =>
-                  `${m.teams?.home?.name} vs ${m.teams?.away?.name} (ID: ${m.fixture?.id}, League: ${m.league?.name})`,
-              ),
-            );
+            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Selected matches from ${label}:`);
+            matchesToAdd.forEach((match, idx) => {
+              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ${idx + 1}. ${match.teams?.home?.name} vs ${match.teams?.away?.name} (ID: ${match.fixture?.id}, League: ${match.league?.name}, Status: ${match.fixture?.status?.short})`);
+            });
           } catch (error) {
             console.error(
               `🔍 [FeaturedMatch] Error extracting data for ${date}:`,
@@ -193,8 +233,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           }
         }
 
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === FINAL PROCESSING ===");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Total collected matches:", allFeaturedMatches.length);
+
         // Take first 9 matches total and validate
         const finalMatches = allFeaturedMatches.slice(0, 9);
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Matches after slicing to 9:", finalMatches.length);
 
         // Validate data structure
         const validMatches = finalMatches.filter((match) => {
@@ -207,24 +251,32 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             match.league;
 
           if (!isValid) {
-            console.warn("🔍 [FeaturedMatch] Invalid match data:", match);
+            console.warn("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ Invalid match data:", {
+              hasMatch: !!match,
+              hasTeams: !!match?.teams,
+              hasHome: !!match?.teams?.home,
+              hasAway: !!match?.teams?.away,
+              hasFixture: !!match?.fixture,
+              hasLeague: !!match?.league
+            });
           }
           return isValid;
         });
 
-        console.log(
-          "🔍 [FeaturedMatch] Final featured matches from popular cache:",
-          validMatches.length,
-          "matches:",
-          validMatches.map((m) => ({
-            league: m.league?.name,
-            homeTeam: m.teams?.home?.name,
-            awayTeam: m.teams?.away?.name,
-            status: m.fixture?.status?.short,
-          })),
-        );
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Valid matches after validation:", validMatches.length);
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Invalid matches removed:", finalMatches.length - validMatches.length);
+
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Final match summary:");
+        validMatches.forEach((match, idx) => {
+          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ${idx + 1}. ${match.teams?.home?.name} vs ${match.teams?.away?.name}`);
+          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    League: ${match.league?.name}`);
+          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    Status: ${match.fixture?.status?.short}`);
+          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    Date: ${match.fixture?.date}`);
+          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    ID: ${match.fixture?.id}`);
+        });
 
         // Cache the result
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Caching results with key:", cacheKey);
         CacheManager.setCachedData(cacheKey, validMatches);
         backgroundCache.set(
           `featured-matches-from-popular-cache-${currentDate}`,
@@ -232,50 +284,89 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           10 * 60 * 1000,
         );
 
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ Setting state with", validMatches.length, "matches");
         setMatches(validMatches);
         setCurrentIndex(0);
       } catch (error) {
-        console.error(
-          "🔍 [FeaturedMatch] Error getting featured matches from popular cache:",
-          error,
-        );
+        console.error("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ ERROR occurred:", error);
+        console.error("🏠 [MyHomeFeaturedMatchNew Debugging report] Error details:", {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
         setMatches([]);
       } finally {
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === FETCH COMPLETED ===");
+        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Setting loading to false");
         setLoading(false);
       }
     };
 
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚀 INITIATING getFeaturedMatches()");
     getFeaturedMatches();
   }, [currentDate, maxMatches]);
 
   // Memoize current match
-  const currentMatch = useMemo(
-    () => matches[currentIndex],
-    [matches, currentIndex],
-  );
+  const currentMatch = useMemo(() => {
+    const match = matches[currentIndex];
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current match memoization:");
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current index:", currentIndex);
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Total matches:", matches.length);
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current match:", match ? {
+      homeTeam: match.teams?.home?.name,
+      awayTeam: match.teams?.away?.name,
+      league: match.league?.name,
+      status: match.fixture?.status?.short
+    } : null);
+    return match;
+  }, [matches, currentIndex]);
 
   // Memoize match validation
-  const isValidMatch = useMemo(
-    () =>
-      currentMatch &&
+  const isValidMatch = useMemo(() => {
+    const isValid = currentMatch &&
       currentMatch.teams &&
       currentMatch.teams.home &&
       currentMatch.teams.away &&
       currentMatch.fixture &&
-      currentMatch.league,
-    [currentMatch],
-  );
+      currentMatch.league;
+    
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Match validation result:", isValid);
+    if (!isValid && currentMatch) {
+      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Validation failed - missing:", {
+        hasMatch: !!currentMatch,
+        hasTeams: !!currentMatch?.teams,
+        hasHome: !!currentMatch?.teams?.home,
+        hasAway: !!currentMatch?.teams?.away,
+        hasFixture: !!currentMatch?.fixture,
+        hasLeague: !!currentMatch?.league
+      });
+    }
+    
+    return isValid;
+  }, [currentMatch]);
 
   // Memoize navigation handlers
   const handlePrevious = useCallback(() => {
-    if (matches.length <= 1) return;
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : matches.length - 1));
-  }, [matches.length]);
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Previous button clicked");
+    if (matches.length <= 1) {
+      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cannot navigate - insufficient matches");
+      return;
+    }
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : matches.length - 1;
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Navigating from index", currentIndex, "to", newIndex);
+    setCurrentIndex(newIndex);
+  }, [matches.length, currentIndex]);
 
   const handleNext = useCallback(() => {
-    if (matches.length <= 1) return;
-    setCurrentIndex((prev) => (prev < matches.length - 1 ? prev + 1 : 0));
-  }, [matches.length]);
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Next button clicked");
+    if (matches.length <= 1) {
+      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cannot navigate - insufficient matches");
+      return;
+    }
+    const newIndex = currentIndex < matches.length - 1 ? currentIndex + 1 : 0;
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Navigating from index", currentIndex, "to", newIndex);
+    setCurrentIndex(newIndex);
+  }, [matches.length, currentIndex]);
 
   const handleMatchClick = useCallback(() => {
     if (isValidMatch && currentMatch.fixture.id) {
@@ -332,6 +423,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Loading state with proper skeleton
   if (loading) {
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🔄 RENDERING: Loading state");
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge
@@ -440,6 +532,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // No matches state
   if (!isValidMatch || matches.length === 0) {
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚫 RENDERING: No matches state");
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - isValidMatch:", isValidMatch);
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - matches.length:", matches.length);
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge
@@ -460,6 +555,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </Card>
     );
   }
+
+  console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ RENDERING: Success state");
+  console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Final render data:", {
+    currentIndex,
+    totalMatches: matches.length,
+    currentMatch: currentMatch ? {
+      id: currentMatch.fixture?.id,
+      homeTeam: currentMatch.teams?.home?.name,
+      awayTeam: currentMatch.teams?.away?.name,
+      league: currentMatch.league?.name,
+      status: currentMatch.fixture?.status?.short,
+      date: currentMatch.fixture?.date
+    } : null,
+    hasNavigation: matches.length > 1
+  });
 
   return (
     <Card className="px-0 pt-0 pb-2 relative shadow-md mb-8">
