@@ -513,18 +513,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           </div>
 
           {/* Score area using existing grid system */}
-          <div
-            className="score-area"
-            style={{
-              height: "80px",
-              gridArea: "score",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
             {/* Main score/time display */}
             <div
               className="match-score-display"
