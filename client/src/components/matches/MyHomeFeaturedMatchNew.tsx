@@ -416,10 +416,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="w-full h-full flex justify-between relative">
                 {/* Home team skeleton */}
                 <div className="h-full w-[calc(50%-16px)] ml-[77px] bg-gray-300 animate-pulse relative">
-                  <div className="absolute z-20 w-[48px] h-[48px] bg-gray-200 rounded-full animate-pulse"
+                  <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
                        style={{
-                         top: "calc(50% - 24px)",
-                         left: "-24px"
+                         top: "calc(50% - 32px)",
+                         left: "-32px"
                        }} />
                 </div>
 
@@ -447,9 +447,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                        right: "130px"
                      }} />
 
-                <div className="absolute z-20 w-[48px] h-[48px] bg-gray-200 rounded-full animate-pulse"
+                <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
                      style={{
-                       top: "calc(50% - 24px)",
+                       top: "calc(50% - 32px)",
                        right: "87px",
                        transform: "translateX(50%)"
                      }} />
@@ -870,7 +870,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+              className={`w-1 h-1 rounded-full transition-all duration-200 ${
                 index === currentIndex ? "bg-black" : "bg-gray-300"
               }`}
               aria-label={`Go to slide ${index + 1}`}
