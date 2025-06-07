@@ -806,6 +806,7 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
             result = `/api/flags/${encodeURIComponent(cleanCountry)}`;
             console.log(`🌐 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API endpoint for ${cleanCountry}: ${result}`);
           }
+        }
       }
     }
   }
@@ -1553,7 +1554,7 @@ export function compare365ScoresMapping(): void {
   // Countries in 365scores but missing from your mapping
   const missingFrom365 = scores365Countries.filter(country => !currentlyMapped.has(country));
 
-  // Countries in your mapping but not typically on 365scores
+  // Countries inyour mapping but not typically on 365scores
   const extraInMapping = Array.from(currentlyMapped).filter(country => !scores365Set.has(country));
 
   console.log(`📊 Comparison Results:`);
@@ -1825,7 +1826,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
   // Check cache first
   const cacheKey = `flag_${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}`;
   const cached = flagCache.getCached(cacheKey);
-  
+
   if (cached) {
     return cached.url;
   }
