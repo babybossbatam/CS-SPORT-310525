@@ -560,6 +560,34 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               position: "relative",
             }}
           >
+            {/* Match status display */}
+            <div
+              className="match-status-display"
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: "600",
+                color: getMatchStatusLabel(currentMatch) === "LIVE" ? "#dc2626" : "#6b7280",
+                marginBottom: "4px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              {(() => {
+                const status = currentMatch?.fixture?.status?.short;
+                const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                if (["1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                  return `${elapsed || 0}'`;
+                }
+                if (status === "HT") return "HALFTIME";
+                if (status === "FT") return "FULL TIME";
+                if (status === "AET") return "AFTER EXTRA TIME";
+                if (status === "PEN") return "PENALTIES";
+                if (status === "NS") return "UPCOMING";
+                return status || "UPCOMING";
+              })()}
+            </div>
+
             {/* Main score/time display */}
             <div
               className="match-score-display"
