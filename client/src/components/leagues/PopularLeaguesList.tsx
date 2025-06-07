@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
+import { getPopularLeagues, LeagueData, getLeagueLogoWithCache } from '@/lib/leagueDataCache';
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
@@ -21,7 +21,24 @@ const PopularLeaguesList = () => {
       try {
         setIsLoading(true);
         const leagues = await getPopularLeagues();
-        setLeagueData(leagues);
+        
+        // Process leagues to ensure we have proper names and logos
+        const processedLeagues = await Promise.all(
+          leagues.map(async (league) => {
+            // Get cached logo with proper fallback
+            const logoUrl = await getLeagueLogoWithCache(league.id, league.name, league.logo);
+            
+            return {
+              ...league,
+              logo: logoUrl,
+              // Ensure we have a proper name, fallback to a meaningful default
+              name: league.name || `${league.country} League`
+            };
+          })
+        );
+        
+        setLeagueData(processedLeagues);
+        console.log('Loaded popular leagues:', processedLeagues);
       } catch (error) {
         console.error('Failed to load league data:', error);
       } finally {
@@ -110,7 +127,7 @@ const PopularLeaguesList = () => {
                   }}
                 />
                 <div className="ml-3 flex-1">
-                  <div className="text-sm">{league.name || `${typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown'} League`}</div>
+                  <div className="text-sm">{league.name}</div>
                   {league.country && (
                     <span className="text-xs text-gray-500 truncate">
                       {typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown'}

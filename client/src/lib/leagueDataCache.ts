@@ -195,15 +195,28 @@ class LeagueDataCache {
           return null;
         }
 
-        const leagueId = league.id || league.league_id || index;
-        const leagueName = league.name || league.league_name || `League ${leagueId}`;
-        const leagueCountry = league.country || league.country_name || 'Unknown';
+        // Handle nested league structure from API (league.league.id, league.league.name)
+        const leagueData = league.league || league;
+        const leagueId = leagueData.id || league.id || league.league_id || index;
+        
+        // Try multiple name sources and provide meaningful fallbacks
+        let leagueName = leagueData.name || league.name || league.league_name;
+        if (!leagueName || leagueName === `League ${leagueId}`) {
+          // Find a better name from our default leagues
+          const defaultLeague = DEFAULT_LEAGUES.find(dl => dl.id === leagueId);
+          leagueName = defaultLeague?.name || `League ${leagueId}`;
+        }
+        
+        // Handle country data
+        const countryData = league.country || leagueData.country;
+        const leagueCountry = typeof countryData === 'string' ? countryData : 
+                             (countryData?.name || leagueData.country_name || league.country_name || 'Unknown');
 
         return {
           id: leagueId,
           name: leagueName,
           country: leagueCountry,
-          logo: league.logo || league.logo_url || `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+          logo: leagueData.logo || league.logo || league.logo_url || `https://media.api-sports.io/football/leagues/${leagueId}.png`,
           priority: league.priority || index + 1,
           type: this.determineLeagueType(leagueName, leagueCountry)
         };
