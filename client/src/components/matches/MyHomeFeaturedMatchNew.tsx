@@ -34,7 +34,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Priority system for top-level matches
   const getMatchPriority = (leagueData: any) => {
     const name = (leagueData.league?.name || "").toLowerCase();
-    
+
     // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
     if (name.includes("uefa nations league") && !name.includes("women")) {
       return 1;
@@ -161,20 +161,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const teamPairKey = `${match.teams.home.name}-vs-${match.teams.away.name}`;
               const reverseTeamPairKey = `${match.teams.away.name}-vs-${match.teams.home.name}`;
               const dateTeamKey = `${date}-${teamPairKey}`;
-              
+
               // Check multiple conditions for duplicates
               const isFixtureDuplicate = seenMatches.has(fixtureKey);
               const isTeamPairDuplicate = seenTeamPairs.has(teamPairKey) || seenTeamPairs.has(reverseTeamPairKey);
-              
+
               if (!isFixtureDuplicate && !isTeamPairDuplicate) {
                 // Add to all tracking sets
                 seenMatches.add(fixtureKey);
                 seenMatches.add(dateTeamKey);
                 seenTeamPairs.add(teamPairKey);
-                
+
                 uniqueMatches.push(match);
                 addedForThisDate++;
-                
+
                 console.log(`✅ [FeaturedMatch] Added unique match: ${teamPairKey} (Fixture ID: ${match.fixture.id})`);
               } else {
                 console.log(`🔍 [FeaturedMatch] Skipping duplicate match: ${teamPairKey} (Fixture ID: ${match.fixture.id})`);
@@ -205,24 +205,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const fixtureId = match.fixture.id;
           const teamPairKey = `${match.teams.home.name}-vs-${match.teams.away.name}`;
           const reverseTeamPairKey = `${match.teams.away.name}-vs-${match.teams.home.name}`;
-          
+
           // Check for fixture ID duplicate (most reliable)
           if (finalSeenFixtures.has(fixtureId)) {
             console.log(`🚫 [FeaturedMatch] Removed duplicate by fixture ID: ${teamPairKey} (ID: ${fixtureId})`);
             continue;
           }
-          
+
           // Check for team pair duplicate
           if (finalSeenTeamPairs.has(teamPairKey) || finalSeenTeamPairs.has(reverseTeamPairKey)) {
             console.log(`🚫 [FeaturedMatch] Removed duplicate by team pair: ${teamPairKey} (ID: ${fixtureId})`);
             continue;
           }
-          
+
           // This is a unique match
           finalSeenFixtures.add(fixtureId);
           finalSeenTeamPairs.add(teamPairKey);
           finalUniqueMatches.push(match);
-          
+
           console.log(`✅ [FeaturedMatch] Kept unique match: ${teamPairKey} (ID: ${fixtureId}, League: ${match.league.name})`);
         }
 
@@ -388,7 +388,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         >
           Featured Match
         </Badge>
-        
+
         {/* Skeleton loading content */}
         <CardContent className="p-0">
           {/* League info skeleton */}
@@ -416,17 +416,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="w-full h-full flex justify-between relative">
                 {/* Home team skeleton */}
                 <div className="h-full w-[calc(50%-16px)] ml-[77px] bg-gray-300 animate-pulse relative">
-                  <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
+                  <div className="absolute z-20 w-[48px] h-[48px] bg-gray-200 rounded-full animate-pulse"
                        style={{
-                         top: "calc(50% - 32px)",
-                         left: "-32px"
+                         top: "calc(50% - 24px)",
+                         left: "-24px"
                        }} />
                 </div>
 
                 <div className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
                      style={{
                        top: "calc(50% - 12px)",
-                       left: "120px"
+                       left: "112px"
                      }} />
 
                 {/* VS circle skeleton */}
@@ -447,9 +447,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                        right: "130px"
                      }} />
 
-                <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
+                <div className="absolute z-20 w-[48px] h-[48px] bg-gray-200 rounded-full animate-pulse"
                      style={{
-                       top: "calc(50% - 32px)",
+                       top: "calc(50% - 24px)",
                        right: "87px",
                        transform: "translateX(50%)"
                      }} />
