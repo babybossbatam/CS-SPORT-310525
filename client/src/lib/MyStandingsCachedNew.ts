@@ -338,7 +338,7 @@ class StandingsCache {
     const results: BatchStandingsResponse = {};
     const batchSize = 3; // Process in smaller batches to avoid overwhelming the API
 
-    for (let i = 0; < leagueIds.length; i += batchSize) {
+    for (let i = 0; i < leagueIds.length; i += batchSize) {
       const batch = leagueIds.slice(i, i + batchSize);
 
       // Add small delay between batches
