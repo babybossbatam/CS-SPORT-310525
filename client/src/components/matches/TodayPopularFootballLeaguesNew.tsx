@@ -1248,6 +1248,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
                     <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                      {/* League Star Toggle Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleStarMatch(leagueData.league.id);
+                        }}
+                        className="text-gray-400 hover:text-yellow-400 transition-colors"
+                        title={`${starredMatches.has(leagueData.league.id) ? 'Remove from' : 'Add to'} favorites`}
+                      >
+                        <Star
+                          className={`h-4 w-4 ${
+                            starredMatches.has(leagueData.league.id)
+                              ? 'text-yellow-400 fill-yellow-400'
+                              : ''
+                          }`}
+                        />
+                      </button>
+                      
                       <img
                         src={
                           leagueData.league.logo ||
