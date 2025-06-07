@@ -1824,10 +1824,10 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
   // Check cache first
   const cacheKey = `flag_${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}`;
-  const cachedFlag = flagCache.get(cacheKey);
-
-  if (cachedFlag) {
-    return cachedFlag;
+  const cached = flagCache.getCached(cacheKey);
+  
+  if (cached) {
+    return cached.url;
   }
 
   console.log(`Getting flag for country: ${normalizedCountry}`);
@@ -1843,13 +1843,13 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
       if (data.success && data.flagUrl) {
         console.log(`✅ Valid flag found for ${normalizedCountry}: ${data.flagUrl}`);
-        flagCache.set(cacheKey, data.flagUrl);
+        flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
         return data.flagUrl;
       }
 
       if (data.shouldExclude) {
         console.log(`🚫 Country ${normalizedCountry} should be excluded due to missing flag`);
-        flagCache.set(cacheKey, '/assets/fallback-logo.svg');
+        flagCache.setCached(cacheKey, '/assets/fallback-logo.svg', 'api-exclude', true);
         return '/assets/fallback-logo.svg';
       }
     }
@@ -1868,7 +1868,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
       if (apiFootballResponse.ok) {
         console.log(`✅ Valid flag found via API-Football for ${normalizedCountry}: ${apiFootballUrl}`);
-        flagCache.set(cacheKey, apiFootballUrl);
+        flagCache.setCached(cacheKey, apiFootballUrl, 'api-football', true);
         return apiFootballUrl;
       }
     } catch (e) {
@@ -1887,7 +1887,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
       if (scores365Response.ok) {
         console.log(`✅ Valid flag found via 365scores for ${normalizedCountry}: ${scores365Url}`);
-        flagCache.set(cacheKey, scores365Url);
+        flagCache.setCached(cacheKey, scores365Url, '365scores', true);
         return scores365Url;
       }
     } catch (e) {
@@ -1899,7 +1899,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
       console.log(`Flag fallback for ${normalizedCountry}: trying source 3/3`);
       const countryCode = getCountryCode(normalizedCountry);
       if (countryCode) {
-        const countryCodeUrl = `https://flagcdn.com/w40/${countryCode}.png`;
+        const countryCodeUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
 
         const countryCodeResponse = await fetch(countryCodeUrl, { 
           method: 'HEAD',
@@ -1908,7 +1908,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
         if (countryCodeResponse.ok) {
           console.log(`✅ Valid flag found via country code for ${normalizedCountry}: ${countryCodeUrl}`);
-          flagCache.set(cacheKey, countryCodeUrl);
+          flagCache.setCached(cacheKey, countryCodeUrl, 'country-code', true);
           return countryCodeUrl;
         }
       }
@@ -1920,13 +1920,13 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
     // All fallbacks failed, use default
     const fallbackUrl = '/assets/fallback-logo.svg';
-    flagCache.set(cacheKey, fallbackUrl);
+    flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
     return fallbackUrl;
 
   } catch (error) {
     console.error(`Error fetching flag for ${normalizedCountry}:`, error);
     const fallbackUrl = '/assets/fallback-logo.svg';
-    flagCache.set(cacheKey, fallbackUrl);
+    flagCache.setCached(cacheKey, fallbackUrl, 'error-fallback', true);
     return fallbackUrl;
   }
 };
