@@ -1568,7 +1568,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     match.teams.home,
                                     leagueData.league,
                                   ) ? (
-                                    <div className="flag-circle">
+                                    <div className={`country-flag-ball ${
+                                      leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                      leagueData.league.name?.toLowerCase().includes('fifa') ||
+                                      leagueData.league.name?.toLowerCase().includes('international')
+                                        ? 'international-flag-circle'
+                                        : ''
+                                    }`}>
                                       <LazyImage
                                         src={
                                           match.teams.home.id
@@ -1578,9 +1584,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className="team-logo"
-                                        style={{ 
-                                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
-                                        }}
                                         fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                       <div className="gloss"></div>
@@ -1801,7 +1804,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     match.teams.away,
                                     leagueData.league,
                                   ) ? (
-                                    <div className="flag-circle">
+                                    <div className={`country-flag-ball ${
+                                      leagueData.league.name?.toLowerCase().includes('world cup') ||
+                                      leagueData.league.name?.toLowerCase().includes('fifa') ||
+                                      leagueData.league.name?.toLowerCase().includes('international')
+                                        ? 'international-flag-circle'
+                                        : ''
+                                    }`}>
                                       <LazyImage
                                         src={
                                           match.teams.away.id
@@ -1811,9 +1820,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
                                         className="team-logo"
-                                        style={{ 
-                                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
-                                        }}
                                         fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                       <div className="gloss"></div>

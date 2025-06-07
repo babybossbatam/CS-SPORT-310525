@@ -42,7 +42,7 @@
   animation: pulse-scale 1.5s infinite ease-in-out;
 }
 
-/* Country flags without border - logo only */
+/* Circular flag design system for national teams */
 .country-flag-ball {
   position: relative;
   aspect-ratio: 1;
@@ -51,6 +51,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 0 0 2px rgba(255, 255, 255, 0.8),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.country-flag-ball:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.15);
 }
 
 .country-flag-ball img {
@@ -59,6 +75,88 @@
   object-fit: cover !important;
   object-position: center !important;
   border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.country-flag-ball:hover img {
+  transform: scale(1.02);
+}
+
+/* Glossy overlay effect for premium look */
+.country-flag-ball::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg, 
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 25%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.05) 75%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+/* Flag circle variants for different sizes */
+.flag-circle-small {
+  width: 24px;
+  height: 24px;
+}
+
+.flag-circle-medium {
+  width: 32px;
+  height: 32px;
+}
+
+.flag-circle-large {
+  width: 48px;
+  height: 48px;
+}
+
+/* Enhanced gloss effect */
+.gloss {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    transparent 40%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.03) 80%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Special styling for World Cup and international competitions */
+.international-flag-circle {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+  border: 3px solid #ffffff;
+  box-shadow: 
+    0 4px 16px rgba(30, 58, 138, 0.3),
+    0 0 0 2px rgba(59, 130, 246, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.international-flag-circle::after {
+  background: linear-gradient(
+    135deg, 
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.2) 30%,
+    transparent 60%,
+    rgba(30, 58, 138, 0.1) 100%
+  );
 }
 
 :root {
