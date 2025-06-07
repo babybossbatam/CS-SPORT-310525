@@ -694,7 +694,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   return status || "";
                 })();
 
-                const scoreText = `${currentMatch?.goals?.home ?? 0}-${currentMatch?.goals?.away ?? 0}`;
+                const scoreText = `${currentMatch?.goals?.home ?? 0} - ${currentMatch?.goals?.away ?? 0}`;
                 
                 return (
                   <div style={{ 
