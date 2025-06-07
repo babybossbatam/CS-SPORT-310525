@@ -1251,8 +1251,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               country: leagueData.league.country,
                               leagueName: leagueData.league.name,
                               logo: leagueData.league.logo,
-                              flag: countryData.flag
+                              flag: countryData.flag,
+                              expectedVenezuelaFlag: 'https://flagcdn.com/w40/ve.png',
+                              flagFromSync: getCountryFlagWithFallbackSync('Venezuela'),
+                              flagCacheKey: `flag_venezuela`
                             });
+                            
+                            // Check if Venezuela flag is cached incorrectly
+                            const debugCountryFlagMapping = (country: string) => {
+                              console.log(`🔍 Venezuela Debug - Flag mapping for: "${country}"`);
+                              console.log(`🔍 Venezuela Debug - Country code: VE`);
+                              console.log(`🔍 Venezuela Debug - Expected URL: https://flagcdn.com/w40/ve.png`);
+                              console.log(`🔍 Venezuela Debug - Current flag from countryData: ${countryData.flag}`);
+                            };
+                            debugCountryFlagMapping('Venezuela');
                           }
                         }}
                       />

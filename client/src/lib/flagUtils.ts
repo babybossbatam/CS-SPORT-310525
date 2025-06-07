@@ -1095,6 +1095,33 @@ export function debugCountryMapping(country: string): void {
 }
 
 /**
+ * Clear Venezuela flag cache specifically for debugging
+ */
+export function clearVenezuelaFlagCache(): void {
+  const cacheKey = 'flag_venezuela';
+  const cached = flagCache.getCached(cacheKey);
+  if (cached) {
+    console.log(`🗑️ Clearing Venezuela flag cache:`, {
+      cacheKey,
+      oldUrl: cached.url,
+      oldSource: cached.source,
+      age: Math.round((Date.now() - cached.timestamp) / 1000 / 60) + ' minutes'
+    });
+    
+    // Clear from cache
+    (flagCache as any).cache.delete(cacheKey);
+    
+    // Generate correct flag and re-cache
+    const correctFlag = 'https://flagcdn.com/w40/ve.png';
+    flagCache.setCached(cacheKey, correctFlag, 'manual-correction', true);
+    
+    console.log(`✅ Venezuela flag cache corrected to: ${correctFlag}`);
+  } else {
+    console.log(`ℹ️ No Venezuela flag cache found`);
+  }
+}
+
+/**
  * Debug flag mapping for a specific country
  */
 export function debugCountryFlagMapping(country: string): void {
