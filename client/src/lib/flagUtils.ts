@@ -1111,6 +1111,21 @@ export function clearVenezuelaFlagCache(): void {
     // Clear from cache
     (flagCache as any).cache.delete(cacheKey);
     
+    // Also clear from localStorage
+    try {
+      const storedCache = localStorage.getItem('cssport_flag_cache');
+      if (storedCache) {
+        const cacheData = JSON.parse(storedCache);
+        if (cacheData.flags) {
+          cacheData.flags = cacheData.flags.filter(([key]: any) => key !== cacheKey);
+          localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
+          console.log(`🗑️ Cleared Venezuela flag from localStorage`);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to clear Venezuela flag from localStorage:', error);
+    }
+    
     // Generate correct flag and re-cache
     const correctFlag = 'https://flagcdn.com/w40/ve.png';
     flagCache.setCached(cacheKey, correctFlag, 'manual-correction', true);
@@ -1119,6 +1134,40 @@ export function clearVenezuelaFlagCache(): void {
   } else {
     console.log(`ℹ️ No Venezuela flag cache found`);
   }
+}
+
+/**
+ * Force refresh Venezuela flag - clears all caches and refetches
+ */
+export function forceRefreshVenezuelaFlag(): Promise<string> {
+  console.log(`🔄 Force refreshing Venezuela flag...`);
+  
+  // Clear all possible cache entries
+  const possibleKeys = ['flag_venezuela', 'Venezuela-', 'venezuela'];
+  possibleKeys.forEach(key => {
+    (flagCache as any).cache.delete(key);
+    flagCacheMem.delete(key);
+  });
+  
+  // Clear from localStorage
+  try {
+    const storedCache = localStorage.getItem('cssport_flag_cache');
+    if (storedCache) {
+      const cacheData = JSON.parse(storedCache);
+      if (cacheData.flags) {
+        cacheData.flags = cacheData.flags.filter(([key]: any) => 
+          !possibleKeys.some(possibleKey => key.includes(possibleKey))
+        );
+        localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
+        console.log(`🗑️ Cleared all Venezuela-related flags from localStorage`);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to clear Venezuela flags from localStorage:', error);
+  }
+  
+  // Force fresh fetch
+  return getCachedFlag('Venezuela');
 }
 
 /**

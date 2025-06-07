@@ -26,7 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync } from "../../lib/flagUtils";
+import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -1256,6 +1256,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               flagFromSync: getCountryFlagWithFallbackSync('Venezuela'),
                               flagCacheKey: `flag_venezuela`
                             });
+                            
+                            // Check if Venezuela flag is wrong (Colombia flag)
+                            if (countryData.flag && countryData.flag.includes('/co.png')) {
+                              console.log(`🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`);
+                              console.log(`🔧 Attempting to clear and refresh Venezuela flag...`);
+                              
+                              // Clear the corrupted cache and force refresh
+                              clearVenezuelaFlagCache();
+                              
+                              // Force refresh the flag asynchronously
+                              forceRefreshVenezuelaFlag().then(newFlag => {
+                                console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
+                                // Trigger a re-render if needed
+                                window.location.reload();
+                              }).catch(error => {
+                                console.error(`❌ Failed to refresh Venezuela flag:`, error);
+                              });
+                            }
                             
                             // Check if Venezuela flag is cached incorrectly
                             const debugCountryFlagMapping = (country: string) => {
