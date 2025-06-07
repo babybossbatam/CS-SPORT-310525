@@ -26,7 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag } from "../../lib/flagUtils";
+import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -1254,11 +1254,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               flag: countryData.flag,
                               expectedVenezuelaFlag: 'https://flagcdn.com/w40/ve.png',
                               flagFromSync: getCountryFlagWithFallbackSync('Venezuela'),
-                              flagCacheKey: `flag_venezuela`
+                              flagCacheKey: `flag_venezuela`,
+                              countryCodeMapping: 'VE' // Should be VE for Venezuela
                             });
                             
                             // Check if Venezuela flag is wrong (Colombia flag)
-                            if (countryData.flag && countryData.flag.includes('/co.png')) {
+                            if (countryData.flag && (countryData.flag.includes('/co.png') || countryData.flag.includes('/co.'))) {
                               console.log(`🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`);
                               console.log(`🔧 Attempting to clear and refresh Venezuela flag...`);
                               
@@ -1273,6 +1274,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               }).catch(error => {
                                 console.error(`❌ Failed to refresh Venezuela flag:`, error);
                               });
+                            }
+                            
+                            // Force correct Venezuela flag if wrong
+                            if (!countryData.flag.includes('/ve.png') && !countryData.flag.includes('/ve.')) {
+                              console.log(`🔧 Forcing correct Venezuela flag...`);
+                              const correctFlag = 'https://flagcdn.com/w40/ve.png';
+                              console.log(`🇻🇪 Setting Venezuela flag to: ${correctFlag}`);
+                              // Force update the flag in the data
+                              countryData.flag = correctFlag;
                             }
                             
                             // Check if Venezuela flag is cached incorrectly

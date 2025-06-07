@@ -1166,8 +1166,36 @@ export function forceRefreshVenezuelaFlag(): Promise<string> {
     console.warn('Failed to clear Venezuela flags from localStorage:', error);
   }
   
-  // Force fresh fetch
-  return getCachedFlag('Venezuela');
+  // Force fresh fetch with correct URL
+  const correctFlag = 'https://flagcdn.com/w40/ve.png';
+  const cacheKey = 'flag_venezuela';
+  flagCache.setCached(cacheKey, correctFlag, 'manual-venezuela-fix', true);
+  console.log(`✅ Manually set Venezuela flag to: ${correctFlag}`);
+  
+  return Promise.resolve(correctFlag);
+}
+
+/**
+ * Clear all flag cache and force refresh
+ */
+export function clearAllFlagCache(): void {
+  console.log(`🧹 Clearing all flag cache...`);
+  
+  // Clear memory cache
+  flagCacheMem.clear();
+  
+  // Clear main flag cache
+  (flagCache as any).cache.clear();
+  
+  // Clear localStorage
+  try {
+    localStorage.removeItem('cssport_flag_cache');
+    console.log(`🗑️ Cleared all flags from localStorage`);
+  } catch (error) {
+    console.warn('Failed to clear flags from localStorage:', error);
+  }
+  
+  console.log(`✅ All flag cache cleared`);
 }
 
 /**
