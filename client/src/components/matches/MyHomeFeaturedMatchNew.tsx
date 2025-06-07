@@ -2,11 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Trophy,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isValid, addDays } from "date-fns";
@@ -45,10 +41,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
 
     // Exclude youth competitions
-    if (leagueName.includes("u15") || leagueName.includes("u16") || leagueName.includes("u17") || 
-        leagueName.includes("u18") || leagueName.includes("u19") || leagueName.includes("u20") || 
-        leagueName.includes("u21") || leagueName.includes("u23") || leagueName.includes("youth") || 
-        leagueName.includes("junior") || leagueName.includes("reserve")) {
+    if (
+      leagueName.includes("u15") ||
+      leagueName.includes("u16") ||
+      leagueName.includes("u17") ||
+      leagueName.includes("u18") ||
+      leagueName.includes("u19") ||
+      leagueName.includes("u20") ||
+      leagueName.includes("u21") ||
+      leagueName.includes("u23") ||
+      leagueName.includes("youth") ||
+      leagueName.includes("junior") ||
+      leagueName.includes("reserve")
+    ) {
       return true;
     }
 
@@ -71,14 +76,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const cachedData = CacheManager.getCachedData(cacheKey, 15 * 60 * 1000); // 15 minutes cache
 
         if (cachedData) {
-          console.log("🎯 [FeaturedMatch] Using cached data:", cachedData.length, "matches");
+          console.log(
+            "🎯 [FeaturedMatch] Using cached data:",
+            cachedData.length,
+            "matches",
+          );
           setMatches(cachedData);
           setCurrentIndex(0);
           setLoading(false);
           return;
         }
 
-        console.log("🔍 [FeaturedMatch] Getting top priority level 1-3 matches for 3 days");
+        console.log(
+          "🔍 [FeaturedMatch] Getting top priority level 1-3 matches for 3 days",
+        );
 
         // Get dates for today, tomorrow, and day after tomorrow
         const today = new Date();
@@ -99,33 +110,49 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const datesToFetch = [
           { date: todayString, label: "Today" },
           { date: tomorrowString, label: "Tomorrow" },
-          { date: dayAfterTomorrowString, label: "Day After Tomorrow" }
+          { date: dayAfterTomorrowString, label: "Day After Tomorrow" },
         ];
 
         for (const { date, label } of datesToFetch) {
           try {
-            console.log(`🔍 [FeaturedMatch] Fetching ${label} matches for ${date}`);
+            console.log(
+              `🔍 [FeaturedMatch] Fetching ${label} matches for ${date}`,
+            );
 
-            const response = await apiRequest('GET', `/api/fixtures/date/${date}?all=true`);
+            const response = await apiRequest(
+              "GET",
+              `/api/fixtures/date/${date}?all=true`,
+            );
             if (!response.ok) continue;
 
             const allFixtures = await response.json();
             if (!allFixtures || allFixtures.length === 0) continue;
 
             // Apply only exclusion filter
-            const validMatches = allFixtures.filter((fixture) => !shouldExcludeMatch(fixture));
+            const validMatches = allFixtures.filter(
+              (fixture) => !shouldExcludeMatch(fixture),
+            );
 
-            console.log(`🔍 [FeaturedMatch] Found ${validMatches.length} valid matches for ${label}`);
+            console.log(
+              `🔍 [FeaturedMatch] Found ${validMatches.length} valid matches for ${label}`,
+            );
 
             // Take matches without complex filtering
             const matchesToAdd = validMatches.slice(0, 10); // Take first 10 matches per date
             allFeaturedMatches.push(...matchesToAdd);
 
-            console.log(`🔍 [FeaturedMatch] Taking ${matchesToAdd.length} matches from ${label}:`, 
-              matchesToAdd.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id}`));
-
+            console.log(
+              `🔍 [FeaturedMatch] Taking ${matchesToAdd.length} matches from ${label}:`,
+              matchesToAdd.map(
+                (m) =>
+                  `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id}`,
+              ),
+            );
           } catch (error) {
-            console.error(`🔍 [FeaturedMatch] Error fetching data for ${date}:`, error);
+            console.error(
+              `🔍 [FeaturedMatch] Error fetching data for ${date}:`,
+              error,
+            );
           }
         }
 
@@ -150,23 +177,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return isValid;
         });
 
-        console.log("🔍 [FeaturedMatch] Final matches:", validMatches.length, "matches:", 
-          validMatches.map(m => ({
+        console.log(
+          "🔍 [FeaturedMatch] Final matches:",
+          validMatches.length,
+          "matches:",
+          validMatches.map((m) => ({
             league: m.league?.name,
             homeTeam: m.teams?.home?.name,
             awayTeam: m.teams?.away?.name,
-            status: m.fixture?.status?.short
-          }))
+            status: m.fixture?.status?.short,
+          })),
         );
 
         // Cache the result
         CacheManager.setCachedData(cacheKey, validMatches);
-        backgroundCache.set(`featured-matches-priority-${currentDate}`, validMatches, 15 * 60 * 1000);
+        backgroundCache.set(
+          `featured-matches-priority-${currentDate}`,
+          validMatches,
+          15 * 60 * 1000,
+        );
 
         setMatches(validMatches);
         setCurrentIndex(0);
       } catch (error) {
-        console.error("🔍 [FeaturedMatch] Error getting featured matches:", error);
+        console.error(
+          "🔍 [FeaturedMatch] Error getting featured matches:",
+          error,
+        );
         setMatches([]);
       } finally {
         setLoading(false);
@@ -177,17 +214,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, [currentDate, maxMatches]);
 
   // Memoize current match
-  const currentMatch = useMemo(() => matches[currentIndex], [matches, currentIndex]);
+  const currentMatch = useMemo(
+    () => matches[currentIndex],
+    [matches, currentIndex],
+  );
 
   // Memoize match validation
-  const isValidMatch = useMemo(() => 
-    currentMatch &&
-    currentMatch.teams &&
-    currentMatch.teams.home &&
-    currentMatch.teams.away &&
-    currentMatch.fixture &&
-    currentMatch.league,
-    [currentMatch]
+  const isValidMatch = useMemo(
+    () =>
+      currentMatch &&
+      currentMatch.teams &&
+      currentMatch.teams.home &&
+      currentMatch.teams.away &&
+      currentMatch.fixture &&
+      currentMatch.league,
+    [currentMatch],
   );
 
   // Memoize navigation handlers
@@ -230,7 +271,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     const { fixture } = match;
 
-    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(fixture.status.short)) {
+    if (
+      ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(
+        fixture.status.short,
+      )
+    ) {
       return "LIVE";
     } else if (fixture.status.short === "FT") {
       return "FINISHED";
@@ -288,43 +333,53 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="w-full h-full flex justify-between relative">
                 {/* Home team skeleton */}
                 <div className="h-full w-[calc(50%-16px)] ml-[77px] bg-gray-300 animate-pulse relative">
-                  <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
-                       style={{
-                         top: "calc(50% - 32px)",
-                         left: "-32px"
-                       }} />
+                  <div
+                    className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
+                    style={{
+                      top: "calc(50% - 32px)",
+                      left: "-32px",
+                    }}
+                  />
                 </div>
 
-                <div className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
-                     style={{
-                       top: "calc(50% - 12px)",
-                       left: "112px"
-                     }} />
+                <div
+                  className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
+                  style={{
+                    top: "calc(50% - 12px)",
+                    left: "112px",
+                  }}
+                />
 
                 {/* VS circle skeleton */}
-                <div className="absolute bg-gray-300 rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 animate-pulse"
-                     style={{
-                       left: "calc(50% - 26px)",
-                       top: "calc(50% - 26px)"
-                     }}>
+                <div
+                  className="absolute bg-gray-300 rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 animate-pulse"
+                  style={{
+                    left: "calc(50% - 26px)",
+                    top: "calc(50% - 26px)",
+                  }}
+                >
                   <div className="h-3 bg-gray-400 rounded w-6" />
                 </div>
 
                 {/* Away team skeleton */}
                 <div className="h-full w-[calc(50%-26px)] mr-[87px] bg-gray-300 animate-pulse" />
 
-                <div className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
-                     style={{
-                       top: "calc(50% - 12px)",
-                       right: "130px"
-                     }} />
+                <div
+                  className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
+                  style={{
+                    top: "calc(50% - 12px)",
+                    right: "130px",
+                  }}
+                />
 
-                <div className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
-                     style={{
-                       top: "calc(50% - 32px)",
-                       right: "87px",
-                       transform: "translateX(50%)"
-                     }} />
+                <div
+                  className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
+                  style={{
+                    top: "calc(50% - 32px)",
+                    right: "87px",
+                    transform: "translateX(50%)",
+                  }}
+                />
               </div>
             </div>
 
@@ -432,7 +487,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               ) : (
                 <Trophy className="w-5 h-5 text-amber-500 mr-2" />
               )}
-              <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
+              <span className="text-sm font-medium">
+                {currentMatch?.league?.name || "League Name"}
+              </span>
               {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                 <Badge
                   variant="outline"
@@ -456,73 +513,104 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           </div>
 
           {/* Score area using existing grid system */}
-            {/* Main score/time display */}
-            <div className="match-score-display" style={{ 
-              height: "40px", 
-              display: "flex", 
-              alignItems: "center", 
+          <div
+            className="score-area"
+            style={{
+              height: "80px",
+              gridArea: "score",
+              display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
-              fontSize: "calc(1.125rem * 0.968)",
-              marginBottom: "8px"
-            }}>
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
+            {/* Main score/time display */}
+            <div
+              className="match-score-display"
+              style={{
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "calc(1.125rem * 0.968)",
+                marginBottom: "8px",
+              }}
+            >
               {currentMatch?.fixture?.status?.short &&
-                (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-                  currentMatch.fixture.status.short,
-                )) ? (
-                  // Score display for live and finished matches
-                  <>
-                    <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
-                    <span className="score-separator">-</span>
-                    <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
-                  </>
-                ) : (
-                  // Upcoming time display
-                  <span className="score-number" style={{ fontSize: "calc(1.125rem * 0.968 * 1.1)" }}>
-                    {(() => {
-                      const status = currentMatch?.fixture?.status?.short;
-
-                      if (status === "NS") {
-                        try {
-                          const matchDate = parseISO(currentMatch.fixture.date);
-                          const now = new Date();
-                          const msToMatch = matchDate.getTime() - now.getTime();
-                          const daysToMatch = Math.ceil(msToMatch / (1000 * 60 * 60 * 24));
-
-                          if (daysToMatch === 0) return "Today";
-                          else if (daysToMatch === 1) return "Tomorrow";
-                          else if (daysToMatch > 1) return `${daysToMatch} Days`;
-                          else return "Today";
-                        } catch (e) {
-                          return "Today";
-                        }
-                      }
-                      if (status === "TBD") return "Time TBD";
-                      if (status === "PST") return "Postponed";
-                      return status || "";
-                    })()}
+              ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+                currentMatch.fixture.status.short,
+              ) ? (
+                // Score display for live and finished matches
+                <>
+                  <span className="score-number">
+                    {currentMatch?.goals?.home ?? 0}
                   </span>
-                )}
+                  <span className="score-separator">-</span>
+                  <span className="score-number">
+                    {currentMatch?.goals?.away ?? 0}
+                  </span>
+                </>
+              ) : (
+                // Upcoming time display
+                <span
+                  className="score-number"
+                  style={{ fontSize: "calc(1.125rem * 0.968 * 1.1)" }}
+                >
+                  {(() => {
+                    const status = currentMatch?.fixture?.status?.short;
+
+                    if (status === "NS") {
+                      try {
+                        const matchDate = parseISO(currentMatch.fixture.date);
+                        const now = new Date();
+                        const msToMatch = matchDate.getTime() - now.getTime();
+                        const daysToMatch = Math.ceil(
+                          msToMatch / (1000 * 60 * 60 * 24),
+                        );
+
+                        if (daysToMatch === 0) return "Today";
+                        else if (daysToMatch === 1) return "Tomorrow";
+                        else if (daysToMatch > 1) return `${daysToMatch} Days`;
+                        else return "Today";
+                      } catch (e) {
+                        return "Today";
+                      }
+                    }
+                    if (status === "TBD") return "Time TBD";
+                    if (status === "PST") return "Postponed";
+                    return status || "";
+                  })()}
+                </span>
+              )}
             </div>
 
             {/* Status label - positioned absolutely */}
-            <div className="match-status-label" style={{
-              position: "absolute",
-              bottom: "4px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontSize: "0.875rem",
-              whiteSpace: "nowrap"
-            }}>
+            <div
+              className="match-status-label"
+              style={{
+                position: "absolute",
+                bottom: "4px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontSize: "0.875rem",
+                whiteSpace: "nowrap",
+              }}
+            >
               {currentMatch?.fixture?.status?.short &&
-                (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-                  currentMatch.fixture.status.short,
-                )) ? (
-                  // Live/Finished status
+              ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+                currentMatch.fixture.status.short,
+              )
+                ? // Live/Finished status
                   (() => {
                     const status = currentMatch?.fixture?.status?.short;
                     const elapsed = currentMatch?.fixture?.status?.elapsed;
 
-                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                    if (
+                      ["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(
+                        status,
+                      )
+                    ) {
                       if (status === "HT") return "HT";
                       return `${elapsed || 0}'`;
                     }
@@ -531,215 +619,245 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     if (status === "PEN") return "After Penalties";
                     return status || "Upcoming";
                   })()
-                ) : (
-                  // Upcoming match status
-                  currentMatch?.fixture?.status?.short === "NS" ? "" : (currentMatch?.fixture?.status?.short || "Upcoming")
-                )}
+                : // Upcoming match status
+                  currentMatch?.fixture?.status?.short === "NS"
+                  ? ""
+                  : currentMatch?.fixture?.status?.short || "Upcoming"}
             </div>
           </div>
 
-            {/* Team scoreboard with colored bars */}
-            <div className="relative">
-              <div
-                className="flex relative h-[53px] rounded-md mb-8"
-                onClick={handleMatchClick}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="w-full h-full flex justify-between relative">
-                  {/* Home team colored bar and logo */}
-                  <div
-                    className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
-                    style={{
-                      background: getTeamColor(currentMatch?.teams?.home?.id || 0),
-                      transition: "all 0.3s ease-in-out",
-                    }}
-                  >
-                    {currentMatch?.teams?.home && (
-                      <img
-                        src={currentMatch.teams.home.logo || `/assets/fallback-logo.svg`}
-                        alt={currentMatch.teams.home.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-opacity duration-200"
-                        style={{
-                          cursor: "pointer",
-                          top: "calc(50% - 32px)",
-                          left: "-32px",
-                          filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                        }}
-                        onClick={handleMatchClick}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
-                        }}
-                        onLoad={(e) => {
-                          e.currentTarget.style.opacity = "1";
-                        }}
-                      />
-                    )}
-                  </div>
-
-                  <div
-                    className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
-                    style={{
-                      top: "calc(50% - 13px)",
-                      left: "120px",
-                      fontSize: "1.24rem",
-                      fontWeight: "normal",
-                    }}
-                  >
-                    {currentMatch?.teams?.home?.name || "TBD"}
-                  </div>
-
-                  {/* VS circle */}
-                  <div
-                    className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
-                    style={{
-                      background: "#a00000",
-                      left: "calc(50% - 26px)",
-                      top: "calc(50% - 26px)",
-                      minWidth: "52px",
-                    }}
-                  >
-                    <span className="vs-text font-bold">VS</span>
-                  </div>
-
-                  {/* Away team colored bar and logo */}
-                  <div
-                    className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
-                    style={{
-                      background: getTeamColor(currentMatch.teams.away.id),
-                      transition: "all 0.3s ease-in-out",
-                    }}
-                  ></div>
-
-                  <div
-                    className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                    style={{
-                      top: "calc(50% - 13px)",
-                      right: "130px",
-                      fontSize: "1.24rem",
-                      fontWeight: "normal",
-                    }}
-                  >
-                    {currentMatch?.teams?.away?.name || "Away Team"}
-                  </div>
-
-                  <img
-                    src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
-                    alt={currentMatch?.teams?.away?.name || "Away Team"}
-                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-                    style={{
-                      cursor: "pointer",
-                      top: "calc(50% - 32px)",
-                      right: "87px",
-                      transform: "translateX(50%)",
-                      filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                    }}
-                    onClick={handleMatchClick}
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
-                    onLoad={(e) => {
-                      e.currentTarget.style.opacity = "1";
-                    }}
-                  />
+          {/* Team scoreboard with colored bars */}
+          <div className="relative">
+            <div
+              className="flex relative h-[53px] rounded-md mb-8"
+              onClick={handleMatchClick}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="w-full h-full flex justify-between relative">
+                {/* Home team colored bar and logo */}
+                <div
+                  className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                  style={{
+                    background: getTeamColor(
+                      currentMatch?.teams?.home?.id || 0,
+                    ),
+                    transition: "all 0.3s ease-in-out",
+                  }}
+                >
+                  {currentMatch?.teams?.home && (
+                    <img
+                      src={
+                        currentMatch.teams.home.logo ||
+                        `/assets/fallback-logo.svg`
+                      }
+                      alt={currentMatch.teams.home.name || "Home Team"}
+                      className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-opacity duration-200"
+                      style={{
+                        cursor: "pointer",
+                        top: "calc(50% - 32px)",
+                        left: "-32px",
+                        filter:
+                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                      }}
+                      onClick={handleMatchClick}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                      onLoad={(e) => {
+                        e.currentTarget.style.opacity = "1";
+                      }}
+                    />
+                  )}
                 </div>
-              </div>
 
-              {/* Match date and venue */}
-              <div
-                className="absolute text-center text-xs text-black font-medium"
-                style={{
-                  fontSize: "0.875rem",
-                  whiteSpace: "nowrap",
-                  overflow: "visible",
-                  textAlign: "center",
-                  position: "flex",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  top: "calc(100% + 20px)",
-                  width: "max-content",
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                }}
-              >
-                {(() => {
-                  try {
-                    const matchDate = parseISO(currentMatch.fixture.date);
-                    const formattedDate = format(matchDate, "EEEE, do MMM");
-                    const timeOnly = format(matchDate, "HH:mm");
-                    const isUpcoming = currentMatch.fixture.status.short === "NS" || currentMatch.fixture.status.short === "TBD";
+                <div
+                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                  style={{
+                    top: "calc(50% - 13px)",
+                    left: "120px",
+                    fontSize: "1.24rem",
+                    fontWeight: "normal",
+                  }}
+                >
+                  {currentMatch?.teams?.home?.name || "TBD"}
+                </div>
 
-                    return (
-                      <>
-                        {formattedDate}
-                        {!isUpcoming && ` | ${timeOnly}`}
-                        {currentMatch.fixture.venue?.name ? ` | ${currentMatch.fixture.venue.name}` : ""}
-                      </>
-                    );
-                  } catch (e) {
-                    return currentMatch.fixture.venue?.name || "";
+                {/* VS circle */}
+                <div
+                  className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                  style={{
+                    background: "#a00000",
+                    left: "calc(50% - 26px)",
+                    top: "calc(50% - 26px)",
+                    minWidth: "52px",
+                  }}
+                >
+                  <span className="vs-text font-bold">VS</span>
+                </div>
+
+                {/* Away team colored bar and logo */}
+                <div
+                  className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
+                  style={{
+                    background: getTeamColor(currentMatch.teams.away.id),
+                    transition: "all 0.3s ease-in-out",
+                  }}
+                ></div>
+
+                <div
+                  className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                  style={{
+                    top: "calc(50% - 13px)",
+                    right: "130px",
+                    fontSize: "1.24rem",
+                    fontWeight: "normal",
+                  }}
+                >
+                  {currentMatch?.teams?.away?.name || "Away Team"}
+                </div>
+
+                <img
+                  src={
+                    currentMatch?.teams?.away?.logo ||
+                    `/assets/fallback-logo.svg`
                   }
-                })()}
+                  alt={currentMatch?.teams?.away?.name || "Away Team"}
+                  className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  style={{
+                    cursor: "pointer",
+                    top: "calc(50% - 32px)",
+                    right: "87px",
+                    transform: "translateX(50%)",
+                    filter:
+                      "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                  }}
+                  onClick={handleMatchClick}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.src = "/assets/fallback-logo.svg";
+                  }}
+                  onLoad={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                />
               </div>
             </div>
 
-            {/* Bottom navigation */}
-            <div className="flex justify-around border-t border-gray-200 pt-4 mt-12 pb-4">
-              <button
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}
-              >
-                <img
-                  src="/assets/matchdetaillogo/MatchDetail.svg"
-                  alt="Match Page"
-                  width="18"
-                  height="18"
-                  className="text-gray-600"
-                />
-                <span className="text-[0.75rem] text-gray-600 mt-1">Match Page</span>
-              </button>
-              <button
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/lineups`)}
-              >
-                <img
-                  src="/assets/matchdetaillogo/lineups.svg"
-                  alt="Lineups"
-                  width="18"
-                  height="18"
-                  className="text-gray-600"
-                />
-                <span className="text-[0.75rem] text-gray-600 mt-1">Lineups</span>
-              </button>
-              <button
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/h2h`)}
-              >
-                <img
-                  src="/assets/matchdetaillogo/stats.svg"
-                  alt="H2H"
-                  width="18"
-                  height="18"
-                  className="text-gray-600"
-                />
-                <span className="text-[0.75rem] text-gray-600 mt-1">H2H</span>
-              </button>
-              <button
-                className="flex flex-col items-center cursor-pointer w-1/4"
-                onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}/standings`)}
-              >
-                <img
-                  src="/assets/matchdetaillogo/standings.svg"
-                  alt="Standings"
-                  width="18"
-                  height="18"
-                  className="text-gray-600"
-                />
-                <span className="text-[0.75rem] text-gray-600 mt-1">Standings</span>
-              </button>
+            {/* Match date and venue */}
+            <div
+              className="absolute text-center text-xs text-black font-medium"
+              style={{
+                fontSize: "0.875rem",
+                whiteSpace: "nowrap",
+                overflow: "visible",
+                textAlign: "center",
+                position: "flex",
+                left: "50%",
+                transform: "translateX(-50%)",
+                top: "calc(100% + 20px)",
+                width: "max-content",
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}
+            >
+              {(() => {
+                try {
+                  const matchDate = parseISO(currentMatch.fixture.date);
+                  const formattedDate = format(matchDate, "EEEE, do MMM");
+                  const timeOnly = format(matchDate, "HH:mm");
+                  const isUpcoming =
+                    currentMatch.fixture.status.short === "NS" ||
+                    currentMatch.fixture.status.short === "TBD";
+
+                  return (
+                    <>
+                      {formattedDate}
+                      {!isUpcoming && ` | ${timeOnly}`}
+                      {currentMatch.fixture.venue?.name
+                        ? ` | ${currentMatch.fixture.venue.name}`
+                        : ""}
+                    </>
+                  );
+                } catch (e) {
+                  return currentMatch.fixture.venue?.name || "";
+                }
+              })()}
             </div>
+          </div>
+
+          {/* Bottom navigation */}
+          <div className="flex justify-around border-t border-gray-200 pt-4 mt-12 pb-4">
+            <button
+              className="flex flex-col items-center cursor-pointer w-1/4"
+              onClick={() =>
+                currentMatch?.fixture?.id &&
+                navigate(`/match/${currentMatch.fixture.id}`)
+              }
+            >
+              <img
+                src="/assets/matchdetaillogo/MatchDetail.svg"
+                alt="Match Page"
+                width="18"
+                height="18"
+                className="text-gray-600"
+              />
+              <span className="text-[0.75rem] text-gray-600 mt-1">
+                Match Page
+              </span>
+            </button>
+            <button
+              className="flex flex-col items-center cursor-pointer w-1/4"
+              onClick={() =>
+                currentMatch?.fixture?.id &&
+                navigate(`/match/${currentMatch.fixture.id}/lineups`)
+              }
+            >
+              <img
+                src="/assets/matchdetaillogo/lineups.svg"
+                alt="Lineups"
+                width="18"
+                height="18"
+                className="text-gray-600"
+              />
+              <span className="text-[0.75rem] text-gray-600 mt-1">Lineups</span>
+            </button>
+            <button
+              className="flex flex-col items-center cursor-pointer w-1/4"
+              onClick={() =>
+                currentMatch?.fixture?.id &&
+                navigate(`/match/${currentMatch.fixture.id}/h2h`)
+              }
+            >
+              <img
+                src="/assets/matchdetaillogo/stats.svg"
+                alt="H2H"
+                width="18"
+                height="18"
+                className="text-gray-600"
+              />
+              <span className="text-[0.75rem] text-gray-600 mt-1">H2H</span>
+            </button>
+            <button
+              className="flex flex-col items-center cursor-pointer w-1/4"
+              onClick={() =>
+                currentMatch?.fixture?.id &&
+                navigate(`/match/${currentMatch.fixture.id}/standings`)
+              }
+            >
+              <img
+                src="/assets/matchdetaillogo/standings.svg"
+                alt="Standings"
+                width="18"
+                height="18"
+                className="text-gray-600"
+              />
+              <span className="text-[0.75rem] text-gray-600 mt-1">
+                Standings
+              </span>
+            </button>
+          </div>
         </motion.div>
       </AnimatePresence>
 
