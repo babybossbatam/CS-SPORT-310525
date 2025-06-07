@@ -31,26 +31,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
 
-  // Priority system for top-level matches
-  const getMatchPriority = (leagueData: any) => {
-    const name = (leagueData.league?.name || "").toLowerCase();
-
-    // Priority 1: UEFA Nations League (HIGHEST PRIORITY)
-    if (name.includes("uefa nations league") && !name.includes("women")) {
-      return 1;
+  // Basic exclusion filter
+  const shouldExcludeMatch = (fixture: any) => {
+    if (!fixture || !fixture.league || !fixture.teams) {
+      return true;
     }
 
-    // Priority 2: UEFA Euro and major tournaments
-    if (name.includes("uefa euro") && !name.includes("qualification") && !name.includes("women")) {
-      return 2;
+    const leagueName = (fixture.league?.name || "").toLowerCase();
+    
+    // Exclude women's competitions
+    if (leagueName.includes("women")) {
+      return true;
     }
 
-    // Priority 3: UEFA Euro qualification and other major qualifications
-    if (name.includes("uefa euro") && name.includes("qualification") && !name.includes("women")) {
-      return 3;
+    // Exclude youth competitions
+    if (leagueName.includes("u15") || leagueName.includes("u16") || leagueName.includes("u17") || 
+        leagueName.includes("u18") || leagueName.includes("u19") || leagueName.includes("u20") || 
+        leagueName.includes("u21") || leagueName.includes("u23") || leagueName.includes("youth") || 
+        leagueName.includes("junior") || leagueName.includes("reserve")) {
+      return true;
     }
 
-    return 999; // Lower priority
+    // Exclude non-competitive matches
+    if (leagueName.includes("friendlies") || leagueName.includes("friendly")) {
+      return true;
+    }
+
+    return false;
   };
 
   // Get featured matches with priority-based logic
@@ -105,162 +112,27 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const allFixtures = await response.json();
             if (!allFixtures || allFixtures.length === 0) continue;
 
-            // Filter to ONLY priority level 1-3 matches
-            const priorityMatches = allFixtures.filter((fixture) => {
-              if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-                return false;
-              }
+            // Apply only exclusion filter
+            const validMatches = allFixtures.filter((fixture) => !shouldExcludeMatch(fixture));
 
-              const priority = getMatchPriority(fixture);
-              return priority >= 1 && priority <= 3;
-            });
+            console.log(`🔍 [FeaturedMatch] Found ${validMatches.length} valid matches for ${label}`);
 
-            console.log(`🔍 [FeaturedMatch] Found ${priorityMatches.length} matches from priority levels 1-3 for ${label}`);
-
-            // Sort matches by priority: Live > Upcoming > Finished
-            const sortedMatches = priorityMatches.sort((a: any, b: any) => {
-              const aStatus = a.fixture.status.short;
-              const bStatus = b.fixture.status.short;
-              const aDate = parseISO(a.fixture.date);
-              const bDate = parseISO(b.fixture.date);
-
-              // Ensure valid dates
-              if (!isValid(aDate) || !isValid(bDate)) {
-                return 0;
-              }
-
-              // Define status categories
-              const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-              const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
-
-              const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-              const bUpcoming = bStatus === "NS" || bStatus === "TBD";
-
-              // PRIORITY 1: LIVE matches always come first
-              if (aLive && !bLive) return -1;
-              if (!aLive && bLive) return 1;
-
-              // PRIORITY 2: Upcoming matches come second
-              if (aUpcoming && !bUpcoming) return -1;
-              if (!aUpcoming && bUpcoming) return 1;
-
-              // PRIORITY 3: Sort by match time
-              return aDate.getTime() - bDate.getTime();
-            });
-
-            // Filter out duplicates using multiple strategies
-            const uniqueMatches = [];
-            let addedForThisDate = 0;
-            const maxMatchesPerDate = 3;
-
-            for (const match of sortedMatches) {
-              if (addedForThisDate >= maxMatchesPerDate) break;
-
-              // Create multiple unique identifiers to catch different types of duplicates
-              const fixtureKey = `fixture-${match.fixture.id}`;
-              const teamPairKey = `${match.teams.home.name}-vs-${match.teams.away.name}`;
-              const reverseTeamPairKey = `${match.teams.away.name}-vs-${match.teams.home.name}`;
-              const dateTeamKey = `${date}-${teamPairKey}`;
-
-              // Check multiple conditions for duplicates
-              const isFixtureDuplicate = seenMatches.has(fixtureKey);
-              const isTeamPairDuplicate = seenTeamPairs.has(teamPairKey) || seenTeamPairs.has(reverseTeamPairKey);
-
-              if (!isFixtureDuplicate && !isTeamPairDuplicate) {
-                // Add to all tracking sets
-                seenMatches.add(fixtureKey);
-                seenMatches.add(dateTeamKey);
-                seenTeamPairs.add(teamPairKey);
-
-                uniqueMatches.push(match);
-                addedForThisDate++;
-
-                console.log(`✅ [FeaturedMatch] Added unique match: ${teamPairKey} (Fixture ID: ${match.fixture.id})`);
-              } else {
-                console.log(`🔍 [FeaturedMatch] Skipping duplicate match: ${teamPairKey} (Fixture ID: ${match.fixture.id})`);
-              }
-            }
-
-            console.log(`🔍 [FeaturedMatch] Taking ${uniqueMatches.length} unique matches from ${label}:`, 
-              uniqueMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id})`));
-
-            addedMatches.set(date, uniqueMatches.length);
-            allFeaturedMatches.push(...uniqueMatches);
+            // Take matches without complex filtering
+            const matchesToAdd = validMatches.slice(0, 10); // Take first 10 matches per date
+            allFeaturedMatches.push(...matchesToAdd);
+            
+            console.log(`🔍 [FeaturedMatch] Taking ${matchesToAdd.length} matches from ${label}:`, 
+              matchesToAdd.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id}`));
 
           } catch (error) {
             console.error(`🔍 [FeaturedMatch] Error fetching data for ${date}:`, error);
           }
         }
 
-        console.log(`🔍 [FeaturedMatch] Matches added per date:`, Object.fromEntries(addedMatches));
+        // Take first 9 matches total
+        const finalMatches = allFeaturedMatches.slice(0, 9);
 
-        // Enhanced final duplicate removal with fixture ID priority
-        const finalUniqueMatches = [];
-        const finalSeenFixtures = new Set<number>();
-        const finalSeenTeamPairs = new Set<string>();
-
-        console.log(`🔍 [FeaturedMatch] Starting final duplicate removal. Total collected: ${allFeaturedMatches.length}`);
-
-        for (const match of allFeaturedMatches) {
-          const fixtureId = match.fixture.id;
-          const teamPairKey = `${match.teams.home.name}-vs-${match.teams.away.name}`;
-          const reverseTeamPairKey = `${match.teams.away.name}-vs-${match.teams.home.name}`;
-
-          // Check for fixture ID duplicate (most reliable)
-          if (finalSeenFixtures.has(fixtureId)) {
-            console.log(`🚫 [FeaturedMatch] Removed duplicate by fixture ID: ${teamPairKey} (ID: ${fixtureId})`);
-            continue;
-          }
-
-          // Check for team pair duplicate
-          if (finalSeenTeamPairs.has(teamPairKey) || finalSeenTeamPairs.has(reverseTeamPairKey)) {
-            console.log(`🚫 [FeaturedMatch] Removed duplicate by team pair: ${teamPairKey} (ID: ${fixtureId})`);
-            continue;
-          }
-
-          // This is a unique match
-          finalSeenFixtures.add(fixtureId);
-          finalSeenTeamPairs.add(teamPairKey);
-          finalUniqueMatches.push(match);
-
-          console.log(`✅ [FeaturedMatch] Kept unique match: ${teamPairKey} (ID: ${fixtureId}, League: ${match.league.name})`);
-        }
-
-        // Final sort to prioritize variety while maintaining status priority
-        const finalSortedMatches = finalUniqueMatches.sort((a, b) => {
-          const aStatus = a.fixture?.status?.short;
-          const bStatus = b.fixture?.status?.short;
-
-          // Live matches first
-          const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(aStatus);
-          const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(bStatus);
-
-          if (aIsLive && !bIsLive) return -1;
-          if (!aIsLive && bIsLive) return 1;
-
-          // Recent finished matches (within last 6 hours)
-          const now = new Date();
-          const aDate = new Date(a.fixture?.date);
-          const bDate = new Date(b.fixture?.date);
-
-          const aIsRecentFinished =
-            ["FT", "AET", "PEN"].includes(aStatus) &&
-            now.getTime() - aDate.getTime() < 6 * 60 * 60 * 1000;
-          const bIsRecentFinished =
-            ["FT", "AET", "PEN"].includes(bStatus) &&
-            now.getTime() - bDate.getTime() < 6 * 60 * 60 * 1000;
-
-          if (aIsRecentFinished && !bIsRecentFinished) return -1;
-          if (!aIsRecentFinished && bIsRecentFinished) return 1;
-
-          // Sort by match time for upcoming matches
-          return aDate.getTime() - bDate.getTime();
-        });
-
-        // Take maximum 9 unique matches total
-        const finalMatches = finalSortedMatches.slice(0, 9);
-
-        console.log(`🔍 [FeaturedMatch] Final unique matches: ${finalMatches.length} (removed ${allFeaturedMatches.length - finalMatches.length} duplicates)`);
+        console.log(`🔍 [FeaturedMatch] Final matches: ${finalMatches.length}`);
 
         // Validate data structure
         const validMatches = finalMatches.filter((match) => {
@@ -492,7 +364,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <p className="text-lg font-medium mb-1">
               No featured matches available
             </p>
-            <p className="text-sm">No priority level 1-3 matches found</p>
+            <p className="text-sm">No matches available</p>
           </div>
         </CardContent>
       </Card>
