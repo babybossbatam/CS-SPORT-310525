@@ -452,6 +452,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {getMatchStatusLabel(currentMatch)}
                 </Badge>
               )}
+            </div>
           </div>
 
           {/* Score area using existing grid system */}
