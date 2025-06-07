@@ -542,6 +542,8 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
 }
 export const apiRequest = async (method: string, endpoint: string, options?: any) => {
   const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), options?.timeout || 15000);
 
   try {
     let url = `${baseUrl}${endpoint}`;
@@ -571,13 +573,21 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       body: requestBody,
       credentials: 'same-origin',
       mode: 'cors',
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     // Return the response object instead of parsing JSON immediately
     // This allows the caller to handle different response types 
     return response;
   } catch (error) {
-    console.error(`API request error for ${method} ${endpoint}:`, error);
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`API request timeout for ${method} ${endpoint}`);
+    } else {
+      console.error(`API request error for ${method} ${endpoint}:`, error);
+    }
     // Instead of throwing, return a response-like object that indicates failure
     return {
       ok: false,
