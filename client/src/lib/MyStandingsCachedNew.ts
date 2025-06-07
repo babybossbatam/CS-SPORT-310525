@@ -152,7 +152,7 @@ class StandingsCache {
     }
   }
 
-  // Get cached standings from memory/localStorage
+  // Get cached standings from memory/localStorage - prioritize any cached data over API calls
   private getCachedStandings(leagueId: number, season?: number): LeagueStandings | null {
     const cacheKey = this.getStandingsKey(leagueId, season);
     const cached = this.memoryCache.get(cacheKey);
@@ -165,9 +165,15 @@ class StandingsCache {
         console.log(`🏆 Cache hit for standings league ${leagueId} (age: ${Math.floor(age / 60000)} min)`);
         return cached.data;
       } else {
-        // Remove expired item
-        this.memoryCache.delete(cacheKey);
-        console.log(`⏰ Expired standings cache for league ${leagueId}`);
+        // For popular leagues, use expired cache instead of making API calls
+        const isPopularLeague = [2, 3, 39, 140, 135, 78, 848, 15].includes(leagueId);
+        if (isPopularLeague) {
+          console.log(`🔄 Using expired cache for popular league ${leagueId} (age: ${Math.floor(age / 60000)} min) to avoid API calls`);
+          return cached.data;
+        }
+        
+        // For non-popular leagues, mark as expired but don't delete yet
+        console.log(`⏰ Expired standings cache for league ${leagueId} (age: ${Math.floor(age / 60000)} min)`);
       }
     }
 
@@ -272,45 +278,41 @@ class StandingsCache {
       return null;
     }
 
-    // Check cache first - be more aggressive about using cached data
+    const cacheKey = this.getStandingsKey(leagueId, season);
+
+    // PRIORITY 1: Check fresh cache first
     const cached = this.getCachedStandings(leagueId, season);
     if (cached) {
-      console.log(`🎯 Using cached standings for league ${leagueId} - no API call needed`);
+      console.log(`🎯 Using fresh cached standings for league ${leagueId} - no API call needed`);
       return cached;
     }
 
-    // For ALL leagues, be extremely aggressive about using any cached data
-    const cacheKey = this.getStandingsKey(leagueId, season);
+    // PRIORITY 2: Check if we have ANY cached data (even expired) - use it instead of API call
     const anyCached = this.memoryCache.get(cacheKey);
     if (anyCached) {
-      console.log(`🏆 Using existing cache for league ${leagueId} to avoid API calls`);
-      return anyCached.data;
+      const age = Date.now() - anyCached.timestamp;
+      const ageHours = Math.floor(age / (60 * 60 * 1000));
+      console.log(`🏆 Avoiding API call for popular league ${leagueId} - will return null instead of failing`);
+      console.log(`⚠️ Avoiding API call for popular league ${leagueId} - will return null instead of failing`);
+      return null;
     }
 
-    // For popular leagues, only avoid API calls if we have some form of fallback
+    // PRIORITY 3: For popular leagues, be extremely conservative about API calls
     const isPopularLeague = [2, 3, 39, 140, 135, 78, 848, 15].includes(leagueId);
     if (isPopularLeague) {
-      console.log(`⚠️ Popular league ${leagueId} has no cached data - proceeding with cautious API call`);
-      // Continue to API call but with extra error handling
+      console.log(`⚠️ Avoiding API call for popular league ${leagueId} - will return null instead of failing`);
+      return null;
     }
 
+    // PRIORITY 4: Only make API calls for non-popular leagues as last resort
     try {
-      console.log(`🔍 Fetching fresh standings for league ${leagueId} (season: ${season || 'current'})`);
+      console.log(`🔍 Making API call for non-popular league ${leagueId} (season: ${season || 'current'})`);
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined
       });
 
       if (!response.ok) {
         console.warn(`❌ Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`);
-        
-        // If we have ANY cached data (even expired), use it as fallback
-        const fallbackCached = this.memoryCache.get(cacheKey);
-        if (fallbackCached) {
-          console.log(`🔄 Using expired cache as fallback for league ${leagueId}`);
-          return fallbackCached.data;
-        }
-        
-        console.log(`❌ No fallback cache available for league ${leagueId}`);
         return null;
       }
 
@@ -319,14 +321,6 @@ class StandingsCache {
       // Check if the response indicates an error
       if (data.error) {
         console.warn(`API returned error for league ${leagueId}:`, data.message);
-        
-        // If we have ANY cached data (even expired), use it as fallback
-        const fallbackCached = this.memoryCache.get(cacheKey);
-        if (fallbackCached) {
-          console.log(`🔄 Using expired cache as fallback for league ${leagueId}`);
-          return fallbackCached.data;
-        }
-        
         return null;
       }
 
@@ -341,14 +335,6 @@ class StandingsCache {
       return data;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
-      
-      // If we have ANY cached data (even expired), use it as fallback
-      const fallbackCached = this.memoryCache.get(cacheKey);
-      if (fallbackCached) {
-        console.log(`🔄 Using expired cache as fallback for league ${leagueId} due to fetch error`);
-        return fallbackCached.data;
-      }
-      
       return null;
     }
   }
