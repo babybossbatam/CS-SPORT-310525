@@ -547,7 +547,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           </div>
 
-          {/* Score area using existing grid system */}
+          {/* Score area using flexbox positioning */}
           <div
             className="score-area"
             style={{
@@ -555,9 +555,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               gridArea: "score",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "center",
+              justifyContent: "flex-start",
               alignItems: "center",
               position: "relative",
+              paddingTop: "8px",
             }}
           >
             {/* Match status display */}
@@ -567,7 +568,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 fontSize: "0.75rem",
                 fontWeight: "600",
                 color: getMatchStatusLabel(currentMatch) === "LIVE" ? "#dc2626" : "#6b7280",
-                marginBottom: "4px",
+                marginBottom: "2px",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
               }}
@@ -592,12 +593,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <div
               className="match-score-display"
               style={{
-                height: "40px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "calc(1.125rem * 0.968)",
-                marginBottom: "8px",
+                flex: "1",
               }}
             >
               {currentMatch?.fixture?.status?.short &&
