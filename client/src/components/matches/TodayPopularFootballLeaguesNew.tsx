@@ -1240,8 +1240,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         className="w-6 h-6 object-contain rounded-full"
                         style={{ backgroundColor: "transparent" }}
                         onError={(e) => {
+                          console.log(`🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`);
                           (e.target as HTMLImageElement).src =
                             "/assets/fallback-logo.svg";
+                        }}
+                        onLoad={() => {
+                          // Debug Venezuela specifically
+                          if (leagueData.league.country === 'Venezuela') {
+                            console.log(`🇻🇪 Venezuela league detected:`, {
+                              country: leagueData.league.country,
+                              leagueName: leagueData.league.name,
+                              logo: leagueData.league.logo,
+                              flag: countryData.flag
+                            });
+                          }
                         }}
                       />
                       <div className="flex flex-col flex-1">

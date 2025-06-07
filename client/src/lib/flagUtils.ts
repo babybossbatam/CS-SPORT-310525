@@ -84,7 +84,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Argentina': 'AR',
   'Mexico': 'MX',
   'Colombia': 'CO',
-  'colombia': 'co', // Add lowercase variant
+  'colombia': 'CO', // Fix lowercase variant to use uppercase
   'Peru': 'PE',
   'Chile': 'CL',
   'Uruguay': 'UY',
@@ -92,6 +92,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Bolivia': 'BO',
   'Ecuador': 'EC',
   'Venezuela': 'VE',
+  'venezuela': 'VE', // Add lowercase variant
   'Guyana': 'GY',
   'Suriname': 'SR',
   'French Guiana': 'GF',
@@ -1091,6 +1092,46 @@ export function debugCountryMapping(country: string): void {
   }
 
   console.log(`✅ Final result: ${countryCode || 'FALLBACK WILL BE USED'}`);
+}
+
+/**
+ * Debug flag mapping for a specific country
+ */
+export function debugCountryFlagMapping(country: string): void {
+  console.log(`🔍 Debugging flag for country: "${country}"`);
+  const normalizedCountry = country.trim();
+  
+  // Check direct mapping
+  let countryCode = countryCodeMap[normalizedCountry];
+  console.log(`Direct mapping: ${countryCode || 'NOT FOUND'}`);
+  
+  // Check variations
+  if (!countryCode && normalizedCountry.includes('-')) {
+    const spaceVersion = normalizedCountry.replace(/-/g, ' ');
+    countryCode = countryCodeMap[spaceVersion];
+    console.log(`Space variation "${spaceVersion}": ${countryCode || 'NOT FOUND'}`);
+  }
+  
+  if (!countryCode && normalizedCountry.includes(' ')) {
+    const hyphenVersion = normalizedCountry.replace(/\s+/g, '-');
+    countryCode = countryCodeMap[hyphenVersion];
+    console.log(`Hyphen variation "${hyphenVersion}": ${countryCode || 'NOT FOUND'}`);
+  }
+  
+  // Check cache
+  const cacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+  const cached = flagCache.getCached(cacheKey);
+  if (cached) {
+    console.log(`Cached flag: ${cached.url} (source: ${cached.source})`);
+  } else {
+    console.log(`No cached flag found`);
+  }
+  
+  // Generate expected flag URL
+  if (countryCode) {
+    const expectedUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+    console.log(`Expected flag URL: ${expectedUrl}`);
+  }
 }
 
 /**
