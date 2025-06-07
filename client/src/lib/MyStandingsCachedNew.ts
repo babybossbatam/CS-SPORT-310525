@@ -331,38 +331,30 @@ class StandingsCache {
       
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined,
-        timeout: 10000 // 10 second timeout
+        timeout: 15000 // Increased timeout to 15 seconds
       });
 
       // Check for network connectivity issues first
-      if (response.status === 0) {
-        console.warn(`🌐 Network connectivity failed for league ${leagueId}`);
+      if (response.status === 0 || !response.ok) {
+        const isNetworkError = response.status === 0;
+        const errorType = isNetworkError ? 'Network connectivity' : 'API error';
         
-        // For network errors, always use cached data if available (regardless of age)
+        console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response.status})`);
+        
+        // For network errors or API failures, always use cached data if available (regardless of age)
         if (anyCached) {
           const age = Date.now() - anyCached.timestamp;
           const ageHours = Math.floor(age / (60 * 60 * 1000));
-          console.log(`🔄 Using cached data for league ${leagueId} (age: ${ageHours}h) due to network failure`);
+          console.log(`🔄 Using cached data for league ${leagueId} (age: ${ageHours}h) due to ${errorType.toLowerCase()}`);
           return anyCached.data;
         }
         
+        // If no cache available, return null
+        console.warn(`❌ No cached data available for league ${leagueId} and ${errorType.toLowerCase()}`);
         return null;
       }
 
-      if (!response.ok) {
-        const errorMsg = `Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`;
-        console.warn(`❌ ${errorMsg}`);
-        
-        // If we have any cached data (even expired), use it as fallback
-        if (anyCached) {
-          const age = Date.now() - anyCached.timestamp;
-          const ageHours = Math.floor(age / (60 * 60 * 1000));
-          console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to API error`);
-          return anyCached.data;
-        }
-        
-        return null;
-      }
+      
 
       let data;
       try {
