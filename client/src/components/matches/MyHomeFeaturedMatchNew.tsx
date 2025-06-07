@@ -434,15 +434,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               )}
               <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
               {getMatchStatusLabel(currentMatch) === "LIVE" ? (
-                <div className="flex items-center gap-1.5 ml-2">
-                  <div className="w-2h-2 rounded-fullbg-red-500 animate-pulse" />
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse"
-                  >
-                    LIVE
-                  </Badge>
-                </div>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse ml-2"
+                >
+                  LIVE
+                </Badge>
               ) : (
                 <Badge
                   variant="outline"
