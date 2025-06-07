@@ -782,32 +782,30 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
           console.log(`🔍 [flagUtils.ts:getCountryFlagWithFallbackSync] Country code lookup for "${cleanCountry}": ${countryCode || 'not found'}`);
 
           if (countryCode) {
-            // Use Circle Flags as primary source for better circular design
-            ```javascript
-if (countryCode && countryCode.length === 2) {
-            // Use Circle Flags as primary source for better circular design
-            const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-            console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${flagUrl} (Circle Flags)`);
-            flagCache.setCached(flagCacheKey, flagUrl, 'circle-flags', true);
-            console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached Circle Flag for ${country} with source: circle-flags`);
-            return flagUrl;
-          } else if (countryCode && countryCode.startsWith('GB-')) {
-            const subdivision = countryCode.toLowerCase().replace('gb-', '');
-            const flagUrl = `https://hatscripts.github.io/circle-flags/flags/gb-${subdivision}.svg`;
-            console.log(`🇬🇧 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Circle Flags for ${country}: ${flagUrl}`);
-            flagCache.setCached(flagCacheKey, flagUrl, 'circle-flags-gb', true);
-            return flagUrl;
+            if (countryCode && countryCode.length === 2) {
+              // Use Circle Flags as primary source for better circular design
+              const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+              console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${flagUrl} (Circle Flags)`);
+              flagCache.setCached(flagCacheKey, flagUrl, 'circle-flags', true);
+              console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached Circle Flag for ${country} with source: circle-flags`);
+              return flagUrl;
+            } else if (countryCode && countryCode.startsWith('GB-')) {
+              const subdivision = countryCode.toLowerCase().replace('gb-', '');
+              const flagUrl = `https://hatscripts.github.io/circle-flags/flags/gb-${subdivision}.svg`;
+              console.log(`🇬🇧 [flagUtils.ts:getCountryFlagWithFallbackSync] Using Circle Flags for ${country}: ${flagUrl}`);
+              flagCache.setCached(flagCacheKey, flagUrl, 'circle-flags-gb', true);
+              return flagUrl;
+            } else {
+              // For other special codes, try API-Sports
+              result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
+              console.log(`🏴 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API-Sports for ${cleanCountry}: ${result}`);
+            }
           } else {
-            // For other special codes, try API-Sports
-            result = `https://media.api-sports.io/flags/${countryCode.toLowerCase()}.svg`;
-            console.log(`🏴 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API-Sports for ${cleanCountry}: ${result}`);
+            console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No country code found for: ${cleanCountry}`);
+            // Fallback to API endpoint for unmapped countries
+            result = `/api/flags/${encodeURIComponent(cleanCountry)}`;
+            console.log(`🌐 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API endpoint for ${cleanCountry}: ${result}`);
           }
-        } else {
-          console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No country code found for: ${cleanCountry}`);
-          // Fallback to API endpoint for unmapped countries
-          result = `/api/flags/${encodeURIComponent(cleanCountry)}`;
-          console.log(`🌐 [flagUtils.ts:getCountryFlagWithFallbackSync] Using API endpoint for ${cleanCountry}: ${result}`);
-        }
       }
     }
   }
@@ -2122,7 +2120,7 @@ async function processFlagBatch(): Promise<void> {
 
     const chunkPromises = chunk.map(async (country) => {
       try {
-        const flagUrl = await fetchSingleFlag(country);
+        const flagUrl = await fetchIndividualFlag(country);
         const countryCallbacks = callbacks.get(country) || [];
         countryCallbacks.forEach(callback => callback(flagUrl));
         return { country, flagUrl, success: true };
@@ -2308,8 +2306,7 @@ export function intelligentCacheCleanup(): void {
  */
 async function backgroundCacheRefresh(): Promise<void> {
   const cache = (flagCache as any).cache;
-  ```javascript
-if (!(cache instanceof Map)) return;
+  if (!(cache instanceof Map)) return;
 
   const now = Date.now();
   const staleEntries: string[] = [];
