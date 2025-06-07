@@ -27,6 +27,9 @@ interface LeagueData {
   id: number;
   name: string;
   logo: string;
+  country?: string;
+  priority?: number;
+  type?: string;
 }
 
 interface Standing {
@@ -58,8 +61,87 @@ const LeagueStandingsFilter = () => {
   const [selectedLeagueName, setSelectedLeagueName] = useState('');
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
+  // 5 Filtering Mechanisms for Popular Leagues
+  const TIER_1_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+  const TIER_2_LEAGUES = [61, 848, 15]; // Ligue 1, Conference League, FIFA Club World Cup
+  const TIER_3_LEAGUES = [45, 48, 143, 137, 81]; // FA Cup, EFL Cup, Copa del Rey, Coppa Italia, DFB Pokal
+
+  const PRIORITY_COUNTRIES = ['Europe', 'England', 'Spain', 'Italy', 'Germany', 'France'];
+  const MAJOR_LEAGUE_TYPES = ['League', 'Cup'];
+
+  const filterAndPrioritizeLeagues = (leagues: any[]): LeagueData[] => {
+    // Filter 1: Priority League IDs
+    const priorityFilter = (league: any) => {
+      const leagueId = league.league?.id || league.id;
+      return TIER_1_LEAGUES.includes(leagueId) || 
+             TIER_2_LEAGUES.includes(leagueId) || 
+             TIER_3_LEAGUES.includes(leagueId);
+    };
+
+    // Filter 2: Priority Countries
+    const countryFilter = (league: any) => {
+      const country = league.country?.name || league.league?.country || league.country;
+      return PRIORITY_COUNTRIES.includes(country);
+    };
+
+    // Filter 3: Major League Types
+    const typeFilter = (league: any) => {
+      const type = league.league?.type || league.type;
+      return MAJOR_LEAGUE_TYPES.includes(type);
+    };
+
+    // Filter 4: Exclude Youth/Reserve/Amateur leagues
+    const qualityFilter = (league: any) => {
+      const name = (league.league?.name || league.name || '').toLowerCase();
+      const excludeTerms = ['youth', 'reserve', 'amateur', 'u20', 'u21', 'u23', 'women', 'academy'];
+      return !excludeTerms.some(term => name.includes(term));
+    };
+
+    // Filter 5: Minimum popularity threshold (well-known leagues)
+    const popularityFilter = (league: any) => {
+      const name = (league.league?.name || league.name || '').toLowerCase();
+      const popularTerms = ['premier', 'champions', 'europa', 'liga', 'serie', 'bundesliga', 'ligue', 'cup', 'world'];
+      return popularTerms.some(term => name.includes(term));
+    };
+
+    // Apply all 5 filters
+    const filtered = leagues.filter(league => 
+      priorityFilter(league) && 
+      countryFilter(league) && 
+      typeFilter(league) && 
+      qualityFilter(league) && 
+      popularityFilter(league)
+    );
+
+    // Transform and prioritize
+    const transformed = filtered.map(league => {
+      const leagueData = league.league || league;
+      const leagueId = leagueData.id || league.id;
+      
+      // Assign priority based on tier
+      let priority = 999;
+      if (TIER_1_LEAGUES.includes(leagueId)) priority = 1;
+      else if (TIER_2_LEAGUES.includes(leagueId)) priority = 2;
+      else if (TIER_3_LEAGUES.includes(leagueId)) priority = 3;
+
+      return {
+        id: leagueId,
+        name: leagueData.name || `League ${leagueId}`,
+        logo: leagueData.logo || `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+        country: league.country?.name || leagueData.country || 'Unknown',
+        priority,
+        type: leagueData.type || 'League'
+      };
+    });
+
+    // Sort by priority and return top 10
+    return transformed
+      .sort((a, b) => a.priority - b.priority || a.name.localeCompare(b.name))
+      .slice(0, 10);
+  };
+
   const getPopularLeagues = async () => {
-    const response = await fetch('/api/leagues');
+    const response = await fetch('/api/leagues/popular');
     if (!response.ok) {
       throw new Error('Failed to fetch leagues');
     }
@@ -69,16 +151,19 @@ const LeagueStandingsFilter = () => {
   const loadLeagues = async () => {
     try {
       setLeaguesLoading(true);
-      const leagues = await getPopularLeagues();
-      setPopularLeagues(leagues);
+      const rawLeagues = await getPopularLeagues();
+      
+      // Apply 5 filtering mechanisms and get top 10 popular major leagues
+      const filteredLeagues = filterAndPrioritizeLeagues(rawLeagues);
+      setPopularLeagues(filteredLeagues);
+
+      console.log('Top 10 Popular Major Leagues:', filteredLeagues);
 
       // Set default selection to first league with valid ID
-      if (leagues.length > 0) {
-        const firstValidLeague = leagues.find(league => league && league.id && league.name);
-        if (firstValidLeague) {
-          setSelectedLeague(firstValidLeague.id.toString());
-          setSelectedLeagueName(firstValidLeague.name);
-        }
+      if (filteredLeagues.length > 0) {
+        const firstValidLeague = filteredLeagues[0];
+        setSelectedLeague(firstValidLeague.id.toString());
+        setSelectedLeagueName(firstValidLeague.name);
       }
     } catch (error) {
       console.error('Failed to load league data:', error);
@@ -159,18 +244,26 @@ const LeagueStandingsFilter = () => {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {popularLeagues.filter(league => league && league.id && league.name && league.logo).map((league) => (
+            {popularLeagues.map((league) => (
               <SelectItem key={league.id} value={league.id.toString()}>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <img
                     src={league.logo}
                     alt={league.name}
-                    className="h-5 w-5 object-contain"
+                    className="h-6 w-6 object-contain"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
                     }}
                   />
-                  {league.name}
+                  <div className="flex flex-col">
+                    <span className="font-medium">{league.name}</span>
+                    <span className="text-xs text-gray-500">{league.country}</span>
+                  </div>
+                  {league.priority <= 2 && (
+                    <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      Popular
+                    </span>
+                  )}
                 </div>
               </SelectItem>
             ))}
