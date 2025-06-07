@@ -34,7 +34,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error details
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
@@ -51,11 +51,11 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   handleNetworkError = async () => {
     this.setState({ isRecovering: true });
-    
+
     try {
       // Attempt network recovery
       await handleNetworkRecovery();
-      
+
       // Reset error state after recovery attempt
       setTimeout(() => {
         this.setState({
@@ -78,42 +78,6 @@ export default class ErrorBoundary extends Component<Props, State> {
       errorInfo: null,
       isRecovering: false
     });
-  };
-
-interface State {
-  hasError: boolean;
-  error?: Error;
-  isRecovering: boolean;
-}
-
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    isRecovering: false
-  };
-
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, isRecovering: false };
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
-
-    // Check if it's a network-related error
-    if (error.message.includes('Network') || 
-        error.message.includes('fetch') || 
-        error.message.includes('connection')) {
-      this.handleNetworkError();
-    }
-  }
-
-  private handleNetworkError = () => {
-    this.setState({ isRecovering: true });
-    handleNetworkRecovery();
-  };
-
-  private handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, isRecovering: false });
   };
 
   public render() {
@@ -165,5 +129,3 @@ class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;
