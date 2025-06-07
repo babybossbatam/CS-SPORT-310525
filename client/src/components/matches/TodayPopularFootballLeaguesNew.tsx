@@ -950,6 +950,23 @@ const TodayPopularFootballLeaguesNew: React.FC<
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
+  // Clear Venezuela flag cache on component mount to ensure fresh fetch
+  useEffect(() => {
+    console.log('🔄 Clearing Venezuela flag cache for fresh fetch...');
+    clearVenezuelaFlagCache();
+
+    // Also force refresh Venezuela flag asynchronously
+    forceRefreshVenezuelaFlag().then(newFlag => {
+      console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
+    }).catch(error => {
+      console.error(`❌ Failed to refresh Venezuela flag:`, error);
+    });
+
+    // Clear all fallback flags as well to ensure clean state
+    clearAllFlagCache();
+    console.log('🧹 Cleared all flag cache including fallback flags');
+  }, []);
+
   // Simple date comparison handled by SimpleDateFilter
 
   if (isLoading || isFetching) {
@@ -1257,15 +1274,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               flagCacheKey: `flag_venezuela`,
                               countryCodeMapping: 'VE' // Should be VE for Venezuela
                             });
-                            
+
                             // Check if Venezuela flag is wrong (Colombia flag)
                             if (countryData.flag && (countryData.flag.includes('/co.png') || countryData.flag.includes('/co.'))) {
                               console.log(`🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`);
                               console.log(`🔧 Attempting to clear and refresh Venezuela flag...`);
-                              
+
                               // Clear the corrupted cache and force refresh
                               clearVenezuelaFlagCache();
-                              
+
                               // Force refresh the flag asynchronously
                               forceRefreshVenezuelaFlag().then(newFlag => {
                                 console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
@@ -1275,7 +1292,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 console.error(`❌ Failed to refresh Venezuela flag:`, error);
                               });
                             }
-                            
+
                             // Force correct Venezuela flag if wrong
                             if (!countryData.flag.includes('/ve.png') && !countryData.flag.includes('/ve.')) {
                               console.log(`🔧 Forcing correct Venezuela flag...`);
@@ -1284,7 +1301,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               // Force update the flag in the data
                               countryData.flag = correctFlag;
                             }
-                            
+
                             // Check if Venezuela flag is cached incorrectly
                             const debugCountryFlagMapping = (country: string) => {
                               console.log(`🔍 Venezuela Debug - Flag mapping for: "${country}"`);
