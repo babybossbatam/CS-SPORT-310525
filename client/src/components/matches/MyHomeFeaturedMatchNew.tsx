@@ -38,7 +38,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
 
     const leagueName = (fixture.league?.name || "").toLowerCase();
-    
+
     // Exclude women's competitions
     if (leagueName.includes("women")) {
       return true;
@@ -120,7 +120,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Take matches without complex filtering
             const matchesToAdd = validMatches.slice(0, 10); // Take first 10 matches per date
             allFeaturedMatches.push(...matchesToAdd);
-            
+
             console.log(`🔍 [FeaturedMatch] Taking ${matchesToAdd.length} matches from ${label}:`, 
               matchesToAdd.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (ID: ${m.fixture.id}`));
 
@@ -458,44 +458,38 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           </div>
 
-          {/* Score display for live and finished matches */}
-          {currentMatch?.fixture?.status?.short &&
-            (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-              currentMatch.fixture.status.short,
-            )) && (
-              <div className="match-score-container">
-                <div className="match-score-display mb-4" style={{ fontSize: "calc(1.125rem * 0.968)" }}>
-                  <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
-                  <span className="score-separator">-</span>
-                  <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
-                </div>
-
-                <div className="match-status-label status-live" style={{ marginTop: "-0.25rem" }}>
-                  {(() => {
-                    const status = currentMatch?.fixture?.status?.short;
-                    const elapsed = currentMatch?.fixture?.status?.elapsed;
-
-                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                      if (status === "HT") return "HT";
-                      return `${elapsed || 0}'`;
-                    }
-                    if (status === "FT") return "Ended";
-                    if (status === "AET") return "After Extra Time";
-                    if (status === "PEN") return "After Penalties";
-                    return status || "Upcoming";
-                  })()}
-                </div>
-              </div>
-            )}
-
-          {/* Match status for upcoming matches */}
-          {currentMatch?.fixture?.status?.short &&
-            !(["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-              currentMatch.fixture.status.short,
-            )) && (
-              <div className="match-score-container">
-                <div className="match-score-display mb-4" style={{ fontSize: "calc(1.125rem * 0.968 * 1.1 * 1.1)" }}>
-                  <span className="score-number">
+          {/* Score area using existing grid system */}
+          <div className="score-area" style={{ 
+            height: "80px", 
+            gridArea: "score",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative"
+          }}>
+            {/* Main score/time display */}
+            <div className="match-score-display" style={{ 
+              height: "40px", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center",
+              fontSize: "calc(1.125rem * 0.968)",
+              marginBottom: "8px"
+            }}>
+              {currentMatch?.fixture?.status?.short &&
+                (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+                  currentMatch.fixture.status.short,
+                )) ? (
+                  // Score display for live and finished matches
+                  <>
+                    <span className="score-number">{currentMatch?.goals?.home ?? 0}</span>
+                    <span className="score-separator">-</span>
+                    <span className="score-number">{currentMatch?.goals?.away ?? 0}</span>
+                  </>
+                ) : (
+                  // Upcoming time display
+                  <span className="score-number" style={{ fontSize: "calc(1.125rem * 0.968 * 1.1)" }}>
                     {(() => {
                       const status = currentMatch?.fixture?.status?.short;
 
@@ -519,16 +513,42 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       return status || "";
                     })()}
                   </span>
-                </div>
+                )}
+            </div>
 
-                <div className="match-status-label status-upcoming" style={{
-                  fontSize: currentMatch?.fixture?.status?.short === "NS" ? "calc(1.5 * 1rem)" : "1rem",
-                  marginTop: "16px"
-                }}>
-                  {currentMatch?.fixture?.status?.short === "NS" ? "" : (currentMatch?.fixture?.status?.short || "Upcoming")}
-                </div>
-              </div>
-            )}
+            {/* Status label - positioned absolutely */}
+            <div className="match-status-label" style={{
+              position: "absolute",
+              bottom: "4px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontSize: "0.875rem",
+              whiteSpace: "nowrap"
+            }}>
+              {currentMatch?.fixture?.status?.short &&
+                (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+                  currentMatch.fixture.status.short,
+                )) ? (
+                  // Live/Finished status
+                  (() => {
+                    const status = currentMatch?.fixture?.status?.short;
+                    const elapsed = currentMatch?.fixture?.status?.elapsed;
+
+                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                      if (status === "HT") return "HT";
+                      return `${elapsed || 0}'`;
+                    }
+                    if (status === "FT") return "Ended";
+                    if (status === "AET") return "After Extra Time";
+                    if (status === "PEN") return "After Penalties";
+                    return status || "Upcoming";
+                  })()
+                ) : (
+                  // Upcoming match status
+                  currentMatch?.fixture?.status?.short === "NS" ? "" : (currentMatch?.fixture?.status?.short || "Upcoming")
+                )}
+            </div>
+          </div>
 
             {/* Team scoreboard with colored bars */}
             <div className="relative">
