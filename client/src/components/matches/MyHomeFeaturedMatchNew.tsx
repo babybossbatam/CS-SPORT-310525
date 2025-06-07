@@ -130,7 +130,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             // Try to get cached popular leagues data
             const popularLeaguesCacheKey = ["all-fixtures-by-date", date];
-            const popularLeaguesData = CacheManager.getCachedData(
+            let popularLeaguesData = CacheManager.getCachedData(
               popularLeaguesCacheKey,
               30 * 60 * 1000, // 30 minutes - same as popular leagues cache
             );
@@ -139,7 +139,31 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Raw cache data length for ${label}:`, popularLeaguesData?.length || 0);
 
             if (!popularLeaguesData || popularLeaguesData.length === 0) {
-              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No cached data for ${label} - SKIPPING`);
+              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No cached data for ${label} - FETCHING FROM API`);
+              
+              // Fetch from API if cache is empty
+              try {
+                const response = await apiRequest('GET', `/api/fixtures/date/${date}?all=true`);
+                if (response.ok) {
+                  popularLeaguesData = await response.json();
+                  console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ Fetched ${popularLeaguesData?.length || 0} fixtures from API for ${label}`);
+                  
+                  // Cache the data for future use
+                  if (popularLeaguesData && popularLeaguesData.length > 0) {
+                    CacheManager.setCachedData(popularLeaguesCacheKey, popularLeaguesData);
+                  }
+                } else {
+                  console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ API request failed for ${label}:`, response.status);
+                  continue;
+                }
+              } catch (apiError) {
+                console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ API request error for ${label}:`, apiError);
+                continue;
+              }
+            }
+
+            if (!popularLeaguesData || popularLeaguesData.length === 0) {
+              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No data available for ${label} - SKIPPING`);
               continue;
             }
 
