@@ -1254,14 +1254,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           e.stopPropagation();
                           toggleStarMatch(leagueData.league.id);
                         }}
-                        className="text-gray-400 hover:text-yellow-400 transition-colors"
+                        className="transition-colors"
                         title={`${starredMatches.has(leagueData.league.id) ? 'Remove from' : 'Add to'} favorites`}
                       >
                         <Star
-                          className={`h-4 w-4 ${
+                          className={`h-5 w-5 transition-all ${
                             starredMatches.has(leagueData.league.id)
-                              ? 'text-yellow-400 fill-yellow-400'
-                              : ''
+                              ? 'text-blue-500 fill-blue-500'
+                              : 'text-blue-300'
                           }`}
                         />
                       </button>
