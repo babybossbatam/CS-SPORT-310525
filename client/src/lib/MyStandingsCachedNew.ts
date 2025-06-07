@@ -96,8 +96,42 @@ interface StandingsStorageCache {
   [key: string]: CachedStandingsItem;
 }
 
-// Popular leagues for batch fetching
-const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
+// Get popular leagues from TodayPopularFootballLeaguesNew cached data
+const getPopularLeaguesFromCache = (): number[] => {
+  try {
+    // Get cached popular league data from TodayPopularFootballLeaguesNew
+    const cacheKeys = ['all-fixtures-by-date'];
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Try to get cached fixture data to extract league IDs
+    const cachedFixtures = CacheManager.getCachedData(
+      ['all-fixtures-by-date', today],
+      30 * 60 * 1000 // 30 minutes
+    );
+    
+    if (cachedFixtures && Array.isArray(cachedFixtures)) {
+      // Extract unique league IDs from cached fixtures
+      const leagueIds = [...new Set(
+        cachedFixtures
+          .filter(fixture => fixture?.league?.id)
+          .map(fixture => fixture.league.id)
+      )];
+      
+      console.log(`📊 [StandingsCache] Found ${leagueIds.length} leagues from TodayPopularLeagueNew cache`);
+      return leagueIds;
+    }
+    
+    // Fallback to essential popular leagues if no cache
+    console.log(`⚠️ [StandingsCache] No cached data from TodayPopularLeagueNew, using fallback leagues`);
+    return [39, 140, 135, 78, 2, 3]; // Premier League, La Liga, Serie A, Bundesliga, Champions League, Europa League
+  } catch (error) {
+    console.error('Error getting popular leagues from cache:', error);
+    return [39, 140, 135, 78, 2, 3]; // Fallback leagues
+  }
+};
+
+// Dynamic popular leagues based on TodayPopularLeagueNew data
+const POPULAR_LEAGUES = getPopularLeaguesFromCache();
 
 class StandingsCache {
   private static instance: StandingsCache;
@@ -534,7 +568,8 @@ export function useBatchStandings(leagueIds: number[], season?: number) {
  * Hook to fetch popular league standings (optimized batch request)
  */
 export function usePopularLeagueStandings(season?: number) {
-  return useBatchStandings(POPULAR_LEAGUES, season);
+  const dynamicLeagues = React.useMemo(() => getPopularLeaguesFromCache(), []);
+  return useBatchStandings(dynamicLeagues, season);
 }
 
 /**
@@ -620,10 +655,13 @@ export function usePrefetchStandings() {
   const prefetchPopularLeaguesStandings = React.useCallback((season?: number) => {
     const currentYear = new Date().getFullYear();
     const targetSeason = season || currentYear;
+    const dynamicLeagues = getPopularLeaguesFromCache();
+
+    console.log(`🔄 [StandingsCache] Prefetching standings for ${dynamicLeagues.length} leagues from TodayPopularLeagueNew`);
 
     queryClient.prefetchQuery({
-      queryKey: ['batch-standings', POPULAR_LEAGUES, targetSeason],
-      queryFn: () => standingsCache.fetchBatchStandings(POPULAR_LEAGUES, season),
+      queryKey: ['batch-standings', dynamicLeagues.sort((a, b) => a - b), targetSeason],
+      queryFn: () => standingsCache.fetchBatchStandings(dynamicLeagues, season),
       ...STANDINGS_CACHE_CONFIG,
     });
   }, [queryClient]);
