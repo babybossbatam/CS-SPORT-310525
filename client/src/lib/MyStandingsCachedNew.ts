@@ -114,19 +114,19 @@ const getPopularLeaguesFromCache = (): number[] => {
       )];
       
       console.log(`📊 [StandingsCache] Found ${leagueIds.length} leagues from TodayPopularLeagueNew cache`);
-      return leagueIds.length > 0 ? leagueIds : [39, 140, 135, 78, 2, 3];
+      return leagueIds.length > 0 ? leagueIds : [];
     }
     
-    // Fallback to essential popular leagues if no cache
-    console.log(`⚠️ [StandingsCache] No cached data from TodayPopularLeagueNew, using fallback leagues`);
-    return [39, 140, 135, 78, 2, 3]; // Premier League, La Liga, Serie A, Bundesliga, Champions League, Europa League
+    // Return empty array instead of fallback leagues to prevent automatic fetching
+    console.log(`⚠️ [StandingsCache] No cached data from TodayPopularLeagueNew, returning empty array`);
+    return [];
   } catch (error) {
     console.error('Error getting popular leagues from cache:', error);
-    return [39, 140, 135, 78, 2, 3]; // Fallback leagues
+    return []; // Return empty array instead of fallback leagues
   }
 };
 
-// Dynamic popular leagues based on TodayPopularLeagueNew data
+// Dynamic popular leagues based on TodayPopularLeagueNew data - will be empty initially
 const POPULAR_LEAGUES = getPopularLeaguesFromCache();
 
 class StandingsCache {
@@ -600,22 +600,17 @@ export function useBatchStandings(leagueIds: number[], season?: number) {
  * Hook to fetch popular league standings (optimized batch request)
  */
 export function usePopularLeagueStandings(season?: number) {
-  // Use static fallback leagues to prevent React hooks queue issues
-  const fallbackLeagues = [39, 140, 135, 78, 2, 3]; // Premier League, La Liga, Serie A, Bundesliga, Champions League, Europa League
-  
   const dynamicLeagues = React.useMemo(() => {
     try {
       return getPopularLeaguesFromCache();
     } catch (error) {
-      console.warn('Failed to get dynamic leagues, using fallback:', error);
-      return fallbackLeagues;
+      console.warn('Failed to get dynamic leagues, returning empty array:', error);
+      return [];
     }
   }, []);
 
-  // Ensure we always have valid league IDs
-  const validLeagues = dynamicLeagues.length > 0 ? dynamicLeagues : fallbackLeagues;
-  
-  return useBatchStandings(validLeagues, season);
+  // Only fetch if we have actual league IDs from fixtures cache
+  return useBatchStandings(dynamicLeagues, season);
 }
 
 /**
@@ -701,23 +696,26 @@ export function usePrefetchStandings() {
   const prefetchPopularLeaguesStandings = React.useCallback((season?: number) => {
     const currentYear = new Date().getFullYear();
     const targetSeason = season || currentYear;
-    const fallbackLeagues = [39, 140, 135, 78, 2, 3];
     
     let dynamicLeagues;
     try {
       dynamicLeagues = getPopularLeaguesFromCache();
     } catch (error) {
-      console.warn('Failed to get dynamic leagues for prefetch, using fallback:', error);
-      dynamicLeagues = fallbackLeagues;
+      console.warn('Failed to get dynamic leagues for prefetch, returning early:', error);
+      return; // Don't prefetch if no leagues available
     }
 
-    const validLeagues = dynamicLeagues.length > 0 ? dynamicLeagues : fallbackLeagues;
+    // Only prefetch if we have actual leagues from fixtures
+    if (dynamicLeagues.length === 0) {
+      console.log(`🔄 [StandingsCache] No leagues to prefetch, skipping`);
+      return;
+    }
 
-    console.log(`🔄 [StandingsCache] Prefetching standings for ${validLeagues.length} leagues`);
+    console.log(`🔄 [StandingsCache] Prefetching standings for ${dynamicLeagues.length} leagues`);
 
     queryClient.prefetchQuery({
-      queryKey: ['batch-standings', validLeagues.sort((a, b) => a - b), targetSeason],
-      queryFn: () => standingsCache.fetchBatchStandings(validLeagues, season),
+      queryKey: ['batch-standings', dynamicLeagues.sort((a, b) => a - b), targetSeason],
+      queryFn: () => standingsCache.fetchBatchStandings(dynamicLeagues, season),
       ...STANDINGS_CACHE_CONFIG,
     });
   }, [queryClient]);
@@ -749,7 +747,7 @@ export const standingsUtils = {
   // Cache management
   clearCache: standingsCache.clearCache.bind(standingsCache),
 
-  // Popular leagues constant
+  // Popular leagues constant (will be empty until fixtures are loaded)
   POPULAR_LEAGUES,
 };
 

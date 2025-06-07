@@ -77,7 +77,9 @@ const LeagueStandingsFilter = () => {
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  const { data: standings, isLoading: standingsLoading } = useLeagueStandings(selectedLeague);
+  const { data: standings, isLoading: standingsLoading } = useLeagueStandings(
+    selectedLeague && selectedLeague !== '' ? parseInt(selectedLeague) : 0
+  );
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
     queryKey: ['fixtures', selectedLeague, todayDateKey],
