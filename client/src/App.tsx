@@ -4,6 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Suspense, lazy, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { debugLogger } from "./lib/debugLogger";
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
+import { usePrefetchStandings } from '@/lib/MyStandingsCachedNew';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from '@/lib/store';
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -76,6 +82,18 @@ const preloadData = () => {
     // Implement logic to preload data for components
 }
 
+function AppContent() {
+  const { prefetchPopularLeaguesStandings } = usePrefetchStandings();
+
+  // Prefetch popular leagues standings on app start
+  React.useEffect(() => {
+    prefetchPopularLeaguesStandings();
+  }, [prefetchPopularLeaguesStandings]);
+
+  return (
+    <Router />
+  );
+}
 
 function App() {
 
@@ -96,7 +114,11 @@ function App() {
     <TooltipProvider>
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
-        <Router />
+        <QueryClientProvider client={queryClient}>
+          <Provider store={store}>
+            <AppContent />
+          </Provider>
+        </QueryClientProvider>
       </main>
     </TooltipProvider>
   );

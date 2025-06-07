@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { usePopularLeagueStandings, useLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import { format, parseISO } from 'date-fns';
 import { 
   Select,
@@ -10,9 +12,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { apiRequest } from '@/lib/queryClient';
-import { getPopularLeagues } from '@/lib/leagueDataCache';
-import { usePopularLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import {
   Table,
   TableBody,
@@ -78,19 +77,7 @@ const LeagueStandingsFilter = () => {
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  const { data: standings, isLoading: standingsLoading } = useQuery({
-    queryKey: ['standings', selectedLeague, todayDateKey],
-    queryFn: async () => {
-      const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
-      const data = await response.json();
-      return data?.league?.standings?.[0] || [];
-    },
-    enabled: !!selectedLeague && selectedLeague !== '', // Only run when we have a valid league ID
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
-    refetchOnMount: false, // Don't refetch on mount if data exists for today
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-  });
+  const { data: standings, isLoading: standingsLoading } = useLeagueStandings(selectedLeague);
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
     queryKey: ['fixtures', selectedLeague, todayDateKey],

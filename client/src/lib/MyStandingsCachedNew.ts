@@ -268,11 +268,23 @@ class StandingsCache {
       return null;
     }
 
-    // Check cache first
+    // Check cache first - be more aggressive about using cached data
     const cached = this.getCachedStandings(leagueId, season);
     if (cached) {
       console.log(`🎯 Using cached standings for league ${leagueId} - no API call needed`);
       return cached;
+    }
+
+    // For popular leagues on home/football pages, avoid API calls if we have ANY cached data
+    const isPopularLeague = [2, 3, 39, 140, 135, 78, 848, 15].includes(leagueId);
+    if (isPopularLeague) {
+      // Check if we have any cached data (even if slightly expired) for popular leagues
+      const cacheKey = this.getStandingsKey(leagueId, season);
+      const anyCached = this.memoryCache.get(cacheKey);
+      if (anyCached) {
+        console.log(`🏆 Using slightly stale cache for popular league ${leagueId} to avoid API rate limits`);
+        return anyCached.data;
+      }
     }
 
     try {
@@ -326,7 +338,7 @@ class StandingsCache {
     const results: BatchStandingsResponse = {};
     const batchSize = 3; // Process in smaller batches to avoid overwhelming the API
 
-    for (let i = 0; i < leagueIds.length; i += batchSize) {
+    for (let i = 0; < leagueIds.length; i += batchSize) {
       const batch = leagueIds.slice(i, i + batchSize);
 
       // Add small delay between batches
