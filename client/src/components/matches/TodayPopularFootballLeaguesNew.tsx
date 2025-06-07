@@ -1286,8 +1286,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             (e.target as HTMLImageElement).src =
                               "/assets/fallback-logo.svg";
                           }}
-                      )}
-                        onLoad={() => {
+                          onLoad={() => {
                           // Debug Venezuela specifically
                           if (leagueData.league.country === 'Venezuela') {
                             console.log(`🇻🇪 Venezuela league detected:`, {
