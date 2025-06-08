@@ -100,6 +100,22 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   console.log(`📊 [TodayMatchByTime] Got ${fixtures?.length || 0} fixtures from central cache`);
 
+    // Define shouldExcludeFixture function
+    const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
+      const excludedLeagues = ["Belarusian"];
+      const excludedTeams = ["BATE", "Dinamo Minsk", "Shakhtyor"];
+  
+      if (excludedLeagues.some(excludedLeague => leagueName.includes(excludedLeague))) {
+        return true;
+      }
+  
+      if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(excludedTeam))) {
+        return true;
+      }
+  
+      return false;
+    };
+
   // Apply component-specific filtering
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) {
@@ -159,22 +175,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       </Card>
     );
   }
-
-  // Define shouldExcludeFixture function
-  const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
-    const excludedLeagues = ["Belarusian"];
-    const excludedTeams = ["BATE", "Dinamo Minsk", "Shakhtyor"];
-
-    if (excludedLeagues.some(excludedLeague => leagueName.includes(excludedLeague))) {
-      return true;
-    }
-
-    if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(excludedTeam))) {
-      return true;
-    }
-
-    return false;
-  };
 
   return (
     <>
