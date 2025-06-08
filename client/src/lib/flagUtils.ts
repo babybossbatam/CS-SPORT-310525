@@ -732,22 +732,15 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
     return cached.url;
   }
 
-  // Check memory cache second
-  const cacheKey = `${country}-${leagueFlag || ''}`;
-  if (flagCacheMem.has(cacheKey)) {
-    const memCached = flagCacheMem.get(cacheKey)!;
-
-    // Additional Venezuela corruption check in memory cache
-    if (country.toLowerCase().includes('venezuela') && memCached.includes('/co.png')) {
-      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION in memory cache: ${memCached}`);
-      const correctFlag = 'https://flagcdn.com/w40/ve.png';
-      flagCacheMem.set(cacheKey, correctFlag);
-      return correctFlag;
-    }
-
-    console.log(`🧠 [flagUtils.ts:getCountryFlagWithFallbackSync] Memory cache hit for ${country}: ${memCached}`);
-    return memCached;
+  // Check memory cache first using normalized country name
+  const memCacheKey = `${normalizedCountry}-${leagueFlag || ''}`;
+  if (flagCacheMem.has(memCacheKey)) {
+    const cachedFlag = flagCacheMem.get(memCacheKey)!;
+    console.log(`💨 [flagUtils.ts:getCountryFlagWithFallbackSync] Memory cache HIT: ${cachedFlag}`);
+    return cachedFlag;
   }
+
+  const cacheKey = `flag_${normalizedCountry}`;
 
   console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No cache found for ${country}, generating sync...`);
 
@@ -813,24 +806,10 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
 
   console.log(`🏁 [flagUtils.ts:getCountryFlagWithFallbackSync] Final result for ${country}: ${result}`);
 
-  // Cache the result in both memory cache and main flag cache
-  flagCacheMem.set(cacheKey, result);
-  console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Stored in memory cache: ${cacheKey} -> ${result}`);
+  // Store in memory cache for faster subsequent access using normalized key
+  flagCacheMem.set(`${normalizedCountry}-${leagueFlag || ''}`, result);
 
-  // Special correction for Venezuela to prevent Colombia flag cache corruption
-  if (country.toLowerCase().includes('venezuela') && result.includes('/co.png')) {
-    console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] Detected Venezuela using Colombia flag, correcting...`);
-    result = 'https://flagcdn.com/w40/ve.png';
-    console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Corrected Venezuela flag to: ${result}`);
-  }
-
-  // Also cache in the main flag cache if it's a valid flag URL (not API endpoint)
-  if (result && !result.startsWith('/api/') && result !== '/assets/fallback-logo.svg') {
-    const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-    flagCache.setCached(flagCacheKey, result, 'sync-cache', true);
-    console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached in main cache for ${country}: ${result} | Source: sync-cache`);
-  }
-
+  console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Returning flag: ${result}`);
   return result;
 };
 
@@ -1166,14 +1145,18 @@ export function debugCountryMapping(country: string): void {
 /**
  * Clear Venezuela flag cache specifically for debugging
  */
-export function clearVenezuelaFlagCache(): void {
-  // Clear all possible Venezuela cache entries
+export const clearVenezuelaFlagCache = () => {
   const venezuelaCacheKeys = [
     'flag_venezuela',
     'flag_venezuela_(bolivarian_republic_of)',
     'flag_venezuela_(bolivarian_republic)',
-    'flag_bolivarian_republic_of_venezuela'
+    'flag_bolivarian_republic_of_venezuela',
+    'flag_bolivarian_republic_of',
+    'flag_ve',
+    'flag_ven'
   ];
+
+  console.log(`🗑️ Starting Venezuela flag cache cleanup...`);
 
   venezuelaCacheKeys.forEach(cacheKey => {
     const cached = flagCache.getCached(cacheKey);
@@ -1190,30 +1173,39 @@ export function clearVenezuelaFlagCache(): void {
     }
   });
 
+  // Clear from memory cache
+  for (const [key] of flagCacheMem.entries()) {
+    if (key.includes('venezuela') || key.includes('bolivarian')) {
+      flagCacheMem.delete(key);
+      console.log(`🗑️ Cleared memory cache key: ${key}`);
+    }
+  }
+
   // Also clear from localStorage
   try {
     const storedCache = localStorage.getItem('cssport_flag_cache');
     if (storedCache) {
       const cacheData = JSON.parse(storedCache);
       if (cacheData.flags) {
+        const originalCount = cacheData.flags.length;
         cacheData.flags = cacheData.flags.filter(([key]: any) => 
-          !venezuelaCacheKeys.includes(key)
+          !venezuelaCacheKeys.includes(key) && 
+          !key.includes('venezuela') && 
+          !key.includes('bolivarian')
         );
+        const clearedCount = originalCount - cacheData.flags.length;
         localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
-        console.log(`🗑️ Cleared all Venezuela flags from localStorage`);
+        console.log(`🗑️ Cleared ${clearedCount} Venezuela flags from localStorage`);
       }
     }
   } catch (error) {
     console.warn('Failed to clear Venezuela flags from localStorage:', error);
   }
 
-  // Generate correct flag and re-cache for all variants
+  // Generate correct flag and re-cache with normalized key
   const correctFlag = 'https://flagcdn.com/w40/ve.png';
-  venezuelaCacheKeys.forEach(cacheKey => {
-    flagCache.setCached(cacheKey, correctFlag, 'manual-correction', true);
-  });
-
-  console.log(`✅ Venezuela flag cache corrected to: ${correctFlag} for all variants`);
+  flagCache.setCached('flag_venezuela', correctFlag, 'cleanup-fix', true);
+  console.log(`✅ Re-cached Venezuela flag with normalized key: flag_venezuela`);
 }
 
 /**
@@ -2318,7 +2310,7 @@ async function backgroundCacheRefresh(): Promise<void> {
     const age = now - value.timestamp;
     const maxAge = value.url.includes('/assets/fallback-logo.svg') 
       ? 60 * 60 * 1000  // 1 hour for fallbacks
-      : 24 * 60 * 60 * 1000; // 24 hours for valid flags
+        : 24 * 60 * 60 * 1000; // 24 hours for valid flags
 
     // Refresh if entry is 75% of max age and has been used recently
     if (age > maxAge * 0.75 && usage && usage.count > 3) {

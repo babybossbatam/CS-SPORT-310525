@@ -450,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
     try {
       console.log('API: Fetching popular leagues');
-      
+
       // Try to get from cached leagues first
       const allLeagues = await storage.getAllCachedLeagues();
 
@@ -754,7 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  
+
 
   // Conference League fixtures endpoint (League ID 848)
   apiRouter.get("/conference-league/fixtures", async (_req: Request, res: Response) => {

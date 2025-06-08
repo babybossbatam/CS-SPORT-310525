@@ -24,10 +24,21 @@ export const CACHE_PRESETS = {
     refetchOnReconnect: true,
   },
 
-  // For match fixtures and schedules
+  // For match fixtures and schedules (extended to 4 hours)
   FIXTURES: {
-    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2, // Keep in memory for 48 hours
+    staleTime: CACHE_DURATIONS.FOUR_HOURS,
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false, // Disable automatic refetching
+    retry: 1,
+  },
+
+  // For upcoming fixtures (longer cache since they rarely change)
+  UPCOMING_FIXTURES: {
+    staleTime: CACHE_DURATIONS.TWELVE_HOURS,
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -104,12 +115,20 @@ export function createQueryOptions<T>(
 
 // Specific cache configurations for common query patterns
 export const QUERY_CONFIGS = {
-  // All fixtures by date (24-hour cache, no refetch)
-  allFixturesByDate: (selectedDate: string, enableFetching: boolean) =>
-    createQueryOptions('FIXTURES', {
+  // All fixtures by date (smart cache based on date)
+  allFixturesByDate: (selectedDate: string, enableFetching: boolean) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const isToday = selectedDate === today;
+    const isFuture = selectedDate > today;
+    
+    // Use shorter cache for today (live matches), longer for future dates
+    const preset = isToday ? 'FIXTURES' : isFuture ? 'UPCOMING_FIXTURES' : 'POPULAR_FIXTURES';
+    
+    return createQueryOptions(preset, {
       queryKey: ['all-fixtures-by-date', selectedDate],
       enabled: !!selectedDate && enableFetching,
-    }),
+    });
+  },
 
   // Popular league fixtures (24-hour cache)
   popularFixtures: (selectedDate: string, enableFetching: boolean, popularLeagues: number[]) =>

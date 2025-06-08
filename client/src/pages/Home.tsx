@@ -19,7 +19,7 @@ import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularLeagueStandingsCard from '@/components/leagues/PopularLeagueStandingsCard';
-
+import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
@@ -458,7 +458,7 @@ const Home = () => {
               </CardContent>
             </Card>
 
-            
+            <LeagueStandingsFilter />
 
             {/* Popular Leagues and Teams sections */}
             <div className="grid grid-cols-2 gap-4">

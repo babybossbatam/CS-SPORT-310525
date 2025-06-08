@@ -192,13 +192,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
     548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
+  // Smart cache duration based on date type
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === today;
+  const isFuture = selectedDate > today;
+  
+  // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
+  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
-
-  const cachedFixtures = CacheManager.getCachedData(
-    fixturesQueryKey,
-    30 * 60 * 1000,
-  ); // 30 minutes
 
   // Fetch all fixtures for the selected date with smart caching
   const {
@@ -208,17 +211,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
+      console.log(`🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`);
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
       );
       const data = await response.json();
+      console.log(`✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`);
       return data;
     },
     {
       enabled: !!selectedDate && enableFetching,
-      maxAge: 30 * 60 * 1000, // 30 minutes
-      backgroundRefresh: true,
+      maxAge: cacheMaxAge,
+      backgroundRefresh: false, // Disable background refresh to prevent frequent calls
+      staleTime: cacheMaxAge, // Use the same duration for stale time
+      gcTime: cacheMaxAge * 2, // Keep in memory longer
+      refetchOnMount: false, // Don't refetch on component mount
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnReconnect: false, // Don't refetch on reconnect
     },
   );
 
@@ -969,7 +979,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Simple date comparison handled by SimpleDateFilter
 
-  if (isLoading || isFetching) {
+  // Show loading only if we're actually loading and don't have any cached data
+  const showLoading = (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
+  
+  if (showLoading) {
+    console.log(`⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`);
+    
     return (
       <Card>
         <CardHeader className="pb-4">

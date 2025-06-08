@@ -1,3 +1,4 @@
+
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,10 +7,11 @@ import { Loader2 } from "lucide-react";
 import { debugLogger } from "./lib/debugLogger";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-
+import { usePrefetchStandings } from '@/lib/MyStandingsCachedNew';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
+import { setupGlobalErrorHandlers } from './lib/errorHandler';
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -42,25 +44,25 @@ function Router() {
     <Suspense fallback={<LoadingSpinner />}>
       <Switch>
         <Route path="/" component={Home} />
-      <Route path="/football" component={Football} />
-      <Route path="/basketball" component={Basketball} />
-      <Route path="/baseball" component={Baseball} />
-      <Route path="/tennis" component={Tennis} />
-      <Route path="/hockey" component={Hockey} />
-      <Route path="/login" component={() => <Authentication mode="login" />} />
-      <Route path="/register" component={() => <Authentication mode="register" />} />
-      <Route path="/match/:id" component={MatchDetails} />
-      <Route path="/match/:id/:tab" component={MatchDetails} />
-      <Route path="/league/:id" component={LeagueDetails} />
-      <Route path="/league/:id/:tab" component={LeagueDetails} />
-      <Route path="/my-scores" component={MyScores} />
-      <Route path="/settings" component={Settings} />
-      <Route path="/search" component={SearchResults} />
-      <Route path="/live" component={LiveMatches} />
-      <Route path="/news/:id" component={NewsPage} />
-      <Route path="/scoreboard-demo" component={ScoreboardDemo} />
-      <Route component={NotFound} />
-    </Switch>
+        <Route path="/football" component={Football} />
+        <Route path="/basketball" component={Basketball} />
+        <Route path="/baseball" component={Baseball} />
+        <Route path="/tennis" component={Tennis} />
+        <Route path="/hockey" component={Hockey} />
+        <Route path="/login" component={() => <Authentication mode="login" />} />
+        <Route path="/register" component={() => <Authentication mode="register" />} />
+        <Route path="/match/:id" component={MatchDetails} />
+        <Route path="/match/:id/:tab" component={MatchDetails} />
+        <Route path="/league/:id" component={LeagueDetails} />
+        <Route path="/league/:id/:tab" component={LeagueDetails} />
+        <Route path="/my-scores" component={MyScores} />
+        <Route path="/settings" component={Settings} />
+        <Route path="/search" component={SearchResults} />
+        <Route path="/live" component={LiveMatches} />
+        <Route path="/news/:id" component={NewsPage} />
+        <Route path="/scoreboard-demo" component={ScoreboardDemo} />
+        <Route component={NotFound} />
+      </Switch>
     </Suspense>
   );
 }
@@ -83,12 +85,23 @@ const preloadData = () => {
 }
 
 function AppContent() {
+  const { prefetchPopularLeaguesStandings } = usePrefetchStandings();
+
+  // Prefetch popular leagues standings on app start
+  React.useEffect(() => {
+    prefetchPopularLeaguesStandings();
+  }, [prefetchPopularLeaguesStandings]);
+
   return (
     <Router />
   );
 }
 
 function App() {
+  // Initialize global error handlers
+  React.useEffect(() => {
+    setupGlobalErrorHandlers();
+  }, []);
 
   useEffect(() => {
     // Initialize cache refresh system

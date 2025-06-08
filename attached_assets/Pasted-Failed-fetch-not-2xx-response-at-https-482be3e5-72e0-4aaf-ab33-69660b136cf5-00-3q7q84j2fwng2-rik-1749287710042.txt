@@ -1,0 +1,25 @@
+Failed fetch, not 2xx response
+at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:139:2768
+Unhandled promise rejection: 
+Error {}
+
+at t.value (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Cannot read properties of undefined (reading 'frame')
+at new ErrorOverlay (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@vite/client:425:26)
+at mt (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:138:2678)
+at q (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:139:1405)
+at Ut (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:142:1092)
+at async Bt (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:146:894)
+at async Ce (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:146:1212)
+at async Le (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:146:3209)
+at async HTMLDocument.handleClick (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/:146:9283)
+Global error: 
+TypeError {}
+
+at t.value (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
