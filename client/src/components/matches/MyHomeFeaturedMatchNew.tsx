@@ -25,6 +25,38 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get central cache data
   const { fixtures, liveFixtures, isLoading } = useCentralData();
 
+  // Get priority level for a match
+  const getMatchPriority = (fixture: any): number => {
+    const leagueId = fixture.league.id;
+    const leagueName = fixture.league.name.toLowerCase();
+    
+    // Priority Level 1 - Top tier competitions
+    const priority1Leagues = [
+      2, 3, 39, 140, 135, 78, 61, 81, 94, 88, // Champions/Europa League, Big 5 leagues
+      4, 5, 848, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 // World Cup, Euros, Copa America, etc.
+    ];
+    
+    // Priority Level 2 - Secondary competitions and good leagues
+    const priority2Leagues = [
+      71, 72, 73, 74, 75, 76, 77, 79, 80, 82, 83, 84, 85, 86, 87, // Other European leagues
+      253, 262, 271, 274, 281, 283, 288, 289, 290, 292, 293, 294, // Asian/American leagues
+      144, 145, 146, 147, 148, 149, 188, 203, 204, 207, 216, 218 // Championship level
+    ];
+    
+    if (priority1Leagues.includes(leagueId)) return 1;
+    if (priority2Leagues.includes(leagueId)) return 2;
+    
+    // Priority Level 3 - Lower tier but still relevant
+    if (leagueName.includes('champions') || leagueName.includes('europa') || 
+        leagueName.includes('cup') || leagueName.includes('premier') ||
+        leagueName.includes('primeira') || leagueName.includes('serie') ||
+        leagueName.includes('bundesliga') || leagueName.includes('ligue')) {
+      return 2;
+    }
+    
+    return 3; // Everything else
+  };
+
   // Filter and process matches for featured display
   const featuredMatches = useMemo(() => {
     console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures and ${liveFixtures.length} live fixtures`);
@@ -36,7 +68,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Combine all fixtures
     const allFixtures = [...fixtures, ...liveFixtures];
 
-    // Simple filtering approach
+    // Enhanced filtering with priority levels
     const filtered = allFixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.teams?.home?.name || !fixture?.teams?.away?.name) {
         return false;
@@ -56,10 +88,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return false;
       }
 
-      return true;
-    });
+      // Get priority level
+      const priority = getMatchPriority(fixture);
+      
+      // Only show priority 1-3 matches for the next 3 days
+      if (priority > 3) return false;
 
-    // Simple sorting: prioritize live matches, then by date
+      return true;
+    }).map(fixture => ({
+      ...fixture,
+      priority: getMatchPriority(fixture)
+    }));
+
+    // Enhanced sorting: priority level, live status, then date
     const sorted = filtered.sort((a, b) => {
       const statusA = a.fixture.status.short;
       const statusB = b.fixture.status.short;
@@ -71,7 +112,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       if (isLiveA && !isLiveB) return -1;
       if (!isLiveA && isLiveB) return 1;
 
-      // If both are live or both are not live, sort by date proximity
+      // Then by priority level (1 = highest priority)
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+
+      // If same priority, sort by date proximity
       const dateA = new Date(a.fixture.date).getTime();
       const dateB = new Date(b.fixture.date).getTime();
       const now = Date.now();
@@ -239,6 +285,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }}
                 />
                 <span className="font-medium text-sm">{currentMatch.league.name}</span>
+                {/* Priority badge */}
+                {currentMatch.priority && (
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                    currentMatch.priority === 1 ? 'bg-yellow-100 text-yellow-800' :
+                    currentMatch.priority === 2 ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-600'
+                  }`}>
+                    P{currentMatch.priority}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
