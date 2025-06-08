@@ -31,9 +31,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardContent className="p-6 text-center">
           <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
           <p className="text-gray-500">No matches available for this date</p>
-          <p className="text-xs text-gray-400 mt-2">
-            Fixtures: {todayPopularFixtures.length} | Date: {currentDate}
-          </p>
         </CardContent>
       </Card>
     </>
