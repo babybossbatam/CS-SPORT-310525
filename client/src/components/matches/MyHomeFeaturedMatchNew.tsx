@@ -7,7 +7,6 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isValid, addDays } from "date-fns";
 import { useTodayPopularFixtures } from "@/hooks/useTodayPopularFixtures";
-import { shouldExcludeFeaturedMatch, isHighPriorityLeague } from "@/lib/MyFeaturedMatchExclusion";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -27,18 +26,42 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Use the useTodayPopularFixtures hook
   const { filteredFixtures, isLoading, isFetching } = useTodayPopularFixtures(currentDate);
 
-  // Enhanced exclusion filter using MyFeaturedMatchExclusion
+  // Basic exclusion filter
   const shouldExcludeMatch = (fixture: any) => {
     if (!fixture || !fixture.league || !fixture.teams) {
       return true;
     }
 
-    const leagueName = fixture.league?.name || "";
-    const homeTeamName = fixture.teams?.home?.name || "";
-    const awayTeamName = fixture.teams?.away?.name || "";
+    const leagueName = (fixture.league?.name || "").toLowerCase();
 
-    // Use the specialized featured match exclusion
-    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName);
+    // Exclude women's competitions
+    if (leagueName.includes("women")) {
+      return true;
+    }
+
+    // Exclude youth competitions
+    if (
+      leagueName.includes("u15") ||
+      leagueName.includes("u16") ||
+      leagueName.includes("u17") ||
+      leagueName.includes("u18") ||
+      leagueName.includes("u19") ||
+      leagueName.includes("u20") ||
+      leagueName.includes("u21") ||
+      leagueName.includes("u23") ||
+      leagueName.includes("youth") ||
+      leagueName.includes("junior") ||
+      leagueName.includes("reserve")
+    ) {
+      return true;
+    }
+
+    // Exclude non-competitive matches
+    if (leagueName.includes("friendlies") || leagueName.includes("friendly")) {
+      return true;
+    }
+
+    return false;
   };
 
   // Process the filtered fixtures from the hook
@@ -63,7 +86,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     console.log(`🏠 [MyHomeFeaturedMatchNew] After exclusion filtering: ${basicFiltered.length} matches`);
 
-    // Enhanced prioritization for featured matches
+    // Prioritize matches exactly like TodayPopularFootballLeaguesNew
     const featuredMatches = basicFiltered
       .sort((a, b) => {
         // Priority 1: Live matches first
@@ -73,27 +96,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (aLive && !bLive) return -1;
         if (!aLive && bLive) return 1;
 
-        // Priority 2: High-priority leagues (using MyFeaturedMatchExclusion logic)
-        const aHighPriority = isHighPriorityLeague(a);
-        const bHighPriority = isHighPriorityLeague(b);
+        // Priority 2: Top tier leagues (Champions League, Premier League, etc.)
+        const topTierLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+        const aTopTier = topTierLeagues.includes(a.league?.id);
+        const bTopTier = topTierLeagues.includes(b.league?.id);
 
-        if (aHighPriority && !bHighPriority) return -1;
-        if (!aHighPriority && bHighPriority) return 1;
+        if (aTopTier && !bTopTier) return -1;
+        if (!aTopTier && bTopTier) return 1;
 
-        // Priority 3: Major international competitions
-        const aMajorInternational = (a.league?.name || "").toLowerCase().includes("uefa") || 
-                                   (a.league?.name || "").toLowerCase().includes("world cup") ||
-                                   (a.league?.name || "").toLowerCase().includes("copa america") ||
-                                   (a.league?.name || "").toLowerCase().includes("libertadores");
-        const bMajorInternational = (b.league?.name || "").toLowerCase().includes("uefa") || 
-                                   (b.league?.name || "").toLowerCase().includes("world cup") ||
-                                   (b.league?.name || "").toLowerCase().includes("copa america") ||
-                                   (b.league?.name || "").toLowerCase().includes("libertadores");
-
-        if (aMajorInternational && !bMajorInternational) return -1;
-        if (!aMajorInternational && bMajorInternational) return 1;
-
-        // Priority 4: Sort by date (earlier matches first)
+        // Priority 3: Sort by date (earlier matches first)
         return new Date(a.fixture?.date || 0).getTime() - new Date(b.fixture?.date || 0).getTime();
       })
       .slice(0, maxMatches || 9); // Take top matches for carousel
