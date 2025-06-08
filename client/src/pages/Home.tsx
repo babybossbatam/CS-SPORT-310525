@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, leaguesActions, fixturesActions, uiActions } from '@/lib/store';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { usePopularLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
@@ -67,8 +66,7 @@ const Home = () => {
     }
   }, [selectedDate, dispatch]);
 
-  // Use the cached standings system instead of direct API calls
-  const { data: leagueStandings } = usePopularLeagueStandings();
+  // Note: Using league standing data instead of cached standings
 
   // Use direct state access to avoid identity function warnings
   const popularLeaguesData = useSelector((state: RootState) => state.leagues.popularLeagues);

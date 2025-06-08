@@ -4,15 +4,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-import { usePremierLeagueStandings } from '@/lib/MyStandingsCachedNew';
-
 const PopularLeagueStandingsCard = () => {
-  const { data } = usePremierLeagueStandings({
-    topN: 10, // Show top 10 teams
-    sortBy: 'rank'
+  const { data } = useQuery({
+    queryKey: ['league-standings', 39], // Premier League ID
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/standings?league=39&season=2024');
+      return response.json();
+    },
   });
   
-  const standings = data?.league?.standings?.[0] || [];
+  const standings = data?.league?.standings?.[0]?.slice(0, 10) || [];
 
   return (
     <Card className="bg-white shadow-md mb-4">
