@@ -786,7 +786,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 } catch (e) {
                   return currentMatch.fixture.venue?.name || "";
                 }
-```text
               })()}
             </div>
           </div>
@@ -795,10 +794,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           <div className="flex justify-around border-t border-gray-200 pt-4 mt-12 pb-4">
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
-              onClick={() =>
-                currentMatch?.fixture?.id &&
-                navigate(`/match/${currentMatch.fixture.id}`)
-              }
+              onClick={() => {
+                if (currentMatch?.fixture?.id) {
+                  navigate(`/match/${currentMatch.fixture.id}`);
+                }
+              }}
             >
               <img
                 src="/assets/matchdetaillogo/MatchDetail.svg"
@@ -812,10 +812,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
-              onClick={() =>
-                currentMatch?.fixture?.id &&
-                navigate(`/match/${currentMatch.fixture.id}/lineups`)
-              }
+              onClick={() => {
+                if (currentMatch?.fixture?.id) {
+                  navigate(`/match/${currentMatch.fixture.id}/lineups`);
+                }
+              }}
             >
               <img
                 src="/assets/matchdetaillogo/lineups.svg"
@@ -828,10 +829,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
-              onClick={() =>
-                currentMatch?.fixture?.id &&
-                navigate(`/match/${currentMatch.fixture.id}/h2h`)
-              }
+              onClick={() => {
+                if (currentMatch?.fixture?.id) {
+                  navigate(`/match/${currentMatch.fixture.id}/h2h`);
+                }
+              }}
             >
               <img
                 src="/assets/matchdetaillogo/stats.svg"
@@ -844,10 +846,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
-              onClick={() =>
-                currentMatch?.fixture?.id &&
-                navigate(`/match/${currentMatch.fixture.id}/standings`)
-              }
+              onClick={() => {
+                if (currentMatch?.fixture?.id) {
+                  navigate(`/match/${currentMatch.fixture.id}/standings`);
+                }
+              }}
             >
               <img
                 src="/assets/matchdetaillogo/standings.svg"
