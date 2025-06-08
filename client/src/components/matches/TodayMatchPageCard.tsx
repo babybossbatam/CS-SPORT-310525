@@ -329,12 +329,15 @@ export const TodayMatchPageCard = ({
         />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component with shared data
-            <TodayMatchByTime
-              selectedDate={selectedDate}
-              timeFilterActive={timeFilterActive}
-              liveFilterActive={liveFilterActive}
-              todayPopularFixtures={popularLeagueFixtures}
-            />
+        <>
+          {console.log(`📊 [TodayMatchPageCard] Passing ${popularLeagueFixtures.length} fixtures to TodayMatchByTime`)}
+          <TodayMatchByTime
+            selectedDate={selectedDate}
+            timeFilterActive={timeFilterActive}
+            liveFilterActive={liveFilterActive}
+            todayPopularFixtures={popularLeagueFixtures}
+          />
+        </>
       ) : (
         // Neither filter active - show default view
         <>

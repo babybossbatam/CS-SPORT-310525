@@ -34,6 +34,15 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const favoriteTeams = useSelector((state: RootState) => state.user.favoriteTeams);
 
   console.log(`🕒 [TodayMatchByTime] Received ${todayPopularFixtures.length} fixtures as props`);
+  console.log(`🕒 [TodayMatchByTime] Sample fixtures:`, todayPopularFixtures.slice(0, 3).map(f => ({
+    id: f.fixture?.id,
+    league: f.league?.name,
+    country: f.league?.country,
+    homeTeam: f.teams?.home?.name,
+    awayTeam: f.teams?.away?.name,
+    status: f.fixture?.status?.short,
+    date: f.fixture?.date
+  })));
 
   // Sort matches by time without grouping
   const sortedMatches = useMemo(() => {
@@ -41,6 +50,15 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       console.log(`🕒 [TodayMatchByTime] No fixtures to sort by time`);
       return [];
     }
+
+    // Debug: Show status breakdown of received fixtures
+    const statusBreakdown = todayPopularFixtures.reduce((acc, fixture) => {
+      const status = fixture.fixture?.status?.short || 'UNKNOWN';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    console.log(`🕒 [TodayMatchByTime] Status breakdown of received fixtures:`, statusBreakdown);
 
     const validMatches = todayPopularFixtures.filter((fixture) => {
       try {
