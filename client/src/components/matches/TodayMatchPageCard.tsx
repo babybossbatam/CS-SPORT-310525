@@ -21,8 +21,6 @@ interface TodayMatchPageCardProps {
   onMatchClick: (matchId: number) => void;
 }
 
-export const TodayMatchPageCard = ({
-
 // Wrapper component to share data between TodayPopularFootballLeaguesNew and TodayMatchByTime
 const TodayMatchByTimeWithData = ({ selectedDate, timeFilterActive, liveFilterActive }: any) => {
   // Fetch the same data that TodayPopularFootballLeaguesNew uses
@@ -73,6 +71,8 @@ const TodayMatchByTimeWithData = ({ selectedDate, timeFilterActive, liveFilterAc
     />
   );
 };
+
+export const TodayMatchPageCard = ({
 
 
   fixtures,
