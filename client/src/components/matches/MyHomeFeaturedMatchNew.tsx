@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCentralData } from '@/providers/CentralDataProvider';
+import { useCentralData } from "@/providers/CentralDataProvider";
 import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import CombinedLeagueCards from "./CombinedLeagueCards";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -29,80 +29,146 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const getMatchPriority = (fixture: any): number => {
     const leagueId = fixture.league.id;
     const leagueName = fixture.league.name.toLowerCase();
-    const country = fixture.league.country?.toLowerCase() || '';
+    const country = fixture.league.country?.toLowerCase() || "";
 
     // Priority Level 1 - Top tier competitions
     const priority1Leagues = [
-      2, 3, 39, 140, 135, 78, 61, 81, 94, 88, // Champions/Europa League, Big 5 leagues
-      4, 5, 848, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 // World Cup, Euros, Copa America, etc.
+      2,
+      3,
+      39,
+      140,
+      135,
+      78,
+      61,
+      81,
+      94,
+      88, // Champions/Europa League, Big 5 leagues
+      4,
+      5,
+      848,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20, // World Cup, Euros, Copa America, etc.
     ];
 
     // Priority Level 2 - Secondary competitions and good leagues
     const priority2Leagues = [
-      71, 72, 73, 74, 75, 76, 77, 79, 80, 82, 83, 84, 85, 86, 87, // Other European leagues
-      253, 262, 271, 274, 281, 283, 288, 289, 290, 292, 293, 294, // Asian/American leagues
-      144, 145, 146, 147, 148, 149, 188, 203, 204, 207, 216, 218 // Championship level
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      79,
+      80,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87, // Other European leagues
+      253,
+      262,
+      271,
+      274,
+      281,
+      283,
+      288,
+      289,
+      290,
+      292,
+      293,
+      294, // Asian/American leagues
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      188,
+      203,
+      204,
+      207,
+      216,
+      218, // Championship level
     ];
 
     if (priority1Leagues.includes(leagueId)) return 1;
     if (priority2Leagues.includes(leagueId)) return 2;
 
     // Priority Level 3 - Other popular countries
-    const tier3Countries = ['brazil', 'saudi arabia', 'egypt', 'colombia', 'united arab emirates'];
-    if (tier3Countries.some(c => country.includes(c))) {
+    const tier3Countries = ["united arab emirates"];
+    if (tier3Countries.some((c) => country.includes(c))) {
       return 3;
     }
-
-    // Priority Level 4 - Friendlies
-    if (leagueName.includes('friendlies') || leagueName.includes('friendly')) {
-      return 4;
-    }
-
     return 4; // Everything else gets lowest priority
   };
 
   // Filter and process matches for featured display
   const featuredMatches = useMemo(() => {
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures and ${liveFixtures.length} live fixtures`);
+    console.log(
+      `🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures and ${liveFixtures.length} live fixtures`,
+    );
 
     const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const nextDay = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const nextDay = new Date(Date.now() + 48 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
 
     // Combine all fixtures
     const allFixtures = [...fixtures, ...liveFixtures];
 
     // Enhanced filtering with priority levels
-    const filtered = allFixtures.filter(fixture => {
-      if (!fixture?.fixture?.date || !fixture?.teams?.home?.name || !fixture?.teams?.away?.name) {
-        return false;
-      }
+    const filtered = allFixtures
+      .filter((fixture) => {
+        if (
+          !fixture?.fixture?.date ||
+          !fixture?.teams?.home?.name ||
+          !fixture?.teams?.away?.name
+        ) {
+          return false;
+        }
 
-      const fixtureDate = fixture.fixture.date.slice(0, 10);
-      const isValidDate = [today, tomorrow, nextDay].includes(fixtureDate);
+        const fixtureDate = fixture.fixture.date.slice(0, 10);
+        const isValidDate = [today, tomorrow, nextDay].includes(fixtureDate);
 
-      if (!isValidDate) return false;
+        if (!isValidDate) return false;
 
-      // Apply basic exclusion filters
-      if (shouldExcludeFromPopularLeagues(
-        fixture.league.name,
-        fixture.teams.home.name,
-        fixture.teams.away.name
-      )) {
-        return false;
-      }
+        // Apply basic exclusion filters
+        if (
+          shouldExcludeFromPopularLeagues(
+            fixture.league.name,
+            fixture.teams.home.name,
+            fixture.teams.away.name,
+          )
+        ) {
+          return false;
+        }
 
-      // Get priority level
-      const priority = getMatchPriority(fixture);
+        // Get priority level
+        const priority = getMatchPriority(fixture);
 
-      // Only show priority 1-3 matches for the next 3 days
-      if (priority > 3) return false;
+        // Only show priority 1-3 matches for the next 3 days
+        if (priority > 3) return false;
 
-      return true;
-    }).map(fixture => ({
-      ...fixture,
-      priority: getMatchPriority(fixture)
-    }));
+        return true;
+      })
+      .map((fixture) => ({
+        ...fixture,
+        priority: getMatchPriority(fixture),
+      }));
 
     // Enhanced sorting: priority level, live status, then date
     const sorted = filtered.sort((a, b) => {
@@ -110,8 +176,28 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const statusB = b.fixture.status.short;
 
       // Live matches first
-      const isLiveA = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(statusA);
-      const isLiveB = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(statusB);
+      const isLiveA = [
+        "1H",
+        "2H",
+        "HT",
+        "LIVE",
+        "BT",
+        "ET",
+        "P",
+        "SUSP",
+        "INT",
+      ].includes(statusA);
+      const isLiveB = [
+        "1H",
+        "2H",
+        "HT",
+        "LIVE",
+        "BT",
+        "ET",
+        "P",
+        "SUSP",
+        "INT",
+      ].includes(statusB);
 
       if (isLiveA && !isLiveB) return -1;
       if (!isLiveA && isLiveB) return 1;
@@ -130,7 +216,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     });
 
     const result = sorted.slice(0, maxMatches);
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${allFixtures.length} fixtures to ${result.length} featured matches`);
+    console.log(
+      `🔍 [MyHomeFeaturedMatchNew] Filtered ${allFixtures.length} fixtures to ${result.length} featured matches`,
+    );
 
     return result;
   }, [fixtures, liveFixtures, maxMatches]);
@@ -139,12 +227,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const handlePrevious = () => {
     if (featuredMatches.length <= 1) return;
-    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1);
+    setCurrentIndex(
+      currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1,
+    );
   };
 
   const handleNext = () => {
     if (featuredMatches.length <= 1) return;
-    setCurrentIndex(currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0);
+    setCurrentIndex(
+      currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0,
+    );
   };
 
   const handleMatchClick = () => {
@@ -171,7 +263,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (!match) return "";
     const status = match.fixture.status.short;
 
-    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
+    if (
+      ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(
+        status,
+      )
+    ) {
       return "LIVE";
     } else if (status === "FT") {
       return "FINISHED";
@@ -203,7 +299,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         <CardContent className="p-6">
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <Trophy className="h-12 w-12 mb-3 opacity-50 animate-pulse" />
-            <p className="text-lg font-medium mb-1">Loading featured matches...</p>
+            <p className="text-lg font-medium mb-1">
+              Loading featured matches...
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -280,22 +378,29 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           <div className="bg-gray-50 p-3 relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img 
-                  src={currentMatch.league.logo} 
+                <img
+                  src={currentMatch.league.logo}
                   alt={currentMatch.league.name}
                   className="w-6 h-6"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
                   }}
                 />
-                <span className="font-medium text-sm">{currentMatch.league.name}</span>
+                <span className="font-medium text-sm">
+                  {currentMatch.league.name}
+                </span>
                 {/* Priority badge */}
                 {currentMatch.priority && (
-                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                    currentMatch.priority === 1 ? 'bg-yellow-100 text-yellow-800' :
-                    currentMatch.priority === 2 ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-600'
-                  }`}>
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                      currentMatch.priority === 1
+                        ? "bg-yellow-100 text-yellow-800"
+                        : currentMatch.priority === 2
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
                     P{currentMatch.priority}
                   </span>
                 )}
@@ -305,7 +410,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-xs font-medium text-red-600">LIVE</span>
+                    <span className="text-xs font-medium text-red-600">
+                      LIVE
+                    </span>
                   </div>
                 ) : (
                   <span className="text-xs text-gray-500">
@@ -326,7 +433,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   alt={currentMatch.teams.home.name}
                   className="w-16 h-16 object-contain mb-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
                   }}
                 />
                 <span className="text-sm font-medium text-gray-900 max-w-[80px] truncate">
@@ -341,14 +449,29 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const fixtureDate = new Date(currentMatch.fixture.date);
 
                   // Live matches
-                  if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
+                  if (
+                    [
+                      "1H",
+                      "2H",
+                      "HT",
+                      "LIVE",
+                      "BT",
+                      "ET",
+                      "P",
+                      "SUSP",
+                      "INT",
+                    ].includes(status)
+                  ) {
                     return (
                       <div className="text-center">
                         <div className="text-2xl font-bold text-gray-900 mb-1">
-                          {currentMatch.goals.home ?? 0} - {currentMatch.goals.away ?? 0}
+                          {currentMatch.goals.home ?? 0} -{" "}
+                          {currentMatch.goals.away ?? 0}
                         </div>
                         <div className="text-xs text-red-600 font-medium">
-                          {status === "HT" ? "Halftime" : `${currentMatch.fixture.status.elapsed || 0}'`}
+                          {status === "HT"
+                            ? "Halftime"
+                            : `${currentMatch.fixture.status.elapsed || 0}'`}
                         </div>
                       </div>
                     );
@@ -359,7 +482,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     return (
                       <div className="text-center">
                         <div className="text-2xl font-bold text-gray-900 mb-1">
-                          {currentMatch.goals.home ?? 0} - {currentMatch.goals.away ?? 0}
+                          {currentMatch.goals.home ?? 0} -{" "}
+                          {currentMatch.goals.away ?? 0}
                         </div>
                         <div className="text-xs text-gray-500 font-medium">
                           Full Time
@@ -372,10 +496,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   return (
                     <div className="text-center">
                       <div className="text-lg font-semibold text-gray-900 mb-1">
-                        {status === "TBD" ? "TBD" : format(fixtureDate, "HH:mm")}
+                        {status === "TBD"
+                          ? "TBD"
+                          : format(fixtureDate, "HH:mm")}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {status === "TBD" ? "Time TBD" : format(fixtureDate, "MMM dd")}
+                        {status === "TBD"
+                          ? "Time TBD"
+                          : format(fixtureDate, "MMM dd")}
                       </div>
                     </div>
                   );
@@ -389,7 +517,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   alt={currentMatch.teams.away.name}
                   className="w-16 h-16 object-contain mb-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
                   }}
                 />
                 <span className="text-sm font-medium text-gray-900 max-w-[80px] truncate">
