@@ -95,6 +95,7 @@ interface TodayPopularFootballLeaguesNewProps {
   timeFilterActive?: boolean;
   showTop20?: boolean;
   liveFilterActive?: boolean;
+  onFixturesReady?: (fixtures: any[]) => void; // Callback to share filtered fixtures
 }
 
 const TodayPopularFootballLeaguesNew: React.FC<
@@ -104,6 +105,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   timeFilterActive = false,
   showTop20 = false,
   liveFilterActive = false,
+  onFixturesReady,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -896,6 +898,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
     if (!showTop20) return liveFilteredCountries;
     return liveFilteredCountries.slice(0, 20);
   }, [liveFilteredCountries, showTop20]);
+
+  // Share filtered fixtures with parent component via callback
+  useEffect(() => {
+    if (onFixturesReady && filteredFixtures.length > 0) {
+      onFixturesReady(filteredFixtures);
+    }
+  }, [filteredFixtures, onFixturesReady]);
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
