@@ -203,11 +203,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
-  const cachedFixtures = CacheManager.getCachedData(
-    fixturesQueryKey,
-    cacheMaxAge,
-  );
-
   // Fetch all fixtures for the selected date with smart caching
   const {
     data: fixtures = [],
@@ -216,17 +211,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
+      console.log(`🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`);
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
       );
       const data = await response.json();
+      console.log(`✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`);
       return data;
     },
     {
       enabled: !!selectedDate && enableFetching,
       maxAge: cacheMaxAge,
-      backgroundRefresh: true,
+      backgroundRefresh: false, // Disable background refresh to prevent frequent calls
+      staleTime: cacheMaxAge, // Use the same duration for stale time
+      gcTime: cacheMaxAge * 2, // Keep in memory longer
+      refetchOnMount: false, // Don't refetch on component mount
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnReconnect: false, // Don't refetch on reconnect
     },
   );
 
@@ -977,7 +979,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Simple date comparison handled by SimpleDateFilter
 
-  if (isLoading || isFetching) {
+  // Show loading only if we're actually loading and don't have any cached data
+  const showLoading = (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
+  
+  if (showLoading) {
+    console.log(`⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`);
+    
     return (
       <Card>
         <CardHeader className="pb-4">

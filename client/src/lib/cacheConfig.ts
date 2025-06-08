@@ -27,10 +27,11 @@ export const CACHE_PRESETS = {
   // For match fixtures and schedules (extended to 4 hours)
   FIXTURES: {
     staleTime: CACHE_DURATIONS.FOUR_HOURS,
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2, // Keep in memory for 48 hours
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    refetchInterval: false, // Disable automatic refetching
     retry: 1,
   },
 
