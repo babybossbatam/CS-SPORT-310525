@@ -1819,7 +1819,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentSeason = currentMonth >= 7 ? currentDate.getFullYear() + 1 : currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
+      console.log(`📊 [Routes] STANDINGS REQUEST RECEIVED:`, {
+        originalId: req.params.id,
+        parsedId: id,
+        season,
+        query: req.query,
+        url: req.url,
+        method: req.method
+      });
+
       if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
+        console.log(`📊 [Routes] Invalid league ID: ${req.params.id}`);
         return res.status(400).json({ message: "Invalid league ID" });
       }
 

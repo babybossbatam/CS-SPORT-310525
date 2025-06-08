@@ -541,7 +541,22 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   }
 }
 export const apiRequest = async (method: string, endpoint: string, options?: any) => {
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
+  // For Replit environment, use the same host but port 5000
+  let baseUrl = import.meta.env.VITE_API_URL;
+  
+  if (!baseUrl && typeof window !== 'undefined') {
+    const currentUrl = new URL(window.location.href);
+    // For Replit, change the port to 5000 while keeping the same host
+    baseUrl = `${currentUrl.protocol}//${currentUrl.hostname}:5000`;
+  }
+  
+  // Fallback
+  if (!baseUrl) {
+    baseUrl = 'http://0.0.0.0:5000';
+  }
+
+  console.log(`🌐 [apiRequest] Using baseUrl: ${baseUrl} for endpoint: ${endpoint}`);
+
   const maxRetries = options?.retries || 2;
   const timeout = options?.timeout || 15000;
 
@@ -557,6 +572,15 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       // Fix URL construction to avoid double slashes
       let url = baseUrl.endsWith('/') ? `${baseUrl.slice(0, -1)}${cleanEndpoint}` : `${baseUrl}${cleanEndpoint}`;
       let requestBody: string | undefined;
+
+      // Debug logging to trace URL construction
+      console.log(`🔍 [apiRequest] URL Construction Debug:`, {
+        baseUrl,
+        endpoint,
+        cleanEndpoint,
+        finalUrl: url,
+        method
+      });
 
       // Handle GET requests with query parameters
       if (method.toUpperCase() === 'GET' && options?.params) {
@@ -600,6 +624,19 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
                               fetchErrorMessage.includes('Network Error') ||
                               fetchErrorMessage.includes('TypeError') ||
                               isAbortError;
+
+        // Enhanced error logging to understand the exact failure
+        console.error(`🚨 [apiRequest] Fetch Error Details:`, {
+          url,
+          method,
+          attempt: attempt + 1,
+          errorName: fetchError instanceof Error ? fetchError.name : 'Unknown',
+          errorMessage: fetchErrorMessage,
+          errorStack: fetchError instanceof Error ? fetchError.stack : undefined,
+          isNetworkError,
+          isAbortError,
+          fetchError
+        });
 
         // Determine if this is a retryable error
         const isRetryable = isNetworkError && !isAbortError;
