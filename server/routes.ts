@@ -939,7 +939,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
         console.warn("No Bundesliga fixtures found in API response");
-        // Return empty array instead of error to avoid breaking frontend
+        // Return empty array instead of 404 error to avoid breaking frontend
         return res.json([]);
       }
 
@@ -1810,45 +1810,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New endpoint for league standings
-  apiRouter.get("/leagues/:id/standings", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentSeason = currentMonth >= 7 ? currentDate.getFullYear() + 1 : currentDate.getFullYear();
-      const season = parseInt(req.query.season as string) || currentSeason;
-
-      console.log(`📊 [Routes] STANDINGS REQUEST RECEIVED:`, {
-        originalId: req.params.id,
-        parsedId: id,
-        season,
-        query: req.query,
-        url: req.url,
-        method: req.method
-      });
-
-      if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
-        console.log(`📊 [Routes] Invalid league ID: ${req.params.id}`);
-        return res.status(400).json({ message: "Invalid league ID" });
-      }
-
-      console.log(`📊 [Routes] Fetching standings for league ${id}, season: ${season || "current"}`);
-
-      const standings = await rapidApiService.getLeagueStandings(id, season);
-
-      if (!standings) {
-        console.log(`📊 [Routes] No standings found for league ${id}`);
-        return res.status(404).json({ error: "Standings not found" });
-      }
-
-      console.log(`📊 [Routes] Successfully fetched standings for league ${id} (${standings.league?.name || "Unknown"})`);
-      res.json(standings);
-    } catch (error) {
-      console.error(`📊 [Routes] Error fetching league standings for ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to fetch league standings" });
-    }
-  });
 
 
   // Create HTTP server
