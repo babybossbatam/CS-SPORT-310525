@@ -9,6 +9,7 @@ import { format, parseISO, isValid, addDays } from "date-fns";
 import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { apiRequest } from "@/lib/queryClient";
+import { getCachedFixturesForDate, cacheFixturesForDate } from "@/lib/fixtureCache";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -72,9 +73,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         console.log("🏠 [MyHomeFeaturedMatchNew] === APPLYING SAME FILTERING AS TODAYPOPULARLEAGUE ===");
         setLoading(true);
 
-        // Get raw fixtures using the same API call as TodayPopularFootballLeaguesNew
-        const response = await apiRequest("GET", `/api/fixtures/date/${currentDate}?all=true`);
-        const rawFixtures = await response.json();
+        // Check cache first using CacheManager
+        const cacheKey = [`all-fixtures-by-date`, currentDate];
+        const cachedData = CacheManager.getCachedData(cacheKey, 30 * 60 * 1000); // 30 minutes cache
+
+        let rawFixtures;
+        if (cachedData) {
+          console.log("🏠 [MyHomeFeaturedMatchNew] Using cached fixtures data");
+          rawFixtures = cachedData;
+        } else {
+          console.log("🏠 [MyHomeFeaturedMatchNew] Fetching fresh fixtures data");
+          // Get raw fixtures using the same API call as TodayPopularFootballLeaguesNew
+          const response = await apiRequest("GET", `/api/fixtures/date/${currentDate}?all=true`);
+          rawFixtures = await response.json();
+          
+          // Cache the data using CacheManager
+          if (rawFixtures && rawFixtures.length > 0) {
+            CacheManager.setCachedData(cacheKey, rawFixtures);
+          }
+        }
 
         if (!rawFixtures || rawFixtures.length === 0) {
           console.log("🏠 [MyHomeFeaturedMatchNew] No raw fixtures available");
@@ -167,6 +184,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         
         setMatches(featuredMatches);
         setCurrentIndex(0);
+
+        // Background prefetch tomorrow's data
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowDate = tomorrow.toISOString().split("T")[0];
+        
+        if (tomorrowDate !== currentDate) {
+          backgroundCache.prefetch(`/api/fixtures/date/${tomorrowDate}?all=true`, 'low');
+        }
       } catch (error) {
         console.error("🏠 [MyHomeFeaturedMatchNew] Error getting featured matches:", error);
         setMatches([]);
