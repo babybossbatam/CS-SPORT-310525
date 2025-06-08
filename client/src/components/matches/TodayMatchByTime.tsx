@@ -3,20 +3,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Calendar, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours, subDays, addDays } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import { shouldExcludeFromPopularLeagues, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
-import { getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
-import { 
-  isDateStringToday,
-  isDateStringYesterday,
-  isDateStringTomorrow,
-  isFixtureOnClientDate 
-} from '@/lib/dateUtilsUpdated';
-import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { useTodayPopularFixtures } from "../../hooks/useTodayPopularFixtures";
 import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
@@ -25,14 +15,12 @@ interface TodayMatchByTimeProps {
   selectedDate: string;
   timeFilterActive?: boolean;
   liveFilterActive?: boolean;
-  filteredFixtures?: any[]; // Accept pre-filtered fixtures from TodayPopularFootballLeaguesNew
 }
 
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   selectedDate,
   timeFilterActive = false,
   liveFilterActive = false,
-  filteredFixtures = [], // Use provided fixtures or empty array
 }) => {
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
@@ -46,12 +34,14 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  console.log(`🕐 [TodayMatchByTime] Using ${filteredFixtures.length} pre-filtered fixtures from TodayPopularFootballLeaguesNew`);
+  // Use the same filtering logic as TodayPopularFootballLeaguesNew
+  const { filteredFixtures, isLoading } = useTodayPopularFixtures(selectedDate);
 
-  // No need for complex filtering since data is already filtered by TodayPopularFootballLeaguesNew
-  // Just flatten the fixtures from the grouped data structure
+  console.log(`🕐 [TodayMatchByTime] Using ${filteredFixtures.length} filtered fixtures from shared hook`);
+
+  // No additional filtering needed since data is already filtered by the hook
   const flattenedFixtures = useMemo(() => {
-    return filteredFixtures; // Data is already filtered and flattened
+    return filteredFixtures;
   }, [filteredFixtures]);
 
   // Apply live filtering if both filters are active
@@ -132,8 +122,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     }
   };
 
-  // Show loading only if we have no data
-  if (!filteredFixtures.length) {
+  // Show loading only if we're actually loading and don't have any cached data
+  if (isLoading && !filteredFixtures.length) {
     return (
       <Card>
         <CardHeader className="pb-4">

@@ -23,171 +23,7 @@ interface TodayMatchPageCardProps {
   onMatchClick: (matchId: number) => void;
 }
 
-// Wrapper component to share data between TodayPopularFootballLeaguesNew and TodayMatchByTime
-const TodayMatchByTimeWithData = ({ selectedDate, timeFilterActive, liveFilterActive }: any) => {
-  // Fetch the same data that TodayPopularFootballLeaguesNew uses
-  const today = new Date().toISOString().slice(0, 10);
-  const isToday = selectedDate === today;
-
-  // Smart cache duration based on date type
-  const isFuture = selectedDate > today;
-  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
-
-  // Fetch all fixtures for the selected date with smart caching
-  const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
-
-  const {
-    data: fixtures = [],
-    isLoading,
-  } = useCachedQuery(
-    fixturesQueryKey,
-    async () => {
-      console.log(`🔄 [TodayMatchByTimeWithData] Fetching fresh data for date: ${selectedDate}`);
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
-      console.log(`✅ [TodayMatchByTimeWithData] Received ${data?.length || 0} fixtures for ${selectedDate}`);
-      return data;
-    },
-    {
-      enabled: !!selectedDate,
-      maxAge: cacheMaxAge,
-      backgroundRefresh: false,
-      staleTime: cacheMaxAge,
-      gcTime: cacheMaxAge * 2,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
-
-  // Apply the same filtering logic as TodayPopularFootballLeaguesNew
-  const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
-
-    console.log(`🔍 [TodayMatchByTimeWithData] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
-
-    // Apply smart time filtering first
-    const filtered = fixtures.filter((fixture: any) => {
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z",
-        );
-
-        const today = new Date();
-        const todayString = format(today, "yyyy-MM-dd");
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = format(yesterday, "yyyy-MM-dd");
-
-        const shouldInclude = (() => {
-          if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
-          if (selectedDate === todayString && smartResult.label === "today") return true;
-          if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
-
-          if (
-            selectedDate !== todayString &&
-            selectedDate !== tomorrowString &&
-            selectedDate !== yesterdayString
-          ) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
-          }
-
-          return false;
-        })();
-
-        if (!shouldInclude) return false;
-      }
-
-      // Apply popular league and country filtering
-      const leagueId = fixture.league?.id;
-      const country = fixture.league?.country?.toLowerCase() || "";
-
-      const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 45, 48, 143, 137, 81, 66, 301, 233, 914];
-      const POPULAR_COUNTRIES_ORDER = [
-        "England", "Spain", "Italy", "Germany", "France", "World", "Europe", "South America",
-        "Brazil", "Saudi Arabia", "Egypt", "Colombia", "United States", "USA", "US",
-        "United Arab Emirates", "United-Arab-Emirates",
-      ];
-
-      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-        (popularCountry) => country.includes(popularCountry.toLowerCase()),
-      );
-
-      // Check for international competitions
-      const leagueName = fixture.league?.name?.toLowerCase() || "";
-      const isInternationalCompetition =
-        leagueName.includes("champions league") ||
-        leagueName.includes("europa league") ||
-        leagueName.includes("conference league") ||
-        leagueName.includes("uefa") ||
-        leagueName.includes("world cup") ||
-        leagueName.includes("fifa club world cup") ||
-        leagueName.includes("fifa") ||
-        leagueName.includes("conmebol") ||
-        leagueName.includes("copa america") ||
-        leagueName.includes("copa libertadores") ||
-        leagueName.includes("copa sudamericana") ||
-        leagueName.includes("libertadores") ||
-        leagueName.includes("sudamericana") ||
-        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
-        (leagueName.includes("international") && !leagueName.includes("women")) ||
-        country.includes("world") ||
-        country.includes("europe") ||
-        country.includes("international");
-
-      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
-    });
-
-    // Apply exclusion filters
-    const finalFiltered = filtered.filter((fixture: any) => {
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          fixture.league.country,
-        )
-      ) {
-        return false;
-      }
-
-      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
-        return false;
-      }
-
-      if (!fixture.league.country) {
-        return false;
-      }
-
-      return true;
-    });
-
-    console.log(`🔍 [TodayMatchByTimeWithData] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} for TodayMatchByTime`);
-    return finalFiltered;
-  }, [fixtures, selectedDate]);
-
-  return (
-    <TodayMatchByTime
-      selectedDate={selectedDate}
-      timeFilterActive={timeFilterActive}
-      liveFilterActive={liveFilterActive}
-      filteredFixtures={filteredFixtures}
-    />
-  );
-};
-
 export const TodayMatchPageCard = ({
-
-
   fixtures,
   onMatchClick,
 }: TodayMatchPageCardProps) => {
@@ -477,11 +313,11 @@ export const TodayMatchPageCard = ({
         />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component with shared data
-        <TodayMatchByTimeWithData
-          selectedDate={selectedDate}
-          timeFilterActive={timeFilterActive}
-          liveFilterActive={liveFilterActive}
-        />
+            <TodayMatchByTime
+              selectedDate={selectedDate}
+              timeFilterActive={timeFilterActive}
+              liveFilterActive={liveFilterActive}
+            />
       ) : (
         // Neither filter active - show default view
         <>
