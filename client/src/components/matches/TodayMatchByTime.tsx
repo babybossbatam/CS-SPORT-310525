@@ -2,6 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
+import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 
 interface TodayMatchByTimeProps {
   selectedDate?: string;
@@ -26,13 +27,13 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         Popular Leagues by Time
       </CardHeader>
 
-      {/* Empty Card */}
-      <Card className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4">
-        <CardContent className="p-6 text-center">
-          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No matches available for this date</p>
-        </CardContent>
-      </Card>
+      {/* Use TodayPopularFootballLeaguesNew component */}
+      <TodayPopularFootballLeaguesNew
+        selectedDate={currentDate}
+        timeFilterActive={timeFilterActive}
+        showTop20={timeFilterActive}
+        liveFilterActive={liveFilterActive}
+      />
     </>
   );
 };
