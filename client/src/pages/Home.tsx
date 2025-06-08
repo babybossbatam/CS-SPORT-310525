@@ -58,6 +58,9 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+  const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [liveFilterActive, setLiveFilterActive] = useState(false);
+  const [todayPopularFixtures, setTodayPopularFixtures] = useState<any[]>([]);
 
   // Ensure selectedDate is properly initialized
   useEffect(() => {
