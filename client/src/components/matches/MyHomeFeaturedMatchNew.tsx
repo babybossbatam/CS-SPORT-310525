@@ -19,10 +19,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
-  
+
   // Use the useTodayPopularFixtures hook
   const { filteredFixtures, isLoading, isFetching } = useTodayPopularFixtures(currentDate);
 
@@ -64,6 +64,69 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
+  const shouldExcludeFeaturedMatch = (
+    leagueName: string,
+    homeTeamName: string,
+    awayTeamName: string,
+    countryName: string
+  ): boolean => {
+    leagueName = leagueName.toLowerCase();
+    homeTeamName = homeTeamName.toLowerCase();
+    awayTeamName = awayTeamName.toLowerCase();
+    countryName = countryName.toLowerCase();
+  
+    const excludedKeywords = [
+      "women",
+      "u15",
+      "u16",
+      "u17",
+      "u18",
+      "u19",
+      "u20",
+      "u21",
+      "u23",
+      "youth",
+      "junior",
+      "reserve",
+      "friendlies",
+      "friendly",
+      "cup",
+    ];
+  
+    const excludedCountryKeywords = [
+        "cyprus",
+    ];
+  
+    if (excludedCountryKeywords.some(keyword => countryName.includes(keyword))) {
+        return true;
+    }
+
+    if (excludedKeywords.some(keyword => leagueName.includes(keyword))) {
+      return true;
+    }
+  
+    const excludedTeamKeywords = [
+      "youth",
+      "u15",
+      "u16",
+      "u17",
+      "u18",
+      "u19",
+      "u20",
+      "u21",
+      "u23",
+      "reserves",
+      "reserve",
+      "junior",
+    ];
+  
+    if (excludedTeamKeywords.some(keyword => homeTeamName.includes(keyword) || awayTeamName.includes(keyword))) {
+      return true;
+    }
+  
+    return false;
+  };
+
   // Process the filtered fixtures from the hook
   const matches = useMemo(() => {
     if (!filteredFixtures?.length) {
@@ -73,21 +136,68 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${filteredFixtures.length} filtered fixtures from useTodayPopularFixtures hook`);
 
-    // Apply exclusion filters (same as TodayPopularFootballLeaguesNew)
+    // Apply ONLY featured match exclusions (not popular league exclusions)
     const basicFiltered = filteredFixtures.filter(fixture => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
+        console.log(`🏠 [MyHomeFeaturedMatchNew] Filtering out invalid fixture:`, {
+          hasFixture: !!fixture,
+          hasLeague: !!fixture?.league,
+          hasTeams: !!fixture?.teams,
+          hasFixtureData: !!fixture?.fixture
+        });
         return false;
       }
 
-      // Apply exclusion filters
-      return !shouldExcludeMatch(fixture);
+      // Apply only featured match exclusions (less restrictive)
+      const shouldExclude = shouldExcludeFeaturedMatch(
+        fixture.league?.name || '',
+        fixture.teams?.home?.name || '',
+        fixture.teams?.away?.name || '',
+        fixture.league?.country || ''
+      );
+
+      if (shouldExclude) {
+        console.log(`🏠 [MyHomeFeaturedMatchNew] Excluding match:`, {
+          league: fixture.league?.name,
+          homeTeam: fixture.teams?.home?.name,
+          awayTeam: fixture.teams?.away?.name,
+          country: fixture.league?.country
+        });
+      }
+
+      return !shouldExclude;
     });
 
-    console.log(`🏠 [MyHomeFeaturedMatchNew] After exclusion filtering: ${basicFiltered.length} matches`);
+    console.log(`🏠 [MyHomeFeaturedMatchNew] After featured match filtering: ${basicFiltered.length} matches`);
 
-    // Prioritize matches exactly like TodayPopularFootballLeaguesNew
-    const featuredMatches = basicFiltered
+    // If no matches after filtering, use a more permissive approach
+    let finalFiltered = basicFiltered;
+    if (basicFiltered.length === 0) {
+      console.log(`🏠 [MyHomeFeaturedMatchNew] No matches after exclusions, applying basic filters only`);
+      finalFiltered = filteredFixtures.filter(fixture => {
+        if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
+          return false;
+        }
+
+        // Only exclude obvious non-competitive matches
+        const leagueName = (fixture.league?.name || "").toLowerCase();
+        return !leagueName.includes("women") && 
+               !leagueName.includes("u15") && 
+               !leagueName.includes("u16") && 
+               !leagueName.includes("u17") && 
+               !leagueName.includes("u18") && 
+               !leagueName.includes("u19") && 
+               !leagueName.includes("u20") && 
+               !leagueName.includes("u21") && 
+               !leagueName.includes("friendly");
+      }).slice(0, 10); // Limit to 10 matches
+
+      console.log(`🏠 [MyHomeFeaturedMatchNew] Fallback filtering resulted in: ${finalFiltered.length} matches`);
+    }
+
+    // Enhanced prioritization for featured matches
+    const featuredMatches = finalFiltered
       .sort((a, b) => {
         // Priority 1: Live matches first
         const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(a.fixture?.status?.short);
@@ -124,7 +234,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       });
       return null;
     }
-    
+
     const match = matches[currentIndex];
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current match memoization:");
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current index:", currentIndex);
@@ -154,7 +264,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         hasTeams: !!currentMatch?.teams,
         hasHome: !!currentMatch?.teams?.home,
         hasAway: !!currentMatch?.teams?.away,
-        hasFixture: !!currentMatch?.fixture,
+        hasFixture: !!currentMatch?.teams?.away,
         hasLeague: !!currentMatch?.league
       });
     }
