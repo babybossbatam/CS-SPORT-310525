@@ -281,6 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`);
+    console.log(`🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`);
 
       // Check cache first
       const cacheKey = all === 'true' ? `multi-tz-all:${date}` : `multi-tz:${date}`;
