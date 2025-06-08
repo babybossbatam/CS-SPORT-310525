@@ -1,9 +1,5 @@
-
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Calendar, Star } from "lucide-react";
-import LazyMatchItem from "./LazyMatchItem";
-import LazyImage from "../common/LazyImage";
+import React from "react";
+import { CardHeader } from "@/components/ui/card";
 import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 
 interface TodayMatchByTimeProps {
@@ -17,20 +13,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   timeFilterActive = false,
   liveFilterActive = false,
 }) => {
-  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-
-  const toggleStarMatch = (matchId: number) => {
-    setStarredMatches((prev) => {
-      const newStarred = new Set(prev);
-      if (newStarred.has(matchId)) {
-        newStarred.delete(matchId);
-      } else {
-        newStarred.add(matchId);
-      }
-      return newStarred;
-    });
-  };
-
   // Use current date if selectedDate is not provided
   const currentDate = selectedDate || new Date().toISOString().slice(0, 10);
 
