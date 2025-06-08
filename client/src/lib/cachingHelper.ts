@@ -18,7 +18,7 @@ export const useCachedQuery = <T>(
   const {
     forceRefresh = false,
     maxAge = 30 * 60 * 1000, // 30 minutes default
-    backgroundRefresh = false, // Default to false to prevent frequent calls
+    backgroundRefresh = true,
     ...queryOptions
   } = options;
 
@@ -31,46 +31,24 @@ export const useCachedQuery = <T>(
                         CACHE_FRESHNESS.isFresh(queryState.dataUpdatedAt, maxAge) && 
                         !forceRefresh;
 
-  console.log(`📋 [Cache Check] ${queryKey.join('-')}:`, {
-    hasExistingData: !!existingQuery,
-    dataAge: queryState?.dataUpdatedAt ? Date.now() - queryState.dataUpdatedAt : null,
-    maxAge,
-    shouldUseCache,
-    forceRefresh
-  });
-
   return useQuery({
     queryKey,
     queryFn: async () => {
       // If we have fresh cache and not forcing refresh, return cached data
-      if (shouldUseCache && !forceRefresh) {
-        console.log(`✅ [Cache Hit] Using cached data for: ${queryKey.join('-')}`);
+      if (shouldUseCache) {
+        console.log(`Using cached data for: ${queryKey.join('-')}`);
         return existingQuery;
       }
 
-      console.log(`🔄 [Cache Miss] Fetching fresh data for: ${queryKey.join('-')}`);
-      const result = await queryFn();
-      
-      // Store in localStorage as backup
-      try {
-        const cacheKey = queryKey.join('-');
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: result,
-          timestamp: Date.now()
-        }));
-      } catch (error) {
-        console.warn('Failed to store in localStorage:', error);
-      }
-      
-      return result;
+      console.log(`Fetching fresh data for: ${queryKey.join('-')}`);
+      return await queryFn();
     },
-    enabled: queryOptions.enabled !== false,
+    enabled: true,
     staleTime: maxAge,
-    gcTime: maxAge * 3, // Keep in memory longer
+    gcTime: maxAge * 2,
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Never refetch on mount to prevent unnecessary calls
+    refetchOnMount: !shouldUseCache,
     refetchOnReconnect: false,
-    retry: 1, // Reduce retry attempts
     ...queryOptions,
   });
 };
@@ -79,35 +57,20 @@ export const useCachedQuery = <T>(
 export const CacheManager = {
   // Get cached data with freshness check and localStorage fallback
   getCachedData: <T>(queryKey: string[], maxAge: number = 30 * 60 * 1000): T | null => {
-    const cacheKey = queryKey.join('-');
     const data = queryClient.getQueryData<T>(queryKey);
     const state = queryClient.getQueryState(queryKey);
     
-    console.log(`🔍 [CacheManager] Checking cache for: ${cacheKey}`, {
-      hasData: !!data,
-      dataUpdatedAt: state?.dataUpdatedAt,
-      age: state?.dataUpdatedAt ? Date.now() - state.dataUpdatedAt : null,
-      maxAge,
-      isFresh: data && state?.dataUpdatedAt ? CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge) : false
-    });
-    
     if (data && state?.dataUpdatedAt && CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge)) {
-      console.log(`✅ [CacheManager] Cache hit for: ${cacheKey}`);
       return data;
     }
     
     // Fallback to localStorage
     try {
+      const cacheKey = queryKey.join('-');
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const { data: localData, timestamp } = JSON.parse(cached);
-        const age = Date.now() - timestamp;
-        console.log(`💾 [CacheManager] localStorage check for ${cacheKey}:`, { age, maxAge, valid: age < maxAge });
-        
-        if (age < maxAge) {
-          console.log(`📂 [CacheManager] localStorage hit for: ${cacheKey}`);
-          // Store back in React Query cache
-          queryClient.setQueryData(queryKey, localData);
+        if (Date.now() - timestamp < maxAge) {
           return localData;
         }
       }
@@ -115,7 +78,6 @@ export const CacheManager = {
       console.error('Error reading from localStorage cache:', error);
     }
     
-    console.log(`❌ [CacheManager] Cache miss for: ${cacheKey}`);
     return null;
   },
 

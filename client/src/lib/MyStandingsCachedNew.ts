@@ -2,7 +2,6 @@ import React from 'react';
 import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from './utils';
 import { CACHE_DURATIONS } from './cacheConfig';
-import { fixtureCache } from './fixtureCache';
 
 // Standing types
 interface TeamStanding {
@@ -97,37 +96,8 @@ interface StandingsStorageCache {
   [key: string]: CachedStandingsItem;
 }
 
-// Get popular leagues from TodayPopularFootballLeaguesNew cached data
-const getPopularLeaguesFromCache = (): number[] => {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Try to get cached fixture data to extract league IDs
-    const cachedFixtures = fixtureCache.getCachedFixturesForDate(today);
-    
-    if (cachedFixtures && Array.isArray(cachedFixtures)) {
-      // Extract unique league IDs from cached fixtures
-      const leagueIds = [...new Set(
-        cachedFixtures
-          .filter(fixture => fixture?.league?.id)
-          .map(fixture => fixture.league.id)
-      )];
-      
-      console.log(`📊 [StandingsCache] Found ${leagueIds.length} leagues from TodayPopularLeagueNew cache`);
-      return leagueIds.length > 0 ? leagueIds : [];
-    }
-    
-    // Return empty array instead of fallback leagues to prevent automatic fetching
-    console.log(`⚠️ [StandingsCache] No cached data from TodayPopularLeagueNew, returning empty array`);
-    return [];
-  } catch (error) {
-    console.error('Error getting popular leagues from cache:', error);
-    return []; // Return empty array instead of fallback leagues
-  }
-};
-
-// Dynamic popular leagues based on TodayPopularLeagueNew data - will be empty initially
-const POPULAR_LEAGUES = getPopularLeaguesFromCache();
+// Popular leagues for batch fetching
+const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
 
 class StandingsCache {
   private static instance: StandingsCache;
@@ -296,7 +266,7 @@ class StandingsCache {
 
   private async performIndividualFetch(leagueId: number, season?: number): Promise<LeagueStandings | null> {
     // Validate league ID before making API call
-    if (!leagueId || leagueId <= 0 || typeof leagueId !== 'number' || isNaN(leagueId)) {
+    if (!leagueId || leagueId <= 0 || typeof leagueId !== 'number') {
       console.warn(`Invalid league ID provided: ${leagueId}`);
       return null;
     }
@@ -331,96 +301,22 @@ class StandingsCache {
       
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined,
-        timeout: 15000, // Reasonable timeout
-        retries: 2 // Reasonable retry attempts
+        timeout: 10000 // 10 second timeout
       });
 
-      // Check for network connectivity issues and error responses
-      if (!response || response.status === 503 || response.status === 408 || response.status === 0 || !response.ok) {
-        const isNetworkError = response?.status === 503 || response?.status === 408 || response?.status === 0;
-        const isTimeout = response?.status === 408;
-        const isServerError = response?.status >= 500;
-        const errorType = isTimeout ? 'Request timeout' : isNetworkError ? 'Network connectivity' : isServerError ? 'Server error' : 'API error';
+      if (!response.ok) {
+        console.warn(`❌ Failed to fetch standings for league ${leagueId}: ${response.status} ${response.statusText}`);
         
-        console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response?.status || 'unknown'})`);
-        
-        // Try to get error details from response if available
-        let errorDetails = '';
-        try {
-          if (response && typeof response.json === 'function') {
-            const errorData = await response.json();
-            errorDetails = errorData.message || errorData.details || '';
-            
-            // Check if the error indicates a retryable condition
-            if (errorData.retryable || errorData.networkError) {
-              console.log(`📋 API indicates retryable error for league ${leagueId}: ${errorDetails}`);
-            }
-          }
-        } catch (jsonError) {
-          // Ignore JSON parsing errors for error responses
-          console.log(`⚠️ Could not parse error response for league ${leagueId}`);
-        }
-        
-        // For network errors or API failures, always use cached data if available (regardless of age)
+        // If we have any cached data (even expired), use it as fallback
         if (anyCached) {
-          const age = Date.now() - anyCached.timestamp;
-          const ageHours = Math.floor(age / (60 * 60 * 1000));
-          console.log(`🔄 Using cached data for league ${leagueId} (age: ${ageHours}h) due to ${errorType.toLowerCase()}`);
-          return anyCached.data;
-        }
-        
-        // If no cache available but this is a popular league, provide minimal fallback data
-        if (isPopularLeague) {
-          const leagueNames = {
-            39: 'Premier League',
-            140: 'La Liga', 
-            135: 'Serie A',
-            78: 'Bundesliga',
-            61: 'Ligue 1',
-            2: 'UEFA Champions League',
-            3: 'UEFA Europa League',
-            848: 'UEFA Europa Conference League'
-          };
-          
-          console.log(`🏆 Creating minimal fallback data for popular league ${leagueId} due to ${errorType.toLowerCase()}`);
-          return {
-            league: {
-              id: leagueId,
-              name: leagueNames[leagueId] || `League ${leagueId}`,
-              country: 'Unknown',
-              logo: '',
-              flag: '',
-              season: new Date().getFullYear(),
-              standings: [[]]
-            }
-          };
-        }
-        
-        // If no cache available, return null gracefully without logging as error
-        console.log(`📭 No cached data available for league ${leagueId}, returning null due to ${errorType.toLowerCase()}`);
-        return null;
-      }
-
-      
-
-      let data;
-      try {
-        // Check if response exists and has json method
-        if (!response || typeof response.json !== 'function') {
-          throw new Error('Invalid response object');
-        }
-        data = await response.json();
-      } catch (jsonError) {
-        console.warn(`❌ Failed to parse JSON response for league ${leagueId}:`, jsonError);
-        
-        // If we have any cached data, use it as fallback
-        if (anyCached) {
-          console.log(`🔄 Falling back to expired cache for league ${leagueId} due to JSON parse error`);
+          console.log(`🔄 Falling back to expired cache for league ${leagueId}`);
           return anyCached.data;
         }
         
         return null;
       }
+
+      const data = await response.json();
 
       // Check if the response indicates an error
       if (data.error) {
@@ -454,52 +350,14 @@ class StandingsCache {
 
       return data;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`Error fetching standings for league ${leagueId}: ${errorMessage}`);
-      
-      // Check if this is a network-related error
-      const isNetworkError = errorMessage.includes('Failed to fetch') || 
-                            errorMessage.includes('NetworkError') || 
-                            errorMessage.includes('fetch') ||
-                            errorMessage.includes('Network Error') ||
-                            errorMessage.includes('Invalid response object');
-      
-      if (isNetworkError) {
-        console.warn(`🌐 Network error detected for league ${leagueId}, using fallback strategies`);
-      }
+      console.error(`Error fetching standings for league ${leagueId}:`, error);
       
       // If we have any cached data (even expired), use it as fallback
       if (anyCached) {
         const age = Date.now() - anyCached.timestamp;
         const ageHours = Math.floor(age / (60 * 60 * 1000));
-        console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to ${isNetworkError ? 'network' : 'API'} error`);
+        console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to API error`);
         return anyCached.data;
-      }
-      
-      // For popular leagues, provide a minimal fallback even without cache
-      if (isPopularLeague && isNetworkError) {
-        const leagueNames = {
-          39: 'Premier League',
-          140: 'La Liga', 
-          135: 'Serie A',
-          78: 'Bundesliga',
-          61: 'Ligue 1',
-          2: 'UEFA Champions League',
-          3: 'UEFA Europa League'
-        };
-        
-        console.log(`🏆 Providing minimal fallback data for popular league ${leagueId} due to network error`);
-        return {
-          league: {
-            id: leagueId,
-            name: leagueNames[leagueId] || `League ${leagueId}`,
-            country: 'Unknown',
-            logo: '',
-            flag: '',
-            season: new Date().getFullYear(),
-            standings: [[]]
-          }
-        };
       }
       
       return null;
@@ -544,20 +402,7 @@ class StandingsCache {
           const standings = await this.performIndividualFetch(leagueId, season);
           return { leagueId, standings };
         } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`❌ Error in batch fetch for league ${leagueId}: ${errorMsg}`);
-          
-          // Check if we have any cached data for this league as fallback
-          const cacheKey = this.getStandingsKey(leagueId, season);
-          const cachedData = this.memoryCache.get(cacheKey);
-          
-          if (cachedData) {
-            const age = Date.now() - cachedData.timestamp;
-            const ageHours = Math.floor(age / (60 * 60 * 1000));
-            console.log(`🔄 Using cached data for league ${leagueId} in batch (age: ${ageHours}h) due to fetch error`);
-            return { leagueId, standings: cachedData.data };
-          }
-          
+          console.error(`Error in batch fetch for league ${leagueId}:`, error);
           return { leagueId, standings: null };
         }
       });
@@ -664,11 +509,11 @@ const standingsCache = StandingsCache.getInstance();
 /**
  * Hook to fetch individual league standings with optimized caching
  */
-export function useLeagueStandings(leagueId: number | null, season?: number) {
+export function useLeagueStandings(leagueId: number, season?: number) {
   return useQuery({
     queryKey: ['standings', leagueId, season || new Date().getFullYear()],
-    queryFn: () => standingsCache.fetchLeagueStandings(leagueId!, season),
-    enabled: !!leagueId && leagueId > 0 && !isNaN(leagueId),
+    queryFn: () => standingsCache.fetchLeagueStandings(leagueId, season),
+    enabled: !!leagueId,
     ...STANDINGS_CACHE_CONFIG,
   });
 }
@@ -689,17 +534,7 @@ export function useBatchStandings(leagueIds: number[], season?: number) {
  * Hook to fetch popular league standings (optimized batch request)
  */
 export function usePopularLeagueStandings(season?: number) {
-  const dynamicLeagues = React.useMemo(() => {
-    try {
-      return getPopularLeaguesFromCache();
-    } catch (error) {
-      console.warn('Failed to get dynamic leagues, returning empty array:', error);
-      return [];
-    }
-  }, []);
-
-  // Only fetch if we have actual league IDs from fixtures cache
-  return useBatchStandings(dynamicLeagues, season);
+  return useBatchStandings(POPULAR_LEAGUES, season);
 }
 
 /**
@@ -785,26 +620,10 @@ export function usePrefetchStandings() {
   const prefetchPopularLeaguesStandings = React.useCallback((season?: number) => {
     const currentYear = new Date().getFullYear();
     const targetSeason = season || currentYear;
-    
-    let dynamicLeagues;
-    try {
-      dynamicLeagues = getPopularLeaguesFromCache();
-    } catch (error) {
-      console.warn('Failed to get dynamic leagues for prefetch, returning early:', error);
-      return; // Don't prefetch if no leagues available
-    }
-
-    // Only prefetch if we have actual leagues from fixtures
-    if (dynamicLeagues.length === 0) {
-      console.log(`🔄 [StandingsCache] No leagues to prefetch, skipping`);
-      return;
-    }
-
-    console.log(`🔄 [StandingsCache] Prefetching standings for ${dynamicLeagues.length} leagues`);
 
     queryClient.prefetchQuery({
-      queryKey: ['batch-standings', dynamicLeagues.sort((a, b) => a - b), targetSeason],
-      queryFn: () => standingsCache.fetchBatchStandings(dynamicLeagues, season),
+      queryKey: ['batch-standings', POPULAR_LEAGUES, targetSeason],
+      queryFn: () => standingsCache.fetchBatchStandings(POPULAR_LEAGUES, season),
       ...STANDINGS_CACHE_CONFIG,
     });
   }, [queryClient]);
@@ -836,7 +655,7 @@ export const standingsUtils = {
   // Cache management
   clearCache: standingsCache.clearCache.bind(standingsCache),
 
-  // Popular leagues constant (will be empty until fixtures are loaded)
+  // Popular leagues constant
   POPULAR_LEAGUES,
 };
 

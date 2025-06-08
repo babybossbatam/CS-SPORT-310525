@@ -540,47 +540,16 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     return `bg-gradient-to-l from-${color}-${lighterIntensity} to-${color}-${intensityNum}`;
   }
 }
-
-// Completely new API request function that works properly in Replit
 export const apiRequest = async (method: string, endpoint: string, options?: any) => {
-  // Get the correct base URL for Replit environment
-  function getBaseUrl(): string {
-    if (typeof window === 'undefined') {
-      return 'http://127.0.0.1:5000';
-    }
-
-    // In Replit, use the current origin but change port to 5000
-    const currentHost = window.location.hostname;
-    const protocol = window.location.protocol;
-
-    // For Replit environments, construct the correct URL
-    if (currentHost.includes('replit.dev') || currentHost.includes('repl.co')) {
-      return `${protocol}//${currentHost.replace(':8080', ':5000').replace(':3000', ':5000')}`;
-    }
-
-    // For local development
-    return `${protocol}//${currentHost}:5000`;
-  }
-
-  const baseUrl = getBaseUrl();
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const fullUrl = `${baseUrl}${cleanEndpoint}`;
-
-  console.log(`🔗 [API] Making ${method} request to: ${fullUrl}`);
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), options?.timeout || 15000);
 
   try {
-    let requestOptions: RequestInit = {
-      method: method.toUpperCase(),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      credentials: 'include',
-      mode: 'cors',
-    };
+    let url = `${baseUrl}${endpoint}`;
+    let requestBody: string | undefined;
 
-    // Handle query parameters for GET requests
-    let requestUrl = fullUrl;
+    // Handle GET requests with query parameters
     if (method.toUpperCase() === 'GET' && options?.params) {
       const searchParams = new URLSearchParams();
       Object.entries(options.params).forEach(([key, value]) => {
@@ -589,33 +558,52 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         }
       });
       if (searchParams.toString()) {
-        requestUrl += `?${searchParams.toString()}`;
+        url += `?${searchParams.toString()}`;
       }
     } else if (method.toUpperCase() !== 'GET' && options) {
-      requestOptions.body = JSON.stringify(options);
+      // For non-GET requests, use options as request body
+      requestBody = JSON.stringify(options);
     }
 
-    const response = await fetch(requestUrl, requestOptions);
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: requestBody,
+      credentials: 'same-origin',
+      mode: 'cors',
+      signal: controller.signal,
+    });
 
-    console.log(`✅ [API] Response status: ${response.status} for ${requestUrl}`);
+    clearTimeout(timeoutId);
 
+    // Return the response object instead of parsing JSON immediately
+    // This allows the caller to handle different response types 
     return response;
-
   } catch (error) {
-    console.error(`❌ [API] Request failed for ${fullUrl}:`, error);
-
-    // Return a proper error response instead of throwing
-    return new Response(
-      JSON.stringify({ 
-        error: true, 
-        message: 'Network request failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      }), 
-      {
-        status: 503,
-        statusText: 'Service Unavailable',
-        headers: new Headers({ 'Content-Type': 'application/json' })
-      }
-    );
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`API request timeout for ${method} ${endpoint}`);
+    } else {
+      console.error(`API request error for ${method} ${endpoint}:`, error);
+    }
+    // Instead of throwing, return a response-like object that indicates failure
+    return {
+      ok: false,
+      status: 0,
+      statusText: error instanceof Error ? error.message : 'Network connection error',
+      json: async () => ({ error: true, message: 'Failed to connect to server' }),
+      text: async () => 'Network Error',
+      blob: async () => new Blob(),
+      arrayBuffer: async () => new ArrayBuffer(0),
+      formData: async () => new FormData(),
+      clone: () => ({
+        ok: false,
+        status: 0,
+        statusText: error instanceof Error ? error.message : 'Network connection error',
+        json: async () => ({ error: true, message: 'Failed to connect to server' })
+      })
+    } as Response;
   }
 };

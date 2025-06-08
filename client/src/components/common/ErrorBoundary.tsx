@@ -7,77 +7,38 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
+  error?: Error;
   isRecovering: boolean;
 }
 
-export default class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      isRecovering: false
-    };
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    isRecovering: false
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error, isRecovering: false };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
-    // Update state so the next render will show the fallback UI
-    return {
-      hasError: true,
-      error
-    };
-  }
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Uncaught error:', error, errorInfo);
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error details
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-
-    this.setState({
-      error,
-      errorInfo,
-      hasError: true
-    });
-
-    // Handle specific types of errors
-    if (error.message?.includes('Failed to fetch') || 
-        error.message?.includes('NetworkError') ||
-        error.message?.includes('frame')) {
+    // Check if it's a network-related error
+    if (error.message.includes('Network') || 
+        error.message.includes('fetch') || 
+        error.message.includes('connection')) {
       this.handleNetworkError();
     }
   }
 
-  handleNetworkError = async () => {
+  private handleNetworkError = () => {
     this.setState({ isRecovering: true });
-
-    try {
-      // Attempt network recovery
-      await handleNetworkRecovery();
-
-      // Reset error state after recovery attempt
-      setTimeout(() => {
-        this.setState({
-          hasError: false,
-          error: null,
-          errorInfo: null,
-          isRecovering: false
-        });
-      }, 3000);
-    } catch (recoveryError) {
-      console.error('Recovery failed:', recoveryError);
-      this.setState({ isRecovering: false });
-    }
+    handleNetworkRecovery();
   };
 
-  handleRetry = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      isRecovering: false
-    });
+  private handleRetry = () => {
+    this.setState({ hasError: false, error: undefined, isRecovering: false });
   };
 
   public render() {
@@ -129,3 +90,5 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;

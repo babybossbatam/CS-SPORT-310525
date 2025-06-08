@@ -352,6 +352,9 @@ const countryCodeMap: { [key: string]: string } = {
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
 
+// Re-export flagCache for components that need it
+export { flagCache };
+
 // Flag preloading system
 const FLAG_STORAGE_KEY = 'cssport_flag_cache';
 const FLAG_PRELOAD_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
@@ -729,15 +732,22 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
     return cached.url;
   }
 
-  // Check memory cache first using normalized country name
-  const memCacheKey = `${normalizedCountry}-${leagueFlag || ''}`;
-  if (flagCacheMem.has(memCacheKey)) {
-    const cachedFlag = flagCacheMem.get(memCacheKey)!;
-    console.log(`💨 [flagUtils.ts:getCountryFlagWithFallbackSync] Memory cache HIT: ${cachedFlag}`);
-    return cachedFlag;
-  }
+  // Check memory cache second
+  const cacheKey = `${country}-${leagueFlag || ''}`;
+  if (flagCacheMem.has(cacheKey)) {
+    const memCached = flagCacheMem.get(cacheKey)!;
 
-  const cacheKey = `flag_${normalizedCountry}`;
+    // Additional Venezuela corruption check in memory cache
+    if (country.toLowerCase().includes('venezuela') && memCached.includes('/co.png')) {
+      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION in memory cache: ${memCached}`);
+      const correctFlag = 'https://flagcdn.com/w40/ve.png';
+      flagCacheMem.set(cacheKey, correctFlag);
+      return correctFlag;
+    }
+
+    console.log(`🧠 [flagUtils.ts:getCountryFlagWithFallbackSync] Memory cache hit for ${country}: ${memCached}`);
+    return memCached;
+  }
 
   console.log(`❌ [flagUtils.ts:getCountryFlagWithFallbackSync] No cache found for ${country}, generating sync...`);
 
@@ -803,10 +813,24 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
 
   console.log(`🏁 [flagUtils.ts:getCountryFlagWithFallbackSync] Final result for ${country}: ${result}`);
 
-  // Store in memory cache for faster subsequent access using normalized key
-  flagCacheMem.set(`${normalizedCountry}-${leagueFlag || ''}`, result);
+  // Cache the result in both memory cache and main flag cache
+  flagCacheMem.set(cacheKey, result);
+  console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Stored in memory cache: ${cacheKey} -> ${result}`);
 
-  console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Returning flag: ${result}`);
+  // Special correction for Venezuela to prevent Colombia flag cache corruption
+  if (country.toLowerCase().includes('venezuela') && result.includes('/co.png')) {
+    console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] Detected Venezuela using Colombia flag, correcting...`);
+    result = 'https://flagcdn.com/w40/ve.png';
+    console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Corrected Venezuela flag to: ${result}`);
+  }
+
+  // Also cache in the main flag cache if it's a valid flag URL (not API endpoint)
+  if (result && !result.startsWith('/api/') && result !== '/assets/fallback-logo.svg') {
+    const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    flagCache.setCached(flagCacheKey, result, 'sync-cache', true);
+    console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached in main cache for ${country}: ${result} | Source: sync-cache`);
+  }
+
   return result;
 };
 
@@ -1142,18 +1166,14 @@ export function debugCountryMapping(country: string): void {
 /**
  * Clear Venezuela flag cache specifically for debugging
  */
-export const clearVenezuelaFlagCache = () => {
+export function clearVenezuelaFlagCache(): void {
+  // Clear all possible Venezuela cache entries
   const venezuelaCacheKeys = [
     'flag_venezuela',
     'flag_venezuela_(bolivarian_republic_of)',
     'flag_venezuela_(bolivarian_republic)',
-    'flag_bolivarian_republic_of_venezuela',
-    'flag_bolivarian_republic_of',
-    'flag_ve',
-    'flag_ven'
+    'flag_bolivarian_republic_of_venezuela'
   ];
-
-  console.log(`🗑️ Starting Venezuela flag cache cleanup...`);
 
   venezuelaCacheKeys.forEach(cacheKey => {
     const cached = flagCache.getCached(cacheKey);
@@ -1170,39 +1190,30 @@ export const clearVenezuelaFlagCache = () => {
     }
   });
 
-  // Clear from memory cache
-  for (const [key] of flagCacheMem.entries()) {
-    if (key.includes('venezuela') || key.includes('bolivarian')) {
-      flagCacheMem.delete(key);
-      console.log(`🗑️ Cleared memory cache key: ${key}`);
-    }
-  }
-
   // Also clear from localStorage
   try {
     const storedCache = localStorage.getItem('cssport_flag_cache');
     if (storedCache) {
       const cacheData = JSON.parse(storedCache);
       if (cacheData.flags) {
-        const originalCount = cacheData.flags.length;
         cacheData.flags = cacheData.flags.filter(([key]: any) => 
-          !venezuelaCacheKeys.includes(key) && 
-          !key.includes('venezuela') && 
-          !key.includes('bolivarian')
+          !venezuelaCacheKeys.includes(key)
         );
-        const clearedCount = originalCount - cacheData.flags.length;
         localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
-        console.log(`🗑️ Cleared ${clearedCount} Venezuela flags from localStorage`);
+        console.log(`🗑️ Cleared all Venezuela flags from localStorage`);
       }
     }
   } catch (error) {
     console.warn('Failed to clear Venezuela flags from localStorage:', error);
   }
 
-  // Generate correct flag and re-cache with normalized key
+  // Generate correct flag and re-cache for all variants
   const correctFlag = 'https://flagcdn.com/w40/ve.png';
-  flagCache.setCached('flag_venezuela', correctFlag, 'cleanup-fix', true);
-  console.log(`✅ Re-cached Venezuela flag with normalized key: flag_venezuela`);
+  venezuelaCacheKeys.forEach(cacheKey => {
+    flagCache.setCached(cacheKey, correctFlag, 'manual-correction', true);
+  });
+
+  console.log(`✅ Venezuela flag cache corrected to: ${correctFlag} for all variants`);
 }
 
 /**
@@ -1804,39 +1815,120 @@ export async function testCountryMappingAgainstLiveData(fixtures: any[]): Promis
 }
 
 export const getFlagUrl = async (country: string): Promise<string> => {
-  if (!country || typeof country !== 'string') {
-    console.warn(`Invalid country provided to getFlagUrl: ${country}`);
+  // Normalize country name
+  const normalizedCountry = country.trim();
+
+  if (!normalizedCountry) {
+    console.warn('Empty country name provided to getFlagUrl');
     return '/assets/fallback-logo.svg';
   }
-
-  const normalizedCountry = normalizeCountryCode(country);
-  const cacheKey = `flag_${normalizedCountry}`;
 
   // Check cache first
-  const cached = getCachedFlag(cacheKey);
+  const cacheKey = `flag_${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}`;
+  const cached = flagCache.getCached(cacheKey);
+
   if (cached) {
-    return cached;
+    return cached.url;
   }
 
+  console.log(`Getting flag for country: ${normalizedCountry}`);
+
   try {
-    console.log(`🔍 Fetching new flag for country: ${country} (key: ${cacheKey})`);
-    const flagUrl = await fetchFlagForCountry(country);
+    // Try our API endpoint first (which uses SportsRadar)
+    const response = await fetch(`/api/flags/${encodeURIComponent(normalizedCountry)}`, {
+      signal: AbortSignal.timeout(5000)
+    });
 
-    // Cache the result
-    const flagData: FlagCacheItem = {
-      url: flagUrl,
-      timestamp: Date.now(),
-      country: country
-    };
+    if (response.ok) {
+      const data = await response.json();
 
-    flagCache.set(cacheKey, flagData);
-    console.log(`💾 Cached flag for ${country}: ${flagUrl}`);
-    saveFlagsToStorage();
+      if (data.success && data.flagUrl) {
+        console.log(`✅ Valid flag found for ${normalizedCountry}: ${data.flagUrl}`);
+        flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
+        return data.flagUrl;
+      }
 
-    return flagUrl;
+      if (data.shouldExclude) {
+        console.log(`🚫 Country ${normalizedCountry} should be excluded due to missing flag`);
+        flagCache.setCached(cacheKey, '/assets/fallback-logo.svg', 'api-exclude', true);
+        return '/assets/fallback-logo.svg';
+      }
+    }
+
+    console.log(`❌ API failed for ${normalizedCountry}, trying fallback sources`);
+
+    // Fallback 1: Try API-Football format
+    try {
+      console.log(`Flag fallback for ${normalizedCountry}: trying source 1/3`);
+      const apiFootballUrl = `https://media.api-sports.io/flags/${normalizedCountry.toLowerCase().replace(/\s+/g, '')}.svg`;
+
+      const apiFootballResponse = await fetch(apiFootballUrl, { 
+        method: 'HEAD',
+        signal: AbortSignal.timeout(3000)
+      });
+
+      if (apiFootballResponse.ok) {
+        console.log(`✅ Valid flag found via API-Football for ${normalizedCountry}: ${apiFootballUrl}`);
+        flagCache.setCached(cacheKey, apiFootballUrl, 'api-football', true);
+        return apiFootballUrl;
+      }
+    } catch (e) {
+      console.log(`Failed API-Football fallback for ${normalizedCountry}`);
+    }
+
+    // Fallback 2: Try 365scores CDN
+    try {
+      console.log(`Flag fallback for ${normalizedCountry}: trying source 2/3`);
+      const scores365Url = `https://sports.365scores.com/CDN/images/flags/${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}.svg`;
+
+      const scores365Response = await fetch(scores365Url, { 
+        method: 'HEAD',
+        signal: AbortSignal.timeout(3000)
+      });
+
+      if (scores365Response.ok) {
+        console.log(`✅ Valid flag found via 365scores for ${normalizedCountry}: ${scores365Url}`);
+        flagCache.setCached(cacheKey, scores365Url, '365scores', true);
+        return scores365Url;
+      }
+    } catch (e) {
+      console.log(`Failed 365scores fallback for ${normalizedCountry}`);
+    }
+
+    // Fallback 3: Country code based approach
+    try {
+      console.log(`Flag fallback for ${normalizedCountry}: trying source 3/3`);
+      const countryCode = getCountryCode(normalizedCountry);
+      if (countryCode) {
+        const countryCodeUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+
+        const countryCodeResponse = await fetch(countryCodeUrl, { 
+          method: 'HEAD',
+          signal: AbortSignal.timeout(3000)
+        });
+
+        if (countryCodeResponse.ok) {
+          console.log(`✅ Valid flag found via country code for ${normalizedCountry}: ${countryCodeUrl}`);
+          flagCache.setCached(cacheKey, countryCodeUrl, 'country-code', true);
+          return countryCodeUrl;
+        }
+      }
+    } catch (e) {
+      console.log(`Failed country code fallback for ${normalizedCountry}`);
+    }
+
+    console.log(`❌ All flag sources failed for ${normalizedCountry}, using fallback`);
+
+    // All fallbacks failed, use default
+    const fallbackUrl = '/assets/fallback-logo.svg';
+    flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
+    return fallbackUrl;
+
   } catch (error) {
-    console.error(`❌ Error fetching flag for ${country}:`, error);
-    return '/assets/fallback-logo.svg';
+    console.error(`Error fetching flag for ${normalizedCountry}:`, error);
+    const fallbackUrl = '/assets/fallback-logo.svg';
+    flagCache.setCached(cacheKey, fallbackUrl, 'error-fallback', true);
+    return fallbackUrl;
   }
 };
 
@@ -2226,7 +2318,7 @@ async function backgroundCacheRefresh(): Promise<void> {
     const age = now - value.timestamp;
     const maxAge = value.url.includes('/assets/fallback-logo.svg') 
       ? 60 * 60 * 1000  // 1 hour for fallbacks
-        : 24 * 60 * 60 * 1000; // 24 hours for valid flags
+      : 24 * 60 * 60 * 1000; // 24 hours for valid flags
 
     // Refresh if entry is 75% of max age and has been used recently
     if (age > maxAge * 0.75 && usage && usage.count > 3) {

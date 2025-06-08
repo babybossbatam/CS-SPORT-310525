@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import LeagueStatsPanel from './LeagueStatsPanel';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,8 +88,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
   const [, navigate] = useLocation();
   const [view, setView] = useState<'overall' | 'home' | 'away'>('overall');
 
-  const data = null;
-  const isLoading = false;
+  const { data, isLoading } = useLeagueStandings(leagueId, season);
 
   if (isLoading) {
     return (
@@ -108,7 +108,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
     );
   }
 
-  if (!data) {
+  if (!data?.league?.standings?.[0]) {
     return (
       <Card className="w-full h-full">
         <CardHeader>
@@ -123,7 +123,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
     );
   }
 
-  const standings = [];
+  const standings = data.league.standings[0];
 
   return (
     <Card className="w-full h-full">
@@ -132,11 +132,11 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
-              src="https://via.placeholder.com/50" 
-              alt="Placeholder League"
+              src={data.league.logo} 
+              alt={data.league.name}
               className="h-8 w-8 object-contain"
             />
-            <CardTitle>Placeholder League</CardTitle>
+            <CardTitle>{data.league.name}</CardTitle>
           </div>
           <Button variant="ghost" size="sm" onClick={() => navigate(`/league/${leagueId}/standings`)}>
             View Full
@@ -170,14 +170,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {standings.map((standing, index) => {
-                  const stats = {played: 0, goals: {for: 0, against: 0}, win: 0, draw: 0, lose: 0};
+                {standings.map((standing) => {
+                  const stats = view === 'overall' ? standing.all : 
+                              view === 'home' ? standing.home : 
+                              view === 'away' ? standing.away : null;
 
                   return (
                     <TableRow 
-                      key={index}
+                      key={standing.team.id}
                       className="hover:bg-gray-50/50 transition-colors relative cursor-pointer"
-                      onClick={() => navigate(`/team/1`)}
+                      onClick={() => navigate(`/team/${standing.team.id}`)}
                     >
                       <TableCell 
                         className="relative pl-3 font-medium"
@@ -185,46 +187,75 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                         <span
                           className="absolute left-0 top-0 bottom-0 w-1.5"
                           style={{
-                            backgroundColor: '#9E9E9E'
+                            backgroundColor: 
+                              standing.rank <= 3 ? '#4CAF50' :
+                              standing.rank <= 7 ? '#9C27B0' :
+                              '#9E9E9E'
                           }}
                         />
                         <span
                           style={{
-                            color: '#9E9E9E'
+                            color: standing.rank <= 3 ? '#4CAF50' :
+                                  standing.rank <= 7 ? '#9C27B0' :
+                                  '#9E9E9E'
                           }}
                         >
-                          {index + 1}
+                          {standing.rank}
                         </span>
                       </TableCell>
                       <TableCell className="min-w-[180px] pl-2">
                         <div className="flex items-center gap-2">
                           <img 
-                            src="https://via.placeholder.com/30" 
-                            alt="Placeholder Team"
+                            src={standing.team.logo} 
+                            alt={standing.team.name}
                             className="h-5 w-5 object-contain"
                           />
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm">Placeholder Team</span>
+                            <span className="font-medium text-sm">{standing.team.name}</span>
+                            {standing.rank <= 7 && standing.description && (
+                            <span 
+                              className="text-xs"
+                              style={{
+                                color: standing.rank <= 3 ? '#4CAF50' : '#9C27B0'
+                              }}
+                            >
+                              {standing.description}
+                            </span>
+                          )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{stats.played}</TableCell>
                       <TableCell className="text-center">{stats.goals.for}/{stats.goals.against}</TableCell>
-                      <TableCell className="text-center">0</TableCell>
-                      <TableCell className="text-center font-bold">0</TableCell>
+                      <TableCell className="text-center">{standing.goalsDiff}</TableCell>
+                      <TableCell className="text-center font-bold">{standing.points}</TableCell>
                       <TableCell className="text-center">{stats.win}</TableCell>
                       <TableCell className="text-center">{stats.draw}</TableCell>
                       <TableCell className="text-center">{stats.lose}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex gap-1 justify-center">
+                          {standing.form?.split('').map((result, i) => (
+                            <span
+                              key={i}
+                              className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white ${
+                                result === 'W' ? 'bg-green-500' :
+                                result === 'D' ? 'bg-gray-500' :
+                                'bg-red-500'
+                              }`}
+                            >
+                              {result}
+                            </span>
+                          ))}
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
-                        <img 
-                            src="https://via.placeholder.com/30" 
-                            alt="Placeholder Team"
+                        {standing.team.nextMatch && (
+                          <img 
+                            src={standing.team.nextMatch.logo} 
+                            alt={standing.team.nextMatch.name}
                             className="w-6 h-6 inline-block"
                           />
+                        )}
                       </TableCell>
                     </TableRow>
                   );
