@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Clock, Trophy, Users } from "lucide-react";
-import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
+import MatchCardList from "./MatchCardList";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO } from "date-fns";
@@ -171,17 +171,17 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         </CardContent>
       </Card>
 
-      {/* Header Section for Popular Leagues */}
+      {/* Header Section for Match Cards */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        Popular Leagues by Time
+        All Matches
       </CardHeader>
 
-      {/* Use TodayPopularFootballLeaguesNew component */}
-      <TodayPopularFootballLeaguesNew
+      {/* Use new MatchCardList component */}
+      <MatchCardList
         selectedDate={currentDate}
         timeFilterActive={timeFilterActive}
-        showTop20={timeFilterActive}
         liveFilterActive={liveFilterActive}
+        maxMatches={timeFilterActive ? 20 : 50}
       />
     </>
   );
