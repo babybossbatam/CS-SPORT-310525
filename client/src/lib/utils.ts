@@ -542,57 +542,139 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
 }
 export const apiRequest = async (method: string, endpoint: string, options?: any) => {
   const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), options?.timeout || 15000);
+  const maxRetries = options?.retries || 2;
+  const timeout = options?.timeout || 15000;
+  
+  // Retry logic with exponential backoff
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  try {
-    let url = `${baseUrl}${endpoint}`;
-    let requestBody: string | undefined;
-
-    // Handle GET requests with query parameters
-    if (method.toUpperCase() === 'GET' && options?.params) {
-      const searchParams = new URLSearchParams();
-      Object.entries(options.params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
-        }
-      });
-      if (searchParams.toString()) {
-        url += `?${searchParams.toString()}`;
-      }
-    } else if (method.toUpperCase() !== 'GET' && options) {
-      // For non-GET requests, use options as request body
-      requestBody = JSON.stringify(options);
-    }
-
-    // Attempt the fetch with better error handling
-    let response: Response;
     try {
-      response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: requestBody,
-        credentials: 'same-origin',
-        mode: 'cors',
-        signal: controller.signal,
-      });
-    } catch (fetchError) {
-      // Handle fetch-specific errors immediately
+      let url = `${baseUrl}${endpoint}`;
+      let requestBody: string | undefined;
+
+      // Handle GET requests with query parameters
+      if (method.toUpperCase() === 'GET' && options?.params) {
+        const searchParams = new URLSearchParams();
+        Object.entries(options.params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            searchParams.append(key, String(value));
+          }
+        });
+        if (searchParams.toString()) {
+          url += `?${searchParams.toString()}`;
+        }
+      } else if (method.toUpperCase() !== 'GET' && options) {
+        // For non-GET requests, use options as request body
+        requestBody = JSON.stringify(options);
+      }
+
+      // Attempt the fetch with better error handling
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: requestBody,
+          credentials: 'same-origin',
+          mode: 'cors',
+          signal: controller.signal,
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
+        
+        // If this is not the last attempt, log and retry
+        if (attempt < maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Exponential backoff, max 5s
+          console.warn(`🔄 Network error on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        
+        // Last attempt failed
+        console.error(`🌐 Fetch failed for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
+        
+        // Create a proper error response object that indicates network failure
+        const createNetworkErrorResponse = (): Response => ({
+          ok: false,
+          status: 0, // Status 0 indicates network failure
+          statusText: 'Network Error',
+          headers: new Headers(),
+          redirected: false,
+          type: 'error',
+          url: '',
+          body: null,
+          bodyUsed: false,
+          json: async () => ({ 
+            error: true, 
+            message: 'Network connectivity failed - please check your connection',
+            details: fetchErrorMessage,
+            networkError: true,
+            endpoint: endpoint,
+            attempts: maxRetries + 1
+          }),
+          text: async () => `Network Error: ${fetchErrorMessage}`,
+          blob: async () => new Blob(),
+          arrayBuffer: async () => new ArrayBuffer(0),
+          formData: async () => new FormData(),
+          clone: function() {
+            return createNetworkErrorResponse();
+          }
+        } as Response);
+
+        return createNetworkErrorResponse();
+      }
+
+      clearTimeout(timeoutId);
+
+      // Check if response is ok or if we should retry
+      if (!response.ok && response.status >= 500 && attempt < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+        console.warn(`🔄 Server error ${response.status} on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+
+      // Return successful response or final failed response
+      return response;
+
+    } catch (error) {
       clearTimeout(timeoutId);
       
-      const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
-      console.error(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      // Log additional context for debugging
-      console.error(`🔍 Request details: URL=${url}, Method=${method}`);
+      // If this is not the last attempt and it's a retryable error, continue
+      if (attempt < maxRetries && (
+        errorMessage.includes('Failed to fetch') || 
+        errorMessage.includes('NetworkError') || 
+        errorMessage.includes('timeout') ||
+        error instanceof Error && error.name === 'AbortError'
+      )) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+        console.warn(`🔄 Error on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms: ${errorMessage}`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
       
-      // Create a proper error response object that indicates network failure
-      const createNetworkErrorResponse = (): Response => ({
+      // Last attempt or non-retryable error
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error(`🚫 API request timeout for ${method} ${endpoint} after ${timeout}ms (${maxRetries + 1} attempts)`);
+      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch') || errorMessage.includes('Network Error')) {
+        console.error(`🌐 Network connectivity issue for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${errorMessage}`);
+      } else {
+        console.error(`❌ API request error for ${method} ${endpoint} after ${maxRetries + 1} attempts:`, error);
+      }
+      
+      // Create a more detailed error response that properly indicates network failure
+      const createErrorResponse = (statusText: string, isNetworkError = false): Response => ({
         ok: false,
-        status: 0, // Status 0 indicates network failure
-        statusText: 'Network Error',
+        status: isNetworkError ? 0 : 500,
+        statusText,
         headers: new Headers(),
         redirected: false,
         type: 'error',
@@ -601,77 +683,35 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         bodyUsed: false,
         json: async () => ({ 
           error: true, 
-          message: 'Network connectivity failed - please check your connection',
-          details: fetchErrorMessage,
-          networkError: true,
-          endpoint: endpoint
+          message: isNetworkError ? 'Network connectivity failed' : 'Server error',
+          details: statusText,
+          networkError: isNetworkError,
+          attempts: maxRetries + 1
         }),
-        text: async () => `Network Error: ${fetchErrorMessage}`,
+        text: async () => `${isNetworkError ? 'Network' : 'Server'} Error: ${statusText}`,
         blob: async () => new Blob(),
         arrayBuffer: async () => new ArrayBuffer(0),
         formData: async () => new FormData(),
         clone: function() {
-          return createNetworkErrorResponse();
+          return createErrorResponse(statusText, isNetworkError);
         }
       } as Response);
 
-      // Return error response instead of throwing
-      return createNetworkErrorResponse();
+      const isNetworkError = errorMessage.includes('Failed to fetch') || 
+                            errorMessage.includes('NetworkError') || 
+                            errorMessage.includes('Network Error') ||
+                            errorMessage.includes('fetch') ||
+                            (error instanceof Error && error.name === 'AbortError');
+
+      return createErrorResponse(errorMessage, isNetworkError);
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    clearTimeout(timeoutId);
-
-    // Return the response object instead of parsing JSON immediately
-    // This allows the caller to handle different response types 
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    
-    // Log the error for debugging
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`🚫 API request timeout for ${method} ${endpoint} after ${options?.timeout || 15000}ms`);
-    } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch') || errorMessage.includes('Network Error')) {
-      console.error(`🌐 Network connectivity issue for ${method} ${endpoint}: ${errorMessage}`);
-    } else {
-      console.error(`❌ API request error for ${method} ${endpoint}:`, error);
-    }
-    
-    // Create a more detailed error response that properly indicates network failure
-    const createErrorResponse = (statusText: string, isNetworkError = false): Response => ({
-      ok: false,
-      status: isNetworkError ? 0 : 500,
-      statusText,
-      headers: new Headers(),
-      redirected: false,
-      type: 'error',
-      url: '',
-      body: null,
-      bodyUsed: false,
-      json: async () => ({ 
-        error: true, 
-        message: isNetworkError ? 'Network connectivity failed' : 'Server error',
-        details: statusText,
-        networkError: isNetworkError
-      }),
-      text: async () => `${isNetworkError ? 'Network' : 'Server'} Error: ${statusText}`,
-      blob: async () => new Blob(),
-      arrayBuffer: async () => new ArrayBuffer(0),
-      formData: async () => new FormData(),
-      clone: function() {
-        return createErrorResponse(statusText, isNetworkError);
-      }
-    } as Response);
-
-    const isNetworkError = errorMessage.includes('Failed to fetch') || 
-                          errorMessage.includes('NetworkError') || 
-                          errorMessage.includes('Network Error') ||
-                          errorMessage.includes('fetch');
-
-    return createErrorResponse(errorMessage, isNetworkError);
-  } finally {
-    // Ensure timeout is always cleared
-    clearTimeout(timeoutId);
   }
+
+  // This should never be reached, but just in case
+  return new Response(JSON.stringify({ error: true, message: 'Maximum retries exceeded' }), {
+    status: 500,
+    statusText: 'Internal Error'
+  });
 };
