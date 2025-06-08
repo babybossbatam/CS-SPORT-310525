@@ -1823,7 +1823,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "ABD",
                                         "SUSP",
                                         "AWD",
-                                        "WO,
+                                        "WO",
                                       ].includes(status)
                                     ) {
                                       const statusText =

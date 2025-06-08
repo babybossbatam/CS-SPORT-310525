@@ -9,6 +9,8 @@ import { format, parseISO, isValid, addDays } from "date-fns";
 import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { apiRequest } from "@/lib/queryClient";
+import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
+import { getCachedFixturesForDate } from "@/lib/fixtureCache";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -48,39 +50,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       leagueName.includes("u18") ||
       leagueName.includes("u19") ||
 
-// Helper function to process cached data for featured matches
-const processCachedData = async (cachedFixtures: any[], currentDate: string, maxMatches: number) => {
-  console.log("🏠 [MyHomeFeaturedMatchNew] Processing cached data:", cachedFixtures.length, "fixtures");
-  
-  // Apply the same filtering and processing logic as the main fetch
-  const processedMatches = cachedFixtures
-    .filter((match) => {
-      if (!match?.fixture?.id || !match?.teams?.home || !match?.teams?.away || !match?.league) {
-        return false;
-      }
-
-      const homeTeamName = match.teams.home.name?.toLowerCase() || "";
-      const awayTeamName = match.teams.away.name?.toLowerCase() || "";
-      const leagueName = match.league.name?.toLowerCase() || "";
-
-      // Apply exclusion filters
-      if (shouldExcludeFromPopularLeagues(leagueName, homeTeamName, awayTeamName, match.league.country)) {
-        return false;
-      }
-
-      return true;
-    })
-    .slice(0, maxMatches);
-
-  console.log("🏠 [MyHomeFeaturedMatchNew] Processed matches:", processedMatches.length);
-  
-  // Cache the processed result
-  const cacheKey = ["featured-matches-from-popular-cache", currentDate];
-  CacheManager.setCachedData(cacheKey, processedMatches);
-  
-  return processedMatches;
-};
-
 
       leagueName.includes("u20") ||
       leagueName.includes("u21") ||
@@ -98,6 +67,39 @@ const processCachedData = async (cachedFixtures: any[], currentDate: string, max
     }
 
     return false;
+  };
+
+  // Helper function to process cached data for featured matches
+  const processCachedData = async (cachedFixtures: any[], currentDate: string, maxMatches: number) => {
+    console.log("🏠 [MyHomeFeaturedMatchNew] Processing cached data:", cachedFixtures.length, "fixtures");
+    
+    // Apply the same filtering and processing logic as the main fetch
+    const processedMatches = cachedFixtures
+      .filter((match) => {
+        if (!match?.fixture?.id || !match?.teams?.home || !match?.teams?.away || !match?.league) {
+          return false;
+        }
+
+        const homeTeamName = match.teams.home.name?.toLowerCase() || "";
+        const awayTeamName = match.teams.away.name?.toLowerCase() || "";
+        const leagueName = match.league.name?.toLowerCase() || "";
+
+        // Apply exclusion filters
+        if (shouldExcludeFromPopularLeagues(leagueName, homeTeamName, awayTeamName, match.league.country)) {
+          return false;
+        }
+
+        return true;
+      })
+      .slice(0, maxMatches);
+
+    console.log("🏠 [MyHomeFeaturedMatchNew] Processed matches:", processedMatches.length);
+    
+    // Cache the processed result
+    const cacheKey = ["featured-matches-from-popular-cache", currentDate];
+    CacheManager.setCachedData(cacheKey, processedMatches);
+    
+    return processedMatches;
   };
 
   // Get featured matches from TodayPopularFootballLeaguesNew cached data
