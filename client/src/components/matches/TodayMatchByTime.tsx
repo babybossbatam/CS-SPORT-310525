@@ -25,49 +25,16 @@ interface TodayMatchByTimeProps {
   selectedDate: string;
   timeFilterActive?: boolean;
   liveFilterActive?: boolean;
+  filteredFixtures?: any[]; // Accept pre-filtered fixtures from TodayPopularFootballLeaguesNew
 }
 
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   selectedDate,
   timeFilterActive = false,
   liveFilterActive = false,
+  filteredFixtures = [], // Use provided fixtures or empty array
 }) => {
-  const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-
-  // Use the same popular countries and leagues as TodayPopularFootballLeaguesNew
-  const POPULAR_COUNTRIES_ORDER = [
-    "England",
-    "Spain",
-    "Italy",
-    "Germany",
-    "France",
-    "World",
-    "Europe",
-    "South America",
-    "Brazil",
-    "Saudi Arabia",
-    "Egypt",
-    "Colombia",
-    "United States",
-    "USA",
-    "US",
-    "United Arab Emirates",
-    "United-Arab-Emirates",
-  ];
-
-  const POPULAR_LEAGUES_BY_COUNTRY = {
-    England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
-    Spain: [140, 143], // La Liga, Copa del Rey
-    Italy: [135, 137], // Serie A, Coppa Italia
-    Germany: [78, 81], // Bundesliga, DFB Pokal
-    France: [61, 66], // Ligue 1, Coupe de France
-    "United Arab Emirates": [301], // UAE Pro League
-    Egypt: [233], // Egyptian Premier League (only major league)
-    International: [15], // FIFA Club World Cup as separate category
-  };
-
-  const POPULAR_LEAGUES = Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat();
 
   const toggleStarMatch = (fixtureId: number) => {
     const newStarred = new Set(starredMatches);
@@ -79,192 +46,24 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // Fetch all fixtures for the selected date
-  const { data: fixtures = [], isLoading } = useQuery({
-    queryKey: ['all-fixtures-by-date', selectedDate],
-    queryFn: async () => {
-      console.log(`Fetching fixtures for date: ${selectedDate}`);
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
+  console.log(`🕐 [TodayMatchByTime] Using ${filteredFixtures.length} pre-filtered fixtures from TodayPopularFootballLeaguesNew`);
 
-      console.log(`Received ${data.length} fixtures for ${selectedDate}`);
-      return data;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
-    enabled: !!selectedDate && enableFetching,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-
-  // Apply the same filtering logic as TodayPopularFootballLeaguesNew (without smart date filtering)
-  const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
-
-    console.log(`Processing ${fixtures.length} fixtures for filtering`);
-    const startTime = Date.now();
-
-    const filtered = fixtures.filter((fixture) => {
-      // Use simple date matching instead of smart date filtering
-      if (fixture.fixture.date) {
-        const isOnSelectedDate = isFixtureOnClientDate(fixture.fixture.date, selectedDate);
-        if (!isOnSelectedDate) {
-          return false;
-        }
-      }
-
-      // Client-side filtering for popular leagues and countries (same as TodayPopularFootballLeaguesNew)
-      const leagueId = fixture.league?.id;
-      const country = fixture.league?.country?.toLowerCase() || "";
-
-      // Check if it's a popular league
-      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-
-      // Check if it's from a popular country
-      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-        (popularCountry) =>
-          country.includes(popularCountry.toLowerCase()),
-      );
-
-      // Apply exclusion check FIRST, before checking international competitions
-      const leagueName = fixture.league?.name?.toLowerCase() || "";
-      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
-      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
-
-      // Early exclusion for women's competitions and other unwanted matches
-      if (shouldExcludeFromPopularLeagues(fixture.league.name, fixture.teams.home.name, fixture.teams.away.name, country)) {
-        return false;
-      }
-
-      // Check if it's an international competition (after exclusion check)
-      const isInternationalCompetition =
-        // UEFA competitions (but women's already excluded above)
-        leagueName.includes("champions league") ||
-        leagueName.includes("europa league") ||
-        leagueName.includes("conference league") ||
-        leagueName.includes("uefa") ||
-        // FIFA competitions
-        leagueName.includes("world cup") ||
-        leagueName.includes("fifa club world cup") ||
-        leagueName.includes("fifa") ||
-        // CONMEBOL competitions
-        leagueName.includes("conmebol") ||
-        leagueName.includes("copa america") ||
-        leagueName.includes("copa libertadores") ||
-        leagueName.includes("copa sudamericana") ||
-        leagueName.includes("libertadores") ||
-        leagueName.includes("sudamericana") ||
-        // Men's International Friendlies (excludes women's)
-        (leagueName.includes("friendlies") &&
-          !leagueName.includes("women")) ||
-        (leagueName.includes("international") &&
-          !leagueName.includes("women")) ||
-        country.includes("world") ||
-        country.includes("europe") ||
-        country.includes("international");
-
-      return (
-        isPopularLeague ||
-        isFromPopularCountry ||
-        isInternationalCompetition
-      );
-    });
-
-    const finalFiltered = filtered.filter((fixture) => {
-      // Apply popular league exclusion filters (same as TodayPopularFootballLeaguesNew)
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          fixture.league.country
-        )
-      ) {
-        return false;
-      }
-
-      // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
-        return false;
-      }
-
-      // Skip fixtures with null or undefined country
-      if (!fixture.league.country) {
-        return false;
-      }
-
-      const countryName = fixture.league.country?.toLowerCase() || "";
-      const leagueId = fixture.league.id;
-      const leagueNameLower = fixture.league.name?.toLowerCase() || "";
-
-      // Check for international competitions first
-      const isInternationalCompetition =
-        // UEFA competitions
-        leagueNameLower.includes("champions league") ||
-        leagueNameLower.includes("europa league") ||
-        leagueNameLower.includes("conference league") ||
-        leagueNameLower.includes("uefa") ||
-        leagueNameLower.includes("euro") ||
-        // FIFA competitions
-        leagueNameLower.includes("world cup") ||
-        leagueNameLower.includes("fifa club world cup") ||
-        leagueNameLower.includes("fifa cup") ||
-        leagueNameLower.includes("fifa") ||
-        // CONMEBOL competitions
-        leagueNameLower.includes("conmebol") ||
-        leagueNameLower.includes("copa america") ||
-        leagueNameLower.includes("copa libertadores") ||
-        leagueNameLower.includes("copa sudamericana") ||
-        leagueNameLower.includes("libertadores") ||
-        leagueNameLower.includes("sudamericana") ||
-        // Men's International Friendlies (excludes women's)
-        (leagueNameLower.includes("friendlies") &&
-          !leagueNameLower.includes("women")) ||
-        (leagueNameLower.includes("international") &&
-          !leagueNameLower.includes("women")) ||
-        countryName.includes("world") ||
-        countryName.includes("europe") ||
-        countryName.includes("international");
-
-      // Allow all international competitions through
-      if (isInternationalCompetition) {
-        return true;
-      }
-
-      // Check if it's a popular country
-      const matchingCountry = POPULAR_COUNTRIES_ORDER.find((country) =>
-        countryName.includes(country.toLowerCase()),
-      );
-
-      if (!matchingCountry) {
-        return false;
-      }
-
-      return true;
-    });
-
-    const endTime = Date.now();
-    console.log(
-      `Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
-    );
-
-    return finalFiltered;
-  }, [fixtures, selectedDate]);
+  // No need for complex filtering since data is already filtered by TodayPopularFootballLeaguesNew
+  // Just flatten the fixtures from the grouped data structure
+  const flattenedFixtures = useMemo(() => {
+    return filteredFixtures; // Data is already filtered and flattened
+  }, [filteredFixtures]);
 
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
     if (liveFilterActive && timeFilterActive) {
-      return filteredFixtures.filter((fixture) => {
+      return flattenedFixtures.filter((fixture) => {
         const status = fixture.fixture.status.short;
         return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
       });
     }
-    return filteredFixtures;
-  }, [filteredFixtures, liveFilterActive, timeFilterActive]);
+    return flattenedFixtures;
+  }, [flattenedFixtures, liveFilterActive, timeFilterActive]);
 
   // Sort matches by priority and time
   const sortedMatches = useMemo(() => {
@@ -333,8 +132,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     }
   };
 
-  // Show loading only if we're actually loading and have no data
-  if (isLoading && !fixtures.length) {
+  // Show loading only if we have no data
+  if (!filteredFixtures.length) {
     return (
       <Card>
         <CardHeader className="pb-4">

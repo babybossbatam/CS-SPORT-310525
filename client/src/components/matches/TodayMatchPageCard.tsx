@@ -9,6 +9,7 @@ import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
+import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
 import {
   formatYYYYMMDD,
@@ -21,6 +22,59 @@ interface TodayMatchPageCardProps {
 }
 
 export const TodayMatchPageCard = ({
+
+// Wrapper component to share data between TodayPopularFootballLeaguesNew and TodayMatchByTime
+const TodayMatchByTimeWithData = ({ selectedDate, timeFilterActive, liveFilterActive }: any) => {
+  // Fetch the same data that TodayPopularFootballLeaguesNew uses
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === today;
+  const isFuture = selectedDate > today;
+  
+  // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
+  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+
+  const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
+
+  const {
+    data: allFixtures = [],
+    isLoading,
+  } = useCachedQuery(
+    fixturesQueryKey,
+    async () => {
+      console.log(`🔄 [TodayMatchByTimeWithData] Fetching data for date: ${selectedDate}`);
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
+      const data = await response.json();
+      console.log(`✅ [TodayMatchByTimeWithData] Received ${data?.length || 0} fixtures for ${selectedDate}`);
+      return data;
+    },
+    {
+      enabled: !!selectedDate,
+      maxAge: cacheMaxAge,
+      backgroundRefresh: false,
+      staleTime: cacheMaxAge,
+      gcTime: cacheMaxAge * 2,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  );
+
+  console.log(`🕐 [TodayMatchByTimeWithData] Passing ${allFixtures.length} fixtures to TodayMatchByTime`);
+
+  return (
+    <TodayMatchByTime
+      selectedDate={selectedDate}
+      timeFilterActive={timeFilterActive}
+      liveFilterActive={liveFilterActive}
+      filteredFixtures={allFixtures}
+    />
+  );
+};
+
+
   fixtures,
   onMatchClick,
 }: TodayMatchPageCardProps) => {
@@ -309,8 +363,8 @@ export const TodayMatchPageCard = ({
           liveFixtures={sharedLiveFixtures}
         />
       ) : timeFilterActive && !liveFilterActive ? (
-        // Time only - show new TodayMatchByTime component
-        <TodayMatchByTime
+        // Time only - show new TodayMatchByTime component with shared data
+        <TodayMatchByTimeWithData
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
