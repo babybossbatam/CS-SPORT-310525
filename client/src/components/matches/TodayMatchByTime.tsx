@@ -1,8 +1,10 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Star } from "lucide-react";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
+import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 
 interface TodayMatchByTimeProps {
   selectedDate?: string;
@@ -17,9 +19,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 }) => {
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
-  // Empty data - no fetching or caching
-  const sortedMatches: any[] = [];
-
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
       const newStarred = new Set(prev);
@@ -32,7 +31,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     });
   };
 
-  // Always show empty state since we removed all data sources
+  // Use current date if selectedDate is not provided
+  const currentDate = selectedDate || new Date().toISOString().slice(0, 10);
+
   return (
     <>
       {/* Header Section */}
@@ -40,13 +41,13 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         Popular Leagues by Time
       </CardHeader>
 
-      {/* Empty state card */}
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No matches available for this time view</p>
-        </CardContent>
-      </Card>
+      {/* Use TodayPopularFootballLeaguesNew component to display actual match data */}
+      <TodayPopularFootballLeaguesNew
+        selectedDate={currentDate}
+        timeFilterActive={timeFilterActive}
+        liveFilterActive={liveFilterActive}
+        showTop20={true}
+      />
     </>
   );
 };
