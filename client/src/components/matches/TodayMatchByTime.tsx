@@ -129,52 +129,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   return (
     <>
-      {/* Live Matches Summary - Only if there are live matches */}
-      {summaryStats.liveCount > 0 && (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-red-500" />
-                <div className="text-lg font-semibold">Live Matches</div>
-              </div>
-              <div className="text-2xl font-bold text-red-600">
-                {summaryStats.liveCount}
-              </div>
-            </div>
-
-            {summaryStats.topLeagues.length > 0 && (
-              <div className="mt-3 pt-3 border-t">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <div className="font-semibold text-gray-700 mb-1">Live Leagues:</div>
-                    <div className="text-gray-600">
-                      {summaryStats.topLeagues.map((league, index) => (
-                        <span key={league}>
-                          • {safeSubstring(league, 0)}
-                          {index < summaryStats.topLeagues.length - 1 && <br />}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-700 mb-1">Live Countries:</div>
-                    <div className="text-gray-600">
-                      {summaryStats.topCountries.map((country, index) => (
-                        <span key={country}>
-                          • {safeSubstring(country, 0)}
-                          {index < summaryStats.topCountries.length - 1 && <br />}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
       {/* Use new CombinedLeagueCards component */}
       <CombinedLeagueCards
         selectedDate={selectedDate}
