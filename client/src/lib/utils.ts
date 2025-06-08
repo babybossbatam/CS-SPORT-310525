@@ -610,11 +610,14 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
             attempts: maxRetries + 1
           }), 
           {
-            status: 503, // Use 503 Service Unavailable instead of 0
-            statusText: 'Service Unavailable',
+            status: 0, // Status 0 indicates network failure
+            statusText: 'Network Error',
             headers: new Headers({ 'Content-Type': 'application/json' })
           }
         );
+
+        // Override the ok property to indicate failure
+        Object.defineProperty(networkErrorResponse, 'ok', { value: false, writable: false });
         
         return networkErrorResponse;
       }
@@ -660,23 +663,31 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       }
       
       // Create a more detailed error response that properly indicates network failure
-      const createErrorResponse = (statusText: string, isNetworkError = false): Response => {
-        const errorBody = JSON.stringify({ 
+      const createErrorResponse = (statusText: string, isNetworkError = false): Response => ({
+        ok: false,
+        status: isNetworkError ? 0 : 500,
+        statusText,
+        headers: new Headers(),
+        redirected: false,
+        type: 'error',
+        url: '',
+        body: null,
+        bodyUsed: false,
+        json: async () => ({ 
           error: true, 
           message: isNetworkError ? 'Network connectivity failed' : 'Server error',
           details: statusText,
           networkError: isNetworkError,
           attempts: maxRetries + 1
-        });
-
-        return new Response(errorBody, {
-          status: isNetworkError ? 503 : 500, // Use 503 for network errors instead of 0
-          statusText: isNetworkError ? 'Service Unavailable' : 'Internal Server Error',
-          headers: new Headers({
-            'Content-Type': 'application/json'
-          })
-        });
-      };
+        }),
+        text: async () => `${isNetworkError ? 'Network' : 'Server'} Error: ${statusText}`,
+        blob: async () => new Blob(),
+        arrayBuffer: async () => new ArrayBuffer(0),
+        formData: async () => new FormData(),
+        clone: function() {
+          return createErrorResponse(statusText, isNetworkError);
+        }
+      } as Response);
 
       const isNetworkError = errorMessage.includes('Failed to fetch') || 
                             errorMessage.includes('NetworkError') || 
