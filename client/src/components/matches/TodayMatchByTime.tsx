@@ -35,37 +35,38 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   console.log(`🕒 [TodayMatchByTime] Received ${todayPopularFixtures.length} fixtures as props`);
 
-  // Group matches by time slots
-  const matchesByTime = useMemo(() => {
+  // Sort matches by time without grouping
+  const sortedMatches = useMemo(() => {
     if (!todayPopularFixtures.length) {
-      console.log(`🕒 [TodayMatchByTime] No fixtures to group by time`);
-      return {};
+      console.log(`🕒 [TodayMatchByTime] No fixtures to sort by time`);
+      return [];
     }
 
-    const timeGroups: { [key: string]: any[] } = {};
-
-    todayPopularFixtures.forEach((fixture) => {
+    const validMatches = todayPopularFixtures.filter((fixture) => {
       try {
         const fixtureDate = parseISO(fixture.fixture.date);
         if (!isValid(fixtureDate)) {
           console.warn(`Invalid date for fixture ${fixture.fixture.id}`);
-          return;
+          return false;
         }
-
-        const timeKey = format(fixtureDate, "HH:mm");
-        if (!timeGroups[timeKey]) {
-          timeGroups[timeKey] = [];
-        }
-        timeGroups[timeKey].push(fixture);
+        return true;
       } catch (error) {
         console.error(`Error processing fixture ${fixture.fixture.id}:`, error);
+        return false;
       }
     });
 
-    // Sort matches within each time group by league priority
-    Object.keys(timeGroups).forEach(timeKey => {
-      timeGroups[timeKey].sort((a, b) => {
-        // Sort by status first (live > upcoming > finished)
+    // Sort matches by time, then by status priority, then by league name
+    const sorted = validMatches.sort((a, b) => {
+      try {
+        const aDate = parseISO(a.fixture.date);
+        const bDate = parseISO(b.fixture.date);
+        
+        // First, sort by time
+        const timeDiff = aDate.getTime() - bDate.getTime();
+        if (timeDiff !== 0) return timeDiff;
+
+        // If same time, sort by status (live > upcoming > finished)
         const aStatus = a.fixture.status.short;
         const bStatus = b.fixture.status.short;
         
@@ -75,19 +76,17 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         if (aLive && !bLive) return -1;
         if (!aLive && bLive) return 1;
         
-        // Then by league name alphabetically
+        // Finally, sort by league name alphabetically
         return (a.league.name || "").localeCompare(b.league.name || "");
-      });
+      } catch (error) {
+        console.error(`Error sorting fixtures:`, error);
+        return 0;
+      }
     });
 
-    console.log(`🕒 [TodayMatchByTime] Grouped into ${Object.keys(timeGroups).length} time slots`);
-    return timeGroups;
+    console.log(`🕒 [TodayMatchByTime] Sorted ${sorted.length} matches by time`);
+    return sorted;
   }, [todayPopularFixtures]);
-
-  // Sort time slots
-  const sortedTimeSlots = useMemo(() => {
-    return Object.keys(matchesByTime).sort();
-  }, [matchesByTime]);
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
@@ -119,23 +118,11 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         Popular Leagues by Time
       </CardHeader>
 
-      {/* Time Slots */}
-      {sortedTimeSlots.map((timeSlot) => (
-        <Card key={timeSlot} className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4">
-          {/* Time Header */}
-          <CardContent className="flex items-center gap-2 p-2 bg-gray-50 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-gray-800">{timeSlot}</span>
-              <span className="text-sm text-gray-600">
-                ({matchesByTime[timeSlot].length} match{matchesByTime[timeSlot].length !== 1 ? 'es' : ''})
-              </span>
-            </div>
-          </CardContent>
-
-          {/* Matches for this time slot */}
-          <CardContent className="p-0">
-            <div className="space-y-0">
-              {matchesByTime[timeSlot].map((match: any) => (
+      {/* Single card with all matches sorted by time */}
+      <Card className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4">
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {sortedMatches.map((match: any) => (
                 <LazyMatchItem key={match.fixture.id}>
                   <div className="match-card-container group">
                     {/* Star Button */}
@@ -321,10 +308,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                   </div>
                 </LazyMatchItem>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+          </div>
+        </CardContent>
+      </Card>
     </>
   );
 };
