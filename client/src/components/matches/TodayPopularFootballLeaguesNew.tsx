@@ -1177,7 +1177,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     return 3;
                   }
 
-                  // Friendlies no longer get priority - they will fall to the bottom (Priority 999)
+                  // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
+                  if (isFriendlies && !name.includes("uefa nations league") && !name.includes("women")) {
+                    console.log(
+                      `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
+                    );
+                    return 4;
+                  }
 
                   // Priority 5: World Cup Qualification Asia
                   if (
