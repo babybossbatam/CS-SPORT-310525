@@ -223,6 +223,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     data: fixtures = [],
     isLoading,
     isFetching,
+    error,
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
