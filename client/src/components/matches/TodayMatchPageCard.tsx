@@ -135,11 +135,13 @@ export const TodayMatchPageCard = ({
 
   console.log(`📊 [TodayMatchPageCard] Got ${filteredFixtures.length} fixtures for ${selectedDate}`);
 
-  // Get the actual filtered fixtures that TodayPopularFootballLeaguesNew uses
+  // Extract the same fixtures that TodayPopularFootballLeaguesNew would show
+  // We need to flatten the fixtures from the country/league structure to individual matches
   const [popularLeagueFixtures, setPopularLeagueFixtures] = useState<any[]>([]);
 
   useEffect(() => {
-    // Use the same filtered fixtures that TodayPopularFootballLeaguesNew would show
+    // This is a simple way to get the fixtures that will be shown in TodayPopularFootballLeaguesNew
+    // by applying the same filtering logic
     setPopularLeagueFixtures(filteredFixtures);
   }, [filteredFixtures]);
 
@@ -340,7 +342,6 @@ export const TodayMatchPageCard = ({
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
-            onFixturesReady={setPopularLeagueFixtures}
           />
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
