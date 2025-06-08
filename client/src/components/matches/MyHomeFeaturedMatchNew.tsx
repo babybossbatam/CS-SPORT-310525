@@ -29,32 +29,36 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const getMatchPriority = (fixture: any): number => {
     const leagueId = fixture.league.id;
     const leagueName = fixture.league.name.toLowerCase();
-    
+    const country = fixture.league.country?.toLowerCase() || '';
+
     // Priority Level 1 - Top tier competitions
     const priority1Leagues = [
       2, 3, 39, 140, 135, 78, 61, 81, 94, 88, // Champions/Europa League, Big 5 leagues
       4, 5, 848, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 // World Cup, Euros, Copa America, etc.
     ];
-    
+
     // Priority Level 2 - Secondary competitions and good leagues
     const priority2Leagues = [
       71, 72, 73, 74, 75, 76, 77, 79, 80, 82, 83, 84, 85, 86, 87, // Other European leagues
       253, 262, 271, 274, 281, 283, 288, 289, 290, 292, 293, 294, // Asian/American leagues
       144, 145, 146, 147, 148, 149, 188, 203, 204, 207, 216, 218 // Championship level
     ];
-    
+
     if (priority1Leagues.includes(leagueId)) return 1;
     if (priority2Leagues.includes(leagueId)) return 2;
-    
-    // Priority Level 3 - Lower tier but still relevant
-    if (leagueName.includes('champions') || leagueName.includes('europa') || 
-        leagueName.includes('cup') || leagueName.includes('premier') ||
-        leagueName.includes('primeira') || leagueName.includes('serie') ||
-        leagueName.includes('bundesliga') || leagueName.includes('ligue')) {
-      return 2;
+
+    // Priority Level 3 - Other popular countries
+    const tier3Countries = ['brazil', 'saudi arabia', 'egypt', 'colombia', 'united arab emirates'];
+    if (tier3Countries.some(c => country.includes(c))) {
+      return 3;
     }
-    
-    return 3; // Everything else
+
+    // Priority Level 4 - Friendlies
+    if (leagueName.includes('friendlies') || leagueName.includes('friendly')) {
+      return 4;
+    }
+
+    return 4; // Everything else gets lowest priority
   };
 
   // Filter and process matches for featured display
@@ -90,7 +94,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       // Get priority level
       const priority = getMatchPriority(fixture);
-      
+
       // Only show priority 1-3 matches for the next 3 days
       if (priority > 3) return false;
 
