@@ -6,10 +6,8 @@ import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isValid, addDays } from "date-fns";
-import { CacheManager } from "@/lib/cachingHelper";
-import { backgroundCache } from "@/lib/backgroundCache";
-import { apiRequest } from "@/lib/queryClient";
-import { getCachedFixturesForDate, cacheFixturesForDate } from "@/lib/fixtureCache";
+import { useCentralData } from '@/providers/CentralDataProvider';
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -66,6 +64,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
+  // Use central data cache like TodayMatchByTime
+  const { fixtures, liveFixtures, isLoading, error } = useCentralData();
+
+  console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${fixtures?.length || 0} fixtures from central cache`);
+
   // Get featured matches using the same filtering logic as TodayPopularFootballLeaguesNew
   useEffect(() => {
     const getFeaturedMatches = async () => {
@@ -73,40 +76,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         console.log("🏠 [MyHomeFeaturedMatchNew] === APPLYING SAME FILTERING AS TODAYPOPULARLEAGUE ===");
         setLoading(true);
 
-        // Check cache first using CacheManager
-        const cacheKey = [`all-fixtures-by-date`, currentDate];
-        const cachedData = CacheManager.getCachedData(cacheKey, 30 * 60 * 1000); // 30 minutes cache
-
-        let rawFixtures;
-        if (cachedData) {
-          console.log("🏠 [MyHomeFeaturedMatchNew] Using cached fixtures data");
-          rawFixtures = cachedData;
-        } else {
-          console.log("🏠 [MyHomeFeaturedMatchNew] Fetching fresh fixtures data");
-          // Get raw fixtures using the same API call as TodayPopularFootballLeaguesNew
-          const response = await apiRequest("GET", `/api/fixtures/date/${currentDate}?all=true`);
-          rawFixtures = await response.json();
-          
-          // Cache the data using CacheManager
-          if (rawFixtures && rawFixtures.length > 0) {
-            CacheManager.setCachedData(cacheKey, rawFixtures);
-          }
-        }
-
-        if (!rawFixtures || rawFixtures.length === 0) {
-          console.log("🏠 [MyHomeFeaturedMatchNew] No raw fixtures available");
+        if (!fixtures?.length) {
+          console.log("🏠 [MyHomeFeaturedMatchNew] No fixtures available from central cache");
           setMatches([]);
           setLoading(false);
           return;
         }
 
-        console.log(`🏠 [MyHomeFeaturedMatchNew] Found ${rawFixtures.length} raw fixtures`);
+        console.log(`🏠 [MyHomeFeaturedMatchNew] Found ${fixtures.length} fixtures from central data`);
+
+        // Apply smart time filtering first like TodayMatchByTime
+        const timeFilterResult = MySmartTimeFilter.filterTodayFixtures(fixtures, currentDate);
+        const timeFiltered = timeFilterResult.todayFixtures;
+        console.log(`🏠 [MyHomeFeaturedMatchNew] After time filtering: ${timeFiltered.length} fixtures`);
 
         // Apply the same filtering logic as TodayPopularFootballLeaguesNew
         const POPULAR_LEAGUES = [2, 3, 848, 39, 140, 135, 78, 61, 45, 48, 143, 137, 81, 66, 301, 233];
         const POPULAR_COUNTRIES = ["England", "Spain", "Italy", "Germany", "France", "World", "Europe", "South America", "Brazil", "Saudi Arabia", "Egypt", "Colombia", "United States", "USA", "US", "United Arab Emirates"];
 
-        const filteredMatches = rawFixtures.filter(fixture => {
+        const filteredMatches = timeFiltered.filter(fixture => {
           // Basic validation
           if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
             return false;
@@ -184,15 +172,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         
         setMatches(featuredMatches);
         setCurrentIndex(0);
-
-        // Background prefetch tomorrow's data
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowDate = tomorrow.toISOString().split("T")[0];
-        
-        if (tomorrowDate !== currentDate) {
-          backgroundCache.prefetch(`/api/fixtures/date/${tomorrowDate}?all=true`, 'low');
-        }
       } catch (error) {
         console.error("🏠 [MyHomeFeaturedMatchNew] Error getting featured matches:", error);
         setMatches([]);
@@ -202,7 +181,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
 
     getFeaturedMatches();
-  }, [currentDate, maxMatches]);
+  }, [fixtures, currentDate, maxMatches]);
 
   // Memoize current match
   const currentMatch = useMemo(() => {
@@ -320,7 +299,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, []);
 
   // Loading state with proper skeleton
-  if (loading) {
+  if (loading || isLoading) {
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🔄 RENDERING: Loading state");
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
