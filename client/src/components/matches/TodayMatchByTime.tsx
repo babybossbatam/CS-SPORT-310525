@@ -9,7 +9,7 @@ import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyImage from "../common/LazyImage";
-import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
+import CombinedLeagueCards from "./CombinedLeagueCards";
 import "../../styles/MyLogoPositioning.css";
 
 interface TodayMatchByTimeProps {
@@ -175,8 +175,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         </Card>
       )}
 
-      {/* Use existing TodayPopularFootballLeaguesNew component */}
-      <TodayPopularFootballLeaguesNew
+      {/* Use new CombinedLeagueCards component */}
+      <CombinedLeagueCards
         selectedDate={selectedDate}
         timeFilterActive={timeFilterActive}
         showTop20={true}
