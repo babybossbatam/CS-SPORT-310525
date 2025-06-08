@@ -9,6 +9,8 @@ import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
 import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/MyAPIFallback';
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -35,9 +37,22 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // ONLY use props fixtures - never fetch independently
-  // This ensures we use the exact same data as TodayPopularFootballLeaguesNew
-  const allFixtures = propsFixtures || [];
+  // Fetch fixtures only if not provided via props (same logic as LiveMatchByTime)
+  const { data: fetchedFixtures = [], isLoading } = useQuery({
+    queryKey: ["fixtures-date", selectedDate],
+    queryFn: async () => {
+      console.log("🕐 [TodayMatchByTime] Fetching fixtures for date:", selectedDate);
+      const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}`);
+      const data = await response.json();
+      return data || [];
+    },
+    enabled: !propsFixtures, // Only fetch if props not provided
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Use props fixtures if available, otherwise use fetched fixtures
+  const allFixtures = propsFixtures || fetchedFixtures;
 
   console.log(`🕐 [TodayMatchByTime] Using ${allFixtures.length} fixtures from props`);
 
@@ -135,8 +150,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     }
   };
 
-  // Show loading only if we don't have any fixtures from props
-  if (!propsFixtures) {
+  // Show loading if we don't have props and are still fetching
+  if (!propsFixtures && isLoading) {
     return (
       <Card>
         <CardHeader className="pb-4">
