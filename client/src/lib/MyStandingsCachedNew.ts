@@ -349,6 +349,32 @@ class StandingsCache {
           return anyCached.data;
         }
         
+        // If no cache available but this is a popular league, provide minimal fallback data
+        if (isPopularLeague) {
+          const leagueNames = {
+            39: 'Premier League',
+            140: 'La Liga', 
+            135: 'Serie A',
+            78: 'Bundesliga',
+            61: 'Ligue 1',
+            2: 'UEFA Champions League',
+            3: 'UEFA Europa League'
+          };
+          
+          console.warn(`🏆 Creating minimal fallback data for popular league ${leagueId}`);
+          return {
+            league: {
+              id: leagueId,
+              name: leagueNames[leagueId] || `League ${leagueId}`,
+              country: 'Unknown',
+              logo: '',
+              flag: '',
+              season: new Date().getFullYear(),
+              standings: [[]]
+            }
+          };
+        }
+        
         // If no cache available, return null
         console.warn(`❌ No cached data available for league ${leagueId} and ${errorType.toLowerCase()}`);
         return null;

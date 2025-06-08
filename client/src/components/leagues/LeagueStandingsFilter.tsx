@@ -78,6 +78,21 @@ const LeagueStandingsFilter = () => {
         }
       } catch (error) {
         console.error('Failed to load league data:', error);
+        
+        // Fallback to popular leagues if network fails
+        const fallbackLeagues = [
+          { id: 39, name: 'Premier League', logo: '', country: 'England' },
+          { id: 140, name: 'La Liga', logo: '', country: 'Spain' },
+          { id: 135, name: 'Serie A', logo: '', country: 'Italy' },
+          { id: 78, name: 'Bundesliga', logo: '', country: 'Germany' },
+          { id: 61, name: 'Ligue 1', logo: '', country: 'France' },
+        ];
+        
+        setPopularLeagues(fallbackLeagues);
+        
+        // Set default to Premier League
+        setSelectedLeague('39');
+        setSelectedLeagueName('Premier League');
       } finally {
         setLeaguesLoading(false);
       }

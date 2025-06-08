@@ -585,6 +585,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
       console.error(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
       
+      // Log additional context for debugging
+      console.error(`🔍 Request details: URL=${url}, Method=${method}`);
+      
       // Create a proper error response object that indicates network failure
       const createNetworkErrorResponse = (): Response => ({
         ok: false,
@@ -598,9 +601,10 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         bodyUsed: false,
         json: async () => ({ 
           error: true, 
-          message: 'Network connectivity failed',
+          message: 'Network connectivity failed - please check your connection',
           details: fetchErrorMessage,
-          networkError: true
+          networkError: true,
+          endpoint: endpoint
         }),
         text: async () => `Network Error: ${fetchErrorMessage}`,
         blob: async () => new Blob(),
