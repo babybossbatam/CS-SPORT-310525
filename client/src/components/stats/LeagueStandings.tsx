@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import LeagueStatsPanel from './LeagueStatsPanel';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 
 interface Team {
   id: number;
@@ -88,7 +88,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
   const [, navigate] = useLocation();
   const [view, setView] = useState<'overall' | 'home' | 'away'>('overall');
 
-  const { data, isLoading } = useLeagueStandings(leagueId, season);
+  const { data, isLoading } = useQuery({
+    queryKey: ['league-standings', leagueId, season],
+    queryFn: async () => {
+      const response = await fetch(`/api/standings?league=${leagueId}&season=${season}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    },
+  });
 
   if (isLoading) {
     return (
