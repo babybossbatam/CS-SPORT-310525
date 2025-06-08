@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { debugLogger } from "./lib/debugLogger";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { usePrefetchStandings } from '@/lib/MyStandingsCachedNew';
+
 import React from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
@@ -83,13 +83,6 @@ const preloadData = () => {
 }
 
 function AppContent() {
-  const { prefetchPopularLeaguesStandings } = usePrefetchStandings();
-
-  // Prefetch popular leagues standings on app start
-  React.useEffect(() => {
-    prefetchPopularLeaguesStandings();
-  }, [prefetchPopularLeaguesStandings]);
-
   return (
     <Router />
   );
