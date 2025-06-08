@@ -108,7 +108,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     }
 
     // Apply smart time filtering
-    const timeFiltered = MySmartTimeFilter(fixtures, selectedDate);
+    const timeFilterResult = MySmartTimeFilter.filterTodayFixtures(fixtures, selectedDate);
+    const timeFiltered = timeFilterResult.todayFixtures;
     console.log(`📊 [TodayMatchByTime] After time filtering: ${timeFiltered.length} fixtures`);
 
     // Apply exclusion filtering if needed
