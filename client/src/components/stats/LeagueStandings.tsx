@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLeagueStandings } from '@/lib/MyStandingsCachedNew';
+import { useLeagueStandings } from '@/lib/SimpleStandingsCache';
 import LeagueStatsPanel from './LeagueStatsPanel';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

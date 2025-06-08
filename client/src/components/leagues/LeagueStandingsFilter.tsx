@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { usePopularLeagueStandings, useLeagueStandings } from '@/lib/MyStandingsCachedNew';
+import { useLeagueStandings } from '@/lib/SimpleStandingsCache';
 import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
 import { format, parseISO } from 'date-fns';
 import { 
@@ -58,14 +58,14 @@ const LeagueStandingsFilter = () => {
       try {
         setLeaguesLoading(true);
         const leagues = await getPopularLeagues();
-        
+
         // Process leagues to ensure we have proper names and logos
         const processedLeagues = leagues.map((league) => ({
           ...league,
           // Ensure we have a proper name, fallback to a meaningful default
           name: league.name || `${league.country} League`
         }));
-        
+
         setPopularLeagues(processedLeagues);
 
         // Set default selection to first league with valid ID
@@ -78,7 +78,7 @@ const LeagueStandingsFilter = () => {
         }
       } catch (error) {
         console.error('Failed to load league data:', error);
-        
+
         // Fallback to popular leagues if network fails
         const fallbackLeagues = [
           { id: 39, name: 'Premier League', logo: '', country: 'England' },
@@ -87,9 +87,9 @@ const LeagueStandingsFilter = () => {
           { id: 78, name: 'Bundesliga', logo: '', country: 'Germany' },
           { id: 61, name: 'Ligue 1', logo: '', country: 'France' },
         ];
-        
+
         setPopularLeagues(fallbackLeagues);
-        
+
         // Set default to Premier League
         setSelectedLeague('39');
         setSelectedLeagueName('Premier League');
@@ -202,7 +202,7 @@ const LeagueStandingsFilter = () => {
               Error loading standings: {standingsError.message}
             </div>
           )}
-          
+
           {!standingsLoading && !standingsError && (!standings?.league?.standings?.[0] || standings.league.standings[0].length === 0) && (
             <div className="text-center py-4 text-gray-500">
               No standings data available for this league.

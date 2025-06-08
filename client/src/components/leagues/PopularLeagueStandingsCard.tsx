@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-import { usePremierLeagueStandings } from '@/lib/MyStandingsCachedNew';
+import { usePremierLeagueStandings } from '@/lib/SimpleStandingsCache';
 
 const PopularLeagueStandingsCard = () => {
   const { data } = usePremierLeagueStandings({
