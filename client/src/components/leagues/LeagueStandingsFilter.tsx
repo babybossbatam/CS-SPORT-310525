@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { usePopularLeagueStandings, useLeagueStandings } from '@/lib/MyStandingsCachedNew';
+import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
 import { format, parseISO } from 'date-fns';
 import { 
   Select,
@@ -22,12 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-interface LeagueData {
-  id: number;
-  name: string;
-  logo: string;
-}
 
 interface Standing {
   rank: number;
@@ -58,36 +53,36 @@ const LeagueStandingsFilter = () => {
   const [selectedLeagueName, setSelectedLeagueName] = useState('');
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
-  const getPopularLeagues = async () => {
-    const response = await fetch('/api/leagues');
-    if (!response.ok) {
-      throw new Error('Failed to fetch leagues');
-    }
-    return response.json();
-  };
-
-  const loadLeagues = async () => {
-    try {
-      setLeaguesLoading(true);
-      const leagues = await getPopularLeagues();
-      setPopularLeagues(leagues);
-
-      // Set default selection to first league with valid ID
-      if (leagues.length > 0) {
-        const firstValidLeague = leagues.find(league => league && league.id && league.name);
-        if (firstValidLeague) {
-          setSelectedLeague(firstValidLeague.id.toString());
-          setSelectedLeagueName(firstValidLeague.name);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load league data:', error);
-    } finally {
-      setLeaguesLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadLeagues = async () => {
+      try {
+        setLeaguesLoading(true);
+        const leagues = await getPopularLeagues();
+        
+        // Process leagues to ensure we have proper names and logos
+        const processedLeagues = leagues.map((league) => ({
+          ...league,
+          // Ensure we have a proper name, fallback to a meaningful default
+          name: league.name || `${league.country} League`
+        }));
+        
+        setPopularLeagues(processedLeagues);
+
+        // Set default selection to first league with valid ID
+        if (processedLeagues.length > 0) {
+          const firstValidLeague = processedLeagues.find(league => league && league.id && league.name);
+          if (firstValidLeague) {
+            setSelectedLeague(firstValidLeague.id.toString());
+            setSelectedLeagueName(firstValidLeague.name);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load league data:', error);
+      } finally {
+        setLeaguesLoading(false);
+      }
+    };
+
     loadLeagues();
   }, []);
 
