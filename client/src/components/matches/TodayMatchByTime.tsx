@@ -6,7 +6,6 @@ import { Clock, Calendar, Star } from "lucide-react";
 import { format, parseISO, isValid, differenceInHours, subDays, addDays } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
-import { useTodayPopularFixtures } from "../../hooks/useTodayPopularFixtures";
 import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
@@ -36,13 +35,11 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // Fetch fixtures only if not provided via props (same pattern as LiveMatchByTime)
-  const { filteredFixtures: fetchedFixtures, isLoading } = useTodayPopularFixtures(selectedDate);
+  // ONLY use props fixtures - never fetch independently
+  // This ensures we use the exact same data as TodayPopularFootballLeaguesNew
+  const allFixtures = propsFixtures || [];
 
-  // Use props fixtures if available, otherwise use fetched fixtures
-  const allFixtures = propsFixtures || fetchedFixtures;
-
-  console.log(`🕐 [TodayMatchByTime] Using ${allFixtures.length} fixtures ${propsFixtures ? 'from props' : 'from hook'}`);
+  console.log(`🕐 [TodayMatchByTime] Using ${allFixtures.length} fixtures from props`);
 
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
@@ -167,8 +164,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     }
   };
 
-  // Show loading only if we're actually loading and don't have any cached data
-  if (isLoading && !allFixtures.length) {
+  // Show loading only if we don't have any fixtures from props
+  if (!propsFixtures) {
     return (
       <Card>
         <CardHeader className="pb-4">
