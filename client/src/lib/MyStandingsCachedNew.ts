@@ -362,7 +362,7 @@ class StandingsCache {
             3: 'UEFA Europa League'
           };
           
-          console.warn(`🏆 Creating minimal fallback data for popular league ${leagueId}`);
+          console.log(`🏆 Creating minimal fallback data for popular league ${leagueId} due to ${errorType.toLowerCase()}`);
           return {
             league: {
               id: leagueId,
@@ -376,8 +376,8 @@ class StandingsCache {
           };
         }
         
-        // If no cache available, return null
-        console.warn(`❌ No cached data available for league ${leagueId} and ${errorType.toLowerCase()}`);
+        // If no cache available, return null gracefully without logging as error
+        console.log(`📭 No cached data available for league ${leagueId}, returning null due to ${errorType.toLowerCase()}`);
         return null;
       }
 

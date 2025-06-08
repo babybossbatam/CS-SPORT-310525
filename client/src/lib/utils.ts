@@ -596,38 +596,30 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
           continue;
         }
         
-        // Last attempt failed
-        console.error(`🌐 Fetch failed for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
+        // Last attempt failed - create a proper error response that won't throw
+        console.warn(`🌐 Network failure for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
         
-        // Create a proper error response object that indicates network failure
-        const createNetworkErrorResponse = (): Response => ({
-          ok: false,
-          status: 0, // Status 0 indicates network failure
-          statusText: 'Network Error',
-          headers: new Headers(),
-          redirected: false,
-          type: 'error',
-          url: '',
-          body: null,
-          bodyUsed: false,
-          json: async () => ({ 
+        // Create a synthetic response that mimics a failed fetch but doesn't throw
+        const networkErrorResponse = new Response(
+          JSON.stringify({ 
             error: true, 
             message: 'Network connectivity failed - please check your connection',
             details: fetchErrorMessage,
             networkError: true,
             endpoint: endpoint,
             attempts: maxRetries + 1
-          }),
-          text: async () => `Network Error: ${fetchErrorMessage}`,
-          blob: async () => new Blob(),
-          arrayBuffer: async () => new ArrayBuffer(0),
-          formData: async () => new FormData(),
-          clone: function() {
-            return createNetworkErrorResponse();
+          }), 
+          {
+            status: 0, // Status 0 indicates network failure
+            statusText: 'Network Error',
+            headers: new Headers({ 'Content-Type': 'application/json' })
           }
-        } as Response);
+        );
 
-        return createNetworkErrorResponse();
+        // Override the ok property to indicate failure
+        Object.defineProperty(networkErrorResponse, 'ok', { value: false, writable: false });
+        
+        return networkErrorResponse;
       }
 
       clearTimeout(timeoutId);
