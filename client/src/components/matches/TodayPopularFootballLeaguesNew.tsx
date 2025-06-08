@@ -258,6 +258,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
+    // Show cached data immediately if available
+    const displayFixtures = fixtures.length > 0 ? fixtures : (cachedFixtures || []);
+
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
@@ -917,6 +920,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       .filter((countryData) => Object.keys(countryData.leagues).length > 0);
   }, [timeFilteredCountries, liveFilterActive]);
 
+```text
   // Apply top 20 filters (by default)
   const top20FilteredCountries = useMemo(() => {
     if (!showTop20) return liveFilteredCountries;
@@ -1819,7 +1823,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "ABD",
                                         "SUSP",
                                         "AWD",
-                                        "WO",
+                                        "WO,
                                       ].includes(status)
                                     ) {
                                       const statusText =
