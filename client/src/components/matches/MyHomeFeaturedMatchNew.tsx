@@ -36,14 +36,70 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Combine all fixtures
     const allFixtures = [...fixtures, ...liveFixtures];
 
-    // Popular leagues for prioritization
-    const popularLeagues = [
-      "Premier League", "La Liga", "Serie A", "Bundesliga", "Ligue 1",
-      "UEFA Champions League", "UEFA Europa League", "UEFA Nations League",
-      "Major League Soccer", "Primera A"
+    // MECHANISM 1: League Tier Classification
+    const topTierLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+    const internationalTournaments = [2, 3, 848]; // Champions League, Europa League, Conference League
+    const popularDomesticLeagues = [13, 71, 253, 88, 94]; // Ligue 1, Brasil Serie A, MLS, Eredivisie, Primera Division
+
+    // MECHANISM 2: Team Popularity Index
+    const worldClassTeams = [
+      // Premier League giants
+      33, 34, 40, 42, 47, 50, // Manchester United, Manchester City, Liverpool, Arsenal, Chelsea, Tottenham
+      // La Liga giants  
+      529, 541, 530, // Barcelona, Real Madrid, Atletico Madrid
+      // Serie A giants
+      489, 487, 496, // AC Milan, Juventus, Inter
+      // Bundesliga giants
+      157, 165, 173, // Bayern Munich, Borussia Dortmund, RB Leipzig
+      // International stars
+      85, 81, 79 // PSG, Monaco, Lyon
     ];
 
-    // Filter for featured matches
+    // MECHANISM 3: Match Status Priority System
+    const getMatchStatusPriority = (status: string) => {
+      if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) return 10; // Live matches
+      if (status === "NS") return 8; // Upcoming matches
+      if (["FT", "AET", "PEN"].includes(status)) return 6; // Recently finished
+      return 0;
+    };
+
+    // MECHANISM 4: Geographic & Cultural Relevance
+    const getGeographicScore = (country: string, leagueName: string) => {
+      const topCountries = ["england", "spain", "italy", "germany", "france"];
+      const majorCountries = ["brazil", "argentina", "netherlands", "portugal", "united states"];
+      const internationalKeywords = ["uefa", "fifa", "champions", "europa", "world cup", "nations league"];
+      
+      const countryLower = country.toLowerCase();
+      const leagueLower = leagueName.toLowerCase();
+      
+      if (topCountries.includes(countryLower)) return 10;
+      if (majorCountries.includes(countryLower)) return 8;
+      if (internationalKeywords.some(keyword => leagueLower.includes(keyword))) return 9;
+      return 3;
+    };
+
+    // MECHANISM 5: Time Relevance & Recency Scoring
+    const getTimeRelevanceScore = (fixtureDate: string, status: string) => {
+      const now = new Date();
+      const matchDate = new Date(fixtureDate);
+      const hoursDiff = Math.abs((now.getTime() - matchDate.getTime()) / (1000 * 60 * 60));
+      
+      // Live matches get maximum score
+      if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) return 10;
+      
+      // Upcoming matches within 6 hours
+      if (status === "NS" && hoursDiff <= 6) return 9;
+      
+      // Matches within 24 hours
+      if (hoursDiff <= 24) return 7;
+      
+      // Matches within 48 hours
+      if (hoursDiff <= 48) return 5;
+      
+      return 2;
+    };
+
+    // Apply all 5 filtering mechanisms
     const filtered = allFixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.teams?.home?.name || !fixture?.teams?.away?.name) {
         return false;
@@ -54,7 +110,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       if (!isValidDate) return false;
 
-      // Apply exclusion filters but be more permissive
+      // Apply basic exclusion filters
       if (shouldExcludeFromPopularLeagues(
         fixture.league.name,
         fixture.teams.home.name,
@@ -66,23 +122,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const leagueId = fixture.league?.id;
       const country = fixture.league?.country?.toLowerCase() || "";
       const leagueName = fixture.league?.name?.toLowerCase() || "";
+      const status = fixture.fixture?.status?.short || "";
 
-      // Check if it's a popular league
-      const isPopularLeague = popularLeagues.some(league => 
-        leagueName.includes(league.toLowerCase())
-      );
+      // Calculate composite scores using all 5 mechanisms
+      let totalScore = 0;
 
-      // Popular countries
-      const popularCountries = [
-        "england", "spain", "italy", "germany", "france", "brazil", "argentina",
-        "netherlands", "portugal", "united states", "mexico"
-      ];
+      // Mechanism 1: League Tier Score
+      if (topTierLeagues.includes(leagueId)) totalScore += 10;
+      else if (internationalTournaments.includes(leagueId)) totalScore += 9;
+      else if (popularDomesticLeagues.includes(leagueId)) totalScore += 7;
 
-      const isFromPopularCountry = popularCountries.some(
-        (popularCountry) => country.includes(popularCountry.toLowerCase()),
-      );
+      // Mechanism 2: Team Popularity Score
+      const homeTeamId = fixture.teams?.home?.id;
+      const awayTeamId = fixture.teams?.away?.id;
+      if (worldClassTeams.includes(homeTeamId) || worldClassTeams.includes(awayTeamId)) {
+        totalScore += 8;
+      }
 
-      // Check if it's an international competition (be more inclusive)
+      // Mechanism 3: Match Status Score
+      totalScore += getMatchStatusPriority(status);
+
+      // Mechanism 4: Geographic Score
+      totalScore += getGeographicScore(country, leagueName);
+
+      // Mechanism 5: Time Relevance Score
+      totalScore += getTimeRelevanceScore(fixture.fixture.date, status);
+
+      // Additional quality filters
       const isInternationalCompetition =
         leagueName.includes("champions league") ||
         leagueName.includes("europa league") ||
@@ -90,43 +156,59 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         leagueName.includes("uefa") ||
         leagueName.includes("nations league") ||
         leagueName.includes("world cup") ||
-        leagueName.includes("fifa club world cup") ||
-        leagueName.includes("fifa") ||
         leagueName.includes("copa america") ||
-        leagueName.includes("copa libertadores") ||
-        leagueName.includes("copa sudamericana") ||
-        leagueName.includes("libertadores") ||
-        leagueName.includes("sudamericana") ||
-        leagueName.includes("qualification") ||
-        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
-        (leagueName.includes("international") && !leagueName.includes("women")) ||
-        country.includes("world") ||
-        country.includes("europe") ||
-        country.includes("international");
+        leagueName.includes("copa libertadores");
 
-      // Be more inclusive - if it matches any criteria, include it
-      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
+      // Minimum threshold: matches must score at least 15 points OR be international competitions
+      return totalScore >= 15 || isInternationalCompetition;
     });
 
-    // Sort by priority: live matches first, then popular leagues, then by date
+    // Calculate comprehensive scores for sorting using all 5 mechanisms
+    const calculateMatchScore = (fixture: any) => {
+      const leagueId = fixture.league?.id;
+      const country = fixture.league?.country?.toLowerCase() || "";
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+      const status = fixture.fixture?.status?.short || "";
+      const homeTeamId = fixture.teams?.home?.id;
+      const awayTeamId = fixture.teams?.away?.id;
+
+      let score = 0;
+
+      // Mechanism 1: League Tier Score
+      if (topTierLeagues.includes(leagueId)) score += 10;
+      else if (internationalTournaments.includes(leagueId)) score += 9;
+      else if (popularDomesticLeagues.includes(leagueId)) score += 7;
+
+      // Mechanism 2: Team Popularity Score
+      if (worldClassTeams.includes(homeTeamId) || worldClassTeams.includes(awayTeamId)) {
+        score += 8;
+      }
+
+      // Mechanism 3: Match Status Score
+      score += getMatchStatusPriority(status);
+
+      // Mechanism 4: Geographic Score
+      score += getGeographicScore(country, leagueName);
+
+      // Mechanism 5: Time Relevance Score
+      score += getTimeRelevanceScore(fixture.fixture.date, status);
+
+      return score;
+    };
+
+    // Sort by comprehensive score (highest first), then by date
     const sorted = filtered.sort((a, b) => {
-      const aIsLive = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(a.fixture.status?.short);
-      const bIsLive = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(b.fixture.status?.short);
+      const scoreA = calculateMatchScore(a);
+      const scoreB = calculateMatchScore(b);
 
-      if (aIsLive && !bIsLive) return -1;
-      if (!aIsLive && bIsLive) return 1;
+      if (scoreA !== scoreB) return scoreB - scoreA;
 
-      const aIsPopular = popularLeagues.some(league => 
-        a.league.name.toLowerCase().includes(league.toLowerCase())
-      );
-      const bIsPopular = popularLeagues.some(league => 
-        b.league.name.toLowerCase().includes(league.toLowerCase())
-      );
+      // If scores are equal, prioritize by date proximity
+      const dateA = new Date(a.fixture.date).getTime();
+      const dateB = new Date(b.fixture.date).getTime();
+      const now = Date.now();
 
-      if (aIsPopular && !bIsPopular) return -1;
-      if (!aIsPopular && bIsPopular) return 1;
-
-      return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+      return Math.abs(dateA - now) - Math.abs(dateB - now);
     });
 
     const result = sorted.slice(0, maxMatches);
