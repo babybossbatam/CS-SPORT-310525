@@ -1,0 +1,68 @@
+4:19:04 AM [vite] Internal server error: /home/runner/workspace/client/src/components/matches/TodayMatchPageCard.tsx: Unexpected keyword 'const'. (27:0)
+
+  25 |
+  26 | // Wrapper component to share data between TodayPopularFootballLeaguesNew and TodayMatchByTime
+> 27 | const TodayMatchByTimeWithData = ({ selectedDate, timeFilterActive, liveFilterActive }: any) => {
+     | ^
+  28 |   // Fetch the same data that TodayPopularFootballLeaguesNew uses
+  29 |   const today = new Date().toISOString().slice(0, 10);
+  30 |   const isToday = selectedDate === today;
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/components/matches/TodayMatchPageCard.tsx:27:0
+  25 |  
+  26 |  // Wrapper component to share data between TodayPopularFootballLeaguesNew and TodayMatchByTime
+  27 |  const TodayMatchByTimeWithData = ({ selectedDate, timeFilterActive, liveFilterActive }: any) => {
+     |  ^
+  28 |    // Fetch the same data that TodayPopularFootballLeaguesNew uses
+  29 |    const today = new Date().toISOString().slice(0, 10);
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1497:19)
+      at checkReservedWord (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2796:12)
+      at checkReservedWord (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2809:15)
+      at parseObjectProperty (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2281:12)
+      at parseObjPropValue (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2327:12)
+      at parseObjPropValue (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3518:20)
+      at parsePropertyDefinition (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2174:17)
+      at parseObjectLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2046:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1159:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:583:22)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:714:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3607:22)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3117:12)
+      at parseMaybeAssignAllowIn (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at parseParenAndDistinguishExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1771:16)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1131:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:583:22)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:714:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3607:22)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3112:16)
+      at parseMaybeAssignAllowIn (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at parseVar (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1563:18)
+      at parseVarStatement (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1227:10)
+      at parseVarStatement (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3007:33)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:566:21)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3056:20)
+      at parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:437:17)
+      at parseStatementListItem (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:386:17)
+      at parseExportDeclaration (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:2595:17)
+      at parseExportDeclaration (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3306:15)
+      at maybeParseExportDeclaration (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:2517:31)
+      at parseExport (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:2401:29)
+      at parseExport (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2968:22)
+Failed running 'server/index.ts'
