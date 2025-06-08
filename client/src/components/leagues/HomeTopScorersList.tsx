@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useCachedQuery } from '@/lib/cachingHelper';
 import { useLocation } from 'wouter';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { TrendingUp } from 'lucide-react';

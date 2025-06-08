@@ -19,6 +19,7 @@ import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularLeagueStandingsCard from '@/components/leagues/PopularLeagueStandingsCard';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
+import CacheMonitor from '@/components/debug/CacheMonitor';
 
 import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
 import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
@@ -473,6 +474,7 @@ const Home = () => {
       </div>
 
       <RegionModal />
+      <CacheMonitor />
     </>
   );
 };

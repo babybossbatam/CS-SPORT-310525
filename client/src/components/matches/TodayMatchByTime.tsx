@@ -2,13 +2,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Calendar, Star } from "lucide-react";
+import { Clock, Calendar, Star, Database, Activity } from "lucide-react";
 import { format, parseISO, isValid, differenceInHours, subDays, addDays } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { isToday, isYesterday, isTomorrow } from "@/lib/dateUtilsUpdated";
 import "../../styles/MyLogoPositioning.css";
 import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "../../lib/teamLogoSources";
+import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
+import { apiRequest } from "@/lib/queryClient";
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -24,6 +26,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   todayPopularFixtures: propsFixtures,
 }) => {
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [showCacheStats, setShowCacheStats] = useState(false);
 
   const toggleStarMatch = (fixtureId: number) => {
     const newStarred = new Set(starredMatches);
@@ -35,11 +38,63 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // ONLY use props fixtures - never fetch independently
-  // This ensures we use the exact same data as TodayPopularFootballLeaguesNew
-  const allFixtures = propsFixtures || [];
+  // Determine cache settings based on date
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === today;
+  const isFuture = selectedDate > today;
+  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+  const fixturesQueryKey = ["today-match-by-time", selectedDate];
 
-  console.log(`🕐 [TodayMatchByTime] Using ${allFixtures.length} fixtures from props`);
+  // Use cached query to fetch fixtures with smart caching
+  const {
+    data: cachedFixtures = [],
+    isLoading: isCachedLoading,
+    isFetching: isCachedFetching,
+  } = useCachedQuery(
+    fixturesQueryKey,
+    async () => {
+      console.log(`🔄 [TodayMatchByTime] Fetching cached data for date: ${selectedDate}`);
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
+      const data = await response.json();
+      console.log(`✅ [TodayMatchByTime] Received ${data?.length || 0} cached fixtures for ${selectedDate}`);
+      return data;
+    },
+    {
+      enabled: !!selectedDate && !propsFixtures, // Only fetch if we don't have props fixtures
+      maxAge: cacheMaxAge,
+      backgroundRefresh: false,
+      staleTime: cacheMaxAge,
+      gcTime: cacheMaxAge * 2,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  );
+
+  // Use either props fixtures or cached fixtures
+  const allFixtures = propsFixtures || cachedFixtures;
+  const isLoading = propsFixtures ? false : isCachedLoading;
+
+  // Get cache statistics for debugging
+  const cacheStats = useMemo(() => {
+    return CacheManager.getCacheStats();
+  }, [selectedDate]);
+
+  // Check if current data is from cache
+  const isFromCache = useMemo(() => {
+    return CacheManager.getCachedData(fixturesQueryKey, cacheMaxAge) !== null;
+  }, [fixturesQueryKey, cacheMaxAge]);
+
+  console.log(`🕐 [TodayMatchByTime] Using ${allFixtures.length} fixtures`, {
+    source: propsFixtures ? 'props' : 'cached',
+    isFromCache,
+    cacheAge: cacheMaxAge,
+    isLoading,
+    isFetching: isCachedFetching
+  });
 
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
@@ -209,9 +264,66 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   return (
     <>
-      {/* Header Section */}
-      <div className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        {getHeaderTitle()}
+      {/* Header Section with Cache Info */}
+      <div className="flex items-center justify-between p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        <div className="flex items-center gap-2">
+          <span>{getHeaderTitle()}</span>
+          {isFromCache && (
+            <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+              <Database className="h-3 w-3" />
+              Cached
+            </div>
+          )}
+          {isCachedFetching && (
+            <div className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+              <Activity className="h-3 w-3 animate-spin" />
+              Fetching
+            </div>
+          )}
+        </div>
+        
+        <button
+          onClick={() => setShowCacheStats(!showCacheStats)}
+          className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded border"
+        >
+          Cache Stats
+        </button>
+      </div>
+
+      {/* Cache Statistics Panel (toggleable) */}
+      {showCacheStats && (
+        <div className="bg-gray-50 border border-gray-200 p-3 text-xs space-y-2">
+          <div className="font-semibold text-gray-700">Cache Statistics:</div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div>Total Queries: {cacheStats.totalQueries}</div>
+              <div>Fresh Queries: {cacheStats.freshQueries}</div>
+              <div>Stale Queries: {cacheStats.staleQueries}</div>
+            </div>
+            <div>
+              <div>Failed Queries: {cacheStats.failedQueries}</div>
+              <div>Source: {propsFixtures ? 'Props' : 'Cached Query'}</div>
+              <div>Cache Age: {Math.round(cacheMaxAge / 60000)}min</div>
+            </div>
+          </div>
+          {cacheStats.newestQuery && (
+            <div>
+              Last Update: {format(cacheStats.newestQuery, 'HH:mm:ss')}
+            </div>
+          )}
+          <div className="text-green-600">
+            Data Status: {isFromCache ? '✅ From Cache' : '🔄 Fresh Fetch'} 
+            ({allFixtures.length} fixtures)
+          </div>
+        </div>
+      )}
+      
+      {/* Data Source Debug Info */}
+      <div className="bg-blue-50 border border-blue-200 p-2 text-xs text-blue-700">
+        📊 Data: {allFixtures.length} fixtures | 
+        Source: {propsFixtures ? '📥 Props' : '💾 Cache'} | 
+        Cache: {isFromCache ? '✅ Hit' : '❌ Miss'} | 
+        Loading: {isLoading ? '⏳ Yes' : '✅ No'}
       </div>
       
       {/* Single consolidated card with ALL matches sorted by league A-Z, then by status priority */}
