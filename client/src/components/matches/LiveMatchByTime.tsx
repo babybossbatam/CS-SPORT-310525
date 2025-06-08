@@ -10,7 +10,7 @@ import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyImage from "../common/LazyImage";
 import "../../styles/MyLogoPositioning.css";
-import { useCentralData } from "@/lib/central-data-provider";
+import { useCentralData } from '@/providers/CentralDataProvider';
 
 interface LiveMatchByTimeProps {
   refreshInterval?: number;
