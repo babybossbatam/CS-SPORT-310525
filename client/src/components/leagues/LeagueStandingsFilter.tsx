@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { usePopularLeagueStandings, useLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import { getPopularLeagues, LeagueData } from '@/lib/leagueDataCache';
 import { format, parseISO } from 'date-fns';
 import { 
@@ -104,9 +103,18 @@ const LeagueStandingsFilter = () => {
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  const { data: standings, isLoading: standingsLoading } = useLeagueStandings(
-    selectedLeague && selectedLeague !== '' ? parseInt(selectedLeague) : 0
-  );
+  const { data: standings, isLoading: standingsLoading } = useQuery({
+    queryKey: ['standings', selectedLeague, todayDateKey],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
+      return response.json();
+    },
+    enabled: !!selectedLeague && selectedLeague !== '',
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
     queryKey: ['fixtures', selectedLeague, todayDateKey],
