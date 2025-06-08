@@ -10,6 +10,7 @@ import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyImage from "../common/LazyImage";
 import "../../styles/MyLogoPositioning.css";
+import { useCentralData } from "@/lib/central-data-provider";
 
 interface LiveMatchByTimeProps {
   refreshInterval?: number;
@@ -42,25 +43,8 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // Fetch live fixtures only if not provided via props
-  const { data: fetchedFixtures = [], isLoading } = useQuery({
-    queryKey: ["live-fixtures-all-countries"],
-    queryFn: async () => {
-      console.log("Fetching live fixtures for all countries");
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-
-      console.log(`Received ${data.length} live fixtures`);
-      return data;
-    },
-    staleTime: 30000, // 30 seconds
-    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: enableFetching && !propsFixtures, // Only fetch if no props data
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
-  });
+  // Use central live data cache
+  const { liveFixtures: fetchedFixtures, isLoading, error } = useCentralData();
 
   // Use props data if available, otherwise use fetched data
   const fixtures = propsFixtures || fetchedFixtures;
@@ -124,7 +108,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   const allMatches = allFixtures.map((fixture: any) => {
     const today = new Date();
     const todayString = format(today, 'yyyy-MM-dd');
-    
+
     const smartResult = MySmartTimeFilter.getSmartTimeLabel(
       fixture.fixture.date,
       fixture.fixture.status.short,

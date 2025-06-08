@@ -10,12 +10,14 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Create rate limiting map
+// Simplified rate limiting for non-central requests
 const requestTimestamps = new Map<string, number>();
-const MIN_REQUEST_INTERVAL = 1800000; // 30 minutes minimum between same requests
+const MIN_REQUEST_INTERVAL = 600000; // 10 minutes for non-central requests
 
-// Helper to check rate limit
 const checkRateLimit = (key: string) => {
+  // Skip rate limiting for central cache keys
+  if (key.includes('central-')) return true;
+  
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
 

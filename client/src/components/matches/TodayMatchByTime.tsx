@@ -11,6 +11,7 @@ import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyImage from "../common/LazyImage";
 import CombinedLeagueCards from "./CombinedLeagueCards";
 import "../../styles/MyLogoPositioning.css";
+import { useCentralData } from '@/providers/CentralDataProvider';
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -93,6 +94,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       topCountries,
     };
   }, [processedLiveFixtures]);
+
+  // Use central data cache
+  const { fixtures: allFixtures, liveFixtures, isLoading: isLoadingAllFixtures, error } = useCentralData();
+  const allFixturesError = error;
 
   const isLoading = liveLoading;
 

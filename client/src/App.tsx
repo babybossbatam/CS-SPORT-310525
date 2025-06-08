@@ -1,4 +1,3 @@
-
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
 import { setupGlobalErrorHandlers } from './lib/errorHandler';
+import { CentralDataProvider } from './providers/CentralDataProvider';
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -114,9 +114,11 @@ function App() {
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
         <QueryClientProvider client={queryClient}>
-          <Provider store={store}>
-            <AppContent />
-          </Provider>
+          <CentralDataProvider selectedDate={new Date().toISOString().slice(0, 10)}>
+            <Provider store={store}>
+              <AppContent />
+            </Provider>
+          </CentralDataProvider>
         </QueryClientProvider>
       </main>
     </TooltipProvider>

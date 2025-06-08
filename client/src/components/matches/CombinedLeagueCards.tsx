@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
@@ -17,9 +15,9 @@ import {
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
-import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
 import { POPULAR_LEAGUES } from "@/lib/constants";
+import { useCentralData } from '@/providers/CentralDataProvider';
 import {
   DEFAULT_POPULAR_TEAMS,
   DEFAULT_POPULAR_LEAGUES,
@@ -166,44 +164,19 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
-  // Fetch all fixtures for the selected date with smart caching
-  const {
-    data: fixtures = [],
-    isLoading,
-    isFetching,
-  } = useCachedQuery(
-    fixturesQueryKey,
-    async () => {
-      console.log(`🔄 [CombinedLeagueCards] Fetching fresh data for date: ${selectedDate}`);
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
-      console.log(`✅ [CombinedLeagueCards] Received ${data?.length || 0} fixtures for ${selectedDate}`);
-      return data;
-    },
-    {
-      enabled: !!selectedDate && enableFetching,
-      maxAge: cacheMaxAge,
-      backgroundRefresh: false,
-      staleTime: cacheMaxAge,
-      gcTime: cacheMaxAge * 2,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
+  // Use central data cache
+  const { fixtures: allFixtures, isLoading: isLoadingAllFixtures, error } = useCentralData();
+  const allFixturesError = error;
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
+    if (!allFixtures?.length) return [];
 
     console.log(
-      `🔍 [CombinedLeagueCards] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [CombinedLeagueCards] Processing ${allFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     const startTime = Date.now();
@@ -218,7 +191,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
-    const filtered = fixtures.filter((fixture) => {
+    const filtered = allFixtures.filter((fixture) => {
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -388,11 +361,11 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     const endTime = Date.now();
 
     console.log(
-      `🔍 [CombinedLeagueCards] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [CombinedLeagueCards] Filtered ${allFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
 
     return finalFiltered;
-  }, [fixtures, selectedDate]);
+  }, [allFixtures, selectedDate]);
 
   // Group fixtures by country and league
   const fixturesByCountry = filteredFixtures.reduce(
@@ -746,10 +719,10 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   }, []);
 
   // Show loading only if we're actually loading and don't have any cached data
-  const showLoading = (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
+  const showLoading = (isLoadingAllFixtures && !allFixtures?.length);
 
   if (showLoading) {
-    console.log(`⏳ [CombinedLeagueCards] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`);
+    console.log(`⏳ [CombinedLeagueCards] Showing loading for ${selectedDate} - isLoading: ${isLoadingAllFixtures}, allFixturesLength: ${allFixtures?.length || 0}`);
 
     return (
       <Card>
@@ -803,7 +776,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   // Collect all matches from all leagues and countries into a single array
   const allMatches = useMemo(() => {
     const matches: any[] = [];
-    
+
     top20FilteredCountries.forEach((countryData: any) => {
       Object.values(countryData.leagues).forEach((leagueData: any) => {
         leagueData.matches.forEach((match: any) => {
@@ -927,7 +900,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         {getHeaderTitle()}
       </CardHeader>
-      
+
       {/* Single Combined Card with All Matches */}
       <Card className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4">
         <CardContent className="p-0">
@@ -970,7 +943,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                       <div
                         className={`home-team-name ${
                           match.goals.home !== null &&
-                          match.goals.away !== null &&
+                          match.goals.away !==null &&
                           match.goals.home > match.goals.away
                             ? "winner"
                             : ""
