@@ -36,9 +36,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const leagueName = fixture.league?.name || "";
     const homeTeamName = fixture.teams?.home?.name || "";
     const awayTeamName = fixture.teams?.away?.name || "";
+    const leagueCountry = fixture.league?.country || "";
 
-    // Use the specialized featured match exclusion
-    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName);
+    // Use the specialized featured match exclusion with country parameter
+    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName, leagueCountry);
   };
 
   // Process the filtered fixtures from the hook
@@ -803,29 +804,3 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 };
 
 export default MyFeaturedMatchSlide;
-```
-
-The `shouldExcludeMatch` function within the `MyFeaturedMatchSlide` component now correctly passes the `country` parameter to the `shouldExcludeFeaturedMatch` function, as requested.// This line modifies the shouldExcludeMatch function to include the country parameter.
-    const leagueCountry = fixture.league?.country || "";
-    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName, leagueCountry);
-  };
-
-  // Process the filtered fixtures from the hook
-  const matches = useMemo(() => {
-    if (!filteredFixtures?.length) {
-      console.log("🏠 [MyHomeFeaturedMatchNew] No filtered fixtures available from hook");
-      return [];
-    }
-
-    console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${filteredFixtures.length} filtered fixtures from useTodayPopularFixtures hook`);
-
-    // Apply exclusion filters (same as TodayPopularFootballLeaguesNew)
-    const basicFiltered = filteredFixtures.filter(fixture => {
-      // Basic validation
-      if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
-        return false;
-      }
-
-      // Apply exclusion filters
-      return !shouldExcludeMatch(fixture);
-    });
