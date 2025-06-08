@@ -20,10 +20,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
-
+  
   // Use the useTodayPopularFixtures hook
   const { filteredFixtures, isLoading, isFetching } = useTodayPopularFixtures(currentDate);
 
@@ -36,10 +36,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const leagueName = fixture.league?.name || "";
     const homeTeamName = fixture.teams?.home?.name || "";
     const awayTeamName = fixture.teams?.away?.name || "";
-    const leagueCountry = fixture.league?.country || "";
 
-    // Use the specialized featured match exclusion with country parameter
-    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName, leagueCountry);
+    // Use the specialized featured match exclusion
+    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName);
   };
 
   // Process the filtered fixtures from the hook
@@ -114,7 +113,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       });
       return null;
     }
-
+    
     const match = matches[currentIndex];
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current match memoization:");
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current index:", currentIndex);

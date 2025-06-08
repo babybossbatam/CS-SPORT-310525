@@ -55,41 +55,7 @@ export const lowerTierLeagueTerms = [
   // Specific lower-tier indicators
   'segunda b', 'tercera', 'cuarta',
   'division 3', 'division 4', 'division 5',
-  'liga regional', 'liga provincial',
-
-  // Russian lower tiers (specifically for current matches showing)
-  'second league', 'second league -', 'second league a',
-  'second league b', 'second league group',
-  'third league', 'fourth league',
-  'pfl', 'professional football league',
-
-  // German lower tiers
-  'oberliga', 'regionalliga', 'verbandsliga',
-  'landesliga', 'bezirksliga', 'kreisliga',
-
-  // English lower tiers
-  'conference', 'isthmian', 'northern premier',
-  'southern league', 'national league north',
-  'national league south', 'step',
-
-  // Italian lower tiers
-  'serie c', 'serie d', 'eccellenza',
-  'promozione', 'prima categoria',
-
-  // Spanish lower tiers
-  'segunda rfef', 'tercera rfef',
-  'regional preferente', 'primera regional',
-
-  // French lower tiers
-  'national 2', 'national 3',
-  'regional', 'championnat national',
-
-  // General lower tier patterns
-  'group 1', 'group 2', 'group 3', 'group 4',
-  'group 5', 'group 6', 'group 7', 'group 8',
-  'zone', 'section', 'pool',
-  'spring season', 'autumn season',
-  'gold', 'silver', 'bronze'
+  'liga regional', 'liga provincial'
 ];
 
 // Teams that should be excluded from featured matches (reserve teams, etc.)
@@ -106,25 +72,17 @@ export const excludedTeamPatterns = [
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
  * @param awayTeamName - The name of the away team
- * @param country - The country/region of the competition (optional)
  * @returns true if the fixture should be excluded, false otherwise
  */
 export const shouldExcludeFeaturedMatch = (
   leagueName: string, 
   homeTeamName: string, 
-  awayTeamName: string,
-  country?: string
+  awayTeamName: string
 ): boolean => {
   // Convert to lowercase for case-insensitive matching
   const league = leagueName.toLowerCase();
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
-  const countryLower = (country || '').toLowerCase();
-
-  // NEVER exclude World competitions - these are major international events
-  if (countryLower === 'world' || countryLower.includes('world')) {
-    return false;
-  }
 
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition = 
