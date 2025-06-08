@@ -196,7 +196,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
   const isFuture = selectedDate > today;
-  
+
   // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
   const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
 
@@ -981,10 +981,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Show loading only if we're actually loading and don't have any cached data
   const showLoading = (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
-  
+
   if (showLoading) {
     console.log(`⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`);
-    
+
     return (
       <Card>
         <CardHeader className="pb-4">
@@ -1280,7 +1280,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           }`}
                         />
                       </button>
-                      
+
                       <img
                         src={
                           leagueData.league.logo ||
@@ -1837,8 +1837,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     <LazyImage
                                       src={
                                         match.teams.away.id
-                                          ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                          : "/assets/fallback-logo.svg"
+                                          ? `/api/team-logo/square/${match.teams.away.id}?size=32                                          : "/assets/fallback-logo.svg"
                                       }
                                       alt={match.teams.away.name}
                                       title={match.teams.away.name}
