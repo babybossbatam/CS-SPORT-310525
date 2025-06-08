@@ -1,12 +1,7 @@
-
 import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
-import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyMatchItem from "./LazyMatchItem";
@@ -17,12 +12,15 @@ interface TodayMatchByTimeProps {
   selectedDate?: string;
   timeFilterActive?: boolean;
   liveFilterActive?: boolean;
+  // Accept the filtered data from TodayPopularFootballLeaguesNew
+  fixturesByCountry?: any[];
 }
 
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   selectedDate,
   timeFilterActive = false,
   liveFilterActive = false,
+  fixturesByCountry = [],
 }) => {
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
@@ -38,91 +36,33 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     });
   };
 
-  // Use current date if selectedDate is not provided
-  const currentDate = selectedDate || new Date().toISOString().slice(0, 10);
-
-  // Fetch all fixtures for the selected date
-  const {
-    data: fixtures = [],
-    isLoading,
-  } = useQuery({
-    queryKey: ["all-fixtures-by-date", currentDate],
-    queryFn: async () => {
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${currentDate}?all=true`,
-      );
-      const data = await response.json();
-      return data;
-    },
-    enabled: !!currentDate,
-  });
-
-  // Filter and sort all matches by time
+  // Extract all matches from the country/league structure and sort by time
   const sortedMatches = useMemo(() => {
-    if (!fixtures?.length) return [];
+    if (!fixturesByCountry?.length) return [];
 
-    // Filter matches based on smart time filtering
-    const filtered = fixtures.filter((fixture: any) => {
-      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-        return false;
-      }
+    // Flatten all matches from all countries and leagues
+    const allMatches: any[] = [];
 
-      // Apply smart time filtering
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          currentDate + "T12:00:00Z",
-        );
-
-        // Check if this match should be included based on the selected date
-        const today = new Date().toISOString().slice(0, 10);
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowString = tomorrow.toISOString().slice(0, 10);
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = yesterday.toISOString().slice(0, 10);
-
-        const shouldInclude = (() => {
-          if (currentDate === tomorrowString && smartResult.label === "tomorrow") return true;
-          if (currentDate === today && smartResult.label === "today") return true;
-          if (currentDate === yesterdayString && smartResult.label === "yesterday") return true;
-          if (currentDate !== today && currentDate !== tomorrowString && currentDate !== yesterdayString) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
+    fixturesByCountry.forEach((countryData: any) => {
+      if (countryData.leagues) {
+        Object.values(countryData.leagues).forEach((leagueData: any) => {
+          if (leagueData.matches?.length) {
+            allMatches.push(...leagueData.matches);
           }
-          return false;
-        })();
-
-        if (!shouldInclude) return false;
+        });
       }
-
-      // Apply exclusion filters
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          fixture.league.country,
-        )
-      ) {
-        return false;
-      }
-
-      // Apply live filter if active
-      if (liveFilterActive) {
-        return (
-          fixture.fixture.status.short === "LIV" ||
-          fixture.fixture.status.short === "HT"
-        );
-      }
-
-      return true;
     });
 
+    // Apply live filter if active
+    const filteredMatches = liveFilterActive
+      ? allMatches.filter((match: any) => 
+          match.fixture.status.short === "LIV" || 
+          match.fixture.status.short === "HT"
+        )
+      : allMatches;
+
     // Sort all matches by time
-    return filtered.sort((a: any, b: any) => {
+    return filteredMatches.sort((a: any, b: any) => {
       const now = new Date();
       const aDate = parseISO(a.fixture.date);
       const bDate = parseISO(b.fixture.date);
@@ -178,20 +118,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       // DEFAULT: Sort by time
       return aTime - bTime;
     });
-  }, [fixtures, currentDate, liveFilterActive]);
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          Today's Matches by Time
-        </CardHeader>
-        <CardContent className="p-6 text-center">
-          <p className="text-gray-500">Loading matches...</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  }, [fixturesByCountry, liveFilterActive]);
 
   if (!sortedMatches.length) {
     return (
