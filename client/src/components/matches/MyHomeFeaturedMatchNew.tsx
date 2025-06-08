@@ -65,244 +65,68 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
-  // Get featured matches from TodayPopularFootballLeaguesNew cached data
+  // Get featured matches by directly accessing TodayPopularFootballLeaguesNew processed data
   useEffect(() => {
-    const getFeaturedMatches = async () => {
+    const getFeaturedMatches = () => {
       try {
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === STARTING FEATURED MATCH FETCH FROM POPULAR LEAGUES CACHE ===");
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current date:", currentDate);
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Max matches:", maxMatches);
-        
+        console.log("🏠 [MyHomeFeaturedMatchNew] === GETTING FEATURED MATCHES FROM TODAYPOPULARLEAGUE DATA ===");
         setLoading(true);
 
-        // Check cache first
-        const cacheKey = ["featured-matches-from-popular-cache", currentDate];
-        const cachedData = CacheManager.getCachedData(cacheKey, 10 * 60 * 1000); // 10 minutes cache
+        // Access the same cache that TodayPopularFootballLeaguesNew uses and processes
+        const popularLeaguesCacheKey = ["all-fixtures-by-date", currentDate];
+        const processedData = CacheManager.getCachedData(popularLeaguesCacheKey, 30 * 60 * 1000);
 
-        if (cachedData) {
-          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ CACHE HIT - Using cached featured matches");
-          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cached matches count:", cachedData.length);
-          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache data preview:", cachedData.slice(0, 2).map(m => ({
-            id: m.fixture?.id,
-            homeTeam: m.teams?.home?.name,
-            awayTeam: m.teams?.away?.name,
-            league: m.league?.name,
-            status: m.fixture?.status?.short
-          })));
-          
-          setMatches(cachedData);
-          setCurrentIndex(0);
+        if (!processedData || processedData.length === 0) {
+          console.log("🏠 [MyHomeFeaturedMatchNew] No processed data available from TodayPopularLeague");
+          setMatches([]);
           setLoading(false);
           return;
         }
 
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ CACHE MISS - Extracting from TodayPopularFootballLeaguesNew data");
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache key:", cacheKey);
+        console.log(`🏠 [MyHomeFeaturedMatchNew] Found ${processedData.length} processed matches`);
 
-        // Get dates for today, tomorrow, and day after tomorrow
-        const today = new Date();
-        const todayString = format(today, "yyyy-MM-dd");
-        const tomorrow = addDays(today, 1);
-        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-        const dayAfterTomorrow = addDays(today, 2);
-        const dayAfterTomorrowString = format(dayAfterTomorrow, "yyyy-MM-dd");
-
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Date processing:");
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Today:", todayString);
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Tomorrow:", tomorrowString);
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Day After Tomorrow:", dayAfterTomorrowString);
-
-        const allFeaturedMatches = [];
-        const seenMatches = new Set<string>();
-
-        // Extract matches from TodayPopularFootballLeaguesNew cache data for each date
-        const datesToFetch = [
-          { date: todayString, label: "Today" },
-          { date: tomorrowString, label: "Tomorrow" },
-          { date: dayAfterTomorrowString, label: "Day After Tomorrow" },
-        ];
-
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Processing dates:", datesToFetch.map(d => d.label));
-
-        for (const { date, label } of datesToFetch) {
-          try {
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] === PROCESSING ${label.toUpperCase()} (${date}) ===`);
-
-            // Use the same cache key that TodayPopularFootballLeaguesNew uses
-            const popularLeaguesCacheKey = ["all-fixtures-by-date", date];
-            let popularLeaguesData = CacheManager.getCachedData(
-              popularLeaguesCacheKey,
-              30 * 60 * 1000, // 30 minutes - same as TodayPopularFootballLeaguesNew
-            );
-
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Cache key for ${label}:`, popularLeaguesCacheKey);
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Raw cache data length for ${label}:`, popularLeaguesData?.length || 0);
-
-            if (!popularLeaguesData || popularLeaguesData.length === 0) {
-              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ No cached data for ${label} - SKIPPING`);
-              continue;
-            }
-
-            // Apply exclusion filter to get valid matches (same as TodayPopularFootballLeaguesNew)
-            const validMatches = popularLeaguesData.filter(
-              (fixture) => !shouldExcludeMatch(fixture),
-            );
-
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Valid matches after exclusion for ${label}:`, validMatches.length);
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Excluded ${popularLeaguesData.length - validMatches.length} matches for ${label}`);
-
-            // Analyze match statuses before prioritization
-            const statusCounts = validMatches.reduce((acc, match) => {
-              const status = match.fixture?.status?.short || 'UNKNOWN';
-              acc[status] = (acc[status] || 0) + 1;
-              return acc;
-            }, {});
-
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Match status breakdown for ${label}:`, statusCounts);
-
-            // Prioritize matches by:
-            // 1. Live matches first
-            // 2. Popular leagues (Champions League, Europa League, Premier League, etc.)
-            // 3. Popular teams
-            // 4. Upcoming matches in chronological order
-            const prioritizedMatches = validMatches.sort((a, b) => {
-              // Priority 1: Live matches
-              const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(a.fixture?.status?.short);
-              const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(b.fixture?.status?.short);
-
-              if (aLive && !bLive) return -1;
-              if (!aLive && bLive) return 1;
-
-              // Priority 2: Popular leagues (UEFA competitions, top 5 leagues)
-              const popularLeagueIds = [2, 3, 848, 39, 140, 135, 78, 61]; // Champions League, Europa League, Conference League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-              const aPopularLeague = popularLeagueIds.includes(a.league?.id);
-              const bPopularLeague = popularLeagueIds.includes(b.league?.id);
-
-              if (aPopularLeague && !bPopularLeague) return -1;
-              if (!aPopularLeague && bPopularLeague) return 1;
-
-              // Priority 3: By fixture date (earlier matches first for upcoming)
-              const aDate = new Date(a.fixture?.date || 0);
-              const bDate = new Date(b.fixture?.date || 0);
-              return aDate.getTime() - bDate.getTime();
-            });
-
-            // Analyze top matches after prioritization
-            const topMatches = prioritizedMatches.slice(0, 10);
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Top 10 prioritized matches for ${label}:`);
-            topMatches.forEach((match, idx) => {
-              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ${idx + 1}. ${match.teams?.home?.name} vs ${match.teams?.away?.name} (${match.league?.name}, Status: ${match.fixture?.status?.short})`);
-            });
-
-            // Take top matches for this date, avoiding duplicates
-            const matchesToAdd = [];
-            let duplicateCount = 0;
+        // Simple prioritization for featured display:
+        // 1. Live matches first
+        // 2. Popular leagues 
+        // 3. Upcoming matches
+        const featuredMatches = processedData
+          .filter(match => {
+            // Basic validation - data is already filtered by TodayPopularLeague
+            return match && match.teams && match.teams.home && match.teams.away && match.fixture && match.league;
+          })
+          .sort((a, b) => {
+            // Live matches first
+            const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(a.fixture?.status?.short);
+            const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(b.fixture?.status?.short);
             
-            for (const match of prioritizedMatches) {
-              const matchKey = `${match.fixture?.id}-${match.teams?.home?.name}-${match.teams?.away?.name}`;
+            if (aLive && !bLive) return -1;
+            if (!aLive && bLive) return 1;
 
-              if (seenMatches.has(matchKey)) {
-                duplicateCount++;
-                continue;
-              }
+            // Popular leagues priority
+            const popularLeagueIds = [2, 3, 848, 39, 140, 135, 78, 61];
+            const aPopular = popularLeagueIds.includes(a.league?.id);
+            const bPopular = popularLeagueIds.includes(b.league?.id);
+            
+            if (aPopular && !bPopular) return -1;
+            if (!aPopular && bPopular) return 1;
 
-              if (matchesToAdd.length < 4) {
-                seenMatches.add(matchKey);
-                matchesToAdd.push(match);
-              } else {
-                break;
-              }
-            }
+            // Sort by date
+            return new Date(a.fixture?.date || 0).getTime() - new Date(b.fixture?.date || 0).getTime();
+          })
+          .slice(0, maxMatches || 9); // Take top matches for carousel
 
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Duplicate detection for ${label}:`);
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] - Duplicates found: ${duplicateCount}`);
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] - Matches added: ${matchesToAdd.length}/4`);
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] - Total seen matches: ${seenMatches.size}`);
-
-            allFeaturedMatches.push(...matchesToAdd);
-
-            console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] Selected matches from ${label}:`);
-            matchesToAdd.forEach((match, idx) => {
-              console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ${idx + 1}. ${match.teams?.home?.name} vs ${match.teams?.away?.name} (ID: ${match.fixture?.id}, League: ${match.league?.name}, Status: ${match.fixture?.status?.short})`);
-            });
-          } catch (error) {
-            console.error(
-              `🔍 [FeaturedMatch] Error extracting data for ${date}:`,
-              error,
-            );
-          }
-        }
-
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === FINAL PROCESSING ===");
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Total collected matches:", allFeaturedMatches.length);
-
-        // Take first 9 matches total and validate
-        const finalMatches = allFeaturedMatches.slice(0, 9);
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Matches after slicing to 9:", finalMatches.length);
-
-        // Validate data structure
-        const validMatches = finalMatches.filter((match) => {
-          const isValid =
-            match &&
-            match.teams &&
-            match.teams.home &&
-            match.teams.away &&
-            match.fixture &&
-            match.league;
-
-          if (!isValid) {
-            console.warn("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ Invalid match data:", {
-              hasMatch: !!match,
-              hasTeams: !!match?.teams,
-              hasHome: !!match?.teams?.home,
-              hasAway: !!match?.teams?.away,
-              hasFixture: !!match?.fixture,
-              hasLeague: !!match?.league
-            });
-          }
-          return isValid;
-        });
-
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Valid matches after validation:", validMatches.length);
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Invalid matches removed:", finalMatches.length - validMatches.length);
-
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Final match summary:");
-        validMatches.forEach((match, idx) => {
-          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report] ${idx + 1}. ${match.teams?.home?.name} vs ${match.teams?.away?.name}`);
-          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    League: ${match.league?.name}`);
-          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    Status: ${match.fixture?.status?.short}`);
-          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    Date: ${match.fixture?.date}`);
-          console.log(`🏠 [MyHomeFeaturedMatchNew Debugging report]    ID: ${match.fixture?.id}`);
-        });
-
-        // Cache the result
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Caching results with key:", cacheKey);
-        CacheManager.setCachedData(cacheKey, validMatches);
-        backgroundCache.set(
-          `featured-matches-from-popular-cache-${currentDate}`,
-          validMatches,
-          10 * 60 * 1000,
-        );
-
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ Setting state with", validMatches.length, "matches");
-        setMatches(validMatches);
+        console.log(`🏠 [MyHomeFeaturedMatchNew] Selected ${featuredMatches.length} featured matches`);
+        
+        setMatches(featuredMatches);
         setCurrentIndex(0);
       } catch (error) {
-        console.error("🏠 [MyHomeFeaturedMatchNew Debugging report] ❌ ERROR occurred:", error);
-        console.error("🏠 [MyHomeFeaturedMatchNew Debugging report] Error details:", {
-          message: error.message,
-          stack: error.stack,
-          name: error.name
-        });
+        console.error("🏠 [MyHomeFeaturedMatchNew] Error getting featured matches:", error);
         setMatches([]);
       } finally {
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] === FETCH COMPLETED ===");
-        console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Setting loading to false");
         setLoading(false);
       }
     };
 
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚀 INITIATING getFeaturedMatches() from TodayPopularFootballLeaguesNew cache");
     getFeaturedMatches();
   }, [currentDate, maxMatches]);
 
