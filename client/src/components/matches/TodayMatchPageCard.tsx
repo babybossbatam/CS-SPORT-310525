@@ -345,7 +345,6 @@ export const TodayMatchPageCard = ({
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
-            onFixturesReady={setPopularLeagueFixtures}
           />
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
