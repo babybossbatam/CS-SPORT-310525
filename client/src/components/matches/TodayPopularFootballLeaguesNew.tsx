@@ -35,6 +35,7 @@ import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
+import { getCachedFixturesForDate, cacheFixturesForDate } from "@/lib/fixtureCache";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -920,7 +921,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       .filter((countryData) => Object.keys(countryData.leagues).length > 0);
   }, [timeFilteredCountries, liveFilterActive]);
 
-```text
   // Apply top 20 filters (by default)
   const top20FilteredCountries = useMemo(() => {
     if (!showTop20) return liveFilteredCountries;
