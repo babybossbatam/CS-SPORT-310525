@@ -1,16 +1,12 @@
-
 import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
-import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
+import { useTodayPopularFixtures } from "@/hooks/useTodayPopularFixtures";
 
 interface TodayMatchByTimeProps {
   selectedDate?: string;
@@ -40,121 +36,19 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   // Use current date if selectedDate is not provided
   const currentDate = selectedDate || new Date().toISOString().slice(0, 10);
 
-  const POPULAR_LEAGUES = [39, 140, 135, 78, 61, 2, 3, 848, 15, 914]; // Popular league IDs
-  const POPULAR_COUNTRIES_ORDER = [
-    "England", "Spain", "Italy", "Germany", "France", "World", "Europe",
-    "South America", "Brazil", "Saudi Arabia", "Egypt", "Colombia",
-    "United States", "USA", "US", "United Arab Emirates", "United-Arab-Emirates"
-  ];
+  // Import data from TodayPopularFootballLeaguesNew using the same hook
+  const { filteredFixtures, isLoading } = useTodayPopularFixtures(currentDate);
 
-  // Fetch all fixtures for the selected date
-  const {
-    data: fixtures = [],
-    isLoading,
-  } = useQuery({
-    queryKey: ["all-fixtures-by-date", currentDate],
-    queryFn: async () => {
-      const response = await apiRequest("GET", `/api/fixtures/date/${currentDate}?all=true`);
-      const data = await response.json();
-      return data;
-    },
-    enabled: !!currentDate,
-  });
-
-  // Filter and process all matches into a single list
+  // Process all matches into a single list
   const allMatches = useMemo(() => {
-    if (!fixtures?.length) return [];
-
-    const today = new Date();
-    const todayString = format(today, "yyyy-MM-dd");
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = format(yesterday, "yyyy-MM-dd");
-
-    const filtered = fixtures.filter((fixture: any) => {
-      // Apply smart time filtering
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          currentDate + "T12:00:00Z",
-        );
-
-        const shouldInclude = (() => {
-          if (currentDate === tomorrowString && smartResult.label === "tomorrow") return true;
-          if (currentDate === todayString && smartResult.label === "today") return true;
-          if (currentDate === yesterdayString && smartResult.label === "yesterday") return true;
-          if (
-            currentDate !== todayString &&
-            currentDate !== tomorrowString &&
-            currentDate !== yesterdayString
-          ) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
-          }
-          return false;
-        })();
-
-        if (!shouldInclude) return false;
-      }
-
-      // Filter for popular leagues and countries
-      const leagueId = fixture.league?.id;
-      const country = fixture.league?.country?.toLowerCase() || "";
-      const leagueName = fixture.league?.name?.toLowerCase() || "";
-
-      // Apply exclusion filters
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          country,
-        )
-      ) {
-        return false;
-      }
-
-      // Check if it's a popular league
-      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-
-      // Check if it's from a popular country
-      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-        (popularCountry) => country.includes(popularCountry.toLowerCase()),
-      );
-
-      // Check if it's an international competition
-      const isInternationalCompetition =
-        leagueName.includes("champions league") ||
-        leagueName.includes("europa league") ||
-        leagueName.includes("conference league") ||
-        leagueName.includes("uefa") ||
-        leagueName.includes("world cup") ||
-        leagueName.includes("fifa club world cup") ||
-        leagueName.includes("fifa") ||
-        leagueName.includes("conmebol") ||
-        leagueName.includes("copa america") ||
-        leagueName.includes("copa libertadores") ||
-        leagueName.includes("copa sudamericana") ||
-        leagueName.includes("libertadores") ||
-        leagueName.includes("sudamericana") ||
-        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
-        (leagueName.includes("international") && !leagueName.includes("women")) ||
-        country.includes("world") ||
-        country.includes("europe") ||
-        country.includes("international");
-
-      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
-    });
+    if (!filteredFixtures?.length) return [];
 
     // Apply live filter if active
     const liveFiltered = liveFilterActive
-      ? filtered.filter((match: any) => 
+      ? filteredFixtures.filter((match: any) => 
           match.fixture.status.short === "LIV" || match.fixture.status.short === "HT"
         )
-      : filtered;
+      : filteredFixtures;
 
     // Sort matches by priority: Live > Upcoming > Finished
     return liveFiltered.sort((a: any, b: any) => {
@@ -195,7 +89,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       const bDistance = Math.abs(bTime - nowTime);
       return aDistance - bDistance;
     });
-  }, [fixtures, currentDate, liveFilterActive]);
+  }, [filteredFixtures, liveFilterActive]);
 
   if (isLoading) {
     return (
