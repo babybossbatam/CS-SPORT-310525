@@ -106,17 +106,25 @@ export const excludedTeamPatterns = [
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
  * @param awayTeamName - The name of the away team
+ * @param country - The country/region of the competition (optional)
  * @returns true if the fixture should be excluded, false otherwise
  */
 export const shouldExcludeFeaturedMatch = (
   leagueName: string, 
   homeTeamName: string, 
-  awayTeamName: string
+  awayTeamName: string,
+  country?: string
 ): boolean => {
   // Convert to lowercase for case-insensitive matching
   const league = leagueName.toLowerCase();
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
+  const countryLower = (country || '').toLowerCase();
+
+  // NEVER exclude World competitions - these are major international events
+  if (countryLower === 'world' || countryLower.includes('world')) {
+    return false;
+  }
 
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition = 

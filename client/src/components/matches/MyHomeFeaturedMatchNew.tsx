@@ -20,10 +20,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
-  
+
   // Use the useTodayPopularFixtures hook
   const { filteredFixtures, isLoading, isFetching } = useTodayPopularFixtures(currentDate);
 
@@ -113,7 +113,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       });
       return null;
     }
-    
+
     const match = matches[currentIndex];
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current match memoization:");
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current index:", currentIndex);
@@ -803,3 +803,29 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 };
 
 export default MyFeaturedMatchSlide;
+```
+
+The `shouldExcludeMatch` function within the `MyFeaturedMatchSlide` component now correctly passes the `country` parameter to the `shouldExcludeFeaturedMatch` function, as requested.// This line modifies the shouldExcludeMatch function to include the country parameter.
+    const leagueCountry = fixture.league?.country || "";
+    return shouldExcludeFeaturedMatch(leagueName, homeTeamName, awayTeamName, leagueCountry);
+  };
+
+  // Process the filtered fixtures from the hook
+  const matches = useMemo(() => {
+    if (!filteredFixtures?.length) {
+      console.log("🏠 [MyHomeFeaturedMatchNew] No filtered fixtures available from hook");
+      return [];
+    }
+
+    console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${filteredFixtures.length} filtered fixtures from useTodayPopularFixtures hook`);
+
+    // Apply exclusion filters (same as TodayPopularFootballLeaguesNew)
+    const basicFiltered = filteredFixtures.filter(fixture => {
+      // Basic validation
+      if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
+        return false;
+      }
+
+      // Apply exclusion filters
+      return !shouldExcludeMatch(fixture);
+    });
