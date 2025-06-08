@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Clock, Trophy, Users } from "lucide-react";
@@ -72,7 +71,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       const today = new Date();
       const isToday = format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
       const isTomorrow = format(date, 'yyyy-MM-dd') === format(new Date(today.getTime() + 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
-      
+
       if (isToday) return 'Today';
       if (isTomorrow) return 'Tomorrow';
       return format(date, 'MMM dd, yyyy');
@@ -113,7 +112,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 <p className="text-2xl font-bold text-gray-800">{matchesData[0].totalMatches}</p>
                 <p className="text-sm text-gray-600">Total Matches</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
@@ -121,7 +120,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 <p className="text-2xl font-bold text-gray-800">{matchesData[0].liveMatches}</p>
                 <p className="text-sm text-gray-600">Live Now</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-2">
                   <Clock className="h-6 w-6 text-blue-600" />
@@ -129,7 +128,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 <p className="text-2xl font-bold text-gray-800">{matchesData[0].upcomingMatches}</p>
                 <p className="text-sm text-gray-600">Upcoming</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mx-auto mb-2">
                   <Users className="h-6 w-6 text-gray-600" />
@@ -144,7 +143,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
               <p className="text-gray-500">No matches available for this date</p>
             </div>
           )}
-          
+
           {/* Quick Stats */}
           {matchesData.length > 0 && !loading && (
             <div className="mt-6 pt-4 border-t border-blue-200">
