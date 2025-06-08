@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO, isValid, addDays } from "date-fns";
-import { useTodayPopularFixtures } from "@/hooks/useTodayPopularFixtures";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -20,289 +17,83 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Get current date if not provided
-  const currentDate = selectedDate || new Date().toISOString().split("T")[0];
-
-  // Use the useTodayPopularFixtures hook
-  const { filteredFixtures, isLoading, isFetching } = useTodayPopularFixtures(currentDate);
-
-  // Basic exclusion filter
-  const shouldExcludeMatch = (fixture: any) => {
-    if (!fixture || !fixture.league || !fixture.teams) {
-      return true;
-    }
-
-    const leagueName = (fixture.league?.name || "").toLowerCase();
-
-    // Exclude women's competitions
-    if (leagueName.includes("women")) {
-      return true;
-    }
-
-    // Exclude youth competitions
-    if (
-      leagueName.includes("u15") ||
-      leagueName.includes("u16") ||
-      leagueName.includes("u17") ||
-      leagueName.includes("u18") ||
-      leagueName.includes("u19") ||
-      leagueName.includes("u20") ||
-      leagueName.includes("u21") ||
-      leagueName.includes("u23") ||
-      leagueName.includes("youth") ||
-      leagueName.includes("junior") ||
-      leagueName.includes("reserve")
-    ) {
-      return true;
-    }
-
-    // Exclude non-competitive matches
-    if (leagueName.includes("friendlies") || leagueName.includes("friendly")) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const shouldExcludeFeaturedMatch = (
-    leagueName: string,
-    homeTeamName: string,
-    awayTeamName: string,
-    countryName: string
-  ): boolean => {
-    leagueName = leagueName.toLowerCase();
-    homeTeamName = homeTeamName.toLowerCase();
-    awayTeamName = awayTeamName.toLowerCase();
-    countryName = countryName.toLowerCase();
-  
-    const excludedKeywords = [
-      "women",
-      "u15",
-      "u16",
-      "u17",
-      "u18",
-      "u19",
-      "u20",
-      "u21",
-      "u23",
-      "youth",
-      "junior",
-      "reserve",
-      "friendlies",
-      "friendly",
-      "cup",
-    ];
-  
-    const excludedCountryKeywords = [
-        "cyprus",
-    ];
-  
-    if (excludedCountryKeywords.some(keyword => countryName.includes(keyword))) {
-        return true;
-    }
-
-    if (excludedKeywords.some(keyword => leagueName.includes(keyword))) {
-      return true;
-    }
-  
-    const excludedTeamKeywords = [
-      "youth",
-      "u15",
-      "u16",
-      "u17",
-      "u18",
-      "u19",
-      "u20",
-      "u21",
-      "u23",
-      "reserves",
-      "reserve",
-      "junior",
-    ];
-  
-    if (excludedTeamKeywords.some(keyword => homeTeamName.includes(keyword) || awayTeamName.includes(keyword))) {
-      return true;
-    }
-  
-    return false;
-  };
-
-  // Process the filtered fixtures from the hook
-  const matches = useMemo(() => {
-    if (!filteredFixtures?.length) {
-      console.log("🏠 [MyHomeFeaturedMatchNew] No filtered fixtures available from hook");
-      return [];
-    }
-
-    console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${filteredFixtures.length} filtered fixtures from useTodayPopularFixtures hook`);
-
-    // Apply ONLY featured match exclusions (not popular league exclusions)
-    const basicFiltered = filteredFixtures.filter(fixture => {
-      // Basic validation
-      if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
-        console.log(`🏠 [MyHomeFeaturedMatchNew] Filtering out invalid fixture:`, {
-          hasFixture: !!fixture,
-          hasLeague: !!fixture?.league,
-          hasTeams: !!fixture?.teams,
-          hasFixtureData: !!fixture?.fixture
-        });
-        return false;
-      }
-
-      // Apply only featured match exclusions (less restrictive)
-      const shouldExclude = shouldExcludeFeaturedMatch(
-        fixture.league?.name || '',
-        fixture.teams?.home?.name || '',
-        fixture.teams?.away?.name || '',
-        fixture.league?.country || ''
-      );
-
-      if (shouldExclude) {
-        console.log(`🏠 [MyHomeFeaturedMatchNew] Excluding match:`, {
-          league: fixture.league?.name,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name,
-          country: fixture.league?.country
-        });
-      }
-
-      return !shouldExclude;
-    });
-
-    console.log(`🏠 [MyHomeFeaturedMatchNew] After featured match filtering: ${basicFiltered.length} matches`);
-
-    // If no matches after filtering, use a more permissive approach
-    let finalFiltered = basicFiltered;
-    if (basicFiltered.length === 0) {
-      console.log(`🏠 [MyHomeFeaturedMatchNew] No matches after exclusions, applying basic filters only`);
-      finalFiltered = filteredFixtures.filter(fixture => {
-        if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
-          return false;
+  // Static sample matches for demonstration
+  const sampleMatches = [
+    {
+      fixture: {
+        id: 123456,
+        date: new Date().toISOString(),
+        status: { short: "NS" },
+        venue: { name: "Old Trafford" }
+      },
+      league: {
+        id: 39,
+        name: "Premier League",
+        logo: "https://media.api-sports.io/football/leagues/39.png",
+        country: "England"
+      },
+      teams: {
+        home: {
+          id: 33,
+          name: "Manchester United",
+          logo: "https://media.api-sports.io/football/teams/33.png"
+        },
+        away: {
+          id: 34,
+          name: "Liverpool",
+          logo: "https://media.api-sports.io/football/teams/34.png"
         }
-
-        // Only exclude obvious non-competitive matches
-        const leagueName = (fixture.league?.name || "").toLowerCase();
-        return !leagueName.includes("women") && 
-               !leagueName.includes("u15") && 
-               !leagueName.includes("u16") && 
-               !leagueName.includes("u17") && 
-               !leagueName.includes("u18") && 
-               !leagueName.includes("u19") && 
-               !leagueName.includes("u20") && 
-               !leagueName.includes("u21") && 
-               !leagueName.includes("friendly");
-      }).slice(0, 10); // Limit to 10 matches
-
-      console.log(`🏠 [MyHomeFeaturedMatchNew] Fallback filtering resulted in: ${finalFiltered.length} matches`);
+      },
+      goals: { home: null, away: null }
+    },
+    {
+      fixture: {
+        id: 123457,
+        date: new Date().toISOString(),
+        status: { short: "1H", elapsed: 45 },
+        venue: { name: "Santiago Bernabéu" }
+      },
+      league: {
+        id: 140,
+        name: "La Liga",
+        logo: "https://media.api-sports.io/football/leagues/140.png",
+        country: "Spain"
+      },
+      teams: {
+        home: {
+          id: 541,
+          name: "Real Madrid",
+          logo: "https://media.api-sports.io/football/teams/541.png"
+        },
+        away: {
+          id: 529,
+          name: "Barcelona",
+          logo: "https://media.api-sports.io/football/teams/529.png"
+        }
+      },
+      goals: { home: 1, away: 0 }
     }
+  ];
 
-    // Enhanced prioritization for featured matches
-    const featuredMatches = finalFiltered
-      .sort((a, b) => {
-        // Priority 1: Live matches first
-        const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(a.fixture?.status?.short);
-        const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(b.fixture?.status?.short);
+  const currentMatch = sampleMatches[currentIndex] || null;
 
-        if (aLive && !bLive) return -1;
-        if (!aLive && bLive) return 1;
+  const handlePrevious = () => {
+    if (sampleMatches.length <= 1) return;
+    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : sampleMatches.length - 1);
+  };
 
-        // Priority 2: Top tier leagues (Champions League, Premier League, etc.)
-        const topTierLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
-        const aTopTier = topTierLeagues.includes(a.league?.id);
-        const bTopTier = topTierLeagues.includes(b.league?.id);
+  const handleNext = () => {
+    if (sampleMatches.length <= 1) return;
+    setCurrentIndex(currentIndex < sampleMatches.length - 1 ? currentIndex + 1 : 0);
+  };
 
-        if (aTopTier && !bTopTier) return -1;
-        if (!aTopTier && bTopTier) return 1;
-
-        // Priority 3: Sort by date (earlier matches first)
-        return new Date(a.fixture?.date || 0).getTime() - new Date(b.fixture?.date || 0).getTime();
-      })
-      .slice(0, maxMatches || 9); // Take top matches for carousel
-
-    console.log(`🏠 [MyHomeFeaturedMatchNew] Selected ${featuredMatches.length} featured matches`);
-    return featuredMatches;
-  }, [filteredFixtures, maxMatches]);
-
-  // Memoize current match
-  const currentMatch = useMemo(() => {
-    if (!Array.isArray(matches) || matches.length === 0 || currentIndex < 0 || currentIndex >= matches.length) {
-      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Invalid array access:", {
-        isArray: Array.isArray(matches),
-        length: matches?.length || 0,
-        currentIndex,
-        isValidIndex: currentIndex >= 0 && currentIndex < (matches?.length || 0)
-      });
-      return null;
-    }
-
-    const match = matches[currentIndex];
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current match memoization:");
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current index:", currentIndex);
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Total matches:", matches.length);
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current match:", match ? {
-      homeTeam: match.teams?.home?.name,
-      awayTeam: match.teams?.away?.name,
-      league: match.league?.name,
-      status: match.fixture?.status?.short
-    } : null);
-    return match;
-  }, [matches, currentIndex]);
-
-  // Memoize match validation
-  const isValidMatch = useMemo(() => {
-    const isValid = currentMatch &&
-      currentMatch.teams &&
-      currentMatch.teams.home &&
-      currentMatch.teams.away &&
-      currentMatch.fixture &&
-      currentMatch.league;
-
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Match validation result:", isValid);
-    if (!isValid && currentMatch) {
-      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Validation failed - missing:", {
-        hasMatch: !!currentMatch,
-        hasTeams: !!currentMatch?.teams,
-        hasHome: !!currentMatch?.teams?.home,
-        hasAway: !!currentMatch?.teams?.away,
-        hasFixture: !!currentMatch?.teams?.away,
-        hasLeague: !!currentMatch?.league
-      });
-    }
-
-    return isValid;
-  }, [currentMatch]);
-
-  // Memoize navigation handlers
-  const handlePrevious = useCallback(() => {
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Previous button clicked");
-    if (matches.length <= 1) {
-      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cannot navigate - insufficient matches");
-      return;
-    }
-    const newIndex = currentIndex > 0 ? currentIndex - 1 : matches.length - 1;
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Navigating from index", currentIndex, "to", newIndex);
-    setCurrentIndex(newIndex);
-  }, [matches.length, currentIndex]);
-
-  const handleNext = useCallback(() => {
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Next button clicked");
-    if (matches.length <= 1) {
-      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cannot navigate - insufficient matches");
-      return;
-    }
-    const newIndex = currentIndex < matches.length - 1 ? currentIndex + 1 : 0;
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Navigating from index", currentIndex, "to", newIndex);
-    setCurrentIndex(newIndex);
-  }, [matches.length, currentIndex]);
-
-  const handleMatchClick = useCallback(() => {
-    if (isValidMatch && currentMatch.fixture.id) {
+  const handleMatchClick = () => {
+    if (currentMatch?.fixture?.id) {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
-  }, [isValidMatch, currentMatch, navigate]);
+  };
 
-  // Memoize match status functions for better performance
-  const getMatchStatus = useCallback((match) => {
+  const getMatchStatus = (match: any) => {
     if (!match) return "";
     const status = match.fixture.status.short;
     const elapsed = match.fixture.status.elapsed;
@@ -312,32 +103,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
     if (status === "HT") return "HT";
     if (status === "FT") return "FT";
-    if (status === "NS") {
-      const matchDate = new Date(match.fixture.date);
-      return format(matchDate, "HH:mm");
-    }
+    if (status === "NS") return "UPCOMING";
     return status;
-  }, []);
+  };
 
-  const getMatchStatusLabel = useCallback((match) => {
+  const getMatchStatusLabel = (match: any) => {
     if (!match) return "";
+    const status = match.fixture.status.short;
 
-    const { fixture } = match;
-
-    if (
-      ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(
-        fixture.status.short,
-      )
-    ) {
+    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
       return "LIVE";
-    } else if (fixture.status.short === "FT") {
+    } else if (status === "FT") {
       return "FINISHED";
     } else {
       return "UPCOMING";
     }
-  }, []);
+  };
 
-  const getTeamColor = useCallback((teamId) => {
+  const getTeamColor = (teamId: number) => {
     const colors = [
       "#6f7c93", // blue-gray
       "#8b0000", // dark red
@@ -346,124 +129,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       "#e63946", // red
     ];
     return colors[teamId % colors.length];
-  }, []);
+  };
 
-  // No error state needed - the hook handles errors internally
-
-  // Loading state with proper skeleton
-  if (isLoading || isFetching) {
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🔄 RENDERING: Loading state");
-    return (
-      <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
-        <Badge
-          variant="secondary"
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
-        >
-          Featured Match
-        </Badge>
-
-        {/* Skeleton loading content */}
-        <CardContent className="p-0">
-          {/* League info skeleton */}
-          <div className="bg-white p-2 mt-6 relative mt-4 mb-4">
-            <div className="flex items-center justify-center">
-              <div className="w-5 h-5 bg-gray-200 rounded mr-2 animate-pulse" />
-              <div className="h-4 bg-gray-200 rounded w-32 animate-pulse" />
-              <div className="h-6 bg-gray-200 rounded w-16 ml-2 animate-pulse" />
-            </div>
-          </div>
-
-          {/* Score display skeleton */}
-          <div className="match-score-container">
-            <div className="match-score-display mb-4 flex items-center justify-center">
-              <div className="h-8 bg-gray-200 rounded w-20 animate-pulse" />
-            </div>
-            <div className="match-status-label flex justify-center">
-              <div className="h-5 bg-gray-200 rounded w-16 animate-pulse" />
-            </div>
-          </div>
-
-          {/* Team scoreboard skeleton */}
-          <div className="relative px-6">
-            <div className="flex relative h-[53px] rounded-md mb-8">
-              <div className="w-full h-full flex justify-between relative">
-                {/* Home team skeleton */}
-                <div className="h-full w-[calc(50%-16px)] ml-[77px] bg-gray-300 animate-pulse relative">
-                  <div
-                    className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
-                    style={{
-                      top: "calc(50% - 32px)",
-                      left: "-32px",
-                    }}
-                  />
-                </div>
-
-                <div
-                  className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
-                  style={{
-                    top: "calc(50% - 12px)",
-                    left: "112px",
-                  }}
-                />
-
-                {/* VS circle skeleton */}
-                <div
-                  className="absolute bg-gray-300 rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 animate-pulse"
-                  style={{
-                    left: "calc(50% - 26px)",
-                    top: "calc(50% - 26px)",
-                  }}
-                >
-                  <div className="h-3 bg-gray-400 rounded w-6" />
-                </div>
-
-                {/* Away team skeleton */}
-                <div className="h-full w-[calc(50%-26px)] mr-[87px] bg-gray-300 animate-pulse" />
-
-                <div
-                  className="absolute bg-gray-200 rounded w-32 h-6 animate-pulse"
-                  style={{
-                    top: "calc(50% - 12px)",
-                    right: "130px",
-                  }}
-                />
-
-                <div
-                  className="absolute z-20 w-[64px] h-[64px] bg-gray-200 rounded-full animate-pulse"
-                  style={{
-                    top: "calc(50% - 32px)",
-                    right: "87px",
-                    transform: "translateX(50%)",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Match date skeleton */}
-            <div className="flex justify-center mt-8">
-              <div className="h-4 bg-gray-200 rounded w-48 animate-pulse" />
-            </div>
-          </div>
-
-          {/* Bottom navigation skeleton */}
-          <div className="flex justify-around border-t border-gray-200 pt-4 mt-12 pb-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex flex-col items-center w-1/4">
-                <div className="w-[18px] h-[18px] bg-gray-200 rounded animate-pulse mb-1" />
-                <div className="h-3 bg-gray-200 rounded w-12 animate-pulse" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // No matches state
-  if (!isValidMatch || matches.length === 0) {
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚫 RENDERING: No matches state");
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - isValidMatch:", isValidMatch);
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - matches.length:", matches.length);
+  if (!currentMatch || sampleMatches.length === 0) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge
@@ -485,21 +153,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     );
   }
 
-  console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ RENDERING: Success state");
-  console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Final render data:", {
-    currentIndex,
-    totalMatches: matches.length,
-    currentMatch: currentMatch ? {
-      id: currentMatch.fixture?.id,
-      homeTeam: currentMatch.teams?.home?.name,
-      awayTeam: currentMatch.teams?.away?.name,
-      league: currentMatch.league?.name,
-      status: currentMatch.fixture?.status?.short,
-      date: currentMatch.fixture?.date
-    } : null,
-    hasNavigation: matches.length > 1
-  });
-
   return (
     <Card className="px-0 pt-0 pb-2 relative shadow-md mb-8">
       <Badge
@@ -510,7 +163,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </Badge>
 
       {/* Navigation arrows */}
-      {matches.length > 1 && (
+      {sampleMatches.length > 1 && (
         <>
           <button
             onClick={(e) => {
@@ -586,22 +239,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           </div>
 
-          {/* Combined Score and Status Display */}
-          <div
-            className="score-area"
-            style={{
-              height: "80px",
-              gridArea: "score",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative",
-              fontSize: "calc(1.125rem * 0.968)",
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
+          {/* Score and Status Display */}
+          <div className="score-area h-20 flex flex-col justify-center items-center relative">
             {(() => {
               const status = currentMatch?.fixture?.status?.short;
               const elapsed = currentMatch?.fixture?.status?.elapsed;
@@ -609,57 +248,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const hasScore = currentMatch?.fixture?.status?.short &&
                 ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(status);
 
-              // Combined display logic
               if (hasScore) {
-                // Show status and score together
-                const statusText = (() => {
-                  if (["1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                    return `${elapsed || 0}'`;
-                  }
-                  if (status === "HT") return "HT";
-                  if (status === "FT") return "FT";
-                  if (status === "AET") return "AET";
-                  if (status === "PEN") return "PEN";
-                  return status || "";
-                })();
-
+                const statusText = getMatchStatus(currentMatch);
                 const scoreText = `${currentMatch?.goals?.home ?? 0}   -   ${currentMatch?.goals?.away ?? 0}`;
 
                 return (
-                  <div style={{ 
-                    color: isLive ? "#dc2626" : "#1a1a1a",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "2px"
-                  }}>
-                    <div style={{ 
-                      fontSize: "0.75rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px"
-                    }}>
+                  <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-900"}`}>
+                    <div className="text-xs uppercase tracking-wide">
                       {statusText}
                     </div>
-                    <div style={{ fontSize: "1.125rem" }}>
+                    <div className="text-lg font-semibold">
                       {scoreText}
                     </div>
                   </div>
                 );
               } else {
-                // Show only status for upcoming matches
-                const statusText = (() => {
-                  if (status === "NS") return "UPCOMING";
-                  return status || "UPCOMING";
-                })();
-
                 return (
-                  <div style={{ 
-                    color: "#6b7280",
-                    fontSize: "0.875rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px"
-                  }}>
-                    {statusText}
+                  <div className="text-gray-500 text-sm uppercase tracking-wide">
+                    UPCOMING
                   </div>
                 );
               }
@@ -668,48 +274,30 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           {/* Team scoreboard with colored bars */}
           <div className="relative">
-            <div
-              className="flex relative h-[53px] rounded-md mb-8"
-              onClick={handleMatchClick}
-              style={{ cursor: "pointer" }}
-            >
+            <div className="flex relative h-[53px] rounded-md mb-8 cursor-pointer">
               <div className="w-full h-full flex justify-between relative">
                 {/* Home team colored bar and logo */}
                 <div
                   className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
                   style={{
-                    background: getTeamColor(
-                      currentMatch?.teams?.home?.id || 0,
-                    ),
-                    transition: "all 0.3s ease-in-out",
+                    background: getTeamColor(currentMatch?.teams?.home?.id || 0),
                   }}
                 >
-                  {currentMatch?.teams?.home && (
-                    <img
-                      src={
-                        currentMatch.teams.home.logo ||
-                        `/assets/fallback-logo.svg`
-                      }
-                      alt={currentMatch.teams.home.name || "Home Team"}
-                      className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-opacity duration-200"
-                      style={{
-                        cursor: "pointer",
-                        top: "calc(50% - 32px)",
-                        left: "-32px",
-                        filter:
-                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                      }}
-                      onClick={handleMatchClick}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.src = "/assets/fallback-logo.svg";
-                      }}
-                      onLoad={(e) => {
-                        e.currentTarget.style.opacity = "1";
-                      }}
-                    />
-                  )}
+                  <img
+                    src={currentMatch?.teams?.home?.logo || `/assets/fallback-logo.svg`}
+                    alt={currentMatch?.teams?.home?.name || "Home Team"}
+                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                    style={{
+                      top: "calc(50% - 32px)",
+                      left: "-32px",
+                      filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                    }}
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.src = "/assets/fallback-logo.svg";
+                    }}
+                  />
                 </div>
 
                 <div
@@ -741,8 +329,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <div
                   className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
                   style={{
-                    background: getTeamColor(currentMatch.teams.away.id),
-                    transition: "all 0.3s ease-in-out",
+                    background: getTeamColor(currentMatch?.teams?.away?.id || 1),
                   }}
                 ></div>
 
@@ -759,71 +346,34 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 <img
-                  src={
-                    currentMatch?.teams?.away?.logo ||
-                    `/assets/fallback-logo.svg`
-                  }
+                  src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                   alt={currentMatch?.teams?.away?.name || "Away Team"}
-                  className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
                   style={{
-                    cursor: "pointer",
                     top: "calc(50% - 32px)",
                     right: "87px",
                     transform: "translateX(50%)",
-                    filter:
-                      "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                    filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                   }}
-                  onClick={handleMatchClick}
                   loading="lazy"
                   decoding="async"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                  onLoad={(e) => {
-                    e.currentTarget.style.opacity = "1";
                   }}
                 />
               </div>
             </div>
 
             {/* Match date and venue */}
-            <div
-              className="absolute text-center text-xs text-black font-medium"
+            <div className="absolute text-center text-sm text-black font-medium"
               style={{
-                fontSize: "0.875rem",
-                whiteSpace: "nowrap",
-                overflow: "visible",
-                textAlign: "center",
-                position: "flex",
                 left: "50%",
                 transform: "translateX(-50%)",
                 top: "calc(100% + 20px)",
                 width: "max-content",
-                fontFamily: "'Inter', system-ui, sans-serif",
               }}
             >
-              {(() => {
-                try {
-                  const matchDate = parseISO(currentMatch.fixture.date);
-                  const formattedDate = format(matchDate, "EEEE, do MMM");
-                  const timeOnly = format(matchDate, "HH:mm");
-                  const isUpcoming =
-                    currentMatch.fixture.status.short === "NS" ||
-                    currentMatch.fixture.status.short === "TBD";
-
-                  return (
-                    <>
-                      {formattedDate}
-                      {!isUpcoming && ` | ${timeOnly}`}
-                      {currentMatch.fixture.venue?.name
-                        ? ` | ${currentMatch.fixture.venue.name}`
-                        : ""}
-                    </>
-                  );
-                } catch (e) {
-                  return currentMatch.fixture.venue?.name || "";
-                }
-              })()}
+              Today | {currentMatch?.fixture?.venue?.name || "Stadium"}
             </div>
           </div>
 
@@ -844,8 +394,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 height="18"
                 className="text-gray-600"
               />
-              <span className="text-[0.75rem] text-gray-600 mt-1">Match Page
-              </span>
+              <span className="text-xs text-gray-600 mt-1">Match Page</span>
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
@@ -862,7 +411,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 height="18"
                 className="text-gray-600"
               />
-              <span className="text-[0.75rem] text-gray-600 mt-1">Lineups</span>
+              <span className="text-xs text-gray-600 mt-1">Lineups</span>
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
@@ -879,7 +428,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 height="18"
                 className="text-gray-600"
               />
-              <span className="text-[0.75rem] text-gray-600 mt-1">H2H</span>
+              <span className="text-xs text-gray-600 mt-1">H2H</span>
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
@@ -896,18 +445,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 height="18"
                 className="text-gray-600"
               />
-              <span className="text-[0.75rem] text-gray-600 mt-1">
-                Standings
-              </span>
+              <span className="text-xs text-gray-600 mt-1">Standings</span>
             </button>
           </div>
         </motion.div>
       </AnimatePresence>
 
       {/* Navigation dots */}
-      {matches.length > 1 && (
+      {sampleMatches.length > 1 && (
         <div className="flex justify-center gap-2 py-2 mt-2">
-          {matches.map((_, index) => (
+          {sampleMatches.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
