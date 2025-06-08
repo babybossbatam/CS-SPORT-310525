@@ -18,14 +18,16 @@ interface FixtureCacheStats {
 const FIXTURE_CACHE_CONFIG = {
   // Live/upcoming matches: 2 minutes (need frequent updates)
   LIVE_CACHE_DURATION: 2 * 60 * 1000,
-  // Recent finished matches: 30 minutes (scores might be updated)
-  RECENT_FINISHED_CACHE_DURATION: 30 * 60 * 1000,
+  // Recent finished matches: 1 hour (scores might be updated)
+  RECENT_FINISHED_CACHE_DURATION: 60 * 60 * 1000,
   // Old finished matches: 30 days (stable, no updates expected)
   OLD_FINISHED_CACHE_DURATION: 30 * 24 * 60 * 60 * 1000,
   // Yesterday and past dates: 7 days (finished matches are stable)
   PAST_DATE_CACHE_DURATION: 7 * 24 * 60 * 60 * 1000,
-  // Future matches: 6 hours (schedules can change)
-  FUTURE_CACHE_DURATION: 6 * 60 * 60 * 1000,
+  // Future matches: 4 hours (schedules rarely change)
+  FUTURE_CACHE_DURATION: 4 * 60 * 60 * 1000,
+  // Today's matches: 2 hours (some live updates needed)
+  TODAY_CACHE_DURATION: 2 * 60 * 60 * 1000,
   // Maximum cache size
   MAX_CACHE_SIZE: 10000,
   // Cleanup interval
@@ -94,8 +96,13 @@ class FixtureCache {
       return FIXTURE_CACHE_CONFIG.PAST_DATE_CACHE_DURATION;
     }
     
-    // Today and future dates get shorter cache duration
-    return FIXTURE_CACHE_CONFIG.LIVE_CACHE_DURATION;
+    // Today gets moderate cache (2 hours) for live updates
+    if (date === today) {
+      return FIXTURE_CACHE_CONFIG.TODAY_CACHE_DURATION;
+    }
+    
+    // Future dates get longer cache (4 hours) since they rarely change
+    return FIXTURE_CACHE_CONFIG.FUTURE_CACHE_DURATION;
   }
 
   /**

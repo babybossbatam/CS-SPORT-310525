@@ -192,13 +192,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
     548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
+  // Smart cache duration based on date type
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === today;
+  const isFuture = selectedDate > today;
+  
+  // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
+  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
   const cachedFixtures = CacheManager.getCachedData(
     fixturesQueryKey,
-    30 * 60 * 1000,
-  ); // 30 minutes
+    cacheMaxAge,
+  );
 
   // Fetch all fixtures for the selected date with smart caching
   const {
@@ -217,7 +225,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
     {
       enabled: !!selectedDate && enableFetching,
-      maxAge: 30 * 60 * 1000, // 30 minutes
+      maxAge: cacheMaxAge,
       backgroundRefresh: true,
     },
   );
