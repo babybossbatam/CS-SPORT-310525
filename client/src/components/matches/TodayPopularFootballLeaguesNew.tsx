@@ -1393,34 +1393,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           timeFilterActive && showTop20 ? 20 : undefined,
                         )
                         .sort((a: any, b: any) => {
-                          // When time filter is active, prioritize by time more strictly
-                          if (timeFilterActive) {
-                            const aDate = parseISO(a.fixture.date);
-                            const bDate = parseISO(b.fixture.date);
-                            const now = new Date();
-
-                            // Ensure valid dates
-                            if (!isValid(aDate) || !isValid(bDate)) {
-                              return 0;
-                            }
-
-                            const aTime = aDate.getTime();
-                            const bTime = bDate.getTime();
-                            const nowTime = now.getTime();
-
-                            // Calculate time distance from now
-                            const aDistance = Math.abs(aTime - nowTime);
-                            const bDistance = Math.abs(bTime - nowTime);
-
-                            // Prioritize matches closest to current time
-                            return aDistance - bDistance;
-                          }
-
-                          // NEW SORTING LOGIC: Priority-based with alphabetical ordering
-                          const aStatus = a.fixture.status.short;
-                          const bStatus = b.fixture.status.short;
+                          const now = new Date();
                           const aDate = parseISO(a.fixture.date);
                           const bDate = parseISO(b.fixture.date);
+                          const aStatus = a.fixture.status.short;
+                          const bStatus = b.fixture.status.short;
 
                           // Ensure valid dates
                           if (!isValid(aDate) || !isValid(bDate)) {
@@ -1429,6 +1406,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                           const aTime = aDate.getTime();
                           const bTime = bDate.getTime();
+                          const nowTime = now.getTime();
+
                           // Define status categories
                           const aLive = [
                             "LIVE",
@@ -1451,10 +1430,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             "INT",
                           ].includes(bStatus);
 
-                          const aUpcoming =
-                            aStatus === "NS" || aStatus === "TBD";
-                          const bUpcoming =
-                            bStatus === "NS" || bStatus === "TBD";
+                          const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+                          const bUpcoming = bStatus === "NS" || bStatus === "TBD";
 
                           const aFinished = [
                             "FT",
@@ -1481,54 +1458,40 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           if (aLive && !bLive) return -1;
                           if (!aLive && bLive) return 1;
 
-                          // If both are LIVE, sort by elapsed time (shortest first), then alphabetically by home team
+                          // If both are LIVE, sort by elapsed time (shortest first)
                           if (aLive && bLive) {
-                            const aElapsed =
-                              Number(a.fixture.status.elapsed) || 0;
-                            const bElapsed =
-                              Number(b.fixture.status.elapsed) || 0;
-
-                            if (aElapsed !== bElapsed) {
-                              return aElapsed - bElapsed;
-                            }
-
-                            // If same elapsed time, sort alphabetically by home team name
-                            const aHomeTeam = a.teams?.home?.name || "";
-                            const bHomeTeam = b.teams?.home?.name || "";
-                            return aHomeTeam.localeCompare(bHomeTeam);
+                            const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                            const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                            return aElapsed - bElapsed;
                           }
 
-                          // PRIORITY 2: Upcoming (NS/TBD) matches come second, sorted by time first, then alphabetically
+                          // PRIORITY 2: Upcoming matches, sorted by time proximity to current time
                           if (aUpcoming && !bUpcoming) return -1;
                           if (!aUpcoming && bUpcoming) return 1;
 
-                          // If both are upcoming, sort by time first, then alphabetically by home team
                           if (aUpcoming && bUpcoming) {
-                            if (aTime !== bTime) {
-                              return aTime - bTime; // Earlier matches first
-                            }
-
-                            // If same time, sort alphabetically by home team name
-                            const aHomeTeam = a.teams?.home?.name || "";
-                            const bHomeTeam = b.teams?.home?.name || "";
-                            return aHomeTeam.localeCompare(bHomeTeam);
+                            // Sort by time distance from now (nearest first)
+                            const aDistance = Math.abs(aTime - nowTime);
+                            const bDistance = Math.abs(bTime - nowTime);
+                            return aDistance - bDistance;
                           }
 
-                          // PRIORITY 3: Finished matches come last, sorted alphabetically by home team
+                          // PRIORITY 3: Recently finished matches, sorted by recency (most recent first)
                           if (aFinished && !bFinished) return 1;
                           if (!aFinished && bFinished) return -1;
 
-                          // If both are finished, sort alphabetically by home team name
                           if (aFinished && bFinished) {
-                            const aHomeTeam = a.teams?.home?.name || "";
-                            const bHomeTeam = b.teams?.home?.name || "";
-                            return aHomeTeam.localeCompare(bHomeTeam);
+                            // For finished matches, prioritize the most recently finished
+                            // (those closest to current time but in the past)
+                            const aDistance = Math.abs(nowTime - aTime);
+                            const bDistance = Math.abs(nowTime - bTime);
+                            return aDistance - bDistance;
                           }
 
-                          // DEFAULT: For any other cases, sort alphabetically by home team name
-                          const aHomeTeam = a.teams?.home?.name || "";
-                          const bHomeTeam = b.teams?.home?.name || "";
-                          return aHomeTeam.localeCompare(bHomeTeam);
+                          // DEFAULT: Sort by time proximity to current time
+                          const aDistance = Math.abs(aTime - nowTime);
+                          const bDistance = Math.abs(bTime - nowTime);
+                          return aDistance - bDistance;
                         })
                         .map((match: any) => (
                           <LazyMatchItem key={match.fixture.id}>
