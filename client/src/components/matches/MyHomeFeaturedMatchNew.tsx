@@ -6,13 +6,7 @@ import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isValid, addDays } from "date-fns";
-import { useCentralData } from '@/providers/CentralDataProvider';
-import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { CacheManager } from "@/lib/cachingHelper";
-import { backgroundCache } from "@/lib/backgroundCache";
-import { apiRequest } from "@/lib/queryClient";
-import { getCachedFixturesForDate, cacheFixturesForDate } from "@/lib/fixtureCache";
-import { useQueryClient } from "@tanstack/react-query";
+import { useTodayPopularFixtures } from "@/hooks/useTodayPopularFixtures";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -24,23 +18,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 1,
 }) => {
   const [, navigate] = useLocation();
-  const [loading, setLoading] = useState(false);
-  const [matches, setMatches] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const queryClient = useQueryClient();
-
-  // Function to get tomorrow's cached data from central provider
-  const getTomorrowsCachedData = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toISOString().split("T")[0];
-
-    return queryClient.getQueryData(['central-date-fixtures', tomorrowDate]);
-  };
-
+  
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
+  
+  // Use the useTodayPopularFixtures hook
+  const { filteredFixtures, isLoading, isFetching } = useTodayPopularFixtures(currentDate);
 
   // Basic exclusion filter
   const shouldExcludeMatch = (fixture: any) => {
@@ -80,132 +64,54 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
-  // Use central data cache like TodayMatchByTime
-  const { fixtures, liveFixtures, isLoading, error: centralError } = useCentralData();
+  // Process the filtered fixtures from the hook
+  const matches = useMemo(() => {
+    if (!filteredFixtures?.length) {
+      console.log("🏠 [MyHomeFeaturedMatchNew] No filtered fixtures available from hook");
+      return [];
+    }
 
-  console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${fixtures?.length || 0} fixtures from central cache`);
+    console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${filteredFixtures.length} filtered fixtures from useTodayPopularFixtures hook`);
 
-  // Get featured matches using the same filtering logic as TodayPopularFootballLeaguesNew
-  useEffect(() => {
-    const getFeaturedMatches = () => {
-      try {
-        console.log("🏠 [MyHomeFeaturedMatchNew] === APPLYING SAME FILTERING AS TODAYPOPULARLEAGUE ===");
-        setLoading(true);
-        setError(null);
-
-        if (!fixtures?.length) {
-          console.log("🏠 [MyHomeFeaturedMatchNew] No fixtures available from central cache");
-          setMatches([]);
-          setLoading(false);
-          return;
-        }
-
-        console.log(`🏠 [MyHomeFeaturedMatchNew] Found ${fixtures.length} fixtures from central data`);
-
-        // Apply smart time filtering first like TodayMatchByTime
-        const timeFilterResult = MySmartTimeFilter.filterTodayFixtures(fixtures, currentDate);
-        const timeFiltered = timeFilterResult.todayFixtures;
-        console.log(`🏠 [MyHomeFeaturedMatchNew] After time filtering: ${timeFiltered.length} fixtures`);
-
-        // Apply the same filtering logic as TodayPopularFootballLeaguesNew
-        const POPULAR_LEAGUES = [2, 3, 848, 39, 140, 135, 78, 61, 45, 48, 143, 137, 81, 66, 301, 233];
-        const POPULAR_COUNTRIES = ["England", "Spain", "Italy", "Germany", "France", "World", "Europe", "South America", "Brazil", "Saudi Arabia", "Egypt", "Colombia", "United States", "USA", "US", "United Arab Emirates"];
-
-        const filteredMatches = timeFiltered.filter(fixture => {
-          // Basic validation
-          if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
-            console.log("🏠 [MyHomeFeaturedMatchNew] Filtered out fixture due to missing data:", {
-              hasFixture: !!fixture,
-              hasLeague: !!fixture?.league,
-              hasTeams: !!fixture?.teams,
-              hasFixtureData: !!fixture?.fixture
-            });
-            return false;
-          }
-
-          // Apply exclusion filters (same as TodayPopularFootballLeaguesNew)
-          if (shouldExcludeMatch(fixture)) {
-            return false;
-          }
-
-          const leagueId = fixture.league?.id;
-          const country = fixture.league?.country?.toLowerCase() || "";
-          const leagueName = fixture.league?.name?.toLowerCase() || "";
-
-          // Check if it's a popular league
-          const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
-
-          // Check if it's from a popular country
-          const isFromPopularCountry = POPULAR_COUNTRIES.some(
-            (popularCountry) => country.includes(popularCountry.toLowerCase())
-          );
-
-          // Check if it's an international competition
-          const isInternationalCompetition =
-            leagueName.includes("champions league") ||
-            leagueName.includes("europa league") ||
-            leagueName.includes("conference league") ||
-            leagueName.includes("uefa") ||
-            leagueName.includes("world cup") ||
-            leagueName.includes("fifa") ||
-            leagueName.includes("conmebol") ||
-            leagueName.includes("copa america") ||
-            leagueName.includes("copa libertadores") ||
-            leagueName.includes("copa sudamericana") ||
-            country.includes("world") ||
-            country.includes("europe") ||
-            country.includes("international");
-
-          return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
-        });
-
-        console.log(`🏠 [MyHomeFeaturedMatchNew] Filtered to ${filteredMatches.length} matches`);
-
-        // Prioritize matches exactly like TodayPopularFootballLeaguesNew
-        const featuredMatches = filteredMatches
-          .sort((a, b) => {
-            // Priority 1: Live matches first
-            const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(a.fixture?.status?.short);
-            const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(b.fixture?.status?.short);
-
-            if (aLive && !bLive) return -1;
-            if (!aLive && bLive) return 1;
-
-            // Priority 2: Top tier leagues (Champions League, Premier League, etc.)
-            const topTierLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
-            const aTopTier = topTierLeagues.includes(a.league?.id);
-            const bTopTier = topTierLeagues.includes(b.league?.id);
-
-            if (aTopTier && !bTopTier) return -1;
-            if (!aTopTier && bTopTier) return 1;
-
-            // Priority 3: Popular leagues
-            const aPopular = POPULAR_LEAGUES.includes(a.league?.id);
-            const bPopular = POPULAR_LEAGUES.includes(b.league?.id);
-
-            if (aPopular && !bPopular) return -1;
-            if (!aPopular && bPopular) return 1;
-
-            // Priority 4: Sort by date (earlier matches first)
-            return new Date(a.fixture?.date || 0).getTime() - new Date(b.fixture?.date || 0).getTime();
-          })
-          .slice(0, maxMatches || 9); // Take top matches for carousel
-
-        console.log(`🏠 [MyHomeFeaturedMatchNew] Selected ${featuredMatches.length} featured matches`);
-
-        setMatches(featuredMatches);
-        setCurrentIndex(0);
-      } catch (error) {
-        console.error("🏠 [MyHomeFeaturedMatchNew] Error getting featured matches:", error);
-        setError(error instanceof Error ? error.message : "Unknown error occurred");
-        setMatches([]);
-      } finally {
-        setLoading(false);
+    // Apply exclusion filters (same as TodayPopularFootballLeaguesNew)
+    const basicFiltered = filteredFixtures.filter(fixture => {
+      // Basic validation
+      if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
+        return false;
       }
-    };
 
-    getFeaturedMatches();
-  }, [fixtures, liveFixtures, currentDate, maxMatches]);
+      // Apply exclusion filters
+      return !shouldExcludeMatch(fixture);
+    });
+
+    console.log(`🏠 [MyHomeFeaturedMatchNew] After exclusion filtering: ${basicFiltered.length} matches`);
+
+    // Prioritize matches exactly like TodayPopularFootballLeaguesNew
+    const featuredMatches = basicFiltered
+      .sort((a, b) => {
+        // Priority 1: Live matches first
+        const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(a.fixture?.status?.short);
+        const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(b.fixture?.status?.short);
+
+        if (aLive && !bLive) return -1;
+        if (!aLive && bLive) return 1;
+
+        // Priority 2: Top tier leagues (Champions League, Premier League, etc.)
+        const topTierLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
+        const aTopTier = topTierLeagues.includes(a.league?.id);
+        const bTopTier = topTierLeagues.includes(b.league?.id);
+
+        if (aTopTier && !bTopTier) return -1;
+        if (!aTopTier && bTopTier) return 1;
+
+        // Priority 3: Sort by date (earlier matches first)
+        return new Date(a.fixture?.date || 0).getTime() - new Date(b.fixture?.date || 0).getTime();
+      })
+      .slice(0, maxMatches || 9); // Take top matches for carousel
+
+    console.log(`🏠 [MyHomeFeaturedMatchNew] Selected ${featuredMatches.length} featured matches`);
+    return featuredMatches;
+  }, [filteredFixtures, maxMatches]);
 
   // Memoize current match
   const currentMatch = useMemo(() => {
@@ -332,40 +238,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return colors[teamId % colors.length];
   }, []);
 
-  // Error state
-  if (error) {
-    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚫 RENDERING: Error state");
-    return (
-      <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
-        <Badge
-          variant="secondary"
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
-        >
-          Featured Match
-        </Badge>
-        <CardContent className="p-6">
-          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-            <Trophy className="h-12 w-12 mb-3 opacity-50" />
-            <p className="text-lg font-medium mb-1">Error Loading Featured Match</p>
-            <p className="text-sm text-center">{error}</p>
-            <button
-              onClick={() => {
-                setError(null);
-                setMatches([]);
-                setCurrentIndex(0);
-              }}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // No error state needed - the hook handles errors internally
 
   // Loading state with proper skeleton
-  if (loading || isLoading) {
+  if (isLoading || isFetching) {
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🔄 RENDERING: Loading state");
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
