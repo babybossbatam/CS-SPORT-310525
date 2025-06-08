@@ -331,12 +331,12 @@ class StandingsCache {
       
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined,
-        timeout: 20000, // Increased timeout to 20 seconds
-        retries: 3 // Add retry attempts for network resilience
+        timeout: 25000, // Increased timeout to 25 seconds
+        retries: 4 // Increased retry attempts for better network resilience
       });
 
       // Check for network connectivity issues first
-      if (response.status === 503 || response.status === 0 || !response.ok) {
+      if (!response || response.status === 503 || response.status === 0 || !response.ok) {
         const isNetworkError = response.status === 503 || response.status === 0;
         const errorType = isNetworkError ? 'Network connectivity' : 'API error';
         
@@ -385,6 +385,10 @@ class StandingsCache {
 
       let data;
       try {
+        // Check if response exists and has json method
+        if (!response || typeof response.json !== 'function') {
+          throw new Error('Invalid response object');
+        }
         data = await response.json();
       } catch (jsonError) {
         console.warn(`❌ Failed to parse JSON response for league ${leagueId}:`, jsonError);
@@ -430,14 +434,52 @@ class StandingsCache {
 
       return data;
     } catch (error) {
-      console.error(`Error fetching standings for league ${leagueId}:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Error fetching standings for league ${leagueId}: ${errorMessage}`);
+      
+      // Check if this is a network-related error
+      const isNetworkError = errorMessage.includes('Failed to fetch') || 
+                            errorMessage.includes('NetworkError') || 
+                            errorMessage.includes('fetch') ||
+                            errorMessage.includes('Network Error') ||
+                            errorMessage.includes('Invalid response object');
+      
+      if (isNetworkError) {
+        console.warn(`🌐 Network error detected for league ${leagueId}, using fallback strategies`);
+      }
       
       // If we have any cached data (even expired), use it as fallback
       if (anyCached) {
         const age = Date.now() - anyCached.timestamp;
         const ageHours = Math.floor(age / (60 * 60 * 1000));
-        console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to API error`);
+        console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to ${isNetworkError ? 'network' : 'API'} error`);
         return anyCached.data;
+      }
+      
+      // For popular leagues, provide a minimal fallback even without cache
+      if (isPopularLeague && isNetworkError) {
+        const leagueNames = {
+          39: 'Premier League',
+          140: 'La Liga', 
+          135: 'Serie A',
+          78: 'Bundesliga',
+          61: 'Ligue 1',
+          2: 'UEFA Champions League',
+          3: 'UEFA Europa League'
+        };
+        
+        console.log(`🏆 Providing minimal fallback data for popular league ${leagueId} due to network error`);
+        return {
+          league: {
+            id: leagueId,
+            name: leagueNames[leagueId] || `League ${leagueId}`,
+            country: 'Unknown',
+            logo: '',
+            flag: '',
+            season: new Date().getFullYear(),
+            standings: [[]]
+          }
+        };
       }
       
       return null;

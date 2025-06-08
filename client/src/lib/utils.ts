@@ -551,7 +551,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
-      let url = `${baseUrl}${endpoint}`;
+      // Ensure endpoint starts with / for proper URL construction
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      let url = `${baseUrl}${cleanEndpoint}`;
       let requestBody: string | undefined;
 
       // Handle GET requests with query parameters
