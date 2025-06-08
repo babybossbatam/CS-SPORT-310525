@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,176 +28,85 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   liveFilterActive = false,
   todayPopularFixtures = [],
 }) => {
-  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
-    new Set(),
-  );
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-
-  const dispatch = useDispatch();
   const { toast } = useToast();
-  const favoriteTeams = useSelector(
-    (state: RootState) => state.user.favoriteTeams,
-  );
+  const dispatch = useDispatch();
+  const favoriteTeams = useSelector((state: RootState) => state.user.favoriteTeams);
 
-  // Use only the passed fixtures from TodayPopularFootballLeaguesNew
-  const fixtures = todayPopularFixtures;
+  console.log(`🕒 [TodayMatchByTime] Received ${todayPopularFixtures.length} fixtures as props`);
 
-  console.log(`📋 [TodayMatchByTime] Using cached fixtures:`, {
-    selectedDate,
-    fixturesCount: fixtures.length,
-    source: 'TodayPopularFootballLeaguesNew (cached)',
-    timeFilterActive,
-    liveFilterActive
-  });
+  // Group matches by time slots
+  const matchesByTime = useMemo(() => {
+    if (!todayPopularFixtures.length) {
+      console.log(`🕒 [TodayMatchByTime] No fixtures to group by time`);
+      return {};
+    }
 
-  // Group fixtures by country and league - no additional filtering since data is already filtered
-  const fixturesByCountry = fixtures.reduce(
-    (acc: any, fixture: any) => {
-      // Basic null checks only
-      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-        return acc;
+    const timeGroups: { [key: string]: any[] } = {};
+
+    todayPopularFixtures.forEach((fixture) => {
+      try {
+        const fixtureDate = parseISO(fixture.fixture.date);
+        if (!isValid(fixtureDate)) {
+          console.warn(`Invalid date for fixture ${fixture.fixture.id}`);
+          return;
+        }
+
+        const timeKey = format(fixtureDate, "HH:mm");
+        if (!timeGroups[timeKey]) {
+          timeGroups[timeKey] = [];
+        }
+        timeGroups[timeKey].push(fixture);
+      } catch (error) {
+        console.error(`Error processing fixture ${fixture.fixture.id}:`, error);
       }
-
-      const league = fixture.league;
-      const country = league.country || "World";
-      const leagueId = league.id;
-
-      if (!acc[country]) {
-        acc[country] = {
-          country,
-          flag: getCountryFlagWithFallbackSync(country, league.flag),
-          leagues: {},
-          hasPopularLeague: true,
-        };
-      }
-
-      if (!acc[country].leagues[leagueId]) {
-        acc[country].leagues[leagueId] = {
-          league: {
-            ...league,
-            logo: league.logo || "https://media.api-sports.io/football/leagues/1.png",
-          },
-          matches: [],
-          isPopular: true,
-          isPopularForCountry: true,
-          isFriendlies: league.name?.toLowerCase().includes("friendlies") || false,
-        };
-      }
-
-      // Add fixture with fallback logos
-      if (fixture.teams.home && fixture.teams.away) {
-        acc[country].leagues[leagueId].matches.push({
-          ...fixture,
-          teams: {
-            home: {
-              ...fixture.teams.home,
-              logo: fixture.teams.home.logo || "/assets/fallback-logo.svg",
-            },
-            away: {
-              ...fixture.teams.away,
-              logo: fixture.teams.away.logo || "/assets/fallback-logo.svg",
-            },
-          },
-        });
-      }
-
-      return acc;
-    },
-    {},
-  );
-
-  // All countries are already filtered by TodayPopularFootballLeaguesNew
-  const filteredCountries = Object.values(fixturesByCountry);
-
-  // Simple sorting by country name since filtering is already done
-  const sortedCountries = useMemo(() => {
-    return filteredCountries.sort((a: any, b: any) => {
-      const countryA = a.country || "";
-      const countryB = b.country || "";
-      return countryA.localeCompare(countryB);
     });
-  }, [filteredCountries]);
 
-  // Apply live filters if needed
-  const liveFilteredCountries = useMemo(() => {
-    if (!liveFilterActive) return sortedCountries;
+    // Sort matches within each time group by league priority
+    Object.keys(timeGroups).forEach(timeKey => {
+      timeGroups[timeKey].sort((a, b) => {
+        // Sort by status first (live > upcoming > finished)
+        const aStatus = a.fixture.status.short;
+        const bStatus = b.fixture.status.short;
+        
+        const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+        const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+        
+        if (aLive && !bLive) return -1;
+        if (!aLive && bLive) return 1;
+        
+        // Then by league name alphabetically
+        return (a.league.name || "").localeCompare(b.league.name || "");
+      });
+    });
 
-    return sortedCountries
-      .map((countryData) => {
-        const updatedLeagues = Object.entries(countryData.leagues).reduce(
-          (acc: any, [leagueId, leagueData]: any) => {
-            const updatedMatches = leagueData.matches.filter((match: any) => {
-              return (
-                match.fixture.status.short === "LIVE" ||
-                match.fixture.status.short === "1H" ||
-                match.fixture.status.short === "HT" ||
-                match.fixture.status.short === "2H" ||
-                match.fixture.status.short === "ET" ||
-                match.fixture.status.short === "BT" ||
-                match.fixture.status.short === "P" ||
-                match.fixture.status.short === "INT"
-              );
-            });
+    console.log(`🕒 [TodayMatchByTime] Grouped into ${Object.keys(timeGroups).length} time slots`);
+    return timeGroups;
+  }, [todayPopularFixtures]);
 
-            if (updatedMatches.length > 0) {
-              acc[leagueId] = {
-                ...leagueData,
-                matches: updatedMatches,
-              };
-            }
-            return acc;
-          },
-          {},
-        );
+  // Sort time slots
+  const sortedTimeSlots = useMemo(() => {
+    return Object.keys(matchesByTime).sort();
+  }, [matchesByTime]);
 
-        return {
-          ...countryData,
-          leagues: updatedLeagues,
-        };
-      })
-      .filter((countryData) => Object.keys(countryData.leagues).length > 0);
-  }, [sortedCountries, liveFilterActive]);
-
-  // Use all filtered countries
-  const finalCountries = liveFilteredCountries;
-
-  const toggleStarMatch = (fixtureId: number) => {
-    const newStarred = new Set(starredMatches);
-    if (newStarred.has(fixtureId)) {
-      newStarred.delete(fixtureId);
-    } else {
-      newStarred.add(fixtureId);
-    }
-    setStarredMatches(newStarred);
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches((prev) => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
   };
 
-  const getHeaderTitle = () => {
-    if (liveFilterActive && timeFilterActive) {
-      return "Popular Football Live Score";
-    } else if (!liveFilterActive && timeFilterActive) {
-      return "Popular Leagues by Time";
-    }
-
-    const selectedDateObj = new Date(selectedDate);
-
-    if (isToday(selectedDateObj)) {
-      return "Today's Popular Leagues by Time";
-    } else if (isYesterday(selectedDateObj)) {
-      return "Yesterday's Popular Leagues by Time";
-    } else if (isTomorrow(selectedDateObj)) {
-      return "Tomorrow's Popular Leagues by Time";
-    } else {
-      return `Popular Leagues - ${format(selectedDateObj, "MMM d, yyyy")}`;
-    }
-  };
-  // No loading state needed since we're using cached data from parent
-
-  if (!fixtures.length) {
+  if (!todayPopularFixtures.length) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
           <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No matches available for this date</p>
+          <p className="text-gray-500">No matches available for this time view</p>
         </CardContent>
       </Card>
     );
@@ -204,32 +114,217 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   return (
     <>
-      {/* Single consolidated card with ALL matches sorted by league A-Z, then by status priority */}
-      <Card className="overflow-hidden">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <span>{getHeaderTitle()}</span>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="space-y-0">
-            {finalCountries.flatMap((countryData: any) => {
-              return Object.entries(countryData.leagues).map(
-                ([leagueId, leagueData]: any) => {
-                  return leagueData.matches.map((match: any) => (
-                    <LazyMatchItem
-                      key={match.fixture.id}
-                      match={match}
-                      toggleStarMatch={toggleStarMatch}
-                      starredMatches={starredMatches}
-                    />
-                  ));
-                },
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Header Section */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        Popular Leagues by Time
+      </CardHeader>
+
+      {/* Time Slots */}
+      {sortedTimeSlots.map((timeSlot) => (
+        <Card key={timeSlot} className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4">
+          {/* Time Header */}
+          <CardContent className="flex items-center gap-2 p-2 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-gray-800">{timeSlot}</span>
+              <span className="text-sm text-gray-600">
+                ({matchesByTime[timeSlot].length} match{matchesByTime[timeSlot].length !== 1 ? 'es' : ''})
+              </span>
+            </div>
+          </CardContent>
+
+          {/* Matches for this time slot */}
+          <CardContent className="p-0">
+            <div className="space-y-0">
+              {matchesByTime[timeSlot].map((match: any) => (
+                <LazyMatchItem key={match.fixture.id}>
+                  <div className="match-card-container group">
+                    {/* Star Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStarMatch(match.fixture.id);
+                      }}
+                      className="match-star-button"
+                      title="Add to favorites"
+                    >
+                      <Star
+                        className={`match-star-icon ${
+                          starredMatches.has(match.fixture.id) ? "starred" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <div className="match-content-container">
+                      {/* Home Team Name */}
+                      <div
+                        className={`home-team-name ${
+                          match.goals.home !== null &&
+                          match.goals.away !== null &&
+                          match.goals.home > match.goals.away
+                            ? "winner"
+                            : ""
+                        }`}
+                      >
+                        {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+                      </div>
+
+                      {/* Home team logo */}
+                      <div className="home-team-logo-container">
+                        {isNationalTeam(match.teams.home, match.league) ? (
+                          <div className="flag-circle">
+                            <LazyImage
+                              src={
+                                match.teams.home.id
+                                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                  : "/assets/fallback-logo.svg"
+                              }
+                              alt={match.teams.home.name}
+                              title={match.teams.home.name}
+                              className="team-logo"
+                              style={{ 
+                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                              }}
+                              fallbackSrc="/assets/fallback-logo.svg"
+                            />
+                            <div className="gloss"></div>
+                          </div>
+                        ) : (
+                          <LazyImage
+                            src={
+                              match.teams.home.id
+                                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
+                            alt={match.teams.home.name}
+                            title={match.teams.home.name}
+                            className="team-logo"
+                            style={{ 
+                              filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                            }}
+                            fallbackSrc="/assets/fallback-logo.svg"
+                          />
+                        )}
+                      </div>
+
+                      {/* Score/Status Center */}
+                      <div className="match-score-container">
+                        {(() => {
+                          const status = match.fixture.status.short;
+                          const fixtureDate = parseISO(match.fixture.date);
+
+                          // Live matches
+                          if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                            return (
+                              <div className="relative">
+                                <div className="match-score-display">
+                                  <span className="score-number">{match.goals.home ?? 0}</span>
+                                  <span className="score-separator">-</span>
+                                  <span className="score-number">{match.goals.away ?? 0}</span>
+                                </div>
+                                <div className="match-status-label status-live">
+                                  {status === "HT" ? "Halftime" : `${match.fixture.status.elapsed || 0}'`}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Finished matches
+                          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                            const homeScore = match.goals.home;
+                            const awayScore = match.goals.away;
+                            const hasValidScores = 
+                              homeScore !== null && homeScore !== undefined &&
+                              awayScore !== null && awayScore !== undefined &&
+                              !isNaN(Number(homeScore)) && !isNaN(Number(awayScore));
+
+                            if (hasValidScores) {
+                              return (
+                                <div className="relative">
+                                  <div className="match-score-display">
+                                    <span className="score-number">{homeScore}</span>
+                                    <span className="score-separator">-</span>
+                                    <span className="score-number">{awayScore}</span>
+                                  </div>
+                                  <div className="match-status-label status-ended">
+                                    {status === "FT" ? "Ended" : status}
+                                  </div>
+                                </div>
+                              );
+                            }
+                          }
+
+                          // Upcoming matches
+                          return (
+                            <div className="relative flex items-center justify-center h-full">
+                              <div className="match-time-display" style={{ fontSize: '0.882em' }}>
+                                {status === "TBD" ? "TBD" : format(fixtureDate, "HH:mm")}
+                              </div>
+                              {status === "TBD" && (
+                                <div className="match-status-label status-upcoming">Time TBD</div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Away team logo */}
+                      <div className="away-team-logo-container">
+                        {isNationalTeam(match.teams.away, match.league) ? (
+                          <div className="flag-circle">
+                            <LazyImage
+                              src={
+                                match.teams.away.id
+                                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                  : "/assets/fallback-logo.svg"
+                              }
+                              alt={match.teams.away.name}
+                              title={match.teams.away.name}
+                              className="team-logo"
+                              style={{ 
+                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                              }}
+                              fallbackSrc="/assets/fallback-logo.svg"
+                            />
+                            <div className="gloss"></div>
+                          </div>
+                        ) : (
+                          <LazyImage
+                            src={
+                              match.teams.away.id
+                                ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
+                            alt={match.teams.away.name}
+                            title={match.teams.away.name}
+                            className="team-logo"
+                            style={{ 
+                              filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                            }}
+                            fallbackSrc="/assets/fallback-logo.svg"
+                          />
+                        )}
+                      </div>
+
+                      {/* Away Team Name */}
+                      <div
+                        className={`away-team-name ${
+                          match.goals.home !== null &&
+                          match.goals.away !== null &&
+                          match.goals.away > match.goals.home
+                            ? "winner"
+                            : ""
+                        }`}
+                      >
+                        {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                      </div>
+                    </div>
+                  </div>
+                </LazyMatchItem>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </>
   );
 };

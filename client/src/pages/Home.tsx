@@ -39,6 +39,7 @@ import { useLocation } from "wouter";
 import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
 import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
+import TodayMatchByTime from '@/components/matches/TodayMatchByTime';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -441,6 +442,16 @@ const Home = () => {
               <TodayMatchPageCard 
                 fixtures={fixtures}
                 onMatchClick={handleMatchClick}
+              />
+            </div>
+
+            {/* TodayMatchByTime component */}
+            <div>
+              <TodayMatchByTime 
+                selectedDate={selectedDate || format(new Date(), 'yyyy-MM-dd')}
+                todayPopularFixtures={todayPopularFixtures}
+                timeFilterActive={timeFilterActive}
+                liveFilterActive={liveFilterActive}
               />
             </div>
 
