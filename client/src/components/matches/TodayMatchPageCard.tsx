@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card } from "../ui/card";
 import { Calendar } from "../ui/calendar";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
@@ -104,6 +106,25 @@ export const TodayMatchPageCard = ({
       return format(parseISO(selectedDate), "EEE, do MMM");
     }
   };
+
+  // Fetch live fixtures once when either live filter is active
+  const { data: sharedLiveFixtures = [], isLoading: isLoadingLive } = useQuery({
+    queryKey: ["shared-live-fixtures"],
+    queryFn: async () => {
+      console.log("Fetching shared live fixtures");
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(`Received ${data.length} shared live fixtures`);
+      return data;
+    },
+    staleTime: 30000,
+    gcTime: 2 * 60 * 1000,
+    enabled: liveFilterActive, // Only fetch when live filter is active
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchInterval: 30000,
+  });
 
   return (
     <>
@@ -277,6 +298,7 @@ export const TodayMatchPageCard = ({
         <LiveMatchByTime
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
+          liveFixtures={sharedLiveFixtures}
         />
       ) : liveFilterActive && !timeFilterActive ? (
         // Live only - show LiveMatchForAllCountry
@@ -284,6 +306,7 @@ export const TodayMatchPageCard = ({
           isTimeFilterActive={false}
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
+          liveFixtures={sharedLiveFixtures}
         />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component

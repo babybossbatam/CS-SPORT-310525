@@ -25,6 +25,7 @@ interface LiveMatchForAllCountryProps {
   isTimeFilterActive?: boolean;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
+  liveFixtures?: any[]; // Accept shared live fixtures
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
@@ -32,6 +33,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
+  liveFixtures: propsFixtures,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -49,8 +51,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // Fetch all live fixtures with automatic refresh
-  const { data: fixtures = [], isLoading } = useQuery({
+  // Fetch all live fixtures with automatic refresh only if not provided via props
+  const { data: fetchedFixtures = [], isLoading } = useQuery({
     queryKey: ["live-fixtures-all-countries"],
     queryFn: async () => {
       console.log("Fetching live fixtures for all countries");
@@ -62,12 +64,15 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     },
     staleTime: 30000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: enableFetching,
+    enabled: enableFetching && !propsFixtures, // Only fetch if no props data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
     refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
   });
+
+  // Use props data if available, otherwise use fetched data
+  const fixtures = propsFixtures || fetchedFixtures;
 
   // Enhanced team logo source with 365scores integration
   const getTeamLogoUrl = (team: any, league?: any) => {

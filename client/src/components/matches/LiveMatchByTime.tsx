@@ -16,6 +16,7 @@ interface LiveMatchByTimeProps {
   isTimeFilterActive?: boolean;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
+  liveFixtures?: any[]; // Accept live fixtures as props
 }
 
 const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
@@ -23,6 +24,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
+  liveFixtures: propsFixtures,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -40,8 +42,8 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // Fetch all live fixtures with automatic refresh
-  const { data: fixtures = [], isLoading } = useQuery({
+  // Fetch live fixtures only if not provided via props
+  const { data: fetchedFixtures = [], isLoading } = useQuery({
     queryKey: ["live-fixtures-all-countries"],
     queryFn: async () => {
       console.log("Fetching live fixtures for all countries");
@@ -53,12 +55,15 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     },
     staleTime: 30000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: enableFetching,
+    enabled: enableFetching && !propsFixtures, // Only fetch if no props data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
     refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
   });
+
+  // Use props data if available, otherwise use fetched data
+  const fixtures = propsFixtures || fetchedFixtures;
 
   // Enhanced country flag mapping with better null safety
   const getCountryFlag = (
