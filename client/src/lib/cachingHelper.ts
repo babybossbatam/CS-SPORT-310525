@@ -31,23 +31,42 @@ export const useCachedQuery = <T>(
                         CACHE_FRESHNESS.isFresh(queryState.dataUpdatedAt, maxAge) && 
                         !forceRefresh;
 
+  // Additional cache check from CacheManager
+  const cacheManagerData = CacheManager.getCachedData(queryKey, maxAge);
+  const hasCacheManagerData = cacheManagerData && (Array.isArray(cacheManagerData) ? cacheManagerData.length > 0 : true);
+
+  const shouldSkipFetch = shouldUseCache || hasCacheManagerData || (options.enabled === false);
+
   return useQuery({
     queryKey,
     queryFn: async () => {
-      // If we have fresh cache and not forcing refresh, return cached data
+      // Priority 1: React Query cache
       if (shouldUseCache) {
-        console.log(`Using cached data for: ${queryKey.join('-')}`);
+        console.log(`✅ [useCachedQuery] Using React Query cache for: ${queryKey.join('-')}`);
         return existingQuery;
       }
 
-      console.log(`Fetching fresh data for: ${queryKey.join('-')}`);
-      return await queryFn();
+      // Priority 2: CacheManager cache
+      if (hasCacheManagerData) {
+        console.log(`✅ [useCachedQuery] Using CacheManager cache for: ${queryKey.join('-')}`);
+        return cacheManagerData;
+      }
+
+      console.log(`🔄 [useCachedQuery] Fetching fresh data for: ${queryKey.join('-')}`);
+      const result = await queryFn();
+      
+      // Cache the result in CacheManager
+      if (result) {
+        CacheManager.setCachedData(queryKey, result);
+      }
+      
+      return result;
     },
-    enabled: true,
+    enabled: options.enabled !== false && !shouldSkipFetch,
     staleTime: maxAge,
     gcTime: maxAge * 2,
     refetchOnWindowFocus: false,
-    refetchOnMount: !shouldUseCache,
+    refetchOnMount: !shouldSkipFetch,
     refetchOnReconnect: false,
     ...queryOptions,
   });

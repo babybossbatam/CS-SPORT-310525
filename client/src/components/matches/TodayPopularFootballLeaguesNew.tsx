@@ -196,67 +196,65 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
   const isFuture = selectedDate > today;
-  
+
   // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
   const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
 
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
-  const cachedFixtures = CacheManager.getCachedData(
-    fixturesQueryKey,
-    cacheMaxAge,
-  );
+  // Multi-layer cache check
+  const cachedFixtures = CacheManager.getCachedData(fixturesQueryKey, cacheMaxAge);
+  const fixturesCacheData = getCachedFixturesForDate(selectedDate);
 
-  // Show cached data immediately if available
-  const displayFixtures = fixtures.length > 0 ? fixtures : (cachedFixtures || []);
+  // Determine if we should skip fetching entirely
+  const shouldSkipFetch = !!(cachedFixtures?.length || fixturesCacheData?.length);
 
-  // Fetch all fixtures for the selected date with smart caching and timeout
+  console.log(`📊 [TodayPopularLeagues] Cache status for ${selectedDate}:`, {
+    cachedFixtures: cachedFixtures?.length || 0,
+    fixturesCacheData: fixturesCacheData?.length || 0,
+    shouldSkipFetch,
+    enableFetching
+  });
+
+  // Fetch all fixtures for the selected date with smart caching
   const {
     data: fixtures = [],
     isLoading,
     isFetching,
-    error,
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
-      try {
-        console.log(`🚀 [API] Starting fetch for ${selectedDate} at ${new Date().toISOString()}`);
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}?all=true`,
-          {
-            signal: controller.signal,
-          }
-        );
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log(`✅ [API] Completed fetch for ${selectedDate}: ${data.length} fixtures in ${Date.now() - performance.now()}ms`);
-        return data;
-      } catch (error) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-          console.error(`⏰ [API] Request timeout for ${selectedDate} after 30 seconds`);
-          throw new Error('Request timed out. The server may be slow. Please try again.');
-        }
-        console.error(`❌ [API] Failed to fetch ${selectedDate}:`, error);
-        throw error;
+      // If we have cached data, return it immediately
+      if (cachedFixtures?.length) {
+        console.log(`✅ [TodayPopularLeagues] Returning cached data from CacheManager (${cachedFixtures.length} fixtures)`);
+        return cachedFixtures;
       }
+
+      if (fixturesCacheData?.length) {
+        console.log(`✅ [TodayPopularLeagues] Returning cached data from FixtureCache (${fixturesCacheData.length} fixtures)`);
+        return fixturesCacheData;
+      }
+
+      console.log(`🔄 [TodayPopularLeagues] Making fresh API request for ${selectedDate}`);
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
+      const data = await response.json();
+
+      // Cache in both systems
+      if (data?.length) {
+        cacheFixturesForDate(selectedDate, data, 'api');
+      }
+
+      return data;
     },
     {
-      enabled: !!selectedDate && enableFetching,
+      enabled: !!selectedDate && enableFetching && !shouldSkipFetch,
       maxAge: cacheMaxAge,
-      backgroundRefresh: true,
-      retry: 2,
-      retryDelay: 1000,
+      backgroundRefresh: false, // Disable background refresh when we have cache
+      staleTime: cacheMaxAge,
     },
   );
 
@@ -1339,7 +1337,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           }`}
                         />
                       </button>
-                      
+
                       <img
                         src={
                           leagueData.league.logo ||
