@@ -71,7 +71,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Get featured matches using the same filtering logic as TodayPopularFootballLeaguesNew
   useEffect(() => {
-    const getFeaturedMatches = async () => {
+    const getFeaturedMatches = () => {
       try {
         console.log("🏠 [MyHomeFeaturedMatchNew] === APPLYING SAME FILTERING AS TODAYPOPULARLEAGUE ===");
         setLoading(true);
@@ -144,7 +144,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // Priority 1: Live matches first
             const aLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(a.fixture?.status?.short);
             const bLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P", "INT"].includes(b.fixture?.status?.short);
-            
+
             if (aLive && !bLive) return -1;
             if (!aLive && bLive) return 1;
 
@@ -152,14 +152,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const topTierLeagues = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
             const aTopTier = topTierLeagues.includes(a.league?.id);
             const bTopTier = topTierLeagues.includes(b.league?.id);
-            
+
             if (aTopTier && !bTopTier) return -1;
             if (!aTopTier && bTopTier) return 1;
 
             // Priority 3: Popular leagues
             const aPopular = POPULAR_LEAGUES.includes(a.league?.id);
             const bPopular = POPULAR_LEAGUES.includes(b.league?.id);
-            
+
             if (aPopular && !bPopular) return -1;
             if (!aPopular && bPopular) return 1;
 
@@ -169,7 +169,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           .slice(0, maxMatches || 9); // Take top matches for carousel
 
         console.log(`🏠 [MyHomeFeaturedMatchNew] Selected ${featuredMatches.length} featured matches`);
-        
+
         setMatches(featuredMatches);
         setCurrentIndex(0);
       } catch (error) {
@@ -181,7 +181,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
 
     getFeaturedMatches();
-  }, [fixtures, currentDate, maxMatches]);
+  }, [fixtures, liveFixtures, currentDate, maxMatches]);
 
   // Memoize current match
   const currentMatch = useMemo(() => {
@@ -206,7 +206,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       currentMatch.teams.away &&
       currentMatch.fixture &&
       currentMatch.league;
-    
+
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Match validation result:", isValid);
     if (!isValid && currentMatch) {
       console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Validation failed - missing:", {
@@ -218,7 +218,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         hasLeague: !!currentMatch?.league
       });
     }
-    
+
     return isValid;
   }, [currentMatch]);
 
@@ -572,7 +572,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 })();
 
                 const scoreText = `${currentMatch?.goals?.home ?? 0}   -   ${currentMatch?.goals?.away ?? 0}`;
-                
+
                 return (
                   <div style={{ 
                     color: isLive ? "#dc2626" : "#1a1a1a",
@@ -791,8 +791,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 height="18"
                 className="text-gray-600"
               />
-              <span className="text-[0.75rem] text-gray-600 mt-1">
-                Match Page
+              <span className="text-[0.75rem] text-gray-600 mt-1">Match Page
               </span>
             </button>
             <button
