@@ -59,9 +59,9 @@ const LeagueStandingsFilter = () => {
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
   const getPopularLeagues = async () => {
-    const response = await fetch('/api/leagues/popular');
+    const response = await fetch('/api/leagues');
     if (!response.ok) {
-      throw new Error('Failed to fetch popular leagues');
+      throw new Error('Failed to fetch leagues');
     }
     return response.json();
   };
@@ -69,15 +69,7 @@ const LeagueStandingsFilter = () => {
   const loadLeagues = async () => {
     try {
       setLeaguesLoading(true);
-      const popularLeaguesData = await getPopularLeagues();
-      
-      // Transform the data structure from popular leagues endpoint
-      const leagues = popularLeaguesData.map(item => ({
-        id: item.league.id,
-        name: item.league.name,
-        logo: item.league.logo
-      }));
-      
+      const leagues = await getPopularLeagues();
       setPopularLeagues(leagues);
 
       // Set default selection to first league with valid ID
