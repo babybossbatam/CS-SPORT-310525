@@ -15,12 +15,14 @@ interface TodayMatchByTimeProps {
   selectedDate: string;
   timeFilterActive?: boolean;
   liveFilterActive?: boolean;
+  todayPopularFixtures?: any[]; // Accept TodayPopularFootballLeaguesNew fixtures as props
 }
 
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   selectedDate,
   timeFilterActive = false,
   liveFilterActive = false,
+  todayPopularFixtures: propsFixtures,
 }) => {
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
@@ -34,21 +36,24 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     setStarredMatches(newStarred);
   };
 
-  // Use the same filtering logic as TodayPopularFootballLeaguesNew
-  const { filteredFixtures, isLoading } = useTodayPopularFixtures(selectedDate);
+  // Fetch fixtures only if not provided via props (same pattern as LiveMatchByTime)
+  const { filteredFixtures: fetchedFixtures, isLoading } = useTodayPopularFixtures(selectedDate);
 
-  console.log(`🕐 [TodayMatchByTime] Using ${filteredFixtures.length} filtered fixtures from shared hook`);
+  // Use props fixtures if available, otherwise use fetched fixtures
+  const allFixtures = propsFixtures || fetchedFixtures;
+
+  console.log(`🕐 [TodayMatchByTime] Using ${allFixtures.length} fixtures ${propsFixtures ? 'from props' : 'from hook'}`);
 
   // Apply live filtering if both filters are active
   const finalMatches = useMemo(() => {
     if (liveFilterActive && timeFilterActive) {
-      return filteredFixtures.filter((fixture) => {
+      return allFixtures.filter((fixture) => {
         const status = fixture.fixture.status.short;
         return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
       });
     }
-    return filteredFixtures;
-  }, [filteredFixtures, liveFilterActive, timeFilterActive]);
+    return allFixtures;
+  }, [allFixtures, liveFilterActive, timeFilterActive]);
 
   // Sort ALL matches by league name A-Z, then by match status priority
   const sortedMatches = useMemo(() => {
@@ -163,7 +168,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   };
 
   // Show loading only if we're actually loading and don't have any cached data
-  if (isLoading && !filteredFixtures.length) {
+  if (isLoading && !allFixtures.length) {
     return (
       <Card>
         <CardHeader className="pb-4">
