@@ -336,8 +336,8 @@ class StandingsCache {
       });
 
       // Check for network connectivity issues first
-      if (response.status === 0 || !response.ok) {
-        const isNetworkError = response.status === 0;
+      if (response.status === 503 || response.status === 0 || !response.ok) {
+        const isNetworkError = response.status === 503 || response.status === 0;
         const errorType = isNetworkError ? 'Network connectivity' : 'API error';
         
         console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response.status})`);

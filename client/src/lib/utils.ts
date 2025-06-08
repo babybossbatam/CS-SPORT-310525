@@ -544,7 +544,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
   const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
   const maxRetries = options?.retries || 2;
   const timeout = options?.timeout || 15000;
-  
+
   // Retry logic with exponential backoff
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const controller = new AbortController();
@@ -585,9 +585,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         });
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        
+
         const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
-        
+
         // If this is not the last attempt, log and retry
         if (attempt < maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Exponential backoff, max 5s
@@ -595,12 +595,12 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
-        
-        // Last attempt failed - create a proper error response that won't throw
-        console.warn(`🌐 Network failure for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
-        
+
         // Create a synthetic response that mimics a failed fetch but doesn't throw
-        const networkErrorResponse = new Response(
+        console.warn(`🌐 Network failure for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
+
+        // Create a proper error response for network failures
+        return new Response(
           JSON.stringify({ 
             error: true, 
             message: 'Network connectivity failed - please check your connection',
@@ -610,13 +610,11 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
             attempts: maxRetries + 1
           }), 
           {
-            status: 503, // Use 503 Service Unavailable instead of 0
+            status: 503,
             statusText: 'Service Unavailable',
             headers: new Headers({ 'Content-Type': 'application/json' })
           }
         );
-        
-        return networkErrorResponse;
       }
 
       clearTimeout(timeoutId);
@@ -634,9 +632,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
 
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       // If this is not the last attempt and it's a retryable error, continue
       if (attempt < maxRetries && (
         errorMessage.includes('Failed to fetch') || 
@@ -649,7 +647,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
-      
+
       // Last attempt or non-retryable error
       if (error instanceof Error && error.name === 'AbortError') {
         console.error(`🚫 API request timeout for ${method} ${endpoint} after ${timeout}ms (${maxRetries + 1} attempts)`);
@@ -658,7 +656,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       } else {
         console.error(`❌ API request error for ${method} ${endpoint} after ${maxRetries + 1} attempts:`, error);
       }
-      
+
       // Create a more detailed error response that properly indicates network failure
       const createErrorResponse = (statusText: string, isNetworkError = false): Response => {
         const errorBody = JSON.stringify({ 
