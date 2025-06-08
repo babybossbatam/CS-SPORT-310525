@@ -73,25 +73,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       if (!isValidDate) return false;
 
-      // Apply smart time filtering
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          fixtureDate + "T12:00:00Z",
-        );
+      // For featured matches, be more permissive with time filtering
+      // Skip complex smart time filtering for now to include more matches
 
-        const shouldInclude = (() => {
-          if (fixtureDate === tomorrowDate && smartResult.label === "tomorrow") return true;
-          if (fixtureDate === today && smartResult.label === "today") return true;
-          if (fixtureDate === nextDayAfterTomorrowDate && smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
-          return false;
-        })();
-
-        if (!shouldInclude) return false;
-      }
-
-      // Apply exclusion filters
+      // Apply basic exclusion filters but be more permissive
       if (shouldExcludeFromPopularLeagues(
         fixture.league.name,
         fixture.teams.home.name,
@@ -110,10 +95,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return false;
       }
 
-      if (!fixture.league.country) {
-        return false;
-      }
-
       const leagueId = fixture.league?.id;
       const country = fixture.league?.country?.toLowerCase() || "";
       const leagueName = fixture.league?.name?.toLowerCase() || "";
@@ -126,12 +107,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         (popularCountry) => country.includes(popularCountry.toLowerCase()),
       );
 
-      // Check if it's an international competition
+      // Check if it's an international competition (be more inclusive)
       const isInternationalCompetition =
         leagueName.includes("champions league") ||
         leagueName.includes("europa league") ||
         leagueName.includes("conference league") ||
         leagueName.includes("uefa") ||
+        leagueName.includes("nations league") ||
         leagueName.includes("world cup") ||
         leagueName.includes("fifa club world cup") ||
         leagueName.includes("fifa") ||
@@ -141,12 +123,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         leagueName.includes("copa sudamericana") ||
         leagueName.includes("libertadores") ||
         leagueName.includes("sudamericana") ||
+        leagueName.includes("qualification") ||
         (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
         (leagueName.includes("international") && !leagueName.includes("women")) ||
         country.includes("world") ||
         country.includes("europe") ||
         country.includes("international");
 
+      // Be more inclusive - if it matches any criteria, include it
       return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
     });
 
