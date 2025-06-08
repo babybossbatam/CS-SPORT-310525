@@ -478,7 +478,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <p className="text-lg font-medium mb-1">
               No featured matches available
             </p>
-            <p className="text-sm">No matches available</p>
+            <p className="text-sm">Check back later for today's highlights</p>
           </div>
         </CardContent>
       </Card>
