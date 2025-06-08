@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCentralData } from "@/providers/CentralDataProvider";
+import { FixtureResponse } from "@/types/fixtures";
+import { featuredMatchExclusionTerms } from "@/lib/MyFeaturedMatchExclusion";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -16,75 +19,83 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { fixtures, liveFixtures } = useCentralData();
 
-  // Static sample matches for demonstration
-  const sampleMatches = [
-    {
-      fixture: {
-        id: 123456,
-        date: new Date().toISOString(),
-        status: { short: "NS" },
-        venue: { name: "Old Trafford" }
-      },
-      league: {
-        id: 39,
-        name: "Premier League",
-        logo: "https://media.api-sports.io/football/leagues/39.png",
-        country: "England"
-      },
-      teams: {
-        home: {
-          id: 33,
-          name: "Manchester United",
-          logo: "https://media.api-sports.io/football/teams/33.png"
-        },
-        away: {
-          id: 34,
-          name: "Liverpool",
-          logo: "https://media.api-sports.io/football/teams/34.png"
-        }
-      },
-      goals: { home: null, away: null }
-    },
-    {
-      fixture: {
-        id: 123457,
-        date: new Date().toISOString(),
-        status: { short: "1H", elapsed: 45 },
-        venue: { name: "Santiago Bernabéu" }
-      },
-      league: {
-        id: 140,
-        name: "La Liga",
-        logo: "https://media.api-sports.io/football/leagues/140.png",
-        country: "Spain"
-      },
-      teams: {
-        home: {
-          id: 541,
-          name: "Real Madrid",
-          logo: "https://media.api-sports.io/football/teams/541.png"
-        },
-        away: {
-          id: 529,
-          name: "Barcelona",
-          logo: "https://media.api-sports.io/football/teams/529.png"
-        }
-      },
-      goals: { home: 1, away: 0 }
-    }
-  ];
+  // Popular leagues for featured matches
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
 
-  const currentMatch = sampleMatches[currentIndex] || null;
+  // Featured matches filtering logic
+  const featuredMatches = useMemo(() => {
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures and ${liveFixtures.length} live fixtures`);
+    
+    // Combine date fixtures and live fixtures
+    const allFixtures = [...fixtures, ...liveFixtures];
+    
+    // Remove duplicates based on fixture ID
+    const uniqueFixtures = allFixtures.filter((fixture, index, self) => 
+      index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+    );
+
+    // Filter for quality matches
+    const filteredMatches = uniqueFixtures.filter((match: FixtureResponse) => {
+      // Basic validation
+      if (!match?.league || !match?.teams?.home || !match?.teams?.away) {
+        return false;
+      }
+
+      // Exclude based on league/team names
+      const leagueName = match.league.name?.toLowerCase() || '';
+      const homeTeam = match.teams.home.name?.toLowerCase() || '';
+      const awayTeam = match.teams.away.name?.toLowerCase() || '';
+      
+      const hasExcludedTerm = featuredMatchExclusionTerms.some(term => 
+        leagueName.includes(term) || homeTeam.includes(term) || awayTeam.includes(term)
+      );
+      
+      if (hasExcludedTerm) return false;
+
+      // Prioritize popular leagues
+      const isPopularLeague = POPULAR_LEAGUES.includes(match.league.id);
+      
+      // For featured matches, prefer popular leagues or live matches
+      const isLive = ['1H', '2H', 'HT', 'LIVE'].includes(match.fixture.status.short);
+      
+      return isPopularLeague || isLive;
+    });
+
+    // Sort by priority: Live matches first, then by league popularity
+    const sortedMatches = filteredMatches.sort((a, b) => {
+      const aIsLive = ['1H', '2H', 'HT', 'LIVE'].includes(a.fixture.status.short);
+      const bIsLive = ['1H', '2H', 'HT', 'LIVE'].includes(b.fixture.status.short);
+      
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+      
+      const aIsPopular = POPULAR_LEAGUES.includes(a.league.id);
+      const bIsPopular = POPULAR_LEAGUES.includes(b.league.id);
+      
+      if (aIsPopular && !bIsPopular) return -1;
+      if (!aIsPopular && bIsPopular) return 1;
+      
+      return 0;
+    });
+
+    const limitedMatches = sortedMatches.slice(0, maxMatches || 8);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${allFixtures.length} fixtures to ${limitedMatches.length} featured matches`);
+    
+    return limitedMatches;
+  }, [fixtures, liveFixtures, maxMatches]);
+
+  const currentMatch = featuredMatches[currentIndex] || null;
 
   const handlePrevious = () => {
-    if (sampleMatches.length <= 1) return;
-    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : sampleMatches.length - 1);
+    if (featuredMatches.length <= 1) return;
+    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1);
   };
 
   const handleNext = () => {
-    if (sampleMatches.length <= 1) return;
-    setCurrentIndex(currentIndex < sampleMatches.length - 1 ? currentIndex + 1 : 0);
+    if (featuredMatches.length <= 1) return;
+    setCurrentIndex(currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0);
   };
 
   const handleMatchClick = () => {
@@ -131,7 +142,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return colors[teamId % colors.length];
   };
 
-  if (!currentMatch || sampleMatches.length === 0) {
+  if (!currentMatch || featuredMatches.length === 0) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge
@@ -163,7 +174,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </Badge>
 
       {/* Navigation arrows */}
-      {sampleMatches.length > 1 && (
+      {featuredMatches.length > 1 && (
         <>
           <button
             onClick={(e) => {
@@ -452,9 +463,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </AnimatePresence>
 
       {/* Navigation dots */}
-      {sampleMatches.length > 1 && (
+      {featuredMatches.length > 1 && (
         <div className="flex justify-center gap-2 py-2 mt-2">
-          {sampleMatches.map((_, index) => (
+          {featuredMatches.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
