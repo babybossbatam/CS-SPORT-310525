@@ -105,7 +105,7 @@ const LeagueStandingsFilter = () => {
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
   const { data: standings, isLoading: standingsLoading, error: standingsError } = useLeagueStandings(
-    selectedLeague && selectedLeague !== '' ? parseInt(selectedLeague) : 0
+    selectedLeague && selectedLeague !== '' ? parseInt(selectedLeague) : null
   );
 
   // Debug logging

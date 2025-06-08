@@ -296,7 +296,7 @@ class StandingsCache {
 
   private async performIndividualFetch(leagueId: number, season?: number): Promise<LeagueStandings | null> {
     // Validate league ID before making API call
-    if (!leagueId || leagueId <= 0 || typeof leagueId !== 'number') {
+    if (!leagueId || leagueId <= 0 || typeof leagueId !== 'number' || isNaN(leagueId)) {
       console.warn(`Invalid league ID provided: ${leagueId}`);
       return null;
     }
@@ -602,11 +602,11 @@ const standingsCache = StandingsCache.getInstance();
 /**
  * Hook to fetch individual league standings with optimized caching
  */
-export function useLeagueStandings(leagueId: number, season?: number) {
+export function useLeagueStandings(leagueId: number | null, season?: number) {
   return useQuery({
     queryKey: ['standings', leagueId, season || new Date().getFullYear()],
-    queryFn: () => standingsCache.fetchLeagueStandings(leagueId, season),
-    enabled: !!leagueId,
+    queryFn: () => standingsCache.fetchLeagueStandings(leagueId!, season),
+    enabled: !!leagueId && leagueId > 0 && !isNaN(leagueId),
     ...STANDINGS_CACHE_CONFIG,
   });
 }
