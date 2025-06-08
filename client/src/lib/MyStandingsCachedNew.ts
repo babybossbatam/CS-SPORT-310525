@@ -331,8 +331,8 @@ class StandingsCache {
       
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined,
-        timeout: 25000, // Increased timeout to 25 seconds
-        retries: 4 // Increased retry attempts for better network resilience
+        timeout: 15000, // Reasonable timeout
+        retries: 2 // Reasonable retry attempts
       });
 
       // Check for network connectivity issues and error responses

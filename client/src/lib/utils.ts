@@ -553,7 +553,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     try {
       // Ensure endpoint starts with / for proper URL construction
       const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-      let url = `${baseUrl}${cleanEndpoint}`;
+      
+      // Fix URL construction to avoid double slashes
+      let url = baseUrl.endsWith('/') ? `${baseUrl.slice(0, -1)}${cleanEndpoint}` : `${baseUrl}${cleanEndpoint}`;
       let requestBody: string | undefined;
 
       // Handle GET requests with query parameters
@@ -579,11 +581,14 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
           method,
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
           },
           body: requestBody,
-          credentials: 'same-origin',
+          credentials: 'include',
           mode: 'cors',
           signal: controller.signal,
+          keepalive: false,
         });
       } catch (fetchError) {
         clearTimeout(timeoutId);
