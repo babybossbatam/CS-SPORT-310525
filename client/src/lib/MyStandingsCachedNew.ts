@@ -339,7 +339,8 @@ class StandingsCache {
       if (!response || response.status === 503 || response.status === 408 || response.status === 0 || !response.ok) {
         const isNetworkError = response?.status === 503 || response?.status === 408 || response?.status === 0;
         const isTimeout = response?.status === 408;
-        const errorType = isTimeout ? 'Request timeout' : isNetworkError ? 'Network connectivity' : 'API error';
+        const isServerError = response?.status >= 500;
+        const errorType = isTimeout ? 'Request timeout' : isNetworkError ? 'Network connectivity' : isServerError ? 'Server error' : 'API error';
         
         console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response?.status || 'unknown'})`);
         
@@ -349,9 +350,15 @@ class StandingsCache {
           if (response && typeof response.json === 'function') {
             const errorData = await response.json();
             errorDetails = errorData.message || errorData.details || '';
+            
+            // Check if the error indicates a retryable condition
+            if (errorData.retryable || errorData.networkError) {
+              console.log(`📋 API indicates retryable error for league ${leagueId}: ${errorDetails}`);
+            }
           }
         } catch (jsonError) {
           // Ignore JSON parsing errors for error responses
+          console.log(`⚠️ Could not parse error response for league ${leagueId}`);
         }
         
         // For network errors or API failures, always use cached data if available (regardless of age)
@@ -371,7 +378,8 @@ class StandingsCache {
             78: 'Bundesliga',
             61: 'Ligue 1',
             2: 'UEFA Champions League',
-            3: 'UEFA Europa League'
+            3: 'UEFA Europa League',
+            848: 'UEFA Europa Conference League'
           };
           
           console.log(`🏆 Creating minimal fallback data for popular league ${leagueId} due to ${errorType.toLowerCase()}`);

@@ -598,17 +598,21 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         const isNetworkError = fetchErrorMessage.includes('Failed to fetch') || 
                               fetchErrorMessage.includes('NetworkError') || 
                               fetchErrorMessage.includes('Network Error') ||
+                              fetchErrorMessage.includes('TypeError') ||
                               isAbortError;
 
-        // If this is not the last attempt, log and retry
-        if (attempt < maxRetries && !isAbortError) {
-          const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Exponential backoff, max 5s
+        // Determine if this is a retryable error
+        const isRetryable = isNetworkError && !isAbortError;
+
+        // If this is not the last attempt and it's retryable, log and retry
+        if (attempt < maxRetries && isRetryable) {
+          const delay = Math.min(1000 * Math.pow(2, attempt), 3000); // Exponential backoff, max 3s
           console.warn(`🔄 Network error on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
 
-        // Log the final failure
+        // Log the final failure with more context
         if (isAbortError) {
           console.warn(`⏰ Request timeout for ${method} ${endpoint} after ${timeout}ms`);
         } else {
@@ -619,12 +623,15 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         return new Response(
           JSON.stringify({ 
             error: true, 
-            message: isAbortError ? 'Request timeout - please try again' : 'Network connectivity failed - please check your connection',
+            message: isAbortError 
+              ? 'Request timeout - the server took too long to respond' 
+              : 'Network connectivity failed - unable to reach the server',
             details: fetchErrorMessage,
             networkError: isNetworkError,
             timeout: isAbortError,
             endpoint: endpoint,
-            attempts: maxRetries + 1
+            attempts: maxRetries + 1,
+            retryable: isRetryable
           }), 
           {
             status: isAbortError ? 408 : 503,
