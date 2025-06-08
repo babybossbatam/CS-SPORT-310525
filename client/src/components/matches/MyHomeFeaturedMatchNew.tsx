@@ -25,8 +25,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [loading, setLoading] = useState(false);
-  const [matches, setMatches] = useState([]);
+  const [matches, setMatches] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Function to get tomorrow's cached data from central provider
@@ -90,6 +91,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       try {
         console.log("🏠 [MyHomeFeaturedMatchNew] === APPLYING SAME FILTERING AS TODAYPOPULARLEAGUE ===");
         setLoading(true);
+        setError(null);
 
         if (!fixtures?.length) {
           console.log("🏠 [MyHomeFeaturedMatchNew] No fixtures available from central cache");
@@ -112,6 +114,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const filteredMatches = timeFiltered.filter(fixture => {
           // Basic validation
           if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture) {
+            console.log("🏠 [MyHomeFeaturedMatchNew] Filtered out fixture due to missing data:", {
+              hasFixture: !!fixture,
+              hasLeague: !!fixture?.league,
+              hasTeams: !!fixture?.teams,
+              hasFixtureData: !!fixture?.fixture
+            });
             return false;
           }
 
@@ -189,6 +197,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         setCurrentIndex(0);
       } catch (error) {
         console.error("🏠 [MyHomeFeaturedMatchNew] Error getting featured matches:", error);
+        setError(error instanceof Error ? error.message : "Unknown error occurred");
         setMatches([]);
       } finally {
         setLoading(false);
@@ -200,6 +209,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Memoize current match
   const currentMatch = useMemo(() => {
+    if (!Array.isArray(matches) || matches.length === 0 || currentIndex < 0 || currentIndex >= matches.length) {
+      console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Invalid array access:", {
+        isArray: Array.isArray(matches),
+        length: matches?.length || 0,
+        currentIndex,
+        isValidIndex: currentIndex >= 0 && currentIndex < (matches?.length || 0)
+      });
+      return null;
+    }
+    
     const match = matches[currentIndex];
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Current match memoization:");
     console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] - Current index:", currentIndex);
@@ -312,6 +331,38 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     ];
     return colors[teamId % colors.length];
   }, []);
+
+  // Error state
+  if (error) {
+    console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] 🚫 RENDERING: Error state");
+    return (
+      <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
+        <Badge
+          variant="secondary"
+          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+        >
+          Featured Match
+        </Badge>
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <Trophy className="h-12 w-12 mb-3 opacity-50" />
+            <p className="text-lg font-medium mb-1">Error Loading Featured Match</p>
+            <p className="text-sm text-center">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setMatches([]);
+                setCurrentIndex(0);
+              }}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Loading state with proper skeleton
   if (loading || isLoading) {
