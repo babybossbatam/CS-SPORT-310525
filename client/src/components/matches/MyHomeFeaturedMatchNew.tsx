@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCentralData } from '@/providers/CentralDataProvider';
+import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import CombinedLeagueCards from "./CombinedLeagueCards";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -12,79 +16,134 @@ interface MyHomeFeaturedMatchNewProps {
 
 const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   selectedDate,
-  maxMatches = 1,
+  maxMatches = 3,
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Static sample matches for demonstration
-  const sampleMatches = [
-    {
-      fixture: {
-        id: 123456,
-        date: new Date().toISOString(),
-        status: { short: "NS" },
-        venue: { name: "Old Trafford" }
-      },
-      league: {
-        id: 39,
-        name: "Premier League",
-        logo: "https://media.api-sports.io/football/leagues/39.png",
-        country: "England"
-      },
-      teams: {
-        home: {
-          id: 33,
-          name: "Manchester United",
-          logo: "https://media.api-sports.io/football/teams/33.png"
-        },
-        away: {
-          id: 34,
-          name: "Liverpool",
-          logo: "https://media.api-sports.io/football/teams/34.png"
-        }
-      },
-      goals: { home: null, away: null }
-    },
-    {
-      fixture: {
-        id: 123457,
-        date: new Date().toISOString(),
-        status: { short: "1H", elapsed: 45 },
-        venue: { name: "Santiago Bernabéu" }
-      },
-      league: {
-        id: 140,
-        name: "La Liga",
-        logo: "https://media.api-sports.io/football/leagues/140.png",
-        country: "Spain"
-      },
-      teams: {
-        home: {
-          id: 541,
-          name: "Real Madrid",
-          logo: "https://media.api-sports.io/football/teams/541.png"
-        },
-        away: {
-          id: 529,
-          name: "Barcelona",
-          logo: "https://media.api-sports.io/football/teams/529.png"
-        }
-      },
-      goals: { home: 1, away: 0 }
-    }
-  ];
+  // Get central cache data
+  const { fixtures, liveFixtures, isLoading } = useCentralData();
 
-  const currentMatch = sampleMatches[currentIndex] || null;
+  // Filter and process matches for featured display
+  const featuredMatches = useMemo(() => {
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures and ${liveFixtures.length} live fixtures`);
+
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const nextDay = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    // Combine all fixtures
+    const allFixtures = [...fixtures, ...liveFixtures];
+
+    // Popular leagues for prioritization
+    const popularLeagues = [
+      "Premier League", "La Liga", "Serie A", "Bundesliga", "Ligue 1",
+      "UEFA Champions League", "UEFA Europa League", "UEFA Nations League",
+      "Major League Soccer", "Primera A"
+    ];
+
+    // Filter for featured matches
+    const filtered = allFixtures.filter(fixture => {
+      if (!fixture?.fixture?.date || !fixture?.teams?.home?.name || !fixture?.teams?.away?.name) {
+        return false;
+      }
+
+      const fixtureDate = fixture.fixture.date.slice(0, 10);
+      const isValidDate = [today, tomorrow, nextDay].includes(fixtureDate);
+
+      if (!isValidDate) return false;
+
+      // Apply exclusion filters but be more permissive
+      if (shouldExcludeFromPopularLeagues(
+        fixture.league.name,
+        fixture.teams.home.name,
+        fixture.teams.away.name
+      )) {
+        return false;
+      }
+
+      const leagueId = fixture.league?.id;
+      const country = fixture.league?.country?.toLowerCase() || "";
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+
+      // Check if it's a popular league
+      const isPopularLeague = popularLeagues.some(league => 
+        leagueName.includes(league.toLowerCase())
+      );
+
+      // Popular countries
+      const popularCountries = [
+        "england", "spain", "italy", "germany", "france", "brazil", "argentina",
+        "netherlands", "portugal", "united states", "mexico"
+      ];
+
+      const isFromPopularCountry = popularCountries.some(
+        (popularCountry) => country.includes(popularCountry.toLowerCase()),
+      );
+
+      // Check if it's an international competition (be more inclusive)
+      const isInternationalCompetition =
+        leagueName.includes("champions league") ||
+        leagueName.includes("europa league") ||
+        leagueName.includes("conference league") ||
+        leagueName.includes("uefa") ||
+        leagueName.includes("nations league") ||
+        leagueName.includes("world cup") ||
+        leagueName.includes("fifa club world cup") ||
+        leagueName.includes("fifa") ||
+        leagueName.includes("copa america") ||
+        leagueName.includes("copa libertadores") ||
+        leagueName.includes("copa sudamericana") ||
+        leagueName.includes("libertadores") ||
+        leagueName.includes("sudamericana") ||
+        leagueName.includes("qualification") ||
+        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+        (leagueName.includes("international") && !leagueName.includes("women")) ||
+        country.includes("world") ||
+        country.includes("europe") ||
+        country.includes("international");
+
+      // Be more inclusive - if it matches any criteria, include it
+      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
+    });
+
+    // Sort by priority: live matches first, then popular leagues, then by date
+    const sorted = filtered.sort((a, b) => {
+      const aIsLive = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(a.fixture.status?.short);
+      const bIsLive = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(b.fixture.status?.short);
+
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+
+      const aIsPopular = popularLeagues.some(league => 
+        a.league.name.toLowerCase().includes(league.toLowerCase())
+      );
+      const bIsPopular = popularLeagues.some(league => 
+        b.league.name.toLowerCase().includes(league.toLowerCase())
+      );
+
+      if (aIsPopular && !bIsPopular) return -1;
+      if (!aIsPopular && bIsPopular) return 1;
+
+      return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+    });
+
+    const result = sorted.slice(0, maxMatches);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${allFixtures.length} fixtures to ${result.length} featured matches`);
+
+    return result;
+  }, [fixtures, liveFixtures, maxMatches]);
+
+  const currentMatch = featuredMatches[currentIndex] || null;
 
   const handlePrevious = () => {
-    if (sampleMatches.length <= 1) return;
-    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : sampleMatches.length - 1);
+    if (featuredMatches.length <= 1) return;
+    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1);
   };
 
   const handleNext = () => {
-    if (sampleMatches.length <= 1) return;
-    setCurrentIndex(currentIndex < sampleMatches.length - 1 ? currentIndex + 1 : 0);
+    if (featuredMatches.length <= 1) return;
+    setCurrentIndex(currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0);
   };
 
   const handleMatchClick = () => {
@@ -131,7 +190,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return colors[teamId % colors.length];
   };
 
-  if (!currentMatch || sampleMatches.length === 0) {
+  if (isLoading) {
+    return (
+      <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
+        <Badge
+          variant="secondary"
+          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+        >
+          Featured Match
+        </Badge>
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <Trophy className="h-12 w-12 mb-3 opacity-50 animate-pulse" />
+            <p className="text-lg font-medium mb-1">Loading featured matches...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!currentMatch || featuredMatches.length === 0) {
     return (
       <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
         <Badge
@@ -163,7 +241,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </Badge>
 
       {/* Navigation arrows */}
-      {sampleMatches.length > 1 && (
+      {featuredMatches.length > 1 && (
         <>
           <button
             onClick={(e) => {
@@ -197,188 +275,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
           onClick={handleMatchClick}
         >
-          {/* League info section */}
-          <div className="bg-white p-2 mt-6 relative mt-4 mb-4">
-            <div className="flex items-center justify-center">
-              {currentMatch?.league?.logo ? (
-                <img
-                  src={currentMatch.league.logo}
-                  alt={currentMatch.league.name}
-                  className="w-5 h-5 object-contain mr-2 drop-shadow-md"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-              ) : (
-                <Trophy className="w-5 h-5 text-amber-500 mr-2" />
-              )}
-              <span className="text-sm font-medium">
-                {currentMatch?.league?.name || "League Name"}
-              </span>
-              {getMatchStatusLabel(currentMatch) === "LIVE" ? (
-                <Badge
-                  variant="outline"
-                  className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse ml-2"
-                >
-                  LIVE
-                </Badge>
-              ) : (
-                <Badge
-                  variant="outline"
-                  className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
-                    getMatchStatusLabel(currentMatch) === "FINISHED"
-                      ? "border-gray-500 text-gray-500"
-                      : "border-blue-500 text-blue-500"
-                  }`}
-                >
-                  {getMatchStatusLabel(currentMatch)}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Score and Status Display */}
-          <div className="score-area h-20 flex flex-col justify-center items-center relative">
-            {(() => {
-              const status = currentMatch?.fixture?.status?.short;
-              const elapsed = currentMatch?.fixture?.status?.elapsed;
-              const isLive = getMatchStatusLabel(currentMatch) === "LIVE";
-              const hasScore = currentMatch?.fixture?.status?.short &&
-                ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(status);
-
-              if (hasScore) {
-                const statusText = getMatchStatus(currentMatch);
-                const scoreText = `${currentMatch?.goals?.home ?? 0}   -   ${currentMatch?.goals?.away ?? 0}`;
-
-                return (
-                  <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-900"}`}>
-                    <div className="text-xs uppercase tracking-wide">
-                      {statusText}
-                    </div>
-                    <div className="text-lg font-semibold">
-                      {scoreText}
-                    </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="text-gray-500 text-sm uppercase tracking-wide">
-                    UPCOMING
-                  </div>
-                );
-              }
-            })()}
-          </div>
-
-          {/* Team scoreboard with colored bars */}
-          <div className="relative">
-            <div className="flex relative h-[53px] rounded-md mb-8 cursor-pointer">
-              <div className="w-full h-full flex justify-between relative">
-                {/* Home team colored bar and logo */}
-                <div
-                  className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
-                  style={{
-                    background: getTeamColor(currentMatch?.teams?.home?.id || 0),
-                  }}
-                >
-                  <img
-                    src={currentMatch?.teams?.home?.logo || `/assets/fallback-logo.svg`}
-                    alt={currentMatch?.teams?.home?.name || "Home Team"}
-                    className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
-                    style={{
-                      top: "calc(50% - 32px)",
-                      left: "-32px",
-                      filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                    }}
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.svg";
-                    }}
-                  />
-                </div>
-
-                <div
-                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
-                  style={{
-                    top: "calc(50% - 13px)",
-                    left: "120px",
-                    fontSize: "1.24rem",
-                    fontWeight: "normal",
-                  }}
-                >
-                  {currentMatch?.teams?.home?.name || "TBD"}
-                </div>
-
-                {/* VS circle */}
-                <div
-                  className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
-                  style={{
-                    background: "#a00000",
-                    left: "calc(50% - 26px)",
-                    top: "calc(50% - 26px)",
-                    minWidth: "52px",
-                  }}
-                >
-                  <span className="vs-text font-bold">VS</span>
-                </div>
-
-                {/* Away team colored bar and logo */}
-                <div
-                  className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
-                  style={{
-                    background: getTeamColor(currentMatch?.teams?.away?.id || 1),
-                  }}
-                ></div>
-
-                <div
-                  className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                  style={{
-                    top: "calc(50% - 13px)",
-                    right: "130px",
-                    fontSize: "1.24rem",
-                    fontWeight: "normal",
-                  }}
-                >
-                  {currentMatch?.teams?.away?.name || "Away Team"}
-                </div>
-
-                <img
-                  src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
-                  alt={currentMatch?.teams?.away?.name || "Away Team"}
-                  className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
-                  style={{
-                    top: "calc(50% - 32px)",
-                    right: "87px",
-                    transform: "translateX(50%)",
-                    filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                  }}
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Match date and venue */}
-            <div className="absolute text-center text-sm text-black font-medium"
-              style={{
-                left: "50%",
-                transform: "translateX(-50%)",
-                top: "calc(100% + 20px)",
-                width: "max-content",
-              }}
-            >
-              Today | {currentMatch?.fixture?.venue?.name || "Stadium"}
-            </div>
-          </div>
+          {/* Use CombinedLeagueCards for the featured match display */}
+          <CombinedLeagueCards 
+            fixtures={[currentMatch]}
+            selectedDate={selectedDate}
+            showOnlyFeatured={true}
+          />
 
           {/* Bottom navigation */}
-          <div className="flex justify-around border-t border-gray-200 pt-4 mt-12 pb-4">
+          <div className="flex justify-around border-t border-gray-200 pt-4 mt-4 pb-4">
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
               onClick={() => {
@@ -452,9 +357,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </AnimatePresence>
 
       {/* Navigation dots */}
-      {sampleMatches.length > 1 && (
+      {featuredMatches.length > 1 && (
         <div className="flex justify-center gap-2 py-2 mt-2">
-          {sampleMatches.map((_, index) => (
+          {featuredMatches.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
