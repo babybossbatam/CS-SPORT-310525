@@ -335,12 +335,24 @@ class StandingsCache {
         retries: 4 // Increased retry attempts for better network resilience
       });
 
-      // Check for network connectivity issues first
-      if (!response || response.status === 503 || response.status === 0 || !response.ok) {
-        const isNetworkError = response.status === 503 || response.status === 0;
-        const errorType = isNetworkError ? 'Network connectivity' : 'API error';
+      // Check for network connectivity issues and error responses
+      if (!response || response.status === 503 || response.status === 408 || response.status === 0 || !response.ok) {
+        const isNetworkError = response?.status === 503 || response?.status === 408 || response?.status === 0;
+        const isTimeout = response?.status === 408;
+        const errorType = isTimeout ? 'Request timeout' : isNetworkError ? 'Network connectivity' : 'API error';
         
-        console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response.status})`);
+        console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response?.status || 'unknown'})`);
+        
+        // Try to get error details from response if available
+        let errorDetails = '';
+        try {
+          if (response && typeof response.json === 'function') {
+            const errorData = await response.json();
+            errorDetails = errorData.message || errorData.details || '';
+          }
+        } catch (jsonError) {
+          // Ignore JSON parsing errors for error responses
+        }
         
         // For network errors or API failures, always use cached data if available (regardless of age)
         if (anyCached) {

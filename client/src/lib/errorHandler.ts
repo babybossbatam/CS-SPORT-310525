@@ -102,7 +102,8 @@ export const setupGlobalErrorHandlers = () => {
       if (error.message?.includes('Failed to fetch') || 
           error.message?.includes('not 2xx response') ||
           error.message?.includes('Network Error') ||
-          error.message?.includes('NetworkError')) {
+          error.message?.includes('NetworkError') ||
+          error.message?.includes('fetch')) {
         console.log('🌐 Network connectivity issue detected, attempting recovery...');
         handleNetworkRecovery();
         return;
@@ -113,11 +114,19 @@ export const setupGlobalErrorHandlers = () => {
         console.log('🖼️ Frame-related error detected, suppressing cascade...');
         return;
       }
+      
+      // Handle AbortError from timeouts
+      if (error.name === 'AbortError') {
+        console.log('⏰ Request timeout detected, using cached data if available...');
+        return;
+      }
     }
     
     // Handle string errors that might be fetch-related
     if (typeof error === 'string' && 
-        (error.includes('Failed to fetch') || error.includes('Network'))) {
+        (error.includes('Failed to fetch') || 
+         error.includes('Network') || 
+         error.includes('fetch'))) {
       console.log('🌐 Network error string detected, attempting recovery...');
       handleNetworkRecovery();
       return;

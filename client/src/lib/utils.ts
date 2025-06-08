@@ -572,7 +572,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         requestBody = JSON.stringify(options);
       }
 
-      // Attempt the fetch with better error handling
+      // Attempt the fetch with enhanced error handling
       let response: Response;
       try {
         response = await fetch(url, {
@@ -589,31 +589,41 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         clearTimeout(timeoutId);
 
         const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
+        const isAbortError = fetchError instanceof Error && fetchError.name === 'AbortError';
+        const isNetworkError = fetchErrorMessage.includes('Failed to fetch') || 
+                              fetchErrorMessage.includes('NetworkError') || 
+                              fetchErrorMessage.includes('Network Error') ||
+                              isAbortError;
 
         // If this is not the last attempt, log and retry
-        if (attempt < maxRetries) {
+        if (attempt < maxRetries && !isAbortError) {
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Exponential backoff, max 5s
           console.warn(`🔄 Network error on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
 
-        // Create a synthetic response that mimics a failed fetch but doesn't throw
-        console.warn(`🌐 Network failure for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
+        // Log the final failure
+        if (isAbortError) {
+          console.warn(`⏰ Request timeout for ${method} ${endpoint} after ${timeout}ms`);
+        } else {
+          console.warn(`🌐 Network failure for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
+        }
 
-        // Create a proper error response for network failures
+        // Create a proper error response for network failures that doesn't throw
         return new Response(
           JSON.stringify({ 
             error: true, 
-            message: 'Network connectivity failed - please check your connection',
+            message: isAbortError ? 'Request timeout - please try again' : 'Network connectivity failed - please check your connection',
             details: fetchErrorMessage,
-            networkError: true,
+            networkError: isNetworkError,
+            timeout: isAbortError,
             endpoint: endpoint,
             attempts: maxRetries + 1
           }), 
           {
-            status: 503,
-            statusText: 'Service Unavailable',
+            status: isAbortError ? 408 : 503,
+            statusText: isAbortError ? 'Request Timeout' : 'Service Unavailable',
             headers: new Headers({ 'Content-Type': 'application/json' })
           }
         );
