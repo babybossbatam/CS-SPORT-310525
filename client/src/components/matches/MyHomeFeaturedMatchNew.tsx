@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +7,7 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCentralData } from "@/providers/CentralDataProvider";
 import { shouldExcludeFromPopularLeagues, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
-import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
+import { shouldExcludeFixture } from "@/lib/MyFeaturedMatchExclusion";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 
 interface MyHomeFeaturedMatchNewProps {
@@ -20,7 +21,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  
   // Get central cache data
   const { fixtures, liveFixtures, isLoading } = useCentralData();
 
@@ -29,7 +30,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowDate = tomorrow.toISOString().slice(0, 10);
-
+  
   const dayAfterTomorrow = new Date();
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
   const nextDayAfterTomorrowDate = dayAfterTomorrow.toISOString().slice(0, 10);
@@ -40,7 +41,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Combine all available fixtures
     const allFixtures = [...fixtures, ...liveFixtures];
-
+    
     // Define popular leagues for featured matches
     const POPULAR_LEAGUES = [
       39, 45, 48, // England: Premier League, FA Cup, EFL Cup
@@ -70,13 +71,28 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       // Check if fixture is for today, tomorrow, or day after tomorrow
       const fixtureDate = new Date(fixture.fixture.date).toISOString().slice(0, 10);
       const isValidDate = fixtureDate === today || fixtureDate === tomorrowDate || fixtureDate === nextDayAfterTomorrowDate;
-
+      
       if (!isValidDate) return false;
 
-      // For featured matches, be more permissive with time filtering
-      // Skip complex smart time filtering for now to include more matches
+      // Apply smart time filtering
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          fixtureDate + "T12:00:00Z",
+        );
 
-      // Apply basic exclusion filters but be more permissive
+        const shouldInclude = (() => {
+          if (fixtureDate === tomorrowDate && smartResult.label === "tomorrow") return true;
+          if (fixtureDate === today && smartResult.label === "today") return true;
+          if (fixtureDate === nextDayAfterTomorrowDate && smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
+          return false;
+        })();
+
+        if (!shouldInclude) return false;
+      }
+
+      // Apply exclusion filters
       if (shouldExcludeFromPopularLeagues(
         fixture.league.name,
         fixture.teams.home.name,
@@ -91,7 +107,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
 
       // Apply featured match exclusions
-      if (shouldExcludeFeaturedMatch(fixture)) {
+      if (shouldExcludeFixture(fixture)) {
+        return false;
+      }
+
+      if (!fixture.league.country) {
         return false;
       }
 
@@ -107,13 +127,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         (popularCountry) => country.includes(popularCountry.toLowerCase()),
       );
 
-      // Check if it's an international competition (be more inclusive)
+      // Check if it's an international competition
       const isInternationalCompetition =
         leagueName.includes("champions league") ||
         leagueName.includes("europa league") ||
         leagueName.includes("conference league") ||
         leagueName.includes("uefa") ||
-        leagueName.includes("nations league") ||
         leagueName.includes("world cup") ||
         leagueName.includes("fifa club world cup") ||
         leagueName.includes("fifa") ||
@@ -123,14 +142,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         leagueName.includes("copa sudamericana") ||
         leagueName.includes("libertadores") ||
         leagueName.includes("sudamericana") ||
-        leagueName.includes("qualification") ||
         (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
         (leagueName.includes("international") && !leagueName.includes("women")) ||
         country.includes("world") ||
         country.includes("europe") ||
         country.includes("international");
 
-      // Be more inclusive - if it matches any criteria, include it
       return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
     });
 
@@ -138,22 +155,22 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const prioritized = filtered.sort((a, b) => {
       const aIsLive = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(a.fixture.status.short);
       const bIsLive = ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(b.fixture.status.short);
-
+      
       if (aIsLive && !bIsLive) return -1;
       if (!aIsLive && bIsLive) return 1;
-
+      
       // Prioritize by league importance
       const aIsTopLeague = [39, 140, 135, 78, 61, 2, 3].includes(a.league.id);
       const bIsTopLeague = [39, 140, 135, 78, 61, 2, 3].includes(b.league.id);
-
+      
       if (aIsTopLeague && !bIsTopLeague) return -1;
       if (!aIsTopLeague && bIsTopLeague) return 1;
-
+      
       return 0;
     });
 
     console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${allFixtures.length} fixtures to ${prioritized.length} featured matches`);
-
+    
     return prioritized.slice(0, maxMatches * 3); // Get more options for cycling
   }, [fixtures, liveFixtures, today, tomorrowDate, nextDayAfterTomorrowDate, maxMatches]);
 
