@@ -57,14 +57,14 @@ const LeagueStandingsFilter = () => {
       try {
         setLeaguesLoading(true);
         const leagues = await getPopularLeagues();
-        
+
         // Process leagues to ensure we have proper names and logos
         const processedLeagues = leagues.map((league) => ({
           ...league,
           // Ensure we have a proper name, fallback to a meaningful default
           name: league.name || `${league.country} League`
         }));
-        
+
         setPopularLeagues(processedLeagues);
 
         // Set default selection to first league with valid ID
@@ -77,7 +77,7 @@ const LeagueStandingsFilter = () => {
         }
       } catch (error) {
         console.error('Failed to load league data:', error);
-        
+
         // Fallback to popular leagues if network fails
         const fallbackLeagues = [
           { id: 39, name: 'Premier League', logo: '', country: 'England' },
@@ -86,9 +86,9 @@ const LeagueStandingsFilter = () => {
           { id: 78, name: 'Bundesliga', logo: '', country: 'Germany' },
           { id: 61, name: 'Ligue 1', logo: '', country: 'France' },
         ];
-        
+
         setPopularLeagues(fallbackLeagues);
-        
+
         // Set default to Premier League
         setSelectedLeague('39');
         setSelectedLeagueName('Premier League');
@@ -103,17 +103,8 @@ const LeagueStandingsFilter = () => {
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  const { data: standings, isLoading: standingsLoading } = useQuery({
-    queryKey: ['standings', selectedLeague, todayDateKey],
-    queryFn: async () => {
-      const response = await apiRequest('GET', `/api/leagues/${selectedLeague}/standings`);
-      return response.json();
-    },
-    enabled: !!selectedLeague && selectedLeague !== '',
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours garbage collection
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
+  console.log('LeagueStandingsFilter Debug:', {
+    selectedLeague,
   });
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
@@ -129,7 +120,7 @@ const LeagueStandingsFilter = () => {
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
-  const isLoading = standingsLoading || fixturesLoading || leaguesLoading;
+  const isLoading = fixturesLoading || leaguesLoading;
 
   if (isLoading) {
     return (
@@ -197,119 +188,11 @@ const LeagueStandingsFilter = () => {
       </CardHeader>
       <CardContent>
         <div className="relative">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                  <TableHead className="w-[40px] text-center">#</TableHead>
-                  <TableHead className="pl-4">Team</TableHead>
-                  <TableHead className="text-center">P</TableHead>
-                  <TableHead className="text-center">F:A</TableHead>
-                  <TableHead className="text-center">+/-</TableHead>
-                  <TableHead className="text-center">PTS</TableHead>
-                  <TableHead className="text-center">W</TableHead>
-                  <TableHead className="text-center">D</TableHead>
-                  <TableHead className="text-center">L</TableHead>
-                  <TableHead className="text-center">Form</TableHead>
-                  <TableHead className="text-center">Next</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-              {standings?.league?.standings?.[0]?.slice(0, 7).map((standing: Standing) => {
-                const stats = standing.all;
-                return (
-                  <TableRow key={standing.team.id} className="border-b border-gray-100">
-                      <TableCell className="font-medium text-[0.9em] text-center">{standing.rank}</TableCell>
-                      <TableCell className="flex flex-col font-normal pl-4">
-                        <div className="flex items-center">
-                          <img
-                            src={standing.team.logo}
-                            alt={standing.team.name}
-                            className="mr-2 h-5 w-5 rounded-full"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                            }}
-                          />
-                          <span className="text-[0.9em]">{standing.team.name}</span>
-                          {standing.rank === 1 && <span className="ml-2">👑</span>}
-                        </div>
-                        {standing.description && (
-                          <span className="text-[0.75em] text-yellow-500">
-                            {standing.rank === 1 ? 'Won title • CAF Champions League' : standing.description}
-                          </span>
-                        )}
-                      </TableCell>
-                    <TableCell className="text-center text-[0.9em]">{stats.played}</TableCell>
-                    <TableCell className="text-center text-[0.9em]">{stats.goals.for}:{stats.goals.against}</TableCell>
-                    <TableCell className="text-center text-[0.9em]">{standing.goalsDiff}</TableCell>
-                    <TableCell className="text-center font-bold text-[0.9em]">{standing.points}</TableCell>
-                    <TableCell className="text-center text-[0.9em]">{stats.win}</TableCell>
-                    <TableCell className="text-center text-[0.9em]">{stats.draw}</TableCell>
-                    <TableCell className="text-center text-[0.9em]">{stats.lose}</TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex gap-1 justify-center">
-                        {standing.form?.split('').map((result, i) => (
-                          <span
-                            key={i}
-                            className={`w-2 h-2 rounded-full ${
-                              result === 'W' ? 'bg-green-500' :
-                              result === 'D' ? 'bg-gray-500' :
-                              'bg-red-500'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-2 py-2 relative group">
-                      <div className="flex items-center justify-center gap-2">
-                        {standings?.league?.standings?.[0]?.find(opponent => 
-                          opponent.team.id !== standing.team.id && 
-                          opponent.rank > standing.rank
-                        ) && (
-                          <>
-                            <img 
-                              src={standings?.league?.standings?.[0]?.find(opponent => 
-                                opponent.team.id !== standing.team.id && 
-                                opponent.rank > standing.rank
-                              )?.team.logo} 
-                              alt={`Next opponent: ${standings?.league?.standings?.[0]?.find(opponent => 
-                                opponent.team.id !== standing.team.id && 
-                                opponent.rank > standing.rank
-                              )?.team.name}`}
-                              className="w-4 h-4 hover:scale-110 transition-transform"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                              }}
-                            />
-                            <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
-                              <div className="text-xs">
-                                <span className="font-medium">{standing.team.name}</span>
-                                <span className="mx-2">vs</span>
-                                <span className="font-medium">
-                                  {standings?.league?.standings?.[0]?.find(opponent => 
-                                    opponent.team.id !== standing.team.id && 
-                                    opponent.rank > standing.rank
-                                  )?.team.name}
-                                </span>
-                                <div className="text-gray-500 mt-1">
-                                  {(() => {
-                                    const nextMatch = fixtures?.find(f => 
-                                      (f.teams.home.id === standing.team.id || f.teams.away.id === standing.team.id) &&
-                                      new Date(f.fixture.date) > new Date()
-                                    );
-                                    return nextMatch ? format(parseISO(nextMatch.fixture.date), 'dd/MM/yyyy') : 'No upcoming matches';
-                                  })()}
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          
+
+          <div className="text-center py-8 text-gray-500">
+            <p>Standings feature has been removed</p>
+          </div>
         </div>
       </CardContent>
     </Card>

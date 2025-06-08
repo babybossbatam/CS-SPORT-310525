@@ -352,9 +352,6 @@ const countryCodeMap: { [key: string]: string } = {
 
 import { flagCache, getFlagCacheKey, validateLogoUrl } from './logoCache';
 
-// Re-export flagCache for components that need it
-export { flagCache };
-
 // Flag preloading system
 const FLAG_STORAGE_KEY = 'cssport_flag_cache';
 const FLAG_PRELOAD_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
@@ -1807,120 +1804,39 @@ export async function testCountryMappingAgainstLiveData(fixtures: any[]): Promis
 }
 
 export const getFlagUrl = async (country: string): Promise<string> => {
-  // Normalize country name
-  const normalizedCountry = country.trim();
-
-  if (!normalizedCountry) {
-    console.warn('Empty country name provided to getFlagUrl');
+  if (!country || typeof country !== 'string') {
+    console.warn(`Invalid country provided to getFlagUrl: ${country}`);
     return '/assets/fallback-logo.svg';
   }
 
-  // Check cache first
-  const cacheKey = `flag_${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}`;
-  const cached = flagCache.getCached(cacheKey);
+  const normalizedCountry = normalizeCountryCode(country);
+  const cacheKey = `flag_${normalizedCountry}`;
 
+  // Check cache first
+  const cached = getCachedFlag(cacheKey);
   if (cached) {
-    return cached.url;
+    return cached;
   }
 
-  console.log(`Getting flag for country: ${normalizedCountry}`);
-
   try {
-    // Try our API endpoint first (which uses SportsRadar)
-    const response = await fetch(`/api/flags/${encodeURIComponent(normalizedCountry)}`, {
-      signal: AbortSignal.timeout(5000)
-    });
+    console.log(`🔍 Fetching new flag for country: ${country} (key: ${cacheKey})`);
+    const flagUrl = await fetchFlagForCountry(country);
 
-    if (response.ok) {
-      const data = await response.json();
+    // Cache the result
+    const flagData: FlagCacheItem = {
+      url: flagUrl,
+      timestamp: Date.now(),
+      country: country
+    };
 
-      if (data.success && data.flagUrl) {
-        console.log(`✅ Valid flag found for ${normalizedCountry}: ${data.flagUrl}`);
-        flagCache.setCached(cacheKey, data.flagUrl, 'api-success', true);
-        return data.flagUrl;
-      }
+    flagCache.set(cacheKey, flagData);
+    console.log(`💾 Cached flag for ${country}: ${flagUrl}`);
+    saveFlagsToStorage();
 
-      if (data.shouldExclude) {
-        console.log(`🚫 Country ${normalizedCountry} should be excluded due to missing flag`);
-        flagCache.setCached(cacheKey, '/assets/fallback-logo.svg', 'api-exclude', true);
-        return '/assets/fallback-logo.svg';
-      }
-    }
-
-    console.log(`❌ API failed for ${normalizedCountry}, trying fallback sources`);
-
-    // Fallback 1: Try API-Football format
-    try {
-      console.log(`Flag fallback for ${normalizedCountry}: trying source 1/3`);
-      const apiFootballUrl = `https://media.api-sports.io/flags/${normalizedCountry.toLowerCase().replace(/\s+/g, '')}.svg`;
-
-      const apiFootballResponse = await fetch(apiFootballUrl, { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(3000)
-      });
-
-      if (apiFootballResponse.ok) {
-        console.log(`✅ Valid flag found via API-Football for ${normalizedCountry}: ${apiFootballUrl}`);
-        flagCache.setCached(cacheKey, apiFootballUrl, 'api-football', true);
-        return apiFootballUrl;
-      }
-    } catch (e) {
-      console.log(`Failed API-Football fallback for ${normalizedCountry}`);
-    }
-
-    // Fallback 2: Try 365scores CDN
-    try {
-      console.log(`Flag fallback for ${normalizedCountry}: trying source 2/3`);
-      const scores365Url = `https://sports.365scores.com/CDN/images/flags/${normalizedCountry.toLowerCase().replace(/\s+/g, '_')}.svg`;
-
-      const scores365Response = await fetch(scores365Url, { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(3000)
-      });
-
-      if (scores365Response.ok) {
-        console.log(`✅ Valid flag found via 365scores for ${normalizedCountry}: ${scores365Url}`);
-        flagCache.setCached(cacheKey, scores365Url, '365scores', true);
-        return scores365Url;
-      }
-    } catch (e) {
-      console.log(`Failed 365scores fallback for ${normalizedCountry}`);
-    }
-
-    // Fallback 3: Country code based approach
-    try {
-      console.log(`Flag fallback for ${normalizedCountry}: trying source 3/3`);
-      const countryCode = getCountryCode(normalizedCountry);
-      if (countryCode) {
-        const countryCodeUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
-
-        const countryCodeResponse = await fetch(countryCodeUrl, { 
-          method: 'HEAD',
-          signal: AbortSignal.timeout(3000)
-        });
-
-        if (countryCodeResponse.ok) {
-          console.log(`✅ Valid flag found via country code for ${normalizedCountry}: ${countryCodeUrl}`);
-          flagCache.setCached(cacheKey, countryCodeUrl, 'country-code', true);
-          return countryCodeUrl;
-        }
-      }
-    } catch (e) {
-      console.log(`Failed country code fallback for ${normalizedCountry}`);
-    }
-
-    console.log(`❌ All flag sources failed for ${normalizedCountry}, using fallback`);
-
-    // All fallbacks failed, use default
-    const fallbackUrl = '/assets/fallback-logo.svg';
-    flagCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
-    return fallbackUrl;
-
+    return flagUrl;
   } catch (error) {
-    console.error(`Error fetching flag for ${normalizedCountry}:`, error);
-    const fallbackUrl = '/assets/fallback-logo.svg';
-    flagCache.setCached(cacheKey, fallbackUrl, 'error-fallback', true);
-    return fallbackUrl;
+    console.error(`❌ Error fetching flag for ${country}:`, error);
+    return '/assets/fallback-logo.svg';
   }
 };
 
