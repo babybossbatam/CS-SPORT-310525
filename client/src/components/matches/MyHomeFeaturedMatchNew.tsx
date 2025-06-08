@@ -8,6 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isValid, addDays } from "date-fns";
 import { useCentralData } from '@/providers/CentralDataProvider';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { CacheManager } from "@/lib/cachingHelper";
+import { backgroundCache } from "@/lib/backgroundCache";
+import { apiRequest } from "@/lib/queryClient";
+import { getCachedFixturesForDate, cacheFixturesForDate } from "@/lib/fixtureCache";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -19,9 +24,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 1,
 }) => {
   const [, navigate] = useLocation();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const queryClient = useQueryClient();
+
+  // Function to get tomorrow's cached data from central provider
+  const getTomorrowsCachedData = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowDate = tomorrow.toISOString().split("T")[0];
+
+    return queryClient.getQueryData(['central-date-fixtures', tomorrowDate]);
+  };
 
   // Get current date if not provided
   const currentDate = selectedDate || new Date().toISOString().split("T")[0];
@@ -771,6 +786,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 } catch (e) {
                   return currentMatch.fixture.venue?.name || "";
                 }
+```text
               })()}
             </div>
           </div>
