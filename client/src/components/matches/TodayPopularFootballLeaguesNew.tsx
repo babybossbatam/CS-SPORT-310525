@@ -1878,4 +1878,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   );
 };
 
+// Export the filtered fixtures for use by TodayMatchByTime
+export { filteredFixtures as useFilteredFixtures };
+
 export default TodayPopularFootballLeaguesNew;
