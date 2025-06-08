@@ -1,0 +1,42 @@
+4:25:49 AM [vite] hmr update /src/components/matches/TodayPopularFootballLeaguesNew.tsx, /src/index.css?v=p_YRh9p2MWequZxG7aQc5
+4:25:49 AM [vite] Internal server error: /home/runner/workspace/client/src/components/matches/TodayPopularFootballLeaguesNew.tsx: Export 'filteredFixtures' is not defined. (1882:9)
+
+  1880 |
+  1881 | // Export the filtered fixtures for use by TodayMatchByTime
+> 1882 | export { filteredFixtures as useFilteredFixtures };
+       |          ^
+  1883 |
+  1884 | export default TodayPopularFootballLeaguesNew;
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/components/matches/TodayPopularFootballLeaguesNew.tsx:1882:9
+  1880|  
+  1881|  // Export the filtered fixtures for use by TodayMatchByTime
+  1882|  export { filteredFixtures as useFilteredFixtures };
+     |           ^
+  1883|  
+  1884|  export default TodayPopularFootballLeaguesNew;
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1497:19)
+      at parseProgram (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:232:16)
+      at parseTopLevel (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:203:25)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/src/parser/index.ts:90:10)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:4192:20)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/src/index.ts:92:38)
+      at parser (/home/runner/workspace/node_modules/@babel/core/src/parser/index.ts:28:19)
+      at parser.next (<anonymous>)
+      at normalizeFile (/home/runner/workspace/node_modules/@babel/core/src/transformation/normalize-file.ts:50:24)
+      at normalizeFile.next (<anonymous>)
+      at run (/home/runner/workspace/node_modules/@babel/core/src/transformation/index.ts:40:36)
+      at run.next (<anonymous>)
+      at transform (/home/runner/workspace/node_modules/@babel/core/src/transform.ts:29:20)
+      at transform.next (<anonymous>)
+      at step (/home/runner/workspace/node_modules/gensync/index.js:261:32)
+      at /home/runner/workspace/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/home/runner/workspace/node_modules/gensync/index.js:223:11)
+      at /home/runner/workspace/node_modules/gensync/index.js:189:28
+      at <anonymous> (/home/runner/workspace/node_modules/@babel/core/src/gensync-utils/async.ts:90:7)
+      at /home/runner/workspace/node_modules/gensync/index.js:113:33
+      at step (/home/runner/workspace/node_modules/gensync/index.js:287:14)
+      at /home/runner/workspace/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/home/runner/workspace/node_modules/gensync/index.js:223:11)
+Failed running 'server/index.ts'
