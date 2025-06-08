@@ -81,7 +81,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   };
 
   // Use central data cache like TodayMatchByTime
-  const { fixtures, liveFixtures, isLoading, error } = useCentralData();
+  const { fixtures, liveFixtures, isLoading, error: centralError } = useCentralData();
 
   console.log(`🏠 [MyHomeFeaturedMatchNew] Got ${fixtures?.length || 0} fixtures from central cache`);
 
