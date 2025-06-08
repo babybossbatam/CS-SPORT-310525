@@ -81,19 +81,7 @@ const CacheMonitor: React.FC = () => {
   };
 
   if (!isVisible) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50">
-        <Button
-          onClick={() => setIsVisible(true)}
-          variant="outline"
-          size="sm"
-          className="bg-white shadow-lg"
-        >
-          <Database className="h-4 w-4 mr-1" />
-          Cache Monitor
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   return (
