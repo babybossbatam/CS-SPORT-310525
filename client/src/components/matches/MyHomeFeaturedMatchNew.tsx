@@ -8,6 +8,7 @@ import { useCentralData } from '@/providers/CentralDataProvider';
 import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import CombinedLeagueCards from "./CombinedLeagueCards";
+import { format } from 'date-fns';
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -275,12 +276,118 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer"
           onClick={handleMatchClick}
         >
-          {/* Use CombinedLeagueCards for the featured match display */}
-          <CombinedLeagueCards 
-            fixtures={[currentMatch]}
-            selectedDate={selectedDate}
-            showOnlyFeatured={true}
-          />
+          {/* Original featured match design */}
+          <div className="bg-gray-50 p-3 relative">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img 
+                  src={currentMatch.league.logo} 
+                  alt={currentMatch.league.name}
+                  className="w-6 h-6"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                  }}
+                />
+                <span className="font-medium text-sm">{currentMatch.league.name}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {getMatchStatusLabel(currentMatch) === "LIVE" ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-xs font-medium text-red-600">LIVE</span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-500">
+                    {getMatchStatus(currentMatch)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Teams and score section */}
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              {/* Home team */}
+              <div className="flex flex-col items-center text-center flex-1">
+                <img
+                  src={currentMatch.teams.home.logo}
+                  alt={currentMatch.teams.home.name}
+                  className="w-16 h-16 object-contain mb-2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                  }}
+                />
+                <span className="text-sm font-medium text-gray-900 max-w-[80px] truncate">
+                  {currentMatch.teams.home.name}
+                </span>
+              </div>
+
+              {/* Score/Time center */}
+              <div className="flex flex-col items-center justify-center mx-6">
+                {(() => {
+                  const status = currentMatch.fixture.status.short;
+                  const fixtureDate = new Date(currentMatch.fixture.date);
+
+                  // Live matches
+                  if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
+                    return (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-900 mb-1">
+                          {currentMatch.goals.home ?? 0} - {currentMatch.goals.away ?? 0}
+                        </div>
+                        <div className="text-xs text-red-600 font-medium">
+                          {status === "HT" ? "Halftime" : `${currentMatch.fixture.status.elapsed || 0}'`}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Finished matches
+                  if (["FT", "AET", "PEN"].includes(status)) {
+                    return (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-900 mb-1">
+                          {currentMatch.goals.home ?? 0} - {currentMatch.goals.away ?? 0}
+                        </div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          Full Time
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Upcoming matches
+                  return (
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-gray-900 mb-1">
+                        {status === "TBD" ? "TBD" : format(fixtureDate, "HH:mm")}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {status === "TBD" ? "Time TBD" : format(fixtureDate, "MMM dd")}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Away team */}
+              <div className="flex flex-col items-center text-center flex-1">
+                <img
+                  src={currentMatch.teams.away.logo}
+                  alt={currentMatch.teams.away.name}
+                  className="w-16 h-16 object-contain mb-2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                  }}
+                />
+                <span className="text-sm font-medium text-gray-900 max-w-[80px] truncate">
+                  {currentMatch.teams.away.name}
+                </span>
+              </div>
+            </div>
+          </div>
 
           {/* Bottom navigation */}
           <div className="flex justify-around border-t border-gray-200 pt-4 mt-4 pb-4">
