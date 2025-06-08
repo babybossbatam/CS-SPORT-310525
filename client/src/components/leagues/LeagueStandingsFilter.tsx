@@ -104,9 +104,17 @@ const LeagueStandingsFilter = () => {
   // Get today's date string for daily caching
   const todayDateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  const { data: standings, isLoading: standingsLoading } = useLeagueStandings(
+  const { data: standings, isLoading: standingsLoading, error: standingsError } = useLeagueStandings(
     selectedLeague && selectedLeague !== '' ? parseInt(selectedLeague) : 0
   );
+
+  // Debug logging
+  console.log('LeagueStandingsFilter Debug:', {
+    selectedLeague,
+    standings,
+    standingsLoading,
+    standingsError
+  });
 
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
     queryKey: ['fixtures', selectedLeague, todayDateKey],
@@ -189,24 +197,37 @@ const LeagueStandingsFilter = () => {
       </CardHeader>
       <CardContent>
         <div className="relative">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                  <TableHead className="w-[40px] text-center">#</TableHead>
-                  <TableHead className="pl-4">Team</TableHead>
-                  <TableHead className="text-center">P</TableHead>
-                  <TableHead className="text-center">F:A</TableHead>
-                  <TableHead className="text-center">+/-</TableHead>
-                  <TableHead className="text-center">PTS</TableHead>
-                  <TableHead className="text-center">W</TableHead>
-                  <TableHead className="text-center">D</TableHead>
-                  <TableHead className="text-center">L</TableHead>
-                  <TableHead className="text-center">Form</TableHead>
-                  <TableHead className="text-center">Next</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-              {standings?.league?.standings?.[0]?.slice(0, 7).map((standing: Standing) => {
+          {standingsError && (
+            <div className="text-center py-4 text-red-500">
+              Error loading standings: {standingsError.message}
+            </div>
+          )}
+          
+          {!standingsLoading && !standingsError && (!standings?.league?.standings?.[0] || standings.league.standings[0].length === 0) && (
+            <div className="text-center py-4 text-gray-500">
+              No standings data available for this league.
+            </div>
+          )}
+
+          {standings?.league?.standings?.[0] && standings.league.standings[0].length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                    <TableHead className="w-[40px] text-center">#</TableHead>
+                    <TableHead className="pl-4">Team</TableHead>
+                    <TableHead className="text-center">P</TableHead>
+                    <TableHead className="text-center">F:A</TableHead>
+                    <TableHead className="text-center">+/-</TableHead>
+                    <TableHead className="text-center">PTS</TableHead>
+                    <TableHead className="text-center">W</TableHead>
+                    <TableHead className="text-center">D</TableHead>
+                    <TableHead className="text-center">L</TableHead>
+                    <TableHead className="text-center">Form</TableHead>
+                    <TableHead className="text-center">Next</TableHead>
+                  </TableRow>
+              </TableHeader>
+              <TableBody>
+                {standings.league.standings[0].slice(0, 7).map((standing: Standing) => {
                 const stats = standing.all;
                 return (
                   <TableRow key={standing.team.id} className="border-b border-gray-100">
@@ -298,10 +319,11 @@ const LeagueStandingsFilter = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </CardContent>
     </Card>
