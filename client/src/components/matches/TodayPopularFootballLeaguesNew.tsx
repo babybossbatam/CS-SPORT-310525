@@ -35,7 +35,6 @@ import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
-import { getCachedFixturesForDate, cacheFixturesForDate } from "@/lib/fixtureCache";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -197,85 +196,53 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
   const isFuture = selectedDate > today;
-
+  
   // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
   const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
 
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
-  // Multi-layer cache check
-  const cachedFixtures = CacheManager.getCachedData(fixturesQueryKey, cacheMaxAge);
-  const fixturesCacheData = getCachedFixturesForDate(selectedDate);
-
-  // Determine if we should skip fetching entirely
-  const shouldSkipFetch = !!(cachedFixtures?.length || fixturesCacheData?.length);
-
-  console.log(`📊 [TodayPopularLeagues] Cache status for ${selectedDate}:`, {
-    cachedFixtures: cachedFixtures?.length || 0,
-    fixturesCacheData: fixturesCacheData?.length || 0,
-    shouldSkipFetch,
-    enableFetching
-  });
+  const cachedFixtures = CacheManager.getCachedData(
+    fixturesQueryKey,
+    cacheMaxAge,
+  );
 
   // Fetch all fixtures for the selected date with smart caching
   const {
     data: fixtures = [],
     isLoading,
     isFetching,
-    error,
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
-      // If we have cached data, return it immediately
-      if (cachedFixtures?.length) {
-        console.log(`✅ [TodayPopularLeagues] Returning cached data from CacheManager (${cachedFixtures.length} fixtures)`);
-        return cachedFixtures;
-      }
-
-      if (fixturesCacheData?.length) {
-        console.log(`✅ [TodayPopularLeagues] Returning cached data from FixtureCache (${fixturesCacheData.length} fixtures)`);
-        return fixturesCacheData;
-      }
-
-      console.log(`🔄 [TodayPopularLeagues] Making fresh API request for ${selectedDate}`);
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
       );
       const data = await response.json();
-
-      // Cache in both systems
-      if (data?.length) {
-        cacheFixturesForDate(selectedDate, data, 'api');
-      }
-
       return data;
     },
     {
-      enabled: !!selectedDate && enableFetching && !shouldSkipFetch,
+      enabled: !!selectedDate && enableFetching,
       maxAge: cacheMaxAge,
-      backgroundRefresh: false, // Disable background refresh when we have cache
-      staleTime: cacheMaxAge,
+      backgroundRefresh: true,
     },
   );
-
-    // Show cached data immediately if available
-    const displayFixtures = fixtures.length > 0 ? fixtures : (cachedFixtures || []);
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
-    if (!displayFixtures?.length) return [];
+    if (!fixtures?.length) return [];
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Processing ${displayFixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     // Count COSAFA Cup matches in input
-    const cosafaMatches = displayFixtures.filter(
+    const cosafaMatches = fixtures.filter(
       (f) =>
         f.league?.name?.toLowerCase().includes("cosafa") ||
         f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
@@ -307,7 +274,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
-    const filtered = displayFixtures.filter((fixture) => {
+    const filtered = fixtures.filter((fixture) => {
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -538,7 +505,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${displayFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
@@ -553,7 +520,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     return finalFiltered;
-  }, [displayFixtures, selectedDate]);
+  }, [fixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(
@@ -1015,25 +982,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span className="text-sm font-medium">
-              {isLoading ? 'Loading matches...' : 'Refreshing data...'}
-            </span>
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-48" />
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {selectedDate === new Date().toISOString().slice(0, 10) 
-              ? 'Loading today\'s matches' 
-              : `Loading matches for ${selectedDate}`}
-          </div>
-          {isLoading && (
-            <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
-              ⚡ First load may take 30-60 seconds. Subsequent loads will be much faster due to caching.
-            </div>
-          )}
+          <Skeleton className="h-3 w-40" />
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1, 2, 3].map((i) => (
               <div
                 key={i}
                 className="border-b border-gray-100 last:border-b-0"
@@ -1050,31 +1006,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Handle errors
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <div className="text-red-500 mb-2">
-            <svg className="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <p className="text-red-600 font-medium mb-2">Failed to load matches</p>
-          <p className="text-gray-600 text-sm mb-3">
-            {error.message || 'The server is taking too long to respond. Please try again.'}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-          >
-            Retry
-          </button>
         </CardContent>
       </Card>
     );
@@ -1342,7 +1273,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           }`}
                         />
                       </button>
-
+                      
                       <img
                         src={
                           leagueData.league.logo ||

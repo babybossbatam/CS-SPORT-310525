@@ -9,8 +9,6 @@ import { format, parseISO, isValid, addDays } from "date-fns";
 import { CacheManager } from "@/lib/cachingHelper";
 import { backgroundCache } from "@/lib/backgroundCache";
 import { apiRequest } from "@/lib/queryClient";
-import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
-import { getCachedFixturesForDate } from "@/lib/fixtureCache";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -49,8 +47,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       leagueName.includes("u17") ||
       leagueName.includes("u18") ||
       leagueName.includes("u19") ||
-
-
       leagueName.includes("u20") ||
       leagueName.includes("u21") ||
       leagueName.includes("u23") ||
@@ -69,39 +65,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return false;
   };
 
-  // Helper function to process cached data for featured matches
-  const processCachedData = async (cachedFixtures: any[], currentDate: string, maxMatches: number) => {
-    console.log("🏠 [MyHomeFeaturedMatchNew] Processing cached data:", cachedFixtures.length, "fixtures");
-    
-    // Apply the same filtering and processing logic as the main fetch
-    const processedMatches = cachedFixtures
-      .filter((match) => {
-        if (!match?.fixture?.id || !match?.teams?.home || !match?.teams?.away || !match?.league) {
-          return false;
-        }
-
-        const homeTeamName = match.teams.home.name?.toLowerCase() || "";
-        const awayTeamName = match.teams.away.name?.toLowerCase() || "";
-        const leagueName = match.league.name?.toLowerCase() || "";
-
-        // Apply exclusion filters
-        if (shouldExcludeFromPopularLeagues(leagueName, homeTeamName, awayTeamName, match.league.country)) {
-          return false;
-        }
-
-        return true;
-      })
-      .slice(0, maxMatches);
-
-    console.log("🏠 [MyHomeFeaturedMatchNew] Processed matches:", processedMatches.length);
-    
-    // Cache the processed result
-    const cacheKey = ["featured-matches-from-popular-cache", currentDate];
-    CacheManager.setCachedData(cacheKey, processedMatches);
-    
-    return processedMatches;
-  };
-
   // Get featured matches from TodayPopularFootballLeaguesNew cached data
   useEffect(() => {
     const getFeaturedMatches = async () => {
@@ -112,39 +75,22 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         
         setLoading(true);
 
-        // Check multiple cache layers
+        // Check cache first
         const cacheKey = ["featured-matches-from-popular-cache", currentDate];
         const cachedData = CacheManager.getCachedData(cacheKey, 10 * 60 * 1000); // 10 minutes cache
-        const fixturesCacheData = getCachedFixturesForDate(currentDate);
-        const popularCacheKey = ["all-fixtures-by-date", currentDate];
-        const popularCachedData = CacheManager.getCachedData(popularCacheKey, 4 * 60 * 60 * 1000); // 4 hours
 
-        // Priority 1: Specific featured matches cache
-        if (cachedData?.length) {
-          console.log("🏠 [MyHomeFeaturedMatchNew] ✅ CACHE HIT - Using cached featured matches");
-          console.log("🏠 [MyHomeFeaturedMatchNew] Cached matches count:", cachedData.length);
+        if (cachedData) {
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] ✅ CACHE HIT - Using cached featured matches");
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cached matches count:", cachedData.length);
+          console.log("🏠 [MyHomeFeaturedMatchNew Debugging report] Cache data preview:", cachedData.slice(0, 2).map(m => ({
+            id: m.fixture?.id,
+            homeTeam: m.teams?.home?.name,
+            awayTeam: m.teams?.away?.name,
+            league: m.league?.name,
+            status: m.fixture?.status?.short
+          })));
+          
           setMatches(cachedData);
-          setCurrentIndex(0);
-          setLoading(false);
-          return;
-        }
-
-        // Priority 2: Check if we can derive from existing popular fixtures cache
-        if (popularCachedData?.length) {
-          console.log("🏠 [MyHomeFeaturedMatchNew] ✅ DERIVING from popular fixtures cache");
-          // Process the cached data directly instead of fetching
-          const processedMatches = await processCachedData(popularCachedData, currentDate, maxMatches);
-          setMatches(processedMatches);
-          setCurrentIndex(0);
-          setLoading(false);
-          return;
-        }
-
-        // Priority 3: FixtureCache
-        if (fixturesCacheData?.length) {
-          console.log("🏠 [MyHomeFeaturedMatchNew] ✅ DERIVING from fixture cache");
-          const processedMatches = await processCachedData(fixturesCacheData, currentDate, maxMatches);
-          setMatches(processedMatches);
           setCurrentIndex(0);
           setLoading(false);
           return;

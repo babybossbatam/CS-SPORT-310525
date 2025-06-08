@@ -36,13 +36,12 @@ export const CACHE_PRESETS = {
 
   // For upcoming fixtures (longer cache since they rarely change)
   UPCOMING_FIXTURES: {
-    staleTime: CACHE_DURATIONS.SIX_HOURS, // Reduced from 12 hours
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2, // Reduced from 72 to 48 hours
+    staleTime: CACHE_DURATIONS.TWELVE_HOURS,
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    retry: 2, // Increased retry attempts
-    retryDelay: 1000,
+    retry: 1,
   },
 
   // For league standings and static data

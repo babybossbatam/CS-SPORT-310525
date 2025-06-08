@@ -28,40 +28,26 @@ const checkRateLimit = (key: string) => {
 };
 
 // API request helper
-export const apiRequest = async (
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-  endpoint: string,
-  options?: any
-): Promise<Response> => {
-  const url = `${API_BASE_URL}${endpoint}`;
-
-  const config: RequestInit = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    ...options, // Include signal and other options
-  };
-
-  // Add body for non-GET requests
-  if (options?.body) {
-    config.body = JSON.stringify(options.body);
-  }
-
+export async function apiRequest(
+  method: string,
+  url: string,
+  data?: unknown | undefined
+): Promise<Response> {
   try {
-    const response = await fetch(url, config);
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include"
+    });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    return response;
+    await throwIfResNotOk(res);
+    return res;
   } catch (error) {
-    console.error(`API request failed: ${method} ${endpoint}`, error);
+    console.error(`API request error for ${method} ${url}:`, error);
     throw error;
   }
-};
+}
 
 // Query function type
 type UnauthorizedBehavior = "returnNull" | "throw";
