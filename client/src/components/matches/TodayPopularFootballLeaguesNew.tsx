@@ -1390,7 +1390,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       {leagueData.matches
                         .slice(
                           0,
-                          timeFilterActive && showTop20 ? 20 : undefined,
+                          1, // Only show 1 match per league
                         )
                         .sort((a: any, b: any) => {
                           const now = new Date();
