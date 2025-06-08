@@ -1569,10 +1569,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
       </Card>
     </>
   );
-                        .map((match: any) => (
-                          <LazyMatchItem key={match.fixture.id}>
-                            <div
-                              key={match.fixture.id}
+};
+
+export default TodayPopularFootballLeaguesNew;
                               className="match-card-container group"
                             >
                               {/* Star Button with true slide-in effect */}
