@@ -208,25 +208,55 @@ const TodayPopularFootballLeaguesNew: React.FC<
     cacheMaxAge,
   );
 
-  // Fetch all fixtures for the selected date with smart caching
+  // Show cached data immediately if available
+  const displayFixtures = fixtures.length > 0 ? fixtures : (cachedFixtures || []);
+
+  // Fetch all fixtures for the selected date with smart caching and timeout
   const {
     data: fixtures = [],
     isLoading,
     isFetching,
+    error,
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
-      return data;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      try {
+        console.log(`🚀 [API] Starting fetch for ${selectedDate} at ${new Date().toISOString()}`);
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}?all=true`,
+          {
+            signal: controller.signal,
+          }
+        );
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`✅ [API] Completed fetch for ${selectedDate}: ${data.length} fixtures in ${Date.now() - performance.now()}ms`);
+        return data;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          console.error(`⏰ [API] Request timeout for ${selectedDate} after 30 seconds`);
+          throw new Error('Request timed out. The server may be slow. Please try again.');
+        }
+        console.error(`❌ [API] Failed to fetch ${selectedDate}:`, error);
+        throw error;
+      }
     },
     {
       enabled: !!selectedDate && enableFetching,
       maxAge: cacheMaxAge,
       backgroundRefresh: true,
+      retry: 2,
+      retryDelay: 1000,
     },
   );
 
@@ -235,14 +265,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
+    if (!displayFixtures?.length) return [];
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TOMORROW DEBUG] Processing ${displayFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     // Count COSAFA Cup matches in input
-    const cosafaMatches = fixtures.filter(
+    const cosafaMatches = displayFixtures.filter(
       (f) =>
         f.league?.name?.toLowerCase().includes("cosafa") ||
         f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
@@ -274,7 +304,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
-    const filtered = fixtures.filter((fixture) => {
+    const filtered = displayFixtures.filter((fixture) => {
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -505,7 +535,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${displayFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
@@ -520,7 +550,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     return finalFiltered;
-  }, [fixtures, selectedDate]);
+  }, [displayFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(
@@ -982,14 +1012,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded-full" />
-            <Skeleton className="h-4 w-48" />
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+            <span className="text-sm font-medium">
+              {isLoading ? 'Loading matches...' : 'Refreshing data...'}
+            </span>
           </div>
-          <Skeleton className="h-3 w-40" />
+          <div className="text-xs text-gray-500 mt-1">
+            {selectedDate === new Date().toISOString().slice(0, 10) 
+              ? 'Loading today\'s matches' 
+              : `Loading matches for ${selectedDate}`}
+          </div>
+          {isLoading && (
+            <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
+              ⚡ First load may take 30-60 seconds. Subsequent loads will be much faster due to caching.
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
                 className="border-b border-gray-100 last:border-b-0"
@@ -1006,6 +1047,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
               </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle errors
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <div className="text-red-500 mb-2">
+            <svg className="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="text-red-600 font-medium mb-2">Failed to load matches</p>
+          <p className="text-gray-600 text-sm mb-3">
+            {error.message || 'The server is taking too long to respond. Please try again.'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+          >
+            Retry
+          </button>
         </CardContent>
       </Card>
     );
