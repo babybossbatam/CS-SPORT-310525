@@ -37,29 +37,27 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   } = useQuery({
     queryKey: ['central-date-fixtures', selectedDate],
     queryFn: async () => {
+      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
       const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
       if (!response.ok) throw new Error('Failed to fetch fixtures');
       const data: FixtureResponse[] = await response.json();
       
-      // Apply filtering
-      const filtered = data.filter(fixture => {
-        if (!fixture?.league || !fixture?.teams) return false;
-        const leagueName = fixture.league.name || '';
-        const homeTeam = fixture.teams.home.name || '';
-        const awayTeam = fixture.teams.away.name || '';
-        return !shouldExcludeFixture(leagueName, homeTeam, awayTeam);
+      console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
+      
+      // Basic validation only - let components handle their own filtering
+      const basicFiltered = data.filter(fixture => {
+        return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
       });
 
-      // Apply smart time filtering
-      const smartFiltered = MySmartTimeFilter(filtered, selectedDate);
+      console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
       
-      // Update Redux store
+      // Update Redux store with all valid fixtures
       dispatch(fixturesActions.setFixturesByDate({ 
         date: selectedDate, 
-        fixtures: smartFiltered 
+        fixtures: basicFiltered 
       }));
       
-      return smartFiltered;
+      return basicFiltered;
     },
     staleTime: CACHE_DURATIONS.TWO_HOURS,
     gcTime: CACHE_DURATIONS.SIX_HOURS,

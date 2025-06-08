@@ -96,12 +96,39 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   }, [processedLiveFixtures]);
 
   // Use central data cache
-  const { fixtures: allFixtures, liveFixtures, isLoading: isLoadingAllFixtures, error } = useCentralData();
+  const { fixtures, liveFixtures, isLoading, error } = useCentralData();
+
+  console.log(`📊 [TodayMatchByTime] Got ${fixtures?.length || 0} fixtures from central cache`);
+
+  // Apply component-specific filtering
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length) {
+      console.log(`⚠️ [TodayMatchByTime] No fixtures available from central cache`);
+      return [];
+    }
+
+    // Apply smart time filtering
+    const timeFiltered = MySmartTimeFilter(fixtures, selectedDate);
+    console.log(`📊 [TodayMatchByTime] After time filtering: ${timeFiltered.length} fixtures`);
+
+    // Apply exclusion filtering if needed
+    const exclusionFiltered = timeFiltered.filter(fixture => {
+      if (!fixture?.league || !fixture?.teams) return false;
+      const leagueName = fixture.league.name || '';
+      const homeTeam = fixture.teams.home.name || '';
+      const awayTeam = fixture.teams.away.name || '';
+      return !shouldExcludeFixture(leagueName, homeTeam, awayTeam);
+    });
+
+    console.log(`📊 [TodayMatchByTime] After exclusion filtering: ${exclusionFiltered.length} fixtures`);
+    return exclusionFiltered;
+  }, [fixtures, selectedDate]);
+
   const allFixturesError = error;
 
-  const isLoading = liveLoading;
+  const isLoadingCentral = isLoading;
 
-  if (isLoading) {
+  if (isLoadingCentral) {
     return (
       <Card>
         <CardHeader className="pb-4">
@@ -132,6 +159,22 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     );
   }
 
+  // Define shouldExcludeFixture function
+  const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
+    const excludedLeagues = ["Belarusian"];
+    const excludedTeams = ["BATE", "Dinamo Minsk", "Shakhtyor"];
+
+    if (excludedLeagues.some(excludedLeague => leagueName.includes(excludedLeague))) {
+      return true;
+    }
+
+    if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(excludedTeam))) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
     <>
       {/* Use new CombinedLeagueCards component */}
@@ -140,6 +183,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         timeFilterActive={timeFilterActive}
         showTop20={true}
         liveFilterActive={liveFilterActive}
+        filteredFixtures={filteredFixtures}
       />
     </>
   );
