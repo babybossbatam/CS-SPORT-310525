@@ -540,218 +540,82 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
     return `bg-gradient-to-l from-${color}-${lighterIntensity} to-${color}-${intensityNum}`;
   }
 }
+
+// Completely new API request function that works properly in Replit
 export const apiRequest = async (method: string, endpoint: string, options?: any) => {
-  // For Replit environment, use the same host but port 5000
-  let baseUrl = import.meta.env.VITE_API_URL;
-  
-  if (!baseUrl && typeof window !== 'undefined') {
-    const currentUrl = new URL(window.location.href);
-    // For Replit, change the port to 5000 while keeping the same host
-    baseUrl = `${currentUrl.protocol}//${currentUrl.hostname}:5000`;
-  }
-  
-  // Fallback
-  if (!baseUrl) {
-    baseUrl = 'http://0.0.0.0:5000';
-  }
-
-  console.log(`🌐 [apiRequest] Using baseUrl: ${baseUrl} for endpoint: ${endpoint}`);
-
-  const maxRetries = options?.retries || 2;
-  const timeout = options?.timeout || 15000;
-
-  // Retry logic with exponential backoff
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      // Ensure endpoint starts with / for proper URL construction
-      const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-      
-      // Fix URL construction to avoid double slashes
-      let url = baseUrl.endsWith('/') ? `${baseUrl.slice(0, -1)}${cleanEndpoint}` : `${baseUrl}${cleanEndpoint}`;
-      let requestBody: string | undefined;
-
-      // Debug logging to trace URL construction
-      console.log(`🔍 [apiRequest] URL Construction Debug:`, {
-        baseUrl,
-        endpoint,
-        cleanEndpoint,
-        finalUrl: url,
-        method
-      });
-
-      // Handle GET requests with query parameters
-      if (method.toUpperCase() === 'GET' && options?.params) {
-        const searchParams = new URLSearchParams();
-        Object.entries(options.params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            searchParams.append(key, String(value));
-          }
-        });
-        if (searchParams.toString()) {
-          url += `?${searchParams.toString()}`;
-        }
-      } else if (method.toUpperCase() !== 'GET' && options) {
-        // For non-GET requests, use options as request body
-        requestBody = JSON.stringify(options);
-      }
-
-      // Attempt the fetch with enhanced error handling
-      let response: Response;
-      try {
-        response = await fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache',
-          },
-          body: requestBody,
-          credentials: 'include',
-          mode: 'cors',
-          signal: controller.signal,
-          keepalive: false,
-        });
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-
-        const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
-        const isAbortError = fetchError instanceof Error && fetchError.name === 'AbortError';
-        const isNetworkError = fetchErrorMessage.includes('Failed to fetch') || 
-                              fetchErrorMessage.includes('NetworkError') || 
-                              fetchErrorMessage.includes('Network Error') ||
-                              fetchErrorMessage.includes('TypeError') ||
-                              isAbortError;
-
-        // Enhanced error logging to understand the exact failure
-        console.error(`🚨 [apiRequest] Fetch Error Details:`, {
-          url,
-          method,
-          attempt: attempt + 1,
-          errorName: fetchError instanceof Error ? fetchError.name : 'Unknown',
-          errorMessage: fetchErrorMessage,
-          errorStack: fetchError instanceof Error ? fetchError.stack : undefined,
-          isNetworkError,
-          isAbortError,
-          fetchError
-        });
-
-        // Determine if this is a retryable error
-        const isRetryable = isNetworkError && !isAbortError;
-
-        // If this is not the last attempt and it's retryable, log and retry
-        if (attempt < maxRetries && isRetryable) {
-          const delay = Math.min(1000 * Math.pow(2, attempt), 3000); // Exponential backoff, max 3s
-          console.warn(`🔄 Network error on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
-        }
-
-        // Log the final failure with more context
-        if (isAbortError) {
-          console.warn(`⏰ Request timeout for ${method} ${endpoint} after ${timeout}ms`);
-        } else {
-          console.warn(`🌐 Network failure for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${fetchErrorMessage}`);
-        }
-
-        // Create a proper error response for network failures that doesn't throw
-        return new Response(
-          JSON.stringify({ 
-            error: true, 
-            message: isAbortError 
-              ? 'Request timeout - the server took too long to respond' 
-              : 'Network connectivity failed - unable to reach the server',
-            details: fetchErrorMessage,
-            networkError: isNetworkError,
-            timeout: isAbortError,
-            endpoint: endpoint,
-            attempts: maxRetries + 1,
-            retryable: isRetryable
-          }), 
-          {
-            status: isAbortError ? 408 : 503,
-            statusText: isAbortError ? 'Request Timeout' : 'Service Unavailable',
-            headers: new Headers({ 'Content-Type': 'application/json' })
-          }
-        );
-      }
-
-      clearTimeout(timeoutId);
-
-      // Check if response is ok or if we should retry
-      if (!response.ok && response.status >= 500 && attempt < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-        console.warn(`🔄 Server error ${response.status} on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
-      }
-
-      // Return successful response or final failed response
-      return response;
-
-    } catch (error) {
-      clearTimeout(timeoutId);
-
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-      // If this is not the last attempt and it's a retryable error, continue
-      if (attempt < maxRetries && (
-        errorMessage.includes('Failed to fetch') || 
-        errorMessage.includes('NetworkError') || 
-        errorMessage.includes('timeout') ||
-        error instanceof Error && error.name === 'AbortError'
-      )) {
-        const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-        console.warn(`🔄 Error on attempt ${attempt + 1}/${maxRetries + 1} for ${method} ${endpoint}, retrying in ${delay}ms: ${errorMessage}`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
-      }
-
-      // Last attempt or non-retryable error
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.error(`🚫 API request timeout for ${method} ${endpoint} after ${timeout}ms (${maxRetries + 1} attempts)`);
-      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch') || errorMessage.includes('Network Error')) {
-        console.error(`🌐 Network connectivity issue for ${method} ${endpoint} after ${maxRetries + 1} attempts: ${errorMessage}`);
-      } else {
-        console.error(`❌ API request error for ${method} ${endpoint} after ${maxRetries + 1} attempts:`, error);
-      }
-
-      // Create a more detailed error response that properly indicates network failure
-      const createErrorResponse = (statusText: string, isNetworkError = false): Response => {
-        const errorBody = JSON.stringify({ 
-          error: true, 
-          message: isNetworkError ? 'Network connectivity failed' : 'Server error',
-          details: statusText,
-          networkError: isNetworkError,
-          attempts: maxRetries + 1
-        });
-
-        return new Response(errorBody, {
-          status: isNetworkError ? 503 : 500, // Use 503 for network errors instead of 0
-          statusText: isNetworkError ? 'Service Unavailable' : 'Internal Server Error',
-          headers: new Headers({
-            'Content-Type': 'application/json'
-          })
-        });
-      };
-
-      const isNetworkError = errorMessage.includes('Failed to fetch') || 
-                            errorMessage.includes('NetworkError') || 
-                            errorMessage.includes('Network Error') ||
-                            errorMessage.includes('fetch') ||
-                            (error instanceof Error && error.name === 'AbortError');
-
-      return createErrorResponse(errorMessage, isNetworkError);
-    } finally {
-      clearTimeout(timeoutId);
+  // Get the correct base URL for Replit environment
+  function getBaseUrl(): string {
+    if (typeof window === 'undefined') {
+      return 'http://127.0.0.1:5000';
     }
+
+    // In Replit, use the current origin but change port to 5000
+    const currentHost = window.location.hostname;
+    const protocol = window.location.protocol;
+
+    // For Replit environments, construct the correct URL
+    if (currentHost.includes('replit.dev') || currentHost.includes('repl.co')) {
+      return `${protocol}//${currentHost.replace(':8080', ':5000').replace(':3000', ':5000')}`;
+    }
+
+    // For local development
+    return `${protocol}//${currentHost}:5000`;
   }
 
-  // This should never be reached, but just in case
-  return new Response(JSON.stringify({ error: true, message: 'Maximum retries exceeded' }), {
-    status: 500,
-    statusText: 'Internal Error'
-  });
+  const baseUrl = getBaseUrl();
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const fullUrl = `${baseUrl}${cleanEndpoint}`;
+
+  console.log(`🔗 [API] Making ${method} request to: ${fullUrl}`);
+
+  try {
+    let requestOptions: RequestInit = {
+      method: method.toUpperCase(),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: 'include',
+      mode: 'cors',
+    };
+
+    // Handle query parameters for GET requests
+    let requestUrl = fullUrl;
+    if (method.toUpperCase() === 'GET' && options?.params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value));
+        }
+      });
+      if (searchParams.toString()) {
+        requestUrl += `?${searchParams.toString()}`;
+      }
+    } else if (method.toUpperCase() !== 'GET' && options) {
+      requestOptions.body = JSON.stringify(options);
+    }
+
+    const response = await fetch(requestUrl, requestOptions);
+
+    console.log(`✅ [API] Response status: ${response.status} for ${requestUrl}`);
+
+    return response;
+
+  } catch (error) {
+    console.error(`❌ [API] Request failed for ${fullUrl}:`, error);
+
+    // Return a proper error response instead of throwing
+    return new Response(
+      JSON.stringify({ 
+        error: true, 
+        message: 'Network request failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }), 
+      {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: new Headers({ 'Content-Type': 'application/json' })
+      }
+    );
+  }
 };
