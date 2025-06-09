@@ -451,7 +451,7 @@ export async function prewarmPopularFlags(): Promise<void> {
 }
 
 /**
- * Generate multiple flag sources for a country with local flags as primary source
+ * Generate multiple flag sources for a country with Circle Flags as primary source
  */
 export function generateFlagSources(country: string, preferCircular: boolean = false): string[] {
   const cleanCountry = country.trim();
@@ -463,19 +463,13 @@ export function generateFlagSources(country: string, preferCircular: boolean = f
   }
 
   if (cleanCountry === 'Europe') {
-    return ['/assets/flags/circular/eu.svg', 'https://flagcdn.com/w40/eu.png', 'https://media.api-sports.io/flags/eu.svg'];
+    return ['https://flagcdn.com/w40/eu.png', 'https://media.api-sports.io/flags/eu.svg'];
   }
 
   const countryCode = countryCodeMap[cleanCountry];
 
   if (countryCode) {
-    // 1. PRIMARY: Local hosted circular flags (downloaded from Figma)
-    if (countryCode.length === 2) {
-      sources.push(`/assets/flags/circular/${countryCode.toLowerCase()}.svg`);
-      sources.push(`/assets/flags/circular/${countryCode.toLowerCase()}.png`);
-    }
-
-    // 2. SECONDARY: Circle Flags (external fallback)
+    // 1. PRIMARY: Circle Flags (perfect for national teams with circular design)
     if (countryCode.length === 2) {
       sources.push(`https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`);
     }
@@ -694,32 +688,30 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
   console.log(`🔄 [flagUtils.ts:getCountryFlagWithFallbackSync] Called for: ${country} | Called from: ${caller}`);
 
-  // Check for Venezuela but only clear cache if actually corrupted
+  // IMMEDIATE VENEZUELA FIX - Force correct flag before any cache checks
   const normalizedCountry = country.trim().toLowerCase();
   if (normalizedCountry.includes('venezuela') || normalizedCountry === 've' || normalizedCountry === 'ven') {
     const correctVenezuelaFlag = 'https://flagcdn.com/w40/ve.png';
-    const mainCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
-    
-    // Check if cached flag is corrupted (contains Colombia flag)
-    const cached = flagCache.getCached(mainCacheKey);
-    if (cached && (cached.url.includes('/co.png') || cached.url.includes('/co.'))) {
-      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION: ${cached.url} - clearing ONLY this entry`);
-      // Only clear the specific corrupted entry - NOT the entire cache
-      (flagCache as any).cache?.delete(mainCacheKey);
-      flagCacheMem.delete(`${country}-${leagueFlag || ''}`);
-      
-      // Set correct flag immediately
-      flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-corruption-fix', true);
-      flagCacheMem.set(`${country}-${leagueFlag || ''}`, correctVenezuelaFlag);
-      console.log(`✅ Fixed Venezuela flag corruption with: ${correctVenezuelaFlag}`);
-      return correctVenezuelaFlag;
-    }
+    console.log(`🇻🇪 [flagUtils.ts:getCountryFlagWithFallbackSync] VENEZUELA FORCE FIX: ${correctVenezuelaFlag}`);
 
-    // Cache the correct flag if not already cached
-    if (!cached) {
-      flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-preemptive', true);
-      flagCacheMem.set(`${country}-${leagueFlag || ''}`, correctVenezuelaFlag);
-    }
+    // Clear any corrupted cache entries
+    const venezuelaCacheKeys = [
+      'flag_venezuela',
+      'flag_venezuela_(bolivarian_republic_of)',
+      'flag_venezuela_(bolivarian_republic)',
+      'flag_bolivarian_republic_of_venezuela',
+      `${country}-${leagueFlag || ''}`
+    ];
+
+    venezuelaCacheKeys.forEach(key => {
+      (flagCache as any).cache?.delete(key);
+      flagCacheMem.delete(key);
+    });
+
+    // Cache the correct flag
+    const mainCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
+    flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-force-fix', true);
+    flagCacheMem.set(`${country}-${leagueFlag || ''}`, correctVenezuelaFlag);
 
     return correctVenezuelaFlag;
   }
@@ -728,7 +720,13 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
   const flagCacheKey = `flag_${country.toLowerCase().replace(/\s+/g, '_')}`;
   const cached = flagCache.getCached(flagCacheKey);
   if (cached) {
-    
+    // Additional Venezuela corruption check
+    if (country.toLowerCase().includes('venezuela') && cached.url.includes('/co.png')) {
+      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION in cache: ${cached.url}`);
+      const correctFlag = 'https://flagcdn.com/w40/ve.png';
+      flagCache.setCached(flagCacheKey, correctFlag, 'venezuela-corruption-fix', true);
+      return correctFlag;
+    }
 
     console.log(`✅ [flagUtils.ts:getCountryFlagWithFallbackSync] Main cache hit for ${country}: ${cached.url} | Source: ${cached.source}`);
     return cached.url;
@@ -778,12 +776,12 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
 
           if (countryCode) {
             if (countryCode && countryCode.length === 2) {
-              // Use local circular flags as primary source
-              const localFlagUrl = `/assets/flags/circular/${countryCode.toLowerCase()}.svg`;
-              console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${localFlagUrl} (Local Circular)`);
-              flagCache.setCached(flagCacheKey, localFlagUrl, 'local-circular', true);
-              console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached Local Circular Flag for ${country} with source: local-circular`);
-              return localFlagUrl;
+              // Use Circle Flags as primary source for better circular design
+              const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+              console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${flagUrl} (Circle Flags)`);
+              flagCache.setCached(flagCacheKey, flagUrl, 'circle-flags', true);
+              console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached Circle Flag for ${country} with source: circle-flags`);
+              return flagUrl;
             } else if (countryCode && countryCode.startsWith('GB-')) {
               const subdivision = countryCode.toLowerCase().replace('gb-', '');
               const flagUrl = `https://hatscripts.github.io/circle-flags/flags/gb-${subdivision}.svg`;
@@ -1145,54 +1143,115 @@ export function debugCountryMapping(country: string): void {
 }
 
 /**
- * Clear Venezuela flag cache specifically for debugging (simplified)
+ * Clear Venezuela flag cache specifically for debugging
  */
 export const clearVenezuelaFlagCache = () => {
-  const mainKey = 'flag_venezuela';
-  const cached = flagCache.getCached(mainKey);
-  
-  if (cached && (cached.url.includes('/co.png') || cached.url.includes('/co.'))) {
-    console.log(`🗑️ Clearing only corrupted Venezuela flag: ${cached.url}`);
-    (flagCache as any).cache.delete(mainKey);
-    
-    // Re-cache with correct flag
-    const correctFlag = 'https://flagcdn.com/w40/ve.png';
-    flagCache.setCached(mainKey, correctFlag, 'cleanup-fix', true);
-    console.log(`✅ Re-cached Venezuela flag: ${correctFlag}`);
-  } else {
-    console.log(`ℹ️ Venezuela flag cache is already correct or empty`);
+  const venezuelaCacheKeys = [
+    'flag_venezuela',
+    'flag_venezuela_(bolivarian_republic_of)',
+    'flag_venezuela_(bolivarian_republic)',
+    'flag_bolivarian_republic_of_venezuela',
+    'flag_bolivarian_republic_of',
+    'flag_ve',
+    'flag_ven'
+  ];
+
+  console.log(`🗑️ Starting Venezuela flag cache cleanup...`);
+
+  venezuelaCacheKeys.forEach(cacheKey => {
+    const cached = flagCache.getCached(cacheKey);
+    if (cached) {
+      console.log(`🗑️ Clearing Venezuela flag cache:`, {
+        cacheKey,
+        oldUrl: cached.url,
+        oldSource: cached.source,
+        age: Math.round((Date.now() - cached.timestamp) / 1000 / 60) + ' minutes'
+      });
+
+      // Clear from cache
+      (flagCache as any).cache.delete(cacheKey);
+    }
+  });
+
+  // Clear from memory cache
+  for (const [key] of flagCacheMem.entries()) {
+    if (key.includes('venezuela') || key.includes('bolivarian')) {
+      flagCacheMem.delete(key);
+      console.log(`🗑️ Cleared memory cache key: ${key}`);
+    }
   }
+
+  // Also clear from localStorage
+  try {
+    const storedCache = localStorage.getItem('cssport_flag_cache');
+    if (storedCache) {
+      const cacheData = JSON.parse(storedCache);
+      if (cacheData.flags) {
+        const originalCount = cacheData.flags.length;
+        cacheData.flags = cacheData.flags.filter(([key]: any) => 
+          !venezuelaCacheKeys.includes(key) && 
+          !key.includes('venezuela') && 
+          !key.includes('bolivarian')
+        );
+        const clearedCount = originalCount - cacheData.flags.length;
+        localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
+        console.log(`🗑️ Cleared ${clearedCount} Venezuela flags from localStorage`);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to clear Venezuela flags from localStorage:', error);
+  }
+
+  // Generate correct flag and re-cache with normalized key
+  const correctFlag = 'https://flagcdn.com/w40/ve.png';
+  flagCache.setCached('flag_venezuela', correctFlag, 'cleanup-fix', true);
+  console.log(`✅ Re-cached Venezuela flag with normalized key: flag_venezuela`);
 }
 
 /**
- * Force refresh Venezuela flag - targeted approach without clearing all flags
+ * Force refresh Venezuela flag - clears all caches and refetches
  */
 export function forceRefreshVenezuelaFlag(): Promise<string> {
-  console.log(`🔄 Force refreshing Venezuela flag (targeted)...`);
+  console.log(`🔄 Force refreshing Venezuela flag...`);
 
-  const correctFlag = 'https://flagcdn.com/w40/ve.png';
-  const cacheKey = 'flag_venezuela';
-  
-  // Clear only Venezuela-related entries
-  const venezuelaKeys = ['flag_venezuela', 'flag_venezuela_', 'flag_ve', 'flag_ven'];
-  venezuelaKeys.forEach(key => {
-    (flagCache as any).cache?.delete(key);
+  // Clear all possible cache entries
+  const possibleKeys = ['flag_venezuela', 'Venezuela-', 'venezuela'];
+  possibleKeys.forEach(key => {
+    (flagCache as any).cache.delete(key);
     flagCacheMem.delete(key);
   });
-  
-  // Set the correct flag
-  flagCache.setCached(cacheKey, correctFlag, 'manual-venezuela-refresh', true);
-  flagCacheMem.set('venezuela-', correctFlag);
-  console.log(`✅ Refreshed Venezuela flag to: ${correctFlag} (without clearing all flags)`);
+
+  // Clear from localStorage
+  try {
+    const storedCache = localStorage.getItem('cssport_flag_cache');
+    if (storedCache) {
+      const cacheData = JSON.parse(storedCache);
+      if (cacheData.flags) {
+        cacheData.flags = cacheData.flags.filter(([key]: any) => 
+          !possibleKeys.some(possibleKey => key.includes(possibleKey))
+        );
+        localStorage.setItem('cssport_flag_cache', JSON.stringify(cacheData));
+        console.log(`🗑️ Cleared all Venezuela-related flags from localStorage`);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to clear Venezuela flags from localStorage:', error);
+  }
+
+  // Force fresh fetch with correct URL
+  const correctFlag = 'https://flagcdn.com/w40/ve.png';
+  const cacheKey = 'flag_venezuela';
+  flagCache.setCached(cacheKey, correctFlag, 'manual-venezuela-fix', true);
+  console.log(`✅ Manually set Venezuela flag to: ${correctFlag}`);
 
   return Promise.resolve(correctFlag);
 }
 
 /**
- * Clear all flag cache and force refresh (use sparingly - only for debugging)
+ * Clear all flag cache and force refresh
  */
 export function clearAllFlagCache(): void {
-  console.log(`🧹 WARNING: Clearing all flag cache - this should only be used for debugging`);
+  console.log(`🧹 Clearing all flag cache...`);
 
   // Clear memory cache
   flagCacheMem.clear();
@@ -1208,7 +1267,7 @@ export function clearAllFlagCache(): void {
     console.warn('Failed to clear flags from localStorage:', error);
   }
 
-  console.log(`✅ All flag cache cleared - avoid using this function frequently`);
+  console.log(`✅ All flag cache cleared`);
 }
 
 /**
@@ -2118,11 +2177,11 @@ async function fetchIndividualFlag(country: string): Promise<string> {
   }
 
   if (countryCode && countryCode.length === 2) {
-    const localFlagUrl = `/assets/flags/circular/${countryCode.toLowerCase()}.svg`;
-    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using local country code ${countryCode}: ${localFlagUrl}`);
-    flagCache.setCached(cacheKey, localFlagUrl, 'local-country-code', true);
-    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached local flag for ${country}`);
-    return localFlagUrl;
+    const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using country code ${countryCode}: ${flagUrl}`);
+    flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
+    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached flag for ${country}`);
+    return flagUrl;
   }
 
   if (countryCode && countryCode.startsWith('GB-')) {
