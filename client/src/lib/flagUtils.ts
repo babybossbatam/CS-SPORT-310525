@@ -703,15 +703,21 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
     // Check if cached flag is corrupted (contains Colombia flag)
     const cached = flagCache.getCached(mainCacheKey);
     if (cached && (cached.url.includes('/co.png') || cached.url.includes('/co.'))) {
-      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION: ${cached.url}`);
-      // Only clear the specific corrupted entry
+      console.log(`🚨 [flagUtils.ts:getCountryFlagWithFallbackSync] DETECTED VENEZUELA CORRUPTION: ${cached.url} - clearing ONLY this entry`);
+      // Only clear the specific corrupted entry - NOT the entire cache
       (flagCache as any).cache?.delete(mainCacheKey);
       flagCacheMem.delete(`${country}-${leagueFlag || ''}`);
+      
+      // Set correct flag immediately
+      flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-corruption-fix', true);
+      flagCacheMem.set(`${country}-${leagueFlag || ''}`, correctVenezuelaFlag);
+      console.log(`✅ Fixed Venezuela flag corruption with: ${correctVenezuelaFlag}`);
+      return correctVenezuelaFlag;
     }
 
-    // Cache the correct flag (only if not already correct)
-    if (!cached || cached.url !== correctVenezuelaFlag) {
-      flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-fix', true);
+    // Cache the correct flag if not already cached
+    if (!cached) {
+      flagCache.setCached(mainCacheKey, correctVenezuelaFlag, 'venezuela-preemptive', true);
       flagCacheMem.set(`${country}-${leagueFlag || ''}`, correctVenezuelaFlag);
     }
 
@@ -1146,7 +1152,7 @@ export const clearVenezuelaFlagCache = () => {
   const cached = flagCache.getCached(mainKey);
   
   if (cached && (cached.url.includes('/co.png') || cached.url.includes('/co.'))) {
-    console.log(`🗑️ Clearing corrupted Venezuela flag: ${cached.url}`);
+    console.log(`🗑️ Clearing only corrupted Venezuela flag: ${cached.url}`);
     (flagCache as any).cache.delete(mainKey);
     
     // Re-cache with correct flag
@@ -1159,26 +1165,34 @@ export const clearVenezuelaFlagCache = () => {
 }
 
 /**
- * Force refresh Venezuela flag - simplified approach
+ * Force refresh Venezuela flag - targeted approach without clearing all flags
  */
 export function forceRefreshVenezuelaFlag(): Promise<string> {
-  console.log(`🔄 Force refreshing Venezuela flag...`);
+  console.log(`🔄 Force refreshing Venezuela flag (targeted)...`);
 
   const correctFlag = 'https://flagcdn.com/w40/ve.png';
   const cacheKey = 'flag_venezuela';
   
-  // Simply set the correct flag without excessive clearing
-  flagCache.setCached(cacheKey, correctFlag, 'manual-venezuela-fix', true);
-  console.log(`✅ Set Venezuela flag to: ${correctFlag}`);
+  // Clear only Venezuela-related entries
+  const venezuelaKeys = ['flag_venezuela', 'flag_venezuela_', 'flag_ve', 'flag_ven'];
+  venezuelaKeys.forEach(key => {
+    (flagCache as any).cache?.delete(key);
+    flagCacheMem.delete(key);
+  });
+  
+  // Set the correct flag
+  flagCache.setCached(cacheKey, correctFlag, 'manual-venezuela-refresh', true);
+  flagCacheMem.set('venezuela-', correctFlag);
+  console.log(`✅ Refreshed Venezuela flag to: ${correctFlag} (without clearing all flags)`);
 
   return Promise.resolve(correctFlag);
 }
 
 /**
- * Clear all flag cache and force refresh
+ * Clear all flag cache and force refresh (use sparingly - only for debugging)
  */
 export function clearAllFlagCache(): void {
-  console.log(`🧹 Clearing all flag cache...`);
+  console.log(`🧹 WARNING: Clearing all flag cache - this should only be used for debugging`);
 
   // Clear memory cache
   flagCacheMem.clear();
@@ -1194,7 +1208,7 @@ export function clearAllFlagCache(): void {
     console.warn('Failed to clear flags from localStorage:', error);
   }
 
-  console.log(`✅ All flag cache cleared`);
+  console.log(`✅ All flag cache cleared - avoid using this function frequently`);
 }
 
 /**
