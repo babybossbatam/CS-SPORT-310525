@@ -37,7 +37,7 @@ import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 
 // Helper function to shorten team names
-export const shortenTeamName = (teamName: string): string => {
+export const shortenTeamName = (teamName: string): => {
   if (!teamName) return teamName;
 
   // Remove common suffixes that make names too long
@@ -1840,7 +1840,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       title={match.teams.away.name}
                                       className="team-logo"
                                       style={{ 
-                                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                        filter: "drop-shadow(0 2px 4px rgba(0,0, 0, 0.15))"
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
