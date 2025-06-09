@@ -1581,38 +1581,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
                                   )}
-
-                                  {/* Penalty result below home logo */}
-                                  {(() => {
-                                    const status = match.fixture.status.short;
-                                    const isPenaltyMatch = status === "PEN";
-                                    const penaltyHome = match.score?.penalty?.home;
-                                    const penaltyAway = match.score?.penalty?.away;
-                                    const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                           penaltyAway !== null && penaltyAway !== undefined;
-
-                                    if (isPenaltyMatch && hasPenaltyScores) {
-                                      const winnerText = penaltyHome > penaltyAway 
-                                        ? `${match.teams.home.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
-                                        : `${match.teams.away.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
-
-                                      return (
-                                        <div
-                                          className="absolute text-xs text-gray-600 text-center max-w-[180px] leading-tight"
-                                          style={{
-                                            top: "calc(100% + 6px)",
-                                            left: "50%",
-                                            transform: "translateX(-50%)",
-                                            fontSize: "10px",
-                                            lineHeight: "12px"
-                                          }}
-                                        >
-                                          {winnerText}
-                                        </div>
-                                      );
-                                    }
-                                    return null;
-                                  })()}
                                 </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
@@ -1692,9 +1660,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                                 return (
                                                   <div className="relative">
-                                                    <div className="text-xs text-gray-600 text-center mb-1">
-                                                      After Penalties
-                                                    </div>
                                                     <div className="match-score-display">
                                                       <span className="score-number">
                                                         {homeScore}
@@ -1707,7 +1672,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       </span>
                                                     </div>
                                                     <div className="match-status-label status-ended">
-                                                      Ended
+                                                      After Penalty
                                                     </div>
                                                   </div>
                                                 );
