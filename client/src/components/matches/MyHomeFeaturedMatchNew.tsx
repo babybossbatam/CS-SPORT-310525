@@ -564,21 +564,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const matchDate = new Date(currentMatch?.fixture?.date || '');
                 const today = new Date();
                 
-                // Get date strings for comparison (without time)
-                const matchDateString = matchDate.toISOString().slice(0, 10);
-                const todayDateString = today.toISOString().slice(0, 10);
-                const tomorrow = new Date(today);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowDateString = tomorrow.toISOString().slice(0, 10);
+                // Reset time to start of day for accurate date comparison
+                const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+                const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const tomorrowOnly = new Date(todayOnly);
+                tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
                 
                 let daysText;
-                if (matchDateString === todayDateString) {
+                if (matchDateOnly.getTime() === todayOnly.getTime()) {
                   daysText = 'Today';
-                } else if (matchDateString === tomorrowDateString) {
+                } else if (matchDateOnly.getTime() === tomorrowOnly.getTime()) {
                   daysText = 'Tomorrow';
                 } else {
-                  // For other dates, calculate the difference
-                  const timeDiff = matchDate.getTime() - today.getTime();
+                  // For other dates, calculate the difference in days
+                  const timeDiff = matchDateOnly.getTime() - todayOnly.getTime();
                   const daysUntilMatch = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
                   daysText = `${Math.abs(daysUntilMatch)} Days`;
                 }
