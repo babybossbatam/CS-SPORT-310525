@@ -560,9 +560,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 );
               } else {
+                // Calculate days until match
+                const matchDate = new Date(currentMatch?.fixture?.date || '');
+                const today = new Date();
+                const timeDiff = matchDate.getTime() - today.getTime();
+                const daysUntilMatch = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                
+                const daysText = daysUntilMatch === 1 ? '1 Day to Kick Off' : 
+                                daysUntilMatch === 0 ? 'Today' : 
+                                `${daysUntilMatch} Days to Kick Off`;
+                
                 return (
                   <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
-                    UPCOMING
+                    {daysText}
                   </div>
                 );
               }
