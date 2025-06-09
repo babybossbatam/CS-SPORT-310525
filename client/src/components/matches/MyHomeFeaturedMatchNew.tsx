@@ -359,7 +359,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
     if (status === "HT") return "Halftime";
     if (status === "FT") return "Ended";
-    if (status === "PEN") return "penalty";
+    if (status === "PEN") return "Penalty";
     if (status === "NS") return "UPCOMING";
     return status;
   };
