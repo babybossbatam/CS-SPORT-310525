@@ -1725,14 +1725,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                           : "No Score";
 
                                         return (
-                                          
-                                            
+                                          <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                            <div className="text-sm font-medium text-gray-900">
                                               {format(fixtureDate, "HH:mm")}
-                                            
-                                            
+                                            </div>
+                                            <div className="text-xs text-gray-500">
                                               {statusText}
-                                            
-                                          
+                                            </div>
+                                          </div>
                                         );
                                       }
                                     }
@@ -1764,45 +1764,43 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                     : status;
 
                                       return (
-                                        
-                                          
+                                        <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                          <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
-                                          
-                                          
+                                          </div>
+                                          <div className="text-xs text-gray-500">
                                             {statusText}
-                                          
-                                        
+                                          </div>
+                                        </div>
                                       );
                                     }
 
                                     // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                     return (
-                                      
-                                        
-                                          
-                                            {status === "TBD"
-                                              ? "TBD"
-                                              : format(fixtureDate, "HH:mm")}
-                                          
-                                          {status === "TBD" && (
-                                            
-                                              Time TBD
-                                            
-                                          )}
-                                        
-                                      
+                                      <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                        <div className="text-sm font-medium text-gray-900">
+                                          {status === "TBD"
+                                            ? "TBD"
+                                            : format(fixtureDate, "HH:mm")}
+                                        </div>
+                                        {status === "TBD" && (
+                                          <div className="text-xs text-gray-500">
+                                            Time TBD
+                                          </div>
+                                        )}
+                                      </div>
                                     );
                                   })()}
                                 
 
                                 {/* Away team logo - grid area */}
-                                
+                                <div className="flex justify-center">
                                   {isNationalTeam(
                                     match.teams.away,
                                     leagueData.league,
                                   ) ? (
-                                    
-                                      
+                                    <LazyImage
+                                      src={(() => {
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.away.name;
                                           const countryCode = getCountryCode(teamName);
@@ -1828,11 +1826,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : "/assets/fallback-logo.svg"
                                         }
                                       />
-                                      
-                                    
                                   ) : (
-                                    
-                                      
+                                    <LazyImage
+                                      src={
                                         match.teams.away.id
                                           ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                                           : "/assets/fallback-logo.svg"
@@ -1841,17 +1837,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       title={match.teams.away.name}
                                       className="team-logo"
                                       style={{ 
-                                        filter: "drop-shadow(0 2px 4px rgba(0,0, 0, 0.15))"
+                                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                               )}
-                                
+                                  )}
+                                </div>
 
                                 {/* Away Team Name - positioned further right */}
-                                
+                                <div className="text-left text-sm font-medium text-gray-800 truncate">
                                   {shortenTeamName(match.teams.away.name) ||
                                     "Unknown Team"}
+                                </div>
                                 
                               
                             
