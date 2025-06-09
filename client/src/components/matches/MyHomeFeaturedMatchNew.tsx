@@ -561,7 +561,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
               } else {
                 return (
-                  <div className="text-gray-100 text-sm uppercase tracking-wide">
+                  <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
                     UPCOMING
                   </div>
                 );
