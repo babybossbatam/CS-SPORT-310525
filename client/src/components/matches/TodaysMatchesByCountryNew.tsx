@@ -1094,15 +1094,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                         // Check if we have a cached flag for other countries
                         const cachedFlag = flagMap[countryName];
-                        if (cachedFlag) {
+                        if (cachedFlag && !cachedFlag.includes('fallback')) {
                           return cachedFlag;
                         }
 
                         // For other countries, use the fallback sync function
-                        return (
-                          getCountryFlagWithFallbackSync(countryName) ||
-                          "/assets/fallback.svg"
-                        );
+                        const syncFlag = getCountryFlagWithFallbackSync(countryName);
+                        return syncFlag && !syncFlag.includes('fallback') ? syncFlag : "/assets/fallback-logo.svg";
                       })()}
                       alt={typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown'}
                       className="w-5 h-3 object-cover rounded-sm shadow-sm"
@@ -1110,47 +1108,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         const target = e.target as HTMLImageElement;
                         const countryName = typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown';
                         
+                        // Prevent infinite loop by checking if already using fallback
+                        if (target.src.includes("/assets/fallback-logo.svg")) {
+                          return;
+                        }
+                        
                         // For World flag, use fallback
                         if (countryName === "World") {
-                          target.src = "/assets/fallback.svg";
+                          target.src = "/assets/fallback-logo.svg";
                           return;
                         }
-                        // For England specifically, ensure we try the correct flag first
-                        if (
-                          countryName === "England" &&
-                          !target.src.includes("fallback-logo.svg")
-                        ) {
-                          if (!target.src.includes("gb-eng")) {
-                            // First try the England flag
-                            target.src = "https://flagcdn.com/w40/gb-eng.png";
-                            return;
-                          } else {
-                            // If England flag fails, use GB flag
+                        
+                        // For England specifically, try fallback options
+                        if (countryName === "England") {
+                          if (target.src.includes("gb-eng")) {
+                            // If England flag fails, try GB flag
                             target.src = "https://flagcdn.com/w40/gb.png";
                             return;
-                          }
-                        }
-                        // For other GB subdivisions
-                        if (
-                          (countryName === "Scotland" ||
-                            countryName === "Wales" ||
-                            countryName === "Northern Ireland") &&
-                          !target.src.includes("fallback-logo.svg")
-                        ) {
-                          if (
-                            target.src.includes("gb-sct") ||
-                            target.src.includes("gb-wls") ||
-                            target.src.includes("gb-nir")
-                          ) {
-                            target.src = "https://flagcdn.com/w40/gb.png"; // Fallback to GB flag
                           } else if (target.src.includes("/gb.png")) {
-                            target.src = "/assets/fallback.svg";
+                            // If GB flag fails, use fallback
+                            target.src = "/assets/fallback-logo.svg";
+                            return;
                           }
-                          return;
                         }
-                        if (!target.src.includes("/assets/fallback.svg")) {
-                          target.src = "/assets/fallback.svg";
+                        
+                        // For other GB subdivisions
+                        if (countryName === "Scotland" || countryName === "Wales" || countryName === "Northern Ireland") {
+                          if (target.src.includes("gb-sct") || target.src.includes("gb-wls") || target.src.includes("gb-nir")) {
+                            target.src = "https://flagcdn.com/w40/gb.png";
+                            return;
+                          } else if (target.src.includes("/gb.png")) {
+                            target.src = "/assets/fallback-logo.svg";
+                            return;
+                          }
                         }
+                        
+                        // For all other countries, use fallback
+                        target.src = "/assets/fallback-logo.svg";
                       }}
                     />
                     <span className="font-medium text-gray-900" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
