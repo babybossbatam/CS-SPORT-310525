@@ -532,6 +532,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (hasScore) {
                 const statusText = getMatchStatus(currentMatch);
                 const scoreText = `${currentMatch?.goals?.home ?? 0}   -   ${currentMatch?.goals?.away ?? 0}`;
+                
+                // Check for penalty scores
+                const penaltyHome = currentMatch?.score?.penalty?.home;
+                const penaltyAway = currentMatch?.score?.penalty?.away;
+                const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                       penaltyAway !== null && penaltyAway !== undefined;
+                
+                const isPenaltyMatch = status === "PEN";
 
                 return (
                   <div className="flex flex-col items-center gap-1">
@@ -541,6 +549,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <div className="text-xl font-semibold text-black" style={{ fontSize: '1.95rem' }}>
                       {scoreText}
                     </div>
+                    {isPenaltyMatch && hasPenaltyScores && (
+                      <div className="text-xs text-gray-600 mt-1 text-center">
+                        {penaltyHome > penaltyAway 
+                          ? `${currentMatch?.teams?.home?.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
+                          : `${currentMatch?.teams?.away?.name} has won ${penaltyAway}-${penaltyHome} after Penalties`
+                        }
+                      </div>
+                    )}
                   </div>
                 );
               } else {
