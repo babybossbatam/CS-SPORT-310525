@@ -513,7 +513,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       : "border-blue-500 text-blue-500"
                   }`}
                 >
-                  {getMatchStatusLabel(currentMatch)}
+                  {currentMatch?.league?.round || getMatchStatusLabel(currentMatch)}
                 </Badge>
               )}
             </div>
