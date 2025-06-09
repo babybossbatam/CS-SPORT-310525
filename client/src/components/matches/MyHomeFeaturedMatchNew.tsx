@@ -24,33 +24,50 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Get today's date if no selectedDate provided
+  // Get multiple days of data for slide distribution
   const today = new Date().toISOString().slice(0, 10);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  const dayAfter = new Date();
+  dayAfter.setDate(dayAfter.getDate() + 2);
+  const dayAfterStr = dayAfter.toISOString().slice(0, 10);
+  const twoDaysAfter = new Date();
+  twoDaysAfter.setDate(twoDaysAfter.getDate() + 3);
+  const twoDaysAfterStr = twoDaysAfter.toISOString().slice(0, 10);
+
   const dateToUse = selectedDate || today;
+  const cacheMaxAge = 2 * 60 * 60 * 1000; // 2 hours cache for featured matches
 
-  // Smart cache duration based on date type
-  const isToday = dateToUse === today;
-  const isFuture = dateToUse > today;
-  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
-
-  // Fetch all fixtures for the selected date with smart caching
+  // Fetch fixtures for multiple days to build the 8-slide distribution
   const {
     data: fixtures = [],
     isLoading,
   } = useCachedQuery(
-    ["all-fixtures-by-date", dateToUse],
+    ["featured-matches-multi-day", today, tomorrowStr, dayAfterStr, twoDaysAfterStr],
     async () => {
-      console.log(`🔄 [MyHomeFeaturedMatchNew] Fetching fresh data for date: ${dateToUse}`);
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${dateToUse}?all=true`,
-      );
-      const data = await response.json();
-      console.log(`✅ [MyHomeFeaturedMatchNew] Received ${data?.length || 0} fixtures for ${dateToUse}`);
-      return data;
+      console.log(`🔄 [MyHomeFeaturedMatchNew] Fetching multi-day data for slides distribution`);
+      
+      const datePromises = [today, tomorrowStr, dayAfterStr, twoDaysAfterStr].map(async (date) => {
+        try {
+          const response = await apiRequest("GET", `/api/fixtures/date/${date}?all=true`);
+          const data = await response.json();
+          console.log(`✅ [MyHomeFeaturedMatchNew] Received ${data?.length || 0} fixtures for ${date}`);
+          return data || [];
+        } catch (error) {
+          console.error(`❌ [MyHomeFeaturedMatchNew] Error fetching fixtures for ${date}:`, error);
+          return [];
+        }
+      });
+
+      const allResults = await Promise.all(datePromises);
+      const allFixtures = allResults.flat();
+      
+      console.log(`🎯 [MyHomeFeaturedMatchNew] Total fixtures across 4 days: ${allFixtures.length}`);
+      return allFixtures;
     },
     {
-      enabled: !!dateToUse,
+      enabled: true,
       maxAge: cacheMaxAge,
       backgroundRefresh: false,
       staleTime: cacheMaxAge,
@@ -166,169 +183,168 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return 999; // Other statuses
   };
 
-  // Featured matches filtering logic using TodayPopularFootballLeaguesNew approach
+  // Featured matches filtering logic with specific slide distribution
   const featuredMatches = useMemo(() => {
     if (!fixtures?.length) return [];
 
     console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures for date: ${dateToUse}`);
 
-    // Apply smart time filtering with selected date context
-    const timeFiltered = fixtures.filter((fixture) => {
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const fixtureDate = new Date(fixture.fixture.date).toISOString().slice(0, 10);
+    const today = new Date();
+    const todayString = today.toISOString().slice(0, 10);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = tomorrow.toISOString().slice(0, 10);
+    const dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    const dayAfterTomorrowString = dayAfterTomorrow.toISOString().slice(0, 10);
+    const twoDaysAfter = new Date(today);
+    twoDaysAfter.setDate(twoDaysAfter.getDate() + 3);
+    const twoDaysAfterString = twoDaysAfter.toISOString().slice(0, 10);
 
-        // For featured matches, we want to be more inclusive with time filtering
-        // Check if the fixture date matches the selected date
-        if (fixtureDate === dateToUse) {
+    // Filter matches by elite leagues and competitions
+    const getEliteMatches = (matchesArray: any[]) => {
+      return matchesArray.filter((fixture) => {
+        // Basic validation
+        if (!fixture?.league || !fixture?.teams?.home || !fixture?.teams?.away) {
+          return false;
+        }
+
+        const leagueId = fixture.league?.id;
+        const country = fixture.league?.country?.toLowerCase() || "";
+        const leagueName = fixture.league?.name?.toLowerCase() || "";
+
+        // Apply exclusion check
+        if (
+          shouldExcludeFromPopularLeagues(
+            fixture.league.name,
+            fixture.teams.home.name,
+            fixture.teams.away.name,
+            fixture.league.country,
+          )
+        ) {
+          return false;
+        }
+
+        // PRIORITY 1: Only the most elite leagues
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        if (eliteLeagues.includes(leagueId)) {
           return true;
         }
 
-        // Also use smart time filtering as backup
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          dateToUse + "T12:00:00Z",
+        // PRIORITY 2: Major international competitions
+        const isTopInternationalCompetition =
+          leagueName.includes("uefa nations league") && !leagueName.includes("women") ||
+          (leagueName.includes("world cup") && leagueName.includes("qualification") && 
+           (leagueName.includes("europe") || leagueName.includes("south america"))) ||
+          leagueName.includes("fifa club world cup");
+
+        if (isTopInternationalCompetition) {
+          return true;
+        }
+
+        // PRIORITY 3: Elite countries with popular leagues
+        const eliteCountries = ["England", "Spain", "Italy", "Germany", "France"];
+        const isFromEliteCountry = eliteCountries.some(
+          (eliteCountry) => country.includes(eliteCountry.toLowerCase()),
         );
 
-        // Check if this match should be included based on the selected date
-        const today = new Date();
-        const todayString = today.toISOString().slice(0, 10);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowString = tomorrow.toISOString().slice(0, 10);
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = yesterday.toISOString().slice(0, 10);
+        if (isFromEliteCountry && POPULAR_LEAGUES.includes(leagueId)) {
+          return true;
+        }
 
-        const shouldInclude = (() => {
-          if (dateToUse === tomorrowString && smartResult.label === "tomorrow") return true;
-          if (dateToUse === todayString && smartResult.label === "today") return true;
-          if (dateToUse === yesterdayString && smartResult.label === "yesterday") return true;
-
-          // Handle custom dates
-          if (dateToUse !== todayString && dateToUse !== tomorrowString && dateToUse !== yesterdayString) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
-          }
-
-          return false;
-        })();
-
-        return shouldInclude;
-      }
-      return true;
-    });
-
-    // ENHANCED: Apply strict filtering for only TOP-TIER leagues and matches
-    const topTierFiltered = timeFiltered.filter((fixture) => {
-      // Basic validation
-      if (!fixture?.league || !fixture?.teams?.home || !fixture?.teams?.away) {
         return false;
-      }
+      });
+    };
 
-      const leagueId = fixture.league?.id;
-      const country = fixture.league?.country?.toLowerCase() || "";
-      const leagueName = fixture.league?.name?.toLowerCase() || "";
+    // Sort matches by priority
+    const sortByPriority = (matches: any[]) => {
+      return matches.sort((a, b) => {
+        // 1. Elite League Priority
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const aEliteIndex = eliteLeagues.indexOf(a.league.id);
+        const bEliteIndex = eliteLeagues.indexOf(b.league.id);
 
-      // Apply exclusion check from TodayPopularFootballLeaguesNew
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          fixture.league.country,
-        )
-      ) {
-        return false;
-      }
+        if (aEliteIndex !== -1 && bEliteIndex !== -1) {
+          return aEliteIndex - bEliteIndex;
+        }
+        if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
+        if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
 
-      // PRIORITY 1: Only the most elite leagues
-      const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Conference League, UEFA Nations League
-      if (eliteLeagues.includes(leagueId)) {
-        console.log(`🏆 [ELITE LEAGUE] Found elite league match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
-        return true;
-      }
+        // 2. Match Status Priority
+        const aStatusPriority = getMatchStatusPriority(a);
+        const bStatusPriority = getMatchStatusPriority(b);
 
-      // PRIORITY 2: Major international competitions
-      const isTopInternationalCompetition =
-        leagueName.includes("uefa nations league") && !leagueName.includes("women") ||
-        (leagueName.includes("world cup") && leagueName.includes("qualification") && 
-         (leagueName.includes("europe") || leagueName.includes("south america"))) ||
-        leagueName.includes("fifa club world cup");
+        if (aStatusPriority !== bStatusPriority) {
+          return aStatusPriority - bStatusPriority;
+        }
 
-      if (isTopInternationalCompetition) {
-        console.log(`🌍 [TOP INTERNATIONAL] Found top international match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
-        return true;
-      }
+        // 3. Time proximity for upcoming matches
+        if (a.fixture.status.short === 'NS' && b.fixture.status.short === 'NS') {
+          const aTime = new Date(a.fixture.date).getTime();
+          const bTime = new Date(b.fixture.date).getTime();
+          return aTime - bTime;
+        }
 
-      // PRIORITY 3: Only if from elite countries AND elite status
-      const eliteCountries = ["England", "Spain", "Italy", "Germany", "France"];
-      const isFromEliteCountry = eliteCountries.some(
-        (eliteCountry) => country.includes(eliteCountry.toLowerCase()),
-      );
+        return (a.league.name || '').localeCompare(b.league.name || '');
+      });
+    };
 
-      // For elite countries, only allow if it's a popular league within that country
-      if (isFromEliteCountry && POPULAR_LEAGUES.includes(leagueId)) {
-        console.log(`⭐ [ELITE COUNTRY] Found elite country popular league: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
-        return true;
-      }
-
-      // REJECT everything else for featured matches
-      return false;
+    // Get matches for different days
+    const todayMatches = fixtures.filter(f => {
+      const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
+      return fixtureDate === todayString;
     });
 
-    console.log(`🎯 [FEATURED FILTER] Filtered from ${fixtures.length} to ${topTierFiltered.length} top-tier matches`);
-
-    // Sort by comprehensive priority system (same as TodayPopularFootballLeaguesNew)
-    const sortedMatches = topTierFiltered.sort((a, b) => {
-      // 1. Elite League Priority (most important)
-      const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5]; // In priority order
-      const aEliteIndex = eliteLeagues.indexOf(a.league.id);
-      const bEliteIndex = eliteLeagues.indexOf(b.league.id);
-
-      if (aEliteIndex !== -1 && bEliteIndex !== -1) {
-        return aEliteIndex - bEliteIndex; // Sort by elite league priority
-      }
-      if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
-      if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
-
-      // 2. Country Priority System
-      const aCountryPriority = getCountryPriority(a.league.country || '');
-      const bCountryPriority = getCountryPriority(b.league.country || '');
-
-      if (aCountryPriority !== bCountryPriority) {
-        return aCountryPriority - bCountryPriority;
-      }
-
-      // 3. League Priority within Countries
-      const aLeaguePriority = getLeaguePriority(a);
-      const bLeaguePriority = getLeaguePriority(b);
-
-      if (aLeaguePriority !== bLeaguePriority) {
-        return aLeaguePriority - bLeaguePriority;
-      }
-
-      // 4. Match Status Priority - LIVE matches first
-      const aStatusPriority = getMatchStatusPriority(a);
-      const bStatusPriority = getMatchStatusPriority(b);
-
-      if (aStatusPriority !== bStatusPriority) {
-        return aStatusPriority - bStatusPriority;
-      }
-
-      // Final tiebreaker: alphabetical by league name
-      return (a.league.name || '').localeCompare(b.league.name || '');
+    const tomorrowMatches = fixtures.filter(f => {
+      const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
+      return fixtureDate === tomorrowString;
     });
 
-    const limitedMatches = sortedMatches.slice(0, maxMatches || 3);
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches`);
-    console.log(`🏆 [FEATURED RESULTS] Final matches:`, limitedMatches.map(m => ({
+    const dayAfterTomorrowMatches = fixtures.filter(f => {
+      const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
+      return fixtureDate === dayAfterTomorrowString;
+    });
+
+    const twoDaysAfterMatches = fixtures.filter(f => {
+      const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
+      return fixtureDate === twoDaysAfterString;
+    });
+
+    // Process each day's matches
+    const todayElite = getEliteMatches(todayMatches);
+    const tomorrowElite = getEliteMatches(tomorrowMatches);
+    const dayAfterElite = getEliteMatches(dayAfterTomorrowMatches);
+    const twoDaysAfterElite = getEliteMatches(twoDaysAfterMatches);
+
+    // Sort each day's matches
+    const todaySorted = sortByPriority(todayElite);
+    const tomorrowSorted = sortByPriority(tomorrowElite);
+    const dayAfterSorted = sortByPriority(dayAfterElite);
+    const twoDaysAfterSorted = sortByPriority(twoDaysAfterElite);
+
+    // Build the 8-slide distribution
+    const slidesDistribution = [
+      // Slides 1-3: Today's matches (live/upcoming/recent finished)
+      ...todaySorted.slice(0, 3),
+      // Slides 4-6: Tomorrow's top 3 upcoming matches
+      ...tomorrowSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 3),
+      // Slides 7-8: Next 2 days' top upcoming matches (1 from each day)
+      ...dayAfterSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 1),
+      ...twoDaysAfterSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 1),
+    ].filter(Boolean); // Remove any undefined entries
+
+    console.log(`🎯 [SLIDE DISTRIBUTION] Today: ${todaySorted.length}, Tomorrow: ${tomorrowSorted.length}, Day+2: ${dayAfterSorted.length}, Day+3: ${twoDaysAfterSorted.length}`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Final slide distribution: ${slidesDistribution.length} matches`);
+    console.log(`🏆 [FEATURED RESULTS] Final matches:`, slidesDistribution.map((m, i) => ({
+      slide: i + 1,
+      date: new Date(m.fixture.date).toISOString().slice(0, 10),
       league: m.league.name,
       match: `${m.teams.home.name} vs ${m.teams.away.name}`,
       status: m.fixture.status.short,
       leagueId: m.league.id
     })));
 
-    return limitedMatches;
+    return slidesDistribution;
   }, [fixtures, dateToUse, maxMatches]);
 
   const currentMatch = featuredMatches[currentIndex] || null;
