@@ -2176,18 +2176,13 @@ async function fetchIndividualFlag(country: string): Promise<string> {
     console.log(`🔍 [flagUtils.ts:fetchIndividualFlag] Hyphen variation "${hyphenVersion}": ${countryCode || 'not found'}`);
   }
 
-  if (countryCode && countryCode.length === 2) {
-    const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using country code ${countryCode}: ${flagUrl}`);
-    flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
-    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached flag for ${country}`);
-    return flagUrl;
-  }
-
-  if (countryCode && countryCode.startsWith('GB-')) {
-    const flagUrl = `https://flagcdn.com/w40/gb.png`;
-    console.log(`🇬🇧 [flagUtils.ts:fetchIndividualFlag] Using GB fallback: ${flagUrl}`);
-    flagCache.setCached(cacheKey, flagUrl, 'gb-fallback', true);
+  // If we have a simple 2-letter country code, process immediately
+  if (countryCode) {
+    // Use Circle Flags as primary source for all country codes (including subdivisions)
+    const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`;
+    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using Circle Flags for ${countryCode}: ${flagUrl}`);
+    flagCache.setCached(cacheKey, flagUrl, 'circle-flags', true);
+    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached Circle Flag for ${country}`);
     return flagUrl;
   }
 
@@ -2314,7 +2309,7 @@ async function backgroundCacheRefresh(): Promise<void> {
 
     // Refresh if entry is 75% of max age and has been used recently
     if (age > maxAge * 0.75 && usage && usage.count > 3) {
-      staleEntries.push(key.replace('flag_', ''));
+      staleEntries.push(`key.replace('flag_', ''));
     }
   }
 
