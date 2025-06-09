@@ -533,7 +533,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const scoreText = `${currentMatch?.goals?.home ?? 0}   -   ${currentMatch?.goals?.away ?? 0}`;
 
                 return (
-                  <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-100"}`}>
+                  <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-300"}`}>
                     <div className="text-xs uppercase tracking-wide">
                       {statusText}
                     </div>
