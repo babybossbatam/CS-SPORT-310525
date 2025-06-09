@@ -1,4 +1,3 @@
-
 import { FixtureResponse } from '@/types/fixtures';
 
 interface CachedFixture {
@@ -90,17 +89,17 @@ class FixtureCache {
     const today = new Date().toISOString().slice(0, 10);
     const queryDate = new Date(date);
     const todayDate = new Date(today);
-    
+
     // Past dates get long cache duration since matches are finished
     if (queryDate < todayDate) {
       return FIXTURE_CACHE_CONFIG.PAST_DATE_CACHE_DURATION;
     }
-    
+
     // Today gets moderate cache (2 hours) for live updates
     if (date === today) {
       return FIXTURE_CACHE_CONFIG.TODAY_CACHE_DURATION;
     }
-    
+
     // Future dates get longer cache (4 hours) since they rarely change
     return FIXTURE_CACHE_CONFIG.FUTURE_CACHE_DURATION;
   }
@@ -118,19 +117,19 @@ class FixtureCache {
    */
   private storeInPersistentCache(date: string, fixtures: FixtureResponse[]): void {
     if (!this.isPastDate(date)) return;
-    
+
     try {
       const finishedFixtures = fixtures.filter(f => 
         ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(f.fixture.status.short)
       );
-      
+
       if (finishedFixtures.length > 0) {
         const cacheData = {
           fixtures: finishedFixtures,
           timestamp: Date.now(),
           date
         };
-        
+
         localStorage.setItem(`finished_fixtures_${date}`, JSON.stringify(cacheData));
         console.log(`💾 [fixtureCache] Stored ${finishedFixtures.length} finished fixtures for ${date} in persistent storage`);
       }
@@ -144,14 +143,14 @@ class FixtureCache {
    */
   private getFromPersistentCache(date: string): FixtureResponse[] | null {
     if (!this.isPastDate(date)) return null;
-    
+
     try {
       const cached = localStorage.getItem(`finished_fixtures_${date}`);
       if (!cached) return null;
-      
+
       const { fixtures, timestamp } = JSON.parse(cached);
       const age = Date.now() - timestamp;
-      
+
       // Use longer cache duration for persistent storage
       if (age < FIXTURE_CACHE_CONFIG.PAST_DATE_CACHE_DURATION) {
         console.log(`✅ [fixtureCache] Retrieved ${fixtures.length} finished fixtures for ${date} from persistent storage`);
@@ -163,7 +162,7 @@ class FixtureCache {
     } catch (error) {
       console.error('Error retrieving from persistent cache:', error);
     }
-    
+
     return null;
   }
 
@@ -174,7 +173,7 @@ class FixtureCache {
     const now = Date.now();
     const age = now - cachedItem.timestamp;
     const maxAge = this.getCacheDuration(cachedItem.fixture);
-    
+
     return age < maxAge;
   }
 
@@ -254,7 +253,7 @@ class FixtureCache {
 
     this.cache.set(key, cachedItem);
     this.stats.size = this.cache.size;
-    
+
     console.log(`💾 [fixtureCache] Cached fixture ${fixture.fixture.id} (${source})`);
     this.cleanup();
   }
@@ -272,17 +271,17 @@ class FixtureCache {
 
     this.cache.set(key, cachedItem);
     this.stats.size = this.cache.size;
-    
+
     console.log(`💾 [fixtureCache] Cached ${fixtures.length} fixtures for date ${date} (${source})`);
-    
+
     // Store in persistent cache if it's a past date with finished matches
     this.storeInPersistentCache(date, fixtures);
-    
+
     // Also cache individual fixtures
     fixtures.forEach(fixture => {
       this.cacheFixture(fixture, `date_batch_${source}`);
     });
-    
+
     this.cleanup();
   }
 
@@ -291,7 +290,7 @@ class FixtureCache {
    */
   private cleanup(): void {
     const now = Date.now();
-    
+
     // Only cleanup every 10 minutes
     if (now - this.stats.lastCleanup < FIXTURE_CACHE_CONFIG.CLEANUP_INTERVAL) {
       return;
@@ -311,7 +310,7 @@ class FixtureCache {
     if (this.cache.size > FIXTURE_CACHE_CONFIG.MAX_CACHE_SIZE) {
       const entries = Array.from(this.cache.entries());
       entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-      
+
       const toRemove = this.cache.size - FIXTURE_CACHE_CONFIG.MAX_CACHE_SIZE;
       for (let i = 0; i < toRemove; i++) {
         this.cache.delete(entries[i][0]);
@@ -383,7 +382,7 @@ class FixtureCache {
       console.log(`🔄 [fixtureCache] Background fetching fixtures for ${date}`);
       const response = await fetch(`/api/fixtures/date/${date}?all=true`);
       const fixtures = await response.json();
-      
+
       if (fixtures && fixtures.length > 0) {
         this.cacheFixturesForDate(date, fixtures, 'background');
         console.log(`✅ [fixtureCache] Background cached ${fixtures.length} fixtures for ${date}`);
@@ -394,19 +393,93 @@ class FixtureCache {
   }
 
   /**
-   * Check if we need fresh data for a date (only for today and future)
+   * Check if we need fresh data for a date (improved logic)
    */
   shouldFetchFresh(date: string): boolean {
     const today = new Date().toISOString().slice(0, 10);
-    
-    // Past dates: only fetch if not cached at all
-    if (date < today) {
-      return !this.getCachedFixturesForDate(date);
-    }
-    
-    // Today and future: use normal cache expiration logic
     const cached = this.getCachedFixturesForDate(date);
-    return !cached;
+
+    // If no cache exists, we need fresh data
+    if (!cached) {
+      console.log(`🔍 [fixtureCache] No cache found for ${date}, fetching fresh data`);
+      return true;
+    }
+
+    // Past dates: be more lenient with cache (24 hour check)
+    if (date < today) {
+      const cacheKey = this.generateKey(date, 'date', date);
+      const cachedItem = this.cache.get(cacheKey);
+
+      if (cachedItem) {
+        const cacheAge = Date.now() - cachedItem.timestamp;
+        const isVeryOld = cacheAge > FIXTURE_CACHE_CONFIG.PAST_DATE_CACHE_DURATION;
+
+        if (isVeryOld) {
+          console.log(`⏰ [fixtureCache] Past date ${date} cache very old (${Math.round(cacheAge / 60000)}min), fetching fresh`);
+          return true;
+        }
+      }
+
+      console.log(`✅ [fixtureCache] Using existing cache for past date ${date}`);
+      return false; // We have cache and it's a past date, don't fetch
+    }
+
+    // For today and future dates, check cache age more strictly
+    const cacheKey = this.generateKey(date, 'date', date);
+    const cachedItem = this.cache.get(cacheKey);
+
+    if (cachedItem) {
+      const cacheAge = Date.now() - cachedItem.timestamp;
+      const maxAge = date === today ? 
+        FIXTURE_CACHE_CONFIG.TODAY_CACHE_DURATION : 
+        FIXTURE_CACHE_CONFIG.FUTURE_CACHE_DURATION;
+
+      const needsFresh = cacheAge >= maxAge;
+      console.log(`🕒 [fixtureCache] Cache age check for ${date}: ${Math.round(cacheAge / 60000)}min (max: ${Math.round(maxAge / 60000)}min) - ${needsFresh ? 'FETCH FRESH' : 'USE CACHE'}`);
+      return needsFresh;
+    }
+
+    return true;
+  }
+
+  /**
+   * Pre-cache data immediately when received from API
+   */
+  preCacheFixtures(date: string, fixtures: FixtureResponse[], source: string = 'api'): void {
+    console.log(`🚀 [fixtureCache] Pre-caching ${fixtures.length} fixtures for ${date} from ${source}`);
+
+    // Cache the full dataset
+    this.cacheFixturesForDate(date, fixtures, source);
+
+    // Also cache adjacent dates if there's timezone overlap
+    const yesterday = new Date(date);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrow = new Date(date);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+    // Cache fixtures that might belong to adjacent dates due to timezone differences
+    const yesterdayFixtures = fixtures.filter(f => {
+      const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
+      return fixtureDate === yesterdayStr;
+    });
+
+    const tomorrowFixtures = fixtures.filter(f => {
+      const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
+      return fixtureDate === tomorrowStr;
+    });
+
+    if (yesterdayFixtures.length > 0) {
+      console.log(`📅 [fixtureCache] Pre-caching ${yesterdayFixtures.length} fixtures for ${yesterdayStr} (timezone overlap)`);
+      this.cacheFixturesForDate(yesterdayStr, yesterdayFixtures, `${source}_timezone_overlap`);
+    }
+
+    if (tomorrowFixtures.length > 0) {
+      console.log(`📅 [fixtureCache] Pre-caching ${tomorrowFixtures.length} fixtures for ${tomorrowStr} (timezone overlap)`);
+      this.cacheFixturesForDate(tomorrowStr, tomorrowFixtures, `${source}_timezone_overlap`);
+    }
   }
 
   /**
@@ -415,7 +488,7 @@ class FixtureCache {
   getEnhancedStats(): FixtureCacheStats & { hitRate: number; persistentCacheSize: number } {
     const total = this.stats.hits + this.stats.misses;
     let persistentCacheSize = 0;
-    
+
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -426,7 +499,7 @@ class FixtureCache {
     } catch (error) {
       // localStorage might not be available
     }
-    
+
     return {
       ...this.stats,
       hitRate: total > 0 ? (this.stats.hits / total) * 100 : 0,

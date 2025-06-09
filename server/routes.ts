@@ -283,18 +283,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`);
     console.log(`🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`);
 
-      // Check cache first
+      // Enhanced cache checking - check multiple cache layers
       const cacheKey = all === 'true' ? `multi-tz-all:${date}` : `multi-tz:${date}`;
-      const cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
+      const simpleCacheKey = `fixtures-date:${date}`;
+
+      // First check dedicated multi-timezone cache
+      let cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
+
+      // If not found, check simple date-based cache
+      if (!cachedFixtures || cachedFixtures.length === 0) {
+        cachedFixtures = await storage.getCachedFixturesByDate(date);
+        console.log(`🔄 [Routes] Fallback to date cache for ${date}: ${cachedFixtures.length} fixtures found`);
+      }
+
       if (cachedFixtures && cachedFixtures.length > 0) {
-        // Check if cache is fresh (less than 2 hours old)
         const now = new Date();
         const cacheTime = new Date(cachedFixtures[0].timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        if (cacheAge < 2 * 60 * 60 * 1000) {
-          console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached multi-timezone fixtures for date ${date}`);
+        // Use different cache durations based on date
+        const today = new Date().toISOString().split('T')[0];
+        const isPastDate = date < today;
+        const isToday = date === today;
+
+        // Past dates: 12 hours cache (matches are finished but allow some updates)
+        // Today: 30 minutes cache (live matches need frequent updates)
+        // Future dates: 2 hours cache (schedules can change)
+        const maxCacheAge = isPastDate ? 12 * 60 * 60 * 1000 : 
+                           isToday ? 30 * 60 * 1000 : 
+                           2 * 60 * 60 * 1000;
+
+        if (cacheAge < maxCacheAge) {
+          console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
           return res.json(cachedFixtures.map(fixture => fixture.data));
+        } else {
+          console.log(`⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
         }
       }
 
@@ -1604,8 +1627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get fixtures by date
   apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
     try {
-      const { date } = req.params;
-      const { all } = req.query;
+      const { date }      const { all } = req.query;
 
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
