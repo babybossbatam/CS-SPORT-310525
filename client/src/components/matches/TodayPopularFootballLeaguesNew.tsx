@@ -918,7 +918,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
-```tool_code
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
         });
