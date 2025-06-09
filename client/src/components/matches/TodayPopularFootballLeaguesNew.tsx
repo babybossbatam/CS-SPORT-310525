@@ -918,6 +918,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
+```tool_code
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
         });
@@ -1675,10 +1676,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       After Penalty
                                                     </div>
                                                     {hasPenaltyScores && (
-                                                      <div className="text-xs text-gray-600 mt-1">
-                                                        {match.teams.home.name} has won {penaltyHome}-{penaltyAway} after Penalties
-                                                      </div>
-                                                    )}
+                                                    // Place the penalty result below the home logo
+                                                    <div className="penalty-result">
+                                                    {match.teams.home.name} has won {penaltyHome}-{penaltyAway} after Penalties
+                                                    </div>
+                                                  )}
                                                   </div>
                                                 );
                                               }
@@ -1860,6 +1862,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "Unknown Team"}
                                 </div>
                               </div>
+                               {/* Penalty result positioned below home logo */}
+                                {match.fixture.status.short === "PEN" && match.score?.penalty?.home !== null && match.score?.penalty?.away !== null && (
+                                  <div className="penalty-result">
+                                    {match.teams.home.name} has won {match.score.penalty.home}-{match.score.penalty.away} after Penalties
+                                  </div>
+                                )}
                             </div>
                           </LazyMatchItem>
                         ))}
