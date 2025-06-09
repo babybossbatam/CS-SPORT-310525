@@ -67,8 +67,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     "World", "Europe", "South America", "United Arab Emirates", "United-Arab-Emirates"
   ];
 
-  // 2. Popular leagues for featured matches (Globally popular leagues)
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup
+  // 2. Popular leagues for featured matches (Globally popular leagues) - Updated from TodayPopularFootballLeaguesNew
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup, COSAFA Cup
 
   // Country-specific popular leagues
   const COUNTRY_POPULAR_LEAGUES = {
@@ -165,9 +165,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     
     return 999; // Other statuses
   };
-
-  // Popular leagues and countries from TodayPopularFootballLeaguesNew
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup, COSAFA Cup
 
   // Featured matches filtering logic using TodayPopularFootballLeaguesNew approach
   const featuredMatches = useMemo(() => {
