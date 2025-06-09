@@ -1627,7 +1627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get fixtures by date
   apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
     try {
-      const { date }      const { all } = req.query;
+      const { date } = req.params;
+      const { all } = req.query;
 
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
