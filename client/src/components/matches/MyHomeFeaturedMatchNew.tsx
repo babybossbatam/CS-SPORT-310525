@@ -676,7 +676,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }
                 }
 
-                // Fallback to league logo or trophy icon
+                // Always use league logo for league info section
                 if (currentMatch?.league?.logo) {
                   return (
                     <img
