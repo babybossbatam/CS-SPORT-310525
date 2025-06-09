@@ -1692,9 +1692,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                                 return (
                                                   <div className="relative">
-                                                    <div className="text-xs text-gray-600 text-center mb-1">
-                                                      After Penalties
-                                                    </div>
                                                     <div className="match-score-display">
                                                       <span className="score-number">
                                                         {homeScore}
