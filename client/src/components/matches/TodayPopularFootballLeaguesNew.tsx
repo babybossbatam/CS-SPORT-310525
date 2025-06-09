@@ -1680,33 +1680,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                               return (
                                                 <div className="relative">
-                                                  <div className="match-score-display">
-                                                    <span className="score-number">
-                                                      {homeScore}
-                                                    </span>
-                                                    <span className="score-separator">
-                                                      -
-                                                    </span>
-                                                    <span className="score-number">
-                                                      {awayScore}
-                                                    </span>
-                                                  </div>
-                                                  <div className="match-status-label status-ended">
-                                                    {status === "FT"
-                                                      ? "Ended"
-                                                      : status === "AET"
-                                                        ? "AET"
-                                                        : status === "AWD"
-                                                          ? "Awarded"
-                                                          : status === "WO"
-                                                            ? "Walkover"
-                                                            : status === "ABD"
-                                                              ? "Abandoned"
-                                                              : status === "CANC"
-                                                                ? "Cancelled"
-                                                                : status === "SUSP"
-                                                                  ? "Suspended"
-                                                                  : status}
+                                                  <div className="text-lg font-semibold text-black">
+                                                    {homeScore}-{awayScore}{status === "FT" ? "Ended" : status === "AET" ? "AET" : status === "AWD" ? "Awarded" : status === "WO" ? "Walkover" : status === "ABD" ? "Abandoned" : status === "CANC" ? "Cancelled" : status === "SUSP" ? "Suspended" : status}
                                                   </div>
                                                 </div>
                                               );
