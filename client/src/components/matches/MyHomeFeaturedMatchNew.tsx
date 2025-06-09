@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCentralData } from "@/providers/CentralDataProvider";
 import { FixtureResponse } from "@/types/fixtures";
-import { featuredMatchExclusionTerms } from "@/lib/MyFeaturedMatchExclusion";
+import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -145,16 +145,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return false;
       }
 
-      // Exclude based on league/team names
-      const leagueName = match.league.name?.toLowerCase() || '';
-      const homeTeam = match.teams.home.name?.toLowerCase() || '';
-      const awayTeam = match.teams.away.name?.toLowerCase() || '';
-      
-      const hasExcludedTerm = featuredMatchExclusionTerms.some(term => 
-        leagueName.includes(term) || homeTeam.includes(term) || awayTeam.includes(term)
+      // Use comprehensive exclusion checking
+      const shouldExclude = shouldExcludeFeaturedMatch(
+        match.league.name || '',
+        match.teams.home.name || '',
+        match.teams.away.name || ''
       );
       
-      if (hasExcludedTerm) return false;
+      if (shouldExclude) {
+        console.log(`🚫 [DEBUG] Excluding featured match: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
+        return false;
+      }
 
       // Include matches from popular countries and leagues only
       const countryPriority = getCountryPriority(match.league.country || '');

@@ -34,6 +34,15 @@ export const featuredMatchExclusionTerms = [
   'asia',
   'concacaf',
 
+  // Spanish lower-tier exclusions
+  'rfef',
+  'play offs',
+  'play-offs',
+  'playoffs',
+  'tercera division',
+  'segunda rfef',
+  'primera rfef',
+
   // Specific tournament and league exclusions for featured matches
   'tournoi maurice revello',
   'maurice revello',
