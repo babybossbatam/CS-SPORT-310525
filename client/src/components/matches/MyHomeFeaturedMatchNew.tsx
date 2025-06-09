@@ -680,7 +680,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 width: "max-content",
               }}
             >
-              Today | {currentMatch?.fixture?.venue?.name || "Stadium"}
+              {(() => {
+                try {
+                  const matchDate = new Date(currentMatch?.fixture?.date || '');
+                  const formattedDate = matchDate.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    day: 'numeric', 
+                    month: 'long' 
+                  });
+                  const formattedTime = matchDate.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                  });
+                  const venueName = currentMatch?.fixture?.venue?.name || "Stadium";
+                  
+                  return `${formattedDate} | ${formattedTime} | ${venueName}`;
+                } catch (e) {
+                  return `Today | ${currentMatch?.fixture?.venue?.name || "Stadium"}`;
+                }
+              })()}
             </div>
           </div>
 
