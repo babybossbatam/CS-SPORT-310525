@@ -550,7 +550,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       {scoreText}
                     </div>
                     {isPenaltyMatch && hasPenaltyScores && (
-                      <div className="text-xs text-gray-600 mt-1 text-center">
+                      <div className="text-xs text-gray-600 mt-1 mb-4 text-center">
                         {penaltyHome > penaltyAway 
                           ? `${currentMatch?.teams?.home?.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
                           : `${currentMatch?.teams?.away?.name} has won ${penaltyAway}-${penaltyHome} after Penalties`
