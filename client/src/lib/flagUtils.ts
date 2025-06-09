@@ -1000,6 +1000,24 @@ export const createImageFallbackHandler = (
 // Debug functions for country mapping analysis - removed to reduce console noise
 
 /**
+ * Print a comprehensive missing countries report
+ */
+export function printMissingCountriesReport(): void {
+  console.log('🌍 COMPREHENSIVE MISSING COUNTRIES REPORT');
+  console.log('=' .repeat(60));
+  
+  // Run all available analyses
+  compare365ScoresMapping();
+  compareSportsRadarMapping();
+  compareAllCountryMappings();
+  
+  console.log('\n📋 SUMMARY:');
+  console.log('This report shows countries that are missing from your current mapping');
+  console.log('but are supported by major sports data providers (365scores.com and SportsRadar).');
+  console.log('\nPriority should be given to countries that appear in both external sources.');
+}
+
+/**
  * Analyze all countries from API data and identify missing ones
  */
 export function analyzeCountryMappingCoverage(fixtures: any[]): void {
