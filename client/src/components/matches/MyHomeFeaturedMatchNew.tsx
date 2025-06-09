@@ -68,7 +68,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   ];
 
   // 2. Popular leagues for featured matches (Globally popular leagues) - Updated from TodayPopularFootballLeaguesNew
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup, COSAFA Cup
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Conference League, UEFA Nations League, FIFA Club World Cup, COSAFA Cup
 
   // Country-specific popular leagues
   const COUNTRY_POPULAR_LEAGUES = {
@@ -209,8 +209,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return true;
     });
 
-    // Apply popular leagues and countries filtering
-    const popularFiltered = timeFiltered.filter((fixture) => {
+    // ENHANCED: Apply strict filtering for only TOP-TIER leagues and matches
+    const topTierFiltered = timeFiltered.filter((fixture) => {
       // Basic validation
       if (!fixture?.league || !fixture?.teams?.home || !fixture?.teams?.away) {
         return false;
@@ -232,41 +232,57 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return false;
       }
 
-      // Check if it's a popular league
-      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+      // PRIORITY 1: Only the most elite leagues
+      const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Conference League, UEFA Nations League
+      if (eliteLeagues.includes(leagueId)) {
+        console.log(`🏆 [ELITE LEAGUE] Found elite league match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
+        return true;
+      }
 
-      // Check if it's from a popular country
-      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-        (popularCountry) => country.includes(popularCountry.toLowerCase()),
+      // PRIORITY 2: Major international competitions
+      const isTopInternationalCompetition =
+        leagueName.includes("uefa nations league") && !leagueName.includes("women") ||
+        (leagueName.includes("world cup") && leagueName.includes("qualification") && 
+         (leagueName.includes("europe") || leagueName.includes("south america"))) ||
+        leagueName.includes("fifa club world cup");
+
+      if (isTopInternationalCompetition) {
+        console.log(`🌍 [TOP INTERNATIONAL] Found top international match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
+        return true;
+      }
+
+      // PRIORITY 3: Only if from elite countries AND elite status
+      const eliteCountries = ["England", "Spain", "Italy", "Germany", "France"];
+      const isFromEliteCountry = eliteCountries.some(
+        (eliteCountry) => country.includes(eliteCountry.toLowerCase()),
       );
 
-      // Check if it's an international competition
-      const isInternationalCompetition =
-        leagueName.includes("champions league") ||
-        leagueName.includes("europa league") ||
-        leagueName.includes("conference league") ||
-        leagueName.includes("uefa") ||
-        leagueName.includes("world cup") ||
-        leagueName.includes("fifa club world cup") ||
-        leagueName.includes("fifa") ||
-        leagueName.includes("conmebol") ||
-        leagueName.includes("copa america") ||
-        leagueName.includes("copa libertadores") ||
-        leagueName.includes("copa sudamericana") ||
-        leagueName.includes("libertadores") ||
-        leagueName.includes("sudamericana") ||
-        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
-        (leagueName.includes("international") && !leagueName.includes("women")) ||
-        country.includes("world") ||
-        country.includes("europe") ||
-        country.includes("international");
+      // For elite countries, only allow if it's a popular league within that country
+      if (isFromEliteCountry && POPULAR_LEAGUES.includes(leagueId)) {
+        console.log(`⭐ [ELITE COUNTRY] Found elite country popular league: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
+        return true;
+      }
 
-      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
+      // REJECT everything else for featured matches
+      return false;
     });
 
-    // Sort by comprehensive priority system
-    const sortedMatches = popularFiltered.sort((a, b) => {
-      // 1. Country Priority System (most important)
+    console.log(`🎯 [FEATURED FILTER] Filtered from ${fixtures.length} to ${topTierFiltered.length} top-tier matches`);
+
+    // Sort by comprehensive priority system (same as TodayPopularFootballLeaguesNew)
+    const sortedMatches = topTierFiltered.sort((a, b) => {
+      // 1. Elite League Priority (most important)
+      const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5]; // In priority order
+      const aEliteIndex = eliteLeagues.indexOf(a.league.id);
+      const bEliteIndex = eliteLeagues.indexOf(b.league.id);
+      
+      if (aEliteIndex !== -1 && bEliteIndex !== -1) {
+        return aEliteIndex - bEliteIndex; // Sort by elite league priority
+      }
+      if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
+      if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
+      
+      // 2. Country Priority System
       const aCountryPriority = getCountryPriority(a.league.country || '');
       const bCountryPriority = getCountryPriority(b.league.country || '');
       
@@ -274,7 +290,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return aCountryPriority - bCountryPriority;
       }
       
-      // 2. League Priority within Countries (second most important)
+      // 3. League Priority within Countries
       const aLeaguePriority = getLeaguePriority(a);
       const bLeaguePriority = getLeaguePriority(b);
       
@@ -282,7 +298,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return aLeaguePriority - bLeaguePriority;
       }
       
-      // 3. Match Priority within Leagues - LIVE matches within same league/country priority
+      // 4. Match Status Priority - LIVE matches first
       const aStatusPriority = getMatchStatusPriority(a);
       const bStatusPriority = getMatchStatusPriority(b);
       
@@ -295,7 +311,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     });
 
     const limitedMatches = sortedMatches.slice(0, maxMatches || 3);
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches with popular leagues filtering`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches`);
+    console.log(`🏆 [FEATURED RESULTS] Final matches:`, limitedMatches.map(m => ({
+      league: m.league.name,
+      match: `${m.teams.home.name} vs ${m.teams.away.name}`,
+      status: m.fixture.status.short,
+      leagueId: m.league.id
+    })));
     
     return limitedMatches;
   }, [fixtures, dateToUse, maxMatches]);
