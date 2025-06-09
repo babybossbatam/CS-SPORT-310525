@@ -1310,21 +1310,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               countryCodeMapping: 'VE' // Should be VE for Venezuela
                             });
 
-                            // Check if Venezuela flag is wrong (Colombia flag)
-                            if (countryData.flag && (countryData.flag.includes('/co.png') || countryData.flag.includes('/co.'))) {
-                              console.log(`🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`);
-                              console.log(`🔧 Attempting to clear and refresh Venezuela flag...`);
-
-                              // Clear the corrupted cache and force refresh
-                              clearVenezuelaFlagCache();
-
-                              // Force refresh the flag asynchronously
-                              forceRefreshVenezuelaFlag().then(newFlag => {
-                                console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
-                                // Trigger a re-render if needed
-                                window.location.reload();
-                              }).catch(error => {
-                                console.error(`❌ Failed to refresh Venezuela flag:`, error);
+                            // Trust the Circle Flags system to provide correct flags Venezuela flag:`, error);
                               });
                             }
 
