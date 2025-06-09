@@ -26,7 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, getCountryCode } from "../../lib/flagUtils";
+import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache, getCountryCode } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -915,7 +915,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const isFavorite =
         favoriteTeams?.some((team) => team.id === teamId) || false;
 
-      if (isFavorite) {        dispatch(userActions.removeFavoriteTeam(teamId));
+      if (isFavorite) {
+        dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
@@ -971,7 +972,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
       console.error(`❌ Failed to refresh Venezuela flag:`, error);
     });
 
-    console.log('🧹 Cleared Venezuela flag cache');
+    // Clear all fallback flags as well to ensure clean state
+    clearAllFlagCache();
+    console.log('🧹 Cleared all flag cache including fallback flags');
   }, []);
 
   // Simple date comparison handled by SimpleDateFilter
@@ -1307,7 +1310,41 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               countryCodeMapping: 'VE' // Should be VE for Venezuela
                             });
 
-                            // Trust the Circle Flags system to provide correct flags
+                            // Check if Venezuela flag is wrong (Colombia flag)
+                            if (countryData.flag && (countryData.flag.includes('/co.png') || countryData.flag.includes('/co.'))) {
+                              console.log(`🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`);
+                              console.log(`🔧 Attempting to clear and refresh Venezuela flag...`);
+
+                              // Clear the corrupted cache and force refresh
+                              clearVenezuelaFlagCache();
+
+                              // Force refresh the flag asynchronously
+                              forceRefreshVenezuelaFlag().then(newFlag => {
+                                console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
+                                // Trigger a re-render if needed
+                                window.location.reload();
+                              }).catch(error => {
+                                console.error(`❌ Failed to refresh Venezuela flag:`, error);
+                              });
+                            }
+
+                            // Force correct Venezuela flag if wrong
+                            if (!countryData.flag.includes('/ve.png') && !countryData.flag.includes('/ve.')) {
+                              console.log(`🔧 Forcing correct Venezuela flag...`);
+                              const correctFlag = 'https://flagcdn.com/w40/ve.png';
+                              console.log(`🇻🇪 Setting Venezuela flag to: ${correctFlag}`);
+                              // Force update the flag in the data
+                              countryData.flag = correctFlag;
+                            }
+
+                            // Check if Venezuela flag is cached incorrectly
+                            const debugCountryFlagMapping = (country: string) => {
+                              console.log(`🔍 Venezuela Debug - Flag mapping for: "${country}"`);
+                              console.log(`🔍 Venezuela Debug - Country code: VE`);
+                              console.log(`🔍 Venezuela Debug - Expected URL: https://flagcdn.com/w40/ve.png`);
+                              console.log(`🔍 Venezuela Debug - Current flag from countryData: ${countryData.flag}`);
+                            };
+                            debugCountryFlagMapping('Venezuela');
                           }
                         }}
                       />
@@ -1349,6 +1386,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   )}
                   {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
+                    <div className="space-y-0">
                       {leagueData.matches
                         .slice(
                           0,
@@ -1456,64 +1494,71 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           return aDistance - bDistance;
                         })
                         .map((match: any) => (
-                          <div key={match.fixture.id} className="group match-item border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 relative p-4">
-                            <div className="grid grid-cols-[1fr_32px_100px_32px_1fr] gap-3 items-center">
-                              <div className="flex justify-center">
-                                {/* Star Button with true slide-in effect */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleStarMatch(match.fixture.id);
-                                  }}
-                                  className="match-star-button"
-                                  title="Add to favorites"
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget
-                                      .closest(".group")
-                                      ?.classList.add("disable-hover");
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget
-                                      .closest(".group")
-                                      ?.classList.remove("disable-hover");
-                                  }}
-                                >
-                                  <Star
-                                    className={`h-4 w-4 transition-all ${
-                                      starredMatches.has(match.fixture.id)
-                                        ? "text-blue-500 fill-blue-500"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                </button>
-                              </div>
-                                
-                              
+                          <LazyMatchItem key={match.fixture.id}>
+                            <div
+                              key={match.fixture.id}
+                              className="match-card-container group"
+                            >
+                              {/* Star Button with true slide-in effect */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleStarMatch(match.fixture.id);
+                                }}
+                                className="match-star-button"
+                                title="Add to favorites"
+                                onMouseEnter={(e) => {
+                                  e.currentTarget
+                                    .closest(".group")
+                                    ?.classList.add("disable-hover");
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget
+                                    .closest(".group")
+                                    ?.classList.remove("disable-hover");
+                                }}
+                              >
+                                <Star
+                                  className={`match-star-icon ${
+                                    starredMatches.has(match.fixture.id)
+                                      ? "starred"
+                                      : ""
+                                  }`}
+                                />
+                              </button>
 
-                              
+                              <div className="match-content-container">
                                 {/* Home Team Name - positioned further left */}
-                                <div className="text-right text-sm font-medium text-gray-800 truncate">
+                                <div
+                                  className={`home-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.home > match.goals.away
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
                                   {shortenTeamName(match.teams.home.name) ||
                                     "Unknown Team"}
                                 </div>
-                                
 
                                 {/* Home team logo - grid area */}
-                                <div className="flex justify-center">
+                                <div className="home-team-logo-container">
                                   {isNationalTeam(
                                     match.teams.home,
                                     leagueData.league,
                                   ) ? (
-                                    <LazyImage
-                                      src={(() => {
+                                    <div className="flag-circle">
+                                      <LazyImage
+                                        src={(() => {
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.home.name;
                                           const countryCode = getCountryCode(teamName);
-
+                                          
                                           if (countryCode) {
                                             return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                           }
-
+                                          
                                           // Fallback to original API if no country code mapping
                                           return match.teams.home.id
                                             ? `/api/team-logo/square/${match.teams.home.id}?size=32`
@@ -1531,12 +1576,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : "/assets/fallback-logo.svg"
                                         }
                                       />
+                                      <div className="gloss"></div>
+                                    </div>
                                   ) : (
                                     <LazyImage
                                       src={
-                                          match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
+                                        match.teams.home.id
+                                          ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                          : "/assets/fallback-logo.svg"
                                       }
                                       alt={match.teams.home.name}
                                       title={match.teams.home.name}
@@ -1547,34 +1594,42 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
                                   )}
-                                </div>
 
                                   {/* Penalty result below home logo */}
-                                {(() => {
-                                  const status = match.fixture.status.short;
-                                  const isPenaltyMatch = status === "PEN";
-                                  const penaltyHome = match.score?.penalty?.home;
-                                  const penaltyAway = match.score?.penalty?.away;
-                                  const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                         penaltyAway !== null && penaltyAway !== undefined;
+                                  {(() => {
+                                    const status = match.fixture.status.short;
+                                    const isPenaltyMatch = status === "PEN";
+                                    const penaltyHome = match.score?.penalty?.home;
+                                    const penaltyAway = match.score?.penalty?.away;
+                                    const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                           penaltyAway !== null && penaltyAway !== undefined;
 
-                                  if (isPenaltyMatch && hasPenaltyScores) {
-                                    const winnerText = penaltyHome > penaltyAway 
-                                      ? `${match.teams.home.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
-                                      : `${match.teams.away.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
+                                    if (isPenaltyMatch && hasPenaltyScores) {
+                                      const winnerText = penaltyHome > penaltyAway 
+                                        ? `${match.teams.home.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
+                                        : `${match.teams.away.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
 
-                                    return (
-                                      <div className="text-xs text-gray-600 text-center mt-1">
-                                        {winnerText}
-                                      </div>
-                                    );
-                                  }
-                                  return null;
-                                })()}
-                                
+                                      return (
+                                        <div
+                                          className="absolute text-xs text-gray-600 text-center max-w-[180px] leading-tight"
+                                          style={{
+                                            top: "calc(100% + 6px)",
+                                            left: "50%",
+                                            transform: "translateX(-50%)",
+                                            fontSize: "10px",
+                                            lineHeight: "12px"
+                                          }}
+                                        >
+                                          {winnerText}
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+                                </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
-                                <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                <div className="match-score-container">
                                   {(() => {
                                     const status = match.fixture.status.short;
                                     const fixtureDate = parseISO(
@@ -1595,24 +1650,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       ].includes(status)
                                     ) {
                                       return (
-                                        <>
-                                          <div className="flex items-center gap-1 text-lg font-bold">
-                                            <span className="text-gray-800">
+                                        <div className="relative">
+                                          <div className="match-score-display">
+                                            <span className="score-number">
                                               {match.goals.home ?? 0}
                                             </span>
-                                            <span className="text-gray-400">
+                                            <span className="score-separator">
                                               -
                                             </span>
-                                            <span className="text-gray-800">
+                                            <span className="score-number">
                                               {match.goals.away ?? 0}
                                             </span>
                                           </div>
-                                          <div className="text-xs text-red-500 font-medium">
+                                          <div className="match-status-label status-live">
                                             {status === "HT"
                                               ? "Halftime"
                                               : `${match.fixture.status.elapsed || 0}'`}
                                           </div>
-                                        </>
+                                        </div>
                                       );
                                     }
 
@@ -1649,19 +1704,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                                        penaltyAway !== null && penaltyAway !== undefined;
 
                                                 return (
-                                                  <div className="flex flex-col items-center justify-center min-w-[100px]">
-                                                    <div className="flex items-center gap-1 text-lg font-bold">
-                                                      <span className="text-gray-800">
+                                                  <div className="relative">
+                                                    <div className="match-score-display">
+                                                      <span className="score-number">
                                                         {homeScore}
                                                       </span>
-                                                      <span className="text-gray-400">
+                                                      <span className="score-separator">
                                                         -
                                                       </span>
-                                                      <span className="text-gray-800">
+                                                      <span className="score-number">
                                                         {awayScore}
                                                       </span>
                                                     </div>
-                                                    <div className="text-xs text-gray-500">
+                                                    <div className="match-status-label status-ended">
                                                       Ended
                                                     </div>
                                                   </div>
@@ -1669,19 +1724,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                               }
 
                                               return (
-                                                <div className="flex flex-col items-center justify-center min-w-[100px]">
-                                                  <div className="flex items-center gap-1 text-lg font-bold">
-                                                    <span className="text-gray-800">
+                                                <div className="relative">
+                                                  <div className="match-score-display">
+                                                    <span className="score-number">
                                                       {homeScore}
                                                     </span>
-                                                    <span className="text-gray-400">
+                                                    <span className="score-separator">
                                                       -
                                                     </span>
-                                                    <span className="text-gray-800">
+                                                    <span className="score-number">
                                                       {awayScore}
                                                     </span>
                                                   </div>
-                                                  <div className="text-xs text-gray-500">
+                                                  <div className="match-status-label status-ended">
                                                     {status === "FT"
                                                       ? "Ended"
                                                       : status === "AET"
@@ -1722,11 +1777,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                           : "No Score";
 
                                         return (
-                                          <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                          <div className="relative">
                                             <div className="text-sm font-medium text-gray-900">
                                               {format(fixtureDate, "HH:mm")}
                                             </div>
-                                            <div className="text-xs text-gray-500">
+                                            <div className="match-status-label status-postponed">
                                               {statusText}
                                             </div>
                                           </div>
@@ -1761,11 +1816,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                     : status;
 
                                       return (
-                                        <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                        <div className="relative">
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          <div className="text-xs text-gray-500">
+                                          <div className="match-status-label status-postponed">
                                             {statusText}
                                           </div>
                                         </div>
@@ -1774,38 +1829,39 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                     // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                     return (
-                                      <div className="flex flex-col items-center justify-center min-w-[100px]">
-                                        <div className="text-sm font-medium text-gray-900">
+                                      <div className="relative flex items-center justify-center h-full">
+                                        <div className="match-time-display" style={{ fontSize: '0.882em' }}>
                                           {status === "TBD"
                                             ? "TBD"
                                             : format(fixtureDate, "HH:mm")}
                                         </div>
                                         {status === "TBD" && (
-                                          <div className="text-xs text-gray-500">
+                                          <div className="match-status-label status-upcoming">
                                             Time TBD
                                           </div>
                                         )}
                                       </div>
                                     );
                                   })()}
-                                
+                                </div>
 
                                 {/* Away team logo - grid area */}
-                                <div className="flex justify-center">
+                                <div className="away-team-logo-container">
                                   {isNationalTeam(
                                     match.teams.away,
                                     leagueData.league,
                                   ) ? (
-                                    <LazyImage
-                                      src={(() => {
+                                    <div className="flag-circle">
+                                      <LazyImage
+                                        src={(() => {
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.away.name;
                                           const countryCode = getCountryCode(teamName);
-
+                                          
                                           if (countryCode) {
                                             return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                           }
-
+                                          
                                           // Fallback to original API if no country code mapping
                                           return match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
@@ -1823,6 +1879,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : "/assets/fallback-logo.svg"
                                         }
                                       />
+                                      <div className="gloss"></div>
+                                    </div>
                                   ) : (
                                     <LazyImage
                                       src={
@@ -1834,22 +1892,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       title={match.teams.away.name}
                                       className="team-logo"
                                       style={{ 
-                                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                        filter: "drop-shadow(0 2px 4px rgba(0,0, 0, 0.15))"
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                                  )}
+                               )}
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
-                                <div className="text-left text-sm font-medium text-gray-800 truncate">
+                                <div
+                                  className={`away-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.away > match.goals.home
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
                                   {shortenTeamName(match.teams.away.name) ||
                                     "Unknown Team"}
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          </LazyMatchItem>
                         ))}
+                    </div>
                   </CardContent>
                 </Card>
               );

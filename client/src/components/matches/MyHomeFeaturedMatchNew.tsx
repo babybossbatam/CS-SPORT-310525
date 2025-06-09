@@ -41,40 +41,22 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const cacheMaxAge = 2 * 60 * 60 * 1000; // 2 hours cache for featured matches
 
   // Fetch fixtures for multiple days to build the 8-slide distribution
-  const { data: fixtures = [], isLoading } = useCachedQuery(
-    [
-      "featured-matches-multi-day",
-      today,
-      tomorrowStr,
-      dayAfterStr,
-      twoDaysAfterStr,
-    ],
+  const {
+    data: fixtures = [],
+    isLoading,
+  } = useCachedQuery(
+    ["featured-matches-multi-day", today, tomorrowStr, dayAfterStr, twoDaysAfterStr],
     async () => {
-      console.log(
-        `🔄 [MyHomeFeaturedMatchNew] Fetching multi-day data for slides distribution`,
-      );
+      console.log(`🔄 [MyHomeFeaturedMatchNew] Fetching multi-day data for slides distribution`);
 
-      const datePromises = [
-        today,
-        tomorrowStr,
-        dayAfterStr,
-        twoDaysAfterStr,
-      ].map(async (date) => {
+      const datePromises = [today, tomorrowStr, dayAfterStr, twoDaysAfterStr].map(async (date) => {
         try {
-          const response = await apiRequest(
-            "GET",
-            `/api/fixtures/date/${date}?all=true`,
-          );
+          const response = await apiRequest("GET", `/api/fixtures/date/${date}?all=true`);
           const data = await response.json();
-          console.log(
-            `✅ [MyHomeFeaturedMatchNew] Received ${data?.length || 0} fixtures for ${date}`,
-          );
+          console.log(`✅ [MyHomeFeaturedMatchNew] Received ${data?.length || 0} fixtures for ${date}`);
           return data || [];
         } catch (error) {
-          console.error(
-            `❌ [MyHomeFeaturedMatchNew] Error fetching fixtures for ${date}:`,
-            error,
-          );
+          console.error(`❌ [MyHomeFeaturedMatchNew] Error fetching fixtures for ${date}:`, error);
           return [];
         }
       });
@@ -82,9 +64,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const allResults = await Promise.all(datePromises);
       const allFixtures = allResults.flat();
 
-      console.log(
-        `🎯 [MyHomeFeaturedMatchNew] Total fixtures across 4 days: ${allFixtures.length}`,
-      );
+      console.log(`🎯 [MyHomeFeaturedMatchNew] Total fixtures across 4 days: ${allFixtures.length}`);
       return allFixtures;
     },
     {
@@ -101,16 +81,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // 1. Country Priority System
   const POPULAR_COUNTRIES_ORDER = [
-    "England",
-    "Spain",
-    "Italy",
-    "Germany",
-    "France",
-    "World",
-    "Europe",
-    "South America",
-    "United Arab Emirates",
-    "United-Arab-Emirates",
+    "England", "Spain", "Italy", "Germany", "France", 
+    "World", "Europe", "South America", "United Arab Emirates", "United-Arab-Emirates"
   ];
 
   // 2. Popular leagues for featured matches (Globally popular leagues) - Updated from TodayPopularFootballLeaguesNew
@@ -118,13 +90,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Country-specific popular leagues
   const COUNTRY_POPULAR_LEAGUES = {
-    England: [39], // Premier League
-    Spain: [140], // La Liga
-    Italy: [135], // Serie A
-    Germany: [78], // Bundesliga
-    France: [61], // Ligue 1
-    World: [2, 3, 848, 15], // UEFA competitions and FIFA Club World Cup
-    Europe: [2, 3, 848], // UEFA competitions
+    "England": [39], // Premier League
+    "Spain": [140], // La Liga
+    "Italy": [135], // Serie A
+    "Germany": [78], // Bundesliga
+    "France": [61], // Ligue 1
+    "World": [2, 3, 848, 15], // UEFA competitions and FIFA Club World Cup
+    "Europe": [2, 3, 848], // UEFA competitions
     "South America": [9, 13], // Copa Libertadores, Copa Sudamericana
     "United Arab Emirates": [305], // UAE Pro League
     "United-Arab-Emirates": [305], // UAE Pro League
@@ -132,15 +104,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Helper function to get country priority
   const getCountryPriority = (country: string) => {
-    const index = POPULAR_COUNTRIES_ORDER.findIndex(
-      (c) => c.toLowerCase() === country?.toLowerCase(),
+    const index = POPULAR_COUNTRIES_ORDER.findIndex(c => 
+      c.toLowerCase() === country?.toLowerCase()
     );
     return index === -1 ? 999 : index;
   };
 
   // Helper function to get league priority within country
   const getLeaguePriority = (match: FixtureResponse) => {
-    const country = match.league.country || "";
+    const country = match.league.country || '';
     const leagueId = match.league.id;
 
     // Priority 1: Popular for specific country (highest priority)
@@ -156,38 +128,28 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Priority 3: Special World league sorting (for "World" country)
     if (country === "World") {
-      const leagueName = (match.league.name || "").toLowerCase();
+      const leagueName = (match.league.name || '').toLowerCase();
 
       // UEFA Nations League (highest)
-      if (
-        leagueName.includes("uefa nations league") &&
-        !leagueName.includes("women")
-      ) {
+      if (leagueName.includes('uefa nations league') && !leagueName.includes('women')) {
         return 1;
       }
 
       // World Cup Qualifications
-      if (
-        leagueName.includes("world cup") &&
-        leagueName.includes("qualification")
-      ) {
-        if (leagueName.includes("south america")) return 2;
-        if (leagueName.includes("europe")) return 3;
-        if (leagueName.includes("asia")) return 5;
-        if (leagueName.includes("concacaf")) return 6;
+      if (leagueName.includes('world cup') && leagueName.includes('qualification')) {
+        if (leagueName.includes('south america')) return 2;
+        if (leagueName.includes('europe')) return 3;
+        if (leagueName.includes('asia')) return 5;
+        if (leagueName.includes('concacaf')) return 6;
       }
 
       // Friendlies (excluding UEFA Nations League and women's)
-      if (
-        leagueName.includes("friendlies") &&
-        !leagueName.includes("uefa nations league") &&
-        !leagueName.includes("women")
-      ) {
+      if (leagueName.includes('friendlies') && !leagueName.includes('uefa nations league') && !leagueName.includes('women')) {
         return 4;
       }
 
       // Tournoi Maurice Revello
-      if (leagueName.includes("tournoi maurice revello")) {
+      if (leagueName.includes('tournoi maurice revello')) {
         return 7;
       }
 
@@ -202,25 +164,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const status = match.fixture.status.short;
 
     // Priority 1: LIVE matches (highest priority)
-    if (
-      ["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(
-        status,
-      )
-    ) {
+    if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(status)) {
       return 1;
     }
 
     // Priority 2: Recently finished matches
-    if (status === "FT") {
+    if (status === 'FT') {
       return 2;
     }
 
     // Priority 3: Upcoming matches (by time proximity)
-    if (status === "NS") {
+    if (status === 'NS') {
       const matchTime = new Date(match.fixture.date);
       const now = new Date();
       const timeDiff = Math.abs(matchTime.getTime() - now.getTime());
-      return 3 + timeDiff / (1000 * 60 * 60); // Add hours as fractional priority
+      return 3 + (timeDiff / (1000 * 60 * 60)); // Add hours as fractional priority
     }
 
     return 999; // Other statuses
@@ -230,9 +188,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const featuredMatches = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    console.log(
-      `🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures for date: ${dateToUse}`,
-    );
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures for date: ${dateToUse}`);
 
     const today = new Date();
     const todayString = today.toISOString().slice(0, 10);
@@ -250,11 +206,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const getEliteMatches = (matchesArray: any[]) => {
       return matchesArray.filter((fixture) => {
         // Basic validation
-        if (
-          !fixture?.league ||
-          !fixture?.teams?.home ||
-          !fixture?.teams?.away
-        ) {
+        if (!fixture?.league || !fixture?.teams?.home || !fixture?.teams?.away) {
           return false;
         }
 
@@ -282,12 +234,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // PRIORITY 2: Major international competitions
         const isTopInternationalCompetition =
-          (leagueName.includes("uefa nations league") &&
-            !leagueName.includes("women")) ||
-          (leagueName.includes("world cup") &&
-            leagueName.includes("qualification") &&
-            (leagueName.includes("europe") ||
-              leagueName.includes("south america"))) ||
+          leagueName.includes("uefa nations league") && !leagueName.includes("women") ||
+          (leagueName.includes("world cup") && leagueName.includes("qualification") && 
+           (leagueName.includes("europe") || leagueName.includes("south america"))) ||
           leagueName.includes("fifa club world cup");
 
         if (isTopInternationalCompetition) {
@@ -295,15 +244,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // PRIORITY 3: Elite countries with popular leagues
-        const eliteCountries = [
-          "England",
-          "Spain",
-          "Italy",
-          "Germany",
-          "France",
-        ];
-        const isFromEliteCountry = eliteCountries.some((eliteCountry) =>
-          country.includes(eliteCountry.toLowerCase()),
+        const eliteCountries = ["England", "Spain", "Italy", "Germany", "France"];
+        const isFromEliteCountry = eliteCountries.some(
+          (eliteCountry) => country.includes(eliteCountry.toLowerCase()),
         );
 
         if (isFromEliteCountry && POPULAR_LEAGUES.includes(leagueId)) {
@@ -337,36 +280,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // 3. Time proximity for upcoming matches
-        if (
-          a.fixture.status.short === "NS" &&
-          b.fixture.status.short === "NS"
-        ) {
+        if (a.fixture.status.short === 'NS' && b.fixture.status.short === 'NS') {
           const aTime = new Date(a.fixture.date).getTime();
           const bTime = new Date(b.fixture.date).getTime();
           return aTime - bTime;
         }
 
-        return (a.league.name || "").localeCompare(b.league.name || "");
+        return (a.league.name || '').localeCompare(b.league.name || '');
       });
     };
 
     // Get matches for different days
-    const todayMatches = fixtures.filter((f) => {
+    const todayMatches = fixtures.filter(f => {
       const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
       return fixtureDate === todayString;
     });
 
-    const tomorrowMatches = fixtures.filter((f) => {
+    const tomorrowMatches = fixtures.filter(f => {
       const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
       return fixtureDate === tomorrowString;
     });
 
-    const dayAfterTomorrowMatches = fixtures.filter((f) => {
+    const dayAfterTomorrowMatches = fixtures.filter(f => {
       const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
       return fixtureDate === dayAfterTomorrowString;
     });
 
-    const twoDaysAfterMatches = fixtures.filter((f) => {
+    const twoDaysAfterMatches = fixtures.filter(f => {
       const fixtureDate = new Date(f.fixture.date).toISOString().slice(0, 10);
       return fixtureDate === twoDaysAfterString;
     });
@@ -388,35 +328,22 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       // Slides 1-3: Today's matches (live/upcoming/recent finished)
       ...todaySorted.slice(0, 3),
       // Slides 4-6: Tomorrow's top 3 upcoming matches
-      ...tomorrowSorted
-        .filter((m) => m.fixture.status.short === "NS")
-        .slice(0, 3),
+      ...tomorrowSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 3),
       // Slides 7-8: Next 2 days' top upcoming matches (1 from each day)
-      ...dayAfterSorted
-        .filter((m) => m.fixture.status.short === "NS")
-        .slice(0, 1),
-      ...twoDaysAfterSorted
-        .filter((m) => m.fixture.status.short === "NS")
-        .slice(0, 1),
+      ...dayAfterSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 1),
+      ...twoDaysAfterSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 1),
     ].filter(Boolean); // Remove any undefined entries
 
-    console.log(
-      `🎯 [SLIDE DISTRIBUTION] Today: ${todaySorted.length}, Tomorrow: ${tomorrowSorted.length}, Day+2: ${dayAfterSorted.length}, Day+3: ${twoDaysAfterSorted.length}`,
-    );
-    console.log(
-      `🔍 [MyHomeFeaturedMatchNew] Final slide distribution: ${slidesDistribution.length} matches`,
-    );
-    console.log(
-      `🏆 [FEATURED RESULTS] Final matches:`,
-      slidesDistribution.map((m, i) => ({
-        slide: i + 1,
-        date: new Date(m.fixture.date).toISOString().slice(0, 10),
-        league: m.league.name,
-        match: `${m.teams.home.name} vs ${m.teams.away.name}`,
-        status: m.fixture.status.short,
-        leagueId: m.league.id,
-      })),
-    );
+    console.log(`🎯 [SLIDE DISTRIBUTION] Today: ${todaySorted.length}, Tomorrow: ${tomorrowSorted.length}, Day+2: ${dayAfterSorted.length}, Day+3: ${twoDaysAfterSorted.length}`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Final slide distribution: ${slidesDistribution.length} matches`);
+    console.log(`🏆 [FEATURED RESULTS] Final matches:`, slidesDistribution.map((m, i) => ({
+      slide: i + 1,
+      date: new Date(m.fixture.date).toISOString().slice(0, 10),
+      league: m.league.name,
+      match: `${m.teams.home.name} vs ${m.teams.away.name}`,
+      status: m.fixture.status.short,
+      leagueId: m.league.id
+    })));
 
     return slidesDistribution;
   }, [fixtures, dateToUse, maxMatches]);
@@ -425,16 +352,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const handlePrevious = () => {
     if (featuredMatches.length <= 1) return;
-    setCurrentIndex(
-      currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1,
-    );
+    setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1);
   };
 
   const handleNext = () => {
     if (featuredMatches.length <= 1) return;
-    setCurrentIndex(
-      currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0,
-    );
+    setCurrentIndex(currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0);
   };
 
   const handleMatchClick = () => {
@@ -457,6 +380,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (status === "PEN") return "Ended (Penalties)";
     if (status === "NS") return "UPCOMING";
     return status;
+  };
+
+  const getMatchStatusLabel = (match: any) => {
+    if (!match) return "";
+    const status = match.fixture.status.short;
+
+    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
+      return "LIVE";
+    } else if (["FT", "AET", "PEN"].includes(status)) {
+      return "FINISHED";
+    } else {
+      return "UPCOMING";
+    }
   };
 
   const getTeamColor = (teamId: number) => {
@@ -564,111 +500,97 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <div className="flex items-center justify-center">
               {(() => {
                 // Helper function to get country code for Circle Flags
-                const getCountryCodeForCircleFlags = (
-                  country: string,
-                ): string | null => {
+                const getCountryCodeForCircleFlags = (country: string): string | null => {
                   const countryMap: { [key: string]: string } = {
-                    England: "gb-eng",
-                    Scotland: "gb-sct",
-                    Wales: "gb-wls",
-                    "Northern Ireland": "gb-nir",
-                    Spain: "es",
-                    Italy: "it",
-                    Germany: "de",
-                    France: "fr",
-                    Portugal: "pt",
-                    Netherlands: "nl",
-                    Belgium: "be",
-                    Croatia: "hr",
-                    Poland: "pl",
-                    Ukraine: "ua",
-                    Turkey: "tr",
-                    Switzerland: "ch",
-                    Austria: "at",
-                    "Czech Republic": "cz",
-                    Denmark: "dk",
-                    Sweden: "se",
-                    Norway: "no",
-                    Finland: "fi",
-                    Russia: "ru",
-                    Serbia: "rs",
-                    Slovenia: "si",
-                    Slovakia: "sk",
-                    Hungary: "hu",
-                    Romania: "ro",
-                    Bulgaria: "bg",
-                    Greece: "gr",
-                    "Bosnia and Herzegovina": "ba",
-                    Montenegro: "me",
-                    "North Macedonia": "mk",
-                    "FYR Macedonia": "mk",
-                    Macedonia: "mk",
-                    Albania: "al",
-                    Kosovo: "xk",
-                    Moldova: "md",
-                    Belarus: "by",
-                    Lithuania: "lt",
-                    Latvia: "lv",
-                    Estonia: "ee",
-                    Iceland: "is",
-                    Ireland: "ie",
-                    Luxembourg: "lu",
-                    Liechtenstein: "li",
-                    Malta: "mt",
-                    Cyprus: "cy",
-                    Georgia: "ge",
-                    Armenia: "am",
-                    Azerbaijan: "az",
-                    Kazakhstan: "kz",
-                    "Faroe Islands": "fo",
-                    Gibraltar: "gi",
-                    Andorra: "ad",
-                    "San Marino": "sm",
-                    Monaco: "mc",
-                    "Vatican City": "va",
-                    Brazil: "br",
-                    Argentina: "ar",
-                    Uruguay: "uy",
-                    Chile: "cl",
-                    Peru: "pe",
-                    Colombia: "co",
-                    Ecuador: "ec",
-                    Venezuela: "ve",
-                    Bolivia: "bo",
-                    Paraguay: "py",
-                    Guyana: "gy",
-                    Suriname: "sr",
-                    "French Guiana": "gf",
+                    'England': 'gb-eng',
+                    'Scotland': 'gb-sct', 
+                    'Wales': 'gb-wls',
+                    'Northern Ireland': 'gb-nir',
+                    'Spain': 'es',
+                    'Italy': 'it',
+                    'Germany': 'de',
+                    'France': 'fr',
+                    'Portugal': 'pt',
+                    'Netherlands': 'nl',
+                    'Belgium': 'be',
+                    'Croatia': 'hr',
+                    'Poland': 'pl',
+                    'Ukraine': 'ua',
+                    'Turkey': 'tr',
+                    'Switzerland': 'ch',
+                    'Austria': 'at',
+                    'Czech Republic': 'cz',
+                    'Denmark': 'dk',
+                    'Sweden': 'se',
+                    'Norway': 'no',
+                    'Finland': 'fi',
+                    'Russia': 'ru',
+                    'Serbia': 'rs',
+                    'Slovenia': 'si',
+                    'Slovakia': 'sk',
+                    'Hungary': 'hu',
+                    'Romania': 'ro',
+                    'Bulgaria': 'bg',
+                    'Greece': 'gr',
+                    'Bosnia and Herzegovina': 'ba',
+                    'Montenegro': 'me',
+                    'North Macedonia': 'mk',
+                    'FYR Macedonia': 'mk',
+                    'Macedonia': 'mk',
+                    'Albania': 'al',
+                    'Kosovo': 'xk',
+                    'Moldova': 'md',
+                    'Belarus': 'by',
+                    'Lithuania': 'lt',
+                    'Latvia': 'lv',
+                    'Estonia': 'ee',
+                    'Iceland': 'is',
+                    'Ireland': 'ie',
+                    'Luxembourg': 'lu',
+                    'Liechtenstein': 'li',
+                    'Malta': 'mt',
+                    'Cyprus': 'cy',
+                    'Georgia': 'ge',
+                    'Armenia': 'am',
+                    'Azerbaijan': 'az',
+                    'Kazakhstan': 'kz',
+                    'Faroe Islands': 'fo',
+                    'Gibraltar': 'gi',
+                    'Andorra': 'ad',
+                    'San Marino': 'sm',
+                    'Monaco': 'mc',
+                    'Vatican City': 'va',
+                    'Brazil': 'br',
+                    'Argentina': 'ar',
+                    'Uruguay': 'uy',
+                    'Chile': 'cl',
+                    'Peru': 'pe',
+                    'Colombia': 'co',
+                    'Ecuador': 'ec',
+                    'Venezuela': 've',
+                    'Bolivia': 'bo',
+                    'Paraguay': 'py',
+                    'Guyana': 'gy',
+                    'Suriname': 'sr',
+                    'French Guiana': 'gf'
                   };
 
                   return countryMap[country] || null;
                 };
 
                 // Check if this is an international competition
-                const isInternationalCompetition =
-                  currentMatch?.league?.country === "World" ||
-                  currentMatch?.league?.country === "Europe" ||
-                  currentMatch?.league?.country === "South America" ||
-                  currentMatch?.league?.name
-                    ?.toLowerCase()
-                    .includes("world cup") ||
-                  currentMatch?.league?.name?.toLowerCase().includes("euro") ||
-                  currentMatch?.league?.name
-                    ?.toLowerCase()
-                    .includes("copa america") ||
-                  currentMatch?.league?.name
-                    ?.toLowerCase()
-                    .includes("uefa nations") ||
-                  currentMatch?.league?.name
-                    ?.toLowerCase()
-                    .includes("international");
+                const isInternationalCompetition = currentMatch?.league?.country === 'World' || 
+                                                 currentMatch?.league?.country === 'Europe' ||
+                                                 currentMatch?.league?.country === 'South America' ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('world cup') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('euro') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('copa america') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('uefa nations') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('international');
 
-                if (
-                  isInternationalCompetition &&
-                  currentMatch?.league?.country
-                ) {
+                if (isInternationalCompetition && currentMatch?.league?.country) {
                   // For international competitions, use Circle Flags
-                  if (currentMatch.league.country === "World") {
+                  if (currentMatch.league.country === 'World') {
                     return (
                       <img
                         src="https://hatscripts.github.io/circle-flags/flags/un.svg"
@@ -677,12 +599,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
-                          if (
-                            currentMatch?.league?.logo &&
-                            !e.currentTarget.src.includes(
-                              currentMatch.league.logo,
-                            )
-                          ) {
+                          if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
                             e.currentTarget.src = currentMatch.league.logo;
                           } else {
                             e.currentTarget.src = "/assets/fallback-logo.svg";
@@ -690,7 +607,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }}
                       />
                     );
-                  } else if (currentMatch.league.country === "Europe") {
+                  } else if (currentMatch.league.country === 'Europe') {
                     return (
                       <img
                         src="https://hatscripts.github.io/circle-flags/flags/eu.svg"
@@ -699,12 +616,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
-                          if (
-                            currentMatch?.league?.logo &&
-                            !e.currentTarget.src.includes(
-                              currentMatch.league.logo,
-                            )
-                          ) {
+                          if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
                             e.currentTarget.src = currentMatch.league.logo;
                           } else {
                             e.currentTarget.src = "/assets/fallback-logo.svg";
@@ -717,9 +629,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 // For national teams or country-specific leagues, try Circle Flags first
                 if (currentMatch?.league?.country) {
-                  const countryCode = getCountryCodeForCircleFlags(
-                    currentMatch.league.country,
-                  );
+                  const countryCode = getCountryCodeForCircleFlags(currentMatch.league.country);
 
                   if (countryCode) {
                     return (
@@ -731,21 +641,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         decoding="async"
                         onError={(e) => {
                           // Fallback to original flag utils, then league logo
-                          const fallbackFlag = getCountryFlagWithFallbackSync(
-                            currentMatch.league.country,
-                            currentMatch?.league?.logo,
-                          );
-                          if (
-                            fallbackFlag &&
-                            !e.currentTarget.src.includes(fallbackFlag)
-                          ) {
+                          const fallbackFlag = getCountryFlagWithFallbackSync(currentMatch.league.country, currentMatch?.league?.logo);
+                          if (fallbackFlag && !e.currentTarget.src.includes(fallbackFlag)) {
                             e.currentTarget.src = fallbackFlag;
-                          } else if (
-                            currentMatch?.league?.logo &&
-                            !e.currentTarget.src.includes(
-                              currentMatch.league.logo,
-                            )
-                          ) {
+                          } else if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
                             e.currentTarget.src = currentMatch.league.logo;
                           } else {
                             e.currentTarget.src = "/assets/fallback-logo.svg";
@@ -756,10 +655,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }
 
                   // Fallback to original flag system
-                  const countryFlag = getCountryFlagWithFallbackSync(
-                    currentMatch.league.country,
-                    currentMatch?.league?.logo,
-                  );
+                  const countryFlag = getCountryFlagWithFallbackSync(currentMatch.league.country, currentMatch?.league?.logo);
                   if (countryFlag) {
                     return (
                       <img
@@ -769,12 +665,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
-                          if (
-                            currentMatch?.league?.logo &&
-                            !e.currentTarget.src.includes(
-                              currentMatch.league.logo,
-                            )
-                          ) {
+                          if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
                             e.currentTarget.src = currentMatch.league.logo;
                           } else {
                             e.currentTarget.src = "/assets/fallback-logo.svg";
@@ -806,7 +697,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <span className="text-sm font-medium">
                 {currentMatch?.league?.name || "League Name"}
               </span>
-              {getMatchStatus(currentMatch) === "LIVE" ? (
+              {getMatchStatusLabel(currentMatch) === "LIVE" ? (
                 <Badge
                   variant="outline"
                   className="text-[10px] px-1.5 border border-red-500 text-red-500 animate-pulse ml-2"
@@ -817,15 +708,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <Badge
                   variant="outline"
                   className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
-                    getMatchStatus(currentMatch) === "FINISHED"
+                    getMatchStatusLabel(currentMatch) === "FINISHED"
                       ? "border-gray-500 text-gray-500"
                       : "border-blue-500 text-blue-500"
                   }`}
                 >
-                  {getMatchStatus(currentMatch) === "FINISHED"
-                    ? currentMatch?.league?.round || "Final"
-                    : currentMatch?.league?.round ||
-                      getMatchStatus(currentMatch)}
+                  {getMatchStatusLabel(currentMatch) === "FINISHED" ? (currentMatch?.league?.round || "Final") : (currentMatch?.league?.round || getMatchStatusLabel(currentMatch))}
                 </Badge>
               )}
             </div>
@@ -836,12 +724,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {(() => {
               const status = currentMatch?.fixture?.status?.short;
               const elapsed = currentMatch?.fixture?.status?.elapsed;
-              const isLive = getMatchStatus(currentMatch) === "LIVE";
-              const hasScore =
-                currentMatch?.fixture?.status?.short &&
-                ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-                  status,
-                );
+              const isLive = getMatchStatusLabel(currentMatch) === "LIVE";
+              const hasScore = currentMatch?.fixture?.status?.short &&
+                ["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(status);
 
               if (hasScore) {
                 const statusText = getMatchStatus(currentMatch);
@@ -850,75 +735,54 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 // Check for penalty scores
                 const penaltyHome = currentMatch?.score?.penalty?.home;
                 const penaltyAway = currentMatch?.score?.penalty?.away;
-                const hasPenaltyScores =
-                  penaltyHome !== null &&
-                  penaltyHome !== undefined &&
-                  penaltyAway !== null &&
-                  penaltyAway !== undefined;
+                const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                       penaltyAway !== null && penaltyAway !== undefined;
 
                 const isPenaltyMatch = status === "PEN";
 
                 return (
                   <div className="flex flex-col items-center">
-                    <div
-                      className={`text-sm tracking-wide mt-1 ${isLive ? "text-red-600" : "text-gray-500"}`}
-                    >
+                    <div className={`text-sm tracking-wide mt-1 ${isLive ? "text-red-600" : "text-gray-500"}`}>
                       {statusText}
                     </div>
-                    <div
-                      className="text-xl font-semibold text-black mb-1 mt-1"
-                      style={{ fontSize: "1.95rem" }}
-                    >
+                    <div className="text-xl font-semibold text-black mb-1 mt-1" style={{ fontSize: '1.95rem' }}>
                       {scoreText}
                     </div>
                     {isPenaltyMatch && hasPenaltyScores && (
                       <div className="text-xs text-gray-600 mt-0.5 mb-4 text-center">
-                        {penaltyHome > penaltyAway
+                        {penaltyHome > penaltyAway 
                           ? `${currentMatch?.teams?.home?.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
-                          : `${currentMatch?.teams?.away?.name} has won ${penaltyAway}-${penaltyHome} after Penalties`}
+                          : `${currentMatch?.teams?.away?.name} has won ${penaltyAway}-${penaltyHome} after Penalties`
+                        }
                       </div>
                     )}
                   </div>
                 );
               } else {
                 // Calculate days until match with proper date comparison
-                const matchDate = new Date(currentMatch?.fixture?.date || "");
+                const matchDate = new Date(currentMatch?.fixture?.date || '');
                 const today = new Date();
 
                 // Reset time to start of day for accurate date comparison
-                const matchDateOnly = new Date(
-                  matchDate.getFullYear(),
-                  matchDate.getMonth(),
-                  matchDate.getDate(),
-                );
-                const todayOnly = new Date(
-                  today.getFullYear(),
-                  today.getMonth(),
-                  today.getDate(),
-                );
+                const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+                const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const tomorrowOnly = new Date(todayOnly);
                 tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
 
                 let daysText;
                 if (matchDateOnly.getTime() === todayOnly.getTime()) {
-                  daysText = "Today";
+                  daysText = 'Today';
                 } else if (matchDateOnly.getTime() === tomorrowOnly.getTime()) {
-                  daysText = "Tomorrow";
+                  daysText = 'Tomorrow';
                 } else {
                   // For other dates, calculate the difference in days
-                  const timeDiff =
-                    matchDateOnly.getTime() - todayOnly.getTime();
-                  const daysUntilMatch = Math.ceil(
-                    timeDiff / (1000 * 60 * 60 * 24),
-                  );
+                  const timeDiff = matchDateOnly.getTime() - todayOnly.getTime();
+                  const daysUntilMatch = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
                   daysText = `${Math.abs(daysUntilMatch)} Days`;
                 }
 
                 return (
-                  <div
-                    className="text-black uppercase tracking-wide"
-                    style={{ fontSize: "1.125rem" }}
-                  >
+                  <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
                     {daysText}
                   </div>
                 );
@@ -934,342 +798,304 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <div
                   className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
                   style={{
-                    background: getTeamColor(
-                      currentMatch?.teams?.home?.id || 0,
-                    ),
+                    background: getTeamColor(currentMatch?.teams?.home?.id || 0),
                   }}
                 >
                   {(() => {
-                    // Helper function to get country code for Circle Flags from team name
-                    const getCountryCodeFromTeamName = (
-                      teamName: string,
-                    ): string | null => {
-                      const teamCountryMap: { [key: string]: string } = {
-                        // European teams
-                        England: "gb-eng",
-                        Scotland: "gb-sct",
-                        Wales: "gb-wls",
-                        "Northern Ireland": "gb-nir",
-                        Spain: "es",
-                        Italy: "it",
-                        Germany: "de",
-                        France: "fr",
-                        Portugal: "pt",
-                        Netherlands: "nl",
-                        Belgium: "be",
-                        Croatia: "hr",
-                        Poland: "pl",
-                        Ukraine: "ua",
-                        Turkey: "tr",
-                        Switzerland: "ch",
-                        Austria: "at",
-                        "Czech Republic": "cz",
-                        Czechia: "cz",
-                        Denmark: "dk",
-                        Sweden: "se",
-                        Norway: "no",
-                        Finland: "fi",
-                        Russia: "ru",
-                        Serbia: "rs",
-                        Slovenia: "si",
-                        Slovakia: "sk",
-                        Hungary: "hu",
-                        Romania: "ro",
-                        Bulgaria: "bg",
-                        Greece: "gr",
-                        "Bosnia and Herzegovina": "ba",
-                        Montenegro: "me",
-                        "North Macedonia": "mk",
-                        "FYR Macedonia": "mk",
-                        Macedonia: "mk",
-                        Albania: "al",
-                        Kosovo: "xk",
-                        Moldova: "md",
-                        Belarus: "by",
-                        Lithuania: "lt",
-                        Latvia: "lv",
-                        Estonia: "ee",
-                        Iceland: "is",
-                        Ireland: "ie",
-                        Luxembourg: "lu",
-                        Malta: "mt",
-                        Cyprus: "cy",
-                        Georgia: "ge",
-                        Armenia: "am",
-                        Azerbaijan: "az",
-                        Kazakhstan: "kz",
-                        "Faroe Islands": "fo",
-                        Gibraltar: "gi",
-                        Andorra: "ad",
-                        "San Marino": "sm",
-                        Monaco: "mc",
+                  // Helper function to get country code for Circle Flags from team name
+                  const getCountryCodeFromTeamName = (teamName: string): string | null => {
+                    const teamCountryMap: { [key: string]: string } = {
+                      // European teams
+                      'England': 'gb-eng',
+                      'Scotland': 'gb-sct',
+                      'Wales': 'gb-wls',
+                      'Northern Ireland': 'gb-nir',
+                      'Spain': 'es',
+                      'Italy': 'it',
+                      'Germany': 'de',
+                      'France': 'fr',
+                      'Portugal': 'pt',
+                      'Netherlands': 'nl',
+                      'Belgium': 'be',
+                      'Croatia': 'hr',
+                      'Poland': 'pl',
+                      'Ukraine': 'ua',
+                      'Turkey': 'tr',
+                      'Switzerland': 'ch',
+                      'Austria': 'at',
+                      'Czech Republic': 'cz',
+                      'Czechia': 'cz',
+                      'Denmark': 'dk',
+                      'Sweden': 'se',
+                      'Norway': 'no',
+                      'Finland': 'fi',
+                      'Russia': 'ru',
+                      'Serbia': 'rs',
+                      'Slovenia': 'si',
+                      'Slovakia': 'sk',
+                      'Hungary': 'hu',
+                      'Romania': 'ro',
+                      'Bulgaria': 'bg',
+                      'Greece': 'gr',
+                      'Bosnia and Herzegovina': 'ba',
+                      'Montenegro': 'me',
+                      'North Macedonia': 'mk',
+                      'FYR Macedonia': 'mk',
+                      'Macedonia': 'mk',
+                      'Albania': 'al',
+                      'Kosovo': 'xk',
+                      'Moldova': 'md',
+                      'Belarus': 'by',
+                      'Lithuania': 'lt',
+                      'Latvia': 'lv',
+                      'Estonia': 'ee',
+                      'Iceland': 'is',
+                      'Ireland': 'ie',
+                      'Luxembourg': 'lu',
+                      'Malta': 'mt',
+                      'Cyprus': 'cy',
+                      'Georgia': 'ge',
+                      'Armenia': 'am',
+                      'Azerbaijan': 'az',
+                      'Kazakhstan': 'kz',
+                      'Faroe Islands': 'fo',
+                      'Gibraltar': 'gi',
+                      'Andorra': 'ad',
+                      'San Marino': 'sm',
+                      'Monaco': 'mc',
 
-                        // South American teams
-                        Brazil: "br",
-                        Argentina: "ar",
-                        Uruguay: "uy",
-                        Chile: "cl",
-                        Peru: "pe",
-                        Colombia: "co",
-                        Ecuador: "ec",
-                        Venezuela: "ve",
-                        Bolivia: "bo",
-                        Paraguay: "py",
-                        Guyana: "gy",
-                        Suriname: "sr",
+                      // South American teams
+                      'Brazil': 'br',
+                      'Argentina': 'ar',
+                      'Uruguay': 'uy',
+                      'Chile': 'cl',
+                      'Peru': 'pe',
+                      'Colombia': 'co',
+                      'Ecuador': 'ec',
+                      'Venezuela': 've',
+                      'Bolivia': 'bo',
+                      'Paraguay': 'py',
+                      'Guyana': 'gy',
+                      'Suriname': 'sr',
 
-                        // North/Central American teams
-                        "United States": "us",
-                        Mexico: "mx",
-                        Canada: "ca",
-                        "Costa Rica": "cr",
-                        Panama: "pa",
-                        Honduras: "hn",
-                        Guatemala: "gt",
-                        "El Salvador": "sv",
-                        Nicaragua: "ni",
-                        Belize: "bz",
-                        Jamaica: "jm",
-                        "Trinidad and Tobago": "tt",
-                        Barbados: "bb",
-                        Grenada: "gd",
-                        "Saint Lucia": "lc",
-                        "Saint Vincent and the Grenadines": "vc",
-                        "Antigua and Barbuda": "ag",
-                        Dominica: "dm",
-                        "Saint Kitts and Nevis": "kn",
-                        Cuba: "cu",
-                        Haiti: "ht",
-                        "Dominican Republic": "do",
+                      // North/Central American teams
+                      'United States': 'us',
+                      'Mexico': 'mx',
+                      'Canada': 'ca',
+                      'Costa Rica': 'cr',
+                      'Panama': 'pa',
+                      'Honduras': 'hn',
+                      'Guatemala': 'gt',
+                      'El Salvador': 'sv',
+                      'Nicaragua': 'ni',
+                      'Belize': 'bz',
+                      'Jamaica': 'jm',
+                      'Trinidad and Tobago': 'tt',
+                      'Barbados': 'bb',
+                      'Grenada': 'gd',
+                      'Saint Lucia': 'lc',
+                      'Saint Vincent and the Grenadines': 'vc',
+                      'Antigua and Barbuda': 'ag',
+                      'Dominica': 'dm',
+                      'Saint Kitts and Nevis': 'kn',
+                      'Cuba': 'cu',
+                      'Haiti': 'ht',
+                      'Dominican Republic': 'do',
 
-                        // African teams
-                        Nigeria: "ng",
-                        Morocco: "ma",
-                        Egypt: "eg",
-                        Ghana: "gh",
-                        Senegal: "sn",
-                        Algeria: "dz",
-                        Tunisia: "tn",
-                        Cameroon: "cm",
-                        Mali: "ml",
-                        "Burkina Faso": "bf",
-                        "Ivory Coast": "ci",
-                        Guinea: "gn",
-                        "Cape Verde": "cv",
-                        Gambia: "gm",
-                        "Guinea-Bissau": "gw",
-                        Liberia: "lr",
-                        "Sierra Leone": "sl",
-                        Mauritania: "mr",
-                        Niger: "ne",
-                        Chad: "td",
-                        "Central African Republic": "cf",
-                        Congo: "cg",
-                        "DR Congo": "cd",
-                        Gabon: "ga",
-                        "Equatorial Guinea": "gq",
-                        "Sao Tome and Principe": "st",
-                        Angola: "ao",
-                        Zambia: "zm",
-                        Zimbabwe: "zw",
-                        Malawi: "mw",
-                        Mozambique: "mz",
-                        Madagascar: "mg",
-                        Mauritius: "mu",
-                        Comoros: "km",
-                        Seychelles: "sc",
-                        "South Africa": "za",
-                        Namibia: "na",
-                        Botswana: "bw",
-                        Lesotho: "ls",
-                        Eswatini: "sz",
-                        Kenya: "ke",
-                        Uganda: "ug",
-                        Tanzania: "tz",
-                        Rwanda: "rw",
-                        Burundi: "bi",
-                        "South Sudan": "ss",
-                        Sudan: "sd",
-                        Ethiopia: "et",
-                        Eritrea: "er",
-                        Djibouti: "dj",
-                        Somalia: "so",
-                        Libya: "ly",
+                      // African teams
+                      'Nigeria': 'ng',
+                      'Morocco': 'ma',
+                      'Egypt': 'eg',
+                      'Ghana': 'gh',
+                      'Senegal': 'sn',
+                      'Algeria': 'dz',
+                      'Tunisia': 'tn',
+                      'Cameroon': 'cm',
+                      'Mali': 'ml',
+                      'Burkina Faso': 'bf',
+                      'Ivory Coast': 'ci',
+                      'Guinea': 'gn',
+                      'Cape Verde': 'cv',
+                      'Gambia': 'gm',
+                      'Guinea-Bissau': 'gw',
+                      'Liberia': 'lr',
+                      'Sierra Leone': 'sl',
+                      'Mauritania': 'mr',
+                      'Niger': 'ne',
+                      'Chad': 'td',
+                      'Central African Republic': 'cf',
+                      'Congo': 'cg',
+                      'DR Congo': 'cd',
+                      'Gabon': 'ga',
+                      'Equatorial Guinea': 'gq',
+                      'Sao Tome and Principe': 'st',
+                      'Angola': 'ao',
+                      'Zambia': 'zm',
+                      'Zimbabwe': 'zw',
+                      'Malawi': 'mw',
+                      'Mozambique': 'mz',
+                      'Madagascar': 'mg',
+                      'Mauritius': 'mu',
+                      'Comoros': 'km',
+                      'Seychelles': 'sc',
+                      'South Africa': 'za',
+                      'Namibia': 'na',
+                      'Botswana': 'bw',
+                      'Lesotho': 'ls',
+                      'Eswatini': 'sz',
+                      'Kenya': 'ke',
+                      'Uganda': 'ug',
+                      'Tanzania': 'tz',
+                      'Rwanda': 'rw',
+                      'Burundi': 'bi',
+                      'South Sudan': 'ss',
+                      'Sudan': 'sd',
+                      'Ethiopia': 'et',
+                      'Eritrea': 'er',
+                      'Djibouti': 'dj',
+                      'Somalia': 'so',
+                      'Libya': 'ly',
 
-                        // Asian teams
-                        Japan: "jp",
-                        "South Korea": "kr",
-                        China: "cn",
-                        Australia: "au",
-                        Iran: "ir",
-                        "Saudi Arabia": "sa",
-                        Iraq: "iq",
-                        "United Arab Emirates": "ae",
-                        Qatar: "qa",
-                        Kuwait: "kw",
-                        Bahrain: "bh",
-                        Oman: "om",
-                        Yemen: "ye",
-                        Jordan: "jo",
-                        Syria: "sy",
-                        Lebanon: "lb",
-                        Palestine: "ps",
-                        Israel: "il",
-                        India: "in",
-                        Pakistan: "pk",
-                        Bangladesh: "bd",
-                        "Sri Lanka": "lk",
-                        Maldives: "mv",
-                        Afghanistan: "af",
-                        Nepal: "np",
-                        Bhutan: "bt",
-                        Myanmar: "mm",
-                        Thailand: "th",
-                        Vietnam: "vn",
-                        Laos: "la",
-                        Cambodia: "kh",
-                        Malaysia: "my",
-                        Singapore: "sg",
-                        Indonesia: "id",
-                        Philippines: "ph",
-                        Brunei: "bn",
-                        "Timor-Leste": "tl",
-                        Mongolia: "mn",
-                        "North Korea": "kp",
-                        Taiwan: "tw",
-                        "Hong Kong": "hk",
-                        Macau: "mo",
-                        Uzbekistan: "uz",
-                        Turkmenistan: "tm",
-                        Tajikistan: "tj",
-                        Kyrgyzstan: "kg",
+                      // Asian teams
+                      'Japan': 'jp',
+                      'South Korea': 'kr',
+                      'China': 'cn',
+                      'Australia': 'au',
+                      'Iran': 'ir',
+                      'Saudi Arabia': 'sa',
+                      'Iraq': 'iq',
+                      'United Arab Emirates': 'ae',
+                      'Qatar': 'qa',
+                      'Kuwait': 'kw',
+                      'Bahrain': 'bh',
+                      'Oman': 'om',
+                      'Yemen': 'ye',
+                      'Jordan': 'jo',
+                      'Syria': 'sy',
+                      'Lebanon': 'lb',
+                      'Palestine': 'ps',
+                      'Israel': 'il',
+                      'India': 'in',
+                      'Pakistan': 'pk',
+                      'Bangladesh': 'bd',
+                      'Sri Lanka': 'lk',
+                      'Maldives': 'mv',
+                      'Afghanistan': 'af',
+                      'Nepal': 'np',
+                      'Bhutan': 'bt',
+                      'Myanmar': 'mm',
+                      'Thailand': 'th',
+                      'Vietnam': 'vn',
+                      'Laos': 'la',
+                      'Cambodia': 'kh',
+                      'Malaysia': 'my',
+                      'Singapore': 'sg',
+                      'Indonesia': 'id',
+                      'Philippines': 'ph',
+                      'Brunei': 'bn',
+                      'Timor-Leste': 'tl',
+                      'Mongolia': 'mn',
+                      'North Korea': 'kp',
+                      'Taiwan': 'tw',
+                      'Hong Kong': 'hk',
+                      'Macau': 'mo',
+                      'Uzbekistan': 'uz',
+                      'Turkmenistan': 'tm',
+                      'Tajikistan': 'tj',
+                      'Kyrgyzstan': 'kg',
 
-                        // Oceania teams
-                        "New Zealand": "nz",
-                        Fiji: "fj",
-                        "Papua New Guinea": "pg",
-                        "Solomon Islands": "sb",
-                        Vanuatu: "vu",
-                        "New Caledonia": "nc",
-                        Tahiti: "pf",
-                        Samoa: "ws",
-                        Tonga: "to",
-                        "Cook Islands": "ck",
-                        "American Samoa": "as",
-                      };
-
-                      // Direct match first
-                      if (teamCountryMap[teamName]) {
-                        return teamCountryMap[teamName];
-                      }
-
-                      // Try partial matches for common variations
-                      const lowerTeamName = teamName.toLowerCase();
-                      for (const [country, code] of Object.entries(
-                        teamCountryMap,
-                      )) {
-                        if (
-                          lowerTeamName.includes(country.toLowerCase()) ||
-                          country.toLowerCase().includes(lowerTeamName)
-                        ) {
-                          return code;
-                        }
-                      }
-
-                      return null;
+                      // Oceania teams
+                      'New Zealand': 'nz',
+                      'Fiji': 'fj',
+                      'Papua New Guinea': 'pg',
+                      'Solomon Islands': 'sb',
+                      'Vanuatu': 'vu',
+                      'New Caledonia': 'nc',
+                      'Tahiti': 'pf',
+                      'Samoa': 'ws',
+                      'Tonga': 'to',
+                      'Cook Islands': 'ck',
+                      'American Samoa': 'as'
                     };
 
-                    // Check if this is a national team in an international competition
-                    const isInternationalCompetition =
-                      currentMatch?.league?.country === "World" ||
-                      currentMatch?.league?.country === "Europe" ||
-                      currentMatch?.league?.country === "South America" ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("world cup") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("euro") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("copa america") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("uefa nations") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("cosafa") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("tournoi maurice revello") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("friendlies") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("international");
+                    // Direct match first
+                    if (teamCountryMap[teamName]) {
+                      return teamCountryMap[teamName];
+                    }
 
-                    if (isInternationalCompetition) {
-                      const teamName = currentMatch?.teams?.home?.name || "";
-                      const countryCode = getCountryCodeFromTeamName(teamName);
-
-                      if (countryCode) {
-                        return (
-                          <img
-                            src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
-                            alt={teamName}
-                            className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
-                            style={{
-                              top: "calc(50% - 32px)",
-                              left: "-32px",
-                              filter:
-                                "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                            }}
-                            loading="lazy"
-                            decoding="async"
-                            onError={(e) => {
-                              // Fallback to original team logo, then fallback logo
-                              if (
-                                currentMatch?.teams?.home?.logo &&
-                                !e.currentTarget.src.includes(
-                                  currentMatch.teams.home.logo,
-                                )
-                              ) {
-                                e.currentTarget.src =
-                                  currentMatch.teams.home.logo;
-                              } else {
-                                e.currentTarget.src =
-                                  "/assets/fallback-logo.svg";
-                              }
-                            }}
-                          />
-                        );
+                    // Try partial matches for common variations
+                    const lowerTeamName = teamName.toLowerCase();
+                    for (const [country, code] of Object.entries(teamCountryMap)) {
+                      if (lowerTeamName.includes(country.toLowerCase()) || country.toLowerCase().includes(lowerTeamName)) {
+                        return code;
                       }
                     }
 
-                    // Fallback to original team logo for non-international competitions
-                    return (
-                      <img
-                        src={
-                          currentMatch?.teams?.home?.logo ||
-                          `/assets/fallback-logo.svg`
-                        }
-                        alt={currentMatch?.teams?.home?.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
-                        style={{
-                          top: "calc(50% - 32px)",
-                          left: "-32px",
-                          filter:
-                            "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                        }}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
-                        }}
-                      />
-                    );
-                  })()}
+                    return null;
+                  };
+
+                  // Check if this is a national team in an international competition
+                  const isInternationalCompetition = currentMatch?.league?.country === 'World' || 
+                                                   currentMatch?.league?.country === 'Europe' ||
+                                                   currentMatch?.league?.country === 'South America' ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('world cup') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('euro') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('copa america') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('uefa nations') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('cosafa') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('tournoi maurice revello') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('friendlies') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('international');
+
+                  if (isInternationalCompetition) {
+                    const teamName = currentMatch?.teams?.home?.name || '';
+                    const countryCode = getCountryCodeFromTeamName(teamName);
+
+                    if (countryCode) {
+                      return (
+                        <img
+                          src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
+                          alt={teamName}
+                          className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                          style={{
+                            top: "calc(50% - 32px)",
+                            left: "-32px",
+                            filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                          }}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            // Fallback to original team logo, then fallback logo
+                            if (currentMatch?.teams?.home?.logo && !e.currentTarget.src.includes(currentMatch.teams.home.logo)) {
+                              e.currentTarget.src = currentMatch.teams.home.logo;
+                            } else {
+                              e.currentTarget.src = "/assets/fallback-logo.svg";
+                            }
+                          }}
+                        />
+                      );
+                    }
+                  }
+
+                  // Fallback to original team logo for non-international competitions
+                  return (
+                    <img
+                      src={currentMatch?.teams?.home?.logo || `/assets/fallback-logo.svg`}
+                      alt={currentMatch?.teams?.home?.name || "Home Team"}
+                      className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                      style={{
+                        top: "calc(50% - 32px)",
+                        left: "-32px",
+                        filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                      }}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                  );
+                })()}
                 </div>
 
                 <div
@@ -1301,9 +1127,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <div
                   className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
                   style={{
-                    background: getTeamColor(
-                      currentMatch?.teams?.away?.id || 1,
-                    ),
+                    background: getTeamColor(currentMatch?.teams?.away?.id || 1),
                   }}
                 ></div>
 
@@ -1321,221 +1145,219 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {(() => {
                   // Helper function to get country code for Circle Flags from team name
-                  const getCountryCodeFromTeamName = (
-                    teamName: string,
-                  ): string | null => {
+                  const getCountryCodeFromTeamName = (teamName: string): string | null => {
                     const teamCountryMap: { [key: string]: string } = {
                       // European teams
-                      England: "gb-eng",
-                      Scotland: "gb-sct",
-                      Wales: "gb-wls",
-                      "Northern Ireland": "gb-nir",
-                      Spain: "es",
-                      Italy: "it",
-                      Germany: "de",
-                      France: "fr",
-                      Portugal: "pt",
-                      Netherlands: "nl",
-                      Belgium: "be",
-                      Croatia: "hr",
-                      Poland: "pl",
-                      Ukraine: "ua",
-                      Turkey: "tr",
-                      Switzerland: "ch",
-                      Austria: "at",
-                      "Czech Republic": "cz",
-                      Czechia: "cz",
-                      Denmark: "dk",
-                      Sweden: "se",
-                      Norway: "no",
-                      Finland: "fi",
-                      Russia: "ru",
-                      Serbia: "rs",
-                      Slovenia: "si",
-                      Slovakia: "sk",
-                      Hungary: "hu",
-                      Romania: "ro",
-                      Bulgaria: "bg",
-                      Greece: "gr",
-                      "Bosnia and Herzegovina": "ba",
-                      Montenegro: "me",
-                      "North Macedonia": "mk",
-                      "FYR Macedonia": "mk",
-                      Macedonia: "mk",
-                      Albania: "al",
-                      Kosovo: "xk",
-                      Moldova: "md",
-                      Belarus: "by",
-                      Lithuania: "lt",
-                      Latvia: "lv",
-                      Estonia: "ee",
-                      Iceland: "is",
-                      Ireland: "ie",
-                      Luxembourg: "lu",
-                      Malta: "mt",
-                      Cyprus: "cy",
-                      Georgia: "ge",
-                      Armenia: "am",
-                      Azerbaijan: "az",
-                      Kazakhstan: "kz",
-                      "Faroe Islands": "fo",
-                      Gibraltar: "gi",
-                      Andorra: "ad",
-                      "San Marino": "sm",
-                      Monaco: "mc",
+                      'England': 'gb-eng',
+                      'Scotland': 'gb-sct',
+                      'Wales': 'gb-wls',
+                      'Northern Ireland': 'gb-nir',
+                      'Spain': 'es',
+                      'Italy': 'it',
+                      'Germany': 'de',
+                      'France': 'fr',
+                      'Portugal': 'pt',
+                      'Netherlands': 'nl',
+                      'Belgium': 'be',
+                      'Croatia': 'hr',
+                      'Poland': 'pl',
+                      'Ukraine': 'ua',
+                      'Turkey': 'tr',
+                      'Switzerland': 'ch',
+                      'Austria': 'at',
+                      'Czech Republic': 'cz',
+                      'Czechia': 'cz',
+                      'Denmark': 'dk',
+                      'Sweden': 'se',
+                      'Norway': 'no',
+                      'Finland': 'fi',
+                      'Russia': 'ru',
+                      'Serbia': 'rs',
+                      'Slovenia': 'si',
+                      'Slovakia': 'sk',
+                      'Hungary': 'hu',
+                      'Romania': 'ro',
+                      'Bulgaria': 'bg',
+                      'Greece': 'gr',
+                      'Bosnia and Herzegovina': 'ba',
+                      'Montenegro': 'me',
+                      'North Macedonia': 'mk',
+                      'FYR Macedonia': 'mk',
+                      'Macedonia': 'mk',
+                      'Albania': 'al',
+                      'Kosovo': 'xk',
+                      'Moldova': 'md',
+                      'Belarus': 'by',
+                      'Lithuania': 'lt',
+                      'Latvia': 'lv',
+                      'Estonia': 'ee',
+                      'Iceland': 'is',
+                      'Ireland': 'ie',
+                      'Luxembourg': 'lu',
+                      'Malta': 'mt',
+                      'Cyprus': 'cy',
+                      'Georgia': 'ge',
+                      'Armenia': 'am',
+                      'Azerbaijan': 'az',
+                      'Kazakhstan': 'kz',
+                      'Faroe Islands': 'fo',
+                      'Gibraltar': 'gi',
+                      'Andorra': 'ad',
+                      'San Marino': 'sm',
+                      'Monaco': 'mc',
 
                       // South American teams
-                      Brazil: "br",
-                      Argentina: "ar",
-                      Uruguay: "uy",
-                      Chile: "cl",
-                      Peru: "pe",
-                      Colombia: "co",
-                      Ecuador: "ec",
-                      Venezuela: "ve",
-                      Bolivia: "bo",
-                      Paraguay: "py",
-                      Guyana: "gy",
-                      Suriname: "sr",
+                      'Brazil': 'br',
+                      'Argentina': 'ar',
+                      'Uruguay': 'uy',
+                      'Chile': 'cl',
+                      'Peru': 'pe',
+                      'Colombia': 'co',
+                      'Ecuador': 'ec',
+                      'Venezuela': 've',
+                      'Bolivia': 'bo',
+                      'Paraguay': 'py',
+                      'Guyana': 'gy',
+                      'Suriname': 'sr',
 
                       // North/Central American teams
-                      "United States": "us",
-                      Mexico: "mx",
-                      Canada: "ca",
-                      "Costa Rica": "cr",
-                      Panama: "pa",
-                      Honduras: "hn",
-                      Guatemala: "gt",
-                      "El Salvador": "sv",
-                      Nicaragua: "ni",
-                      Belize: "bz",
-                      Jamaica: "jm",
-                      "Trinidad and Tobago": "tt",
-                      Barbados: "bb",
-                      Grenada: "gd",
-                      "Saint Lucia": "lc",
-                      "Saint Vincent and the Grenadines": "vc",
-                      "Antigua and Barbuda": "ag",
-                      Dominica: "dm",
-                      "Saint Kitts and Nevis": "kn",
-                      Cuba: "cu",
-                      Haiti: "ht",
-                      "Dominican Republic": "do",
+                      'United States': 'us',
+                      'Mexico': 'mx',
+                      'Canada': 'ca',
+                      'Costa Rica': 'cr',
+                      'Panama': 'pa',
+                      'Honduras': 'hn',
+                      'Guatemala': 'gt',
+                      'El Salvador': 'sv',
+                      'Nicaragua': 'ni',
+                      'Belize': 'bz',
+                      'Jamaica': 'jm',
+                      'Trinidad and Tobago': 'tt',
+                      'Barbados': 'bb',
+                      'Grenada': 'gd',
+                      'Saint Lucia': 'lc',
+                      'Saint Vincent and the Grenadines': 'vc',
+                      'Antigua and Barbuda': 'ag',
+                      'Dominica': 'dm',
+                      'Saint Kitts and Nevis': 'kn',
+                      'Cuba': 'cu',
+                      'Haiti': 'ht',
+                      'Dominican Republic': 'do',
 
                       // African teams
-                      Nigeria: "ng",
-                      Morocco: "ma",
-                      Egypt: "eg",
-                      Ghana: "gh",
-                      Senegal: "sn",
-                      Algeria: "dz",
-                      Tunisia: "tn",
-                      Cameroon: "cm",
-                      Mali: "ml",
-                      "Burkina Faso": "bf",
-                      "Ivory Coast": "ci",
-                      Guinea: "gn",
-                      "Cape Verde": "cv",
-                      Gambia: "gm",
-                      "Guinea-Bissau": "gw",
-                      Liberia: "lr",
-                      "Sierra Leone": "sl",
-                      Mauritania: "mr",
-                      Niger: "ne",
-                      Chad: "td",
-                      "Central African Republic": "cf",
-                      Congo: "cg",
-                      "DR Congo": "cd",
-                      Gabon: "ga",
-                      "Equatorial Guinea": "gq",
-                      "Sao Tome and Principe": "st",
-                      Angola: "ao",
-                      Zambia: "zm",
-                      Zimbabwe: "zw",
-                      Malawi: "mw",
-                      Mozambique: "mz",
-                      Madagascar: "mg",
-                      Mauritius: "mu",
-                      Comoros: "km",
-                      Seychelles: "sc",
-                      "South Africa": "za",
-                      Namibia: "na",
-                      Botswana: "bw",
-                      Lesotho: "ls",
-                      Eswatini: "sz",
-                      Kenya: "ke",
-                      Uganda: "ug",
-                      Tanzania: "tz",
-                      Rwanda: "rw",
-                      Burundi: "bi",
-                      "South Sudan": "ss",
-                      Sudan: "sd",
-                      Ethiopia: "et",
-                      Eritrea: "er",
-                      Djibouti: "dj",
-                      Somalia: "so",
-                      Libya: "ly",
+                      'Nigeria': 'ng',
+                      'Morocco': 'ma',
+                      'Egypt': 'eg',
+                      'Ghana': 'gh',
+                      'Senegal': 'sn',
+                      'Algeria': 'dz',
+                      'Tunisia': 'tn',
+                      'Cameroon': 'cm',
+                      'Mali': 'ml',
+                      'Burkina Faso': 'bf',
+                      'Ivory Coast': 'ci',
+                      'Guinea': 'gn',
+                      'Cape Verde': 'cv',
+                      'Gambia': 'gm',
+                      'Guinea-Bissau': 'gw',
+                      'Liberia': 'lr',
+                      'Sierra Leone': 'sl',
+                      'Mauritania': 'mr',
+                      'Niger': 'ne',
+                      'Chad': 'td',
+                      'Central African Republic': 'cf',
+                      'Congo': 'cg',
+                      'DR Congo': 'cd',
+                      'Gabon': 'ga',
+                      'Equatorial Guinea': 'gq',
+                      'Sao Tome and Principe': 'st',
+                      'Angola': 'ao',
+                      'Zambia': 'zm',
+                      'Zimbabwe': 'zw',
+                      'Malawi': 'mw',
+                      'Mozambique': 'mz',
+                      'Madagascar': 'mg',
+                      'Mauritius': 'mu',
+                      'Comoros': 'km',
+                      'Seychelles': 'sc',
+                      'South Africa': 'za',
+                      'Namibia': 'na',
+                      'Botswana': 'bw',
+                      'Lesotho': 'ls',
+                      'Eswatini': 'sz',
+                      'Kenya': 'ke',
+                      'Uganda': 'ug',
+                      'Tanzania': 'tz',
+                      'Rwanda': 'rw',
+                      'Burundi': 'bi',
+                      'South Sudan': 'ss',
+                      'Sudan': 'sd',
+                      'Ethiopia': 'et',
+                      'Eritrea': 'er',
+                      'Djibouti': 'dj',
+                      'Somalia': 'so',
+                      'Libya': 'ly',
 
                       // Asian teams
-                      Japan: "jp",
-                      "South Korea": "kr",
-                      China: "cn",
-                      Australia: "au",
-                      Iran: "ir",
-                      "Saudi Arabia": "sa",
-                      Iraq: "iq",
-                      "United Arab Emirates": "ae",
-                      Qatar: "qa",
-                      Kuwait: "kw",
-                      Bahrain: "bh",
-                      Oman: "om",
-                      Yemen: "ye",
-                      Jordan: "jo",
-                      Syria: "sy",
-                      Lebanon: "lb",
-                      Palestine: "ps",
-                      Israel: "il",
-                      India: "in",
-                      Pakistan: "pk",
-                      Bangladesh: "bd",
-                      "Sri Lanka": "lk",
-                      Maldives: "mv",
-                      Afghanistan: "af",
-                      Nepal: "np",
-                      Bhutan: "bt",
-                      Myanmar: "mm",
-                      Thailand: "th",
-                      Vietnam: "vn",
-                      Laos: "la",
-                      Cambodia: "kh",
-                      Malaysia: "my",
-                      Singapore: "sg",
-                      Indonesia: "id",
-                      Philippines: "ph",
-                      Brunei: "bn",
-                      "Timor-Leste": "tl",
-                      Mongolia: "mn",
-                      "North Korea": "kp",
-                      Taiwan: "tw",
-                      "Hong Kong": "hk",
-                      Macau: "mo",
-                      Uzbekistan: "uz",
-                      Turkmenistan: "tm",
-                      Tajikistan: "tj",
-                      Kyrgyzstan: "kg",
+                      'Japan': 'jp',
+                      'South Korea': 'kr',
+                      'China': 'cn',
+                      'Australia': 'au',
+                      'Iran': 'ir',
+                      'Saudi Arabia': 'sa',
+                      'Iraq': 'iq',
+                      'United Arab Emirates': 'ae',
+                      'Qatar': 'qa',
+                      'Kuwait': 'kw',
+                      'Bahrain': 'bh',
+                      'Oman': 'om',
+                      'Yemen': 'ye',
+                      'Jordan': 'jo',
+                      'Syria': 'sy',
+                      'Lebanon': 'lb',
+                      'Palestine': 'ps',
+                      'Israel': 'il',
+                      'India': 'in',
+                      'Pakistan': 'pk',
+                      'Bangladesh': 'bd',
+                      'Sri Lanka': 'lk',
+                      'Maldives': 'mv',
+                      'Afghanistan': 'af',
+                      'Nepal': 'np',
+                      'Bhutan': 'bt',
+                      'Myanmar': 'mm',
+                      'Thailand': 'th',
+                      'Vietnam': 'vn',
+                      'Laos': 'la',
+                      'Cambodia': 'kh',
+                      'Malaysia': 'my',
+                      'Singapore': 'sg',
+                      'Indonesia': 'id',
+                      'Philippines': 'ph',
+                      'Brunei': 'bn',
+                      'Timor-Leste': 'tl',
+                      'Mongolia': 'mn',
+                      'North Korea': 'kp',
+                      'Taiwan': 'tw',
+                      'Hong Kong': 'hk',
+                      'Macau': 'mo',
+                      'Uzbekistan': 'uz',
+                      'Turkmenistan': 'tm',
+                      'Tajikistan': 'tj',
+                      'Kyrgyzstan': 'kg',
 
                       // Oceania teams
-                      "New Zealand": "nz",
-                      Fiji: "fj",
-                      "Papua New Guinea": "pg",
-                      "Solomon Islands": "sb",
-                      Vanuatu: "vu",
-                      "New Caledonia": "nc",
-                      Tahiti: "pf",
-                      Samoa: "ws",
-                      Tonga: "to",
-                      "Cook Islands": "ck",
-                      "American Samoa": "as",
+                      'New Zealand': 'nz',
+                      'Fiji': 'fj',
+                      'Papua New Guinea': 'pg',
+                      'Solomon Islands': 'sb',
+                      'Vanuatu': 'vu',
+                      'New Caledonia': 'nc',
+                      'Tahiti': 'pf',
+                      'Samoa': 'ws',
+                      'Tonga': 'to',
+                      'Cook Islands': 'ck',
+                      'American Samoa': 'as'
                     };
 
                     // Direct match first
@@ -1545,13 +1367,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     // Try partial matches for common variations
                     const lowerTeamName = teamName.toLowerCase();
-                    for (const [country, code] of Object.entries(
-                      teamCountryMap,
-                    )) {
-                      if (
-                        lowerTeamName.includes(country.toLowerCase()) ||
-                        country.toLowerCase().includes(lowerTeamName)
-                      ) {
+                    for (const [country, code] of Object.entries(teamCountryMap)) {
+                      if (lowerTeamName.includes(country.toLowerCase()) || country.toLowerCase().includes(lowerTeamName)) {
                         return code;
                       }
                     }
@@ -1560,37 +1377,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   };
 
                   // Check if this is a national team in an international competition
-                  const isInternationalCompetition =
-                    currentMatch?.league?.country === "World" ||
-                    currentMatch?.league?.country === "Europe" ||
-                    currentMatch?.league?.country === "South America" ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("world cup") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("euro") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("copa america") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("uefa nations") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("cosafa") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("tournoi maurice revello") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("friendlies") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("international");
+                  const isInternationalCompetition = currentMatch?.league?.country === 'World' || 
+                                                   currentMatch?.league?.country === 'Europe' ||
+                                                   currentMatch?.league?.country === 'South America' ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('world cup') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('euro') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('copa america') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('uefa nations') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('cosafa') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('tournoi maurice revello') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('friendlies') ||
+                                                   currentMatch?.league?.name?.toLowerCase().includes('international');
 
                   if (isInternationalCompetition) {
-                    const teamName = currentMatch?.teams?.away?.name || "";
+                    const teamName = currentMatch?.teams?.away?.name || '';
                     const countryCode = getCountryCodeFromTeamName(teamName);
 
                     if (countryCode) {
@@ -1603,21 +1403,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             top: "calc(50% - 32px)",
                             right: "87px",
                             transform: "translateX(50%)",
-                            filter:
-                              "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                            filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                           }}
                           loading="lazy"
                           decoding="async"
                           onError={(e) => {
                             // Fallback to original team logo, then fallback logo
-                            if (
-                              currentMatch?.teams?.away?.logo &&
-                              !e.currentTarget.src.includes(
-                                currentMatch.teams.away.logo,
-                              )
-                            ) {
-                              e.currentTarget.src =
-                                currentMatch.teams.away.logo;
+                            if (currentMatch?.teams?.away?.logo && !e.currentTarget.src.includes(currentMatch.teams.away.logo)) {
+                              e.currentTarget.src = currentMatch.teams.away.logo;
                             } else {
                               e.currentTarget.src = "/assets/fallback-logo.svg";
                             }
@@ -1629,18 +1422,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   return (
                     <img
-                      src={
-                        currentMatch?.teams?.away?.logo ||
-                        `/assets/fallback-logo.svg`
-                      }
+                      src={currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`}
                       alt={currentMatch?.teams?.away?.name || "Away Team"}
                       className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
                       style={{
                         top: "calc(50% - 32px)",
                         right: "87px",
                         transform: "translateX(50%)",
-                        filter:
-                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                        filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                       }}
                       loading="lazy"
                       decoding="async"
@@ -1654,8 +1443,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
 
             {/* Match date and venue */}
-            <div
-              className="absolute text-center text-sm text-black font-medium"
+            <div className="absolute text-center text-sm text-black font-medium"
               style={{
                 left: "50%",
                 transform: "translateX(-50%)",
@@ -1665,40 +1453,31 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             >
               {(() => {
                 try {
-                  const matchDate = new Date(currentMatch?.fixture?.date || "");
+                  const matchDate = new Date(currentMatch?.fixture?.date || '');
 
                   // Get weekday and month
-                  const weekday = matchDate.toLocaleDateString("en-GB", {
-                    weekday: "long",
-                  });
-                  const month = matchDate.toLocaleDateString("en-GB", {
-                    month: "short",
-                  });
+                  const weekday = matchDate.toLocaleDateString('en-GB', { weekday: 'long' });
+                  const month = matchDate.toLocaleDateString('en-GB', { month: 'short' });
 
                   // Get day with ordinal suffix
                   const day = matchDate.getDate();
                   const getOrdinalSuffix = (day: number) => {
-                    if (day > 3 && day < 21) return "th";
+                    if (day > 3 && day < 21) return 'th';
                     switch (day % 10) {
-                      case 1:
-                        return "st";
-                      case 2:
-                        return "nd";
-                      case 3:
-                        return "rd";
-                      default:
-                        return "th";
+                      case 1: return 'st';
+                      case 2: return 'nd';
+                      case 3: return 'rd';
+                      default: return 'th';
                     }
                   };
                   const dayWithSuffix = `${day}${getOrdinalSuffix(day)}`;
 
-                  const formattedTime = matchDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
+                  const formattedTime = matchDate.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
                   });
-                  const venueName =
-                    currentMatch?.fixture?.venue?.name || "Stadium";
+                  const venueName = currentMatch?.fixture?.venue?.name || "Stadium";
 
                   return `${weekday}, ${dayWithSuffix} ${month} | ${formattedTime} | ${venueName}`;
                 } catch (e) {
