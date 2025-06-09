@@ -1351,7 +1351,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   )}
                   {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
-                    
                       {leagueData.matches
                         .slice(
                           0,
