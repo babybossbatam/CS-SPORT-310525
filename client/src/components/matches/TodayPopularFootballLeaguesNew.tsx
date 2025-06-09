@@ -1461,7 +1461,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         .map((match: any) => (
                           <div key={match.fixture.id} className="group match-item border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 relative p-4">
                             <div className="grid grid-cols-[1fr_32px_100px_32px_1fr] gap-3 items-center">
-                              
+                              <div className="flex justify-center">
                                 {/* Star Button with true slide-in effect */}
                                 <button
                                   onClick={(e) => {
@@ -1489,6 +1489,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     }`}
                                   />
                                 </button>
+                              </div>
                                 
                               
 
