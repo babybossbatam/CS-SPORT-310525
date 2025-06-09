@@ -538,7 +538,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <div className={`text-sm tracking-wide ${isLive ? "text-red-600" : "text-gray-500"}`}>
                       {statusText}
                     </div>
-                    <div className="text-xl font-semibold text-black">
+                    <div className="text-xl font-semibold text-black" style={{ fontSize: '1.95rem' }}>
                       {scoreText}
                     </div>
                   </div>
