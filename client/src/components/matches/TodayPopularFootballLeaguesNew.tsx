@@ -26,7 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache, getCountryCode } from "../../lib/flagUtils";
+import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, getCountryCode } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -971,9 +971,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       console.error(`❌ Failed to refresh Venezuela flag:`, error);
     });
 
-    // Clear all fallback flags as well to ensure clean state
-    clearAllFlagCache();
-    console.log('🧹 Cleared all flag cache including fallback flags');
+    console.log('🧹 Cleared Venezuela flag cache');
   }, []);
 
   // Simple date comparison handled by SimpleDateFilter

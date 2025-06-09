@@ -24,7 +24,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache } from "../../lib/flagUtils";
+import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -714,8 +714,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     }).catch(error => {
       console.error(`❌ Failed to refresh Venezuela flag:`, error);
     });
-    clearAllFlagCache();
-    console.log('🧹 Cleared all flag cache including fallback flags');
+    console.log('🧹 Cleared Venezuela flag cache');
   }, []);
 
   // Show loading only if we're actually loading and don't have any cached data
