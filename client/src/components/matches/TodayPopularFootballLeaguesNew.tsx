@@ -1459,8 +1459,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           return aDistance - bDistance;
                         })
                         .map((match: any) => (
-                          
-                            
+                          <div key={match.fixture.id} className="group match-item border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 relative p-4">
+                            <div className="grid grid-cols-[1fr_32px_100px_32px_1fr] gap-3 items-center">
                               
                                 {/* Star Button with true slide-in effect */}
                                 <button
@@ -1481,30 +1481,33 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       ?.classList.remove("disable-hover");
                                   }}
                                 >
-                                  
+                                  <Star
+                                    className={`h-4 w-4 transition-all ${
                                       starredMatches.has(match.fixture.id)
-                                        ? "starred"
-                                        : ""
+                                        ? "text-blue-500 fill-blue-500"
+                                        : "text-gray-300"
                                     }`}
                                   />
+                                </button>
                                 
                               
 
                               
                                 {/* Home Team Name - positioned further left */}
-                                
+                                <div className="text-right text-sm font-medium text-gray-800 truncate">
                                   {shortenTeamName(match.teams.home.name) ||
                                     "Unknown Team"}
+                                </div>
                                 
 
                                 {/* Home team logo - grid area */}
-                                
+                                <div className="flex justify-center">
                                   {isNationalTeam(
                                     match.teams.home,
                                     leagueData.league,
                                   ) ? (
-                                    
-                                      
+                                    <LazyImage
+                                      src={(() => {
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.home.name;
                                           const countryCode = getCountryCode(teamName);
@@ -1530,11 +1533,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : "/assets/fallback-logo.svg"
                                         }
                                       />
-                                      
-                                    
                                   ) : (
-                                    
-                                      
+                                    <LazyImage
+                                      src={
                                           match.teams.home.id
                                             ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                                             : "/assets/fallback-logo.svg"
@@ -1548,33 +1549,34 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
                                   )}
+                                </div>
 
                                   {/* Penalty result below home logo */}
-                                  {(() => {
-                                    const status = match.fixture.status.short;
-                                    const isPenaltyMatch = status === "PEN";
-                                    const penaltyHome = match.score?.penalty?.home;
-                                    const penaltyAway = match.score?.penalty?.away;
-                                    const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                           penaltyAway !== null && penaltyAway !== undefined;
+                                {(() => {
+                                  const status = match.fixture.status.short;
+                                  const isPenaltyMatch = status === "PEN";
+                                  const penaltyHome = match.score?.penalty?.home;
+                                  const penaltyAway = match.score?.penalty?.away;
+                                  const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                         penaltyAway !== null && penaltyAway !== undefined;
 
-                                    if (isPenaltyMatch && hasPenaltyScores) {
-                                      const winnerText = penaltyHome > penaltyAway 
-                                        ? `${match.teams.home.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
-                                        : `${match.teams.away.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
+                                  if (isPenaltyMatch && hasPenaltyScores) {
+                                    const winnerText = penaltyHome > penaltyAway 
+                                      ? `${match.teams.home.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
+                                      : `${match.teams.away.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
 
-                                      return (
-                                        
-                                          {winnerText}
-                                        
-                                      );
-                                    }
-                                    return null;
-                                  })()}
+                                    return (
+                                      <div className="text-xs text-gray-600 text-center mt-1">
+                                        {winnerText}
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                                 
 
                                 {/* Score/Time Center - Fixed width and centered */}
-                                
+                                <div className="flex flex-col items-center justify-center min-w-[100px]">
                                   {(() => {
                                     const status = match.fixture.status.short;
                                     const fixtureDate = parseISO(
@@ -1595,24 +1597,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       ].includes(status)
                                     ) {
                                       return (
-                                        
-                                          
-                                            
+                                        <>
+                                          <div className="flex items-center gap-1 text-lg font-bold">
+                                            <span className="text-gray-800">
                                               {match.goals.home ?? 0}
-                                            
-                                            
+                                            </span>
+                                            <span className="text-gray-400">
                                               -
-                                            
-                                            
+                                            </span>
+                                            <span className="text-gray-800">
                                               {match.goals.away ?? 0}
-                                            
-                                          
-                                          
+                                            </span>
+                                          </div>
+                                          <div className="text-xs text-red-500 font-medium">
                                             {status === "HT"
                                               ? "Halftime"
                                               : `${match.fixture.status.elapsed || 0}'`}
-                                          
-                                        
+                                          </div>
+                                        </>
                                       );
                                     }
 
