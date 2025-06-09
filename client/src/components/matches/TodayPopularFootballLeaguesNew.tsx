@@ -1350,7 +1350,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     </CardContent>
                   )}
                   {/* Matches - Show for all leagues */}
-                  
+                  <CardContent className="p-0">
                     
                       {leagueData.matches
                         .slice(
@@ -1849,6 +1849,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   {shortenTeamName(match.teams.away.name) ||
                                     "Unknown Team"}
                                 </div>
+                              </div>
                             </div>
                           </div>
                         ))}
