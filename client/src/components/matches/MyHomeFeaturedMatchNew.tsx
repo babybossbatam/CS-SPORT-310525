@@ -19,7 +19,7 @@ interface MyHomeFeaturedMatchNewProps {
 
 const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   selectedDate,
-  maxMatches = 1,
+  maxMatches = 3,
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -294,7 +294,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return (a.league.name || '').localeCompare(b.league.name || '');
     });
 
-    const limitedMatches = sortedMatches.slice(0, maxMatches || 8);
+    const limitedMatches = sortedMatches.slice(0, maxMatches || 3);
     console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches with popular leagues filtering`);
     
     return limitedMatches;
