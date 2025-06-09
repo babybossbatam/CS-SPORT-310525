@@ -1,0 +1,851 @@
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1240509: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1240513: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1350726: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1362620: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363139: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363140: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363236: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363421: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363520: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364919: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1366631: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368951: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368952: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1369124: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1369685: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370023: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370183: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370184: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1331244: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363237: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368499: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368744: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1369346: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1169546: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1326816: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1326817: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1326819: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1326820: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1338641: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1339319: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1345444: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1350597: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363141: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363238: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363333: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1363423: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364261: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364357: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364358: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364359: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364360: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364361: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364464: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1364923: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368495: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368500: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368501: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368502: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368503: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368504: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368505: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368745: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368953: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1368954: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1369347: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370024: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370094: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370185: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1370284: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1371264: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1371265: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1376007: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1377724: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1377726: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
+Error caching fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:446:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:381:17)
+Error caching fixture 1377196: Cannot use a pool after calling end on the pool
+Error getting cached fixture: Error: Cannot use a pool after calling end on the pool
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getCachedFixture (/home/runner/workspace/server/storage.ts:401:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:376:39)
