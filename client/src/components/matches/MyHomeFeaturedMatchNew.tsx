@@ -683,10 +683,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {(() => {
                 try {
                   const matchDate = new Date(currentMatch?.fixture?.date || '');
-                  const formattedDate = matchDate.toLocaleDateString('en-US', { 
+                  const formattedDate = matchDate.toLocaleDateString('en-GB', { 
                     weekday: 'long', 
                     day: 'numeric', 
-                    month: 'long' 
+                    month: 'short' 
                   });
                   const formattedTime = matchDate.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
