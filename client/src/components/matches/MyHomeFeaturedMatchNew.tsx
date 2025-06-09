@@ -543,17 +543,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 return (
                   <div className="flex flex-col items-center">
-                    {isPenaltyMatch && (
-                      <div className="text-xs text-gray-600 mb-1 text-center">
-                        After Penalties
-                      </div>
-                    )}
-                    <div className={`text-sm tracking-wide ${isPenaltyMatch ? '' : 'mt-1'} ${isLive ? "text-red-600" : "text-gray-500"}`}>
+                    <div className={`text-sm tracking-wide mt-1 ${isLive ? "text-red-600" : "text-gray-500"}`}>
                       {statusText}
                     </div>
                     <div className="text-xl font-semibold text-black mb-1" style={{ fontSize: '1.95rem' }}>
                       {scoreText}
                     </div>
+                    {isPenaltyMatch && hasPenaltyScores && (
+                      <div className="text-xs text-gray-600 mt-1 text-center">
+                        {penaltyHome > penaltyAway 
+                          ? `${currentMatch?.teams?.home?.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
+                          : `${currentMatch?.teams?.away?.name} has won ${penaltyAway}-${penaltyHome} after Penalties`
+                        }
+                      </div>
+                    )}
                   </div>
                 );
               } else {
@@ -592,36 +595,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       e.currentTarget.src = "/assets/fallback-logo.svg";
                     }}
                   />
-
-                  {/* Penalty result below home logo */}
-                  {(() => {
-                    const status = currentMatch?.fixture?.status?.short;
-                    const isPenaltyMatch = status === "PEN";
-                    const penaltyHome = currentMatch?.score?.penalty?.home;
-                    const penaltyAway = currentMatch?.score?.penalty?.away;
-                    const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                           penaltyAway !== null && penaltyAway !== undefined;
-
-                    if (isPenaltyMatch && hasPenaltyScores) {
-                      const winnerText = penaltyHome > penaltyAway 
-                        ? `${currentMatch?.teams?.home?.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
-                        : `${currentMatch?.teams?.away?.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
-
-                      return (
-                        <div
-                          className="absolute text-xs text-gray-600 text-center max-w-[200px] leading-tight"
-                          style={{
-                            top: "calc(100% + 8px)",
-                            left: "-100px",
-                            width: "200px",
-                          }}
-                        >
-                          {winnerText}
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
                 </div>
 
                 <div
