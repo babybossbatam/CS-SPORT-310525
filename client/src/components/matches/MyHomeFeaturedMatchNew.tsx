@@ -162,8 +162,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const countryPriority = getCountryPriority(match.league.country || '');
       const leaguePriority = getLeaguePriority(match);
       
-      // Only include if from popular country OR popular league (remove live-only inclusion)
-      return countryPriority < 999 || leaguePriority < 999;
+      // Apply more restrictive filtering criteria here
+      // You can add specific conditions for what matches should be featured
     });
 
     // Sort by comprehensive priority system
