@@ -156,26 +156,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       
       if (hasExcludedTerm) return false;
 
-      // Include matches from popular countries and leagues, or live matches
+      // Include matches from popular countries and leagues only
       const countryPriority = getCountryPriority(match.league.country || '');
       const leaguePriority = getLeaguePriority(match);
-      const isLive = ['1H', '2H', 'HT', 'LIVE'].includes(match.fixture.status.short);
       
-      // Include if: popular country, popular league, or live match
-      return countryPriority < 999 || leaguePriority < 999 || isLive;
+      // Only include if from popular country OR popular league (remove live-only inclusion)
+      return countryPriority < 999 || leaguePriority < 999;
     });
 
     // Sort by comprehensive priority system
     const sortedMatches = filteredMatches.sort((a, b) => {
-      // 3. Match Priority within Leagues - LIVE matches first
-      const aStatusPriority = getMatchStatusPriority(a);
-      const bStatusPriority = getMatchStatusPriority(b);
-      
-      if (aStatusPriority !== bStatusPriority) {
-        return aStatusPriority - bStatusPriority;
-      }
-      
-      // 1. Country Priority System
+      // 1. Country Priority System (most important)
       const aCountryPriority = getCountryPriority(a.league.country || '');
       const bCountryPriority = getCountryPriority(b.league.country || '');
       
@@ -183,12 +174,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return aCountryPriority - bCountryPriority;
       }
       
-      // 2. League Priority within Countries
+      // 2. League Priority within Countries (second most important)
       const aLeaguePriority = getLeaguePriority(a);
       const bLeaguePriority = getLeaguePriority(b);
       
       if (aLeaguePriority !== bLeaguePriority) {
         return aLeaguePriority - bLeaguePriority;
+      }
+      
+      // 3. Match Priority within Leagues - LIVE matches within same league/country priority
+      const aStatusPriority = getMatchStatusPriority(a);
+      const bStatusPriority = getMatchStatusPriority(b);
+      
+      if (aStatusPriority !== bStatusPriority) {
+        return aStatusPriority - bStatusPriority;
       }
       
       // Final tiebreaker: alphabetical by league name
