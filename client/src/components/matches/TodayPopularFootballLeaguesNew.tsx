@@ -1544,56 +1544,54 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Home team logo - grid area */}
                                 <div className="home-team-logo-container">
-                                  {isNationalTeam(
-                                    match.teams.home,
-                                    leagueData.league,
-                                  ) ? (
-                                    <div className="flag-circle">
+                                  {(() => {
+                                    const isNational = isNationalTeam(match.teams.home, leagueData.league);
+                                    
+                                    if (isNational) {
+                                      const teamName = match.teams.home.name;
+                                      const countryCode = getCountryCode(teamName);
+                                      
+                                      if (countryCode) {
+                                        return (
+                                          <div className="flag-circle">
+                                            <LazyImage
+                                              src={`https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`}
+                                              alt={match.teams.home.name}
+                                              title={match.teams.home.name}
+                                              className="team-logo"
+                                              style={{ 
+                                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                              }}
+                                              fallbackSrc={
+                                                match.teams.home.id
+                                                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                                  : "/assets/fallback-logo.svg"
+                                              }
+                                            />
+                                            <div className="gloss"></div>
+                                          </div>
+                                        );
+                                      }
+                                    }
+                                    
+                                    // Regular team logo for club teams or national teams without country code mapping
+                                    return (
                                       <LazyImage
-                                        src={(() => {
-                                          // Use Circle Flags as primary source for national teams
-                                          const teamName = match.teams.home.name;
-                                          const countryCode = getCountryCode(teamName);
-                                          
-                                          if (countryCode) {
-                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                          }
-                                          
-                                          // Fallback to original API if no country code mapping
-                                          return match.teams.home.id
+                                        src={
+                                          match.teams.home.id
                                             ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg";
-                                        })()}
+                                            : "/assets/fallback-logo.svg"
+                                        }
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className="team-logo"
                                         style={{ 
                                           filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                         }}
-                                        fallbackSrc={
-                                          match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                        fallbackSrc="/assets/fallback-logo.svg"
                                       />
-                                      <div className="gloss"></div>
-                                    </div>
-                                  ) : (
-                                    <LazyImage
-                                      src={
-                                        match.teams.home.id
-                                          ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                          : "/assets/fallback-logo.svg"
-                                      }
-                                      alt={match.teams.home.name}
-                                      title={match.teams.home.name}
-                                      className="team-logo"
-                                      style={{ 
-                                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
-                                      }}
-                                      fallbackSrc="/assets/fallback-logo.svg"
-                                    />
-                                  )}
+                                    );
+                                  })()}
 
                                   {/* Penalty result below home logo */}
                                   {(() => {
@@ -1847,56 +1845,54 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Away team logo - grid area */}
                                 <div className="away-team-logo-container">
-                                  {isNationalTeam(
-                                    match.teams.away,
-                                    leagueData.league,
-                                  ) ? (
-                                    <div className="flag-circle">
+                                  {(() => {
+                                    const isNational = isNationalTeam(match.teams.away, leagueData.league);
+                                    
+                                    if (isNational) {
+                                      const teamName = match.teams.away.name;
+                                      const countryCode = getCountryCode(teamName);
+                                      
+                                      if (countryCode) {
+                                        return (
+                                          <div className="flag-circle">
+                                            <LazyImage
+                                              src={`https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`}
+                                              alt={match.teams.away.name}
+                                              title={match.teams.away.name}
+                                              className="team-logo"
+                                              style={{ 
+                                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                              }}
+                                              fallbackSrc={
+                                                match.teams.away.id
+                                                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                                  : "/assets/fallback-logo.svg"
+                                              }
+                                            />
+                                            <div className="gloss"></div>
+                                          </div>
+                                        );
+                                      }
+                                    }
+                                    
+                                    // Regular team logo for club teams or national teams without country code mapping
+                                    return (
                                       <LazyImage
-                                        src={(() => {
-                                          // Use Circle Flags as primary source for national teams
-                                          const teamName = match.teams.away.name;
-                                          const countryCode = getCountryCode(teamName);
-                                          
-                                          if (countryCode) {
-                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                          }
-                                          
-                                          // Fallback to original API if no country code mapping
-                                          return match.teams.away.id
+                                        src={
+                                          match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg";
-                                        })()}
+                                            : "/assets/fallback-logo.svg"
+                                        }
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
                                         className="team-logo"
                                         style={{ 
                                           filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                         }}
-                                        fallbackSrc={
-                                          match.teams.away.id
-                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                        fallbackSrc="/assets/fallback-logo.svg"
                                       />
-                                      <div className="gloss"></div>
-                                    </div>
-                                  ) : (
-                                    <LazyImage
-                                      src={
-                                        match.teams.away.id
-                                          ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                          : "/assets/fallback-logo.svg"
-                                      }
-                                      alt={match.teams.away.name}
-                                      title={match.teams.away.name}
-                                      className="team-logo"
-                                      style={{ 
-                                        filter: "drop-shadow(0 2px 4px rgba(0,0, 0, 0.15))"
-                                      }}
-                                      fallbackSrc="/assets/fallback-logo.svg"
-                                    />
-                               )}
+                                    );
+                                  })()}
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
