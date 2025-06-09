@@ -175,6 +175,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Apply smart time filtering with selected date context
     const timeFiltered = fixtures.filter((fixture) => {
       if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const fixtureDate = new Date(fixture.fixture.date).toISOString().slice(0, 10);
+        
+        // For featured matches, we want to be more inclusive with time filtering
+        // Check if the fixture date matches the selected date
+        if (fixtureDate === dateToUse) {
+          return true;
+        }
+
+        // Also use smart time filtering as backup
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
           fixture.fixture.date,
           fixture.fixture.status.short,
