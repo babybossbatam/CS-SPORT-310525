@@ -359,7 +359,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
     if (status === "HT") return "Halftime";
     if (status === "FT") return "Ended";
-    if (status === "PEN") return "After Penalty";
+    if (status === "AET") return "After Extra Time";
+    if (status === "PEN") return "Ended (Penalties)";
     if (status === "NS") return "UPCOMING";
     return status;
   };
@@ -368,9 +369,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (!match) return "";
     const status = match.fixture.status.short;
 
-    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "PEN", "SUSP", "INT"].includes(status)) {
+    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
       return "LIVE";
-    } else if (status === "FT") {
+    } else if (["FT", "AET", "PEN"].includes(status)) {
       return "FINISHED";
     } else {
       return "UPCOMING";
