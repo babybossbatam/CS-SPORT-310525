@@ -1849,14 +1849,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   {shortenTeamName(match.teams.away.name) ||
                                     "Unknown Team"}
                                 </div>
-                                
-                              
-                            
-                          
+                            </div>
+                          </div>
                         ))}
-                    
-                  
-                
+                    </Card>
+                  </div>
+                </div>
               );
             }),
       )}
