@@ -1652,54 +1652,57 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                                        penaltyAway !== null && penaltyAway !== undefined;
 
                                                 return (
-                                                  
-                                                    
-                                                      {homeScore}
-                                                    
-                                                    
-                                                      -
-                                                    
-                                                    
-                                                      {awayScore}
-                                                    
-                                                    
+                                                  <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                                    <div className="flex items-center gap-1 text-lg font-bold">
+                                                      <span className="text-gray-800">
+                                                        {homeScore}
+                                                      </span>
+                                                      <span className="text-gray-400">
+                                                        -
+                                                      </span>
+                                                      <span className="text-gray-800">
+                                                        {awayScore}
+                                                      </span>
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">
                                                       Ended
-                                                    
-                                                  
+                                                    </div>
+                                                  </div>
                                                 );
                                               }
 
                                               return (
-                                                
-                                                  
-                                                    
+                                                <div className="flex flex-col items-center justify-center min-w-[100px]">
+                                                  <div className="flex items-center gap-1 text-lg font-bold">
+                                                    <span className="text-gray-800">
                                                       {homeScore}
-                                                    
-                                                    
+                                                    </span>
+                                                    <span className="text-gray-400">
                                                       -
-                                                    
-                                                    
+                                                    </span>
+                                                    <span className="text-gray-800">
                                                       {awayScore}
-                                                    
-                                                    
-                                                      {status === "FT"
-                                                        ? "Ended"
-                                                        : status === "AET"
-                                                          ? "AET"
-                                                          : status === "AWD"
-                                                            ? "Awarded"
-                                                            : status === "WO"
-                                                              ? "Walkover"
-                                                              : status === "ABD"
-                                                                ? "Abandoned"
-                                                                : status === "CANC"
-                                                                  ? "Cancelled"
-                                                                  : status === "SUSP"
-                                                                    ? "Suspended"
-                                                                    : status}
-                                                    
-                                                  
-                                                );
+                                                    </span>
+                                                  </div>
+                                                  <div className="text-xs text-gray-500">
+                                                    {status === "FT"
+                                                      ? "Ended"
+                                                      : status === "AET"
+                                                        ? "AET"
+                                                        : status === "AWD"
+                                                          ? "Awarded"
+                                                          : status === "WO"
+                                                            ? "Walkover"
+                                                            : status === "ABD"
+                                                              ? "Abandoned"
+                                                              : status === "CANC"
+                                                                ? "Cancelled"
+                                                                : status === "SUSP"
+                                                                  ? "Suspended"
+                                                                  : status}
+                                                  </div>
+                                                </div>
+                                              );
                                             } else {
                                               // Match is finished but no valid score data
                                         const statusText =
