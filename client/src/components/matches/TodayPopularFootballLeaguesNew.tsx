@@ -37,7 +37,7 @@ import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 
 // Helper function to shorten team names
-export const shortenTeamName = (teamName: string): => {
+export const shortenTeamName = (teamName: string): string => {
   if (!teamName) return teamName;
 
   // Remove common suffixes that make names too long
