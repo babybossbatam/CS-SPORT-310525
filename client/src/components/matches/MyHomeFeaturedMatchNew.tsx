@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
+import { getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
 
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
@@ -497,20 +498,47 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           {/* League info section */}
           <div className="bg-white p-2 mt-6 relative">
             <div className="flex items-center justify-center">
-              {currentMatch?.league?.logo ? (
-                <img
-                  src={currentMatch.league.logo}
-                  alt={currentMatch.league.name}
-                  className="w-5 h-5 object-contain mr-2 drop-shadow-md"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
-              ) : (
-                <Trophy className="w-5 h-5 text-amber-500 mr-2" />
-              )}
+              {(() => {
+                // Use country flag if available, otherwise use league logo
+                const countryFlag = currentMatch?.league?.country 
+                  ? getCountryFlagWithFallbackSync(currentMatch.league.country, currentMatch?.league?.logo)
+                  : null;
+                
+                if (countryFlag) {
+                  return (
+                    <img
+                      src={countryFlag}
+                      alt={currentMatch?.league?.country || currentMatch?.league?.name}
+                      className="w-5 h-5 object-contain mr-2 drop-shadow-md rounded-sm"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        // Fallback to league logo if flag fails
+                        if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
+                          e.currentTarget.src = currentMatch.league.logo;
+                        } else {
+                          e.currentTarget.src = "/assets/fallback-logo.svg";
+                        }
+                      }}
+                    />
+                  );
+                } else if (currentMatch?.league?.logo) {
+                  return (
+                    <img
+                      src={currentMatch.league.logo}
+                      alt={currentMatch.league.name}
+                      className="w-5 h-5 object-contain mr-2 drop-shadow-md"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                  );
+                } else {
+                  return <Trophy className="w-5 h-5 text-amber-500 mr-2" />;
+                }
+              })()}
               <span className="text-sm font-medium">
                 {currentMatch?.league?.name || "League Name"}
               </span>
