@@ -2309,7 +2309,7 @@ async function backgroundCacheRefresh(): Promise<void> {
 
     // Refresh if entry is 75% of max age and has been used recently
     if (age > maxAge * 0.75 && usage && usage.count > 3) {
-      staleEntries.push(`key.replace('flag_', ''));
+      staleEntries.push(key.replace('flag_', ''));
     }
   }
 
