@@ -149,7 +149,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const shouldExclude = shouldExcludeFeaturedMatch(
         match.league.name || '',
         match.teams.home.name || '',
-        match.teams.away.name || ''
+        match.teams.away.name || '',
+        match.league.country || ''
       );
       
       if (shouldExclude) {
