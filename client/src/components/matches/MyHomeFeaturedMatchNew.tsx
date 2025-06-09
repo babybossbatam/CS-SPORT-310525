@@ -683,11 +683,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               {(() => {
                 try {
                   const matchDate = new Date(currentMatch?.fixture?.date || '');
-                  const formattedDate = matchDate.toLocaleDateString('en-GB', { 
-                    weekday: 'long', 
-                    day: 'numeric', 
-                    month: 'short' 
-                  });
+                  
+                  // Get weekday and month
+                  const weekday = matchDate.toLocaleDateString('en-GB', { weekday: 'long' });
+                  const month = matchDate.toLocaleDateString('en-GB', { month: 'short' });
+                  
+                  // Get day with ordinal suffix
+                  const day = matchDate.getDate();
+                  const getOrdinalSuffix = (day: number) => {
+                    if (day > 3 && day < 21) return 'th';
+                    switch (day % 10) {
+                      case 1: return 'st';
+                      case 2: return 'nd';
+                      case 3: return 'rd';
+                      default: return 'th';
+                    }
+                  };
+                  const dayWithSuffix = `${day}${getOrdinalSuffix(day)}`;
+                  
                   const formattedTime = matchDate.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
@@ -695,7 +708,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   });
                   const venueName = currentMatch?.fixture?.venue?.name || "Stadium";
                   
-                  return `${formattedDate} | ${formattedTime} | ${venueName}`;
+                  return `${weekday}, ${dayWithSuffix} ${month} | ${formattedTime} | ${venueName}`;
                 } catch (e) {
                   return `Today | ${currentMatch?.fixture?.venue?.name || "Stadium"}`;
                 }
