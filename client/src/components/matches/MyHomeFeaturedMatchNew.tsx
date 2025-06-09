@@ -162,8 +162,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const countryPriority = getCountryPriority(match.league.country || '');
       const leaguePriority = getLeaguePriority(match);
       
-      // Apply more restrictive filtering criteria here
-      // You can add specific conditions for what matches should be featured
+      // Only include matches from top priority countries AND top priority leagues
+      const isTopCountry = countryPriority <= 4; // England, Spain, Italy, Germany, France
+      const isTopLeague = leaguePriority <= 2; // Country-specific popular leagues OR globally popular leagues
+      const isLiveMatch = ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short);
+      
+      // Featured match criteria: (Top country AND top league) OR live matches from popular leagues
+      return (isTopCountry && isTopLeague) || (isLiveMatch && leaguePriority <= 2);
     });
 
     // Sort by comprehensive priority system
