@@ -26,7 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache } from "../../lib/flagUtils";
+import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache, getCountryCode } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -1550,18 +1550,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   ) ? (
                                     <div className="flag-circle">
                                       <LazyImage
-                                        src={
-                                          match.teams.home.id
+                                        src={(() => {
+                                          // Use Circle Flags as primary source for national teams
+                                          const teamName = match.teams.home.name;
+                                          const countryCode = getCountryCode(teamName);
+                                          
+                                          if (countryCode) {
+                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                          }
+                                          
+                                          // Fallback to original API if no country code mapping
+                                          return match.teams.home.id
                                             ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                            : "/assets/fallback-logo.svg";
+                                        })()}
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className="team-logo"
                                         style={{ 
                                           filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                         }}
-                                        fallbackSrc="/assets/fallback-logo.svg"
+                                        fallbackSrc={
+                                          match.teams.home.id
+                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                            : "/assets/fallback-logo.svg"
+                                        }
                                       />
                                       <div className="gloss"></div>
                                     </div>
@@ -1840,18 +1853,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   ) ? (
                                     <div className="flag-circle">
                                       <LazyImage
-                                        src={
-                                          match.teams.away.id
+                                        src={(() => {
+                                          // Use Circle Flags as primary source for national teams
+                                          const teamName = match.teams.away.name;
+                                          const countryCode = getCountryCode(teamName);
+                                          
+                                          if (countryCode) {
+                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                          }
+                                          
+                                          // Fallback to original API if no country code mapping
+                                          return match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                            : "/assets/fallback-logo.svg";
+                                        })()}
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
                                         className="team-logo"
                                         style={{ 
                                           filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                         }}
-                                        fallbackSrc="/assets/fallback-logo.svg"
+                                        fallbackSrc={
+                                          match.teams.away.id
+                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                            : "/assets/fallback-logo.svg"
+                                        }
                                       />
                                       <div className="gloss"></div>
                                     </div>
