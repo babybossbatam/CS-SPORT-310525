@@ -368,7 +368,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (!match) return "";
     const status = match.fixture.status.short;
 
-    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "SUSP", "INT"].includes(status)) {
+    if (["1H", "2H", "HT", "LIVE", "BT", "ET", "P", "PEN", "SUSP", "INT"].includes(status)) {
       return "LIVE";
     } else if (status === "FT") {
       return "FINISHED";
