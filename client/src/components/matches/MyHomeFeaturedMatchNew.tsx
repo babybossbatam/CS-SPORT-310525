@@ -27,7 +27,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Get today's date if no selectedDate provided
   const today = new Date().toISOString().slice(0, 10);
   const dateToUse = selectedDate || today;
-  
+
   // Smart cache duration based on date type
   const isToday = dateToUse === today;
   const isFuture = dateToUse > today;
@@ -96,27 +96,27 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const getLeaguePriority = (match: FixtureResponse) => {
     const country = match.league.country || '';
     const leagueId = match.league.id;
-    
+
     // Priority 1: Popular for specific country (highest priority)
     const countryLeagues = COUNTRY_POPULAR_LEAGUES[country] || [];
     if (countryLeagues.includes(leagueId)) {
       return 1;
     }
-    
+
     // Priority 2: Globally popular leagues (second priority)
     if (POPULAR_LEAGUES.includes(leagueId)) {
       return 2;
     }
-    
+
     // Priority 3: Special World league sorting (for "World" country)
     if (country === "World") {
       const leagueName = (match.league.name || '').toLowerCase();
-      
+
       // UEFA Nations League (highest)
       if (leagueName.includes('uefa nations league') && !leagueName.includes('women')) {
         return 1;
       }
-      
+
       // World Cup Qualifications
       if (leagueName.includes('world cup') && leagueName.includes('qualification')) {
         if (leagueName.includes('south america')) return 2;
@@ -124,37 +124,37 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (leagueName.includes('asia')) return 5;
         if (leagueName.includes('concacaf')) return 6;
       }
-      
+
       // Friendlies (excluding UEFA Nations League and women's)
       if (leagueName.includes('friendlies') && !leagueName.includes('uefa nations league') && !leagueName.includes('women')) {
         return 4;
       }
-      
+
       // Tournoi Maurice Revello
       if (leagueName.includes('tournoi maurice revello')) {
         return 7;
       }
-      
+
       return 999; // Other World leagues
     }
-    
+
     return 999; // Low priority
   };
 
   // Helper function to get match status priority
   const getMatchStatusPriority = (match: FixtureResponse) => {
     const status = match.fixture.status.short;
-    
+
     // Priority 1: LIVE matches (highest priority)
     if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(status)) {
       return 1;
     }
-    
+
     // Priority 2: Recently finished matches
     if (status === 'FT') {
       return 2;
     }
-    
+
     // Priority 3: Upcoming matches (by time proximity)
     if (status === 'NS') {
       const matchTime = new Date(match.fixture.date);
@@ -162,7 +162,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const timeDiff = Math.abs(matchTime.getTime() - now.getTime());
       return 3 + (timeDiff / (1000 * 60 * 60)); // Add hours as fractional priority
     }
-    
+
     return 999; // Other statuses
   };
 
@@ -176,7 +176,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const timeFiltered = fixtures.filter((fixture) => {
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const fixtureDate = new Date(fixture.fixture.date).toISOString().slice(0, 10);
-        
+
         // For featured matches, we want to be more inclusive with time filtering
         // Check if the fixture date matches the selected date
         if (fixtureDate === dateToUse) {
@@ -284,37 +284,37 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5]; // In priority order
       const aEliteIndex = eliteLeagues.indexOf(a.league.id);
       const bEliteIndex = eliteLeagues.indexOf(b.league.id);
-      
+
       if (aEliteIndex !== -1 && bEliteIndex !== -1) {
         return aEliteIndex - bEliteIndex; // Sort by elite league priority
       }
       if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
       if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
-      
+
       // 2. Country Priority System
       const aCountryPriority = getCountryPriority(a.league.country || '');
       const bCountryPriority = getCountryPriority(b.league.country || '');
-      
+
       if (aCountryPriority !== bCountryPriority) {
         return aCountryPriority - bCountryPriority;
       }
-      
+
       // 3. League Priority within Countries
       const aLeaguePriority = getLeaguePriority(a);
       const bLeaguePriority = getLeaguePriority(b);
-      
+
       if (aLeaguePriority !== bLeaguePriority) {
         return aLeaguePriority - bLeaguePriority;
       }
-      
+
       // 4. Match Status Priority - LIVE matches first
       const aStatusPriority = getMatchStatusPriority(a);
       const bStatusPriority = getMatchStatusPriority(b);
-      
+
       if (aStatusPriority !== bStatusPriority) {
         return aStatusPriority - bStatusPriority;
       }
-      
+
       // Final tiebreaker: alphabetical by league name
       return (a.league.name || '').localeCompare(b.league.name || '');
     });
@@ -327,7 +327,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       status: m.fixture.status.short,
       leagueId: m.league.id
     })));
-    
+
     return limitedMatches;
   }, [fixtures, dateToUse, maxMatches]);
 
@@ -534,10 +534,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 return (
                   <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-500"}`}>
-                    <div className="text-xs tracking-wide">
+                    <div className="text-xl tracking-wide">
                       {statusText}
                     </div>
-                    <div className="text-lg font-semibold">
+                    <div className="text-xl font-semibold">
                       {scoreText}
                     </div>
                   </div>
