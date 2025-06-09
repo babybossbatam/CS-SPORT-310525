@@ -534,7 +534,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 return (
                   <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-500"}`}>
-                    <div className="text-xs uppercase tracking-wide">
+                    <div className="text-xs tracking-wide">
                       {statusText}
                     </div>
                     <div className="text-lg font-semibold">
