@@ -39,6 +39,8 @@ import { useLocation } from "wouter";
 import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
 import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
+import { Button } from "@/components/ui/button";
+import { UnifiedDebugPanel } from "../components/debug/UnifiedDebugPanel";
 
 
 // Cleanup any stale video references
@@ -62,6 +64,7 @@ const Home = () => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [todayPopularFixtures, setTodayPopularFixtures] = useState<any[]>([]);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   // Ensure selectedDate is properly initialized
   useEffect(() => {
@@ -445,7 +448,7 @@ const Home = () => {
               />
             </div>
 
-            
+
 
 
           </div>
@@ -481,6 +484,21 @@ const Home = () => {
 
       <RegionModal />
       <CacheMonitor />
+      {process.env.NODE_ENV === 'development' && (
+        <Button
+          onClick={() => setShowDebugPanel(true)}
+          className="fixed bottom-4 right-4 z-40 bg-blue-600 hover:bg-blue-700"
+          size="sm"
+        >
+          Debug Panel
+        </Button>
+      )}
+
+      {/* Debug Panel */}
+      <UnifiedDebugPanel 
+        isVisible={showDebugPanel}
+        onClose={() => setShowDebugPanel(false)}
+      />
     </>
   );
 };
