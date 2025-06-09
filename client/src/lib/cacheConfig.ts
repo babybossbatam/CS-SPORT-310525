@@ -24,9 +24,9 @@ export const CACHE_PRESETS = {
     refetchOnReconnect: true,
   },
 
-  // For match fixtures and schedules (extended to 4 hours)
+  // For match fixtures and schedules (smart cache based on date)
   FIXTURES: {
-    staleTime: CACHE_DURATIONS.FOUR_HOURS,
+    staleTime: CACHE_DURATIONS.TWELVE_HOURS, // Extended to 12 hours
     gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,

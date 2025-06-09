@@ -301,17 +301,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheTime = new Date(cachedFixtures[0].timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        // Use different cache durations based on date
+        // Use smart cache durations based on date
         const today = new Date().toISOString().split('T')[0];
         const isPastDate = date < today;
         const isToday = date === today;
 
-        // Past dates: 12 hours cache (matches are finished but allow some updates)
-        // Today: 30 minutes cache (live matches need frequent updates)
-        // Future dates: 2 hours cache (schedules can change)
-        const maxCacheAge = isPastDate ? 12 * 60 * 60 * 1000 : 
-                           isToday ? 30 * 60 * 1000 : 
-                           2 * 60 * 60 * 1000;
+        // Past dates: 24 hours cache (matches are finished and stable)
+        // Today: 5 minutes cache (frequent updates for live matches)
+        // Future dates: 4 hours cache (schedules rarely change)
+        const maxCacheAge = isPastDate ? 24 * 60 * 60 * 1000 : 
+                       isToday ? 5 * 60 * 1000 : 
+                       4 * 60 * 60 * 1000;
 
         if (cacheAge < maxCacheAge) {
           console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);

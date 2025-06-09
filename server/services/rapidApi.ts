@@ -27,9 +27,12 @@ const apiClient = axios.create({
   }
 });
 
-// Cache control - 5 minutes for live data, 1 hour for static data
-const LIVE_DATA_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-const STATIC_DATA_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+// Improved cache control with longer durations
+const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
+const TODAY_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes for today's matches
+const FUTURE_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours for future dates
+const PAST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for past dates
+const STATIC_DATA_CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours for static data
 
 // Cache objects
 const fixturesCache = new Map<string, { data: any, timestamp: number }>();
@@ -57,10 +60,23 @@ export const rapidApiService = {
     const now = Date.now();
     const today = new Date().toISOString().split('T')[0];
     const isToday = date === today;
+    const isPast = date < today;
+    const isFuture = date > today;
 
-    // Use shorter cache time for today's data (30 seconds) vs other dates (10 minutes for yesterday/tomorrow)
-    const cacheTime = isToday ? 30 * 1000 : 10 * 60 * 1000;
+    // Smart cache duration based on date type
+    let cacheTime;
+    if (isPast) {
+      cacheTime = PAST_CACHE_DURATION; // 24 hours for past dates
+    } else if (isToday) {
+      cacheTime = TODAY_CACHE_DURATION; // 10 minutes for today
+    } else if (isFuture) {
+      cacheTime = FUTURE_CACHE_DURATION; // 2 hours for future dates
+    } else {
+      cacheTime = TODAY_CACHE_DURATION; // fallback
+    }
+
     if (cached && now - cached.timestamp < cacheTime) {
+      console.log(`📦 [RapidAPI] Using cached fixtures for ${date} (age: ${Math.round((now - cached.timestamp) / 60000)}min, type: ${isPast ? 'past' : isToday ? 'today' : 'future'})`);
       return cached.data;
     }
 
