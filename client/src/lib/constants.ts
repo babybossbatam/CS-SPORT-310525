@@ -35,3 +35,5 @@ export const POPULAR_LEAGUES = [
   // African competitions
   914, // COSAFA Cup
 ];
+
+export const API_BASE_URL = window.location.origin;

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppDispatch } from '@/lib/store';
@@ -41,22 +40,22 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
       if (!response.ok) throw new Error('Failed to fetch fixtures');
       const data: FixtureResponse[] = await response.json();
-      
+
       console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
-      
+
       // Basic validation only - let components handle their own filtering
       const basicFiltered = data.filter(fixture => {
         return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
       });
 
       console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
-      
+
       // Update Redux store with all valid fixtures
       dispatch(fixturesActions.setFixturesByDate({ 
         date: selectedDate, 
         fixtures: basicFiltered 
       }));
-      
+
       return basicFiltered;
     },
     staleTime: CACHE_DURATIONS.TWO_HOURS,
@@ -76,12 +75,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const response = await fetch('/api/fixtures/live');
       if (!response.ok) throw new Error('Failed to fetch live fixtures');
       const data: FixtureResponse[] = await response.json();
-      
+
       console.log(`Central cache: Received ${data.length} live fixtures`);
-      
+
       // Update Redux store
       dispatch(fixturesActions.setLiveFixtures(data));
-      
+
       return data;
     },
     staleTime: 30000, // 30 seconds for live data
@@ -96,7 +95,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-    
+
     queryClient.prefetchQuery({
       queryKey: ['central-date-fixtures', tomorrowStr],
       queryFn: async () => {
