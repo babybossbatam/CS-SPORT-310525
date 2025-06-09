@@ -451,7 +451,7 @@ export async function prewarmPopularFlags(): Promise<void> {
 }
 
 /**
- * Generate multiple flag sources for a country with Circle Flags as primary source
+ * Generate multiple flag sources for a country with local flags as primary source
  */
 export function generateFlagSources(country: string, preferCircular: boolean = false): string[] {
   const cleanCountry = country.trim();
@@ -463,13 +463,19 @@ export function generateFlagSources(country: string, preferCircular: boolean = f
   }
 
   if (cleanCountry === 'Europe') {
-    return ['https://flagcdn.com/w40/eu.png', 'https://media.api-sports.io/flags/eu.svg'];
+    return ['/assets/flags/circular/eu.svg', 'https://flagcdn.com/w40/eu.png', 'https://media.api-sports.io/flags/eu.svg'];
   }
 
   const countryCode = countryCodeMap[cleanCountry];
 
   if (countryCode) {
-    // 1. PRIMARY: Circle Flags (perfect for national teams with circular design)
+    // 1. PRIMARY: Local hosted circular flags (downloaded from Figma)
+    if (countryCode.length === 2) {
+      sources.push(`/assets/flags/circular/${countryCode.toLowerCase()}.svg`);
+      sources.push(`/assets/flags/circular/${countryCode.toLowerCase()}.png`);
+    }
+
+    // 2. SECONDARY: Circle Flags (external fallback)
     if (countryCode.length === 2) {
       sources.push(`https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`);
     }
@@ -776,12 +782,12 @@ export const getCountryFlagWithFallbackSync = (country: string, leagueFlag?: str
 
           if (countryCode) {
             if (countryCode && countryCode.length === 2) {
-              // Use Circle Flags as primary source for better circular design
-              const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-              console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${flagUrl} (Circle Flags)`);
-              flagCache.setCached(flagCacheKey, flagUrl, 'circle-flags', true);
-              console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached Circle Flag for ${country} with source: circle-flags`);
-              return flagUrl;
+              // Use local circular flags as primary source
+              const localFlagUrl = `/assets/flags/circular/${countryCode.toLowerCase()}.svg`;
+              console.log(`🎯 [flagUtils.ts:getCountryFlagWithFallbackSync] Found 2-letter code for ${cleanCountry}: ${countryCode} -> ${localFlagUrl} (Local Circular)`);
+              flagCache.setCached(flagCacheKey, localFlagUrl, 'local-circular', true);
+              console.log(`💾 [flagUtils.ts:getCountryFlagWithFallbackSync] Cached Local Circular Flag for ${country} with source: local-circular`);
+              return localFlagUrl;
             } else if (countryCode && countryCode.startsWith('GB-')) {
               const subdivision = countryCode.toLowerCase().replace('gb-', '');
               const flagUrl = `https://hatscripts.github.io/circle-flags/flags/gb-${subdivision}.svg`;
@@ -2177,11 +2183,11 @@ async function fetchIndividualFlag(country: string): Promise<string> {
   }
 
   if (countryCode && countryCode.length === 2) {
-    const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using country code ${countryCode}: ${flagUrl}`);
-    flagCache.setCached(cacheKey, flagUrl, 'country-code', true);
-    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached flag for ${country}`);
-    return flagUrl;
+    const localFlagUrl = `/assets/flags/circular/${countryCode.toLowerCase()}.svg`;
+    console.log(`🎯 [flagUtils.ts:fetchIndividualFlag] Using local country code ${countryCode}: ${localFlagUrl}`);
+    flagCache.setCached(cacheKey, localFlagUrl, 'local-country-code', true);
+    console.log(`💾 [flagUtils.ts:fetchIndividualFlag] Cached local flag for ${country}`);
+    return localFlagUrl;
   }
 
   if (countryCode && countryCode.startsWith('GB-')) {

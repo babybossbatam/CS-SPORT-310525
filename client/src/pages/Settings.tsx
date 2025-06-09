@@ -18,6 +18,8 @@ import TournamentHeader from '@/components/layout/TournamentHeader';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import React from 'react';
+import { FlagAudit } from '@/components/debug/FlagAudit';
 
 // Form schema
 const settingsSchema = z.object({
@@ -43,10 +45,10 @@ const Settings = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  
+
   const { isAuthenticated, id, preferences } = useSelector((state: RootState) => state.user);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Default form values
   const defaultValues: SettingsFormValues = {
     region: preferences.region || 'global',
@@ -64,13 +66,13 @@ const Settings = () => {
       showLiveMatchesFirst: true,
     },
   };
-  
+
   // Initialize form
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues,
   });
-  
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
@@ -81,7 +83,7 @@ const Settings = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate, toast]);
-  
+
   // Handle form submission
   const onSubmit = async (data: SettingsFormValues) => {
     if (!isAuthenticated || !id) {
@@ -92,21 +94,21 @@ const Settings = () => {
       });
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     try {
       // Update region in Redux store and API
       if (data.region !== preferences.region) {
         dispatch(userActions.setRegion(data.region));
-        
+
         await apiRequest('PATCH', `/api/user/${id}/preferences`, {
           region: data.region
         });
       }
-      
+
       // In a real app, we'd save other settings too
-      
+
       toast({
         title: 'Settings Saved',
         description: 'Your preferences have been updated',
@@ -122,7 +124,7 @@ const Settings = () => {
       setIsSaving(false);
     }
   };
-  
+
   // Handle logout
   const handleLogout = () => {
     dispatch(userActions.logout());
@@ -132,17 +134,17 @@ const Settings = () => {
     });
     navigate('/');
   };
-  
+
   if (!isAuthenticated) {
     return null;
   }
-  
+
   return (
     <>
       <Header />
       <SportsCategoryTabs />
       <TournamentHeader title="Settings" icon={<SettingsIcon className="h-4 w-4 text-neutral-600" />} />
-      
+
       <div className="container mx-auto px-4 py-4 max-w-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -183,7 +185,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="theme"
@@ -219,7 +221,7 @@ const Settings = () => {
                   />
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Notifications</CardTitle>
@@ -248,7 +250,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="notifications.emailEnabled"
@@ -269,12 +271,12 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium">Notification Events</h3>
-                    
+
                     <FormField
                       control={form.control}
                       name="notifications.matchStart"
@@ -290,7 +292,7 @@ const Settings = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="notifications.goals"
@@ -306,7 +308,7 @@ const Settings = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="notifications.finalResult"
@@ -325,7 +327,7 @@ const Settings = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Display Preferences</CardTitle>
@@ -357,7 +359,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="display.dateFormat"
@@ -382,7 +384,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="display.showLiveMatchesFirst"
@@ -413,7 +415,7 @@ const Settings = () => {
                   </Button>
                 </CardFooter>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Account</CardTitle>
@@ -439,4 +441,26 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default function Settings() {
+  return (
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold mb-4">Settings</h1>
+
+      <div className="space-y-6">
+        <FlagAudit />
+
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-2">Instructions for Local Flag Setup</h2>
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p>1. Run the flag audit to see which flags are missing</p>
+            <p>2. Download the priority list or missing list</p>
+            <p>3. Download circular flags from the Figma resource</p>
+            <p>4. Save them to <code>client/public/assets/flags/circular/</code></p>
+            <p>5. Name files as <code>[country-code].svg</code> (e.g., <code>us.svg</code>, <code>gb.svg</code>)</p>
+            <p>6. Run audit again to verify</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
