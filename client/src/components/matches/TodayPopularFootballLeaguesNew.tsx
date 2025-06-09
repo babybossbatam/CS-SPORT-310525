@@ -1310,9 +1310,28 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               countryCodeMapping: 'VE' // Should be VE for Venezuela
                             });
 
-                            // Trust the Circle Flags system to provide correct flags Venezuela flag:`, error);
-                              });
-                            }
+                            // Trust the Circle Flags system to provide correct flags
+                          }
+                        }}
+                      />
+                      <div className="gloss"></div>
+                    </div>
+                  ) : (
+                    <LazyImage
+                      src={
+                        match.teams.home.id
+                          ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                          : "/assets/fallback-logo.svg"
+                      }
+                      alt={match.teams.home.name}
+                      title={match.teams.home.name}
+                      className="team-logo"
+                      style={{ 
+                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                      }}
+                      fallbackSrc="/assets/fallback-logo.svg"
+                    />
+                  )}</old_str>
 
                             // Force correct Venezuela flag if wrong
                             if (!countryData.flag.includes('/ve.png') && !countryData.flag.includes('/ve.')) {
