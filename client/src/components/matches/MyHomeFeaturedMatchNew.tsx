@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCentralData } from "@/providers/CentralDataProvider";
+
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 
@@ -19,7 +19,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { fixtures } = useCentralData();
+  const fixtures: FixtureResponse[] = [];
 
   // 1. Country Priority System
   const POPULAR_COUNTRIES_ORDER = [
