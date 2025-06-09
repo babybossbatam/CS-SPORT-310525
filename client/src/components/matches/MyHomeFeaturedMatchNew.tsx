@@ -566,9 +566,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const timeDiff = matchDate.getTime() - today.getTime();
                 const daysUntilMatch = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
                 
-                const daysText = daysUntilMatch === 1 ? '1 Day to Kick Off' : 
+                const daysText = daysUntilMatch === 1 ? 'Tomorrow' : 
                                 daysUntilMatch === 0 ? 'Today' : 
-                                `${daysUntilMatch} Days to Kick Off`;
+                                `${daysUntilMatch} Days`;
                 
                 return (
                   <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
