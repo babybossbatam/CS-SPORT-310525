@@ -357,8 +357,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (["1H", "2H"].includes(status)) {
       return `${elapsed}'`;
     }
-    if (status === "HT") return "HT";
-    if (status === "FT") return "FT";
+    if (status === "HT") return "Halftime";
+    if (status === "FT") return "Ended";
+    if (status === "PEN") return "Penalty";
     if (status === "NS") return "UPCOMING";
     return status;
   };
@@ -532,7 +533,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const scoreText = `${currentMatch?.goals?.home ?? 0}   -   ${currentMatch?.goals?.away ?? 0}`;
 
                 return (
-                  <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-900"}`}>
+                  <div className={`flex flex-col items-center gap-1 ${isLive ? "text-red-600" : "text-gray-100"}`}>
                     <div className="text-xs uppercase tracking-wide">
                       {statusText}
                     </div>
@@ -543,7 +544,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
               } else {
                 return (
-                  <div className="text-gray-500 text-sm uppercase tracking-wide">
+                  <div className="text-gray-100 text-sm uppercase tracking-wide">
                     UPCOMING
                   </div>
                 );
