@@ -19,7 +19,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { fixtures, liveFixtures } = useCentralData();
+  const { fixtures } = useCentralData();
 
   // 1. Country Priority System
   const POPULAR_COUNTRIES_ORDER = [
@@ -128,15 +128,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Featured matches filtering logic
   const featuredMatches = useMemo(() => {
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures and ${liveFixtures.length} live fixtures`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures`);
     
-    // Combine date fixtures and live fixtures
-    const allFixtures = [...fixtures, ...liveFixtures];
-    
-    // Remove duplicates based on fixture ID
-    const uniqueFixtures = allFixtures.filter((fixture, index, self) => 
-      index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-    );
+    // Use only fixtures data source
+    const uniqueFixtures = fixtures;
 
     // Filter for quality matches
     const filteredMatches = uniqueFixtures.filter((match: FixtureResponse) => {
@@ -202,10 +197,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     });
 
     const limitedMatches = sortedMatches.slice(0, maxMatches || 8);
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${allFixtures.length} fixtures to ${limitedMatches.length} featured matches with priority system`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches with priority system`);
     
     return limitedMatches;
-  }, [fixtures, liveFixtures, maxMatches]);
+  }, [fixtures, maxMatches]);
 
   const currentMatch = featuredMatches[currentIndex] || null;
 
