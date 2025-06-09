@@ -1463,8 +1463,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             
                               
                                 {/* Star Button with true slide-in effect */}
-                                
-                                  
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     toggleStarMatch(match.fixture.id);
                                   }}
                                   className="match-star-button"
