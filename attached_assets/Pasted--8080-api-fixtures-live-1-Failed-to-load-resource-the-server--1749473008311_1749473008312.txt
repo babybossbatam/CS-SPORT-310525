@@ -1,0 +1,182 @@
+:8080/api/fixtures/live:1 
+            
+            
+           Failed to load resource: the server responded with a status of 502 (Bad Gateway)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev/:1 
+            
+            
+           Failed to load resource: the server responded with a status of 502 (Bad Gateway)Understand this error
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:519Understand this error
+323proxy.js:1 Uncaught Error: Attempting to use a disconnected port object
+    at handleMessageFromPage (proxy.js:1:779)
+handleMessageFromPage @ proxy.js:1
+postMessage
+send @ backendManager.js:1
+(anonymous) @ bridge.js:393Understand this error
+flagUtils.ts:374 💾 Saved 27 flags to localStorage
+flagUtils.ts:374 💾 Saved 27 flags to localStorage
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+start @ @tanstack_react-query.js?v=0e23ef53:536
+fetch @ @tanstack_react-query.js?v=0e23ef53:926
+executeFetch_fn @ @tanstack_react-query.js?v=0e23ef53:2211
+fetch @ @tanstack_react-query.js?v=0e23ef53:2011
+refetch @ @tanstack_react-query.js?v=0e23ef53:2001
+onFocus @ @tanstack_react-query.js?v=0e23ef53:749
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1112
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1111
+batch @ @tanstack_react-query.js?v=0e23ef53:583
+onFocus @ @tanstack_react-query.js?v=0e23ef53:1110
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1601
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:313
+onFocus @ @tanstack_react-query.js?v=0e23ef53:312
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:299
+listener @ @tanstack_react-query.js?v=0e23ef53:270Understand this error
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:515
+Promise.catch
+run @ @tanstack_react-query.js?v=0e23ef53:498
+start @ @tanstack_react-query.js?v=0e23ef53:536
+fetch @ @tanstack_react-query.js?v=0e23ef53:926
+executeFetch_fn @ @tanstack_react-query.js?v=0e23ef53:2211
+fetch @ @tanstack_react-query.js?v=0e23ef53:2011
+refetch @ @tanstack_react-query.js?v=0e23ef53:2001
+onFocus @ @tanstack_react-query.js?v=0e23ef53:749
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1112
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1111
+batch @ @tanstack_react-query.js?v=0e23ef53:583
+onFocus @ @tanstack_react-query.js?v=0e23ef53:1110
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1601
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:313
+onFocus @ @tanstack_react-query.js?v=0e23ef53:312
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:299
+listener @ @tanstack_react-query.js?v=0e23ef53:270Understand this error
+flagUtils.ts:374 💾 Saved 27 flags to localStorage
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+start @ @tanstack_react-query.js?v=0e23ef53:536
+fetch @ @tanstack_react-query.js?v=0e23ef53:926
+executeFetch_fn @ @tanstack_react-query.js?v=0e23ef53:2211
+fetch @ @tanstack_react-query.js?v=0e23ef53:2011
+refetch @ @tanstack_react-query.js?v=0e23ef53:2001
+onFocus @ @tanstack_react-query.js?v=0e23ef53:749
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1112
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1111
+batch @ @tanstack_react-query.js?v=0e23ef53:583
+onFocus @ @tanstack_react-query.js?v=0e23ef53:1110
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1601
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:313
+onFocus @ @tanstack_react-query.js?v=0e23ef53:312
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:299
+listener @ @tanstack_react-query.js?v=0e23ef53:270Understand this error
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:515
+Promise.catch
+run @ @tanstack_react-query.js?v=0e23ef53:498
+start @ @tanstack_react-query.js?v=0e23ef53:536
+fetch @ @tanstack_react-query.js?v=0e23ef53:926
+executeFetch_fn @ @tanstack_react-query.js?v=0e23ef53:2211
+fetch @ @tanstack_react-query.js?v=0e23ef53:2011
+refetch @ @tanstack_react-query.js?v=0e23ef53:2001
+onFocus @ @tanstack_react-query.js?v=0e23ef53:749
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1112
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1111
+batch @ @tanstack_react-query.js?v=0e23ef53:583
+onFocus @ @tanstack_react-query.js?v=0e23ef53:1110
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1601
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:313
+onFocus @ @tanstack_react-query.js?v=0e23ef53:312
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:299
+listener @ @tanstack_react-query.js?v=0e23ef53:270Understand this error
+flagUtils.ts:374 💾 Saved 27 flags to localStorage
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+start @ @tanstack_react-query.js?v=0e23ef53:536
+fetch @ @tanstack_react-query.js?v=0e23ef53:926
+executeFetch_fn @ @tanstack_react-query.js?v=0e23ef53:2211
+fetch @ @tanstack_react-query.js?v=0e23ef53:2011
+refetch @ @tanstack_react-query.js?v=0e23ef53:2001
+onFocus @ @tanstack_react-query.js?v=0e23ef53:749
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1112
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1111
+batch @ @tanstack_react-query.js?v=0e23ef53:583
+onFocus @ @tanstack_react-query.js?v=0e23ef53:1110
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1601
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:313
+onFocus @ @tanstack_react-query.js?v=0e23ef53:312
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:299
+listener @ @tanstack_react-query.js?v=0e23ef53:270Understand this error
+CentralDataProvider.tsx:76 
+            
+            
+           GET https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/live 502 (Bad Gateway)
+queryFn @ CentralDataProvider.tsx:76
+fetchFn @ @tanstack_react-query.js?v=0e23ef53:840
+run @ @tanstack_react-query.js?v=0e23ef53:494
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:515
+Promise.catch
+run @ @tanstack_react-query.js?v=0e23ef53:498
+start @ @tanstack_react-query.js?v=0e23ef53:536
+fetch @ @tanstack_react-query.js?v=0e23ef53:926
+executeFetch_fn @ @tanstack_react-query.js?v=0e23ef53:2211
+fetch @ @tanstack_react-query.js?v=0e23ef53:2011
+refetch @ @tanstack_react-query.js?v=0e23ef53:2001
+onFocus @ @tanstack_react-query.js?v=0e23ef53:749
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1112
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1111
+batch @ @tanstack_react-query.js?v=0e23ef53:583
+onFocus @ @tanstack_react-query.js?v=0e23ef53:1110
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:1601
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:313
+onFocus @ @tanstack_react-query.js?v=0e23ef53:312
+(anonymous) @ @tanstack_react-query.js?v=0e23ef53:299
+listener @ @tanstack_react-query.js?v=0e23ef53:270Understand this error
+printMissingCountriesReport()
+VM2421:1 Uncaught ReferenceError: printMissingCountriesReport is not defined
+    at <anonymous>:1:1
