@@ -916,7 +916,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
         favoriteTeams?.some((team) => team.id === teamId) || false;
 
       if (isFavorite) {
-        dispatch(userActions.removeFavoriteTeam(teamId));
+        dispatch```text
+(userActions.removeFavoriteTeam(teamId));
         toast({
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
@@ -1065,7 +1066,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   };
 
-  
+
 
   return (
     <>
@@ -1627,66 +1628,96 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     }
 
                                     // All finished match statuses
-                                    if (
-                                      [
-                                        "FT",
-                                        "AET",
-                                        "PEN",
-                                        "AWD",
-                                        "WO",
-                                        "ABD",
-                                        "CANC",
-                                        "SUSP",
-                                      ].includes(status)
-                                    ) {
-                                      // Check if we have actual numerical scores
-                                      const homeScore = match.goals.home;
-                                      const awayScore = match.goals.away;
-                                      const hasValidScores =
-                                        homeScore !== null &&
-                                        homeScore !== undefined &&
-                                        awayScore !== null &&
-                                        awayScore !== undefined &&
-                                        !isNaN(Number(homeScore)) &&
-                                        !isNaN(Number(awayScore));
+                                          if (
+                                            [
+                                              "FT",
+                                              "AET",
+                                              "PEN",
+                                              "AWD",
+                                              "WO",
+                                              "ABD",
+                                              "CANC",
+                                              "SUSP",
+                                            ].includes(status)
+                                          ) {
+                                            // Check if we have actual numerical scores
+                                            const homeScore = match.goals.home;
+                                            const awayScore = match.goals.away;
+                                            const hasValidScores =
+                                              homeScore !== null &&
+                                              homeScore !== undefined &&
+                                              awayScore !== null &&
+                                              awayScore !== undefined &&
+                                              !isNaN(Number(homeScore)) &&
+                                              !isNaN(Number(awayScore));
 
-                                      if (hasValidScores) {
-                                        return (
-                                          <div className="relative">
-                                            <div className="match-score-display">
-                                              <span className="score-number">
-                                                {homeScore}
-                                              </span>
-                                              <span className="score-separator">
-                                                -
-                                              </span>
-                                              <span className="score-number">
-                                                {awayScore}
-                                              </span>
-                                            </div>
-                                            <div className="match-status-label status-ended">
-                                              {status === "FT"
-                                                ? "Ended"
-                                                : status === "AET"
-                                                  ? "AET"
-                                                  : status === "PEN"
-                                                    ? "PEN"
-                                                    : status === "AWD"
-                                                      ? "Awarded"
-                                                      : status === "WO"
-                                                        ? "Walkover"
-                                                        : status === "ABD"
-                                                          ? "Abandoned"
-                                                          : status === "CANC"
-                                                            ? "Cancelled"
-                                                            : status === "SUSP"
-                                                              ? "Suspended"
-                                                              : status}
-                                            </div>
-                                          </div>
-                                        );
-                                      } else {
-                                        // Match is finished but no valid score data
+                                            if (hasValidScores) {
+                                              // Special handling for penalty matches
+                                              if (status === "PEN") {
+                                                const penaltyHome = match.score?.penalty?.home;
+                                                const penaltyAway = match.score?.penalty?.away;
+                                                const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                                       penaltyAway !== null && penaltyAway !== undefined;
+
+                                                return (
+                                                  <div className="relative">
+                                                    <div className="match-score-display">
+                                                      <span className="score-number">
+                                                        {homeScore}
+                                                      </span>
+                                                      <span className="score-separator">
+                                                        -
+                                                      </span>
+                                                      <span className="score-number">
+                                                        {awayScore}
+                                                      </span>
+                                                    </div>
+                                                    <div className="match-status-label status-ended">
+                                                      After Penalty
+                                                    </div>
+                                                    {hasPenaltyScores && (
+                                                      <div className="text-xs text-gray-600 mt-1">
+                                                        {match.teams.home.name} has won {penaltyHome}-{penaltyAway} after Penalties
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                );
+                                              }
+
+                                              return (
+                                                <div className="relative">
+                                                  <div className="match-score-display">
+                                                    <span className="score-number">
+                                                      {homeScore}
+                                                    </span>
+                                                    <span className="score-separator">
+                                                      -
+                                                    </span>
+                                                    <span className="score-number">
+                                                      {awayScore}
+                                                    </span>
+                                                  </div>
+                                                  <div className="match-status-label status-ended">
+                                                    {status === "FT"
+                                                      ? "Ended"
+                                                      : status === "AET"
+                                                        ? "AET"
+                                                        : status === "AWD"
+                                                          ? "Awarded"
+                                                          : status === "WO"
+                                                            ? "Walkover"
+                                                            : status === "ABD"
+                                                              ? "Abandoned"
+                                                              : status === "CANC"
+                                                                ? "Cancelled"
+                                                                : status === "SUSP"
+                                                                  ? "Suspended"
+                                                                  : status}
+                                                  </div>
+                                                </div>
+                                              );
+                                            } else {
+                                              // Match is finished but no valid score data
                                         const statusText =
                                           status === "FT"
                                             ? "No Score"
