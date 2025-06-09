@@ -764,8 +764,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const today = new Date();
 
                 // Reset time to start of day for accurate date comparison
-                const matchDateOnly =```text
- new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+                const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const tomorrowOnly = new Date(todayOnly);
                 tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
 
