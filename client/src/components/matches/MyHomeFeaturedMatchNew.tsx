@@ -4,6 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiRequest } from "@/lib/queryClient";
+import { useCachedQuery } from "@/lib/cachingHelper";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
@@ -19,7 +23,43 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fixtures: FixtureResponse[] = [];
+
+  // Get today's date if no selectedDate provided
+  const today = new Date().toISOString().slice(0, 10);
+  const dateToUse = selectedDate || today;
+  
+  // Smart cache duration based on date type
+  const isToday = dateToUse === today;
+  const isFuture = dateToUse > today;
+  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+
+  // Fetch all fixtures for the selected date with smart caching
+  const {
+    data: fixtures = [],
+    isLoading,
+  } = useCachedQuery(
+    ["all-fixtures-by-date", dateToUse],
+    async () => {
+      console.log(`🔄 [MyHomeFeaturedMatchNew] Fetching fresh data for date: ${dateToUse}`);
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${dateToUse}?all=true`,
+      );
+      const data = await response.json();
+      console.log(`✅ [MyHomeFeaturedMatchNew] Received ${data?.length || 0} fixtures for ${dateToUse}`);
+      return data;
+    },
+    {
+      enabled: !!dateToUse,
+      maxAge: cacheMaxAge,
+      backgroundRefresh: false,
+      staleTime: cacheMaxAge,
+      gcTime: cacheMaxAge * 2,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  );
 
   // 1. Country Priority System
   const POPULAR_COUNTRIES_ORDER = [
@@ -126,48 +166,109 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return 999; // Other statuses
   };
 
-  // Featured matches filtering logic
+  // Popular leagues and countries from TodayPopularFootballLeaguesNew
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 848, 15, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Conference League, FIFA Club World Cup, COSAFA Cup
+
+  // Featured matches filtering logic using TodayPopularFootballLeaguesNew approach
   const featuredMatches = useMemo(() => {
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures`);
-    
-    // Use only fixtures data source
-    const uniqueFixtures = fixtures;
+    if (!fixtures?.length) return [];
 
-    // Filter for quality matches
-    const filteredMatches = uniqueFixtures.filter((match: FixtureResponse) => {
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Processing ${fixtures.length} fixtures for date: ${dateToUse}`);
+
+    // Apply smart time filtering with selected date context
+    const timeFiltered = fixtures.filter((fixture) => {
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          dateToUse + "T12:00:00Z",
+        );
+
+        // Check if this match should be included based on the selected date
+        const today = new Date();
+        const todayString = today.toISOString().slice(0, 10);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowString = tomorrow.toISOString().slice(0, 10);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayString = yesterday.toISOString().slice(0, 10);
+
+        const shouldInclude = (() => {
+          if (dateToUse === tomorrowString && smartResult.label === "tomorrow") return true;
+          if (dateToUse === todayString && smartResult.label === "today") return true;
+          if (dateToUse === yesterdayString && smartResult.label === "yesterday") return true;
+
+          // Handle custom dates
+          if (dateToUse !== todayString && dateToUse !== tomorrowString && dateToUse !== yesterdayString) {
+            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
+          }
+
+          return false;
+        })();
+
+        return shouldInclude;
+      }
+      return true;
+    });
+
+    // Apply popular leagues and countries filtering
+    const popularFiltered = timeFiltered.filter((fixture) => {
       // Basic validation
-      if (!match?.league || !match?.teams?.home || !match?.teams?.away) {
+      if (!fixture?.league || !fixture?.teams?.home || !fixture?.teams?.away) {
         return false;
       }
 
-      // Use comprehensive exclusion checking
-      const shouldExclude = shouldExcludeFeaturedMatch(
-        match.league.name || '',
-        match.teams.home.name || '',
-        match.teams.away.name || '',
-        match.league.country || ''
+      const leagueId = fixture.league?.id;
+      const country = fixture.league?.country?.toLowerCase() || "";
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+
+      // Apply exclusion check from TodayPopularFootballLeaguesNew
+      if (
+        shouldExcludeFromPopularLeagues(
+          fixture.league.name,
+          fixture.teams.home.name,
+          fixture.teams.away.name,
+          fixture.league.country,
+        )
+      ) {
+        return false;
+      }
+
+      // Check if it's a popular league
+      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+      // Check if it's from a popular country
+      const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+        (popularCountry) => country.includes(popularCountry.toLowerCase()),
       );
-      
-      if (shouldExclude) {
-        console.log(`🚫 [DEBUG] Excluding featured match: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
-        return false;
-      }
 
-      // Include matches from popular countries and leagues only
-      const countryPriority = getCountryPriority(match.league.country || '');
-      const leaguePriority = getLeaguePriority(match);
-      
-      // Only include matches from top priority countries AND top priority leagues
-      const isTopCountry = countryPriority <= 4; // England, Spain, Italy, Germany, France
-      const isTopLeague = leaguePriority <= 2; // Country-specific popular leagues OR globally popular leagues
-      const isLiveMatch = ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short);
-      
-      // Featured match criteria: (Top country AND top league) OR live matches from popular leagues
-      return (isTopCountry && isTopLeague) || (isLiveMatch && leaguePriority <= 2);
+      // Check if it's an international competition
+      const isInternationalCompetition =
+        leagueName.includes("champions league") ||
+        leagueName.includes("europa league") ||
+        leagueName.includes("conference league") ||
+        leagueName.includes("uefa") ||
+        leagueName.includes("world cup") ||
+        leagueName.includes("fifa club world cup") ||
+        leagueName.includes("fifa") ||
+        leagueName.includes("conmebol") ||
+        leagueName.includes("copa america") ||
+        leagueName.includes("copa libertadores") ||
+        leagueName.includes("copa sudamericana") ||
+        leagueName.includes("libertadores") ||
+        leagueName.includes("sudamericana") ||
+        (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+        (leagueName.includes("international") && !leagueName.includes("women")) ||
+        country.includes("world") ||
+        country.includes("europe") ||
+        country.includes("international");
+
+      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
     });
 
     // Sort by comprehensive priority system
-    const sortedMatches = filteredMatches.sort((a, b) => {
+    const sortedMatches = popularFiltered.sort((a, b) => {
       // 1. Country Priority System (most important)
       const aCountryPriority = getCountryPriority(a.league.country || '');
       const bCountryPriority = getCountryPriority(b.league.country || '');
@@ -197,10 +298,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     });
 
     const limitedMatches = sortedMatches.slice(0, maxMatches || 8);
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches with priority system`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Filtered ${fixtures.length} fixtures to ${limitedMatches.length} featured matches with popular leagues filtering`);
     
     return limitedMatches;
-  }, [fixtures, maxMatches]);
+  }, [fixtures, dateToUse, maxMatches]);
 
   const currentMatch = featuredMatches[currentIndex] || null;
 
@@ -257,6 +358,29 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     ];
     return colors[teamId % colors.length];
   };
+
+  // Show loading state
+  if (isLoading && !fixtures?.length) {
+    return (
+      <Card className="bg-white rounded-lg shadow-md mb-8 overflow-hidden relative">
+        <Badge
+          variant="secondary"
+          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-20 pointer-events-none"
+        >
+          Featured Match
+        </Badge>
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <Trophy className="h-12 w-12 mb-3 opacity-50 animate-pulse" />
+            <p className="text-lg font-medium mb-1">
+              Loading featured matches...
+            </p>
+            <p className="text-sm">Please wait</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!currentMatch || featuredMatches.length === 0) {
     return (
