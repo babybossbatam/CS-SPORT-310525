@@ -1674,12 +1674,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                     <div className="match-status-label status-ended">
                                                       After Penalty
                                                     </div>
-                                                    {hasPenaltyScores && (
-                                                    // Place the penalty result below the home logo
-                                                    <div className="penalty-result">
-                                                    {match.teams.home.name} has won {penaltyHome}-{penaltyAway} after Penalties
-                                                    </div>
-                                                  )}
                                                   </div>
                                                 );
                                               }
@@ -1844,7 +1838,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                                  )}
+                               )}
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
@@ -1861,12 +1855,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     "Unknown Team"}
                                 </div>
                               </div>
-                               {/* Penalty result positioned below home logo */}
-                                {match.fixture.status.short === "PEN" && match.score?.penalty?.home !== null && match.score?.penalty?.away !== null && (
-                                  <div className="penalty-result">
-                                    {match.teams.home.name} has won {match.score.penalty.home}-{match.score.penalty.away} after Penalties
-                                  </div>
-                                )}
                             </div>
                           </LazyMatchItem>
                         ))}
