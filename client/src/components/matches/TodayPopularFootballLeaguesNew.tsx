@@ -1529,8 +1529,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                               {/* Three-grid layout container */}
                               <div className="match-three-grid-container">
-                                {/* Top Grid: Match Status */}
-                                <div className="match-status-top">
+                                {/* Middle Grid: Main match content */}
+                                <div className="match-content-container">
+                                  {/* Match Status inside content container */}
                                   {(() => {
                                     const status = match.fixture.status.short;
 
@@ -1637,10 +1638,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     // Default - no status display for regular upcoming matches
                                     return null;
                                   })()}
-                                </div>
-
-                                {/* Middle Grid: Main match content */}
-                                <div className="match-content-container">
                                   {/* Home Team Name - positioned further left */}
                                   <div
                                     className={`home-team-name ${
