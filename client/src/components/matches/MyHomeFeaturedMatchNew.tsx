@@ -20,7 +20,7 @@ interface MyHomeFeaturedMatchNewProps {
 
 const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   selectedDate,
-  maxMatches = 3,
+  maxMatches = 9,
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -323,29 +323,111 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const dayAfterSorted = sortByPriority(dayAfterElite);
     const twoDaysAfterSorted = sortByPriority(twoDaysAfterElite);
 
-    // Build the 8-slide distribution
-    const slidesDistribution = [
-      // Slides 1-3: Today's matches (live/upcoming/recent finished)
-      ...todaySorted.slice(0, 3),
-      // Slides 4-6: Tomorrow's top 3 upcoming matches
-      ...tomorrowSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 3),
-      // Slides 7-8: Next 2 days' top upcoming matches (1 from each day)
-      ...dayAfterSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 1),
-      ...twoDaysAfterSorted.filter(m => m.fixture.status.short === 'NS').slice(0, 1),
-    ].filter(Boolean); // Remove any undefined entries
+    // Helper function to get matches by priority type
+    const getLiveMatches = (matches: any[]) => matches.filter(m => ['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(m.fixture.status.short));
+    const getUpcomingMatches = (matches: any[]) => matches.filter(m => m.fixture.status.short === 'NS');
+    const getFinishedMatches = (matches: any[]) => matches.filter(m => ['FT', 'AET', 'PEN'].includes(m.fixture.status.short));
 
-    console.log(`🎯 [SLIDE DISTRIBUTION] Today: ${todaySorted.length}, Tomorrow: ${tomorrowSorted.length}, Day+2: ${dayAfterSorted.length}, Day+3: ${twoDaysAfterSorted.length}`);
-    console.log(`🔍 [MyHomeFeaturedMatchNew] Final slide distribution: ${slidesDistribution.length} matches`);
-    console.log(`🏆 [FEATURED RESULTS] Final matches:`, slidesDistribution.map((m, i) => ({
+    // Get categorized matches for today
+    const todayLive = getLiveMatches(todaySorted);
+    const todayUpcoming = getUpcomingMatches(todaySorted);
+    const todayFinished = getFinishedMatches(todaySorted);
+
+    // Get upcoming matches for future days
+    const tomorrowUpcoming = getUpcomingMatches(tomorrowSorted);
+    const dayAfterUpcoming = getUpcomingMatches(dayAfterSorted);
+
+    // Build the 9-slide distribution according to your specification
+    const slidesDistribution = [];
+
+    // Slide 1: Today Live Match / Upcoming Match (priority: live first, then upcoming)
+    if (todayLive.length > 0) {
+      slidesDistribution.push(todayLive[0]);
+    } else if (todayUpcoming.length > 0) {
+      slidesDistribution.push(todayUpcoming[0]);
+    }
+
+    // Slide 2: Today Upcoming Match / Recent Finished match (priority: upcoming first, then finished)
+    if (todayUpcoming.length > 1) {
+      slidesDistribution.push(todayUpcoming[1]);
+    } else if (todayUpcoming.length === 1 && todayLive.length === 0) {
+      // If we didn't use upcoming in slide 1, use the first one here
+      slidesDistribution.push(todayUpcoming[0]);
+    } else if (todayFinished.length > 0) {
+      slidesDistribution.push(todayFinished[0]);
+    }
+
+    // Slide 3: Today Recent match / finish match with score
+    if (todayFinished.length > 1) {
+      slidesDistribution.push(todayFinished[1]);
+    } else if (todayFinished.length === 1 && slidesDistribution.length < 2) {
+      // If we haven't used finished match yet
+      slidesDistribution.push(todayFinished[0]);
+    } else if (todayUpcoming.length > 2) {
+      // Fallback to another upcoming match
+      slidesDistribution.push(todayUpcoming[2]);
+    }
+
+    // Slide 4: Tomorrow Upcoming Match (first match from first league)
+    if (tomorrowUpcoming.length > 0) {
+      slidesDistribution.push(tomorrowUpcoming[0]);
+    }
+
+    // Slide 5: Day after tomorrow Upcoming Match (first match from first league)
+    if (dayAfterUpcoming.length > 0) {
+      slidesDistribution.push(dayAfterUpcoming[0]);
+    }
+
+    // Slide 6: Tomorrow Upcoming Match / Recent Finished match (second match)
+    if (tomorrowUpcoming.length > 1) {
+      slidesDistribution.push(tomorrowUpcoming[1]);
+    } else {
+      // Fallback to finished matches from tomorrow if available
+      const tomorrowFinished = getFinishedMatches(tomorrowSorted);
+      if (tomorrowFinished.length > 0) {
+        slidesDistribution.push(tomorrowFinished[0]);
+      }
+    }
+
+    // Slide 7: Day after tomorrow Upcoming Match (second match)
+    if (dayAfterUpcoming.length > 1) {
+      slidesDistribution.push(dayAfterUpcoming[1]);
+    }
+
+    // Slide 8: Day after tomorrow Upcoming Match (third match)
+    if (dayAfterUpcoming.length > 2) {
+      slidesDistribution.push(dayAfterUpcoming[2]);
+    }
+
+    // Slide 9: Day after tomorrow Upcoming Match (fourth match)
+    if (dayAfterUpcoming.length > 3) {
+      slidesDistribution.push(dayAfterUpcoming[3]);
+    }
+
+    // Remove any undefined entries and ensure we have at least some slides
+    const finalSlides = slidesDistribution.filter(Boolean);
+
+    console.log(`🎯 [SLIDE DISTRIBUTION] Today: ${todaySorted.length} (Live: ${todayLive.length}, Upcoming: ${todayUpcoming.length}, Finished: ${todayFinished.length}), Tomorrow: ${tomorrowSorted.length}, Day+2: ${dayAfterSorted.length}, Day+3: ${twoDaysAfterSorted.length}`);
+    console.log(`🔍 [MyHomeFeaturedMatchNew] Final slide distribution: ${finalSlides.length} matches`);
+    console.log(`🏆 [FEATURED RESULTS] Final matches:`, finalSlides.map((m, i) => ({
       slide: i + 1,
       date: new Date(m.fixture.date).toISOString().slice(0, 10),
       league: m.league.name,
       match: `${m.teams.home.name} vs ${m.teams.away.name}`,
       status: m.fixture.status.short,
-      leagueId: m.league.id
+      leagueId: m.league.id,
+      slideType: i === 0 ? 'Today Live/Upcoming' : 
+                 i === 1 ? 'Today Upcoming/Finished' :
+                 i === 2 ? 'Today Finished/Recent' :
+                 i === 3 ? 'Tomorrow Upcoming #1' :
+                 i === 4 ? 'Day+2 Upcoming #1' :
+                 i === 5 ? 'Tomorrow Upcoming #2' :
+                 i === 6 ? 'Day+2 Upcoming #2' :
+                 i === 7 ? 'Day+2 Upcoming #3' :
+                 i === 8 ? 'Day+2 Upcoming #4' : 'Extra'
     })));
 
-    return slidesDistribution;
+    return finalSlides;
   }, [fixtures, dateToUse, maxMatches]);
 
   const currentMatch = featuredMatches[currentIndex] || null;
