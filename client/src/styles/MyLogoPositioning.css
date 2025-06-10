@@ -741,6 +741,7 @@
   justify-content: center;
   min-width: 80px;
   flex-shrink: 0;
+  position: relative;
 }
 
 .score-display-horizontal {
@@ -820,6 +821,13 @@
   font-size: 0.75rem;
   color: #6b7280;
   font-weight: 500;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.5rem;
+  width: max-content;
+  z-index: 10;
 }
 
 .penalty-winner {
