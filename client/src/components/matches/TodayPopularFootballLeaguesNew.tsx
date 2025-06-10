@@ -26,7 +26,13 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
-import { getCountryFlagWithFallbackSync, clearVenezuelaFlagCache, forceRefreshVenezuelaFlag, clearAllFlagCache, getCountryCode } from "../../lib/flagUtils";
+import {
+  getCountryFlagWithFallbackSync,
+  clearVenezuelaFlagCache,
+  forceRefreshVenezuelaFlag,
+  clearAllFlagCache,
+  getCountryCode,
+} from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -198,7 +204,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const isFuture = selectedDate > today;
 
   // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
-  const cacheMaxAge = isFuture ? 4 * 60 * 60 * 1000 : isToday ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+  const cacheMaxAge = isFuture
+    ? 4 * 60 * 60 * 1000
+    : isToday
+      ? 2 * 60 * 60 * 1000
+      : 30 * 60 * 1000;
 
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
@@ -211,13 +221,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
   } = useCachedQuery(
     fixturesQueryKey,
     async () => {
-      console.log(`🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`);
+      console.log(
+        `🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`,
+      );
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
       );
       const data = await response.json();
-      console.log(`✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`);
+      console.log(
+        `✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`,
+      );
       return data;
     },
     {
@@ -944,7 +958,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
-      const newStarred =new Set(prev);
+      const newStarred = new Set(prev);
       if (newStarred.has(matchId)) {
         newStarred.delete(matchId);
       } else {
@@ -962,28 +976,33 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
-    console.log('🔄 Clearing Venezuela flag cache for fresh fetch...');
+    console.log("🔄 Clearing Venezuela flag cache for fresh fetch...");
     clearVenezuelaFlagCache();
 
     // Also force refresh Venezuela flag asynchronously
-    forceRefreshVenezuelaFlag().then(newFlag => {
-      console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
-    }).catch(error => {
-      console.error(`❌ Failed to refresh Venezuela flag:`, error);
-    });
+    forceRefreshVenezuelaFlag()
+      .then((newFlag) => {
+        console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
+      })
+      .catch((error) => {
+        console.error(`❌ Failed to refresh Venezuela flag:`, error);
+      });
 
     // Clear all fallback flags as well to ensure clean state
     clearAllFlagCache();
-    console.log('🧹 Cleared all flag cache including fallback flags');
+    console.log("🧹 Cleared all flag cache including fallback flags");
   }, []);
 
   // Simple date comparison handled by SimpleDateFilter
 
   // Show loading only if we're actually loading and don't have any cached data
-  const showLoading = (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
+  const showLoading =
+    (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
 
   if (showLoading) {
-    console.log(`⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`);
+    console.log(
+      `⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`,
+    );
 
     return (
       <Card>
@@ -997,10 +1016,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         <CardContent className="p-0">
           <div className="space-y-0">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="border-b border-gray-100 last:border-b-0"
-              >
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Skeleton className="w-6 h-4 rounded-sm" />
@@ -1064,8 +1080,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       description: `Team has been removed from your favorites.`,
     });
   };
-
-
 
   return (
     <>
@@ -1146,7 +1160,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   );
 
                   // Priority 1: UEFA Nations League (HIGHEST PRIORITY - must come before all others)
-                  if (name.includes("uefa nations league") && !name.includes("women")) {
+                  if (
+                    name.includes("uefa nations league") &&
+                    !name.includes("women")
+                  ) {
                     console.log(
                       `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}" - TOP PRIORITY`,
                     );
@@ -1178,7 +1195,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   }
 
                   // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
-                  if (isFriendlies && !name.includes("uefa nations league") && !name.includes("women")) {
+                  if (
+                    isFriendlies &&
+                    !name.includes("uefa nations league") &&
+                    !name.includes("women")
+                  ) {
                     console.log(
                       `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
                     );
@@ -1264,7 +1285,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
-                    <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                    <CardContent className="flex items-center gap-2 p-2 py-4 bg-white border-b border-gray-200">
                       {/* League Star Toggle Button */}
                       <button
                         onClick={(e) => {
@@ -1272,79 +1293,115 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           toggleStarMatch(leagueData.league.id);
                         }}
                         className="transition-colors"
-                        title={`${starredMatches.has(leagueData.league.id) ? 'Remove from' : 'Add to'} favorites`}
+                        title={`${starredMatches.has(leagueData.league.id) ? "Remove from" : "Add to"} favorites`}
                       >
                         <Star
                           className={`h-5 w-5 transition-all ${
                             starredMatches.has(leagueData.league.id)
-                              ? 'text-blue-500 fill-blue-500'
-                              : 'text-blue-300'
+                              ? "text-blue-500 fill-blue-500"
+                              : "text-blue-300"
                           }`}
                         />
                       </button>
 
                       <img
                         src={
-                          leagueData.league.logo ||
-                          "/assets/fallback-logo.svg"
+                          leagueData.league.logo || "/assets/fallback-logo.svg"
                         }
                         alt={leagueData.league.name || "Unknown League"}
                         className="w-6 h-6 object-contain rounded-full"
                         style={{ backgroundColor: "transparent" }}
                         onError={(e) => {
-                          console.log(`🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`);
+                          console.log(
+                            `🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`,
+                          );
                           (e.target as HTMLImageElement).src =
                             "/assets/fallback-logo.svg";
                         }}
                         onLoad={() => {
                           // Debug Venezuela specifically
-                          if (leagueData.league.country === 'Venezuela') {
+                          if (leagueData.league.country === "Venezuela") {
                             console.log(`🇻🇪 Venezuela league detected:`, {
                               country: leagueData.league.country,
                               leagueName: leagueData.league.name,
                               logo: leagueData.league.logo,
                               flag: countryData.flag,
-                              expectedVenezuelaFlag: 'https://flagcdn.com/w40/ve.png',
-                              flagFromSync: getCountryFlagWithFallbackSync('Venezuela'),
+                              expectedVenezuelaFlag:
+                                "https://flagcdn.com/w40/ve.png",
+                              flagFromSync:
+                                getCountryFlagWithFallbackSync("Venezuela"),
                               flagCacheKey: `flag_venezuela`,
-                              countryCodeMapping: 'VE' // Should be VE for Venezuela
+                              countryCodeMapping: "VE", // Should be VE for Venezuela
                             });
 
                             // Check if Venezuela flag is wrong (Colombia flag)
-                            if (countryData.flag && (countryData.flag.includes('/co.png') || countryData.flag.includes('/co.'))) {
-                              console.log(`🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`);
-                              console.log(`🔧 Attempting to clear and refresh Venezuela flag...`);
+                            if (
+                              countryData.flag &&
+                              (countryData.flag.includes("/co.png") ||
+                                countryData.flag.includes("/co."))
+                            ) {
+                              console.log(
+                                `🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`,
+                              );
+                              console.log(
+                                `🔧 Attempting to clear and refresh Venezuela flag...`,
+                              );
 
                               // Clear the corrupted cache and force refresh
                               clearVenezuelaFlagCache();
 
                               // Force refresh the flag asynchronously
-                              forceRefreshVenezuelaFlag().then(newFlag => {
-                                console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
-                                // Trigger a re-render if needed
-                                window.location.reload();
-                              }).catch(error => {
-                                console.error(`❌ Failed to refresh Venezuela flag:`, error);
-                              });
+                              forceRefreshVenezuelaFlag()
+                                .then((newFlag) => {
+                                  console.log(
+                                    `✅ Venezuela flag refreshed to: ${newFlag}`,
+                                  );
+                                  // Trigger a re-render if needed
+                                  window.location.reload();
+                                })
+                                .catch((error) => {
+                                  console.error(
+                                    `❌ Failed to refresh Venezuela flag:`,
+                                    error,
+                                  );
+                                });
                             }
 
                             // Force correct Venezuela flag if wrong
-                            if (!countryData.flag.includes('/ve.png') && !countryData.flag.includes('/ve.')) {
-                              console.log(`🔧 Forcing correct Venezuela flag...`);
-                              const correctFlag = 'https://flagcdn.com/w40/ve.png';
-                              console.log(`🇻🇪 Setting Venezuela flag to: ${correctFlag}`);
+                            if (
+                              !countryData.flag.includes("/ve.png") &&
+                              !countryData.flag.includes("/ve.")
+                            ) {
+                              console.log(
+                                `🔧 Forcing correct Venezuela flag...`,
+                              );
+                              const correctFlag =
+                                "https://flagcdn.com/w40/ve.png";
+                              console.log(
+                                `🇻🇪 Setting Venezuela flag to: ${correctFlag}`,
+                              );
                               // Force update the flag in the data
                               countryData.flag = correctFlag;
                             }
 
                             // Check if Venezuela flag is cached incorrectly
-                            const debugCountryFlagMapping = (country: string) => {
-                              console.log(`🔍 Venezuela Debug - Flag mapping for: "${country}"`);
-                              console.log(`🔍 Venezuela Debug - Country code: VE`);
-                              console.log(`🔍 Venezuela Debug - Expected URL: https://flagcdn.com/w40/ve.png`);
-                              console.log(`🔍 Venezuela Debug - Current flag from countryData: ${countryData.flag}`);
+                            const debugCountryFlagMapping = (
+                              country: string,
+                            ) => {
+                              console.log(
+                                `🔍 Venezuela Debug - Flag mapping for: "${country}"`,
+                              );
+                              console.log(
+                                `🔍 Venezuela Debug - Country code: VE`,
+                              );
+                              console.log(
+                                `🔍 Venezuela Debug - Expected URL: https://flagcdn.com/w40/ve.png`,
+                              );
+                              console.log(
+                                `🔍 Venezuela Debug - Current flag from countryData: ${countryData.flag}`,
+                              );
                             };
-                            debugCountryFlagMapping('Venezuela');
+                            debugCountryFlagMapping("Venezuela");
                           }
                         }}
                       />
@@ -1430,8 +1487,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                             "INT",
                           ].includes(bStatus);
 
-                          const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-                          const bUpcoming = bStatus === "NS" || bStatus === "TBD";
+                          const aUpcoming =
+                            aStatus === "NS" || aStatus === "TBD";
+                          const bUpcoming =
+                            bStatus === "NS" || bStatus === "TBD";
 
                           const aFinished = [
                             "FT",
@@ -1460,8 +1519,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                           // If both are LIVE, sort by elapsed time (shortest first)
                           if (aLive && bLive) {
-                            const aElapsed = Number(a.fixture.status.elapsed) || 0;
-                            const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                            const aElapsed =
+                              Number(a.fixture.status.elapsed) || 0;
+                            const bElapsed =
+                              Number(b.fixture.status.elapsed) || 0;
                             return aElapsed - bElapsed;
                           }
 
@@ -1665,8 +1726,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         <LazyImage
                                           src={(() => {
                                             // Use Circle Flags as primary source for national teams
-                                            const teamName = match.teams.home.name;
-                                            const countryCode = getCountryCode(teamName);
+                                            const teamName =
+                                              match.teams.home.name;
+                                            const countryCode =
+                                              getCountryCode(teamName);
 
                                             if (countryCode) {
                                               return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
@@ -1680,8 +1743,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           alt={match.teams.home.name}
                                           title={match.teams.home.name}
                                           className="team-logo national-team"
-                                          style={{ 
-                                            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                          style={{
+                                            filter:
+                                              "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                           }}
                                           fallbackSrc={
                                             match.teams.home.id
@@ -1701,8 +1765,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className="team-logo"
-                                        style={{ 
-                                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                         }}
                                         fallbackSrc="/assets/fallback-logo.svg"
                                       />
@@ -1786,7 +1851,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         } else {
                                           // Match is finished but no valid score data
                                           return (
-                                            <div className="match-time-display" style={{ fontSize: '0.882em' }}>
+                                            <div
+                                              className="match-time-display"
+                                              style={{ fontSize: "0.882em" }}
+                                            >
                                               {format(fixtureDate, "HH:mm")}
                                             </div>
                                           );
@@ -1805,7 +1873,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         ].includes(status)
                                       ) {
                                         return (
-                                          <div className="match-time-display" style={{ fontSize: '0.882em' }}>
+                                          <div
+                                            className="match-time-display"
+                                            style={{ fontSize: "0.882em" }}
+                                          >
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
                                         );
@@ -1813,7 +1884,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                       // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                       return (
-                                        <div className="match-time-display" style={{ fontSize: '0.882em' }}>
+                                        <div
+                                          className="match-time-display"
+                                          style={{ fontSize: "0.882em" }}
+                                        >
                                           {status === "TBD"
                                             ? "TBD"
                                             : format(fixtureDate, "HH:mm")}
@@ -1832,8 +1906,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         <LazyImage
                                           src={(() => {
                                             // Use Circle Flags as primary source for national teams
-                                            const teamName = match.teams.away.name;
-                                            const countryCode = getCountryCode(teamName);
+                                            const teamName =
+                                              match.teams.away.name;
+                                            const countryCode =
+                                              getCountryCode(teamName);
 
                                             if (countryCode) {
                                               return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
@@ -1847,8 +1923,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           alt={match.teams.away.name}
                                           title={match.teams.away.name}
                                           className="team-logo national-team"
-                                          style={{ 
-                                            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                          style={{
+                                            filter:
+                                              "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                           }}
                                           fallbackSrc={
                                             match.teams.away.id
@@ -1868,12 +1945,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
                                         className="team-logo"
-                                        style={{ 
-                                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                         }}
                                         fallbackSrc="/assets/fallback-logo.svg"
                                       />
-                                   )}
+                                    )}
                                   </div>
 
                                   {/* Away Team Name - positioned further right */}
@@ -1896,15 +1974,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   {(() => {
                                     const status = match.fixture.status.short;
                                     const isPenaltyMatch = status === "PEN";
-                                    const penaltyHome = match.score?.penalty?.home;
-                                    const penaltyAway = match.score?.penalty?.away;
-                                    const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                           penaltyAway !== null && penaltyAway !== undefined;
+                                    const penaltyHome =
+                                      match.score?.penalty?.home;
+                                    const penaltyAway =
+                                      match.score?.penalty?.away;
+                                    const hasPenaltyScores =
+                                      penaltyHome !== null &&
+                                      penaltyHome !== undefined &&
+                                      penaltyAway !== null &&
+                                      penaltyAway !== undefined;
 
                                     if (isPenaltyMatch && hasPenaltyScores) {
-                                      const winnerText = penaltyHome > penaltyAway 
-                                        ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                                        : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+                                      const winnerText =
+                                        penaltyHome > penaltyAway
+                                          ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                          : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                                       return (
                                         <div className="penalty-result-display">
