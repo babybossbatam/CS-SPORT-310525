@@ -1860,7 +1860,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                   </div>
                                                   <div className="match-status-label status-ended">
                                                     {status === "FT"
-                                                      ? "Ended"
+                                                      ? ""
                                                       : status === "AET"
                                                         ? "Ended (AET)"
                                                         : status === "PEN"
