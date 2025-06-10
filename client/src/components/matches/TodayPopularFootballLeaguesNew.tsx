@@ -1912,7 +1912,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : format(fixtureDate, "HH:mm")}
                                         </div>
                                         {status === "TBD" && (
-
+                                          <div className="match-status-label status-upcoming">
+                                            Time TBD
+                                          </div>
                                         )}
                                       </div>
                                     );
