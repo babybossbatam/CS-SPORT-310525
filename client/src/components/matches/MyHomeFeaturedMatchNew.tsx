@@ -828,7 +828,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   return (
                       <div className="text-black text-center" style={{ fontSize: '1.125rem' }}>
-                        <div className="uppercase tracking-wide mb-1">Kicks off in</div>
                         <div className="font-sans font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {String(timeLeft.hours).padStart(2, '0')}:
                           {String(timeLeft.minutes).padStart(2, '0')}:
