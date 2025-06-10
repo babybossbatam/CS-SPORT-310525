@@ -352,14 +352,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return false;
     };
 
-    // Slide 1: Today Live Match / Today Finished Match / Upcoming Match 
-    // Priority: live first, then finished, then upcoming
+    // Slide 1: ONLY Live or Recently Finished Matches
+    // Priority: live first, then finished (NO upcoming matches in slide 1)
     if (todayLive.length > 0) {
       addUniqueMatch(todayLive[0]);
     } else if (todayFinished.length > 0) {
       addUniqueMatch(todayFinished[0]);
-    } else if (todayUpcoming.length > 0) {
-      addUniqueMatch(todayUpcoming[0]);
     }
 
     // Slide 2: Today Finished Match / Today Upcoming Match / Tomorrow Upcoming
@@ -442,10 +440,31 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
-    // Slide 9: Day after tomorrow Upcoming Match (fourth unique match)
+    // Slide 9: Day after tomorrow Upcoming Match / Any remaining matches
     for (let i = 0; i < dayAfterUpcoming.length; i++) {
       if (addUniqueMatch(dayAfterUpcoming[i])) {
         break;
+      }
+    }
+
+    // Ensure we have exactly 9 slides by filling with additional matches if needed
+    const allRemainingMatches = [...todayUpcoming, ...tomorrowUpcoming, ...dayAfterUpcoming, ...todayFinished];
+    while (slidesDistribution.length < 9 && allRemainingMatches.length > 0) {
+      for (let i = 0; i < allRemainingMatches.length && slidesDistribution.length < 9; i++) {
+        if (addUniqueMatch(allRemainingMatches[i])) {
+          break;
+        }
+      }
+      // Break if no more unique matches can be added
+      if (slidesDistribution.length < 9) {
+        const currentLength = slidesDistribution.length;
+        for (let i = 0; i < allRemainingMatches.length && slidesDistribution.length < 9; i++) {
+          addUniqueMatch(allRemainingMatches[i]);
+        }
+        // If no new matches were added, break to avoid infinite loop
+        if (slidesDistribution.length === currentLength) {
+          break;
+        }
       }
     }
 
@@ -461,9 +480,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       match: `${m.teams.home.name} vs ${m.teams.away.name}`,
       status: m.fixture.status.short,
       leagueId: m.league.id,
-      slideType: i === 0 ? 'Today Live/Upcoming' : 
-                 i === 1 ? 'Today Upcoming/Finished' :
-                 i === 2 ? 'Today Finished/Recent' :
+      slideType: i === 0 ? 'Live/Finished ONLY' : 
+                 i === 1 ? 'Today Finished/Upcoming' :
+                 i === 2 ? 'Today Finished/Upcoming #2' :
                  i === 3 ? 'Tomorrow Upcoming #1' :
                  i === 4 ? 'Day+2 Upcoming #1' :
                  i === 5 ? 'Tomorrow Upcoming #2' :
