@@ -1285,7 +1285,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
-                    <CardContent className="flex items-center gap-2 p-2 py-6 mt-4 bg-white border-b border-gray-200">
+                    <CardContent className="flex items-center gap-2 p-3 py-3 mt-4 bg-white border-b border-gray-200">
                       {/* League Star Toggle Button */}
                       <button
                         onClick={(e) => {
@@ -1405,7 +1405,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           }
                         }}
                       />
-                      <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-1 gap-1">
                         <span
                           className="font-semibold text-gray-800"
                           style={{
