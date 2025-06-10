@@ -1679,9 +1679,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           })()}
                                           alt={match.teams.home.name}
                                           title={match.teams.home.name}
-                                          className="w-full h-full object-cover"
+                                          className="team-logo national-team"
                                           style={{ 
-                                            borderRadius: "50%",
                                             filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                           }}
                                           fallbackSrc={
@@ -1847,9 +1846,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           })()}
                                           alt={match.teams.away.name}
                                           title={match.teams.away.name}
-                                          className="w-full h-full object-cover"
+                                          className="team-logo national-team"
                                           style={{ 
-                                            borderRadius: "50%",
                                             filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
                                           }}
                                           fallbackSrc={
