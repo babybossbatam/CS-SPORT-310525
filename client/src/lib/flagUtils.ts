@@ -61,6 +61,8 @@ const countryCodeMap: { [key: string]: string } = {
   'Bosnia and Herzegovina': 'BA',
   'Bosnia': 'BA',
   'North Macedonia': 'MK',
+  'Macedonia': 'MK',
+  'FYR Macedonia': 'MK',
   'Montenegro': 'ME',
   'Albania': 'AL',
   'Kosovo': 'XK',

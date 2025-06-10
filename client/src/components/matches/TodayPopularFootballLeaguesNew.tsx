@@ -1617,7 +1617,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                   : status === "WO"
                                                     ? "Walkover"
                                                     : status;
-                                      
+
                                       return (
                                         <div className="match-status-label status-postponed">
                                           {statusText}
@@ -1667,16 +1667,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             // Use Circle Flags as primary source for national teams
                                             const teamName = match.teams.home.name;
                                             const countryCode = getCountryCode(teamName);
-                                            
-                                            // Special handling for North Macedonia
-                                            if (teamName.toLowerCase().includes('macedonia') || teamName.toLowerCase().includes('north macedonia')) {
-                                              return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiNEQzI2MjYiLz4KPHBhdGggZD0iTTMyIDhMMzggMjJIMzJMMjYgMjJMMzIgOFoiIGZpbGw9IiNGQkJGMjQiLz4KPHBhdGggZD0iTTMyIDU2TDI2IDQySDMySDM4TDMyIDU2WiIgZmlsbD0iI0ZCQkYyNCIvPgo8cGF0aCBkPSJNOCAzMkwyMiAyNlYzMlY0Nkw4IDQwVjMyWiIgZmlsbD0iI0ZCQkYyNCIvPgo8cGF0aCBkPSJNNTYgMzJMNDIgMzhWMzJWMjZMNTYgMjRWMzJaIiBmaWxsPSIjRkJCRjI0Ii8+CjxwYXRoIGQ9Ik0xNS4yNTc2IDE1LjI1NzZMMjIuNjI3NCAyOS4zMjI2TDI5LjMyMjYgMjIuNjI3NEwyMi42Mjc0IDI5LjMyMjZMMTUuMjU3NiAxNS4yNTc2WiIgZmlsbD0iI0ZCQkYyNCIvPgo8cGF0aCBkPSJNNDguNzQyNCA0OC43NDI0TDQxLjM3MjYgMzQuNjc3NEwzNC42Nzc0IDQxLjM3MjZMNDEuMzcyNiAzNC42Nzc0TDQ4Ljc0MjQgNDguNzQyNFoiIGZpbGw9IiNGQkJGMjQiLz4KPHBhdGggZD0iTTE1LjI1NzYgNDguNzQyNEwyMi42Mjc0IDM0LjY3NzRMMjkuMzIyNiA0MS4zNzI2TDIyLjYyNzQgMzQuNjc3NEwxNS4yNTc2IDQ4Ljc0MjRaIiBmaWxsPSIjRkJCRjI0Ii8+CjxwYXRoIGQ9Ik00OC43NDI0IDE1LjI1NzZMNDEuMzcyNiAyOS4zMjI2TDM0LjY3NzQgMjIuNjI3NEw0MS4zNzI2IDI5LjMyMjZMNDguNzQyNCAxNS4yNTc2WiIgZmlsbD0iI0ZCQkYyNCIvPgo8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSI4IiBmaWxsPSIjRkJCRjI0Ii8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjQiIGZpbGw9IiNEQzI2MjYiLz4KPC9zdmc+Cg==';
-                                            }
-                                            
+
                                             if (countryCode) {
                                               return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                             }
-                                            
+
                                             // Fallback to original API if no country code mapping
                                             return match.teams.home.id
                                               ? `/api/team-logo/square/${match.teams.home.id}?size=32`
@@ -1839,16 +1834,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             // Use Circle Flags as primary source for national teams
                                             const teamName = match.teams.away.name;
                                             const countryCode = getCountryCode(teamName);
-                                            
-                                            // Special handling for North Macedonia
-                                            if (teamName.toLowerCase().includes('macedonia') || teamName.toLowerCase().includes('north macedonia')) {
-                                              return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiNEQzI2MjYiLz4KPHBhdGggZD0iTTMyIDhMMzggMjJIMzJMMjYgMjJMMzIgOFoiIGZpbGw9IiNGQkJGMjQiLz4KPHBhdGggZD0iTTMyIDU2TDI2IDQySDMySDM4TDMyIDU2WiIgZmlsbD0iI0ZCQkYyNCIvPgo8cGF0aCBkPSJNOCAzMkwyMiAyNlYzMlY0Nkw4IDQwVjMyWiIgZmlsbD0iI0ZCQkYyNCIvPgo8cGF0aCBkPSJNNTYgMzJMNDIgMzhWMzJWMjZMNTYgMjRWMzJaIiBmaWxsPSIjRkJCRjI0Ii8+CjxwYXRoIGQ9Ik0xNS4yNTc2IDE1LjI1NzZMMjIuNjI3NCAyOS4zMjI2TDI5LjMyMjYgMjIuNjI3NEwyMi42Mjc0IDI5LjMyMjZMMTUuMjU3NiAxNS4yNTc2WiIgZmlsbD0iI0ZCQkYyNCIvPgo8cGF0aCBkPSJNNDguNzQyNCA0OC43NDI0TDQxLjM3MjYgMzQuNjc3NEwzNC42Nzc0IDQxLjM3MjZMNDEuMzcyNiAzNC42Nzc0TDQ4Ljc0MjQgNDguNzQyNFoiIGZpbGw9IiNGQkJGMjQiLz4KPHBhdGggZD0iTTE1LjI1NzYgNDguNzQyNEwyMi42Mjc0IDM0LjY3NzRMMjkuMzIyNiA0MS4zNzI2TDIyLjYyNzQgMzQuNjc3NEwxNS4yNTc2IDQ4Ljc0MjRaIiBmaWxsPSIjRkJCRjI0Ii8+CjxwYXRoIGQ9Ik00OC43NDI0IDE1LjI1NzZMNDEuMzcyNiAyOS4zMjI2TDM0LjY3NzQgMjIuNjI3NEw0MS4zNzI2IDI5LjMyMjZMNDguNzQyNCAxNS4yNTc2WiIgZmlsbD0iI0ZCQkYyNCIvPgo8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSI4IiBmaWxsPSIjRkJCRjI0Ii8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjQiIGZpbGw9IiNEQzI2MjYiLz4KPC9zdmc+Cg==';
-                                            }
-                                            
+
                                             if (countryCode) {
                                               return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                             }
-                                            
+
                                             // Fallback to original API if no country code mapping
                                             return match.teams.away.id
                                               ? `/api/team-logo/square/${match.teams.away.id}?size=32`
