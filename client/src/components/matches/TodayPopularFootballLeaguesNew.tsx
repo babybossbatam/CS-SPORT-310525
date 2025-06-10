@@ -1731,7 +1731,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         ].includes(status)
                                       ) {
                                         return (
-                                          <div className="match-score-display">
+                                          <>
                                             <span className="score-number">
                                               {match.goals.home ?? 0}
                                             </span>
@@ -1741,7 +1741,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             <span className="score-number">
                                               {match.goals.away ?? 0}
                                             </span>
-                                          </div>
+                                          </>
                                         );
                                       }
 
