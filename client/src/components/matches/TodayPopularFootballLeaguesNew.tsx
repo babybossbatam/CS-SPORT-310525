@@ -1595,6 +1595,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     {(() => {
                                       const status = match.fixture.status.short;
                                       const fixtureDate = parseISO(match.fixture.date);
+                                      const isPenaltyMatch = status === "PEN";
+                                      const penaltyHome = match.score?.penalty?.home;
+                                      const penaltyAway = match.score?.penalty?.away;
+                                      const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                             penaltyAway !== null && penaltyAway !== undefined;
 
                                       // Live matches
                                       if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
@@ -1621,6 +1626,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         if (hasValidScores) {
                                           return (
                                             <div className="score-display-horizontal">
+                                              {/* Show penalty result at top for penalty matches */}
+                                              {isPenaltyMatch && hasPenaltyScores && (
+                                                <div className="penalty-result-top">
+                                                  {(() => {
+                                                    const winnerName = penaltyHome > penaltyAway 
+                                                      ? shortenTeamName(match.teams.home.name)
+                                                      : shortenTeamName(match.teams.away.name);
+                                                    const penaltyScore = penaltyHome > penaltyAway 
+                                                      ? `${penaltyHome}-${penaltyAway}`
+                                                      : `${penaltyAway}-${penaltyHome}`;
+                                                    return `${winnerName} won ${penaltyScore} on penalties`;
+                                                  })()}
+                                                </div>
+                                              )}
                                               <span className="score-text">
                                                 {homeScore} - {awayScore}
                                               </span>
