@@ -936,13 +936,22 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 let hoursUntilKickoff = 0;
 
                 if (matchDateString === todayDateString) {
-                  // It's today - check if within 12 hours
-                  const msUntilKickoff = matchDate.getTime() - now.getTime();
-                  hoursUntilKickoff = msUntilKickoff / (1000 * 60 * 60);
+                  // It's today - but only show countdown if we've passed 00:00:01 of today
+                  const todayStart = new Date(todayDateString + 'T00:00:01Z'); // 00:00:01 of today
+                  const hasPassedMidnight = now.getTime() >= todayStart.getTime();
                   
-                  if (hoursUntilKickoff > 0 && hoursUntilKickoff <= 12) {
-                    showCountdown = true;
+                  if (hasPassedMidnight) {
+                    // Today has officially started (past 00:00:01), check if within 12 hours
+                    const msUntilKickoff = matchDate.getTime() - now.getTime();
+                    hoursUntilKickoff = msUntilKickoff / (1000 * 60 * 60);
+                    
+                    if (hoursUntilKickoff > 0 && hoursUntilKickoff <= 12) {
+                      showCountdown = true;
+                    } else {
+                      daysText = 'Today';
+                    }
                   } else {
+                    // Haven't passed midnight yet, still treat as "Tomorrow"
                     daysText = 'Today';
                   }
                 } else if (matchDateString === tomorrowDateString) {
