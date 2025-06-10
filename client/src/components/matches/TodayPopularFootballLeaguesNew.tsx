@@ -1348,7 +1348,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           }
                         }}
                       />
-                      <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-1 gap-1">
                         <span
                           className="font-semibold text-gray-800"
                           style={{
