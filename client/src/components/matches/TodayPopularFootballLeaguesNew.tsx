@@ -1407,7 +1407,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       />
                       <div className="flex flex-col flex-1">
                         <span
-                          className="font-semibold text-gray-800 mb-1"
+                          className="font-semibold text-gray-800"
                           style={{
                             fontFamily:
                               "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
