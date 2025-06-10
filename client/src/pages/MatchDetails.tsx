@@ -494,12 +494,6 @@ const MatchDetails = () => {
               {isLiveMatch(currentFixture.fixture.status.short) && (
                 <Badge variant="default" className="bg-[#48BB78]">LIVE</Badge>
               )}
-              <span className="ml-2">
-                {getMatchStatusText(
-                  currentFixture.fixture.status.short, 
-                  currentFixture.fixture.status.elapsed
-                )}
-              </span>
             </div>
             <Button 
               variant="ghost" 
