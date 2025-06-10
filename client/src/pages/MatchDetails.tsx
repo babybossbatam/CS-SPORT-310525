@@ -35,7 +35,7 @@ const MatchDetails = () => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture, loading, error } = useSelector((state: RootState) => state.fixtures);
 
-  const [activeTab, setActiveTab] = useState(tab);
+  const [activeTab, setActiveTab] = useState(tab || 'details');
 
   // Sample match events data for the interactive timeline
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
@@ -526,36 +526,53 @@ const MatchDetails = () => {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-6 mb-4">
-                <TabsTrigger value="summary" className="flex items-center">
-                  <BarChart2 className="h-4 w-4 mr-2" />
-                  <span>Summary</span>
+              <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-6">
+                <TabsTrigger 
+                  value="details" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  Details
                 </TabsTrigger>
-                <TabsTrigger value="stats" className="flex items-center">
-                  <ListOrdered className="h-4 w-4 mr-2" />
-                  <span>Stats</span>
+                <TabsTrigger 
+                  value="matches" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  Matches
                 </TabsTrigger>
-                <TabsTrigger value="h2h" className="flex items-center">
-                  <Timer className="h-4 w-4 mr-2" />
-                  <span>H2H</span>
+                <TabsTrigger 
+                  value="standings" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  Standings
                 </TabsTrigger>
-                <TabsTrigger value="lineups" className="flex items-center">
-                  <Trophy className="h-4 w-4 mr-2" />
-                  <span>Lineups</span>
+                <TabsTrigger 
+                  value="news" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  News
                 </TabsTrigger>
-                <TabsTrigger value="history" className="flex items-center">
-                  <Info className="h-4 w-4 mr-2" />
-                  <span>History</span>
+                <TabsTrigger 
+                  value="highlights" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  Highlights
                 </TabsTrigger>
-                <TabsTrigger value="engagement" className="flex items-center">
-                  <Clock className="h-4 w-4 mr-2" />
-                  <span>Fan Engagement</span>
+                <TabsTrigger 
+                  value="stats" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  Stats
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="insights" 
+                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+                >
+                  Insights
                 </TabsTrigger>
               </TabsList>
 
-              {/* Summary Tab */}
-              <TabsContent value="summary" className="mt-2">
-                {/* Your existing summary content */}
+              {/* Details Tab */}
+              <TabsContent value="details" className="mt-2">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                   {/* Match Info Card */}
                   <Card>
@@ -582,53 +599,61 @@ const MatchDetails = () => {
                       </div>
                     </CardContent>
                   </Card>
-
-                  {/* Add other summary content as needed */}
                 </div>
+              </TabsContent>
+
+              {/* Matches Tab */}
+              <TabsContent value="matches" className="mt-2">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="text-lg font-semibold mb-4">Related Matches</h3>
+                    <p className="text-gray-500">Recent and upcoming matches for these teams</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Standings Tab */}
+              <TabsContent value="standings" className="mt-2">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="text-lg font-semibold mb-4">League Standings</h3>
+                    <p className="text-gray-500">Current league table and positions</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* News Tab */}
+              <TabsContent value="news" className="mt-2">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="text-lg font-semibold mb-4">Match News</h3>
+                    <p className="text-gray-500">Latest news and updates about this match</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Highlights Tab */}
+              <TabsContent value="highlights" className="mt-2">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="text-lg font-semibold mb-4">Match Highlights</h3>
+                    <p className="text-gray-500">Key moments and highlights from the match</p>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               {/* Stats Tab */}
               <TabsContent value="stats" className="mt-2">
-                {/* Your existing stats content */}
                 <Card>
                   <CardContent className="p-4">
-                    <h3>Statistics content here</h3>
+                    <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
+                    <p className="text-gray-500">Detailed statistics and performance data</p>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              {/* H2H Tab */}
-              <TabsContent value="h2h" className="mt-2">
-                {/* Your existing h2h content */}
-                <Card>
-                  <CardContent className="p-4">
-                    <h3>Head to head content here</h3>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Lineups Tab */}
-              <TabsContent value="lineups" className="mt-2">
-                {/* Your existing lineups content */}
-                <Card>
-                  <CardContent className="p-4">
-                    <h3>Lineups content here</h3>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* History Tab */}
-              <TabsContent value="history" className="mt-2">
-                {/* Your existing history content */}
-                <Card>
-                  <CardContent className="p-4">
-                    <h3>History content here</h3>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Fan Engagement Tab */}
-              <TabsContent value="engagement" className="mt-2">
+              {/* Insights Tab */}
+              <TabsContent value="insights" className="mt-2">
                 <Card>
                   <CardContent className="p-4">
                     <MatchEngagementSection matchId={parseInt(id || '0')} />
