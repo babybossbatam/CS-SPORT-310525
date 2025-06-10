@@ -843,21 +843,23 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               } else {
                 // Calculate days until match with proper date comparison
                 const matchDate = new Date(currentMatch?.fixture?.date || '');
-                const today = new Date();
+                const now = new Date();
 
-                // Reset time to start of day for accurate date comparison
-                const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
-                const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                const tomorrowOnly = new Date(todayOnly);
-                tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
+                // Get the current date in the same format as the match date
+                const today = new Date();
+                const todayDateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+                const matchDateString = matchDate.toISOString().slice(0, 10); // YYYY-MM-DD
+                
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowDateString = tomorrow.toISOString().slice(0, 10);
 
                 let daysText;
                 let showCountdown = false;
                 let hoursUntilKickoff = 0;
 
-                if (matchDateOnly.getTime() === todayOnly.getTime()) {
+                if (matchDateString === todayDateString) {
                   // It's today - check if within 12 hours
-                  const now = new Date();
                   const msUntilKickoff = matchDate.getTime() - now.getTime();
                   hoursUntilKickoff = msUntilKickoff / (1000 * 60 * 60);
                   
@@ -866,13 +868,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   } else {
                     daysText = 'Today';
                   }
-                } else if (matchDateOnly.getTime() === tomorrowOnly.getTime()) {
+                } else if (matchDateString === tomorrowDateString) {
                   daysText = 'Tomorrow';
                 } else {
                   // For other dates, calculate the difference in days
+                  const matchDateOnly = new Date(matchDateString);
+                  const todayOnly = new Date(todayDateString);
                   const timeDiff = matchDateOnly.getTime() - todayOnly.getTime();
                   const daysUntilMatch = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                  daysText = `${Math.abs(daysUntilMatch)} Days`;
+                  
+                  if (daysUntilMatch > 0) {
+                    daysText = `${daysUntilMatch} Days`;
+                  } else {
+                    daysText = `${Math.abs(daysUntilMatch)} Days Ago`;
+                  }
                 }
 
                 if (showCountdown) {
