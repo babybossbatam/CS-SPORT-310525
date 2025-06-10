@@ -39,14 +39,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const twoDaysAfterStr = twoDaysAfter.toISOString().slice(0, 10);
 
   const dateToUse = selectedDate || today;
-  const cacheMaxAge = 2 * 60 * 60 * 1000; // 2 hours cache for featured matches
+  const cacheMaxAge = 1 * 60 * 1000; // 1 minute cache to force refresh for new logic
 
   // Fetch fixtures for multiple days to build the 9-slide distribution
   const {
     data: fixtures = [],
     isLoading,
   } = useCachedQuery(
-    ["featured-matches-multi-day-v2", today, tomorrowStr, dayAfterStr, twoDaysAfterStr],
+    ["featured-matches-multi-day-v3", today, tomorrowStr, dayAfterStr, twoDaysAfterStr],
     async () => {
       console.log(`🔄 [MyHomeFeaturedMatchNew] Fetching multi-day data for slides distribution`);
 
