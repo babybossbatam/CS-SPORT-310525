@@ -1620,7 +1620,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             fontSize: "11px"
                                           }}
                                         >
-                                          <div className="text-xs text-gray-500 mb-2 font-medium">Ended</div>
                                           <div className="text-xs text-gray-500 mb-2 font-medium">After Penalties</div>
                                           <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
@@ -1685,9 +1684,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-lg font-bold text-center mb-1">
                                             {match.goals.home} - {match.goals.away}
                                           </div>
-                                          <div className="match-status-container">
-                                            <div className="text-xs text-gray-600 font-medium">{winnerText}</div>
-                                          </div>
+                                          <div className="text-xs text-gray-600 font-medium">{winnerText}</div>
                                         </div>
                                       );
                                     }
