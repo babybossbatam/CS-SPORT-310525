@@ -1554,11 +1554,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.home.name;
                                           const countryCode = getCountryCode(teamName);
-                                          
+
                                           if (countryCode) {
                                             return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                           }
-                                          
+
                                           // Fallback to original API if no country code mapping
                                           return match.teams.home.id
                                             ? `/api/team-logo/square/${match.teams.home.id}?size=32`
@@ -1620,6 +1620,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             fontSize: "11px"
                                           }}
                                         >
+                                          <div className="text-xs text-gray-500 mb-2 font-medium">End</div>
+                                          <div className="text-xs text-gray-500 mb-2 font-medium">Ended</div>
                                           <div className="text-xs text-gray-500 mb-2 font-medium">After Penalties</div>
                                           <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
@@ -1782,8 +1784,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                     </div>
                                                     <div className="match-status-label status-ended">
                                                       Ended
-                                                    </div>
-                                                  </div>
+                                                    </div>                                                  </div>
                                                 );
                                               }
 
@@ -1923,11 +1924,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.away.name;
                                           const countryCode = getCountryCode(teamName);
-                                          
+
                                           if (countryCode) {
                                             return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                           }
-                                          
+
                                           // Fallback to original API if no country code mapping
                                           return match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
