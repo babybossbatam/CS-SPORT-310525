@@ -502,8 +502,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   };
 
   const handleMatchClick = () => {
-    if (currentMatch?.league?.id) {
-      navigate(`/league/${currentMatch.league.id}`);
+    if (currentMatch?.fixture?.id) {
+      navigate(`/match/${currentMatch.fixture.id}`);
     }
   };
 
@@ -1520,19 +1520,19 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
               onClick={() => {
-                if (currentMatch?.league?.id) {
-                  navigate(`/league/${currentMatch.league.id}`);
+                if (currentMatch?.fixture?.id) {
+                  navigate(`/match/${currentMatch.fixture.id}`);
                 }
               }}
             >
               <img
                 src="/assets/matchdetaillogo/MatchDetail.svg"
-                alt="League Details"
+                alt="Match Page"
                 width="18"
                 height="18"
                 className="text-gray-600"
               />
-              <span className="text-xs text-gray-600 mt-1">Leagues Detail</span>
+              <span className="text-xs text-gray-600 mt-1">Match Page</span>
             </button>
             <button
               className="flex flex-col items-center cursor-pointer w-1/4"
