@@ -461,7 +461,7 @@ const Home = () => {
               maxMatches={8}
             />
             <Card className="shadow-md">
-              <CardContent>
+              <CardContent className="pt-2">
                 <HomeTopScorersList />
               </CardContent>
             </Card>
