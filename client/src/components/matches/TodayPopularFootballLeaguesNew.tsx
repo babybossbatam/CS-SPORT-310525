@@ -917,7 +917,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       if (isFavorite) {
         ```text
-        dispatch(userActions.removeFavoriteTeam(teamId));
+        dispatch(userActions.removeFavoriteTeam(teamid));
         toast({
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
@@ -1789,7 +1789,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                 : status === "PEN"
                                                   ? (() => {
                                                       const        penaltyHome = match.score?.penalty?.home;
-                                                      const penaltyAway = match.score?.penalty?.away;
+                               const penaltyAway = match.score?.penalty?.away;
                                                       const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
                                                                              penaltyAway !== null && penaltyAway !== undefined;
 
@@ -1833,7 +1833,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       {awayScore}
                                                     </span>
                                                   </div>
-                                                  
+
                                                 </div>
                                               );
                                             } else {
@@ -1862,7 +1862,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             <div className="text-sm font-medium text-gray-900">
                                               {format(fixtureDate, "HH:mm")}
                                             </div>
-                                            
+
                                           </div>
                                         );
                                       }
@@ -1899,7 +1899,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          
+
                                         </div>
                                       );
                                     }
@@ -1913,7 +1913,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : format(fixtureDate, "HH:mm")}
                                         </div>
                                         {status === "TBD" && (
-                                          
+
                                         )}
                                       </div>
                                     );
