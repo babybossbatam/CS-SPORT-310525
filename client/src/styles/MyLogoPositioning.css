@@ -624,3 +624,16 @@
   justify-content: center;
   font-weight: 600;
 }
+/* Modify the .match-content-container to increase the row height by 25% */
+.match-content-container {
+  display: grid;
+  grid-template-columns: 1fr 32px 80px 32px 1fr;
+  grid-template-areas: "home-team-name home-team-logo score away-team-logo away-team-name";
+  grid-template-rows: 42px;
+  place-items: center;
+  padding: 0.5rem;
+  flex: 1;
+  min-height: 75px;
+  background: transparent !important;
+  background-color: transparent !important;
+}
