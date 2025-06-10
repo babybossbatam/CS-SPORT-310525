@@ -1684,7 +1684,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-lg font-bold text-center mb-1">
                                             {match.goals.home} - {match.goals.away}
                                           </div>
-                                          <div className="text-xs text-gray-600 font-medium">{winnerText}</div>
+                                          <div className="match-status-container">
+                                            <div className="text-xs text-gray-600 font-medium">{winnerText}</div>
+                                          </div>
                                         </div>
                                       );
                                     }
