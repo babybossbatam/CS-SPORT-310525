@@ -1443,7 +1443,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   )}
                   {/* Matches - Show for all leagues */}
                   <CardContent className="p-0">
-                    <div className="match-cards-wrapper">
+                    <div className="space-y-4">
                       {leagueData.matches
                         .slice(
                           0,
