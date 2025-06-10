@@ -86,11 +86,7 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
   const tryListen = (retryPort: number) => {
-    server.listen({
-      port: retryPort,
-      host: "0.0.0.0",
-      reusePort: false,
-    }, () => {
+    server.listen(retryPort, "0.0.0.0", () => {
       log(`serving on port ${retryPort}`);
     }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryPort < 5010) {
