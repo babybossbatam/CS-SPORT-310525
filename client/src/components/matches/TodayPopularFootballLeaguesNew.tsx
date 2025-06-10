@@ -916,6 +916,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         favoriteTeams?.some((team) => team.id === teamId) || false;
 
       if (isFavorite) {
+        ```text
         dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
           title: "Removed from favorites",
@@ -1554,11 +1555,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.home.name;
                                           const countryCode = getCountryCode(teamName);
-                                          
+
                                           if (countryCode) {
                                             return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                           }
-                                          
+
                                           // Fallback to original API if no country code mapping
                                           return match.teams.home.id
                                             ? `/api/team-logo/square/${match.teams.home.id}?size=32`
@@ -1781,7 +1782,39 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       </span>
                                                     </div>
                                                     <div className="match-status-label status-ended">
-                                                      Ended
+                                                      {status === "FT"
+                                              ? "Ended"
+                                              : status === "AET"
+                                                ? "AET"
+                                                : status === "PEN"
+                                                  ? (() => {
+                                                      const        penaltyHome = match.score?.penalty?.home;
+                                                      const penaltyAway = match.score?.penalty?.away;
+                                                      const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                                             penaltyAway !== null && penaltyAway !== undefined;
+
+                                                      if (hasPenaltyScores) {
+                                                        const winnerName = penaltyHome > penaltyAway 
+                                                          ? shortenTeamName(match.teams.home.name)
+                                                          : shortenTeamName(match.teams.away.name);
+                                                        const penaltyScore = penaltyHome > penaltyAway 
+                                                          ? `${penaltyHome}-${penaltyAway}`
+                                                          : `${penaltyAway}-${penaltyHome}`;
+                                                        return `${winnerName} has won ${penaltyScore} after Penalties`;
+                                                      }
+                                                      return "After Penalties";
+                                                    })()
+                                                  : status === "AWD"
+                                                    ? "Awarded"
+                                                    : status === "WO"
+                                                      ? "Walkover"
+                                                      : status === "ABD"
+                                                        ? "Abandoned"
+                                                        : status === "CANC"
+                                                          ? "Cancelled"
+                                                          : status === "SUSP"
+                                                            ? "Suspended"
+                                                            : status}
                                                     </div>
                                                   </div>
                                                 );
@@ -1800,25 +1833,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       {awayScore}
                                                     </span>
                                                   </div>
-                                                  <div className="match-status-label status-ended">
-                                                    {status === "FT"
-                                                      ? "Ended"
-                                                      : status === "AET"
-                                                        ? "Ended (AET)"
-                                                        : status === "PEN"
-                                                          ? "Ended (After Penalty)"
-                                                          : status === "AWD"
-                                                            ? "Awarded"
-                                                            : status === "WO"
-                                                              ? "Walkover"
-                                                              : status === "ABD"
-                                                                ? "Abandoned"
-                                                                : status === "CANC"
-                                                                  ? "Cancelled"
-                                                                  : status === "SUSP"
-                                                                    ? "Suspended"
-                                                                    : status}
-                                                  </div>
+                                                  
                                                 </div>
                                               );
                                             } else {
@@ -1847,9 +1862,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             <div className="text-sm font-medium text-gray-900">
                                               {format(fixtureDate, "HH:mm")}
                                             </div>
-                                            <div className="match-status-label status-postponed">
-                                              {statusText}
-                                            </div>
+                                            
                                           </div>
                                         );
                                       }
@@ -1886,9 +1899,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          <div className="match-status-label status-postponed">
-                                            {statusText}
-                                          </div>
+                                          
                                         </div>
                                       );
                                     }
@@ -1902,9 +1913,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             : format(fixtureDate, "HH:mm")}
                                         </div>
                                         {status === "TBD" && (
-                                          <div className="match-status-label status-upcoming">
-                                            Time TBD
-                                          </div>
+                                          
                                         )}
                                       </div>
                                     );
@@ -1923,11 +1932,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           // Use Circle Flags as primary source for national teams
                                           const teamName = match.teams.away.name;
                                           const countryCode = getCountryCode(teamName);
-                                          
+
                                           if (countryCode) {
                                             return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                           }
-                                          
+
                                           // Fallback to original API if no country code mapping
                                           return match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
