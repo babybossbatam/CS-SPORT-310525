@@ -558,6 +558,15 @@
   /* Remove individual borders since we have spacing */
 }
 
+/* Add 16px spacing between league cards */
+.league-card-spacing {
+  margin-bottom: 16px;
+}
+
+.league-card-spacing:last-child {
+  margin-bottom: 0;
+}
+
 /* Keyframe animations for league expand/collapse */
 @keyframes slideDown {
   from {
