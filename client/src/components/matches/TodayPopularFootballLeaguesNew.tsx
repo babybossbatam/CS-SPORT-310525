@@ -1528,24 +1528,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </button>
 
                               <div className="horizontal-match-container">
-                                {/* Penalty/Status Header */}
-                                {(() => {
-                                  const status = match.fixture.status.short;
-                                  const isPenaltyMatch = status === "PEN";
-                                  const penaltyHome = match.score?.penalty?.home;
-                                  const penaltyAway = match.score?.penalty?.away;
-                                  const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                         penaltyAway !== null && penaltyAway !== undefined;
-
-                                  if (isPenaltyMatch && hasPenaltyScores) {
-                                    return (
-                                      <div className="penalty-header">
-                                        After Penalties
-                                      </div>
-                                    );
-                                  }
-                                  return null;
-                                })()}
+                                
 
                                 {/* Main Match Row */}
                                 <div className="horizontal-match-row">
