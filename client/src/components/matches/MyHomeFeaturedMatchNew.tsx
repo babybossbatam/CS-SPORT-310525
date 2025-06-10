@@ -392,33 +392,31 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     );
 
     // NEW SLIDE DISTRIBUTION SYSTEM:
-    // TODAY - Slides 1-3 (only live matches before 23:59:59 can get these slots)
+    // TODAY - Slides 1-3 (live matches get priority, but allow any today matches)
     // TOMORROW - Slides 4-6  
     // 2 DAYS LATER - Slides 7-9
 
-    // Slides 1-3: TODAY (only valid live matches can get these prime slots)
+    console.log(`🎯 [SLIDE DEBUG] Available matches by day:`, {
+      today: todayPrioritized.length,
+      tomorrow: tomorrowPrioritized.length,
+      dayAfter: dayAfterPrioritized.length,
+      todayValidLive: todayValidLive.length
+    });
+
+    // Slides 1-3: TODAY 
     for (let i = 1; i <= 3; i++) {
       let added = false;
       
-      // For slides 1-3, prioritize live matches that are before 23:59:59 today
-      if (i === 1 && todayValidLive.length > 0) {
-        // Slide 1: Best live match (major country preference)
-        const majorCountries = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Argentina'];
-        const liveFromMajor = todayValidLive.filter(m => majorCountries.includes(m.league?.country));
-        if (liveFromMajor.length > 0 && addUniqueMatch(liveFromMajor[0])) {
+      // Try to add any today match (live, finished, or upcoming)
+      for (let j = 0; j < todayPrioritized.length && !added; j++) {
+        if (addUniqueMatch(todayPrioritized[j])) {
           added = true;
-        } else if (addUniqueMatch(todayValidLive[0])) {
-          added = true;
+          console.log(`✅ [SLIDE DEBUG] Added TODAY match to slide ${i}: ${todayPrioritized[j].teams.home.name} vs ${todayPrioritized[j].teams.away.name}`);
         }
       }
       
-      // If no live match added, or for slides 2-3, try other today matches
       if (!added) {
-        for (let j = 0; j < todayPrioritized.length && !added; j++) {
-          if (addUniqueMatch(todayPrioritized[j])) {
-            added = true;
-          }
-        }
+        console.log(`⚠️ [SLIDE DEBUG] No TODAY match found for slide ${i}`);
       }
     }
 
@@ -428,7 +426,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       for (let j = 0; j < tomorrowPrioritized.length && !added; j++) {
         if (addUniqueMatch(tomorrowPrioritized[j])) {
           added = true;
+          console.log(`✅ [SLIDE DEBUG] Added TOMORROW match to slide ${i}: ${tomorrowPrioritized[j].teams.home.name} vs ${tomorrowPrioritized[j].teams.away.name}`);
         }
+      }
+      
+      if (!added) {
+        console.log(`⚠️ [SLIDE DEBUG] No TOMORROW match found for slide ${i}`);
       }
     }
 
@@ -438,27 +441,32 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       for (let j = 0; j < dayAfterPrioritized.length && !added; j++) {
         if (addUniqueMatch(dayAfterPrioritized[j])) {
           added = true;
+          console.log(`✅ [SLIDE DEBUG] Added 2 DAYS LATER match to slide ${i}: ${dayAfterPrioritized[j].teams.home.name} vs ${dayAfterPrioritized[j].teams.away.name}`);
         }
+      }
+      
+      if (!added) {
+        console.log(`⚠️ [SLIDE DEBUG] No 2 DAYS LATER match found for slide ${i}`);
       }
     }
 
-    // Fill remaining slides if needed
-    const allRemainingMatches = [...todayUpcoming, ...todayFinished, ...tomorrowUpcoming, ...dayAfterUpcoming];
-    while (slidesDistribution.length < 9 && allRemainingMatches.length > 0) {
+    // Fill remaining slides if needed with any available matches
+    console.log(`🎯 [SLIDE DEBUG] Current slide count before backup: ${slidesDistribution.length}`);
+    
+    if (slidesDistribution.length < 9) {
+      const allRemainingMatches = [
+        ...twoDaysAfterSorted, // Try 3 days later first
+        ...todayUpcoming, 
+        ...todayFinished, 
+        ...tomorrowUpcoming, 
+        ...dayAfterUpcoming
+      ];
+      
+      console.log(`🎯 [SLIDE DEBUG] Backup matches available: ${allRemainingMatches.length}`);
+      
       for (let i = 0; i < allRemainingMatches.length && slidesDistribution.length < 9; i++) {
         if (addUniqueMatch(allRemainingMatches[i])) {
-          break;
-        }
-      }
-      // Break if no more unique matches can be added
-      if (slidesDistribution.length < 9) {
-        const currentLength = slidesDistribution.length;
-        for (let i = 0; i < allRemainingMatches.length && slidesDistribution.length < 9; i++) {
-          addUniqueMatch(allRemainingMatches[i]);
-        }
-        // If no new matches were added, break to avoid infinite loop
-        if (slidesDistribution.length === currentLength) {
-          break;
+          console.log(`✅ [SLIDE DEBUG] Added backup match to slide ${slidesDistribution.length}: ${allRemainingMatches[i].teams.home.name} vs ${allRemainingMatches[i].teams.away.name}`);
         }
       }
     }
