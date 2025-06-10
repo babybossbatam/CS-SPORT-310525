@@ -1285,7 +1285,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
-                    <CardContent className="flex items-center gap-2 p-2 py-4 bg-white border-b border-gray-200">
+                    <CardContent className="flex items-center gap-2 p-2 py-6 mt-4 bg-white border-b border-gray-200">
                       {/* League Star Toggle Button */}
                       <button
                         onClick={(e) => {
@@ -1905,7 +1905,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       <div className="flag-circle">
                                         <LazyImage
                                           src={(() => {
-                                            // Use Circle Flags as primary source for national teams
+                                            //                                            // Use Circle Flags as primary source for national teams
                                             const teamName =
                                               match.teams.away.name;
                                             const countryCode =
