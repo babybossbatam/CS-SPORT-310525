@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
@@ -770,8 +770,20 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
 
                 let daysText;
+                let showCountdown = false;
+                let hoursUntilKickoff = 0;
+
                 if (matchDateOnly.getTime() === todayOnly.getTime()) {
-                  daysText = 'Today';
+                  // It's today - check if within 12 hours
+                  const now = new Date();
+                  const msUntilKickoff = matchDate.getTime() - now.getTime();
+                  hoursUntilKickoff = msUntilKickoff / (1000 * 60 * 60);
+                  
+                  if (hoursUntilKickoff > 0 && hoursUntilKickoff <= 12) {
+                    showCountdown = true;
+                  } else {
+                    daysText = 'Today';
+                  }
                 } else if (matchDateOnly.getTime() === tomorrowOnly.getTime()) {
                   daysText = 'Tomorrow';
                 } else {
@@ -781,11 +793,49 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   daysText = `${Math.abs(daysUntilMatch)} Days`;
                 }
 
-                return (
-                  <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
-                    {daysText}
-                  </div>
-                );
+                if (showCountdown) {
+                  // Show countdown timer
+                  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+                  useEffect(() => {
+                    const updateTimer = () => {
+                      const now = new Date();
+                      const msUntilKickoff = matchDate.getTime() - now.getTime();
+                      
+                      if (msUntilKickoff <= 0) {
+                        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+                        return;
+                      }
+
+                      const hours = Math.floor(msUntilKickoff / (1000 * 60 * 60));
+                      const minutes = Math.floor((msUntilKickoff % (1000 * 60 * 60)) / (1000 * 60));
+                      const seconds = Math.floor((msUntilKickoff % (1000 * 60)) / 1000);
+
+                      setTimeLeft({ hours, minutes, seconds });
+                    };
+
+                    updateTimer();
+                    const interval = setInterval(updateTimer, 1000);
+                    return () => clearInterval(interval);
+                  }, [matchDate]);
+
+                  return (
+                    <div className="text-black text-center" style={{ fontSize: '1.125rem' }}>
+                      <div className="uppercase tracking-wide mb-1">Kicks off in</div>
+                      <div className="font-mono font-semibold">
+                        {String(timeLeft.hours).padStart(2, '0')}:
+                        {String(timeLeft.minutes).padStart(2, '0')}:
+                        {String(timeLeft.seconds).padStart(2, '0')}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
+                      {daysText}
+                    </div>
+                  );
+                }
               }
             })()}
           </div>
