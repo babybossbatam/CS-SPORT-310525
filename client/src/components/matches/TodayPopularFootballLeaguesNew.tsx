@@ -1627,11 +1627,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           return (
                                             <div className="score-display-horizontal">
                                               {/* Show "After Penalties" at top for penalty matches */}
-                                              {isPenaltyMatch && (
-                                                <div className="penalty-result-top">
-                                                  After Penalties
-                                                </div>
-                                              )}
+                                              {isPenaltyMatch && "After Penalties"}
                                               <span className="score-text">
                                                 {homeScore} - {awayScore}
                                               </span>
