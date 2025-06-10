@@ -1731,7 +1731,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         ].includes(status)
                                       ) {
                                         return (
-                                          <>
+                                          <div className="match-score-display">
                                             <span className="score-number">
                                               {match.goals.home ?? 0}
                                             </span>
@@ -1741,7 +1741,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             <span className="score-number">
                                               {match.goals.away ?? 0}
                                             </span>
-                                          </>
+                                          </div>
                                         );
                                       }
 
@@ -1771,7 +1771,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                         if (hasValidScores) {
                                           return (
-                                            <>
+                                            <div className="match-score-display">
                                               <span className="score-number">
                                                 {homeScore}
                                               </span>
@@ -1781,7 +1781,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                               <span className="score-number">
                                                 {awayScore}
                                               </span>
-                                            </>
+                                            </div>
                                           );
                                         } else {
                                           // Match is finished but no valid score data
