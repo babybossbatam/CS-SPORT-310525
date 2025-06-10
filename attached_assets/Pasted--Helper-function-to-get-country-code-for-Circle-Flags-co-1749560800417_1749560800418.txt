@@ -1,0 +1,196 @@
+{(() => {
+                // Helper function to get country code for Circle Flags
+                const getCountryCodeForCircleFlags = (country: string): string | null => {
+                  const countryMap: { [key: string]: string } = {
+                    'England': 'gb-eng',
+                    'Scotland': 'gb-sct', 
+                    'Wales': 'gb-wls',
+                    'Northern Ireland': 'gb-nir',
+                    'Spain': 'es',
+                    'Italy': 'it',
+                    'Germany': 'de',
+                    'France': 'fr',
+                    'Portugal': 'pt',
+                    'Netherlands': 'nl',
+                    'Belgium': 'be',
+                    'Croatia': 'hr',
+                    'Poland': 'pl',
+                    'Ukraine': 'ua',
+                    'Turkey': 'tr',
+                    'Switzerland': 'ch',
+                    'Austria': 'at',
+                    'Czech Republic': 'cz',
+                    'Denmark': 'dk',
+                    'Sweden': 'se',
+                    'Norway': 'no',
+                    'Finland': 'fi',
+                    'Russia': 'ru',
+                    'Serbia': 'rs',
+                    'Slovenia': 'si',
+                    'Slovakia': 'sk',
+                    'Hungary': 'hu',
+                    'Romania': 'ro',
+                    'Bulgaria': 'bg',
+                    'Greece': 'gr',
+                    'Bosnia and Herzegovina': 'ba',
+                    'Montenegro': 'me',
+                    'North Macedonia': 'mk',
+                    'FYR Macedonia': 'mk',
+                    'Macedonia': 'mk',
+                    'Albania': 'al',
+                    'Kosovo': 'xk',
+                    'Moldova': 'md',
+                    'Belarus': 'by',
+                    'Lithuania': 'lt',
+                    'Latvia': 'lv',
+                    'Estonia': 'ee',
+                    'Iceland': 'is',
+                    'Ireland': 'ie',
+                    'Luxembourg': 'lu',
+                    'Liechtenstein': 'li',
+                    'Malta': 'mt',
+                    'Cyprus': 'cy',
+                    'Georgia': 'ge',
+                    'Armenia': 'am',
+                    'Azerbaijan': 'az',
+                    'Kazakhstan': 'kz',
+                    'Faroe Islands': 'fo',
+                    'Gibraltar': 'gi',
+                    'Andorra': 'ad',
+                    'San Marino': 'sm',
+                    'Monaco': 'mc',
+                    'Vatican City': 'va',
+                    'Brazil': 'br',
+                    'Argentina': 'ar',
+                    'Uruguay': 'uy',
+                    'Chile': 'cl',
+                    'Peru': 'pe',
+                    'Colombia': 'co',
+                    'Ecuador': 'ec',
+                    'Venezuela': 've',
+                    'Bolivia': 'bo',
+                    'Paraguay': 'py',
+                    'Guyana': 'gy',
+                    'Suriname': 'sr',
+                    'French Guiana': 'gf'
+                  };
+
+                  return countryMap[country] || null;
+                };
+
+                // Check if this is an international competition
+                const isInternationalCompetition = currentMatch?.league?.country === 'World' || 
+                                                 currentMatch?.league?.country === 'Europe' ||
+                                                 currentMatch?.league?.country === 'South America' ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('world cup') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('euro') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('copa america') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('uefa nations') ||
+                                                 currentMatch?.league?.name?.toLowerCase().includes('international');
+
+                if (isInternationalCompetition && currentMatch?.league?.country) {
+                  // For international competitions, use Circle Flags
+                  if (currentMatch.league.country === 'World') {
+                    return (
+                      <img
+                        src="https://hatscripts.github.io/circle-flags/flags/un.svg"
+                        alt="World Competition"
+                        className="w-5 h-5 object-contain mr-2 drop-shadow-md rounded-sm"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
+                            e.currentTarget.src = currentMatch.league.logo;
+                          } else {
+                            e.currentTarget.src = "/assets/fallback-logo.svg";
+                          }
+                        }}
+                      />
+                    );
+                  } else if (currentMatch.league.country === 'Europe') {
+                    return (
+                      <img
+                        src="https://hatscripts.github.io/circle-flags/flags/eu.svg"
+                        alt="European Competition"
+                        className="w-5 h-5 object-contain mr-2 drop-shadow-md rounded-sm"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
+                            e.currentTarget.src = currentMatch.league.logo;
+                          } else {
+                            e.currentTarget.src = "/assets/fallback-logo.svg";
+                          }
+                        }}
+                      />
+                    );
+                  }
+                }
+
+                // For national teams or country-specific leagues, try Circle Flags first
+                if (currentMatch?.league?.country) {
+                  const countryCode = getCountryCodeForCircleFlags(currentMatch.league.country);
+
+                  if (countryCode) {
+                    return (
+                      <img
+                        src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
+                        alt={currentMatch.league.country}
+                        className="w-5 h-5 object-contain mr-2 drop-shadow-md rounded-sm"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          // Fallback to original flag utils, then league logo
+                          const fallbackFlag = getCountryFlagWithFallbackSync(currentMatch.league.country, currentMatch?.league?.logo);
+                          if (fallbackFlag && !e.currentTarget.src.includes(fallbackFlag)) {
+                            e.currentTarget.src = fallbackFlag;
+                          } else if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
+                            e.currentTarget.src = currentMatch.league.logo;
+                          } else {
+                            e.currentTarget.src = "/assets/fallback-logo.svg";
+                          }
+                        }}
+                      />
+                    );
+                  }
+
+                  // Fallback to original flag system
+                  const countryFlag = getCountryFlagWithFallbackSync(currentMatch.league.country, currentMatch?.league?.logo);
+                  if (countryFlag) {
+                    return (
+                      <img
+                        src={countryFlag}
+                        alt={currentMatch.league.country}
+                        className="w-5 h-5 object-contain mr-2 drop-shadow-md rounded-sm"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          if (currentMatch?.league?.logo && !e.currentTarget.src.includes(currentMatch.league.logo)) {
+                            e.currentTarget.src = currentMatch.league.logo;
+                          } else {
+                            e.currentTarget.src = "/assets/fallback-logo.svg";
+                          }
+                        }}
+                      />
+                    );
+                  }
+                }
+
+                // Always use league logo for league info section
+                if (currentMatch?.league?.logo) {
+                  return (
+                    <img
+                      src={currentMatch.league.logo}
+                      alt={currentMatch.league.name}
+                      className="w-5 h-5 object-contain mr-2 drop-shadow-md"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                  );
+                } else {
+                  return <Trophy className="w-5 h-5 text-amber-500 mr-2" />;
+                }
+              })()}
