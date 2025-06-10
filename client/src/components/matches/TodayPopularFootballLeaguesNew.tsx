@@ -1595,35 +1595,102 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     />
                                   )}
 
-                                  
+                                  {/* Enhanced penalty result display */}
+                                  {(() => {
+                                    const status = match.fixture.status.short;
+                                    const isPenaltyMatch = status === "PEN";
+                                    const penaltyHome = match.score?.penalty?.home;
+                                    const penaltyAway = match.score?.penalty?.away;
+                                    const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                           penaltyAway !== null && penaltyAway !== undefined;
+
+                                    if (isPenaltyMatch && hasPenaltyScores) {
+                                      const winnerText = penaltyHome > penaltyAway 
+                                        ? `${shortenTeamName(match.teams.home.name)} has won ${penaltyHome}-${penaltyAway} after Penalties`
+                                        : `${shortenTeamName(match.teams.away.name)} has won ${penaltyAway}-${penaltyHome} after Penalties`;
+
+                                      return (
+                                        <div
+                                          className="absolute bg-white border border-gray-200 rounded-lg shadow-md p-3 text-center z-50"
+                                          style={{
+                                            top: "calc(100% + 8px)",
+                                            left: "50%",
+                                            transform: "translateX(-50%)",
+                                            minWidth: "200px",
+                                            fontSize: "11px"
+                                          }}
+                                        >
+                                          <div className="text-xs text-gray-500 mb-2 font-medium">After Penalties</div>
+                                          <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                              {isNationalTeam(match.teams.home, leagueData.league) ? (
+                                                <div className="w-6 h-6 rounded-full overflow-hidden">
+                                                  <LazyImage
+                                                    src={(() => {
+                                                      const teamName = match.teams.home.name;
+                                                      const countryCode = getCountryCode(teamName);
+                                                      if (countryCode) {
+                                                        return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                                      }
+                                                      return match.teams.home.id
+                                                        ? `/api/team-logo/square/${match.teams.home.id}?size=24`
+                                                        : "/assets/fallback-logo.svg";
+                                                    })()}
+                                                    alt={match.teams.home.name}
+                                                    className="w-full h-full object-cover"
+                                                    fallbackSrc="/assets/fallback-logo.svg"
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <LazyImage
+                                                  src={match.teams.home.id ? `/api/team-logo/square/${match.teams.home.id}?size=24` : "/assets/fallback-logo.svg"}
+                                                  alt={match.teams.home.name}
+                                                  className="w-6 h-6 object-contain"
+                                                  fallbackSrc="/assets/fallback-logo.svg"
+                                                />
+                                              )}
+                                              <span className="text-xs font-medium">{shortenTeamName(match.teams.home.name)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs font-medium">{shortenTeamName(match.teams.away.name)}</span>
+                                              {isNationalTeam(match.teams.away, leagueData.league) ? (
+                                                <div className="w-6 h-6 rounded-full overflow-hidden">
+                                                  <LazyImage
+                                                    src={(() => {
+                                                      const teamName = match.teams.away.name;
+                                                      const countryCode = getCountryCode(teamName);
+                                                      if (countryCode) {
+                                                        return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                                      }
+                                                      return match.teams.away.id
+                                                        ? `/api/team-logo/square/${match.teams.away.id}?size=24`
+                                                        : "/assets/fallback-logo.svg";
+                                                    })()}
+                                                    alt={match.teams.away.name}
+                                                    className="w-full h-full object-cover"
+                                                    fallbackSrc="/assets/fallback-logo.svg"
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <LazyImage
+                                                  src={match.teams.away.id ? `/api/team-logo/square/${match.teams.away.id}?size=24` : "/assets/fallback-logo.svg"}
+                                                  alt={match.teams.away.name}
+                                                  className="w-6 h-6 object-contain"
+                                                  fallbackSrc="/assets/fallback-logo.svg"
+                                                />
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="text-lg font-bold text-center mb-1">
+                                            {match.goals.home} - {match.goals.away}
+                                          </div>
+                                          <div className="text-xs text-gray-600 font-medium">{winnerText}</div>
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
                                 </div>
-
-                                {/* Penalty Status - Below home team logo */}
-                                {(() => {
-                                  const status = match.fixture.status.short;
-                                  const isPenaltyMatch = status === "PEN";
-                                  const penaltyHome = match.score?.penalty?.home;
-                                  const penaltyAway = match.score?.penalty?.away;
-                                  const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                         penaltyAway !== null && penaltyAway !== undefined;
-
-                                  if (isPenaltyMatch && hasPenaltyScores) {
-                                    const winnerName = penaltyHome > penaltyAway 
-                                      ? shortenTeamName(match.teams.home.name)
-                                      : shortenTeamName(match.teams.away.name);
-                                    const penaltyScore = penaltyHome > penaltyAway 
-                                      ? `${penaltyHome}-${penaltyAway}`
-                                      : `${penaltyAway}-${penaltyHome}`;
-                                    const winnerText = `${winnerName} has won ${penaltyScore} after Penalties`;
-
-                                    return (
-                                      <div className="absolute left-0 top-12 text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1.5 rounded border border-blue-200 whitespace-nowrap z-10">
-                                        {winnerText}
-                                      </div>
-                                    );
-                                  }
-                                  return null;
-                                })()}
 
                                 {/* Score/Time Center - Fixed width and centered */}
                                 <div className="match-score-container">
@@ -1669,66 +1736,107 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     }
 
                                     // All finished match statuses
-                                    if (
-                                      [
-                                        "FT",
-                                        "AET",
-                                        "PEN",
-                                        "AWD",
-                                        "WO",
-                                        "ABD",
-                                        "CANC",
-                                        "SUSP",
-                                      ].includes(status)
-                                    ) {
-                                      // Check if we have actual numerical scores
-                                      const homeScore = match.goals.home;
-                                      const awayScore = match.goals.away;
-                                      const hasValidScores =
-                                        homeScore !== null &&
-                                        homeScore !== undefined &&
-                                        awayScore !== null &&
-                                        awayScore !== undefined &&
-                                        !isNaN(Number(homeScore)) &&
-                                        !isNaN(Number(awayScore));
+                                          if (
+                                            [
+                                              "FT",
+                                              "AET",
+                                              "PEN",
+                                              "AWD",
+                                              "WO",
+                                              "ABD",
+                                              "CANC",
+                                              "SUSP",
+                                            ].includes(status)
+                                          ) {
+                                            // Check if we have actual numerical scores
+                                            const homeScore = match.goals.home;
+                                            const awayScore = match.goals.away;
+                                            const hasValidScores =
+                                              homeScore !== null &&
+                                              homeScore !== undefined &&
+                                              awayScore !== null &&
+                                              awayScore !== undefined &&
+                                              !isNaN(Number(homeScore)) &&
+                                              !isNaN(Number(awayScore));
 
-                                      if (hasValidScores) {
-                                        return (
-                                          <div className="relative">
-                                            <div className="match-score-display">
-                                              <span className="score-number">
-                                                {homeScore}
-                                              </span>
-                                              <span className="score-separator">
-                                                -
-                                              </span>
-                                              <span className="score-number">
-                                                {awayScore}
-                                              </span>
-                                            </div>
-                                            <div className="match-status-label status-ended">
-                                              {status === "FT"
-                                                ? "Ended"
-                                                : status === "AET"
-                                                  ? "Ended (AET)"
-                                                  : status === "PEN"
-                                                    ? "Ended (After Penalty)"
-                                                    : status === "AWD"
-                                                      ? "Awarded"
-                                                      : status === "WO"
-                                                        ? "Walkover"
-                                                        : status === "ABD"
-                                                          ? "Abandoned"
-                                                          : status === "CANC"
-                                                            ? "Cancelled"
-                                                            : status === "SUSP"
-                                                              ? "Suspended"
-                                                              : status}
-                                            </div>
-                                          </div>
-                                        );
-                                      } else {
-                                        // Match is finished but no valid score data
+                                            if (hasValidScores) {
+                                              // Special handling for penalty matches
+                                              if (status === "PEN") {
+                                                const penaltyHome = match.score?.penalty?.home;
+                                                const penaltyAway = match.score?.penalty?.away;
+                                                const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                                       penaltyAway !== null && penaltyAway !== undefined;
+
+                                                return (
+                                                  <div className="relative">
+                                                    <div className="match-score-display">
+                                                      <span className="score-number">
+                                                        {homeScore}
+                                                      </span>
+                                                      <span className="score-separator">
+                                                        -
+                                                      </span>
+                                                      <span className="score-number">
+                                                        {awayScore}
+                                                      </span>
+                                                    </div>
+                                                    <div className="match-status-label status-ended">
+                                                      {status === "FT"
+                                              ? "Ended"
+                                              : status === "AET"
+                                                ? "AET"
+                                                : status === "PEN"
+                                                  ? (() => {
+                                                      const        penaltyHome = match.score?.penalty?.home;
+                               const penaltyAway = match.score?.penalty?.away;
+                                                      const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
+                                                                             penaltyAway !== null && penaltyAway !== undefined;
+
+                                                      if (hasPenaltyScores) {
+                                                        const winnerName = penaltyHome > penaltyAway 
+                                                          ? shortenTeamName(match.teams.home.name)
+                                                          : shortenTeamName(match.teams.away.name);
+                                                        const penaltyScore = penaltyHome > penaltyAway 
+                                                          ? `${penaltyHome}-${penaltyAway}`
+                                                          : `${penaltyAway}-${penaltyHome}`;
+                                                        return `${winnerName} has won ${penaltyScore} after Penalties`;
+                                                      }
+                                                      return "After Penalties";
+                                                    })()
+                                                  : status === "AWD"
+                                                    ? "Awarded"
+                                                    : status === "WO"
+                                                      ? "Walkover"
+                                                      : status === "ABD"
+                                                        ? "Abandoned"
+                                                        : status === "CANC"
+                                                          ? "Cancelled"
+                                                          : status === "SUSP"
+                                                            ? "Suspended"
+                                                            : status}
+                                                    </div>
+                                                  </div>
+                                                );
+                                              }
+
+                                              return (
+                                                <div className="relative">
+                                                  <div className="match-score-display">
+                                                    <span className="score-number">
+                                                      {homeScore}
+                                                    </span>
+                                                    <span className="score-separator">
+                                                      -
+                                                    </span>
+                                                    <span className="score-number">
+                                                      {awayScore}
+                                                    </span>
+                                                  </div>
+
+                                                </div>
+                                              );
+                                            } else {
+                                              // Match is finished but no valid score data
                                         const statusText =
                                           status === "FT"
                                             ? "No Score"
@@ -1753,9 +1861,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             <div className="text-sm font-medium text-gray-900">
                                               {format(fixtureDate, "HH:mm")}
                                             </div>
-                                            <div className="match-status-label status-ended">
-                                              {statusText}
-                                            </div>
+
                                           </div>
                                         );
                                       }
@@ -1792,9 +1898,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          <div className="match-status-label status-ended">
-                                            {statusText}
-                                          </div>
+
                                         </div>
                                       );
                                     }
