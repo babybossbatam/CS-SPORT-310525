@@ -539,10 +539,21 @@
   padding-bottom: 0;
 }
 
-/* League matches container animations */
+/* CardContent wrapper for matches */
 .league-matches-container {
   overflow: hidden;
   transition: all 0.3s ease-in-out;
+}
+
+/* Ensure proper spacing for match cards within CardContent */
+.match-cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* 16px spacing between match cards */
+}
+
+.match-cards-wrapper > .match-card-container {
+  border-bottom: none; /* Remove individual borders since we have spacing */
 }
 
 /* Keyframe animations for league expand/collapse */
