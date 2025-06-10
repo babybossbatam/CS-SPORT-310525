@@ -161,7 +161,6 @@ const MatchDetails = () => {
           } else if (error.message.includes('Network error') || error.message.includes('fetch')) {
             errorMessage = 'Network error: Please check your internet connection and try again.';
           } else if (error.message.includes('Server error')) {
-```typescript
             errorMessage = `Server error: ${error.message.replace('Server error: ', '')}`;
           }
         }
