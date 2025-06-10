@@ -918,8 +918,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
-          This commit removes the penalty score span from the TodayPopularFootballLeaguesNew component.
-```typescript
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
         });
