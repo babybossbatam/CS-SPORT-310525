@@ -338,7 +338,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const tomorrowUpcoming = getUpcomingMatches(tomorrowSorted);
     const dayAfterUpcoming = getUpcomingMatches(dayAfterSorted);
 
-    // Build the 9-slide distribution with improved logic - prioritize TODAY's matches first
+    // Build the 9-slide distribution with new priority system
     const slidesDistribution = [];
     const usedFixtureIds = new Set<number>();
 
@@ -352,124 +352,93 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return false;
     };
 
-    // Helper function to check if match is from major country
-    const isMajorCountryMatch = (match: any) => {
-      const majorCountries = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Argentina'];
-      return majorCountries.includes(match.league?.country);
+    // Helper function to check if live match is before 23:59:59 today
+    const isValidTodayLiveMatch = (match: any) => {
+      if (!['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)) {
+        return false;
+      }
+      
+      const matchDate = new Date(match.fixture.date);
+      const today = new Date();
+      const endOfToday = new Date(today);
+      endOfToday.setHours(23, 59, 59, 999);
+      
+      return matchDate <= endOfToday;
     };
 
-    // PRIORITIZE TODAY'S MATCHES FIRST - Fill slides 1-6 with today's content
-    
-    // Slide 1: Live matches (major countries first) or upcoming matches
-    const liveFromMajorCountries = todayLive.filter(isMajorCountryMatch);
-    if (liveFromMajorCountries.length > 0) {
-      addUniqueMatch(liveFromMajorCountries[0]);
-    } else if (todayLive.length > 0) {
-      addUniqueMatch(todayLive[0]);
-    } else if (todayUpcoming.length > 0) {
-      // If no live matches, prioritize today's upcoming matches over finished
-      addUniqueMatch(todayUpcoming[0]);
-    } else if (todayFinished.length > 0) {
-      addUniqueMatch(todayFinished[0]);
-    }
+    // Filter today's live matches to only include those before 23:59:59
+    const todayValidLive = todayLive.filter(isValidTodayLiveMatch);
 
-    // Slide 2: Today's upcoming matches (priority) or finished matches
-    let addedToSlide2 = false;
-    for (let i = 0; i < todayUpcoming.length && !addedToSlide2; i++) {
-      if (addUniqueMatch(todayUpcoming[i])) {
-        addedToSlide2 = true;
+    // Helper function to get matches by priority for a given day
+    const getMatchesByPriority = (liveMatches: any[], finishedMatches: any[], upcomingMatches: any[]) => {
+      return [
+        ...liveMatches,      // Highest priority
+        ...finishedMatches,  // Second priority  
+        ...upcomingMatches   // Third priority
+      ];
+    };
+
+    // Get prioritized matches for each day
+    const todayPrioritized = getMatchesByPriority(todayValidLive, todayFinished, todayUpcoming);
+    const tomorrowPrioritized = getMatchesByPriority(
+      getLiveMatches(tomorrowSorted), 
+      getFinishedMatches(tomorrowSorted), 
+      tomorrowUpcoming
+    );
+    const dayAfterPrioritized = getMatchesByPriority(
+      getLiveMatches(dayAfterSorted), 
+      getFinishedMatches(dayAfterSorted), 
+      dayAfterUpcoming
+    );
+
+    // NEW SLIDE DISTRIBUTION SYSTEM:
+    // TODAY - Slides 1-3 (only live matches before 23:59:59 can get these slots)
+    // TOMORROW - Slides 4-6  
+    // 2 DAYS LATER - Slides 7-9
+
+    // Slides 1-3: TODAY (only valid live matches can get these prime slots)
+    for (let i = 1; i <= 3; i++) {
+      let added = false;
+      
+      // For slides 1-3, prioritize live matches that are before 23:59:59 today
+      if (i === 1 && todayValidLive.length > 0) {
+        // Slide 1: Best live match (major country preference)
+        const majorCountries = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Argentina'];
+        const liveFromMajor = todayValidLive.filter(m => majorCountries.includes(m.league?.country));
+        if (liveFromMajor.length > 0 && addUniqueMatch(liveFromMajor[0])) {
+          added = true;
+        } else if (addUniqueMatch(todayValidLive[0])) {
+          added = true;
+        }
       }
-    }
-    if (!addedToSlide2) {
-      for (let i = 0; i < todayFinished.length && !addedToSlide2; i++) {
-        if (addUniqueMatch(todayFinished[i])) {
-          addedToSlide2 = true;
+      
+      // If no live match added, or for slides 2-3, try other today matches
+      if (!added) {
+        for (let j = 0; j < todayPrioritized.length && !added; j++) {
+          if (addUniqueMatch(todayPrioritized[j])) {
+            added = true;
+          }
         }
       }
     }
 
-    // Slide 3: Today's matches (upcoming or finished)
-    let addedToSlide3 = false;
-    for (let i = 0; i < todayUpcoming.length && !addedToSlide3; i++) {
-      if (addUniqueMatch(todayUpcoming[i])) {
-        addedToSlide3 = true;
-      }
-    }
-    if (!addedToSlide3) {
-      for (let i = 0; i < todayFinished.length && !addedToSlide3; i++) {
-        if (addUniqueMatch(todayFinished[i])) {
-          addedToSlide3 = true;
+    // Slides 4-6: TOMORROW
+    for (let i = 4; i <= 6; i++) {
+      let added = false;
+      for (let j = 0; j < tomorrowPrioritized.length && !added; j++) {
+        if (addUniqueMatch(tomorrowPrioritized[j])) {
+          added = true;
         }
       }
     }
 
-    // Slide 4: Today's matches (continue with remaining)
-    let addedToSlide4 = false;
-    for (let i = 0; i < todayUpcoming.length && !addedToSlide4; i++) {
-      if (addUniqueMatch(todayUpcoming[i])) {
-        addedToSlide4 = true;
-      }
-    }
-    if (!addedToSlide4) {
-      for (let i = 0; i < todayFinished.length && !addedToSlide4; i++) {
-        if (addUniqueMatch(todayFinished[i])) {
-          addedToSlide4 = true;
+    // Slides 7-9: 2 DAYS LATER
+    for (let i = 7; i <= 9; i++) {
+      let added = false;
+      for (let j = 0; j < dayAfterPrioritized.length && !added; j++) {
+        if (addUniqueMatch(dayAfterPrioritized[j])) {
+          added = true;
         }
-      }
-    }
-
-    // Slide 5: Today's matches (continue with remaining)
-    let addedToSlide5 = false;
-    for (let i = 0; i < todayUpcoming.length && !addedToSlide5; i++) {
-      if (addUniqueMatch(todayUpcoming[i])) {
-        addedToSlide5 = true;
-      }
-    }
-    if (!addedToSlide5) {
-      for (let i = 0; i < todayFinished.length && !addedToSlide5; i++) {
-        if (addUniqueMatch(todayFinished[i])) {
-          addedToSlide5 = true;
-        }
-      }
-    }
-
-    // Slide 6: Today's matches (final attempt) or start with tomorrow
-    let addedToSlide6 = false;
-    for (let i = 0; i < todayUpcoming.length && !addedToSlide6; i++) {
-      if (addUniqueMatch(todayUpcoming[i])) {
-        addedToSlide6 = true;
-      }
-    }
-    if (!addedToSlide6) {
-      for (let i = 0; i < todayFinished.length && !addedToSlide6; i++) {
-        if (addUniqueMatch(todayFinished[i])) {
-          addedToSlide6 = true;
-        }
-      }
-    }
-    // Only if no today's matches, use tomorrow
-    if (!addedToSlide6 && tomorrowUpcoming.length > 0) {
-      addUniqueMatch(tomorrowUpcoming[0]);
-    }
-
-    // Slide 7: Tomorrow's matches
-    for (let i = 0; i < tomorrowUpcoming.length; i++) {
-      if (addUniqueMatch(tomorrowUpcoming[i])) {
-        break;
-      }
-    }
-
-    // Slide 8: Tomorrow's matches (second)
-    for (let i = 0; i < tomorrowUpcoming.length; i++) {
-      if (addUniqueMatch(tomorrowUpcoming[i])) {
-        break;
-      }
-    }
-
-    // Slide 9: Day after tomorrow or any remaining
-    for (let i = 0; i < dayAfterUpcoming.length; i++) {
-      if (addUniqueMatch(dayAfterUpcoming[i])) {
-        break;
       }
     }
 
@@ -506,15 +475,15 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       match: `${m.teams.home.name} vs ${m.teams.away.name}`,
       status: m.fixture.status.short,
       leagueId: m.league.id,
-      slideType: i === 0 ? 'Today Live/Upcoming Priority' : 
-                 i === 1 ? 'Today Upcoming/Finished #1' :
-                 i === 2 ? 'Today Upcoming/Finished #2' :
-                 i === 3 ? 'Today Upcoming/Finished #3' :
-                 i === 4 ? 'Today Upcoming/Finished #4' :
-                 i === 5 ? 'Today Upcoming/Finished #5' :
-                 i === 6 ? 'Today Final/Tomorrow Start' :
-                 i === 7 ? 'Tomorrow Upcoming #1' :
-                 i === 8 ? 'Tomorrow/Day+2 Upcoming' : 'Extra'
+      slideType: i === 0 ? 'TODAY Slide 1 (Live <23:59 Priority)' : 
+                 i === 1 ? 'TODAY Slide 2 (Live <23:59 Priority)' :
+                 i === 2 ? 'TODAY Slide 3 (Live <23:59 Priority)' :
+                 i === 3 ? 'TOMORROW Slide 4' :
+                 i === 4 ? 'TOMORROW Slide 5' :
+                 i === 5 ? 'TOMORROW Slide 6' :
+                 i === 6 ? '2 DAYS LATER Slide 7' :
+                 i === 7 ? '2 DAYS LATER Slide 8' :
+                 i === 8 ? '2 DAYS LATER Slide 9' : 'Extra'
     })));
 
     return finalSlides;
