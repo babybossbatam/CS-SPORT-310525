@@ -484,15 +484,7 @@ const Home = () => {
 
       <RegionModal />
       <CacheMonitor />
-      {process.env.NODE_ENV === 'development' && (
-        <Button
-          onClick={() => setShowDebugPanel(true)}
-          className="fixed bottom-4 right-4 z-40 bg-blue-600 hover:bg-blue-700"
-          size="sm"
-        >
-          Debug Panel
-        </Button>
-      )}
+      
 
       {/* Debug Panel */}
       <UnifiedDebugPanel 
