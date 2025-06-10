@@ -1528,7 +1528,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </button>
 
                               <div className="horizontal-match-container">
-                                
+
 
                                 {/* Main Match Row */}
                                 <div className="horizontal-match-row">
@@ -1543,7 +1543,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     }`}>
                                       {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                                     </span>
-                                    
+
                                     <div className="team-flag">
                                       {isNationalTeam(
                                         match.teams.home,
@@ -1626,29 +1626,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         if (hasValidScores) {
                                           return (
                                             <div className="score-display-horizontal">
-                                              {/* Show "After Penalties" at top for penalty matches */}
-                                              {isPenaltyMatch && "After Penalties"}
                                               <span className="score-text">
                                                 {homeScore} - {awayScore}
                                               </span>
-                                              {isPenaltyMatch && hasPenaltyScores ? (
-                                                <div className="status-text finished">
-                                                  {(() => {
-                                                    const winnerName = penaltyHome > penaltyAway 
-                                                      ? shortenTeamName(match.teams.home.name)
-                                                      : shortenTeamName(match.teams.away.name);
-                                                    const penaltyScore = penaltyHome > penaltyAway 
-                                                      ? `${penaltyHome}-${penaltyAway}`
-                                                      : `${penaltyAway}-${penaltyHome}`;
-                                                    return `${winnerName} won ${penaltyScore} on penalties`;
-                                                  })()}
-                                                </div>
-                                              ) : (
-                                                <div className="status-text finished">
-                                                  {status === "AET" ? "After Extra Time" :
-                                                   status === "FT" ? "Full Time" : status}
-                                                </div>
-                                              )}
+                                              <div className="status-text finished">
+                                                {status === "AET" ? "After Extra Time" :
+                                                 status === "FT" ? "Full Time" :
+                                                 status === "PEN" ? "After Penalties" : status}
+                                              </div>
                                             </div>
                                           );
                                         }
@@ -1711,7 +1696,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         />
                                       )}
                                     </div>
-                                    
+
                                     <span className={`team-name ${
                                       match.goals.home !== null &&
                                       match.goals.away !== null &&
@@ -1724,7 +1709,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   </div>
                                 </div>
 
-                                
+
                               </div>
                             </div>
                           </LazyMatchItem>
