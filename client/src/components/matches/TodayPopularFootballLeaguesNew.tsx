@@ -918,6 +918,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
         toast({
+          This commit removes the penalty score span from the TodayPopularFootballLeaguesNew component.
+```typescript
           title: "Removed from favorites",
           description: `${teamName} has been removed from your favorites.`,
         });
@@ -1617,7 +1619,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                   : status === "WO"
                                                     ? "Walkover"
                                                     : status;
-                                      
+
                                       return (
                                         <div className="match-status-label status-postponed">
                                           {statusText}
@@ -1667,11 +1669,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             // Use Circle Flags as primary source for national teams
                                             const teamName = match.teams.home.name;
                                             const countryCode = getCountryCode(teamName);
-                                            
+
                                             if (countryCode) {
                                               return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                             }
-                                            
+
                                             // Fallback to original API if no country code mapping
                                             return match.teams.home.id
                                               ? `/api/team-logo/square/${match.teams.home.id}?size=32`
@@ -1834,11 +1836,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             // Use Circle Flags as primary source for national teams
                                             const teamName = match.teams.away.name;
                                             const countryCode = getCountryCode(teamName);
-                                            
+
                                             if (countryCode) {
                                               return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
                                             }
-                                            
+
                                             // Fallback to original API if no country code mapping
                                             return match.teams.away.id
                                               ? `/api/team-logo/square/${match.teams.away.id}?size=32`
@@ -1908,12 +1910,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                       return (
                                         <div className="penalty-result-display">
-                                          <span className="penalty-text">
-                                            Penalties: {penaltyHome} - {penaltyAway}
-                                          </span>
-                                          <span className="penalty-winner">
-                                            {winnerText}
-                                          </span>
                                         </div>
                                       );
                                     }
