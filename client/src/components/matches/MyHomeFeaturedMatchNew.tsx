@@ -352,10 +352,23 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return false;
     };
 
-    // Slide 1: ONLY Live or Recently Finished Matches
-    // Priority: live first, then finished (NO upcoming matches in slide 1)
-    if (todayLive.length > 0) {
+    // Helper function to check if match is from major country
+    const isMajorCountryMatch = (match: any) => {
+      const majorCountries = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Brazil', 'Argentina'];
+      return majorCountries.includes(match.league?.country);
+    };
+
+    // Slide 1: ONLY Live or Recently Finished Matches (prioritize major countries)
+    // Priority: live from major countries, then any live, then finished from major countries, then any finished
+    const liveFromMajorCountries = todayLive.filter(isMajorCountryMatch);
+    const finishedFromMajorCountries = todayFinished.filter(isMajorCountryMatch);
+
+    if (liveFromMajorCountries.length > 0) {
+      addUniqueMatch(liveFromMajorCountries[0]);
+    } else if (todayLive.length > 0) {
       addUniqueMatch(todayLive[0]);
+    } else if (finishedFromMajorCountries.length > 0) {
+      addUniqueMatch(finishedFromMajorCountries[0]);
     } else if (todayFinished.length > 0) {
       addUniqueMatch(todayFinished[0]);
     }
@@ -480,7 +493,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       match: `${m.teams.home.name} vs ${m.teams.away.name}`,
       status: m.fixture.status.short,
       leagueId: m.league.id,
-      slideType: i === 0 ? 'Live/Finished ONLY' : 
+      slideType: i === 0 ? 'Live/Finished (Major Countries Priority)' : 
                  i === 1 ? 'Today Finished/Upcoming' :
                  i === 2 ? 'Today Finished/Upcoming #2' :
                  i === 3 ? 'Tomorrow Upcoming #1' :
