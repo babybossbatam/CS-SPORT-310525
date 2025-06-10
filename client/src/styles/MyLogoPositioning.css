@@ -263,7 +263,7 @@
 
 /* Score display styles */
 .match-score-display {
-  font-size: calc(1.125rem * 0.88);
+  font-size: calc(1.125rem * 0.924);
   font-weight: 600;
   display: flex;
   align-items: center;
