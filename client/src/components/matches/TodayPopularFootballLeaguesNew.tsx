@@ -1528,61 +1528,34 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </button>
 
                               <div className="match-content-container">
-                                {/* Match Status above Home Team Name */}
-                                <div className="match-status-home" style={{
-                                  gridArea: "status-home",
-                                  fontSize: "10px",
-                                  fontWeight: "600",
-                                  textAlign: "left",
-                                  color: (() => {
-                                    const status = match.fixture.status.short;
-                                    if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                                      return "#dc2626"; // red for live
-                                    } else if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                                      return "#059669"; // green for finished
-                                    } else if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
-                                      return "#d97706"; // orange for postponed/cancelled
-                                    }
-                                    return "#6b7280"; // gray for upcoming
-                                  })(),
-                                  textTransform: "uppercase",
-                                  letterSpacing: "0.5px"
+                                {/* Match Status - centered at top */}
+                                <div className="match-status-top" style={{
+                                  gridArea: "status-top",
+                                  fontSize: "11px",
+                                  fontWeight: "500",
+                                  textAlign: "center",
+                                  color: "#6b7280",
+                                  marginBottom: "2px"
                                 }}>
                                   {(() => {
                                     const status = match.fixture.status.short;
-                                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                                      return status === "1H" ? "1ST HALF" : 
-                                             status === "2H" ? "2ND HALF" :
-                                             status === "ET" ? "EXTRA TIME" :
-                                             status === "BT" ? "BREAK TIME" :
-                                             status === "P" ? "PENALTY" :
-                                             status === "INT" ? "INTERVAL" : "LIVE";
+                                    if (status === "PEN") {
+                                      return "After Penalties";
+                                    } else if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                                      return status === "1H" ? "1st Half" : 
+                                             status === "2H" ? "2nd Half" :
+                                             status === "ET" ? "Extra Time" :
+                                             status === "BT" ? "Break Time" :
+                                             status === "P" ? "Penalty" :
+                                             status === "INT" ? "Interval" : "Live";
                                     } else if (status === "HT") {
-                                      return "HALF TIME";
+                                      return "Half Time";
                                     } else if (status === "FT") {
-                                      return "FULL TIME";
+                                      return "Full Time";
                                     } else if (status === "AET") {
-                                      return "AFTER ET";
-                                    } else if (status === "PEN") {
-                                      return "PENALTIES";
-                                    } else if (status === "PST") {
-                                      return "POSTPONED";
-                                    } else if (status === "CANC") {
-                                      return "CANCELLED";
-                                    } else if (status === "ABD") {
-                                      return "ABANDONED";
-                                    } else if (status === "SUSP") {
-                                      return "SUSPENDED";
-                                    } else if (status === "AWD") {
-                                      return "AWARDED";
-                                    } else if (status === "WO") {
-                                      return "WALKOVER";
-                                    } else if (status === "TBD") {
-                                      return "TBD";
-                                    } else if (status === "NS") {
-                                      return "NOT STARTED";
+                                      return "After Extra Time";
                                     }
-                                    return status;
+                                    return "";
                                   })()}
                                 </div>
 
@@ -2035,6 +2008,42 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 >
                                   {shortenTeamName(match.teams.away.name) ||
                                     "Unknown Team"}
+                                </div>
+
+                                {/* Match Result Info - bottom center */}
+                                <div className="match-status-bottom" style={{
+                                  gridArea: "status-bottom",
+                                  fontSize: "10px",
+                                  fontWeight: "400",
+                                  textAlign: "center",
+                                  color: "#6b7280",
+                                  marginTop: "2px"
+                                }}>
+                                  {(() => {
+                                    const status = match.fixture.status.short;
+                                    
+                                    if (status === "PEN") {
+                                      const penaltyHome = match.score?.penalty?.home;
+                                      const penaltyAway = match.score?.penalty?.away;
+                                      
+                                      if (penaltyHome !== null && penaltyHome !== undefined && 
+                                          penaltyAway !== null && penaltyAway !== undefined) {
+                                        const winnerName = penaltyHome > penaltyAway 
+                                          ? shortenTeamName(match.teams.home.name)
+                                          : shortenTeamName(match.teams.away.name);
+                                        const winnerScore = penaltyHome > penaltyAway ? penaltyHome : penaltyAway;
+                                        const loserScore = penaltyHome > penaltyAway ? penaltyAway : penaltyHome;
+                                        
+                                        return `${winnerName} won ${winnerScore}-${loserScore} on penalties`;
+                                      }
+                                    }
+                                    
+                                    if (["FT", "AET", "PEN"].includes(status)) {
+                                      return "Ended";
+                                    }
+                                    
+                                    return "";
+                                  })()}
                                 </div>
                               </div>
                             </div>
