@@ -1741,17 +1741,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       ? "Ended"
                                                       : status === "AET"
                                                         ? "AET"
-                                                        : status === "AWD"
-                                                          ? "Awarded"
-                                                          : status === "WO"
-                                                            ? "Walkover"
-                                                            : status === "ABD"
-                                                              ? "Abandoned"
-                                                              : status === "CANC"
-                                                                ? "Cancelled"
-                                                                : status === "SUSP"
-                                                                  ? "Suspended"
-                                                                  : status}
+                                                        : status === "PEN"
+                                                          ? "Ended (After Penalty)"
+                                                          : status === "AWD"
+                                                            ? "Awarded"
+                                                            : status === "WO"
+                                                              ? "Walkover"
+                                                              : status === "ABD"
+                                                                ? "Abandoned"
+                                                                : status === "CANC"
+                                                                  ? "Cancelled"
+                                                                  : status === "SUSP"
+                                                                    ? "Suspended"
+                                                                    : status}
                                                   </div>
                                                 </div>
                                               );
