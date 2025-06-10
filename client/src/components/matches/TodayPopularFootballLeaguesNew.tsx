@@ -1595,7 +1595,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     />
                                   )}
 
-                                  {/* Penalty result below home logo */}
+                                  {/* Enhanced penalty result display */}
                                   {(() => {
                                     const status = match.fixture.status.short;
                                     const isPenaltyMatch = status === "PEN";
@@ -1606,21 +1606,85 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                     if (isPenaltyMatch && hasPenaltyScores) {
                                       const winnerText = penaltyHome > penaltyAway 
-                                        ? `${match.teams.home.name} has won ${penaltyHome}-${penaltyAway} after Penalties`
-                                        : `${match.teams.away.name} has won ${penaltyAway}-${penaltyHome} after Penalties`;
+                                        ? `${shortenTeamName(match.teams.home.name)} has won ${penaltyHome}-${penaltyAway} after Penalties`
+                                        : `${shortenTeamName(match.teams.away.name)} has won ${penaltyAway}-${penaltyHome} after Penalties`;
 
                                       return (
                                         <div
-                                          className="absolute text-xs text-gray-600 text-center max-w-[180px] leading-tight"
+                                          className="absolute bg-white border border-gray-200 rounded-lg shadow-md p-3 text-center z-50"
                                           style={{
-                                            top: "calc(100% + 6px)",
+                                            top: "calc(100% + 8px)",
                                             left: "50%",
                                             transform: "translateX(-50%)",
-                                            fontSize: "10px",
-                                            lineHeight: "12px"
+                                            minWidth: "200px",
+                                            fontSize: "11px"
                                           }}
                                         >
-                                          {winnerText}
+                                          <div className="text-xs text-gray-500 mb-2 font-medium">After Penalties</div>
+                                          <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                              {isNationalTeam(match.teams.home, leagueData.league) ? (
+                                                <div className="w-6 h-6 rounded-full overflow-hidden">
+                                                  <LazyImage
+                                                    src={(() => {
+                                                      const teamName = match.teams.home.name;
+                                                      const countryCode = getCountryCode(teamName);
+                                                      if (countryCode) {
+                                                        return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                                      }
+                                                      return match.teams.home.id
+                                                        ? `/api/team-logo/square/${match.teams.home.id}?size=24`
+                                                        : "/assets/fallback-logo.svg";
+                                                    })()}
+                                                    alt={match.teams.home.name}
+                                                    className="w-full h-full object-cover"
+                                                    fallbackSrc="/assets/fallback-logo.svg"
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <LazyImage
+                                                  src={match.teams.home.id ? `/api/team-logo/square/${match.teams.home.id}?size=24` : "/assets/fallback-logo.svg"}
+                                                  alt={match.teams.home.name}
+                                                  className="w-6 h-6 object-contain"
+                                                  fallbackSrc="/assets/fallback-logo.svg"
+                                                />
+                                              )}
+                                              <span className="text-xs font-medium">{shortenTeamName(match.teams.home.name)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs font-medium">{shortenTeamName(match.teams.away.name)}</span>
+                                              {isNationalTeam(match.teams.away, leagueData.league) ? (
+                                                <div className="w-6 h-6 rounded-full overflow-hidden">
+                                                  <LazyImage
+                                                    src={(() => {
+                                                      const teamName = match.teams.away.name;
+                                                      const countryCode = getCountryCode(teamName);
+                                                      if (countryCode) {
+                                                        return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                                      }
+                                                      return match.teams.away.id
+                                                        ? `/api/team-logo/square/${match.teams.away.id}?size=24`
+                                                        : "/assets/fallback-logo.svg";
+                                                    })()}
+                                                    alt={match.teams.away.name}
+                                                    className="w-full h-full object-cover"
+                                                    fallbackSrc="/assets/fallback-logo.svg"
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <LazyImage
+                                                  src={match.teams.away.id ? `/api/team-logo/square/${match.teams.away.id}?size=24` : "/assets/fallback-logo.svg"}
+                                                  alt={match.teams.away.name}
+                                                  className="w-6 h-6 object-contain"
+                                                  fallbackSrc="/assets/fallback-logo.svg"
+                                                />
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="text-lg font-bold text-center mb-1">
+                                            {match.goals.home} - {match.goals.away}
+                                          </div>
+                                          <div className="text-xs text-gray-600 font-medium">{winnerText}</div>
                                         </div>
                                       );
                                     }
