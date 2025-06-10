@@ -927,8 +927,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
     try {
       const isFavorite =
-        favoriteTeams?.some```typescript
-((team) => team.id === teamId) || false;
+        favoriteTeams?.some((team) => team.id === teamId) || false;
 
       if (isFavorite) {
         dispatch(userActions.removeFavoriteTeam(teamId));
