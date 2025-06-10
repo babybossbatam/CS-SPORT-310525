@@ -1620,6 +1620,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                             fontSize: "11px"
                                           }}
                                         >
+                                          <div className="text-xs text-gray-500 mb-2 font-medium">Ended</div>
                                           <div className="text-xs text-gray-500 mb-2 font-medium">After Penalties</div>
                                           <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
