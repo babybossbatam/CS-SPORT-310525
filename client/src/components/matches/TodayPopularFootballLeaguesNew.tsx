@@ -1568,7 +1568,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     } else if (status === "PST") {
                                       return "POSTPONED";
                                     } else if (status === "CANC") {
-                                      return "CANCELLED";
+                                      return "";
                                     } else if (status === "ABD") {
                                       return "ABANDONED";
                                     } else if (status === "SUSP") {
@@ -1928,7 +1928,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         status === "PST"
                                           ? "Postponed"
                                           : status === "CANC"
-                                            ? "Cancelled"
+                                            ? ""
                                             : status === "ABD"
                                               ? "Abandoned"
                                               : status === "SUSP"
@@ -1944,9 +1944,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          <div className="match-status-label status-postponed">
-                                            {statusText}
-                                          </div>
+                                          {statusText && (
+                                            <div className="match-status-label status-postponed">
+                                              {statusText}
+                                            </div>
+                                          )}
                                         </div>
                                       );
                                     }
