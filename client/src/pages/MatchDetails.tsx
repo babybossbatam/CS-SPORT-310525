@@ -558,8 +558,16 @@ const MatchDetails = () => {
             </TabsList>
 
             {/* Details Tab */}
-            <TabsContent value="details" className="mt-2">
-              <CardContent className="p-6">
+            <CardContent className="p-6">
+              {/* Modern scoreboard using the MatchScoreboard component */}
+              <MatchScoreboard
+                match={currentFixture}
+                homeTeamColor="#6f7c93"
+                awayTeamColor="#8b0000"
+              />
+
+              {/* Details Tab */}
+              <TabsContent value="details" className="mt-2">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Match Information Card */}
                   <Card>
@@ -624,8 +632,7 @@ const MatchDetails = () => {
                     </CardContent>
                   </Card>
                 </div>
-              </CardContent>
-            </TabsContent>
+              </TabsContent>
 
             {/* Matches Tab */}
             <TabsContent value="matches" className="mt-2">
