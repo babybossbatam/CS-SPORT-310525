@@ -1617,7 +1617,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     const winnerText = `${winnerName} has won ${penaltyScore} after Penalties`;
 
                                     return (
-                                      <div className="absolute left-0 top-12 text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded border border-blue-200 whitespace-nowrap z-10">
+                                      <div className="absolute left-0 top-12 text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1.5 rounded border border-blue-200 whitespace-nowrap z-10">
                                         {winnerText}
                                       </div>
                                     );
