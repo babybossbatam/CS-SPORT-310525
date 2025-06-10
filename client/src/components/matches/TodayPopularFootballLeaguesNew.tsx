@@ -1261,6 +1261,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 <Card
                   key={`${countryData.country}-${leagueData.league.id}`}
                   className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4"
+                  style={{ minHeight: "115%" }}
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
