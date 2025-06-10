@@ -1908,9 +1908,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                       return (
                                         <div className="penalty-result-display">
-                                          <span className="penalty-text">
-                                            Penalties: {penaltyHome} - {penaltyAway}
-                                          </span>
                                           <span className="penalty-winner">
                                             {winnerText}
                                           </span>
