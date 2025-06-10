@@ -1636,16 +1636,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                 {homeScore} - {awayScore}
                                               </span>
                                               {isPenaltyMatch && hasPenaltyScores ? (
-                                                <div className="status-text finished">
-                                                  {(() => {
-                                                    const winnerName = penaltyHome > penaltyAway 
+                                                <div className="penalty-details">
+                                                  <div className="penalty-winner">
+                                                    {penaltyHome > penaltyAway 
                                                       ? shortenTeamName(match.teams.home.name)
-                                                      : shortenTeamName(match.teams.away.name);
-                                                    const penaltyScore = penaltyHome > penaltyAway 
+                                                      : shortenTeamName(match.teams.away.name)} won
+                                                  </div>
+                                                  <div className="penalty-score">
+                                                    {penaltyHome > penaltyAway 
                                                       ? `${penaltyHome}-${penaltyAway}`
-                                                      : `${penaltyAway}-${penaltyHome}`;
-                                                    return `${winnerName} won ${penaltyScore} on penalties`;
-                                                  })()}
+                                                      : `${penaltyAway}-${penaltyHome}`}
+                                                  </div>
+                                                  <div className="penalty-method">
+                                                    on penalties
+                                                  </div>
                                                 </div>
                                               ) : (
                                                 <div className="status-text finished">
