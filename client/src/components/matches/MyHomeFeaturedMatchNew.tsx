@@ -435,7 +435,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
-    // Slides 7-9: 2 DAYS LATER
+    // Slides 7-9: 2 DAYS LATER (strictly from dayAfterTomorrow)
     for (let i = 7; i <= 9; i++) {
       let added = false;
       for (let j = 0; j < dayAfterPrioritized.length && !added; j++) {
@@ -450,23 +450,18 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
-    // Fill remaining slides if needed with any available matches
-    console.log(`🎯 [SLIDE DEBUG] Current slide count before backup: ${slidesDistribution.length}`);
+    // Only fill remaining slides 7-9 with matches from 2 days later if we don't have enough
+    console.log(`🎯 [SLIDE DEBUG] Current slide count before 2-day-later-only backup: ${slidesDistribution.length}`);
     
     if (slidesDistribution.length < 9) {
-      const allRemainingMatches = [
-        ...twoDaysAfterSorted, // Try 3 days later first
-        ...todayUpcoming, 
-        ...todayFinished, 
-        ...tomorrowUpcoming, 
-        ...dayAfterUpcoming
-      ];
+      // Only use matches from 2 days later (dayAfterTomorrow) for slides 7-9
+      const twoDaysLaterOnlyMatches = [...twoDaysAfterSorted];
       
-      console.log(`🎯 [SLIDE DEBUG] Backup matches available: ${allRemainingMatches.length}`);
+      console.log(`🎯 [SLIDE DEBUG] 2 days later backup matches available: ${twoDaysLaterOnlyMatches.length}`);
       
-      for (let i = 0; i < allRemainingMatches.length && slidesDistribution.length < 9; i++) {
-        if (addUniqueMatch(allRemainingMatches[i])) {
-          console.log(`✅ [SLIDE DEBUG] Added backup match to slide ${slidesDistribution.length}: ${allRemainingMatches[i].teams.home.name} vs ${allRemainingMatches[i].teams.away.name}`);
+      for (let i = 0; i < twoDaysLaterOnlyMatches.length && slidesDistribution.length < 9; i++) {
+        if (addUniqueMatch(twoDaysLaterOnlyMatches[i])) {
+          console.log(`✅ [SLIDE DEBUG] Added 2-days-later backup match to slide ${slidesDistribution.length}: ${twoDaysLaterOnlyMatches[i].teams.home.name} vs ${twoDaysLaterOnlyMatches[i].teams.away.name}`);
         }
       }
     }
