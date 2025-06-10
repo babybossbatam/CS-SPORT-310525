@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Start Dev Server (Stable)"
+runButton = "Start Dev Server (Simple)"
 
 [[workflows.workflow]]
 name = "Project"
@@ -77,12 +77,31 @@ mode = "sequential"
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048 --unhandled-rejections=warn' tsx --watch=false server/index.ts"
 
+[[workflows.workflow]]
+name = "Start Dev Server (Simple)"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Direct Server Start"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development tsx server/index.ts"
+
 [[ports]]
 localPort = 5000
-externalPort = 8080
+externalPort = 3000
 
 [[ports]]
 localPort = 5001
+externalPort = 8080
 
 [[ports]]
 localPort = 5002
