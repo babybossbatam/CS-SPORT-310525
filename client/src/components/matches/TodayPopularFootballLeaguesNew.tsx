@@ -1800,7 +1800,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                       {awayScore}
                                                     </span>
                                                   </div>
-                                                  <div className="match-status-label status-ended">
+                                                  <div className="match-status-label status-ended" style={{ transform: 'translateY(-30%)' }}>
                                                     {status === "FT"
                                                       ? "Ended"
                                                       : status === "AET"
