@@ -319,7 +319,6 @@ const countryCodeMap: { [key: string]: string } = {
   'Bosnia & Herzegovina': 'BA',
   'Herzegovina': 'BA',
   'Czechia': 'CZ',
-  'Macedonia': 'MK',
   'FYROM': 'MK',
   'Korea Republic': 'KR',
   'Korea DPR': 'KP',
