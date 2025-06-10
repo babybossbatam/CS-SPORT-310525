@@ -1626,9 +1626,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         if (hasValidScores) {
                                           return (
                                             <div className="score-display-horizontal">
-                                              {/* Show penalty result at top for penalty matches */}
-                                              {isPenaltyMatch && hasPenaltyScores && (
+                                              {/* Show "After Penalties" at top for penalty matches */}
+                                              {isPenaltyMatch && (
                                                 <div className="penalty-result-top">
+                                                  After Penalties
+                                                </div>
+                                              )}
+                                              <span className="score-text">
+                                                {homeScore} - {awayScore}
+                                              </span>
+                                              {isPenaltyMatch && hasPenaltyScores ? (
+                                                <div className="status-text finished">
                                                   {(() => {
                                                     const winnerName = penaltyHome > penaltyAway 
                                                       ? shortenTeamName(match.teams.home.name)
@@ -1639,15 +1647,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                     return `${winnerName} won ${penaltyScore} on penalties`;
                                                   })()}
                                                 </div>
+                                              ) : (
+                                                <div className="status-text finished">
+                                                  {status === "AET" ? "After Extra Time" :
+                                                   status === "FT" ? "Full Time" : status}
+                                                </div>
                                               )}
-                                              <span className="score-text">
-                                                {homeScore} - {awayScore}
-                                              </span>
-                                              <div className="status-text finished">
-                                                {status === "PEN" ? "After Penalties" : 
-                                                 status === "AET" ? "After Extra Time" :
-                                                 status === "FT" ? "Full Time" : status}
-                                              </div>
                                             </div>
                                           );
                                         }
@@ -1723,31 +1728,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   </div>
                                 </div>
 
-                                {/* Penalty Result Below */}
-                                {(() => {
-                                  const status = match.fixture.status.short;
-                                  const isPenaltyMatch = status === "PEN";
-                                  const penaltyHome = match.score?.penalty?.home;
-                                  const penaltyAway = match.score?.penalty?.away;
-                                  const hasPenaltyScores = penaltyHome !== null && penaltyHome !== undefined && 
-                                                         penaltyAway !== null && penaltyAway !== undefined;
-
-                                  if (isPenaltyMatch && hasPenaltyScores) {
-                                    const winnerName = penaltyHome > penaltyAway 
-                                      ? shortenTeamName(match.teams.home.name)
-                                      : shortenTeamName(match.teams.away.name);
-                                    const penaltyScore = penaltyHome > penaltyAway 
-                                      ? `${penaltyHome}-${penaltyAway}`
-                                      : `${penaltyAway}-${penaltyHome}`;
-
-                                    return (
-                                      <div className="penalty-result">
-                                        {winnerName} has won {penaltyScore} after Penalties
-                                      </div>
-                                    );
-                                  }
-                                  return null;
-                                })()}
+                                
                               </div>
                             </div>
                           </LazyMatchItem>
