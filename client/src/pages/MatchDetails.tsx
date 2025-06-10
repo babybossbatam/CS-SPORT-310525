@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'wouter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, fixturesActions, userActions } from '@/lib/store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -557,108 +557,160 @@ const MatchDetails = () => {
               </TabsTrigger>
             </TabsList>
 
-            <CardContent className="p-6">
-              {/* Modern scoreboard using the MatchScoreboard component */}
-              <div className="flex flex-col items-center w-full">
-
-              </div>
-              <MatchScoreboard
-                match={currentFixture}
-                homeTeamColor="#6f7c93"
-                awayTeamColor="#8b0000"
-              />
-
-              {/* Details Tab */}
-              <TabsContent value="details" className="mt-2">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                  {/* Match Info Card */}
+            {/* Details Tab */}
+            <TabsContent value="details" className="mt-2">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Match Information Card */}
                   <Card>
-                    <CardContent className="p-4">
-                      <div className="text-center text-sm text-gray-500">
-                        {currentFixture.fixture.status.long === "Match Finished" ? (
-                          <p>This match has ended. Final score: {currentFixture.goals.home} - {currentFixture.goals.away}</p>
-                        ) : isLiveMatch(currentFixture.fixture.status.short) ? (
-                          <p>
-                            This match is currently in progress. 
-                            {currentFixture.fixture.status.elapsed && ` Elapsed time: ${currentFixture.fixture.status.elapsed} minutes`}
-                          </p>
-                        ) : (
-                          <p>This match has not started yet. Scheduled to begin at {formatDateTime(currentFixture.fixture.date)}</p>
-                        )}
-
-                        {currentFixture.fixture.referee && (
-                          <p className="mt-2">Referee: {currentFixture.fixture.referee}</p>
-                        )}
-
-                        {currentFixture.fixture.venue.name && currentFixture.fixture.venue.city && (
-                          <p className="mt-2">Venue: {currentFixture.fixture.venue.name}, {currentFixture.fixture.venue.city}</p>
-                        )}
+                    <CardHeader>
+                      <CardTitle className="text-lg font-semibold">Match Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">
+                          {currentFixture && format(new Date(currentFixture.fixture.date), 'PPpp')}
+                        </span>
                       </div>
+
+                      {currentFixture?.fixture.venue && (
+                        <div className="flex items-center gap-2">
+                          <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="text-sm text-gray-600">
+                            {currentFixture.fixture.venue.name}
+                          </span>
+                        </div>
+                      )}
+
+                      {currentFixture?.fixture.referee && (
+                        <div className="flex items-center gap-2">
+                          <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm text-gray-600">
+                            {currentFixture.fixture.referee}
+                          </span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* League Information Card */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg font-semibold">League Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={currentFixture?.league.logo} 
+                          alt={currentFixture?.league.name}
+                          className="h-8 w-8 rounded"
+                        />
+                        <div>
+                          <p className="font-medium">{currentFixture?.league.name}</p>
+                          <p className="text-sm text-gray-600">{currentFixture?.league.country}</p>
+                        </div>
+                      </div>
+                      {currentFixture?.league.round && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Round:</span> {currentFixture.league.round}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
-              </TabsContent>
+              </CardContent>
+            </TabsContent>
 
-              {/* Matches Tab */}
-              <TabsContent value="matches" className="mt-2">
+            {/* Matches Tab */}
+            <TabsContent value="matches" className="mt-2">
+              <CardContent className="p-6">
                 <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-4">Related Matches</h3>
-                    <p className="text-gray-500">Recent and upcoming matches for these teams</p>
+                  <CardHeader>
+                    <CardTitle>Recent Matches</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Recent match data will be displayed here.</p>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </CardContent>
+            </TabsContent>
 
-              {/* Standings Tab */}
-              <TabsContent value="standings" className="mt-2">
+            {/* Standings Tab */}
+            <TabsContent value="standings" className="mt-2">
+              <CardContent className="p-6">
                 <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-4">League Standings</h3>
-                    <p className="text-gray-500">Current league table and positions</p>
+                  <CardHeader>
+                    <CardTitle>League Standings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">League standings will be displayed here.</p>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </CardContent>
+            </TabsContent>
 
-              {/* News Tab */}
-              <TabsContent value="news" className="mt-2">
+            {/* News Tab */}
+            <TabsContent value="news" className="mt-2">
+              <CardContent className="p-6">
                 <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-4">Match News</h3>
-                    <p className="text-gray-500">Latest news and updates about this match</p>
+                  <CardHeader>
+                    <CardTitle>Related News</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Match-related news will be displayed here.</p>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </CardContent>
+            </TabsContent>
 
-              {/* Highlights Tab */}
-              <TabsContent value="highlights" className="mt-2">
+            {/* Highlights Tab */}
+            <TabsContent value="highlights" className="mt-2">
+              <CardContent className="p-6">
                 <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-4">Match Highlights</h3>
-                    <p className="text-gray-500">Key moments and highlights from the match</p>
+                  <CardHeader>
+                    <CardTitle>Match Highlights</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Match highlights will be displayed here.</p>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </CardContent>
+            </TabsContent>
 
-              {/* Stats Tab */}
-              <TabsContent value="stats" className="mt-2">
+            {/* Stats Tab */}
+            <TabsContent value="stats" className="mt-2">
+              <CardContent className="p-6">
                 <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
-                    <p className="text-gray-500">Detailed statistics and performance data</p>
+                  <CardHeader>
+                    <CardTitle>Match Statistics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Detailed match statistics will be displayed here.</p>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </CardContent>
+            </TabsContent>
 
-              {/* Insights Tab */}
-              <TabsContent value="insights" className="mt-2">
+            {/* Insights Tab */}
+            <TabsContent value="insights" className="mt-2">
+              <CardContent className="p-6">
                 <Card>
-                  <CardContent className="p-4">
-                    <MatchEngagementSection matchId={parseInt(id || '0')} />
+                  <CardHeader>
+                    <CardTitle>Match Insights</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Match insights and analysis will be displayed here.</p>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
+              </CardContent>
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </>
