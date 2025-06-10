@@ -1804,7 +1804,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                     {status === "FT"
                                                       ? "Ended"
                                                       : status === "AET"
-                                                        ? "AET"
+                                                        ? "Ended (AET)"
                                                         : status === "PEN"
                                                           ? "Ended (After Penalty)"
                                                           : status === "AWD"
