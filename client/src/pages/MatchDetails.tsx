@@ -481,15 +481,6 @@ const MatchDetails = () => {
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">
           <CardHeader className="p-4 border-b border-neutral-200 flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center" 
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span>Back</span>
-            </Button>
             <div className="text-sm font-medium">
               {isLiveMatch(currentFixture.fixture.status.short) && (
                 <Badge variant="default" className="bg-[#48BB78]">LIVE</Badge>
