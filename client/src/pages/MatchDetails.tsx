@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/layout/Header';
-import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import MatchEngagementSection from '@/components/heatmap/MatchEngagementSection';
 import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
@@ -162,6 +161,7 @@ const MatchDetails = () => {
           } else if (error.message.includes('Network error') || error.message.includes('fetch')) {
             errorMessage = 'Network error: Please check your internet connection and try again.';
           } else if (error.message.includes('Server error')) {
+```typescript
             errorMessage = `Server error: ${error.message.replace('Server error: ', '')}`;
           }
         }
@@ -356,7 +356,6 @@ const MatchDetails = () => {
     return (
       <>
         <Header />
-        <SportsCategoryTabs />
         <TournamentHeader title="Loading match details..." />
 
         <div className="container mx-auto px-4 py-4">
@@ -404,7 +403,6 @@ const MatchDetails = () => {
     return (
       <>
         <Header />
-        <SportsCategoryTabs />
         <TournamentHeader title="Error loading match" />
 
         <div className="container mx-auto px-4 py-4">
@@ -479,7 +477,6 @@ const MatchDetails = () => {
   return (
     <>
       <Header />
-      <SportsCategoryTabs />
       <TournamentHeader title={`${currentFixture.league.name} - ${currentFixture.league.round}`} />
 
       <div className="container mx-auto px-4 py-4">
@@ -517,7 +514,7 @@ const MatchDetails = () => {
           <CardContent className="p-6">
             {/* Modern scoreboard using the MatchScoreboard component */}
             <div className="flex flex-col items-center w-full">
-              
+
             </div>
             <MatchScoreboard
               match={currentFixture}
