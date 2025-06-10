@@ -42,7 +42,7 @@ const countryCodeMap: { [key: string]: string } = {
   'Turkey': 'TR',
   'Switzerland': 'CH',
   'Austria': 'AT',
-  'Denmark': 'DK',
+  'Denmark': 'dk',
   'Sweden': 'SE',
   'Norway': 'NO',
   'Poland': 'PL',
