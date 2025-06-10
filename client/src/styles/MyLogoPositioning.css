@@ -624,17 +624,3 @@
   justify-content: center;
   font-weight: 600;
 }
-
-.match-content-container {
-  display: grid;
-  grid-template-columns: 1fr 36px 120px 36px 1fr;
-  grid-template-rows: auto auto;
-  grid-template-areas: 
-    "status-home . . . ."
-    "home-name home-logo score away-logo away-name";
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 8px 12px;
-  gap: 4px 8px;
-}

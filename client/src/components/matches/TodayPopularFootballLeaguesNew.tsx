@@ -1528,64 +1528,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </button>
 
                               <div className="match-content-container">
-                                {/* Match Status above Home Team Name */}
-                                <div className="match-status-home" style={{
-                                  gridArea: "status-home",
-                                  fontSize: "10px",
-                                  fontWeight: "600",
-                                  textAlign: "left",
-                                  color: (() => {
-                                    const status = match.fixture.status.short;
-                                    if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                                      return "#dc2626"; // red for live
-                                    } else if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                                      return "#059669"; // green for finished
-                                    } else if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
-                                      return "#d97706"; // orange for postponed/cancelled
-                                    }
-                                    return "#6b7280"; // gray for upcoming
-                                  })(),
-                                  textTransform: "uppercase",
-                                  letterSpacing: "0.5px"
-                                }}>
-                                  {(() => {
-                                    const status = match.fixture.status.short;
-                                    if (["LIVE", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                                      return status === "1H" ? "1ST HALF" : 
-                                             status === "2H" ? "2ND HALF" :
-                                             status === "ET" ? "EXTRA TIME" :
-                                             status === "BT" ? "BREAK TIME" :
-                                             status === "P" ? "PENALTY" :
-                                             status === "INT" ? "INTERVAL" : "LIVE";
-                                    } else if (status === "HT") {
-                                      return "HALF TIME";
-                                    } else if (status === "FT") {
-                                      return "FULL TIME";
-                                    } else if (status === "AET") {
-                                      return "AFTER ET";
-                                    } else if (status === "PEN") {
-                                      return "PENALTIES";
-                                    } else if (status === "PST") {
-                                      return "POSTPONED";
-                                    } else if (status === "CANC") {
-                                      return "";
-                                    } else if (status === "ABD") {
-                                      return "ABANDONED";
-                                    } else if (status === "SUSP") {
-                                      return "SUSPENDED";
-                                    } else if (status === "AWD") {
-                                      return "AWARDED";
-                                    } else if (status === "WO") {
-                                      return "WALKOVER";
-                                    } else if (status === "TBD") {
-                                      return "TBD";
-                                    } else if (status === "NS") {
-                                      return "NOT STARTED";
-                                    }
-                                    return status;
-                                  })()}
-                                </div>
-
                                 {/* Home Team Name - positioned further left */}
                                 <div
                                   className={`home-team-name ${
@@ -1860,7 +1802,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                   </div>
                                                   <div className="match-status-label status-ended">
                                                     {status === "FT"
-                                                      ? ""
+                                                      ? "Ended"
                                                       : status === "AET"
                                                         ? "Ended (AET)"
                                                         : status === "PEN"
@@ -1928,7 +1870,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         status === "PST"
                                           ? "Postponed"
                                           : status === "CANC"
-                                            ? ""
+                                            ? "Cancelled"
                                             : status === "ABD"
                                               ? "Abandoned"
                                               : status === "SUSP"
@@ -1944,11 +1886,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           <div className="text-sm font-medium text-gray-900">
                                             {format(fixtureDate, "HH:mm")}
                                           </div>
-                                          {statusText && (
-                                            <div className="match-status-label status-postponed">
-                                              {statusText}
-                                            </div>
-                                          )}
+                                          <div className="match-status-label status-postponed">
+                                            {statusText}
+                                          </div>
                                         </div>
                                       );
                                     }
