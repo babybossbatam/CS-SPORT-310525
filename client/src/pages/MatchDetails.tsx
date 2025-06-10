@@ -510,62 +510,63 @@ const MatchDetails = () => {
               <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
             </Button>
           </CardHeader>
-          <CardContent className="p-6">
-            {/* Modern scoreboard using the MatchScoreboard component */}
-            <div className="flex flex-col items-center w-full">
+          {/* TabsList moved below header */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0">
+              <TabsTrigger 
+                value="details" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                Details
+              </TabsTrigger>
+              <TabsTrigger 
+                value="matches" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                Matches
+              </TabsTrigger>
+              <TabsTrigger 
+                value="standings" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                Standings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="news" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                News
+              </TabsTrigger>
+              <TabsTrigger 
+                value="highlights" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                Highlights
+              </TabsTrigger>
+              <TabsTrigger 
+                value="stats" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                Stats
+              </TabsTrigger>
+              <TabsTrigger 
+                value="insights" 
+                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              >
+                Insights
+              </TabsTrigger>
+            </TabsList>
 
-            </div>
-            <MatchScoreboard
-              match={currentFixture}
-              homeTeamColor="#6f7c93"
-              awayTeamColor="#8b0000"
-            />
+            <CardContent className="p-6">
+              {/* Modern scoreboard using the MatchScoreboard component */}
+              <div className="flex flex-col items-center w-full">
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-6">
-                <TabsTrigger 
-                  value="details" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  Details
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="matches" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  Matches
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="standings" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  Standings
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="news" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  News
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="highlights" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  Highlights
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="stats" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  Stats
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="insights" 
-                  className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-                >
-                  Insights
-                </TabsTrigger>
-              </TabsList>
+              </div>
+              <MatchScoreboard
+                match={currentFixture}
+                homeTeamColor="#6f7c93"
+                awayTeamColor="#8b0000"
+              />
 
               {/* Details Tab */}
               <TabsContent value="details" className="mt-2">
