@@ -549,19 +549,13 @@
 .match-cards-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* 16px spacing between match cards */
+
+  /* 16px spacing between match cards */
 }
 
-.match-cards-wrapper > .match-card-container {
-  border-bottom: none; /* Remove individual borders since we have spacing */
-  margin-bottom: 0; /* Reset any margin */
-  margin-top: 0; /* Reset any margin */
-}
-
-/* Override the default match card container border */
-.match-card-container {
-  border-bottom: none !important;
-  margin: 0 !important;
+.match-cards-wrapper>.match-card-container {
+  border-bottom: none;
+  /* Remove individual borders since we have spacing */
 }
 
 /* Keyframe animations for league expand/collapse */

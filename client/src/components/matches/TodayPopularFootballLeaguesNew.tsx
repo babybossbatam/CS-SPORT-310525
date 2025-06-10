@@ -1037,7 +1037,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   if (!filteredFixtures.length) {
     return (
       <Card>
-        <CardContent className="p-6 text-center">
+        <CardContent className="p-6  text-center">
           <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
           <p className="text-gray-500">No matches available for this date</p>
         </CardContent>
@@ -1087,7 +1087,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         {getHeaderTitle()}
       </CardHeader>
+
       {/* Create individual league cards from all countries */}
+
       {top20FilteredCountries.flatMap(
         (countryData: any, countryIndex: number) =>
           Object.values(countryData.leagues)
@@ -1104,6 +1106,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   })),
                 );
               }
+            
               // Check for UEFA Nations League - Women first (lowest priority)
               const aIsWomensNationsLeague =
                 a.league.name?.toLowerCase().includes("uefa nations league") &&
@@ -1285,7 +1288,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
-                    <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200 mt-[0px] mb-[0px] pt-[0px] pb-[0px]">
+                    <CardContent className="flex items-center gap-2 p-2  bg-white border-b border-gray-200">
                       {/* League Star Toggle Button */}
                       <button
                         onClick={(e) => {
@@ -1440,162 +1443,345 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           )}
                       </div>
                     </CardContent>
+                  
                   )}
                   {/* Matches - Show for all leagues */}
-                  <CardContent className="p-0">
-                    <div className="space-y-4">
-                      {leagueData.matches
-                        .slice(
-                          0,
-                          timeFilterActive && showTop20 ? 20 : undefined,
-                        )
-                        .sort((a: any, b: any) => {
-                          const now = new Date();
-                          const aDate = parseISO(a.fixture.date);
-                          const bDate = parseISO(b.fixture.date);
-                          const aStatus = a.fixture.status.short;
-                          const bStatus = b.fixture.status.short;
 
-                          // Ensure valid dates
-                          if (!isValid(aDate) || !isValid(bDate)) {
-                            return 0;
-                          }
+                  <div className="match-cards-wrapper">
+                    {leagueData.matches
+                      .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
+                      .sort((a: any, b: any) => {
+                        const now = new Date();
+                        const aDate = parseISO(a.fixture.date);
+                        const bDate = parseISO(b.fixture.date);
+                        const aStatus = a.fixture.status.short;
+                        const bStatus = b.fixture.status.short;
 
-                          const aTime = aDate.getTime();
-                          const bTime = bDate.getTime();
-                          const nowTime = now.getTime();
+                        // Ensure valid dates
+                        if (!isValid(aDate) || !isValid(bDate)) {
+                          return 0;
+                        }
 
-                          // Define status categories
-                          const aLive = [
-                            "LIVE",
-                            "1H",
-                            "HT",
-                            "2H",
-                            "ET",
-                            "BT",
-                            "P",
-                            "INT",
-                          ].includes(aStatus);
-                          const bLive = [
-                            "LIVE",
-                            "1H",
-                            "HT",
-                            "2H",
-                            "ET",
-                            "BT",
-                            "P",
-                            "INT",
-                          ].includes(bStatus);
+                        const aTime = aDate.getTime();
+                        const bTime = bDate.getTime();
+                        const nowTime = now.getTime();
 
-                          const aUpcoming =
-                            aStatus === "NS" || aStatus === "TBD";
-                          const bUpcoming =
-                            bStatus === "NS" || bStatus === "TBD";
+                        // Define status categories
+                        const aLive = [
+                          "LIVE",
+                          "1H",
+                          "HT",
+                          "2H",
+                          "ET",
+                          "BT",
+                          "P",
+                          "INT",
+                        ].includes(aStatus);
+                        const bLive = [
+                          "LIVE",
+                          "1H",
+                          "HT",
+                          "2H",
+                          "ET",
+                          "BT",
+                          "P",
+                          "INT",
+                        ].includes(bStatus);
 
-                          const aFinished = [
-                            "FT",
-                            "AET",
-                            "PEN",
-                            "AWD",
-                            "WO",
-                            "ABD",
-                            "CANC",
-                            "SUSP",
-                          ].includes(aStatus);
-                          const bFinished = [
-                            "FT",
-                            "AET",
-                            "PEN",
-                            "AWD",
-                            "WO",
-                            "ABD",
-                            "CANC",
-                            "SUSP",
-                          ].includes(bStatus);
+                        const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+                        const bUpcoming = bStatus === "NS" || bStatus === "TBD";
 
-                          // PRIORITY 1: LIVE matches always come first
-                          if (aLive && !bLive) return -1;
-                          if (!aLive && bLive) return 1;
+                        const aFinished = [
+                          "FT",
+                          "AET",
+                          "PEN",
+                          "AWD",
+                          "WO",
+                          "ABD",
+                          "CANC",
+                          "SUSP",
+                        ].includes(aStatus);
+                        const bFinished = [
+                          "FT",
+                          "AET",
+                          "PEN",
+                          "AWD",
+                          "WO",
+                          "ABD",
+                          "CANC",
+                          "SUSP",
+                        ].includes(bStatus);
 
-                          // If both are LIVE, sort by elapsed time (shortest first)
-                          if (aLive && bLive) {
-                            const aElapsed =
-                              Number(a.fixture.status.elapsed) || 0;
-                            const bElapsed =
-                              Number(b.fixture.status.elapsed) || 0;
-                            return aElapsed - bElapsed;
-                          }
+                        // PRIORITY 1: LIVE matches always come first
+                        if (aLive && !bLive) return -1;
+                        if (!aLive && bLive) return 1;
 
-                          // PRIORITY 2: Upcoming matches, sorted by time proximity to current time
-                          if (aUpcoming && !bUpcoming) return -1;
-                          if (!aUpcoming && bUpcoming) return 1;
+                        // If both are LIVE, sort by elapsed time (shortest first)
+                        if (aLive && bLive) {
+                          const aElapsed =
+                            Number(a.fixture.status.elapsed) || 0;
+                          const bElapsed =
+                            Number(b.fixture.status.elapsed) || 0;
+                          return aElapsed - bElapsed;
+                        }
 
-                          if (aUpcoming && bUpcoming) {
-                            // Sort by time distance from now (nearest first)
-                            const aDistance = Math.abs(aTime - nowTime);
-                            const bDistance = Math.abs(bTime - nowTime);
-                            return aDistance - bDistance;
-                          }
+                        // PRIORITY 2: Upcoming matches, sorted by time proximity to current time
+                        if (aUpcoming && !bUpcoming) return -1;
+                        if (!aUpcoming && bUpcoming) return 1;
 
-                          // PRIORITY 3: Recently finished matches, sorted by recency (most recent first)
-                          if (aFinished && !bFinished) return 1;
-                          if (!aFinished && bFinished) return -1;
-
-                          if (aFinished && bFinished) {
-                            // For finished matches, prioritize the most recently finished
-                            // (those closest to current time but in the past)
-                            const aDistance = Math.abs(nowTime - aTime);
-                            const bDistance = Math.abs(nowTime - bTime);
-                            return aDistance - bDistance;
-                          }
-
-                          // DEFAULT: Sort by time proximity to current time
+                        if (aUpcoming && bUpcoming) {
+                          // Sort by time distance from now (nearest first)
                           const aDistance = Math.abs(aTime - nowTime);
                           const bDistance = Math.abs(bTime - nowTime);
                           return aDistance - bDistance;
-                        })
-                        .map((match: any) => (
-                          <LazyMatchItem key={match.fixture.id}>
-                            <div
-                              key={match.fixture.id}
-                              className="match-card-container group"
+                        }
+
+                        // PRIORITY 3: Recently finished matches, sorted by recency (most recent first)
+                        if (aFinished && !bFinished) return 1;
+                        if (!aFinished && bFinished) return -1;
+
+                        if (aFinished && bFinished) {
+                          // For finished matches, prioritize the most recently finished
+                          // (those closest to current time but in the past)
+                          const aDistance = Math.abs(nowTime - aTime);
+                          const bDistance = Math.abs(nowTime - bTime);
+                          return aDistance - bDistance;
+                        }
+
+                        // DEFAULT: Sort by time proximity to current time
+                        const aDistance = Math.abs(aTime - nowTime);
+                        const bDistance = Math.abs(bTime - nowTime);
+                        return aDistance - bDistance;
+                      })
+                      .map((match: any) => (
+                        <LazyMatchItem key={match.fixture.id}>
+                          <div
+                            key={match.fixture.id}
+                            className="match-card-container group"
+                          >
+                            {/* Star Button with true slide-in effect */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleStarMatch(match.fixture.id);
+                              }}
+                              className="match-star-button"
+                              title="Add to favorites"
+                              onMouseEnter={(e) => {
+                                e.currentTarget
+                                  .closest(".group")
+                                  ?.classList.add("disable-hover");
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget
+                                  .closest(".group")
+                                  ?.classList.remove("disable-hover");
+                              }}
                             >
-                              {/* Star Button with true slide-in effect */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleStarMatch(match.fixture.id);
-                                }}
-                                className="match-star-button"
-                                title="Add to favorites"
-                                onMouseEnter={(e) => {
-                                  e.currentTarget
-                                    .closest(".group")
-                                    ?.classList.add("disable-hover");
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget
-                                    .closest(".group")
-                                    ?.classList.remove("disable-hover");
-                                }}
-                              >
-                                <Star
-                                  className={`match-star-icon ${
-                                    starredMatches.has(match.fixture.id)
-                                      ? "starred"
+                              <Star
+                                className={`match-star-icon ${
+                                  starredMatches.has(match.fixture.id)
+                                    ? "starred"
+                                    : ""
+                                }`}
+                              />
+                            </button>
+
+                            {/* Three-grid layout container */}
+                            <div className="match-three-grid-container">
+                              {/* Top Grid: Match Status */}
+                              <div className="match-status-top">
+                                {(() => {
+                                  const status = match.fixture.status.short;
+
+                                  // Live matches status
+                                  if (
+                                    [
+                                      "LIVE",
+                                      "1H",
+                                      "HT",
+                                      "2H",
+                                      "ET",
+                                      "BT",
+                                      "P",
+                                      "INT",
+                                    ].includes(status)
+                                  ) {
+                                    return (
+                                      <div className="match-status-label status-live">
+                                        {status === "HT"
+                                          ? "Halftime"
+                                          : `${match.fixture.status.elapsed || 0}'`}
+                                      </div>
+                                    );
+                                  }
+
+                                  // Finished matches status
+                                  if (
+                                    [
+                                      "FT",
+                                      "AET",
+                                      "PEN",
+                                      "AWD",
+                                      "WO",
+                                      "ABD",
+                                      "CANC",
+                                      "SUSP",
+                                    ].includes(status)
+                                  ) {
+                                    return (
+                                      <div className="match-status-label status-ended">
+                                        {status === "FT"
+                                          ? "Ended"
+                                          : status === "AET"
+                                            ? "Ended (AET)"
+                                            : status === "PEN"
+                                              ? "Ended (Penalties)"
+                                              : status === "AWD"
+                                                ? "Awarded"
+                                                : status === "WO"
+                                                  ? "Walkover"
+                                                  : status === "ABD"
+                                                    ? "Abandoned"
+                                                    : status === "CANC"
+                                                      ? "Cancelled"
+                                                      : status === "SUSP"
+                                                        ? "Suspended"
+                                                        : status}
+                                      </div>
+                                    );
+                                  }
+
+                                  // Postponed matches status
+                                  if (
+                                    [
+                                      "PST",
+                                      "CANC",
+                                      "ABD",
+                                      "SUSP",
+                                      "AWD",
+                                      "WO",
+                                    ].includes(status)
+                                  ) {
+                                    const statusText =
+                                      status === "PST"
+                                        ? "Postponed"
+                                        : status === "CANC"
+                                          ? "Cancelled"
+                                          : status === "ABD"
+                                            ? "Abandoned"
+                                            : status === "SUSP"
+                                              ? "Suspended"
+                                              : status === "AWD"
+                                                ? "Awarded"
+                                                : status === "WO"
+                                                  ? "Walkover"
+                                                  : status;
+
+                                    return (
+                                      <div className="match-status-label status-postponed">
+                                        {statusText}
+                                      </div>
+                                    );
+                                  }
+
+                                  // Upcoming matches (TBD status)
+                                  if (status === "TBD") {
+                                    return (
+                                      <div className="match-status-label status-upcoming">
+                                        Time TBD
+                                      </div>
+                                    );
+                                  }
+
+                                  // Default - no status display for regular upcoming matches
+                                  return null;
+                                })()}
+                              </div>
+
+                              {/* Middle Grid: Main match content */}
+                              <div className="match-content-container">
+                                {/* Home Team Name - positioned further left */}
+                                <div
+                                  className={`home-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.home > match.goals.away
+                                      ? "winner"
                                       : ""
                                   }`}
-                                />
-                              </button>
+                                >
+                                  {shortenTeamName(match.teams.home.name) ||
+                                    "Unknown Team"}
+                                </div>
 
-                              {/* Three-grid layout container */}
-                              <div className="match-three-grid-container">
-                                {/* Top Grid: Match Status */}
-                                <div className="match-status-top">
+                                {/* Home team logo - grid area */}
+                                <div className="home-team-logo-container">
+                                  {isNationalTeam(
+                                    match.teams.home,
+                                    leagueData.league,
+                                  ) ? (
+                                    <div className="flag-circle">
+                                      <LazyImage
+                                        src={(() => {
+                                          // Use Circle Flags as primary source for national teams
+                                          const teamName =
+                                            match.teams.home.name;
+                                          const countryCode =
+                                            getCountryCode(teamName);
+
+                                          if (countryCode) {
+                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                          }
+
+                                          // Fallback to original API if no country code mapping
+                                          return match.teams.home.id
+                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                            : "/assets/fallback-logo.svg";
+                                        })()}
+                                        alt={match.teams.home.name}
+                                        title={match.teams.home.name}
+                                        className="team-logo national-team"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                        }}
+                                        fallbackSrc={
+                                          match.teams.home.id
+                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                            : "/assets/fallback-logo.svg"
+                                        }
+                                      />
+                                      <div className="gloss"></div>
+                                    </div>
+                                  ) : (
+                                    <LazyImage
+                                      src={
+                                        match.teams.home.id
+                                          ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                          : "/assets/fallback-logo.svg"
+                                      }
+                                      alt={match.teams.home.name}
+                                      title={match.teams.home.name}
+                                      className="team-logo"
+                                      style={{
+                                        filter:
+                                          "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                      }}
+                                      fallbackSrc="/assets/fallback-logo.svg"
+                                    />
+                                  )}
+                                </div>
+
+                                {/* Score/Time Center - Fixed width and centered */}
+                                <div className="match-score-container">
                                   {(() => {
                                     const status = match.fixture.status.short;
+                                    const fixtureDate = parseISO(
+                                      match.fixture.date,
+                                    );
 
-                                    // Live matches status
+                                    // Live matches - show score only
                                     if (
                                       [
                                         "LIVE",
@@ -1609,15 +1795,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       ].includes(status)
                                     ) {
                                       return (
-                                        <div className="match-status-label status-live">
-                                          {status === "HT"
-                                            ? "Halftime"
-                                            : `${match.fixture.status.elapsed || 0}'`}
+                                        <div className="match-score-display">
+                                          <span className="score-number">
+                                            {match.goals.home ?? 0}
+                                          </span>
+                                          <span className="score-separator">
+                                            -
+                                          </span>
+                                          <span className="score-number">
+                                            {match.goals.away ?? 0}
+                                          </span>
                                         </div>
                                       );
                                     }
 
-                                    // Finished matches status
+                                    // All finished match statuses - show score only
                                     if (
                                       [
                                         "FT",
@@ -1630,30 +1822,45 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "SUSP",
                                       ].includes(status)
                                     ) {
-                                      return (
-                                        <div className="match-status-label status-ended">
-                                          {status === "FT"
-                                            ? "Ended"
-                                            : status === "AET"
-                                              ? "Ended (AET)"
-                                              : status === "PEN"
-                                                ? "Ended (Penalties)"
-                                                : status === "AWD"
-                                                  ? "Awarded"
-                                                  : status === "WO"
-                                                    ? "Walkover"
-                                                    : status === "ABD"
-                                                      ? "Abandoned"
-                                                      : status === "CANC"
-                                                        ? "Cancelled"
-                                                        : status === "SUSP"
-                                                          ? "Suspended"
-                                                          : status}
-                                        </div>
-                                      );
+                                      // Check if we have actual numerical scores
+                                      const homeScore = match.goals.home;
+                                      const awayScore = match.goals.away;
+                                      const hasValidScores =
+                                        homeScore !== null &&
+                                        homeScore !== undefined &&
+                                        awayScore !== null &&
+                                        awayScore !== undefined &&
+                                        !isNaN(Number(homeScore)) &&
+                                        !isNaN(Number(awayScore));
+
+                                      if (hasValidScores) {
+                                        return (
+                                          <div className="match-score-display">
+                                            <span className="score-number">
+                                              {homeScore}
+                                            </span>
+                                            <span className="score-separator">
+                                              -
+                                            </span>
+                                            <span className="score-number">
+                                              {awayScore}
+                                            </span>
+                                          </div>
+                                        );
+                                      } else {
+                                        // Match is finished but no valid score data
+                                        return (
+                                          <div
+                                            className="match-time-display"
+                                            style={{ fontSize: "0.882em" }}
+                                          >
+                                            {format(fixtureDate, "HH:mm")}
+                                          </div>
+                                        );
+                                      }
                                     }
 
-                                    // Postponed matches status
+                                    // Postponed or delayed matches
                                     if (
                                       [
                                         "PST",
@@ -1664,349 +1871,141 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "WO",
                                       ].includes(status)
                                     ) {
-                                      const statusText =
-                                        status === "PST"
-                                          ? "Postponed"
-                                          : status === "CANC"
-                                            ? "Cancelled"
-                                            : status === "ABD"
-                                              ? "Abandoned"
-                                              : status === "SUSP"
-                                                ? "Suspended"
-                                                : status === "AWD"
-                                                  ? "Awarded"
-                                                  : status === "WO"
-                                                    ? "Walkover"
-                                                    : status;
-
-                                      return (
-                                        <div className="match-status-label status-postponed">
-                                          {statusText}
-                                        </div>
-                                      );
-                                    }
-
-                                    // Upcoming matches (TBD status)
-                                    if (status === "TBD") {
-                                      return (
-                                        <div className="match-status-label status-upcoming">
-                                          Time TBD
-                                        </div>
-                                      );
-                                    }
-
-                                    // Default - no status display for regular upcoming matches
-                                    return null;
-                                  })()}
-                                </div>
-
-                                {/* Middle Grid: Main match content */}
-                                <div className="match-content-container">
-                                  {/* Home Team Name - positioned further left */}
-                                  <div
-                                    className={`home-team-name ${
-                                      match.goals.home !== null &&
-                                      match.goals.away !== null &&
-                                      match.goals.home > match.goals.away
-                                        ? "winner"
-                                        : ""
-                                    }`}
-                                  >
-                                    {shortenTeamName(match.teams.home.name) ||
-                                      "Unknown Team"}
-                                  </div>
-
-                                  {/* Home team logo - grid area */}
-                                  <div className="home-team-logo-container">
-                                    {isNationalTeam(
-                                      match.teams.home,
-                                      leagueData.league,
-                                    ) ? (
-                                      <div className="flag-circle">
-                                        <LazyImage
-                                          src={(() => {
-                                            // Use Circle Flags as primary source for national teams
-                                            const teamName =
-                                              match.teams.home.name;
-                                            const countryCode =
-                                              getCountryCode(teamName);
-
-                                            if (countryCode) {
-                                              return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                            }
-
-                                            // Fallback to original API if no country code mapping
-                                            return match.teams.home.id
-                                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                              : "/assets/fallback-logo.svg";
-                                          })()}
-                                          alt={match.teams.home.name}
-                                          title={match.teams.home.name}
-                                          className="team-logo national-team"
-                                          style={{
-                                            filter:
-                                              "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                          }}
-                                          fallbackSrc={
-                                            match.teams.home.id
-                                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                              : "/assets/fallback-logo.svg"
-                                          }
-                                        />
-                                        <div className="gloss"></div>
-                                      </div>
-                                    ) : (
-                                      <LazyImage
-                                        src={
-                                          match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
-                                        alt={match.teams.home.name}
-                                        title={match.teams.home.name}
-                                        className="team-logo"
-                                        style={{
-                                          filter:
-                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                        }}
-                                        fallbackSrc="/assets/fallback-logo.svg"
-                                      />
-                                    )}
-                                  </div>
-
-                                  {/* Score/Time Center - Fixed width and centered */}
-                                  <div className="match-score-container">
-                                    {(() => {
-                                      const status = match.fixture.status.short;
-                                      const fixtureDate = parseISO(
-                                        match.fixture.date,
-                                      );
-
-                                      // Live matches - show score only
-                                      if (
-                                        [
-                                          "LIVE",
-                                          "1H",
-                                          "HT",
-                                          "2H",
-                                          "ET",
-                                          "BT",
-                                          "P",
-                                          "INT",
-                                        ].includes(status)
-                                      ) {
-                                        return (
-                                          <div className="match-score-display">
-                                            <span className="score-number">
-                                              {match.goals.home ?? 0}
-                                            </span>
-                                            <span className="score-separator">
-                                              -
-                                            </span>
-                                            <span className="score-number">
-                                              {match.goals.away ?? 0}
-                                            </span>
-                                          </div>
-                                        );
-                                      }
-
-                                      // All finished match statuses - show score only
-                                      if (
-                                        [
-                                          "FT",
-                                          "AET",
-                                          "PEN",
-                                          "AWD",
-                                          "WO",
-                                          "ABD",
-                                          "CANC",
-                                          "SUSP",
-                                        ].includes(status)
-                                      ) {
-                                        // Check if we have actual numerical scores
-                                        const homeScore = match.goals.home;
-                                        const awayScore = match.goals.away;
-                                        const hasValidScores =
-                                          homeScore !== null &&
-                                          homeScore !== undefined &&
-                                          awayScore !== null &&
-                                          awayScore !== undefined &&
-                                          !isNaN(Number(homeScore)) &&
-                                          !isNaN(Number(awayScore));
-
-                                        if (hasValidScores) {
-                                          return (
-                                            <div className="match-score-display">
-                                              <span className="score-number">
-                                                {homeScore}
-                                              </span>
-                                              <span className="score-separator">
-                                                -
-                                              </span>
-                                              <span className="score-number">
-                                                {awayScore}
-                                              </span>
-                                            </div>
-                                          );
-                                        } else {
-                                          // Match is finished but no valid score data
-                                          return (
-                                            <div
-                                              className="match-time-display"
-                                              style={{ fontSize: "0.882em" }}
-                                            >
-                                              {format(fixtureDate, "HH:mm")}
-                                            </div>
-                                          );
-                                        }
-                                      }
-
-                                      // Postponed or delayed matches
-                                      if (
-                                        [
-                                          "PST",
-                                          "CANC",
-                                          "ABD",
-                                          "SUSP",
-                                          "AWD",
-                                          "WO",
-                                        ].includes(status)
-                                      ) {
-                                        return (
-                                          <div
-                                            className="match-time-display"
-                                            style={{ fontSize: "0.882em" }}
-                                          >
-                                            {format(fixtureDate, "HH:mm")}
-                                          </div>
-                                        );
-                                      }
-
-                                      // Upcoming matches (NS = Not Started, TBD = To Be Determined)
                                       return (
                                         <div
                                           className="match-time-display"
                                           style={{ fontSize: "0.882em" }}
                                         >
-                                          {status === "TBD"
-                                            ? "TBD"
-                                            : format(fixtureDate, "HH:mm")}
+                                          {format(fixtureDate, "HH:mm")}
                                         </div>
                                       );
-                                    })()}
-                                  </div>
+                                    }
 
-                                  {/* Away team logo - grid area */}
-                                  <div className="away-team-logo-container">
-                                    {isNationalTeam(
-                                      match.teams.away,
-                                      leagueData.league,
-                                    ) ? (
-                                      <div className="flag-circle">
-                                        <LazyImage
-                                          src={(() => {
-                                            // Use Circle Flags as primary source for national teams
-                                            const teamName =
-                                              match.teams.away.name;
-                                            const countryCode =
-                                              getCountryCode(teamName);
-
-                                            if (countryCode) {
-                                              return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                            }
-
-                                            // Fallback to original API if no country code mapping
-                                            return match.teams.away.id
-                                              ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                              : "/assets/fallback-logo.svg";
-                                          })()}
-                                          alt={match.teams.away.name}
-                                          title={match.teams.away.name}
-                                          className="team-logo national-team"
-                                          style={{
-                                            filter:
-                                              "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                          }}
-                                          fallbackSrc={
-                                            match.teams.away.id
-                                              ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                              : "/assets/fallback-logo.svg"
-                                          }
-                                        />
-                                        <div className="gloss"></div>
+                                    // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                                    return (
+                                      <div
+                                        className="match-time-display"
+                                        style={{ fontSize: "0.882em" }}
+                                      >
+                                        {status === "TBD"
+                                          ? "TBD"
+                                          : format(fixtureDate, "HH:mm")}
                                       </div>
-                                    ) : (
+                                    );
+                                  })()}
+                                </div>
+
+                                {/* Away team logo - grid area */}
+                                <div className="away-team-logo-container">
+                                  {isNationalTeam(
+                                    match.teams.away,
+                                    leagueData.league,
+                                  ) ? (
+                                    <div className="flag-circle">
                                       <LazyImage
-                                        src={
-                                          match.teams.away.id
+                                        src={(() => {
+                                          // Use Circle Flags as primary source for national teams
+                                          const teamName =
+                                            match.teams.away.name;
+                                          const countryCode =
+                                            getCountryCode(teamName);
+
+                                          if (countryCode) {
+                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+                                          }
+
+                                          // Fallback to original API if no country code mapping
+                                          return match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                            : "/assets/fallback-logo.svg";
+                                        })()}
                                         alt={match.teams.away.name}
                                         title={match.teams.away.name}
-                                        className="team-logo"
+                                        className="team-logo national-team"
                                         style={{
                                           filter:
                                             "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                         }}
-                                        fallbackSrc="/assets/fallback-logo.svg"
+                                        fallbackSrc={
+                                          match.teams.away.id
+                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                            : "/assets/fallback-logo.svg"
+                                        }
                                       />
-                                    )}
-                                  </div>
-
-                                  {/* Away Team Name - positioned further right */}
-                                  <div
-                                    className={`away-team-name ${
-                                      match.goals.home !== null &&
-                                      match.goals.away !== null &&
-                                      match.goals.away > match.goals.home
-                                        ? "winner"
-                                        : ""
-                                    }`}
-                                  >
-                                    {shortenTeamName(match.teams.away.name) ||
-                                      "Unknown Team"}
-                                  </div>
+                                      <div className="gloss"></div>
+                                    </div>
+                                  ) : (
+                                    <LazyImage
+                                      src={
+                                        match.teams.away.id
+                                          ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                          : "/assets/fallback-logo.svg"
+                                      }
+                                      alt={match.teams.away.name}
+                                      title={match.teams.away.name}
+                                      className="team-logo"
+                                      style={{
+                                        filter:
+                                          "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                      }}
+                                      fallbackSrc="/assets/fallback-logo.svg"
+                                    />
+                                  )}
                                 </div>
 
-                                {/* Bottom Grid: Penalty Result Status */}
-                                <div className="match-penalty-bottom">
-                                  {(() => {
-                                    const status = match.fixture.status.short;
-                                    const isPenaltyMatch = status === "PEN";
-                                    const penaltyHome =
-                                      match.score?.penalty?.home;
-                                    const penaltyAway =
-                                      match.score?.penalty?.away;
-                                    const hasPenaltyScores =
-                                      penaltyHome !== null &&
-                                      penaltyHome !== undefined &&
-                                      penaltyAway !== null &&
-                                      penaltyAway !== undefined;
-
-                                    if (isPenaltyMatch && hasPenaltyScores) {
-                                      const winnerText =
-                                        penaltyHome > penaltyAway
-                                          ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                                          : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
-
-                                      return (
-                                        <div className="penalty-result-display">
-                                          <span className="penalty-winner">
-                                            {winnerText}
-                                          </span>
-                                        </div>
-                                      );
-                                    }
-                                    return null;
-                                  })()}
+                                {/* Away Team Name - positioned further right */}
+                                <div
+                                  className={`away-team-name ${
+                                    match.goals.home !== null &&
+                                    match.goals.away !== null &&
+                                    match.goals.away > match.goals.home
+                                      ? "winner"
+                                      : ""
+                                  }`}
+                                >
+                                  {shortenTeamName(match.teams.away.name) ||
+                                    "Unknown Team"}
                                 </div>
                               </div>
+
+                              {/* Bottom Grid: Penalty Result Status */}
+                              <div className="match-penalty-bottom">
+                                {(() => {
+                                  const status = match.fixture.status.short;
+                                  const isPenaltyMatch = status === "PEN";
+                                  const penaltyHome =
+                                    match.score?.penalty?.home;
+                                  const penaltyAway =
+                                    match.score?.penalty?.away;
+                                  const hasPenaltyScores =
+                                    penaltyHome !== null &&
+                                    penaltyHome !== undefined &&
+                                    penaltyAway !== null &&
+                                    penaltyAway !== undefined;
+
+                                  if (isPenaltyMatch && hasPenaltyScores) {
+                                    const winnerText =
+                                      penaltyHome > penaltyAway
+                                        ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                        : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+
+                                    return (
+                                      <div className="penalty-result-display">
+                                        <span className="penalty-winner">
+                                          {winnerText}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                              </div>
                             </div>
-                          </LazyMatchItem>
-                        ))}
-                    </div>
-                  </CardContent>
+                          </div>
+                        </LazyMatchItem>
+                      ))}
+                  </div>
+                 
                 </Card>
               );
             }),
