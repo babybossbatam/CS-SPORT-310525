@@ -410,24 +410,11 @@
   display: flex;
   align-items: start;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0.75rem;
   background-color: white;
   border-bottom: 1px solid rgb(229 231 235);
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
   margin-bottom: 0;
-}
-
-/* CardContent spacing improvements */
-.league-header-card-content {
-  padding: 1rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-.match-content-card-content {
-  padding: 1rem 0;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
 }
 
 .league-logo {
@@ -608,24 +595,6 @@
 
 .country-header-button:hover {
   background-color: #f9fafb;
-}
-
-/* Universal CardContent spacing classes */
-.card-content-spaced {
-  padding: 1rem !important;
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-}
-
-.card-content-header {
-  padding: 1rem !important;
-  padding-bottom: 0.75rem !important;
-}
-
-.card-content-matches {
-  padding: 0.5rem 0 !important;
-  padding-top: 0.75rem !important;
-  padding-bottom: 0.75rem !important;
 }
 
 
