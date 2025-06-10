@@ -24,6 +24,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   // Get multiple days of data for slide distribution
   const today = new Date().toISOString().slice(0, 10);
@@ -886,40 +887,42 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 if (showCountdown) {
                   // Show countdown timer
-                  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+                  const CountdownDisplay = () => {
+                    useEffect(() => {
+                      const updateTimer = () => {
+                        const now = new Date();
+                        const msUntilKickoff = matchDate.getTime() - now.getTime();
+                        
+                        if (msUntilKickoff <= 0) {
+                          setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+                          return;
+                        }
 
-                  useEffect(() => {
-                    const updateTimer = () => {
-                      const now = new Date();
-                      const msUntilKickoff = matchDate.getTime() - now.getTime();
-                      
-                      if (msUntilKickoff <= 0) {
-                        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
-                        return;
-                      }
+                        const hours = Math.floor(msUntilKickoff / (1000 * 60 * 60));
+                        const minutes = Math.floor((msUntilKickoff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((msUntilKickoff % (1000 * 60)) / 1000);
 
-                      const hours = Math.floor(msUntilKickoff / (1000 * 60 * 60));
-                      const minutes = Math.floor((msUntilKickoff % (1000 * 60 * 60)) / (1000 * 60));
-                      const seconds = Math.floor((msUntilKickoff % (1000 * 60)) / 1000);
+                        setTimeLeft({ hours, minutes, seconds });
+                      };
 
-                      setTimeLeft({ hours, minutes, seconds });
-                    };
-
-                    updateTimer();
-                    const interval = setInterval(updateTimer, 1000);
-                    return () => clearInterval(interval);
-                  }, [matchDate]);
+                      updateTimer();
+                      const interval = setInterval(updateTimer, 1000);
+                      return () => clearInterval(interval);
+                    }, [matchDate]);
 
                   return (
-                    <div className="text-black text-center" style={{ fontSize: '1.125rem' }}>
-                      <div className="uppercase tracking-wide mb-1">Kicks off in</div>
-                      <div className="font-mono font-semibold">
-                        {String(timeLeft.hours).padStart(2, '0')}:
-                        {String(timeLeft.minutes).padStart(2, '0')}:
-                        {String(timeLeft.seconds).padStart(2, '0')}
+                      <div className="text-black text-center" style={{ fontSize: '1.125rem' }}>
+                        <div className="uppercase tracking-wide mb-1">Kicks off in</div>
+                        <div className="font-mono font-semibold">
+                          {String(timeLeft.hours).padStart(2, '0')}:
+                          {String(timeLeft.minutes).padStart(2, '0')}:
+                          {String(timeLeft.seconds).padStart(2, '0')}
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  };
+
+                  return <CountdownDisplay />;
                 } else {
                   return (
                     <div className="text-black uppercase tracking-wide" style={{ fontSize: '1.125rem' }}>
