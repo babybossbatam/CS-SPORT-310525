@@ -1260,7 +1260,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
               return (
                 <Card
                   key={`${countryData.country}-${leagueData.league.id}`}
-                  className="border bg-card text-card-foreground shadow-md overflow-hidden"
+                  className="border bg-card text-card-foreground shadow-md overflow-hidden mb-4"
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
