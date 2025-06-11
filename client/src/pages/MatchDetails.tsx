@@ -688,7 +688,10 @@ const MatchDetails = () => {
                           <Clock className="h-4 w-4 text-gray-500" />
                           <span className="text-sm text-gray-600">
                             {currentFixture &&
-                              format(new Date(currentFixture.fixture.date), "PPpp")}
+                              format(
+                                new Date(currentFixture.fixture.date),
+                                "PPpp",
+                              )}
                           </span>
                         </div>
 
@@ -775,7 +778,11 @@ const MatchDetails = () => {
                         )}
                       </CardContent>
                     </Card>
-
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
           {/* Matches Tab */}
           <TabsContent value="matches">
             <CardContent className="p-6">
