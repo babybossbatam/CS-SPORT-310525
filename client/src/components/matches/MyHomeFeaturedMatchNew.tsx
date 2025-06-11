@@ -1828,8 +1828,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 alt="H2H"
                 width="18"
                 height="18"
-                ```text
-className="text-gray-600"
+                className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">H2H</span>
             </button>
