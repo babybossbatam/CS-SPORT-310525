@@ -672,6 +672,7 @@ const MatchDetails = () => {
 
           {/* Details Tab */}
           <TabsContent value="details">
+            <TodayMatchpage />
             <Card className="w-full">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
