@@ -497,20 +497,51 @@ const MatchDetails = () => {
             </div>
           </div>
 
-          <CardHeader className="p-4 border-b border-neutral-200 flex items-center justify-between">
-            <div className="text-sm font-medium">
-              {isLiveMatch(currentFixture.fixture.status.short) && (
-                <Badge variant="default" className="bg-[#48BB78]">LIVE</Badge>
-              )}
+          <CardHeader className="p-4 border-b border-neutral-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-medium">
+                {isLiveMatch(currentFixture.fixture.status.short) && (
+                  <Badge variant="default" className="bg-[#48BB78]">LIVE</Badge>
+                )}
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleFavorite}
+                className={isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}
+              >
+                <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
+              </Button>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleFavorite}
-              className={isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}
-            >
-              <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
-            </Button>
+            
+            {/* League Information Header */}
+            <div className="flex items-center gap-3 mb-2">
+              <img 
+                src={currentFixture?.league.logo || "/assets/fallback-logo.svg"} 
+                alt={currentFixture?.league.name}
+                className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                }}
+              />
+              <div className="flex-1">
+                <h1 className="text-xl font-bold text-gray-900 uppercase tracking-wide">
+                  {currentFixture?.league.name}
+                </h1>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>{currentFixture?.league.country}</span>
+                  {currentFixture?.league.round && (
+                    <>
+                      <span>•</span>
+                      <span>{currentFixture.league.round}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <Button variant="outline" size="sm" className="ml-auto">
+                Follow
+              </Button>
+            </div>
           </CardHeader>
           {/* TabsList moved below header */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
