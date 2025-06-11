@@ -5,11 +5,10 @@ async function checkFifaAndEuroU21Leagues() {
 
   try {
     // FIFA Club World Cup (League ID: 15)
-    // Get tomorrow's date
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toISOString().split("T")[0];
-    console.log(`Tomorrow's date: ${tomorrowDate}\n`);
+    // Get today's date
+    const today = new Date();
+    const todayDate = today.toISOString().split("T")[0];
+    console.log(`Today's date: ${todayDate}\n`);
     console.log("1. FIFA Club World Cup:");
     const fifaClubWorldCup = await rapidApiService.getLeagueById(15);
     if (fifaClubWorldCup) {
@@ -185,22 +184,24 @@ async function checkFifaAndEuroU21Leagues() {
 
     console.log("\n" + "=".repeat(50) + "\n");
 
-    // 6. Check tomorrow's date for any matches
-    console.log(`6. Matches scheduled for tomorrow (${tomorrowDate}):`);
+    // 6. Check today's date for any matches
+    console.log(`6. Matches scheduled for today (${todayDate}):`);
     try {
-      const tomorrowFixtures = await rapidApiService.getFixturesByDate(
-        tomorrowDate,
+      const todayFixtures = await rapidApiService.getFixturesByDate(
+        todayDate,
         true,
       );
 
+      console.log(`Total fixtures available today: ${todayFixtures.length}`);
+
       // Filter for FIFA Club World Cup and UEFA U21
-      const relevantFixtures = tomorrowFixtures.filter(
+      const relevantFixtures = todayFixtures.filter(
         (fixture) => fixture.league.id === 15 || fixture.league.id === 38,
       );
 
       if (relevantFixtures.length > 0) {
         console.log(
-          `Found ${relevantFixtures.length} relevant matches tomorrow:`,
+          `Found ${relevantFixtures.length} FIFA Club World Cup/UEFA U21 matches today:`,
         );
         relevantFixtures.forEach((fixture, index) => {
           const time = new Date(fixture.fixture.date).toLocaleTimeString();
@@ -212,10 +213,62 @@ async function checkFifaAndEuroU21Leagues() {
           console.log(`   Status: ${fixture.fixture.status.long}`);
         });
       } else {
-        console.log("No FIFA Club World Cup or UEFA U21 matches tomorrow");
+        console.log("No FIFA Club World Cup or UEFA U21 matches today");
+
+        // Show other major international matches available today
+        const internationalFixtures = todayFixtures.filter(
+          (fixture) =>
+            fixture.league.country === "World" ||
+            fixture.league.country === "Europe" ||
+            fixture.league.name.toLowerCase().includes("uefa") ||
+            fixture.league.name.toLowerCase().includes("fifa") ||
+            fixture.league.name.toLowerCase().includes("champions") ||
+            fixture.league.name.toLowerCase().includes("europa") ||
+            fixture.league.name.toLowerCase().includes("conference"),
+        );
+
+        if (internationalFixtures.length > 0) {
+          console.log(
+            `\nFound ${internationalFixtures.length} other international matches today:`,
+          );
+          internationalFixtures.slice(0, 10).forEach((fixture, index) => {
+            const time = new Date(fixture.fixture.date).toLocaleTimeString();
+            console.log(
+              `\n${index + 1}. ${fixture.league.name} (ID: ${fixture.league.id})`,
+            );
+            console.log(
+              `   ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            );
+            console.log(`   Time: ${time}`);
+            console.log(`   Country: ${fixture.league.country}`);
+          });
+
+          if (internationalFixtures.length > 10) {
+            console.log(
+              `\n... and ${internationalFixtures.length - 10} more international matches`,
+            );
+          }
+        }
+
+        // Show sample of all matches today (first 10)
+        const sampleFixtures = todayFixtures.slice(0, 10);
+        if (sampleFixtures.length > 0) {
+          console.log(`\nSample of all matches today (first 10):`);
+          sampleFixtures.forEach((fixture, index) => {
+            const time = new Date(fixture.fixture.date).toLocaleTimeString();
+            console.log(
+              `\n${index + 1}. ${fixture.league.name} (ID: ${fixture.league.id})`,
+            );
+            console.log(
+              `   ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            );
+            console.log(`   Time: ${time}`);
+            console.log(`   Country: ${fixture.league.country}`);
+          });
+        }
       }
     } catch (error) {
-      console.error("Error checking tomorrow's matches:", error);
+      console.error("Error checking today's matches:", error);
     }
   } catch (error) {
     console.error("Error checking leagues:", error);
