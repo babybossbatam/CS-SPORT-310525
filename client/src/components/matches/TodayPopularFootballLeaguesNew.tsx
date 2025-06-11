@@ -1469,6 +1469,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         // Define status categories
                         const aLive = [
                           "LIVE",
+                          "LIV",
                           "1H",
                           "HT",
                           "2H",
@@ -1479,6 +1480,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         ].includes(aStatus);
                         const bLive = [
                           "LIVE",
+                          "LIV",
                           "1H",
                           "HT",
                           "2H",
@@ -1598,6 +1600,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   if (
                                     [
                                       "LIVE",
+                                      "LIV",
                                       "1H",
                                       "HT",
                                       "2H",
@@ -1785,6 +1788,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     if (
                                       [
                                         "LIVE",
+                                        "LIV",
                                         "1H",
                                         "HT",
                                         "2H",
