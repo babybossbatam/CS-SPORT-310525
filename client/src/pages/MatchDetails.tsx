@@ -583,7 +583,7 @@ const MatchDetails = () => {
             <img
               src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
               alt={currentFixture?.league.name}
-              className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
+              className="h-16 w-16 object-cover bg-gray-50 p-1"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   "/assets/fallback-logo.svg";
