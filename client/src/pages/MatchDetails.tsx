@@ -480,22 +480,7 @@ const MatchDetails = () => {
 
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">
-          {/* Breadcrumb Navigation */}
-          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-            <div className="flex items-center text-sm text-gray-600">
-              <span className="hover:text-gray-900 cursor-pointer">Football</span>
-              <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="hover:text-gray-900 cursor-pointer">{currentFixture?.league.name}</span>
-              <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="text-gray-900 font-medium">
-                {currentFixture?.teams.home.name} vs {currentFixture?.teams.away.name}
-              </span>
-            </div>
-          </div>
+          
 
           <CardHeader className="p-4 border-b border-neutral-200">
             <div className="flex items-center justify-between mb-4">
@@ -513,7 +498,7 @@ const MatchDetails = () => {
                 <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
               </Button>
             </div>
-            
+
             {/* League Information Header */}
             <div className="flex items-center gap-3 mb-2">
               <img 
