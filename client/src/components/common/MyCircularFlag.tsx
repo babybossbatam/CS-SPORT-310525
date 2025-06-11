@@ -40,6 +40,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Poland: "pl",
       Ukraine: "ua",
       Turkey: "tr",
+      Türkiye: "tr",
       Switzerland: "ch",
       Austria: "at",
       "Czech Republic": "cz",

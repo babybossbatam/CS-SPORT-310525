@@ -1106,7 +1106,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   })),
                 );
               }
-            
+
               // Check for UEFA Nations League - Women first (lowest priority)
               const aIsWomensNationsLeague =
                 a.league.name?.toLowerCase().includes("uefa nations league") &&
@@ -1443,7 +1443,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           )}
                       </div>
                     </CardContent>
-                  
                   )}
                   {/* Matches - Show for all leagues */}
 
@@ -1730,6 +1729,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           // Use Circle Flags as primary source for national teams
                                           const teamName =
                                             match.teams.home.name;
+                                          // Special handling for Turkey/Türkiye
+                                          if (
+                                            teamName
+                                              .toLowerCase()
+                                              .includes("turkey") ||
+                                            teamName
+                                              .toLowerCase()
+                                              .includes("türkiye")
+                                          ) {
+                                            return `https://hatscripts.github.io/circle-flags/flags/tr.svg`;
+                                          }
                                           const countryCode =
                                             getCountryCode(teamName);
 
@@ -2009,7 +2019,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         </LazyMatchItem>
                       ))}
                   </div>
-                 
                 </Card>
               );
             }),
