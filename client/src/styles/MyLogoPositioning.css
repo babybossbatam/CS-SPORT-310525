@@ -183,11 +183,9 @@
   background-color: transparent !important;
 }
 
-/* 3D Glossy Ball Effect for National Team Logos */
+/* 3D Glossy Ball Effect for National Team Logos - Base class */
 .flag-circle {
   position: relative;
-  width: 64px;
-  height: 64px;
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 
@@ -251,11 +249,28 @@
   filter: blur(1px);
 }
 
+/* Size variant for TodayPopularFootballLeaguesNew - smaller flags */
+.flag-circle.popular-leagues-size {
+  width: 34px;
+  height: 34px;
+}
+
+/* Size variant for MyHomeFeaturedMatchNew - larger flags */
+.flag-circle.featured-match-size {
+  width: 64px;
+  height: 64px;
+}
+
 /* Responsive flag circle sizes */
 @media (max-width: 640px) {
-  .flag-circle {
-    width: 32px;
-    height: 32px;
+  .flag-circle.popular-leagues-size {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .flag-circle.featured-match-size {
+    width: 48px;
+    height: 48px;
   }
 }
 

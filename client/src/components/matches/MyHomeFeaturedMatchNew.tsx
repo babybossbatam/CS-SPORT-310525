@@ -1086,12 +1086,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     if (countryCode) {
                       return (
                         <div 
-                          className="flag-circle absolute z-20"
+                          className="flag-circle featured-match-size absolute z-20"
                           style={{
                             top: "calc(50% - 32px)",
                             left: "-32px",
-                            width: "64px",
-                            height: "64px",
                           }}
                         >
                           <img
@@ -1434,13 +1432,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     if (countryCode) {
                       return (
                         <div 
-                          className="flag-circle absolute z-20"
+                          className="flag-circle featured-match-size absolute z-20"
                           style={{
                             top: "calc(50% - 32px)",
                             right: "87px",
                             transform: "translateX(50%)",
-                            width: "64px",
-                            height: "64px",
                           }}
                         >
                           <img

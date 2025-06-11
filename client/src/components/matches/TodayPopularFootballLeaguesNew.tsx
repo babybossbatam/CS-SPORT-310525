@@ -1721,7 +1721,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     match.teams.home,
                                     leagueData.league,
                                   ) ? (
-                                    <div className="flag-circle">
+                                    <div className="flag-circle popular-leagues-size">
                                       <LazyImage
                                         src={(() => {
                                           // Use Circle Flags as primary source for national teams
@@ -1901,7 +1901,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     match.teams.away,
                                     leagueData.league,
                                   ) ? (
-                                    <div className="flag-circle">
+                                    <div className="flag-circle popular-leagues-size">
                                       <LazyImage
                                         src={(() => {
                                           // Use Circle Flags as primary source for national teams
