@@ -1138,7 +1138,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    left: "120px",
+                    left: "77px",
+                    right: "calc(50% + 26px)",
+                    textAlign: "right",
+                    paddingRight: "16px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
@@ -1168,10 +1171,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 ></div>
 
                 <div
-                  className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    right: "130px",
+                    left: "calc(50% + 26px)",
+                    right: "87px",
+                    textAlign: "left",
+                    paddingLeft: "16px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
