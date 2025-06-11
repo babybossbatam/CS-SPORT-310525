@@ -115,6 +115,108 @@ async function checkFifaAndEuroU21Leagues() {
         console.log(`   Type: ${league.league.type}`);
       });
     }
+    console.log("\n" + "=".repeat(50) + "\n");
+
+    // 4. Get fixtures for FIFA Club World Cup (ID: 15)
+    console.log("4. FIFA Club World Cup Fixtures:");
+    try {
+      const fifaFixtures = await rapidApiService.getFixturesByLeague(15, 2025);
+      console.log(`Found ${fifaFixtures.length} FIFA Club World Cup fixtures:`);
+
+      if (fifaFixtures.length > 0) {
+        fifaFixtures.slice(0, 10).forEach((fixture, index) => {
+          const date = new Date(fixture.fixture.date).toLocaleString();
+          const status = fixture.fixture.status.long;
+          console.log(
+            `\n${index + 1}. ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          );
+          console.log(`   Date: ${date}`);
+          console.log(`   Status: ${status}`);
+          console.log(`   Venue: ${fixture.fixture.venue?.name || "TBD"}`);
+          if (fixture.goals.home !== null && fixture.goals.away !== null) {
+            console.log(
+              `   Score: ${fixture.goals.home} - ${fixture.goals.away}`,
+            );
+          }
+        });
+
+        if (fifaFixtures.length > 10) {
+          console.log(`\n... and ${fifaFixtures.length - 10} more fixtures`);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching FIFA Club World Cup fixtures:", error);
+    }
+
+    console.log("\n" + "=".repeat(50) + "\n");
+
+    // 5. Get fixtures for UEFA U21 Championship (ID: 38)
+    console.log("5. UEFA U21 Championship Fixtures:");
+    try {
+      const u21Fixtures = await rapidApiService.getFixturesByLeague(38, 2025);
+      console.log(
+        `Found ${u21Fixtures.length} UEFA U21 Championship fixtures:`,
+      );
+
+      if (u21Fixtures.length > 0) {
+        u21Fixtures.slice(0, 10).forEach((fixture, index) => {
+          const date = new Date(fixture.fixture.date).toLocaleString();
+          const status = fixture.fixture.status.long;
+          console.log(
+            `\n${index + 1}. ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          );
+          console.log(`   Date: ${date}`);
+          console.log(`   Status: ${status}`);
+          console.log(`   Venue: ${fixture.fixture.venue?.name || "TBD"}`);
+          if (fixture.goals.home !== null && fixture.goals.away !== null) {
+            console.log(
+              `   Score: ${fixture.goals.home} - ${fixture.goals.away}`,
+            );
+          }
+        });
+
+        if (u21Fixtures.length > 10) {
+          console.log(`\n... and ${u21Fixtures.length - 10} more fixtures`);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching UEFA U21 Championship fixtures:", error);
+    }
+
+    console.log("\n" + "=".repeat(50) + "\n");
+
+    // 6. Check tomorrow's date for any matches
+    console.log(`6. Matches scheduled for tomorrow (${tomorrowDate}):`);
+    try {
+      const tomorrowFixtures = await rapidApiService.getFixturesByDate(
+        tomorrowDate,
+        true,
+      );
+
+      // Filter for FIFA Club World Cup and UEFA U21
+      const relevantFixtures = tomorrowFixtures.filter(
+        (fixture) => fixture.league.id === 15 || fixture.league.id === 38,
+      );
+
+      if (relevantFixtures.length > 0) {
+        console.log(
+          `Found ${relevantFixtures.length} relevant matches tomorrow:`,
+        );
+        relevantFixtures.forEach((fixture, index) => {
+          const time = new Date(fixture.fixture.date).toLocaleTimeString();
+          console.log(`\n${index + 1}. ${fixture.league.name}`);
+          console.log(
+            `   ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          );
+          console.log(`   Time: ${time}`);
+          console.log(`   Status: ${fixture.fixture.status.long}`);
+        });
+      } else {
+        console.log("No FIFA Club World Cup or UEFA U21 matches tomorrow");
+      }
+    } catch (error) {
+      console.error("Error checking tomorrow's matches:", error);
+    }
   } catch (error) {
     console.error("Error checking leagues:", error);
   }
