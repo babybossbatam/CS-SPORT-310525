@@ -48,18 +48,26 @@ export const youthDevelopmentTerms = [
  * @param homeTeamName - The name of the home team
  * @param awayTeamName - The name of the away team
  * @param applyYouthFilter - Whether to apply youth/development limiting (when match count > 10)
+ * @param countryName - The country name to check for special World country handling
  * @returns true if the fixture should be excluded, false otherwise
  */
 export const shouldExcludeMatchByCountry = (
   leagueName: string, 
   homeTeamName: string, 
   awayTeamName: string,
-  applyYouthFilter: boolean = false
+  applyYouthFilter: boolean = false,
+  countryName: string = ''
 ): boolean => {
   // Convert to lowercase for case-insensitive matching
   const league = leagueName.toLowerCase();
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
+  const country = countryName.toLowerCase();
+
+  // NEVER exclude anything from "World" country - allow all international competitions
+  if (country === 'world') {
+    return false;
+  }
 
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition = 
