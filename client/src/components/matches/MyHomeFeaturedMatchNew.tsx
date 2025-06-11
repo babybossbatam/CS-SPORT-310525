@@ -1366,24 +1366,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Away team colored bar and logo */}
                 <div
-                  className="h-full w-[calc(50%-66px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100"
+                  className="h-full w-[calc(50%-66px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.away?.id || 1,
                     ),
-                  }}
-                ></div>
-
-                <div
-                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
-                  style={{
-                    top: "calc(50% - 13px)",
-                    right: "130px",
-                    fontSize: "1.24rem",
-                    fontWeight: "normal",
+                    marginLeft: "66px",
                   }}
                 >
-                  {currentMatch?.teams?.away?.name || "Away Team"}
+                  <div
+                    className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                    style={{
+                      top: "calc(50% - 13px)",
+                      right: "110px",
+                      fontSize: "1.24rem",
+                      fontWeight: "normal",
+                    }}
+                  >
+                    {currentMatch?.teams?.away?.name || "Away Team"}
+                  </div>
                 </div>
 
                 {(() => {
