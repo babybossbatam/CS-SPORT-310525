@@ -1708,7 +1708,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
                         top: "calc(50% - 32px)",
-                        right: "117px",
+                        right: "0px",
                         transform: "translateX(50%)",
                         filter:
                           "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
@@ -1828,7 +1828,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 alt="H2H"
                 width="18"
                 height="18"
-                className="text-gray-600"
+className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">H2H</span>
             </button>
