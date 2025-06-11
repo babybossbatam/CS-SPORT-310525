@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent scrollbars from reducing page width */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
+
+/* Modern browsers - overlay scrollbars */
+@supports (scrollbar-width: thin) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  }
+}
+
+/* Webkit browsers - overlay scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure consistent viewport width */
+body {
+  overflow-x: hidden;
+}
+
 /* Disable card hover effect when star buttons are being hovered */
 .group.disable-hover:hover {
   background-color: white !important;
