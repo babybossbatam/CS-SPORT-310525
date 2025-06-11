@@ -528,24 +528,10 @@ const MatchDetails = () => {
 
       <Card className="">
         {/* Breadcrumb Navigation */}
-        <div className="mx-4 py-1 border-b border-gray-200 bg-gray-50">
+        <div className="mx-10 py-1 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center text-sm text-gray-600">
-            <span className="hover:text-gray-900 cursor-pointer">Football</span>
-            <svg
-              className="h-4 w-4 mx-2 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-            <span className="hover:text-gray-900 cursor-pointer">
-              {currentFixture?.league.name}
+            <span className="hover:text-blue-400 cursor-pointer text-gray-900">
+              Football
             </span>
             <svg
               className="h-4 w-4 mx-2 text-gray-400"
@@ -560,7 +546,23 @@ const MatchDetails = () => {
                 d="M9 5l7 7-7 7"
               />
             </svg>
-            <span className="text-gray-900 font-medium">
+            <span className="hover:text-blue-400 cursor-pointer text-gray-900">
+              {currentFixture?.league.name}
+            </span>
+            <svg
+              className="h-4 w-4 mx-2 text-gray-900"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span className="text-gray-400 font-medium">
               {currentFixture?.teams.home.name} vs{" "}
               {currentFixture?.teams.away.name}
             </span>
@@ -583,7 +585,7 @@ const MatchDetails = () => {
             <img
               src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
               alt={currentFixture?.league.name}
-              className="h-16 w-16 object-cover bg-gray-50 p-1"
+              className="h-16 w-17 object-cover bg-gray-50 p-1"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   "/assets/fallback-logo.svg";
@@ -615,6 +617,7 @@ const MatchDetails = () => {
               value="matches"
               className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
             >
+           
               Matches
             </TabsTrigger>
             <TabsTrigger
