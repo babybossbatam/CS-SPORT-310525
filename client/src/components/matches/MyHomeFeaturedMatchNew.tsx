@@ -1366,12 +1366,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Away team colored bar */}
                 <div
-                  className="h-full w-[calc(50%-66px)] transition-all duration-500 ease-in-out opacity-100"
+                  className="h-full w-[calc(50%-36px)] transition-all duration-500 ease-in-out opacity-100"
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.away?.id || 1,
                     ),
-                    marginLeft: "66px",
                   }}
                 ></div>
 
