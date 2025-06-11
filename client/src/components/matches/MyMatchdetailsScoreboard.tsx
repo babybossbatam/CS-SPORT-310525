@@ -79,10 +79,12 @@ const MyMatchdetailsScoreboard = ({
 
   return (
     <Card className={`w-full ${className}`}>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Match Details</CardTitle>
-          {getStatusBadge(displayMatch.fixture.status.short)}
+      <CardHeader className="pb-8 text-center">
+        <CardTitle className="text-lg font-semibold text-gray-900">
+          {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
+        </CardTitle>
+        <div className="text-2sm text-gray-400">
+          {displayMatch.league.country}, {displayMatch.league.name}
         </div>
       </CardHeader>
 
