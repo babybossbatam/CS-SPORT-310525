@@ -599,7 +599,7 @@ const MatchDetails = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full px-4 py-1 text-blue-600 border-blue-600 hover:bg-blue-50"
+                  className="rounded-full px-4 py-1 text-blue-600 border-blue-600 hover:bg-stone-50 hover-text:blue-500"
                 >
                   Follow
                 </Button>
