@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, User, Trophy } from "lucide-react";
 import { format } from "date-fns";
-
+import MyCircularFlag from "@/components/common/MyCircularFlag";
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -91,21 +91,12 @@ const MyMatchdetailsScoreboard = ({
         <div className="flex items-center justify-between">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            <div
-              className="flag-circle"
-              style={{ width: "64px", height: "64px" }}
-            >
-              <img
-                src={displayMatch.teams.home.logo}
-                alt={displayMatch.teams.home.name}
-                className="team-logo"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    "/assets/fallback-logo.svg";
-                }}
-              />
-              <div className="gloss"></div>
-            </div>
+            <MyCircularFlag
+              teamName={displayMatch.teams.home.name}
+              fallbackUrl={displayMatch.teams.home.logo}
+              alt={displayMatch.teams.home.name}
+              size="64px"
+            />
             <span className="text-sm font-medium text-center">
               {displayMatch.teams.home.name}
             </span>
@@ -133,21 +124,12 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            <div
-              className="flag-circle"
-              style={{ width: "64px", height: "64px" }}
-            >
-              <img
-                src={displayMatch.teams.away.logo}
-                alt={displayMatch.teams.away.name}
-                className="team-logo"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    "/assets/fallback-logo.svg";
-                }}
-              />
-              <div className="gloss"></div>
-            </div>
+            <MyCircularFlag
+              teamName={displayMatch.teams.away.name}
+              fallbackUrl={displayMatch.teams.away.logo}
+              alt={displayMatch.teams.away.name}
+              size="64px"
+            />
             <span className="text-sm font-medium text-center">
               {displayMatch.teams.away.name}
             </span>
