@@ -1183,6 +1183,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           alt={teamName}
                           size="64px"
                           className="featured-match-size"
+                          moveLeft={true}
                         />
                       </div>
                     );
