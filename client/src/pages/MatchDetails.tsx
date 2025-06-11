@@ -593,10 +593,10 @@ const MatchDetails = () => {
             />
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide mx-4">
+                <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
                   {currentFixture?.league.name}
 
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="mr-4">
                     Follow
                   </Button>
                 </h1>
