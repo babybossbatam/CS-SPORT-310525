@@ -523,345 +523,334 @@ const MatchDetails = () => {
     <>
       <Header />
       <TournamentHeader
-        title={`${currentFixture.league.name} - ${currentFixture.league.round}`}
+        title={`${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name}`}
       />
 
-      <div className="container mx-auto px-4">
-        <Card className="">
-          {/* Breadcrumb Navigation */}
-          <div className="px-4 py-1 border-b border-gray-200 bg-gray-50">
-            <div className="flex items-center text-sm text-gray-600">
-              <span className="hover:text-gray-900 cursor-pointer">
-                Football
-              </span>
-              <svg
-                className="h-4 w-4 mx-2 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-              <span className="hover:text-gray-900 cursor-pointer">
-                {currentFixture?.league.name}
-              </span>
-              <svg
-                className="h-4 w-4 mx-2 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-              <span className="text-gray-900 font-medium">
-                {currentFixture?.teams.home.name} vs{" "}
-                {currentFixture?.teams.away.name}
-              </span>
+      <Card className="">
+        {/* Breadcrumb Navigation */}
+        <div className="mx-4 py-1 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center text-sm text-gray-600">
+            <span className="hover:text-gray-900 cursor-pointer">Football</span>
+            <svg
+              className="h-4 w-4 mx-2 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span className="hover:text-gray-900 cursor-pointer">
+              {currentFixture?.league.name}
+            </span>
+            <svg
+              className="h-4 w-4 mx-2 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span className="text-gray-900 font-medium">
+              {currentFixture?.teams.home.name} vs{" "}
+              {currentFixture?.teams.away.name}
+            </span>
+          </div>
+        </div>
+
+        <CardHeader className="p-4 border-b border-neutral-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm font-medium">
+              {isLiveMatch(currentFixture.fixture.status.short) && (
+                <Badge variant="default" className="bg-[#48BB78]">
+                  LIVE
+                </Badge>
+              )}
             </div>
           </div>
 
-          <CardHeader className="p-4 border-b border-neutral-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-sm font-medium">
-                {isLiveMatch(currentFixture.fixture.status.short) && (
-                  <Badge variant="default" className="bg-[#48BB78]">
-                    LIVE
-                  </Badge>
-                )}
+          {/* League Information Header */}
+          <div className="flex items-center  mb-4">
+            <img
+              src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
+              alt={currentFixture?.league.name}
+              className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "/assets/fallback-logo.svg";
+              }}
+            />
+            <div className="flex-1">
+              <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
+                {currentFixture?.league.name}
+              </h1>
+              <div className="flex items-center text-lg text-gray-600">
+                {currentFixture?.league.round && <></>}
               </div>
             </div>
+            <Button variant="outline" size="sm" className="mx-40">
+              Follow
+            </Button>
+          </div>
+        </CardHeader>
+        {/* TabsList moved below header */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 px-20">
+            <TabsTrigger
+              value="details"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              Details
+            </TabsTrigger>
+            <TabsTrigger
+              value="matches"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              Matches
+            </TabsTrigger>
+            <TabsTrigger
+              value="standings"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              Standings
+            </TabsTrigger>
+            <TabsTrigger
+              value="news"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              News
+            </TabsTrigger>
+            <TabsTrigger
+              value="highlights"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              Highlights
+            </TabsTrigger>
+            <TabsTrigger
+              value="stats"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              Stats
+            </TabsTrigger>
+            <TabsTrigger
+              value="insights"
+              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+            >
+              Insights
+            </TabsTrigger>
+          </TabsList>
 
-            {/* League Information Header */}
-            <div className="flex items-center  mb-2">
-              <img
-                src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
-                alt={currentFixture?.league.name}
-                className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    "/assets/fallback-logo.svg";
-                }}
-              />
-              <div className="flex-1">
-                <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
-                  {currentFixture?.league.name}
-                </h1>
-                <div className="flex items-center text-lg text-gray-600">
-                  {currentFixture?.league.round && <></>}
-                </div>
-              </div>
-              <Button variant="outline" size="sm" className="mx-40">
-                Follow
-              </Button>
-            </div>
-          </CardHeader>
-          {/* TabsList moved below header */}
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 px-20">
-              <TabsTrigger
-                value="details"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                Details
-              </TabsTrigger>
-              <TabsTrigger
-                value="matches"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                Matches
-              </TabsTrigger>
-              <TabsTrigger
-                value="standings"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                Standings
-              </TabsTrigger>
-              <TabsTrigger
-                value="news"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                News
-              </TabsTrigger>
-              <TabsTrigger
-                value="highlights"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                Highlights
-              </TabsTrigger>
-              <TabsTrigger
-                value="stats"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                Stats
-              </TabsTrigger>
-              <TabsTrigger
-                value="insights"
-                className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
-              >
-                Insights
-              </TabsTrigger>
-            </TabsList>
+          {/* Details Tab */}
+          <TabsContent value="details">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Match Information Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">
+                      Match Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm text-gray-600">
+                        {currentFixture &&
+                          format(new Date(currentFixture.fixture.date), "PPpp")}
+                      </span>
+                    </div>
 
-            {/* Details Tab */}
-            <TabsContent value="details">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Match Information Card */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold">
-                        Match Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                    {currentFixture?.fixture.venue && (
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
+                        <svg
+                          className="h-4 w-4 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
                         <span className="text-sm text-gray-600">
-                          {currentFixture &&
-                            format(
-                              new Date(currentFixture.fixture.date),
-                              "PPpp",
-                            )}
+                          {currentFixture.fixture.venue.name}
                         </span>
                       </div>
+                    )}
 
-                      {currentFixture?.fixture.venue && (
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="h-4 w-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                          </svg>
-                          <span className="text-sm text-gray-600">
-                            {currentFixture.fixture.venue.name}
-                          </span>
-                        </div>
-                      )}
-
-                      {currentFixture?.fixture.referee && (
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="h-4 w-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                          <span className="text-sm text-gray-600">
-                            {currentFixture.fixture.referee}
-                          </span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* League Information Card */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold">
-                        League Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={currentFixture?.league.logo}
-                          alt={currentFixture?.league.name}
-                          className="h-8 w-8 rounded"
-                        />
-                        <div>
-                          <p className="font-medium">
-                            {currentFixture?.league.name}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {currentFixture?.league.country}
-                          </p>
-                        </div>
+                    {currentFixture?.fixture.referee && (
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="h-4 w-4 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        <span className="text-sm text-gray-600">
+                          {currentFixture.fixture.referee}
+                        </span>
                       </div>
-                      {currentFixture?.league.round && (
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Round:</span>{" "}
-                          {currentFixture.league.round}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </TabsContent>
-
-            {/* Matches Tab */}
-            <TabsContent value="matches">
-              <CardContent className="p-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Matches</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      Recent match data will be displayed here.
-                    </p>
+                    )}
                   </CardContent>
                 </Card>
-              </CardContent>
-            </TabsContent>
 
-            {/* Standings Tab */}
-            <TabsContent value="standings">
-              <CardContent className="p-6">
+                {/* League Information Card */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>League Standings</CardTitle>
+                    <CardTitle className="text-lg font-semibold">
+                      League Information
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      League standings will be displayed here.
-                    </p>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={currentFixture?.league.logo}
+                        alt={currentFixture?.league.name}
+                        className="h-8 w-8 rounded"
+                      />
+                      <div>
+                        <p className="font-medium">
+                          {currentFixture?.league.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {currentFixture?.league.country}
+                        </p>
+                      </div>
+                    </div>
+                    {currentFixture?.league.round && (
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">Round:</span>{" "}
+                        {currentFixture.league.round}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
-              </CardContent>
-            </TabsContent>
+              </div>
+            </CardContent>
+          </TabsContent>
 
-            {/* News Tab */}
-            <TabsContent value="news">
-              <CardContent className="p-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Related News</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      Match-related news will be displayed here.
-                    </p>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </TabsContent>
+          {/* Matches Tab */}
+          <TabsContent value="matches">
+            <CardContent className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Matches</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Recent match data will be displayed here.
+                  </p>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </TabsContent>
 
-            {/* Highlights Tab */}
-            <TabsContent value="highlights">
-              <CardContent className="p-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Match Highlights</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      Match highlights will be displayed here.
-                    </p>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </TabsContent>
+          {/* Standings Tab */}
+          <TabsContent value="standings">
+            <CardContent className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>League Standings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    League standings will be displayed here.
+                  </p>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </TabsContent>
 
-            {/* Stats Tab */}
-            <TabsContent value="stats">
-              <CardContent className="p-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Match Statistics</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      Detailed match statistics will be displayed here.
-                    </p>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </TabsContent>
+          {/* News Tab */}
+          <TabsContent value="news">
+            <CardContent className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Related News</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Match-related news will be displayed here.
+                  </p>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </TabsContent>
 
-            {/* Insights Tab */}
-            <TabsContent value="insights">
-              <CardContent className="p-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Match Insights</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      Match insights and analysis will be displayed here.
-                    </p>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </TabsContent>
-          </Tabs>
-        </Card>
-      </div>
+          {/* Highlights Tab */}
+          <TabsContent value="highlights">
+            <CardContent className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Highlights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Match highlights will be displayed here.
+                  </p>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </TabsContent>
+
+          {/* Stats Tab */}
+          <TabsContent value="stats">
+            <CardContent className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Detailed match statistics will be displayed here.
+                  </p>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </TabsContent>
+
+          {/* Insights Tab */}
+          <TabsContent value="insights">
+            <CardContent className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Match insights and analysis will be displayed here.
+                  </p>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </TabsContent>
+        </Tabs>
+      </Card>
     </>
   );
 };
