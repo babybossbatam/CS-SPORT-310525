@@ -596,13 +596,22 @@ const MatchDetails = () => {
                 <h1 className="text-2xl font-semibold text-gray-900 uppercase tracking-wide">
                   {currentFixture?.league.name}
                 </h1>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full px-4 py-1 text-blue-600 border-blue-600 hover:bg-stone-50 hover-text:blue-500"
-                >
-                  Follow
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full px-4 py-1 text-blue-600 border-blue-600 hover:bg-stone-400 hover:text-white transition-colors duration-200"
+                      >
+                        Follow
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Add to My Selections</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <span className="text-sm text-gray-500">1.08M</span>
               </div>
             </div>
