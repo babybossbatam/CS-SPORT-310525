@@ -19,6 +19,7 @@ import {
 
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
+import MyCircularFlag from "@/components/common/MyCircularFlag";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -1004,245 +1005,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }}
                 >
                   {(() => {
-                    // Helper function to get country code for Circle Flags from team name
-                    const getCountryCodeFromTeamName = (
-                      teamName: string,
-                    ): string | null => {
-                      const teamCountryMap: { [key: string]: string } = {
-                        // European teams
-                        England: "gb-eng",
-                        Scotland: "gb-sct",
-                        Wales: "gb-wls",
-                        "Northern Ireland": "gb-nir",
-                        Spain: "es",
-                        Italy: "it",
-                        Germany: "de",
-                        France: "fr",
-                        Portugal: "pt",
-                        Netherlands: "nl",
-                        Belgium: "be",
-                        Croatia: "hr",
-                        Poland: "pl",
-                        Ukraine: "ua",
-                        Turkey: "tr",
-                        Switzerland: "ch",
-                        Austria: "at",
-                        "Czech Republic": "cz",
-                        Czechia: "cz",
-                        Denmark: "dk",
-                        Sweden: "se",
-                        Norway: "no",
-                        Finland: "fi",
-                        Russia: "ru",
-                        Serbia: "rs",
-                        Slovenia: "si",
-                        Slovakia: "sk",
-                        Hungary: "hu",
-                        Romania: "ro",
-                        Bulgaria: "bg",
-                        Greece: "gr",
-                        "Bosnia and Herzegovina": "ba",
-                        Montenegro: "me",
-                        "North Macedonia": "mk",
-                        "FYR Macedonia": "mk",
-                        Macedonia: "mk",
-                        Albania: "al",
-                        Kosovo: "xk",
-                        Moldova: "md",
-                        Belarus: "by",
-                        Lithuania: "lt",
-                        Latvia: "lv",
-                        Estonia: "ee",
-                        Iceland: "is",
-                        Ireland: "ie",
-                        Luxembourg: "lu",
-                        Malta: "mt",
-                        Cyprus: "cy",
-                        Georgia: "ge",
-                        Armenia: "am",
-                        Azerbaijan: "az",
-                        Kazakhstan: "kz",
-                        "Faroe Islands": "fo",
-                        Gibraltar: "gi",
-                        Andorra: "ad",
-                        "San Marino": "sm",
-                        Monaco: "mc",
-
-                        // South American teams
-                        Brazil: "br",
-                        Argentina: "ar",
-                        Uruguay: "uy",
-                        Chile: "cl",
-                        Peru: "pe",
-                        Colombia: "co",
-                        Ecuador: "ec",
-                        Venezuela: "ve",
-                        Bolivia: "bo",
-                        Paraguay: "py",
-                        Guyana: "gy",
-                        Suriname: "sr",
-
-                        // North/Central American teams
-                        "United States": "us",
-                        Mexico: "mx",
-                        Canada: "ca",
-                        "Costa Rica": "cr",
-                        Panama: "pa",
-                        Honduras: "hn",
-                        Guatemala: "gt",
-                        "El Salvador": "sv",
-                        Nicaragua: "ni",
-                        Belize: "bz",
-                        Jamaica: "jm",
-                        "Trinidad and Tobago": "tt",
-                        Barbados: "bb",
-                        Grenada: "gd",
-                        "Saint Lucia": "lc",
-                        "Saint Vincent and the Grenadines": "vc",
-                        "Antigua and Barbuda": "ag",
-                        Dominica: "dm",
-                        "Saint Kitts and Nevis": "kn",
-                        Cuba: "cu",
-                        Haiti: "ht",
-                        "Dominican Republic": "do",
-
-                        // African teams
-                        Nigeria: "ng",
-                        Morocco: "ma",
-                        Egypt: "eg",
-                        Ghana: "gh",
-                        Senegal: "sn",
-                        Algeria: "dz",
-                        Tunisia: "tn",
-                        Cameroon: "cm",
-                        Mali: "ml",
-                        "Burkina Faso": "bf",
-                        "Ivory Coast": "ci",
-                        Guinea: "gn",
-                        "Cape Verde": "cv",
-                        Gambia: "gm",
-                        "Guinea-Bissau": "gw",
-                        Liberia: "lr",
-                        "Sierra Leone": "sl",
-                        Mauritania: "mr",
-                        Niger: "ne",
-                        Chad: "td",
-                        "Central African Republic": "cf",
-                        Congo: "cg",
-                        "DR Congo": "cd",
-                        Gabon: "ga",
-                        "Equatorial Guinea": "gq",
-                        "Sao Tome and Principe": "st",
-                        Angola: "ao",
-                        Zambia: "zm",
-                        Zimbabwe: "zw",
-                        Malawi: "mw",
-                        Mozambique: "mz",
-                        Madagascar: "mg",
-                        Mauritius: "mu",
-                        Comoros: "km",
-                        Seychelles: "sc",
-                        "South Africa": "za",
-                        Namibia: "na",
-                        Botswana: "bw",
-                        Lesotho: "ls",
-                        Eswatini: "sz",
-                        Kenya: "ke",
-                        Uganda: "ug",
-                        Tanzania: "tz",
-                        Rwanda: "rw",
-                        Burundi: "bi",
-                        "South Sudan": "ss",
-                        Sudan: "sd",
-                        Ethiopia: "et",
-                        Eritrea: "er",
-                        Djibouti: "dj",
-                        Somalia: "so",
-                        Libya: "ly",
-
-                        // Asian teams
-                        Japan: "jp",
-                        "South Korea": "kr",
-                        China: "cn",
-                        Australia: "au",
-                        Iran: "ir",
-                        "Saudi Arabia": "sa",
-                        Iraq: "iq",
-                        "United Arab Emirates": "ae",
-                        Qatar: "qa",
-                        Kuwait: "kw",
-                        Bahrain: "bh",
-                        Oman: "om",
-                        Yemen: "ye",
-                        Jordan: "jo",
-                        Syria: "sy",
-                        Lebanon: "lb",
-                        Palestine: "ps",
-                        Israel: "il",
-                        India: "in",
-                        Pakistan: "pk",
-                        Bangladesh: "bd",
-                        "Sri Lanka": "lk",
-                        Maldives: "mv",
-                        Afghanistan: "af",
-                        Nepal: "np",
-                        Bhutan: "bt",
-                        Myanmar: "mm",
-                        Thailand: "th",
-                        Vietnam: "vn",
-                        Laos: "la",
-                        Cambodia: "kh",
-                        Malaysia: "my",
-                        Singapore: "sg",
-                        Indonesia: "id",
-                        Philippines: "ph",
-                        Brunei: "bn",
-                        "Timor-Leste": "tl",
-                        Mongolia: "mn",
-                        "North Korea": "kp",
-                        Taiwan: "tw",
-                        "Hong Kong": "hk",
-                        Macau: "mo",
-                        Uzbekistan: "uz",
-                        Turkmenistan: "tm",
-                        Tajikistan: "tj",
-                        Kyrgyzstan: "kg",
-
-                        // Oceania teams
-                        "New Zealand": "nz",
-                        Fiji: "fj",
-                        "Papua New Guinea": "pg",
-                        "Solomon Islands": "sb",
-                        Vanuatu: "vu",
-                        "New Caledonia": "nc",
-                        Tahiti: "pf",
-                        Samoa: "ws",
-                        Tonga: "to",
-                        "Cook Islands": "ck",
-                        "American Samoa": "as",
-                      };
-
-                      // Direct match first
-                      if (teamCountryMap[teamName]) {
-                        return teamCountryMap[teamName];
-                      }
-
-                      // Try partial matches for common variations
-                      const lowerTeamName = teamName.toLowerCase();
-                      for (const [country, code] of Object.entries(
-                        teamCountryMap,
-                      )) {
-                        if (
-                          lowerTeamName.includes(country.toLowerCase()) ||
-                          country.toLowerCase().includes(lowerTeamName)
-                        ) {
-                          return code;
-                        }
-                      }
-
-                      return null;
-                    };
-
                     // Check if this is a national team in an international competition
                     const isInternationalCompetition =
                       currentMatch?.league?.country === "World" ||
@@ -1275,43 +1037,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (isInternationalCompetition) {
                       const teamName = currentMatch?.teams?.home?.name || "";
-                      const countryCode = getCountryCodeFromTeamName(teamName);
 
-                      if (countryCode) {
-                        return (
-                          <div
-                            className="flag-circle featured-match-size absolute z-20"
-                            style={{
-                              top: "calc(50% - 32px)",
-                              left: "-32px",
-                            }}
-                          >
-                            <img
-                              src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
-                              alt={teamName}
-                              className="team-logo"
-                              loading="lazy"
-                              decoding="async"
-                              onError={(e) => {
-                                // Fallback to original team logo, then fallback logo
-                                if (
-                                  currentMatch?.teams?.home?.logo &&
-                                  !e.currentTarget.src.includes(
-                                    currentMatch.teams.home.logo,
-                                  )
-                                ) {
-                                  e.currentTarget.src =
-                                    currentMatch.teams.home.logo;
-                                } else {
-                                  e.currentTarget.src =
-                                    "/assets/fallback-logo.svg";
-                                }
-                              }}
-                            />
-                            <div className="gloss"></div>
-                          </div>
-                        );
-                      }
+                      return (
+                        <div
+                          className="absolute z-20"
+                          style={{
+                            top: "calc(50% - 32px)",
+                            left: "-32px",
+                          }}
+                        >
+                          <MyCircularFlag
+                            teamName={teamName}
+                            fallbackUrl={currentMatch?.teams?.home?.logo}
+                            alt={teamName}
+                            size="64px"
+                            className="featured-match-size"
+                          />
+                        </div>
+                      );
                     }
 
                     // Fallback to original team logo for non-international competitions
@@ -1393,245 +1136,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {(() => {
-                  // Helper function to get country code for Circle Flags from team name
-                  const getCountryCodeFromTeamName = (
-                    teamName: string,
-                  ): string | null => {
-                    const teamCountryMap: { [key: string]: string } = {
-                      // European teams
-                      England: "gb-eng",
-                      Scotland: "gb-sct",
-                      Wales: "gb-wls",
-                      "Northern Ireland": "gb-nir",
-                      Spain: "es",
-                      Italy: "it",
-                      Germany: "de",
-                      France: "fr",
-                      Portugal: "pt",
-                      Netherlands: "nl",
-                      Belgium: "be",
-                      Croatia: "hr",
-                      Poland: "pl",
-                      Ukraine: "ua",
-                      Turkey: "tr",
-                      Switzerland: "ch",
-                      Austria: "at",
-                      "Czech Republic": "cz",
-                      Czechia: "cz",
-                      Denmark: "dk",
-                      Sweden: "se",
-                      Norway: "no",
-                      Finland: "fi",
-                      Russia: "ru",
-                      Serbia: "rs",
-                      Slovenia: "si",
-                      Slovakia: "sk",
-                      Hungary: "hu",
-                      Romania: "ro",
-                      Bulgaria: "bg",
-                      Greece: "gr",
-                      "Bosnia and Herzegovina": "ba",
-                      Montenegro: "me",
-                      "North Macedonia": "mk",
-                      "FYR Macedonia": "mk",
-                      Macedonia: "mk",
-                      Albania: "al",
-                      Kosovo: "xk",
-                      Moldova: "md",
-                      Belarus: "by",
-                      Lithuania: "lt",
-                      Latvia: "lv",
-                      Estonia: "ee",
-                      Iceland: "is",
-                      Ireland: "ie",
-                      Luxembourg: "lu",
-                      Malta: "mt",
-                      Cyprus: "cy",
-                      Georgia: "ge",
-                      Armenia: "am",
-                      Azerbaijan: "az",
-                      Kazakhstan: "kz",
-                      "Faroe Islands": "fo",
-                      Gibraltar: "gi",
-                      Andorra: "ad",
-                      "San Marino": "sm",
-                      Monaco: "mc",
-
-                      // South American teams
-                      Brazil: "br",
-                      Argentina: "ar",
-                      Uruguay: "uy",
-                      Chile: "cl",
-                      Peru: "pe",
-                      Colombia: "co",
-                      Ecuador: "ec",
-                      Venezuela: "ve",
-                      Bolivia: "bo",
-                      Paraguay: "py",
-                      Guyana: "gy",
-                      Suriname: "sr",
-
-                      // North/Central American teams
-                      "United States": "us",
-                      Mexico: "mx",
-                      Canada: "ca",
-                      "Costa Rica": "cr",
-                      Panama: "pa",
-                      Honduras: "hn",
-                      Guatemala: "gt",
-                      "El Salvador": "sv",
-                      Nicaragua: "ni",
-                      Belize: "bz",
-                      Jamaica: "jm",
-                      "Trinidad and Tobago": "tt",
-                      Barbados: "bb",
-                      Grenada: "gd",
-                      "Saint Lucia": "lc",
-                      "Saint Vincent and the Grenadines": "vc",
-                      "Antigua and Barbuda": "ag",
-                      Dominica: "dm",
-                      "Saint Kitts and Nevis": "kn",
-                      Cuba: "cu",
-                      Haiti: "ht",
-                      "Dominican Republic": "do",
-
-                      // African teams
-                      Nigeria: "ng",
-                      Morocco: "ma",
-                      Egypt: "eg",
-                      Ghana: "gh",
-                      Senegal: "sn",
-                      Algeria: "dz",
-                      Tunisia: "tn",
-                      Cameroon: "cm",
-                      Mali: "ml",
-                      "Burkina Faso": "bf",
-                      "Ivory Coast": "ci",
-                      Guinea: "gn",
-                      "Cape Verde": "cv",
-                      Gambia: "gm",
-                      "Guinea-Bissau": "gw",
-                      Liberia: "lr",
-                      "Sierra Leone": "sl",
-                      Mauritania: "mr",
-                      Niger: "ne",
-                      Chad: "td",
-                      "Central African Republic": "cf",
-                      Congo: "cg",
-                      "DR Congo": "cd",
-                      Gabon: "ga",
-                      "Equatorial Guinea": "gq",
-                      "Sao Tome and Principe": "st",
-                      Angola: "ao",
-                      Zambia: "zm",
-                      Zimbabwe: "zw",
-                      Malawi: "mw",
-                      Mozambique: "mz",
-                      Madagascar: "mg",
-                      Mauritius: "mu",
-                      Comoros: "km",
-                      Seychelles: "sc",
-                      "South Africa": "za",
-                      Namibia: "na",
-                      Botswana: "bw",
-                      Lesotho: "ls",
-                      Eswatini: "sz",
-                      Kenya: "ke",
-                      Uganda: "ug",
-                      Tanzania: "tz",
-                      Rwanda: "rw",
-                      Burundi: "bi",
-                      "South Sudan": "ss",
-                      Sudan: "sd",
-                      Ethiopia: "et",
-                      Eritrea: "er",
-                      Djibouti: "dj",
-                      Somalia: "so",
-                      Libya: "ly",
-
-                      // Asian teams
-                      Japan: "jp",
-                      "South Korea": "kr",
-                      China: "cn",
-                      Australia: "au",
-                      Iran: "ir",
-                      "Saudi Arabia": "sa",
-                      Iraq: "iq",
-                      "United Arab Emirates": "ae",
-                      Qatar: "qa",
-                      Kuwait: "kw",
-                      Bahrain: "bh",
-                      Oman: "om",
-                      Yemen: "ye",
-                      Jordan: "jo",
-                      Syria: "sy",
-                      Lebanon: "lb",
-                      Palestine: "ps",
-                      Israel: "il",
-                      India: "in",
-                      Pakistan: "pk",
-                      Bangladesh: "bd",
-                      "Sri Lanka": "lk",
-                      Maldives: "mv",
-                      Afghanistan: "af",
-                      Nepal: "np",
-                      Bhutan: "bt",
-                      Myanmar: "mm",
-                      Thailand: "th",
-                      Vietnam: "vn",
-                      Laos: "la",
-                      Cambodia: "kh",
-                      Malaysia: "my",
-                      Singapore: "sg",
-                      Indonesia: "id",
-                      Philippines: "ph",
-                      Brunei: "bn",
-                      "Timor-Leste": "tl",
-                      Mongolia: "mn",
-                      "North Korea": "kp",
-                      Taiwan: "tw",
-                      "Hong Kong": "hk",
-                      Macau: "mo",
-                      Uzbekistan: "uz",
-                      Turkmenistan: "tm",
-                      Tajikistan: "tj",
-                      Kyrgyzstan: "kg",
-
-                      // Oceania teams
-                      "New Zealand": "nz",
-                      Fiji: "fj",
-                      "Papua New Guinea": "pg",
-                      "Solomon Islands": "sb",
-                      Vanuatu: "vu",
-                      "New Caledonia": "nc",
-                      Tahiti: "pf",
-                      Samoa: "ws",
-                      Tonga: "to",
-                      "Cook Islands": "ck",
-                      "American Samoa": "as",
-                    };
-
-                    // Direct match first
-                    if (teamCountryMap[teamName]) {
-                      return teamCountryMap[teamName];
-                    }
-
-                    // Try partial matches for common variations
-                    const lowerTeamName = teamName.toLowerCase();
-                    for (const [country, code] of Object.entries(
-                      teamCountryMap,
-                    )) {
-                      if (
-                        lowerTeamName.includes(country.toLowerCase()) ||
-                        country.toLowerCase().includes(lowerTeamName)
-                      ) {
-                        return code;
-                      }
-                    }
-
-                    return null;
-                  };
-
                   // Check if this is a national team in an international competition
                   const isInternationalCompetition =
                     currentMatch?.league?.country === "World" ||
@@ -1664,43 +1168,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   if (isInternationalCompetition) {
                     const teamName = currentMatch?.teams?.away?.name || "";
-                    const countryCode = getCountryCodeFromTeamName(teamName);
 
-                    if (countryCode) {
-                      return (
-                        <div
-                          className="flag-circle featured-match-size absolute z-20"
-                          style={{
-                            top: "calc(50% - 32px)",
-                            right: "46px",
-                          }}
-                        >
-                          <img
-                            src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
-                            alt={teamName}
-                            className="team-logo"
-                            loading="lazy"
-                            decoding="async"
-                            onError={(e) => {
-                              // Fallback to original team logo, then fallback logo
-                              if (
-                                currentMatch?.teams?.away?.logo &&
-                                !e.currentTarget.src.includes(
-                                  currentMatch.teams.away.logo,
-                                )
-                              ) {
-                                e.currentTarget.src =
-                                  currentMatch.teams.away.logo;
-                              } else {
-                                e.currentTarget.src =
-                                  "/assets/fallback-logo.svg";
-                              }
-                            }}
-                          />
-                          <div className="gloss"></div>
-                        </div>
-                      );
-                    }
+                    return (
+                      <div
+                        className="absolute z-20"
+                        style={{
+                          top: "calc(50% - 32px)",
+                          right: "32px",
+                        }}
+                      >
+                        <MyCircularFlag
+                          teamName={teamName}
+                          fallbackUrl={currentMatch?.teams?.away?.logo}
+                          alt={teamName}
+                          size="64px"
+                          className="featured-match-size"
+                        />
+                      </div>
+                    );
                   }
 
                   return (
