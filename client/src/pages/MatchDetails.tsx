@@ -592,24 +592,28 @@ const MatchDetails = () => {
               }}
             />
             <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl font-bold text-gray-900 uppercase tracking-wide">
                   {currentFixture?.league.name}
-
-                  <Button variant="outline" size="sm" className="mr-4">
-                    Follow
-                  </Button>
                 </h1>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full px-4 py-1 text-blue-600 border-blue-600 hover:bg-blue-50"
+                >
+                  Follow
+                </Button>
+                <span className="text-sm text-gray-500">1.08M</span>
               </div>
             </div>
           </div>
         </CardHeader>
         {/* TabsList moved below header */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 px-20">
+          <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 mx-20">
             <TabsTrigger
               value="details"
-              className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
+              className="bg-transparent border-0 rounded-none   px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
             >
               Details
             </TabsTrigger>
