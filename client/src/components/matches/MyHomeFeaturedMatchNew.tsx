@@ -726,11 +726,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const matchDate = new Date(currentMatch?.fixture?.date || '');
                 const now = new Date();
 
-                // Get the current date in the same format as thematch date
+                // Get the current date in the same format as the match date
                 const today = new Date();
-                ```
-// Adding Colombia to the country mapping and fixing colored bar issues.
-    const todayDateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+                const todayDateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
                 const matchDateString = matchDate.toISOString().slice(0, 10); // YYYY-MM-DD
 
                 const tomorrow = new Date(today);
