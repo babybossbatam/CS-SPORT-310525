@@ -9,6 +9,7 @@ import { useCachedQuery } from "@/lib/cachingHelper";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { shouldExcludeFromPopularLeagues } from "@/lib/MyPopularLeagueExclusion";
 import { getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
+import { format, parseISO, isValid, differenceInHours, subDays } from "date-fns";
 
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
@@ -357,12 +358,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       if (!['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(match.fixture.status.short)) {
         return false;
       }
-      
+
       const matchDate = new Date(match.fixture.date);
       const today = new Date();
       const endOfToday = new Date(today);
       endOfToday.setHours(23, 59, 59, 999);
-      
+
       return matchDate <= endOfToday;
     };
 
@@ -406,7 +407,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Slides 1-3: TODAY 
     for (let i = 1; i <= 3; i++) {
       let added = false;
-      
+
       // Try to add any today match (live, finished, or upcoming)
       for (let j = 0; j < todayPrioritized.length && !added; j++) {
         if (addUniqueMatch(todayPrioritized[j])) {
@@ -414,7 +415,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           console.log(`✅ [SLIDE DEBUG] Added TODAY match to slide ${i}: ${todayPrioritized[j].teams.home.name} vs ${todayPrioritized[j].teams.away.name}`);
         }
       }
-      
+
       if (!added) {
         console.log(`⚠️ [SLIDE DEBUG] No TODAY match found for slide ${i}`);
       }
@@ -429,7 +430,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           console.log(`✅ [SLIDE DEBUG] Added TOMORROW match to slide ${i}: ${tomorrowPrioritized[j].teams.home.name} vs ${tomorrowPrioritized[j].teams.away.name}`);
         }
       }
-      
+
       if (!added) {
         console.log(`⚠️ [SLIDE DEBUG] No TOMORROW match found for slide ${i}`);
       }
@@ -444,7 +445,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           console.log(`✅ [SLIDE DEBUG] Added 2 DAYS LATER match to slide ${i}: ${dayAfterPrioritized[j].teams.home.name} vs ${dayAfterPrioritized[j].teams.away.name}`);
         }
       }
-      
+
       if (!added) {
         console.log(`⚠️ [SLIDE DEBUG] No 2 DAYS LATER match found for slide ${i}`);
       }
@@ -452,13 +453,13 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Only fill remaining slides 7-9 with matches from 2 days later if we don't have enough
     console.log(`🎯 [SLIDE DEBUG] Current slide count before 2-day-later-only backup: ${slidesDistribution.length}`);
-    
+
     if (slidesDistribution.length < 9) {
       // Only use matches from 2 days later (dayAfterTomorrow) for slides 7-9
       const twoDaysLaterOnlyMatches = [...twoDaysAfterSorted];
-      
+
       console.log(`🎯 [SLIDE DEBUG] 2 days later backup matches available: ${twoDaysLaterOnlyMatches.length}`);
-      
+
       for (let i = 0; i < twoDaysLaterOnlyMatches.length && slidesDistribution.length < 9; i++) {
         if (addUniqueMatch(twoDaysLaterOnlyMatches[i])) {
           console.log(`✅ [SLIDE DEBUG] Added 2-days-later backup match to slide ${slidesDistribution.length}: ${twoDaysLaterOnlyMatches[i].teams.home.name} vs ${twoDaysLaterOnlyMatches[i].teams.away.name}`);
@@ -725,11 +726,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const matchDate = new Date(currentMatch?.fixture?.date || '');
                 const now = new Date();
 
-                // Get the current date in the same format as the match date
+                // Get the current date in the same format as thematch date
                 const today = new Date();
                 const todayDateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
                 const matchDateString = matchDate.toISOString().slice(0, 10); // YYYY-MM-DD
-                
+
                 const tomorrow = new Date(today);
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 const tomorrowDateString = tomorrow.toISOString().slice(0, 10);
@@ -742,12 +743,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   // It's today - but only show countdown if we've passed 00:00:00 of today
                   const todayStart = new Date(todayDateString + 'T00:00:00Z'); // 00:00:00 of today
                   const hasPassedMidnight = now.getTime() >= todayStart.getTime();
-                  
+
                   if (hasPassedMidnight) {
                     // Today has officially started (past 00:00:00), check if within 12 hours
                     const msUntilKickoff = matchDate.getTime() - now.getTime();
                     hoursUntilKickoff = msUntilKickoff / (1000 * 60 * 60);
-                    
+
                     if (hoursUntilKickoff > 0 && hoursUntilKickoff <= 12) {
                       showCountdown = true;
                     } else {
@@ -765,7 +766,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const todayOnly = new Date(todayDateString);
                   const timeDiff = matchDateOnly.getTime() - todayOnly.getTime();
                   const daysUntilMatch = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                  
+
                   if (daysUntilMatch > 0) {
                     daysText = `${daysUntilMatch} Days`;
                   } else {
@@ -780,7 +781,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const updateTimer = () => {
                         const now = new Date();
                         const msUntilKickoff = matchDate.getTime() - now.getTime();
-                        
+
                         if (msUntilKickoff <= 0) {
                           setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
                           return;
@@ -1066,7 +1067,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   };
 
                   // Check if this is a national team in an international competition
-                  const isInternationalCompetition = currentMatch?.league?.country === 'World' || 
+                  const isInternationalCompetition = currentMatch?.league?.country === 'World' ||
                                                    currentMatch?.league?.country === 'Europe' ||
                                                    currentMatch?.league?.country === 'South America' ||
                                                    currentMatch?.league?.name?.toLowerCase().includes('world cup') ||
@@ -1408,7 +1409,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   };
 
                   // Check if this is a national team in an international competition
-                  const isInternationalCompetition = currentMatch?.league?.country === 'World' || 
+                  const isInternationalCompetition = currentMatch?.league?.country === 'World' ||
                                                    currentMatch?.league?.country === 'Europe' ||
                                                    currentMatch?.league?.country === 'South America' ||
                                                    currentMatch?.league?.name?.toLowerCase().includes('world cup') ||
@@ -1503,10 +1504,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   };
                   const dayWithSuffix = `${day}${getOrdinalSuffix(day)}`;
 
-                  const formattedTime = matchDate.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
+                  const formattedTime = matchDate.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
                     minute: '2-digit',
-                    hour12: false 
+                    hour12: false
                   });
                   const venueName = currentMatch?.fixture?.venue?.name || "Stadium";
 
@@ -1587,8 +1588,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">Standings</span>
-            </button>
-          </div>
+            </button          </div>
         </motion.div>
       </AnimatePresence>
 
