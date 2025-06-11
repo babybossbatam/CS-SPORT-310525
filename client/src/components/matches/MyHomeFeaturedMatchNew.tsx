@@ -1366,7 +1366,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Away team colored bar and logo */}
                 <div
-                  className="h-full w-[calc(50%-36px)]  transition-all duration-500 ease-in-out opacity-100"
+                  className="relative h-full w-[calc(50%-36px)] transition-all duration-500 ease-in-out opacity-100 "
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.away?.id || 1,
@@ -1375,10 +1375,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 ></div>
 
                 <div
-                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                  className="absolute text-white uppercase text-center max-w-[200px] truncate md:max-w-[240px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    right: "120px",
+                    right: "110px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
@@ -1826,7 +1826,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 alt="H2H"
                 width="18"
                 height="18"
-className="text-gray-600"
+                className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">H2H</span>
             </button>
