@@ -269,8 +269,7 @@ async function checkFifaAndEuroU21Leagues() {
       }
     } catch (error) {
       console.error("Error checking today's matches:", error);
-    }
-  } catch (error) {
+     } catch (error) {
     console.error("Error checking leagues:", error);
   }
 
