@@ -525,7 +525,7 @@ const MatchDetails = () => {
                 }}
               />
               <div className="flex-1">
-                <h1 className="text-xl font-bold text-gray-900 uppercase tracking-wide">
+                <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
                   {currentFixture?.league.name}
                 </h1>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
