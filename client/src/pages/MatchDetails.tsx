@@ -487,17 +487,7 @@ const MatchDetails = () => {
               <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <div className="flex items-center gap-2 hover:text-gray-900 cursor-pointer">
-                <img 
-                  src={currentFixture?.league.logo || "/assets/fallback-logo.svg"} 
-                  alt={currentFixture?.league.name}
-                  className="h-5 w-5 object-contain rounded"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                  }}
-                />
-                <span>{currentFixture?.league.name}</span>
-              </div>
+              <span className="hover:text-gray-900 cursor-pointer">{currentFixture?.league.name}</span>
               <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
