@@ -20,6 +20,12 @@ import {
   Info,
   Clock,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatDateTime, getMatchStatusText, isLiveMatch } from "@/lib/utils";
 import {
   getTeamGradient,
