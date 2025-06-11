@@ -543,7 +543,7 @@ const MatchDetails = () => {
             </TabsList>
 
             {/* Details Tab */}
-            <TabsContent value="details" className="mt-2">
+            <TabsContent value="details">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Match Information Card */}
@@ -613,7 +613,7 @@ const MatchDetails = () => {
             </TabsContent>
 
             {/* Matches Tab */}
-            <TabsContent value="matches" className="mt-2">
+            <TabsContent value="matches">
               <CardContent className="p-6">
                 <Card>
                   <CardHeader>
@@ -627,7 +627,7 @@ const MatchDetails = () => {
             </TabsContent>
 
             {/* Standings Tab */}
-            <TabsContent value="standings" className="mt-2">
+            <TabsContent value="standings">
               <CardContent className="p-6">
                 <Card>
                   <CardHeader>
@@ -641,7 +641,7 @@ const MatchDetails = () => {
             </TabsContent>
 
             {/* News Tab */}
-            <TabsContent value="news" className="mt-2">
+            <TabsContent value="news">
               <CardContent className="p-6">
                 <Card>
                   <CardHeader>
@@ -655,7 +655,7 @@ const MatchDetails = () => {
             </TabsContent>
 
             {/* Highlights Tab */}
-            <TabsContent value="highlights" className="mt-2">
+            <TabsContent value="highlights">
               <CardContent className="p-6">
                 <Card>
                   <CardHeader>
@@ -669,7 +669,7 @@ const MatchDetails = () => {
             </TabsContent>
 
             {/* Stats Tab */}
-            <TabsContent value="stats" className="mt-2">
+            <TabsContent value="stats">
               <CardContent className="p-6">
                 <Card>
                   <CardHeader>
@@ -683,7 +683,7 @@ const MatchDetails = () => {
             </TabsContent>
 
             {/* Insights Tab */}
-            <TabsContent value="insights" className="mt-2">
+            <TabsContent value="insights">
               <CardContent className="p-6">
                 <Card>
                   <CardHeader>
