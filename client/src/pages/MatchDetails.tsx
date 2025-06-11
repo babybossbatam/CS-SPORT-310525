@@ -585,7 +585,7 @@ const MatchDetails = () => {
             <img
               src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
               alt={currentFixture?.league.name}
-              className="h-16 w-17 object-cover bg-gray-50 p-1"
+              className="h-16 w-17 object-cover bg-gray-50"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   "/assets/fallback-logo.svg";
@@ -593,7 +593,7 @@ const MatchDetails = () => {
             />
             <div className="flex-1">
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-gray-900 uppercase tracking-wide">
+                <h1 className="text-2xl font-semibold text-gray-900 uppercase tracking-wide">
                   {currentFixture?.league.name}
                 </h1>
                 <Button
@@ -610,7 +610,7 @@ const MatchDetails = () => {
         </CardHeader>
         {/* TabsList moved below header */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 mx-20">
+          <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 mx-10 ml-[15%]">
             <TabsTrigger
               value="details"
               className="bg-transparent border-0 rounded-none   px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
