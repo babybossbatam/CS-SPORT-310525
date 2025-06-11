@@ -7,6 +7,7 @@ interface MyCircularFlagProps {
   alt?: string;
   size?: string;
   className?: string;
+  moveLeft?: boolean;
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
@@ -15,6 +16,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   alt,
   size = "64px",
   className = "",
+  moveLeft = false,
 }) => {
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Extract country from team name or use direct country mapping
@@ -87,7 +89,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         width: size,
         height: size,
         position: "relative",
-        left: "4px",
+        left: moveLeft ? "-16px" : "4px",
       }}
     >
       <img
