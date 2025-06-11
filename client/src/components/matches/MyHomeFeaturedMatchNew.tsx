@@ -1085,26 +1085,32 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (countryCode) {
                       return (
-                        <img
-                          src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
-                          alt={teamName}
-                          className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                        <div 
+                          className="flag-circle absolute z-20"
                           style={{
                             top: "calc(50% - 32px)",
                             left: "-32px",
-                            filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                            width: "64px",
+                            height: "64px",
                           }}
-                          loading="lazy"
-                          decoding="async"
-                          onError={(e) => {
-                            // Fallback to original team logo, then fallback logo
-                            if (currentMatch?.teams?.home?.logo && !e.currentTarget.src.includes(currentMatch.teams.home.logo)) {
-                              e.currentTarget.src = currentMatch.teams.home.logo;
-                            } else {
-                              e.currentTarget.src = "/assets/fallback-logo.svg";
-                            }
-                          }}
-                        />
+                        >
+                          <img
+                            src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
+                            alt={teamName}
+                            className="team-logo"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                              // Fallback to original team logo, then fallback logo
+                              if (currentMatch?.teams?.home?.logo && !e.currentTarget.src.includes(currentMatch.teams.home.logo)) {
+                                e.currentTarget.src = currentMatch.teams.home.logo;
+                              } else {
+                                e.currentTarget.src = "/assets/fallback-logo.svg";
+                              }
+                            }}
+                          />
+                          <div className="gloss"></div>
+                        </div>
                       );
                     }
                   }
@@ -1427,27 +1433,33 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (countryCode) {
                       return (
-                        <img
-                          src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
-                          alt={teamName}
-                          className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
+                        <div 
+                          className="flag-circle absolute z-20"
                           style={{
                             top: "calc(50% - 32px)",
                             right: "87px",
                             transform: "translateX(50%)",
-                            filter: "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                            width: "64px",
+                            height: "64px",
                           }}
-                          loading="lazy"
-                          decoding="async"
-                          onError={(e) => {
-                            // Fallback to original team logo, then fallback logo
-                            if (currentMatch?.teams?.away?.logo && !e.currentTarget.src.includes(currentMatch.teams.away.logo)) {
-                              e.currentTarget.src = currentMatch.teams.away.logo;
-                            } else {
-                              e.currentTarget.src = "/assets/fallback-logo.svg";
-                            }
-                          }}
-                        />
+                        >
+                          <img
+                            src={`https://hatscripts.github.io/circle-flags/flags/${countryCode}.svg`}
+                            alt={teamName}
+                            className="team-logo"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                              // Fallback to original team logo, then fallback logo
+                              if (currentMatch?.teams?.away?.logo && !e.currentTarget.src.includes(currentMatch.teams.away.logo)) {
+                                e.currentTarget.src = currentMatch.teams.away.logo;
+                              } else {
+                                e.currentTarget.src = "/assets/fallback-logo.svg";
+                              }
+                            }}
+                          />
+                          <div className="gloss"></div>
+                        </div>
                       );
                     }
                   }
