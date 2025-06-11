@@ -1588,7 +1588,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">Standings</span>
-            </button          </div>
+            </button>
+          </div>
         </motion.div>
       </AnimatePresence>
 
