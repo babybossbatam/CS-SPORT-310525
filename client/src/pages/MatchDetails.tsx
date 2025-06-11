@@ -1,109 +1,126 @@
-import { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'wouter';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, fixturesActions, userActions } from '@/lib/store';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import Header from '@/components/layout/Header';
-import TournamentHeader from '@/components/layout/TournamentHeader';
-import MatchEngagementSection from '@/components/heatmap/MatchEngagementSection';
-import { Star, ArrowLeft, BarChart2, Timer, Trophy, ListOrdered, Info, Clock } from 'lucide-react';
-import { formatDateTime, getMatchStatusText, isLiveMatch } from '@/lib/utils';
-import { getTeamGradient, getTeamColor, getOpposingTeamColor, getTailwindToHex } from '@/lib/colorUtils';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import MatchPrediction from '@/components/matches/MatchPrediction';
-import HistoricalMatchStats from '@/components/matches/HistoricalMatchStats';
-import TeamPerformanceTimeline from '@/components/matches/TeamPerformanceTimeline';
-import StatHighlight from '@/components/matches/StatHighlight';
-import HistoricalStats from '@/components/matches/HistoricalStats';
-import PredictionMeter from '@/components/matches/PredictionMeter';
-import MatchScoreboard from '@/components/matches/MatchScoreboard';
-import MatchTimeline, { MatchEvent } from '@/components/matches/MatchTimeline';
-import { format } from 'date-fns';
+import { useEffect, useState } from "react";
+import { useParams, useLocation } from "wouter";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, fixturesActions, userActions } from "@/lib/store";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import Header from "@/components/layout/Header";
+import TournamentHeader from "@/components/layout/TournamentHeader";
+import MatchEngagementSection from "@/components/heatmap/MatchEngagementSection";
+import {
+  Star,
+  ArrowLeft,
+  BarChart2,
+  Timer,
+  Trophy,
+  ListOrdered,
+  Info,
+  Clock,
+} from "lucide-react";
+import { formatDateTime, getMatchStatusText, isLiveMatch } from "@/lib/utils";
+import {
+  getTeamGradient,
+  getTeamColor,
+  getOpposingTeamColor,
+  getTailwindToHex,
+} from "@/lib/colorUtils";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import MatchPrediction from "@/components/matches/MatchPrediction";
+import HistoricalMatchStats from "@/components/matches/HistoricalMatchStats";
+import TeamPerformanceTimeline from "@/components/matches/TeamPerformanceTimeline";
+import StatHighlight from "@/components/matches/StatHighlight";
+import HistoricalStats from "@/components/matches/HistoricalStats";
+import PredictionMeter from "@/components/matches/PredictionMeter";
+import MatchScoreboard from "@/components/matches/MatchScoreboard";
+import MatchTimeline, { MatchEvent } from "@/components/matches/MatchTimeline";
+import TodayMatchpage from "@/components/matches/TodayMatchPageCard";
+import { format } from "date-fns";
 
 const MatchDetails = () => {
-  const { id, tab = 'summary' } = useParams();
+  const { id, tab = "summary" } = useParams();
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
 
   const user = useSelector((state: RootState) => state.user);
-  const { currentFixture, loading, error } = useSelector((state: RootState) => state.fixtures);
+  const { currentFixture, loading, error } = useSelector(
+    (state: RootState) => state.fixtures,
+  );
 
-  const [activeTab, setActiveTab] = useState(tab || 'details');
+  const [activeTab, setActiveTab] = useState(tab || "details");
 
   // Sample match events data for the interactive timeline
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
     {
       id: 1,
       minute: 12,
-      type: 'goal',
-      team: 'home',
-      player: 'Player Name',
-      assistedBy: 'Teammate'
+      type: "goal",
+      team: "home",
+      player: "Player Name",
+      assistedBy: "Teammate",
     },
     {
       id: 2,
       minute: 24,
-      type: 'yellow_card',
-      team: 'away',
-      player: 'Opponent Player'
+      type: "yellow_card",
+      team: "away",
+      player: "Opponent Player",
     },
     {
       id: 3,
       minute: 36,
-      type: 'goal',
-      team: 'away',
-      player: 'Striker Name',
-      assistedBy: 'Midfielder'
+      type: "goal",
+      team: "away",
+      player: "Striker Name",
+      assistedBy: "Midfielder",
     },
     {
       id: 4,
       minute: 42,
-      type: 'substitution',
-      team: 'home',
-      player: 'Substitute Player',
-      detail: 'Injured Player'
+      type: "substitution",
+      team: "home",
+      player: "Substitute Player",
+      detail: "Injured Player",
     },
     {
       id: 5,
       minute: 58,
-      type: 'var',
-      team: 'home',
-      player: 'Team Captain',
-      detail: 'Goal disallowed for offside'
+      type: "var",
+      team: "home",
+      player: "Team Captain",
+      detail: "Goal disallowed for offside",
     },
     {
       id: 6,
       minute: 67,
-      type: 'goal',
-      team: 'home',
-      player: 'Midfielder',
-      assistedBy: 'Winger'
+      type: "goal",
+      team: "home",
+      player: "Midfielder",
+      assistedBy: "Winger",
     },
     {
       id: 7,
       minute: 73,
-      type: 'red_card',
-      team: 'away',
-      player: 'Defender'
+      type: "red_card",
+      team: "away",
+      player: "Defender",
     },
     {
       id: 8,
       minute: 85,
-      type: 'penalty',
-      team: 'home',
-      player: 'Penalty Taker',
-      detail: 'Scored'
-    }
+      type: "penalty",
+      team: "home",
+      player: "Penalty Taker",
+      detail: "Scored",
+    },
   ]);
 
   // Check if match is favorited
-  const isFavorite = user.preferences.favoriteMatches.includes(id || '');
+  const isFavorite = user.preferences.favoriteMatches.includes(id || "");
 
   // Fetch match details and highlights
   useEffect(() => {
@@ -115,7 +132,11 @@ const MatchDetails = () => {
         dispatch(fixturesActions.setFixturesError(null));
 
         // Implement fetch with a timeout to avoid hanging requests
-        const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 15000) => {
+        const fetchWithTimeout = async (
+          url: string,
+          options: RequestInit,
+          timeout = 15000,
+        ) => {
           const controller = new AbortController();
           const { signal } = controller;
 
@@ -127,21 +148,25 @@ const MatchDetails = () => {
             return response;
           } catch (error) {
             clearTimeout(timeoutId);
-            if (error instanceof Error && error.name === 'AbortError') {
-              throw new Error('Network timeout: The request took too long to complete.');
+            if (error instanceof Error && error.name === "AbortError") {
+              throw new Error(
+                "Network timeout: The request took too long to complete.",
+              );
             }
             throw error;
           }
         };
 
         // Use our custom fetch with timeout
-        const response = await fetchWithTimeout(`/api/fixtures/${id}`, { 
-          method: 'GET',
-          credentials: 'include'
+        const response = await fetchWithTimeout(`/api/fixtures/${id}`, {
+          method: "GET",
+          credentials: "include",
         });
 
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Server error: ${response.status} ${response.statusText}`,
+          );
         }
 
         const data = await response.json();
@@ -154,21 +179,26 @@ const MatchDetails = () => {
         console.error(`Error fetching match details for ID ${id}:`, error);
 
         // Create a user-friendly error message based on the type of error
-        let errorMessage = 'Failed to load match details';
+        let errorMessage = "Failed to load match details";
         if (error instanceof Error) {
-          if (error.message.includes('Network timeout')) {
-            errorMessage = 'The request timed out. Please check your connection and try again.';
-          } else if (error.message.includes('Network error') || error.message.includes('fetch')) {
-            errorMessage = 'Network error: Please check your internet connection and try again.';
-          } else if (error.message.includes('Server error')) {
-            errorMessage = `Server error: ${error.message.replace('Server error: ', '')}`;
+          if (error.message.includes("Network timeout")) {
+            errorMessage =
+              "The request timed out. Please check your connection and try again.";
+          } else if (
+            error.message.includes("Network error") ||
+            error.message.includes("fetch")
+          ) {
+            errorMessage =
+              "Network error: Please check your internet connection and try again.";
+          } else if (error.message.includes("Server error")) {
+            errorMessage = `Server error: ${error.message.replace("Server error: ", "")}`;
           }
         }
 
         toast({
-          title: 'Error',
+          title: "Error",
           description: errorMessage,
-          variant: 'destructive',
+          variant: "destructive",
         });
 
         dispatch(fixturesActions.setFixturesError(errorMessage));
@@ -176,8 +206,6 @@ const MatchDetails = () => {
         dispatch(fixturesActions.setLoadingFixtures(false));
       }
     };
-
-
 
     // Function to generate realistic match events based on the fixture data
     const generateMatchEvents = (fixture: any) => {
@@ -195,10 +223,11 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: Math.floor(Math.random() * 90) + 1,
-          type: 'goal',
-          team: 'home',
+          type: "goal",
+          team: "home",
           player: `${homeTeam.name} Player`,
-          assistedBy: Math.random() > 0.5 ? `${homeTeam.name} Teammate` : undefined
+          assistedBy:
+            Math.random() > 0.5 ? `${homeTeam.name} Teammate` : undefined,
         });
       }
 
@@ -206,10 +235,11 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: Math.floor(Math.random() * 90) + 1,
-          type: 'goal',
-          team: 'away',
+          type: "goal",
+          team: "away",
           player: `${awayTeam.name} Player`,
-          assistedBy: Math.random() > 0.5 ? `${awayTeam.name} Teammate` : undefined
+          assistedBy:
+            Math.random() > 0.5 ? `${awayTeam.name} Teammate` : undefined,
         });
       }
 
@@ -221,9 +251,9 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: Math.floor(Math.random() * 90) + 1,
-          type: 'yellow_card',
-          team: 'home',
-          player: `${homeTeam.name} Player`
+          type: "yellow_card",
+          team: "home",
+          player: `${homeTeam.name} Player`,
         });
       }
 
@@ -231,9 +261,9 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: Math.floor(Math.random() * 90) + 1,
-          type: 'yellow_card',
-          team: 'away',
-          player: `${awayTeam.name} Player`
+          type: "yellow_card",
+          team: "away",
+          player: `${awayTeam.name} Player`,
         });
       }
 
@@ -242,9 +272,12 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: Math.floor(Math.random() * 90) + 1,
-          type: 'red_card',
-          team: Math.random() < 0.5 ? 'home' : 'away',
-          player: Math.random() < 0.5 ? `${homeTeam.name} Player` : `${awayTeam.name} Player`
+          type: "red_card",
+          team: Math.random() < 0.5 ? "home" : "away",
+          player:
+            Math.random() < 0.5
+              ? `${homeTeam.name} Player`
+              : `${awayTeam.name} Player`,
         });
       }
 
@@ -256,10 +289,10 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: 45 + Math.floor(Math.random() * 45),
-          type: 'substitution',
-          team: 'home',
+          type: "substitution",
+          team: "home",
           player: `${homeTeam.name} Sub In`,
-          detail: `${homeTeam.name} Sub Out`
+          detail: `${homeTeam.name} Sub Out`,
         });
       }
 
@@ -267,10 +300,10 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: 45 + Math.floor(Math.random() * 45),
-          type: 'substitution',
-          team: 'away',
+          type: "substitution",
+          team: "away",
           player: `${awayTeam.name} Sub In`,
-          detail: `${awayTeam.name} Sub Out`
+          detail: `${awayTeam.name} Sub Out`,
         });
       }
 
@@ -279,10 +312,16 @@ const MatchDetails = () => {
         newEvents.push({
           id: newEvents.length + 1,
           minute: Math.floor(Math.random() * 90) + 1,
-          type: 'var',
-          team: Math.random() < 0.5 ? 'home' : 'away',
-          player: Math.random() < 0.5 ? `${homeTeam.name} Player` : `${awayTeam.name} Player`,
-          detail: Math.random() < 0.5 ? 'Goal disallowed for offside' : 'Penalty decision overturned'
+          type: "var",
+          team: Math.random() < 0.5 ? "home" : "away",
+          player:
+            Math.random() < 0.5
+              ? `${homeTeam.name} Player`
+              : `${awayTeam.name} Player`,
+          detail:
+            Math.random() < 0.5
+              ? "Goal disallowed for offside"
+              : "Penalty decision overturned",
         });
       }
 
@@ -318,33 +357,35 @@ const MatchDetails = () => {
   const toggleFavorite = () => {
     if (!user.isAuthenticated) {
       toast({
-        title: 'Authentication Required',
-        description: 'Please login to save favorites',
+        title: "Authentication Required",
+        description: "Please login to save favorites",
       });
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     if (isFavorite) {
-      dispatch(userActions.removeFavoriteMatch(id || ''));
+      dispatch(userActions.removeFavoriteMatch(id || ""));
 
       // Update on server
       if (user.id) {
-        apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
-          favoriteMatches: user.preferences.favoriteMatches.filter(matchId => matchId !== id)
-        }).catch(err => {
-          console.error('Failed to update preferences:', err);
+        apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
+          favoriteMatches: user.preferences.favoriteMatches.filter(
+            (matchId) => matchId !== id,
+          ),
+        }).catch((err) => {
+          console.error("Failed to update preferences:", err);
         });
       }
     } else {
-      dispatch(userActions.addFavoriteMatch(id || ''));
+      dispatch(userActions.addFavoriteMatch(id || ""));
 
       // Update on server
       if (user.id) {
-        apiRequest('PATCH', `/api/user/${user.id}/preferences`, {
-          favoriteMatches: [...user.preferences.favoriteMatches, id]
-        }).catch(err => {
-          console.error('Failed to update preferences:', err);
+        apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
+          favoriteMatches: [...user.preferences.favoriteMatches, id],
+        }).catch((err) => {
+          console.error("Failed to update preferences:", err);
         });
       }
     }
@@ -360,11 +401,11 @@ const MatchDetails = () => {
         <div className="container mx-auto px-4 py-4">
           <Card className="mb-6">
             <CardHeader className="p-4 border-b border-neutral-200 flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex items-center" 
-                onClick={() => navigate('/')}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center"
+                onClick={() => navigate("/")}
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 <span>Back</span>
@@ -408,56 +449,61 @@ const MatchDetails = () => {
           <Card className="mb-6">
             <CardContent className="p-6 text-center">
               <div className="text-red-500 mb-4">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-16 w-16 mx-auto mb-2" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 mx-auto mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <h3 className="text-xl font-bold">Error Loading Match Details</h3>
+                <h3 className="text-xl font-bold">
+                  Error Loading Match Details
+                </h3>
                 <p className="text-gray-600 mt-2">
-                  {typeof error === 'string' && error.includes('Network error') 
+                  {typeof error === "string" && error.includes("Network error")
                     ? "Network connection issue: Please check your internet connection and try again."
-                    : error || "There was a problem loading this match. Please try again later."}
+                    : error ||
+                      "There was a problem loading this match. Please try again later."}
                 </p>
               </div>
               <div className="flex justify-center space-x-4">
-                <Button 
-                  variant="default" 
-                  onClick={() => navigate('/')}
-                >
+                <Button variant="default" onClick={() => navigate("/")}>
                   Return to Home
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     // Reload the fixture data
                     dispatch(fixturesActions.setLoadingFixtures(true));
                     dispatch(fixturesActions.setFixturesError(null));
 
                     // Attempt to reload the match
-                    apiRequest('GET', `/api/fixtures/${id}`)
-                      .then(res => res.json())
-                      .then(data => {
+                    apiRequest("GET", `/api/fixtures/${id}`)
+                      .then((res) => res.json())
+                      .then((data) => {
                         dispatch(fixturesActions.setCurrentFixture(data));
                         dispatch(fixturesActions.setLoadingFixtures(false));
                       })
-                      .catch(err => {
-                        dispatch(fixturesActions.setFixturesError(err.message || 'Failed to load match'));
+                      .catch((err) => {
+                        dispatch(
+                          fixturesActions.setFixturesError(
+                            err.message || "Failed to load match",
+                          ),
+                        );
                         dispatch(fixturesActions.setLoadingFixtures(false));
 
                         toast({
-                          title: 'Error',
-                          description: 'Could not reload match details. Please try again later.',
-                          variant: 'destructive',
+                          title: "Error",
+                          description:
+                            "Could not reload match details. Please try again later.",
+                          variant: "destructive",
                         });
                       });
                   }}
@@ -476,23 +522,50 @@ const MatchDetails = () => {
   return (
     <>
       <Header />
-      <TournamentHeader title={`${currentFixture.league.name} - ${currentFixture.league.round}`} />
+      <TournamentHeader
+        title={`${currentFixture.league.name} - ${currentFixture.league.round}`}
+      />
 
-      <div className="container mx-auto px-4 py-4">
-        <Card className="mb-6">
+      <div className="container mx-auto px-4">
+        <Card className="">
           {/* Breadcrumb Navigation */}
-          <div className="px-4 py-2 border-b border-gray-200 bg-gray-50">
+          <div className="px-4 py-1 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center text-sm text-gray-600">
-              <span className="hover:text-gray-900 cursor-pointer">Football</span>
-              <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <span className="hover:text-gray-900 cursor-pointer">
+                Football
+              </span>
+              <svg
+                className="h-4 w-4 mx-2 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
-              <span className="hover:text-gray-900 cursor-pointer">{currentFixture?.league.name}</span>
-              <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <span className="hover:text-gray-900 cursor-pointer">
+                {currentFixture?.league.name}
+              </span>
+              <svg
+                className="h-4 w-4 mx-2 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
               <span className="text-gray-900 font-medium">
-                {currentFixture?.teams.home.name} vs {currentFixture?.teams.away.name}
+                {currentFixture?.teams.home.name} vs{" "}
+                {currentFixture?.teams.away.name}
               </span>
             </div>
           </div>
@@ -501,27 +574,36 @@ const MatchDetails = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="text-sm font-medium">
                 {isLiveMatch(currentFixture.fixture.status.short) && (
-                  <Badge variant="default" className="bg-[#48BB78]">LIVE</Badge>
+                  <Badge variant="default" className="bg-[#48BB78]">
+                    LIVE
+                  </Badge>
                 )}
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={toggleFavorite}
-                className={isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}
+                className={
+                  isFavorite
+                    ? "text-yellow-400"
+                    : "text-gray-400 hover:text-yellow-400"
+                }
               >
-                <Star className={`h-5 w-5 ${isFavorite ? 'fill-yellow-400' : ''}`} />
+                <Star
+                  className={`h-5 w-5 ${isFavorite ? "fill-yellow-400" : ""}`}
+                />
               </Button>
             </div>
-            
+
             {/* League Information Header */}
             <div className="flex items-center gap-3 mb-2">
-              <img 
-                src={currentFixture?.league.logo || "/assets/fallback-logo.svg"} 
+              <img
+                src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
                 alt={currentFixture?.league.name}
                 className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                  (e.target as HTMLImageElement).src =
+                    "/assets/fallback-logo.svg";
                 }}
               />
               <div className="flex-1">
@@ -544,46 +626,50 @@ const MatchDetails = () => {
             </div>
           </CardHeader>
           {/* TabsList moved below header */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="flex justify-start bg-transparent border-b border-gray-200 rounded-none h-auto p-0 mb-0 px-20">
-              <TabsTrigger 
-                value="details" 
+              <TabsTrigger
+                value="details"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 Details
               </TabsTrigger>
-              <TabsTrigger 
-                value="matches" 
+              <TabsTrigger
+                value="matches"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 Matches
               </TabsTrigger>
-              <TabsTrigger 
-                value="standings" 
+              <TabsTrigger
+                value="standings"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 Standings
               </TabsTrigger>
-              <TabsTrigger 
-                value="news" 
+              <TabsTrigger
+                value="news"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 News
               </TabsTrigger>
-              <TabsTrigger 
-                value="highlights" 
+              <TabsTrigger
+                value="highlights"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 Highlights
               </TabsTrigger>
-              <TabsTrigger 
-                value="stats" 
+              <TabsTrigger
+                value="stats"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 Stats
               </TabsTrigger>
-              <TabsTrigger 
-                value="insights" 
+              <TabsTrigger
+                value="insights"
                 className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
               >
                 Insights
@@ -597,21 +683,42 @@ const MatchDetails = () => {
                   {/* Match Information Card */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold">Match Information</CardTitle>
+                      <CardTitle className="text-lg font-semibold">
+                        Match Information
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-gray-500" />
                         <span className="text-sm text-gray-600">
-                          {currentFixture && format(new Date(currentFixture.fixture.date), 'PPpp')}
+                          {currentFixture &&
+                            format(
+                              new Date(currentFixture.fixture.date),
+                              "PPpp",
+                            )}
                         </span>
                       </div>
 
                       {currentFixture?.fixture.venue && (
                         <div className="flex items-center gap-2">
-                          <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <svg
+                            className="h-4 w-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
                           </svg>
                           <span className="text-sm text-gray-600">
                             {currentFixture.fixture.venue.name}
@@ -621,8 +728,18 @@ const MatchDetails = () => {
 
                       {currentFixture?.fixture.referee && (
                         <div className="flex items-center gap-2">
-                          <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          <svg
+                            className="h-4 w-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
                           </svg>
                           <span className="text-sm text-gray-600">
                             {currentFixture.fixture.referee}
@@ -635,23 +752,30 @@ const MatchDetails = () => {
                   {/* League Information Card */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold">League Information</CardTitle>
+                      <CardTitle className="text-lg font-semibold">
+                        League Information
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={currentFixture?.league.logo} 
+                        <img
+                          src={currentFixture?.league.logo}
                           alt={currentFixture?.league.name}
                           className="h-8 w-8 rounded"
                         />
                         <div>
-                          <p className="font-medium">{currentFixture?.league.name}</p>
-                          <p className="text-sm text-gray-600">{currentFixture?.league.country}</p>
+                          <p className="font-medium">
+                            {currentFixture?.league.name}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {currentFixture?.league.country}
+                          </p>
                         </div>
                       </div>
                       {currentFixture?.league.round && (
                         <div className="text-sm text-gray-600">
-                          <span className="font-medium">Round:</span> {currentFixture.league.round}
+                          <span className="font-medium">Round:</span>{" "}
+                          {currentFixture.league.round}
                         </div>
                       )}
                     </CardContent>
@@ -666,9 +790,12 @@ const MatchDetails = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Recent Matches</CardTitle>
+                
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">Recent match data will be displayed here.</p>
+                    <p className="text-gray-600">
+                      Recent match data will be displayed here.
+                    </p>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -682,7 +809,9 @@ const MatchDetails = () => {
                     <CardTitle>League Standings</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">League standings will be displayed here.</p>
+                    <p className="text-gray-600">
+                      League standings will be displayed here.
+                    </p>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -696,7 +825,9 @@ const MatchDetails = () => {
                     <CardTitle>Related News</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">Match-related news will be displayed here.</p>
+                    <p className="text-gray-600">
+                      Match-related news will be displayed here.
+                    </p>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -710,7 +841,9 @@ const MatchDetails = () => {
                     <CardTitle>Match Highlights</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">Match highlights will be displayed here.</p>
+                    <p className="text-gray-600">
+                      Match highlights will be displayed here.
+                    </p>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -724,7 +857,9 @@ const MatchDetails = () => {
                     <CardTitle>Match Statistics</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">Detailed match statistics will be displayed here.</p>
+                    <p className="text-gray-600">
+                      Detailed match statistics will be displayed here.
+                    </p>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -738,7 +873,9 @@ const MatchDetails = () => {
                     <CardTitle>Match Insights</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">Match insights and analysis will be displayed here.</p>
+                    <p className="text-gray-600">
+                      Match insights and analysis will be displayed here.
+                    </p>
                   </CardContent>
                 </Card>
               </CardContent>
