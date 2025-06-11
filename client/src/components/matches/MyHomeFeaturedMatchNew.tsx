@@ -996,7 +996,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="w-full h-full flex justify-between relative">
                 {/* Home team colored bar and logo */}
                 <div
-                  className="h-full w-[calc(50%-56px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                  className="h-full w-[calc(50%-66px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.home?.id || 0,
@@ -1366,7 +1366,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Away team colored bar and logo */}
                 <div
-                  className="h-full w-[calc(50%-36px)]  transition-all duration-500 ease-in-out opacity-100"
+                  className="h-full w-[calc(50%-46px)]  transition-all duration-500 ease-in-out opacity-100"
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.away?.id || 1,
@@ -1704,7 +1704,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         `/assets/fallback-logo.svg`
                       }
                       alt={currentMatch?.teams?.away?.name || "Away Team"}
-                      className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
+                      className="relative z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
                         top: "calc(50% - 32px)",
                         right: "4px",
@@ -1826,7 +1826,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 alt="H2H"
                 width="18"
                 height="18"
-className="text-gray-600"
+                className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">H2H</span>
             </button>
