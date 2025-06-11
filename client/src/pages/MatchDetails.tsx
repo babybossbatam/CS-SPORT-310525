@@ -528,7 +528,7 @@ const MatchDetails = () => {
 
       <Card className="">
         {/* Breadcrumb Navigation */}
-        <div className="mx-10 py-1 border-b border-gray-200 bg-gray-50">
+        <div className="mx-20 py-1 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center text-sm text-gray-600">
             <span className="hover:text-blue-400 cursor-pointer text-gray-900">
               Football
@@ -569,7 +569,7 @@ const MatchDetails = () => {
           </div>
         </div>
 
-        <CardHeader className="p-4 border-b border-neutral-200">
+        <CardHeader className="border-b border-neutral-200 mx-20">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-medium">
               {isLiveMatch(currentFixture.fixture.status.short) && (
@@ -592,16 +592,15 @@ const MatchDetails = () => {
               }}
             />
             <div className="flex-1">
-              <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
+              <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide ">
                 {currentFixture?.league.name}
               </h1>
-              <div className="flex items-center text-lg text-gray-600">
-                {currentFixture?.league.round && <></>}
+              <div className="flex items-center text-xl text-gray-900">
+                <Button variant="outline" size="sm" className="mx-40">
+                  Follow
+                </Button>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="mx-40">
-              Follow
-            </Button>
           </div>
         </CardHeader>
         {/* TabsList moved below header */}
@@ -617,7 +616,6 @@ const MatchDetails = () => {
               value="matches"
               className="bg-transparent border-0 rounded-none px-4 py-3 text-gray-600 hover:text-gray-900 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent font-medium"
             >
-           
               Matches
             </TabsTrigger>
             <TabsTrigger
