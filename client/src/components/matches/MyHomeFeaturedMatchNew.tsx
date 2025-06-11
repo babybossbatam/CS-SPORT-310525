@@ -1361,7 +1361,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     minWidth: "52px",
                   }}
                 >
-                  <span className="vs-text font-bold">VS</span>
+                  <span className="vs-text font-bold" style={{ fontSize: "1.1em" }}>VS</span>
                 </div>
 
                 {/* Away team colored bar */}
