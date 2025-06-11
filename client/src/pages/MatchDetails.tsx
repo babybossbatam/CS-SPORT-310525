@@ -672,113 +672,109 @@ const MatchDetails = () => {
 
           {/* Details Tab */}
           <TabsContent value="details">
-          <Card className="w-full">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Left Column - Match Information (5/12 width) */}
-                <div className="lg:col-span-5">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold">
-                        Match Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">
-                          {currentFixture &&
-                            format(new Date(currentFixture.fixture.date), "PPpp")}
-                        </span>
-                      </div>
-
-                      {currentFixture?.fixture.venue && (
+            <Card className="w-full">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Left Column - Match Information (5/12 width) */}
+                  <div className="lg:col-span-5">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold">
+                          Match Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
                         <div className="flex items-center gap-2">
-                          <svg
-                            className="h-4 w-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                          </svg>
+                          <Clock className="h-4 w-4 text-gray-500" />
                           <span className="text-sm text-gray-600">
-                            {currentFixture.fixture.venue.name}
+                            {currentFixture &&
+                              format(new Date(currentFixture.fixture.date), "PPpp")}
                           </span>
                         </div>
-                      )}
 
-                      {currentFixture?.fixture.referee && (
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="h-4 w-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                          <span className="text-sm text-gray-600">
-                            {currentFixture.fixture.referee}
-                          </span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
+                        {currentFixture?.fixture.venue && (
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className="h-4 w-4 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                            </svg>
+                            <span className="text-sm text-gray-600">
+                              {currentFixture.fixture.venue.name}
+                            </span>
+                          </div>
+                        )}
 
-                {/* Right Column - League Information (7/12 width) */}
-                <div className="lg:col-span-7">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold">
-                        League Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={currentFixture?.league.logo}
-                          alt={currentFixture?.league.name}
-                          className="h-8 w-8 rounded"
-                        />
-                        <div>
-                          <p className="font-medium">
-                            {currentFixture?.league.name}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {currentFixture?.league.country}
-                          </p>
+                        {currentFixture?.fixture.referee && (
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className="h-4 w-4 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                              />
+                            </svg>
+                            <span className="text-sm text-gray-600">
+                              {currentFixture.fixture.referee}
+                            </span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Right Column - League Information (7/12 width) */}
+                  <div className="lg:col-span-7">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold">
+                          League Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={currentFixture?.league.logo}
+                            alt={currentFixture?.league.name}
+                            className="h-8 w-8 rounded"
+                          />
+                          <div>
+                            <p className="font-medium">
+                              {currentFixture?.league.name}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {currentFixture?.league.country}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      {currentFixture?.league.round && (
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Round:</span>{" "}
-                          {currentFixture.league.round}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                        {currentFixture?.league.round && (
+                          <div className="text-sm text-gray-600">
+                            <span className="font-medium">Round:</span>{" "}
+                            {currentFixture.league.round}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
 
           {/* Matches Tab */}
           <TabsContent value="matches">
