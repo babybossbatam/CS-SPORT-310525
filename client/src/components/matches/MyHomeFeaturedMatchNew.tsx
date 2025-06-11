@@ -996,7 +996,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <div className="w-full h-full flex justify-between relative">
                 {/* Home team colored bar and logo */}
                 <div
-                  className="h-full w-[calc(50%-66px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                  className="h-full w-[calc(50%-56px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.home?.id || 0,
@@ -1366,25 +1366,24 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Away team colored bar and logo */}
                 <div
-                  className="h-full w-[calc(50%-66px)] mr-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                  className="h-full w-[calc(50%-36px)]  transition-all duration-500 ease-in-out opacity-100"
                   style={{
                     background: getTeamColor(
                       currentMatch?.teams?.away?.id || 1,
                     ),
-                    marginLeft: "66px",
+                  }}
+                ></div>
+
+                <div
+                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                  style={{
+                    top: "calc(50% - 13px)",
+                    right: "120px",
+                    fontSize: "1.24rem",
+                    fontWeight: "normal",
                   }}
                 >
-                  <div
-                    className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
-                    style={{
-                      top: "calc(50% - 13px)",
-                      right: "110px",
-                      fontSize: "1.24rem",
-                      fontWeight: "normal",
-                    }}
-                  >
-                    {currentMatch?.teams?.away?.name || "Away Team"}
-                  </div>
+                  {currentMatch?.teams?.away?.name || "Away Team"}
                 </div>
 
                 {(() => {
@@ -1667,7 +1666,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           className="flag-circle featured-match-size absolute z-20"
                           style={{
                             top: "calc(50% - 32px)",
-                            right: "-32px",
+                            right: "36px",
                           }}
                         >
                           <img
@@ -1708,7 +1707,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
                         top: "calc(50% - 32px)",
-                        right: "-32px",
+                        right: "4px",
                         filter:
                           "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                       }}
@@ -1827,7 +1826,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 alt="H2H"
                 width="18"
                 height="18"
-                className="text-gray-600"
+className="text-gray-600"
               />
               <span className="text-xs text-gray-600 mt-1">H2H</span>
             </button>
