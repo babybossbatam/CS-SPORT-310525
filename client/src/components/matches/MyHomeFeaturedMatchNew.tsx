@@ -484,8 +484,64 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       dayAfterUpcoming,
     );
 
-    // NEW SLIDE DISTRIBUTION SYSTEM:
-    // TODAY - Slides 1-3 (live matches get priority, but allow any today matches)
+    // Helper function to group matches by league cards (similar to TodayPopularFootballLeaguesNew)
+    const groupMatchesByLeagueCards = (matches: any[]) => {
+      const leagueCards: any[] = [];
+      
+      matches.forEach((match) => {
+        const country = match.league.country;
+        const leagueId = match.league.id;
+        
+        // Find existing league card for this league
+        let existingCard = leagueCards.find(card => card.leagueId === leagueId);
+        
+        if (!existingCard) {
+          // Create new league card
+          existingCard = {
+            leagueId: leagueId,
+            leagueName: match.league.name,
+            country: country,
+            matches: [],
+            popularCountryMatches: [],
+            allMatches: []
+          };
+          leagueCards.push(existingCard);
+        }
+        
+        existingCard.allMatches.push(match);
+        
+        // Check if this match is from a popular country
+        const isPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+          (popularCountry) => country?.toLowerCase().includes(popularCountry.toLowerCase())
+        );
+        
+        if (isPopularCountry) {
+          existingCard.popularCountryMatches.push(match);
+        }
+        
+        existingCard.matches.push(match);
+      });
+      
+      // Sort league cards by priority (elite leagues first)
+      leagueCards.sort((a, b) => {
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const aEliteIndex = eliteLeagues.indexOf(a.leagueId);
+        const bEliteIndex = eliteLeagues.indexOf(b.leagueId);
+        
+        if (aEliteIndex !== -1 && bEliteIndex !== -1) {
+          return aEliteIndex - bEliteIndex;
+        }
+        if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
+        if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
+        
+        return (a.leagueName || "").localeCompare(b.leagueName || "");
+      });
+      
+      return leagueCards;
+    };
+
+    // NEW SLIDE DISTRIBUTION SYSTEM WITH LEAGUE CARD PRIORITIZATION:
+    // TODAY - Slides 1-3 (prioritized by league cards and popular countries)
     // TOMORROW - Slides 4-6
     // 2 DAYS LATER - Slides 7-9
 
@@ -496,22 +552,91 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       todayValidLive: todayValidLive.length,
     });
 
-    // Slides 1-3: TODAY
-    for (let i = 1; i <= 3; i++) {
-      let added = false;
+    // Group today's matches by league cards
+    const todayLeagueCards = groupMatchesByLeagueCards(todayPrioritized);
+    
+    console.log(`🎯 [LEAGUE CARDS DEBUG] Today's league cards:`, 
+      todayLeagueCards.map(card => ({
+        league: card.leagueName,
+        country: card.country,
+        totalMatches: card.allMatches.length,
+        popularCountryMatches: card.popularCountryMatches.length
+      }))
+    );
 
-      // Try to add any today match (live, finished, or upcoming)
-      for (let j = 0; j < todayPrioritized.length && !added; j++) {
-        if (addUniqueMatch(todayPrioritized[j])) {
-          added = true;
-          console.log(
-            `✅ [SLIDE DEBUG] Added TODAY match to slide ${i}: ${todayPrioritized[j].teams.home.name} vs ${todayPrioritized[j].teams.away.name}`,
-          );
+    // Slides 1-3: TODAY with league card prioritization
+    // Slide 1: Pick from first league card, filter by popular country
+    if (slidesDistribution.length < 1 && todayLeagueCards.length > 0) {
+      const firstCard = todayLeagueCards[0];
+      if (firstCard.popularCountryMatches.length > 0) {
+        const match = firstCard.popularCountryMatches[0];
+        if (addUniqueMatch(match)) {
+          console.log(`✅ [SLIDE 1] Added from first league card popular country: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
         }
       }
-
+    }
+    
+    // Slide 2: If first league card has >1 popular country match, pick from first card; otherwise second card
+    if (slidesDistribution.length < 2) {
+      let added = false;
+      
+      if (todayLeagueCards.length > 0) {
+        const firstCard = todayLeagueCards[0];
+        
+        if (firstCard.popularCountryMatches.length > 1) {
+          // Pick second match from first league card
+          const match = firstCard.popularCountryMatches[1];
+          if (addUniqueMatch(match)) {
+            added = true;
+            console.log(`✅ [SLIDE 2] Added second match from first league card: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
+          }
+        } else if (todayLeagueCards.length > 1) {
+          // Pick from second league card, filter by popular country
+          const secondCard = todayLeagueCards[1];
+          if (secondCard.popularCountryMatches.length > 0) {
+            const match = secondCard.popularCountryMatches[0];
+            if (addUniqueMatch(match)) {
+              added = true;
+              console.log(`✅ [SLIDE 2] Added from second league card popular country: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
+            }
+          }
+        }
+      }
+      
       if (!added) {
-        console.log(`⚠️ [SLIDE DEBUG] No TODAY match found for slide ${i}`);
+        console.log(`⚠️ [SLIDE 2] No suitable match found`);
+      }
+    }
+    
+    // Slide 3: If first league card has >2 popular country matches, pick from first card; otherwise third card
+    if (slidesDistribution.length < 3) {
+      let added = false;
+      
+      if (todayLeagueCards.length > 0) {
+        const firstCard = todayLeagueCards[0];
+        
+        if (firstCard.popularCountryMatches.length > 2) {
+          // Pick third match from first league card
+          const match = firstCard.popularCountryMatches[2];
+          if (addUniqueMatch(match)) {
+            added = true;
+            console.log(`✅ [SLIDE 3] Added third match from first league card: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
+          }
+        } else if (todayLeagueCards.length > 2) {
+          // Pick from third league card, filter by popular country
+          const thirdCard = todayLeagueCards[2];
+          if (thirdCard.popularCountryMatches.length > 0) {
+            const match = thirdCard.popularCountryMatches[0];
+            if (addUniqueMatch(match)) {
+              added = true;
+              console.log(`✅ [SLIDE 3] Added from third league card popular country: ${match.teams.home.name} vs ${match.teams.away.name} (${match.league.name})`);
+            }
+          }
+        }
+      }
+      
+      if (!added) {
+        console.log(`⚠️ [SLIDE 3] No suitable match found`);
       }
     }
 
