@@ -44,6 +44,7 @@ import PredictionMeter from "@/components/matches/PredictionMeter";
 import MatchScoreboard from "@/components/matches/MatchScoreboard";
 import MatchTimeline, { MatchEvent } from "@/components/matches/MatchTimeline";
 import TodayMatchpage from "@/components/matches/TodayMatchPageCard";
+import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
 import { format } from "date-fns";
 
 const MatchDetails = () => {
@@ -679,13 +680,11 @@ const MatchDetails = () => {
                   <div className="lg:col-span-5">
                     <TodayMatchpage />
                   </div>
-                  
+
                   {/* Right Column (7/12 width) */}
                   <div className="lg:col-span-7">
                     {/* Additional content can go here */}
-                    <div className="h-full bg-gray-50 rounded-lg p-4 flex items-center justify-center">
-                      <p className="text-gray-500">Right column content (7/12)</p>
-                    </div>
+                    <MyMatchdetailsScoreboard match={currentFixture} />
                   </div>
                 </div>
               </CardContent>
