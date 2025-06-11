@@ -579,24 +579,10 @@ const MatchDetails = () => {
                   </Badge>
                 )}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleFavorite}
-                className={
-                  isFavorite
-                    ? "text-yellow-400"
-                    : "text-gray-400 hover:text-yellow-400"
-                }
-              >
-                <Star
-                  className={`h-5 w-5 ${isFavorite ? "fill-yellow-400" : ""}`}
-                />
-              </Button>
             </div>
 
             {/* League Information Header */}
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center  mb-2">
               <img
                 src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
                 alt={currentFixture?.league.name}
@@ -610,17 +596,11 @@ const MatchDetails = () => {
                 <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
                   {currentFixture?.league.name}
                 </h1>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span>{currentFixture?.league.country}</span>
-                  {currentFixture?.league.round && (
-                    <>
-                      <span>•</span>
-                      <span>{currentFixture.league.round}</span>
-                    </>
-                  )}
+                <div className="flex items-center text-lg text-gray-600">
+                  {currentFixture?.league.round && <></>}
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto">
+              <Button variant="outline" size="sm" className="mx-40">
                 Follow
               </Button>
             </div>
@@ -790,7 +770,6 @@ const MatchDetails = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Recent Matches</CardTitle>
-                
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">
