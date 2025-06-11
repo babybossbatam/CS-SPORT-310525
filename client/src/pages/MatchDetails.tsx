@@ -515,34 +515,32 @@ const MatchDetails = () => {
             </div>
             
             {/* League Information Header */}
-            <div className="mb-4">
-              <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-wide mb-3">
-                {currentFixture?.league.name}
-              </h1>
-              <div className="flex items-center gap-3">
-                <img 
-                  src={currentFixture?.league.logo || "/assets/fallback-logo.svg"} 
-                  alt={currentFixture?.league.name}
-                  className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                  }}
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span>{currentFixture?.league.country}</span>
-                    {currentFixture?.league.round && (
-                      <>
-                        <span>•</span>
-                        <span>{currentFixture.league.round}</span>
-                      </>
-                    )}
-                  </div>
+            <div className="flex items-center gap-3 mb-2">
+              <img 
+                src={currentFixture?.league.logo || "/assets/fallback-logo.svg"} 
+                alt={currentFixture?.league.name}
+                className="h-12 w-12 object-contain rounded-full bg-gray-50 p-1"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                }}
+              />
+              <div className="flex-1">
+                <h1 className="text-xl font-bold text-gray-900 uppercase tracking-wide">
+                  {currentFixture?.league.name}
+                </h1>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>{currentFixture?.league.country}</span>
+                  {currentFixture?.league.round && (
+                    <>
+                      <span>•</span>
+                      <span>{currentFixture.league.round}</span>
+                    </>
+                  )}
                 </div>
-                <Button variant="outline" size="sm" className="ml-auto">
-                  Follow
-                </Button>
               </div>
+              <Button variant="outline" size="sm" className="ml-auto">
+                Follow
+              </Button>
             </div>
           </CardHeader>
           {/* TabsList moved below header */}
