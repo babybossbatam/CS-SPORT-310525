@@ -1666,8 +1666,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           className="flag-circle featured-match-size absolute z-20"
                           style={{
                             top: "calc(50% - 32px)",
-                            right: "77px",
-                            transform: "translateX(50%)",
+                            right: "36px",
                           }}
                         >
                           <img
@@ -1708,7 +1707,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
                         top: "calc(50% - 32px)",
-                        right: "-32px",
+                        right: "4px",
                         filter:
                           "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                       }}
