@@ -481,7 +481,7 @@ const MatchDetails = () => {
       <div className="container mx-auto px-4 py-4">
         <Card className="mb-6">
           {/* Breadcrumb Navigation */}
-          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+          <div className="px-4 py-2 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center text-sm text-gray-600">
               <span className="hover:text-gray-900 cursor-pointer">Football</span>
               <svg className="h-4 w-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
