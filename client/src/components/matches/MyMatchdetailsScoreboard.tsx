@@ -133,15 +133,21 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            <img
-              src={displayMatch.teams.away.logo}
-              alt={displayMatch.teams.away.name}
-              className="w-16 h-16 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  "/assets/fallback-logo.svg";
-              }}
-            />
+            <div
+              className="flag-circle"
+              style={{ width: "64px", height: "64px" }}
+            >
+              <img
+                src={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                className="team-logo"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "/assets/fallback-logo.svg";
+                }}
+              />
+              <div className="gloss"></div>
+            </div>
             <span className="text-sm font-medium text-center">
               {displayMatch.teams.away.name}
             </span>
