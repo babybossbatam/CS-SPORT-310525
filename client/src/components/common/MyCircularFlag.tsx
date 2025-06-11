@@ -83,7 +83,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   return (
     <div
       className={`flag-circle ${className}`}
-      style={{ width: size, height: size }}
+      style={{
+        width: size,
+        height: size,
+        position: "relative",
+        left: "4px",
+      }}
     >
       <img
         src={getCircleFlagUrl(teamName, fallbackUrl)}
