@@ -726,9 +726,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const matchDate = new Date(currentMatch?.fixture?.date || '');
                 const now = new Date();
 
-                // Get the current date in the same format as the match date
+                // Get the current date in the same format as thematch date
                 const today = new Date();
-                const todayDateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+                ```
+// Adding Colombia to the country mapping and fixing colored bar issues.
+    const todayDateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
                 const matchDateString = matchDate.toISOString().slice(0, 10); // YYYY-MM-DD
 
                 const tomorrow = new Date(today);
@@ -1138,10 +1140,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    left: "77px",
-                    right: "calc(50% + 26px)",
-                    textAlign: "right",
-                    paddingRight: "16px",
+                    left: "120px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
@@ -1171,13 +1170,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 ></div>
 
                 <div
-                  className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                  className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    left: "calc(50% + 26px)",
-                    right: "87px",
-                    textAlign: "left",
-                    paddingLeft: "16px",
+                    right: "130px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
