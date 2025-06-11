@@ -1138,7 +1138,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    left: "120px",
+                    left: "140px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
@@ -1171,7 +1171,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                   style={{
                     top: "calc(50% - 13px)",
-                    right: "130px",
+                    right: "110px",
                     fontSize: "1.24rem",
                     fontWeight: "normal",
                   }}
