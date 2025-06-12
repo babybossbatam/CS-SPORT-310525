@@ -406,7 +406,7 @@ const LeagueStandingsFilter = () => {
 
   return (
     <Card>
-      <CardHeader className=" flex-row items-center justify-between h-10 column px-0">
+      <CardHeader className=" flex-row items-center justify-between h-10 column px-0 pt-4">
         <Select
           value={selectedLeague}
           onValueChange={(value) => {
@@ -419,7 +419,7 @@ const LeagueStandingsFilter = () => {
             }
           }}
         >
-          <SelectTrigger className=" w-full ">
+          <SelectTrigger className=" w-full border-0 mt-2">
             <SelectValue>
               <div className="flex items-center gap-2">
                 <img
