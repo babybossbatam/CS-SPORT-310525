@@ -576,7 +576,7 @@ const LeagueStandingsFilter = () => {
                                     {standing.team.name}
                                   </span>
                                   {standing.description && (
-                                    <span className="text-xs text-gray-500 truncate">
+                                    <span className="text-[0.65rem] text-gray-500 truncate">
                                       {standing.description}
                                     </span>
                                   )}
