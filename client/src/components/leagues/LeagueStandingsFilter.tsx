@@ -680,7 +680,14 @@ const LeagueStandingsFilter = () => {
                             <TableCell className="py-0 mt-0 mb-0 px-0 relative">
                               <div className="flex items-center">
                                 <div
-                                  className={`w-1 h-8 rounded-r-sm mr-2 ${getQualificationColor(standing.rank, standing.description)}`}
+                                  className="w-1 h-8 rounded-r-sm mr-2"
+                                  style={{
+                                    backgroundColor: standing.rank === 1 ? '#FFD700' : 
+                                                   standing.rank <= 4 && standing.description?.toLowerCase().includes('champions') ? '#4A90E2' :
+                                                   standing.description?.toLowerCase().includes('europa') ? '#4A90E2' :
+                                                   standing.description?.toLowerCase().includes('conference') ? '#4A90E2' :
+                                                   '#6B7280'
+                                  }}
                                 />
                                 <span className="text-sm font-medium text-gray-900">
                                   {standing.rank}
