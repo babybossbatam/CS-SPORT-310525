@@ -653,15 +653,27 @@ const LeagueStandingsFilter = () => {
                                 </TableCell>
                                 <TableCell className="flex flex-col font-normal pl-2 ">
                                   <div className="flex items-center">
-                                    <img
-                                      src={standing.team.logo}
-                                      alt={standing.team.name}
-                                      className="mr-2 h-5 w-5 rounded-full object-contain"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).src =
-                                          "/assets/fallback-logo.svg";
-                                      }}
-                                    />
+                                    {isNationalTeam ? (
+                                      <div className="mr-2">
+                                        <MyCircularFlag
+                                          teamName={standing.team.name}
+                                          fallbackUrl={standing.team.logo}
+                                          alt={standing.team.name}
+                                          size="20px"
+                                          className="popular-leagues-size"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <img
+                                        src={standing.team.logo}
+                                        alt={standing.team.name}
+                                        className="mr-2 h-5 w-5 rounded-full object-contain"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).src =
+                                            "/assets/fallback-logo.svg";
+                                        }}
+                                      />
+                                    )}
                                     <span className="text-[0.9em]">
                                       {standing.team.name}
                                     </span>
