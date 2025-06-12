@@ -9,6 +9,7 @@ import { countryCodeMap } from "@/lib/flagUtils";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyImage from "../common/LazyImage";
+import MyCircularFlag from "../common/MyCircularFlag";
 import "../../styles/MyLogoPositioning.css";
 import { useCentralData } from '@/providers/CentralDataProvider';
 
@@ -307,22 +308,18 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                     {isNationalTeam(
                       match.teams.home,
                       match.leagueInfo,
-                    ) ? (
-                      <div className="flag-circle">
-                        <LazyImage
-                          src={
-                            match.teams.home.id
-                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                              : "/assets/fallback-logo.svg"
-                          }
-                          alt={match.teams.home.name}
-                          title={match.teams.home.name}
-                          className="team-logo"
-                          style={{ backgroundColor: "transparent" }}
-                          fallbackSrc="/assets/fallback-logo.svg"
-                        />
-                        <div className="gloss"></div>
-                      </div>
+                    ) || match.teams.home.name?.includes("U20") || match.teams.home.name?.includes("U21") ? (
+                      <MyCircularFlag
+                        teamName={match.teams.home.name || ""}
+                        fallbackUrl={
+                          match.teams.home.id
+                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                            : "/assets/fallback-logo.svg"
+                        }
+                        alt={match.teams.home.name}
+                        size="32px"
+                        className=""
+                      />
                     ) : (
                       <LazyImage
                         src={
@@ -538,22 +535,18 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                     {isNationalTeam(
                       match.teams.away,
                       match.leagueInfo,
-                    ) ? (
-                      <div className="flag-circle">
-                        <LazyImage
-                          src={
-                            match.teams.away.id
-                              ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                              : "/assets/fallback-logo.svg"
-                          }
-                          alt={match.teams.away.name}
-                          title={match.teams.away.name}
-                          className="team-logo"
-                          style={{ backgroundColor: "transparent" }}
-                          fallbackSrc="/assets/fallback-logo.svg"
-                        />
-                        <div className="gloss"></div>
-                      </div>
+                    ) || match.teams.away.name?.includes("U20") || match.teams.away.name?.includes("U21") ? (
+                      <MyCircularFlag
+                        teamName={match.teams.away.name || ""}
+                        fallbackUrl={
+                          match.teams.away.id
+                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                            : "/assets/fallback-logo.svg"
+                        }
+                        alt={match.teams.away.name}
+                        size="32px"
+                        className=""
+                      />
                     ) : (
                       <LazyImage
                         src={
