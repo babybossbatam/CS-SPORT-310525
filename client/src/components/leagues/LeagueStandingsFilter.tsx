@@ -82,6 +82,7 @@ const LeagueStandingsFilter = () => {
     const loadLeagues = async () => {
       try {
         setLeaguesLoading(true);
+        console.log("🔄 Loading leagues with World Cup qualification support...");
         const leagues = await getPopularLeagues();
 
         // Filter to show only current/active leagues (exclude historical tournaments)
@@ -89,9 +90,16 @@ const LeagueStandingsFilter = () => {
         const currentYear = currentDate.getFullYear();
         const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
 
+        console.log(`📅 Current year: ${currentYear}, month: ${currentMonth}`);
+
         const currentLeagues = leagues.filter((league) => {
           const leagueName = league.name?.toLowerCase() || "";
           const country = league.country?.toLowerCase() || "";
+
+          // Check if this is a World Cup qualification league
+          const isWCQualification = leagueName.includes("world cup") || 
+                                   leagueName.includes("wc qual") || 
+                                   leagueName.includes("uefa wc qualification");
 
           // Always exclude clearly historical tournaments that are not running now
           const isHistoricalTournament =
@@ -110,14 +118,12 @@ const LeagueStandingsFilter = () => {
             (leagueName.includes("african cup of nations") &&
               currentYear !== 2025) ||
             (leagueName.includes("asian cup") && currentYear !== 2025) ||
-            // Old qualification rounds that are completed (but keep World Cup qualifications)
+            // Old qualification rounds that are completed (but ALWAYS keep World Cup qualifications)
             (leagueName.includes("qualification") &&
               !leagueName.includes("champions league") &&
               !leagueName.includes("europa") &&
-              !leagueName.includes("world cup") &&
-              !leagueName.includes("wc qual") &&
-              !leagueName.includes("uefa wc qualification") &&
-              currentMonth > 11) || // Most qualifications end by November
+              !isWCQualification &&
+              currentMonth > 11) ||
             // Women's leagues if specifically excluded
             leagueName.includes("women") ||
             // Youth leagues
@@ -141,6 +147,8 @@ const LeagueStandingsFilter = () => {
             leagueName.includes("europa league") ||
             leagueName.includes("conference league") ||
             leagueName.includes("nations league") ||
+            // World Cup qualifications - ALWAYS include these
+            isWCQualification ||
             // Specific major leagues from other regions
             leagueName.includes("saudi pro league") ||
             leagueName.includes("egyptian premier league") ||
@@ -152,12 +160,8 @@ const LeagueStandingsFilter = () => {
             country.includes("egypt") ||
             country.includes("colombia") ||
             country.includes("united states") ||
-            // Current ongoing competitions (including World Cup qualifications)
-            (leagueName.includes("qualification") && 
-              (currentMonth <= 11 || 
-               leagueName.includes("world cup") || 
-               leagueName.includes("wc qual") || 
-               leagueName.includes("uefa wc qualification"))) ||
+            // Current ongoing competitions
+            (leagueName.includes("qualification") && currentMonth <= 11) ||
             // Current cup competitions
             (leagueName.includes("cup") &&
               !leagueName.includes("world cup") &&
@@ -165,7 +169,13 @@ const LeagueStandingsFilter = () => {
             (leagueName.includes("copa") &&
               !leagueName.includes("copa america"));
 
-          return !isHistoricalTournament && isCurrentLeague;
+          const shouldInclude = !isHistoricalTournament && isCurrentLeague;
+          
+          if (isWCQualification) {
+            console.log(`🌍 WC Qualification league: ${league.name} - Include: ${shouldInclude}`);
+          }
+
+          return shouldInclude;
         });
 
         // Process leagues to ensure we have proper names and logos
@@ -174,6 +184,14 @@ const LeagueStandingsFilter = () => {
           // Ensure we have a proper name, fallback to a meaningful default
           name: league.name || `${league.country} League`,
         }));
+
+        console.log(`✅ Loaded ${processedLeagues.length} leagues total`);
+        const wcQualLeagues = processedLeagues.filter(l => 
+          l.name?.toLowerCase().includes("world cup") || 
+          l.name?.toLowerCase().includes("wc qual") || 
+          l.name?.toLowerCase().includes("uefa wc qualification")
+        );
+        console.log(`🌍 World Cup qualification leagues found: ${wcQualLeagues.length}`, wcQualLeagues.map(l => l.name));
 
         setPopularLeagues(processedLeagues);
 
@@ -190,7 +208,7 @@ const LeagueStandingsFilter = () => {
       } catch (error) {
         console.error("Failed to load league data:", error);
 
-        // Fallback to popular leagues including recent international competitions
+        // Enhanced fallback to popular leagues including ALL World Cup qualification groups
         const fallbackLeagues = [
           { id: 2, name: "UEFA Champions League", logo: "", country: "Europe" },
           { id: 3, name: "UEFA Europa League", logo: "", country: "Europe" },
@@ -203,6 +221,7 @@ const LeagueStandingsFilter = () => {
           { id: 5, name: "UEFA Nations League", logo: "", country: "Europe" },
           { id: 4, name: "Euro Championship", logo: "", country: "Europe" },
           { id: 15, name: "FIFA World Cup", logo: "", country: "World" },
+          // ALL UEFA WC Qualification Groups
           {
             id: 32,
             name: "UEFA WC Qualification - Group A",
@@ -239,8 +258,6 @@ const LeagueStandingsFilter = () => {
             logo: "",
             country: "Europe",
           },
-          { id: 307, name: "Saudi Pro League", logo: "", country: "Saudi Arabia" },
-          { id: 233, name: "Egyptian Premier League", logo: "", country: "Egypt" },
           {
             id: 38,
             name: "UEFA WC Qualification - Group G",
@@ -277,11 +294,14 @@ const LeagueStandingsFilter = () => {
             logo: "",
             country: "Europe",
           },
+          // Other popular leagues
           { id: 39, name: "Premier League", logo: "", country: "England" },
           { id: 140, name: "La Liga", logo: "", country: "Spain" },
           { id: 135, name: "Serie A", logo: "", country: "Italy" },
           { id: 78, name: "Bundesliga", logo: "", country: "Germany" },
           { id: 61, name: "Ligue 1", logo: "", country: "France" },
+          { id: 307, name: "Saudi Pro League", logo: "", country: "Saudi Arabia" },
+          { id: 233, name: "Egyptian Premier League", logo: "", country: "Egypt" },
           { id: 9, name: "Copa America", logo: "", country: "South America" },
           {
             id: 10,
@@ -292,6 +312,7 @@ const LeagueStandingsFilter = () => {
           { id: 11, name: "Asian Cup", logo: "", country: "Asia" },
         ];
 
+        console.log("🔄 Using fallback leagues with all WC qualification groups");
         setPopularLeagues(fallbackLeagues);
 
         // Set default to Premier League
