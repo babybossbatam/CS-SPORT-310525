@@ -788,7 +788,7 @@ const LeagueStandingsFilter = () => {
               <div className="overflow-hidden border-t">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50 border-b border-gray-100">
+                    <TableRow className="bg-stone-400 border-b border-gray-100">
                       <TableHead className="text-left text-xs font-regular text-gray-400  px-1 w-[40px]"></TableHead>
                       <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px]"></TableHead>
                       <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
