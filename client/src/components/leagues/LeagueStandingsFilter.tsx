@@ -319,7 +319,7 @@ const LeagueStandingsFilter = () => {
 
   return (
     <Card>
-      <CardHeader className=" flex-row items-center justify-between h-18 column">
+      <CardHeader className=" flex-row items-center justify-between h-10 column">
         <Select
           value={selectedLeague}
           onValueChange={(value) => {
@@ -428,7 +428,7 @@ const LeagueStandingsFilter = () => {
                                 <TableCell className="font-medium text-[0.9em] text-center">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal pl-2">
+                                <TableCell className="flex flex-col font-normal pl-2 ">
                                   <div className="flex items-center">
                                     {isNationalTeam ? (
                                       <MyCircularFlag
