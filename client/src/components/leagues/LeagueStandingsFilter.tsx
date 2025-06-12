@@ -391,21 +391,21 @@ const LeagueStandingsFilter = () => {
   // Function to get team color from logo or team name
   const getTeamColor = (teamName: string, rank: number): string => {
     // Use CS SPORT header gradient colors for top 2 positions
-    if (rank === 1) return '#F59E0B'; // Amber-500 (from CS SPORT gradient)
-    if (rank === 2) return '#EA580C'; // Orange-600 (from CS SPORT gradient)
-    if (rank === 3) return '#93C5FD'; // Lighter blue for 3rd place
-    
+    if (rank === 1) return "#F59E0B"; // Amber-500 (from CS SPORT gradient)
+    if (rank === 2) return "#EA580C"; // Orange-600 (from CS SPORT gradient)
+    if (rank === 3) return "#93C5FD"; // Lighter blue for 3rd place
+
     const normalizedName = teamName.toLowerCase();
-    
+
     // Check if team exists in our color map for rank 4+
     for (const [key, colors] of Object.entries(teamColorMap)) {
       if (normalizedName.includes(key)) {
         return colors.accent;
       }
     }
-    
+
     // Fallback colors for rank 4+
-    return '#6B7280'; // Gray for other positions
+    return "#6B7280"; // Gray for other positions
   };
 
   if (isLoading) {
@@ -431,29 +431,37 @@ const LeagueStandingsFilter = () => {
     // For rank 1, generate an actual championship title instead of promotion description
     if (rank === 1) {
       // Don't show promotion/qualification descriptions for champions
-      if (description.toLowerCase().includes('promotion') || 
-          description.toLowerCase().includes('play offs') ||
-          description.toLowerCase().includes('qualification')) {
+      if (
+        description.toLowerCase().includes("promotion") ||
+        description.toLowerCase().includes("play offs") ||
+        description.toLowerCase().includes("qualification")
+      ) {
         // Generate a proper championship title based on league name
-        if (selectedLeagueName.toLowerCase().includes('premier league')) {
+        if (selectedLeagueName.toLowerCase().includes("premier league")) {
           return "Won the Premier League";
-        } else if (selectedLeagueName.toLowerCase().includes('la liga')) {
+        } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
           return "Won La Liga";
-        } else if (selectedLeagueName.toLowerCase().includes('serie a')) {
+        } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
           return "Won Serie A";
-        } else if (selectedLeagueName.toLowerCase().includes('bundesliga')) {
+        } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
           return "Won the Bundesliga";
-        } else if (selectedLeagueName.toLowerCase().includes('ligue 1')) {
+        } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
           return "Won Ligue 1";
-        } else if (selectedLeagueName.toLowerCase().includes('champions league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("champions league")
+        ) {
           return "UEFA Champions League Winners";
-        } else if (selectedLeagueName.toLowerCase().includes('europa league')) {
+        } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
           return "UEFA Europa League Winners";
-        } else if (selectedLeagueName.toLowerCase().includes('conference league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("conference league")
+        ) {
           return "UEFA Conference League Winners";
-        } else if (selectedLeagueName.toLowerCase().includes('world cup')) {
+        } else if (selectedLeagueName.toLowerCase().includes("world cup")) {
           return "World Cup Winners";
-        } else if (selectedLeagueName.toLowerCase().includes('nations league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("nations league")
+        ) {
           return "Nations League Winners";
         } else {
           // Generic championship title
@@ -467,24 +475,30 @@ const LeagueStandingsFilter = () => {
 
     // For ranks 2 and 3, generate runner-up titles
     if (rank === 2) {
-      if (description?.toLowerCase().includes('promotion') || 
-          description?.toLowerCase().includes('play offs') ||
-          description?.toLowerCase().includes('qualification')) {
-        if (selectedLeagueName.toLowerCase().includes('premier league')) {
+      if (
+        description?.toLowerCase().includes("promotion") ||
+        description?.toLowerCase().includes("play offs") ||
+        description?.toLowerCase().includes("qualification")
+      ) {
+        if (selectedLeagueName.toLowerCase().includes("premier league")) {
           return "Premier League Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('la liga')) {
+        } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
           return "La Liga Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('serie a')) {
+        } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
           return "Serie A Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('bundesliga')) {
+        } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
           return "Bundesliga Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('ligue 1')) {
+        } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
           return "Ligue 1 Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('champions league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("champions league")
+        ) {
           return "UEFA Champions League Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('europa league')) {
+        } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
           return "UEFA Europa League Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes('conference league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("conference league")
+        ) {
           return "UEFA Conference League Runner-up";
         } else {
           return `${selectedLeagueName} Runner-up`;
@@ -494,24 +508,30 @@ const LeagueStandingsFilter = () => {
     }
 
     if (rank === 3) {
-      if (description?.toLowerCase().includes('promotion') || 
-          description?.toLowerCase().includes('play offs') ||
-          description?.toLowerCase().includes('qualification')) {
-        if (selectedLeagueName.toLowerCase().includes('premier league')) {
+      if (
+        description?.toLowerCase().includes("promotion") ||
+        description?.toLowerCase().includes("play offs") ||
+        description?.toLowerCase().includes("qualification")
+      ) {
+        if (selectedLeagueName.toLowerCase().includes("premier league")) {
           return "Premier League 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('la liga')) {
+        } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
           return "La Liga 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('serie a')) {
+        } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
           return "Serie A 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('bundesliga')) {
+        } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
           return "Bundesliga 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('ligue 1')) {
+        } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
           return "Ligue 1 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('champions league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("champions league")
+        ) {
           return "UEFA Champions League 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('europa league')) {
+        } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
           return "UEFA Europa League 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes('conference league')) {
+        } else if (
+          selectedLeagueName.toLowerCase().includes("conference league")
+        ) {
           return "UEFA Conference League 3rd Place";
         } else {
           return `${selectedLeagueName} 3rd Place`;
@@ -732,7 +752,7 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         L
                       </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400 mt-0 mb-0 py-0 px-2 w-[100px]">
+                      <TableHead className="text-center text-xs font-semi-bold text-gray-600 mt-0 mb-0 py-0 px-1 w-[100px]">
                         Form
                       </TableHead>
                     </TableRow>
@@ -783,15 +803,32 @@ const LeagueStandingsFilter = () => {
                                   <div
                                     className="w-1 h-8 rounded-r-sm mr-2"
                                     style={{
-                                      backgroundColor: standing.rank <= 3 ? getTeamColor(standing.team.name, standing.rank) :
-                                                     standing.rank <= 4 && standing.description?.toLowerCase().includes('champions') ? '#4A90E2' :
-                                                     standing.description?.toLowerCase().includes('europa') ? '#4A90E2' :
-                                                     standing.description?.toLowerCase().includes('conference') ? '#4A90E2' :
-                                                     '#6B7280'
+                                      backgroundColor:
+                                        standing.rank <= 3
+                                          ? getTeamColor(
+                                              standing.team.name,
+                                              standing.rank,
+                                            )
+                                          : standing.rank <= 4 &&
+                                              standing.description
+                                                ?.toLowerCase()
+                                                .includes("champions")
+                                            ? "#4A90E2"
+                                            : standing.description
+                                                  ?.toLowerCase()
+                                                  .includes("europa")
+                                              ? "#4A90E2"
+                                              : standing.description
+                                                    ?.toLowerCase()
+                                                    .includes("conference")
+                                                ? "#4A90E2"
+                                                : "#6B7280",
                                     }}
                                   />
                                 )}
-                                <span className={`text-sm font-medium text-gray-900 ${standing.rank <= 3 ? '' : 'ml-3'}`}>
+                                <span
+                                  className={`text-sm font-medium text-gray-900 ${standing.rank <= 3 ? "" : "ml-3"}`}
+                                >
                                   {standing.rank}
                                 </span>
                               </div>
@@ -812,62 +849,94 @@ const LeagueStandingsFilter = () => {
                                     {standing.team.name}
                                   </span>
                                   {standing.rank <= 3 && (
-                                    <span 
+                                    <span
                                       className="text-[0.65rem] font-medium truncate"
                                       style={{
-                                        color: standing.rank <= 3 ? getTeamColor(standing.team.name, standing.rank) :
-                                               standing.description?.toLowerCase().includes('champions league elite') ? '#4A90E2' :
-                                               standing.description?.toLowerCase().includes('champions league') ? '#4A90E2' :
-                                               standing.description?.toLowerCase().includes('europa') ? '#17A2B8' :
-                                               standing.description?.toLowerCase().includes('conference') ? '#6F42C1' :
-                                               standing.description?.toLowerCase().includes('promotion') ? '#28A745' :
-                                               standing.description?.toLowerCase().includes('relegation') ? '#DC3545' :
-                                               '#6B7280'
+                                        color:
+                                          standing.rank <= 3
+                                            ? getTeamColor(
+                                                standing.team.name,
+                                                standing.rank,
+                                              )
+                                            : standing.description
+                                                  ?.toLowerCase()
+                                                  .includes(
+                                                    "champions league elite",
+                                                  )
+                                              ? "#4A90E2"
+                                              : standing.description
+                                                    ?.toLowerCase()
+                                                    .includes(
+                                                      "champions league",
+                                                    )
+                                                ? "#4A90E2"
+                                                : standing.description
+                                                      ?.toLowerCase()
+                                                      .includes("europa")
+                                                  ? "#17A2B8"
+                                                  : standing.description
+                                                        ?.toLowerCase()
+                                                        .includes("conference")
+                                                    ? "#6F42C1"
+                                                    : standing.description
+                                                          ?.toLowerCase()
+                                                          .includes("promotion")
+                                                      ? "#28A745"
+                                                      : standing.description
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                              "relegation",
+                                                            )
+                                                        ? "#DC3545"
+                                                        : "#6B7280",
                                       }}
                                     >
-                                      {getChampionshipTitle(standing.rank, standing.description)}
+                                      {getChampionshipTitle(
+                                        standing.rank,
+                                        standing.description,
+                                      )}
                                     </span>
                                   )}
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               {stats.played}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               <span className="font-medium">
                                 {stats.goals.for}
                               </span>
                               <span className="text-gray-400 mx-0.5">:</span>
                               <span>{stats.goals.against}</span>
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm">
+                            <TableCell className="text-center py-2 px-1 text-xs">
                               <span
-                                className={`font-medium ${
+                                className={`font-regular ${
                                   standing.goalsDiff > 0
-                                    ? "text-green-600"
+                                    ? "text-gray-500"
                                     : standing.goalsDiff < 0
                                       ? "text-red-600"
                                       : "text-gray-700"
                                 }`}
                               >
-                                {standing.goalsDiff > 0 ? "+" : ""}
+                                {standing.goalsDiff > 0 ? "" : ""}
                                 {standing.goalsDiff}
                               </span>
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm font-bold text-gray-900">
+                            <TableCell className="text-center py-2 px-1 text-xs font-semi-bold text-gray-900">
                               {standing.points}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               {stats.win}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               {stats.draw}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               {stats.lose}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-2">
+                            <TableCell className="text-center py-2 px-1">
                               <div className="flex gap-1 justify-center">
                                 {standing.form
                                   ?.split("")
@@ -875,13 +944,13 @@ const LeagueStandingsFilter = () => {
                                   .map((result, i) => (
                                     <span
                                       key={i}
-                                      className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-bold text-white ${
+                                      className={`w-6 h-6 rounded-sm flex items-center justify-center text-xs font-semi-bold  ${
                                         result === "W"
-                                          ? "bg-green-500"
+                                          ? "border border-gray-500 text-green-800"
                                           : result === "D"
-                                            ? "bg-yellow-500"
+                                            ? "border border-gray-500 text-yellow-600"
                                             : result === "L"
-                                              ? "bg-red-500"
+                                              ? "border border-gray-500 text-red-600"
                                               : "bg-gray-400"
                                       }`}
                                     >
