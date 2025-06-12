@@ -619,22 +619,38 @@ const LeagueStandingsFilter = () => {
                 {standings.league.standings.map(
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
-                      <h3 className="text-xs font-regular mx-4 mt-2 mb-2 text-gray-700">
+                      <h3 className="text-xs font-regular mx-2 mt-8 mb-2 text-gray-700">
                         Group {String.fromCharCode(65 + groupIndex)}
                       </h3>
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[40px] text-center"></TableHead>
+                            <TableHead className="w-[40px] text-center px-0.5"></TableHead>
                             <TableHead className="pl-2 min-w-[200px]"></TableHead>
-                            <TableHead className="text-center">P</TableHead>
-                            <TableHead className="text-center">F:A</TableHead>
-                            <TableHead className="text-center">+/-</TableHead>
-                            <TableHead className="text-center">PTS</TableHead>
-                            <TableHead className="text-center">W</TableHead>
-                            <TableHead className="text-center">D</TableHead>
-                            <TableHead className="text-center">L</TableHead>
-                            <TableHead className="text-center">Next</TableHead>
+                            <TableHead className="text-center px-0.5">
+                              P
+                            </TableHead>
+                            <TableHead className="text-center px-0.5">
+                              F:A
+                            </TableHead>
+                            <TableHead className="text-center px-0.5">
+                              +/-
+                            </TableHead>
+                            <TableHead className="text-center px-0.5">
+                              PTS
+                            </TableHead>
+                            <TableHead className="text-center px-0.5">
+                              W
+                            </TableHead>
+                            <TableHead className="text-center px-0.5">
+                              D
+                            </TableHead>
+                            <TableHead className="text-center px-0.5">
+                              L
+                            </TableHead>
+                            <TableHead className="text-center  px-1">
+                              Next
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
