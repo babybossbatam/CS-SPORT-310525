@@ -444,6 +444,61 @@ const LeagueStandingsFilter = () => {
       return description;
     }
 
+    // For ranks 2 and 3, generate runner-up titles
+    if (rank === 2) {
+      if (description?.toLowerCase().includes('promotion') || 
+          description?.toLowerCase().includes('play offs') ||
+          description?.toLowerCase().includes('qualification')) {
+        if (selectedLeagueName.toLowerCase().includes('premier league')) {
+          return "Premier League Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('la liga')) {
+          return "La Liga Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('serie a')) {
+          return "Serie A Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('bundesliga')) {
+          return "Bundesliga Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('ligue 1')) {
+          return "Ligue 1 Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('champions league')) {
+          return "UEFA Champions League Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('europa league')) {
+          return "UEFA Europa League Runner-up";
+        } else if (selectedLeagueName.toLowerCase().includes('conference league')) {
+          return "UEFA Conference League Runner-up";
+        } else {
+          return `${selectedLeagueName} Runner-up`;
+        }
+      }
+      return description;
+    }
+
+    if (rank === 3) {
+      if (description?.toLowerCase().includes('promotion') || 
+          description?.toLowerCase().includes('play offs') ||
+          description?.toLowerCase().includes('qualification')) {
+        if (selectedLeagueName.toLowerCase().includes('premier league')) {
+          return "Premier League 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('la liga')) {
+          return "La Liga 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('serie a')) {
+          return "Serie A 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('bundesliga')) {
+          return "Bundesliga 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('ligue 1')) {
+          return "Ligue 1 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('champions league')) {
+          return "UEFA Champions League 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('europa league')) {
+          return "UEFA Europa League 3rd Place";
+        } else if (selectedLeagueName.toLowerCase().includes('conference league')) {
+          return "UEFA Conference League 3rd Place";
+        } else {
+          return `${selectedLeagueName} 3rd Place`;
+        }
+      }
+      return description;
+    }
+
     // For other ranks, return the description as is (qualification/relegation info)
     return description;
   };
