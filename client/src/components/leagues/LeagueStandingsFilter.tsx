@@ -648,18 +648,18 @@ const LeagueStandingsFilter = () => {
                                 key={standing.team.id}
                                 className="border-b  border-gray-100"
                               >
-                                <TableCell className="font-medium text-[0.9dem] text-center px-4 py-0 mx-0">
+                                <TableCell className="font-medium text-[0.9rem] text-center px-2 py-1 mx-0">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal pl-2 ">
+                                <TableCell className="flex flex-col font-normal pl-1 py-1">
                                   <div className="flex items-center">
                                     {isNationalTeam ? (
-                                      <div className="mr-2">
+                                      <div className="mr-1">
                                         <MyCircularFlag
                                           teamName={standing.team.name}
                                           fallbackUrl={standing.team.logo}
                                           alt={standing.team.name}
-                                          size="28px"
+                                          size="24px"
                                           className="popular-leagues-size"
                                         />
                                       </div>
@@ -667,37 +667,37 @@ const LeagueStandingsFilter = () => {
                                       <img
                                         src={standing.team.logo}
                                         alt={standing.team.name}
-                                        className=" h-5 w-5 rounded-md object-cover"
+                                        className="h-4 w-4 rounded-md object-cover mr-1"
                                         onError={(e) => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
                                         }}
                                       />
                                     )}
-                                    <span className="text-[0.9em] px-1 mx-0">
+                                    <span className="text-[0.85rem] truncate">
                                       {standing.team.name}
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0 ">
+                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0">
                                   {stats.played}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0 font-regular">
+                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0 font-regular">
                                   {stats.goals.for}:{stats.goals.against}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0 font-regular">
+                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0 font-regular">
                                   {standing.goalsDiff}
                                 </TableCell>
-                                <TableCell className="text-center font-regular text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center font-regular text-[0.85rem] px-1 py-1 mx-0">
                                   {standing.points}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0">
                                   {stats.win}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] font-regular px-1 mx-0">
+                                <TableCell className="text-center text-[0.85rem] font-regular px-1 py-1 mx-0">
                                   {stats.draw}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] font-regular px-1 mx-0">
+                                <TableCell className="text-center text-[0.85rem] font-regular px-1 py-1 mx-0">
                                   {stats.lose}
                                 </TableCell>
                                 <TableCell className="px-1 py-1 mx-0 font-regular">
