@@ -85,7 +85,7 @@ const SelectContent = React.forwardRef<
     >
       <SelectPrimitive.Viewport
         className={cn(
-          "p-1 bg-white border border-gray-500 hover:bg-stone-200 max-w-[400px] overflow-x-hidden",
+          "p-1 bg-white border border-gray-500 max-w-[400px] overflow-x-hidden",
           position === "popper" &&
             "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] ml-auto text-right",
         )}
