@@ -393,7 +393,7 @@ const LeagueStandingsFilter = () => {
     // Use CS SPORT header gradient colors for top 2 positions
     if (rank === 1) return '#F59E0B'; // Amber-500 (from CS SPORT gradient)
     if (rank === 2) return '#EA580C'; // Orange-600 (from CS SPORT gradient)
-    if (rank === 3) return '#60A5FA'; // Light blue for 3rd place
+    if (rank === 3) return '#93C5FD'; // Lighter blue for 3rd place
     
     const normalizedName = teamName.toLowerCase();
     
