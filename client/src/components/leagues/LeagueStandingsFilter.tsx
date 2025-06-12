@@ -96,10 +96,16 @@ const LeagueStandingsFilter = () => {
           const leagueName = league.name?.toLowerCase() || "";
           const country = league.country?.toLowerCase() || "";
 
-          // Check if this is a World Cup qualification league
+          // Check if this is a World Cup qualification league - ALWAYS INCLUDE THESE
           const isWCQualification = leagueName.includes("world cup") || 
                                    leagueName.includes("wc qual") || 
                                    leagueName.includes("uefa wc qualification");
+
+          // If it's a World Cup qualification, always include it
+          if (isWCQualification) {
+            console.log(`🌍 WC Qualification league INCLUDED: ${league.name}`);
+            return true;
+          }
 
           // Always exclude clearly historical tournaments that are not running now
           const isHistoricalTournament =
@@ -118,11 +124,10 @@ const LeagueStandingsFilter = () => {
             (leagueName.includes("african cup of nations") &&
               currentYear !== 2025) ||
             (leagueName.includes("asian cup") && currentYear !== 2025) ||
-            // Old qualification rounds that are completed (but ALWAYS keep World Cup qualifications)
+            // Old qualification rounds that are completed
             (leagueName.includes("qualification") &&
               !leagueName.includes("champions league") &&
               !leagueName.includes("europa") &&
-              !isWCQualification &&
               currentMonth > 11) ||
             // Women's leagues if specifically excluded
             leagueName.includes("women") ||
@@ -147,8 +152,6 @@ const LeagueStandingsFilter = () => {
             leagueName.includes("europa league") ||
             leagueName.includes("conference league") ||
             leagueName.includes("nations league") ||
-            // World Cup qualifications - ALWAYS include these
-            isWCQualification ||
             // Specific major leagues from other regions
             leagueName.includes("saudi pro league") ||
             leagueName.includes("egyptian premier league") ||
@@ -169,13 +172,7 @@ const LeagueStandingsFilter = () => {
             (leagueName.includes("copa") &&
               !leagueName.includes("copa america"));
 
-          const shouldInclude = !isHistoricalTournament && isCurrentLeague;
-          
-          if (isWCQualification) {
-            console.log(`🌍 WC Qualification league: ${league.name} - Include: ${shouldInclude}`);
-          }
-
-          return shouldInclude;
+          return !isHistoricalTournament && isCurrentLeague;
         });
 
         // Process leagues to ensure we have proper names and logos
@@ -426,7 +423,7 @@ const LeagueStandingsFilter = () => {
             align="start"
             sideOffset={4}
             position="popper"
-            className="z-[9999] min-w-[var(--radix-select-trigger-width)] max-w-[400px] max-h-60 overflow-auto"
+            className="z-[9999] min-w-[var(--radix-select-trigger-width)] max-w-[400px] max-h-96 overflow-auto"
             avoidCollisions={true}
             collisionPadding={8}
           >
