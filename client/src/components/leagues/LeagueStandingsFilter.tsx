@@ -408,36 +408,16 @@ const LeagueStandingsFilter = () => {
   const getChampionshipTitle = (rank: number, description?: string): string => {
     if (!description) return "";
 
-    // For rank 1, show "Won title"
+    // For rank 1, extract the title from description or default to "Champions"
     if (rank === 1) {
-      return "Won title";
-    }
-
-    // Extract competition name from description
-    const desc = description.toLowerCase();
-    
-    // Extract specific competition names
-    if (desc.includes('champions league')) {
-      if (desc.includes('elite')) {
-        return 'AFC Champions League Elite';
-      } else if (desc.includes('two')) {
-        return 'AFC Champions League Two';
-      } else {
-        return 'Champions League';
+      // Try to extract meaningful title from description
+      if (description.toLowerCase().includes('champions')) {
+        return description;
       }
-    } else if (desc.includes('europa league')) {
-      return 'Europa League';
-    } else if (desc.includes('conference league')) {
-      return 'Conference League';
-    } else if (desc.includes('promotion')) {
-      // Extract the competition name after "promotion -"
-      const match = description.match(/promotion\s*-\s*(.+?)(?:\s*\(|$)/i);
-      return match ? match[1].trim() : 'Promotion';
-    } else if (desc.includes('relegation')) {
-      return 'Relegation';
+      return "Champions";
     }
 
-    // Fallback to original description if no pattern matches
+    // For other ranks, return the description as is (qualification/relegation info)
     return description;
   };
 
@@ -656,7 +636,7 @@ const LeagueStandingsFilter = () => {
                   </TableHeader>
                   <TableBody>
                     {standings.league.standings[0]
-                      ?.slice(0, 3)
+                      ?.slice(0, 7)
                       .map((standing: Standing, index: number) => {
                         const stats = standing.all;
                         const isNationalTeam =
