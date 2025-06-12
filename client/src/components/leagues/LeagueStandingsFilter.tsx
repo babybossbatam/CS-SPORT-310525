@@ -479,7 +479,7 @@ const LeagueStandingsFilter = () => {
                 {standings.league.standings.map(
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
-                      <h3 className="text-lg font-semibold mb-3 text-gray-700">
+                      <h3 className="text-xs font-semibold mb-3 text-gray-700">
                         Group {String.fromCharCode(65 + groupIndex)}
                       </h3>
                       <Table>
