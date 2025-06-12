@@ -583,53 +583,66 @@ const LeagueStandingsFilter = () => {
                                   }}
                                 />
                               )}
-                              <span className="text-[0.9em]">
-                                {standing.team.name}
-                              </span>
-                              {standing.rank === 1 && (
-                                <span className="ml-2">👑</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {stats.played}
-                          </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {stats.goals.for}:{stats.goals.against}
-                          </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {standing.goalsDiff}
-                          </TableCell>
-                          <TableCell className="text-center font-bold text-[0.9em]">
-                            {standing.points}
-                          </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {stats.win}
-                          </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {stats.draw}
-                          </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {stats.lose}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex gap-1 justify-center">
-                              {standing.form
-                                ?.split("")
-                                .map((result, i) => (
-                                  <span
-                                    key={i}
-                                    className={`w-2 h-2 rounded-full ${
-                                      result === "W"
-                                        ? "bg-green-500"
-                                        : result === "D"
-                                          ? "bg-gray-500"
-                                          : "bg-red-500"
-                                    }`}
-                                  />
-                                ))}
-                            </div>
-                          </TableCell>
+                              <div className="flex flex-col">
+                                        <div className="flex items-center">
+                                          <span className="text-[0.9em] font-medium">
+                                            {standing.team.name}
+                                          </span>
+                                          {standing.rank === 1 && (
+                                            <span className="ml-2">👑</span>
+                                          )}
+                                        </div>
+                                        {standing.description && (
+                                          <span className="text-[0.75em] text-blue-500 font-medium">
+                                            {standing.description}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-center text-[0.9em]">
+                                  {stats.played}
+                                </TableCell>
+                                <TableCell className="text-center text-[0.9em]">
+                                  {stats.goals.for}:{stats.goals.against}
+                                </TableCell>
+                                <TableCell className="text-center text-[0.9em]">
+                                  {standing.goalsDiff > 0 ? '+' : ''}{standing.goalsDiff}
+                                </TableCell>
+                                <TableCell className="text-center font-bold text-[0.9em]">
+                                  {standing.points}
+                                </TableCell>
+                                <TableCell className="text-center text-[0.9em]">
+                                  {stats.win}
+                                </TableCell>
+                                <TableCell className="text-center text-[0.9em]">
+                                  {stats.draw}
+                                </TableCell>
+                                <TableCell className="text-center text-[0.9em]">
+                                  {stats.lose}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <div className="flex gap-1 justify-center">
+                                    {standing.form
+                                      ?.split("")
+                                      .slice(-5)
+                                      .map((result, i) => (
+                                        <span
+                                          key={i}
+                                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white ${
+                                            result === "W"
+                                              ? "bg-green-500"
+                                              : result === "D"
+                                                ? "bg-yellow-500"
+                                                : "bg-red-500"
+                                          }`}
+                                        >
+                                          {result}
+                                        </span>
+                                      ))}
+                                  </div>
+                                </TableCell>
                           <TableCell className="px-2 py-2 relative group">
                             <div className="flex items-center justify-center gap-2">
                               {standings?.league?.standings?.[0]?.find(
