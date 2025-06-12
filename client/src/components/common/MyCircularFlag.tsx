@@ -144,6 +144,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         src={getCircleFlagUrl(teamName, fallbackUrl)}
         alt={alt || teamName}
         className="team-logo"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          borderRadius: "50%",
+          border: "2px solid rgba(255, 255, 255, 0.2)",
+        }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           if (!target.src.includes("/assets/fallback-logo.svg")) {
@@ -151,7 +158,16 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           }
         }}
       />
-      <div className="gloss"></div>
+      <div className="gloss" style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        borderRadius: "50%",
+        background: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)",
+        pointerEvents: "none"
+      }}></div>
     </div>
   );
 };
