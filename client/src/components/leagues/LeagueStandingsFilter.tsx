@@ -648,13 +648,13 @@ const LeagueStandingsFilter = () => {
                                 key={standing.team.id}
                                 className="border-b  border-gray-100"
                               >
-                                <TableCell className="font-medium text-[0.8rem] text-center px-1 py-2 ">
+                                <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 ">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal px-1 py-3">
+                                <TableCell className="flex flex-col font-normal px-0.5 py-3">
                                   <div className="flex items-center">
                                     {isNationalTeam ? (
-                                      <div className="mr-4">
+                                      <div className="mr-3">
                                         <MyCircularFlag
                                           teamName={standing.team.name}
                                           fallbackUrl={standing.team.logo}
