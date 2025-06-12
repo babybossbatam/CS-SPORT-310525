@@ -588,35 +588,31 @@ const LeagueStandingsFilter = () => {
               <div className="overflow-hidden rounded-lg border border-gray-200">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50 border-b border-gray-200">
-                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 w-[40px]">
-                        #
-                      </TableHead>
-                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 min-w-[180px]">
-                        Team
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                    <TableRow className="bg-gray-50 border-b border-gray-100">
+                      <TableHead className="text-left text-xs font-regular text-gray-400  px-3 w-[40px]"></TableHead>
+                      <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px]"></TableHead>
+                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         P
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[60px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[60px]">
                         F:A
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
                         +/-
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-900  px-2 w-[50px]">
                         PTS
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                      <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
                         W
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         D
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         L
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[100px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-400 mt-0 mb-0 py-0 px-2 w-[100px]">
                         Form
                       </TableHead>
                     </TableRow>
@@ -659,9 +655,9 @@ const LeagueStandingsFilter = () => {
                         return (
                           <TableRow
                             key={standing.team.id}
-                            className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
+                            className="border-b border-gray-100 hover:bg-gray-100 transition-colors"
                           >
-                            <TableCell className="py-2 px-0 relative">
+                            <TableCell className="py-0 mt-0 mb-0 px-0 relative">
                               <div className="flex items-center">
                                 <div
                                   className={`w-1 h-8 rounded-r-sm mr-2 ${getQualificationColor(standing.rank, standing.description)}`}
