@@ -1747,7 +1747,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                                  )}</div>
+                                  )}
+                                </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
                                 <div className="match-score-container">
@@ -1901,14 +1902,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                                  )}</div>
+                                  )}
+                                </div>
 
                                 {/* Away Team Name - positioned further right */}
                                 <div
                                   className={`away-team-name ${
                                     match.goals.home !== null &&
                                     match.goals.away !== null &&
-                               ```
                                     match.goals.away > match.goals.home
                                       ? "winner"
                                       : ""
