@@ -439,11 +439,6 @@ const LeagueStandingsFilter = () => {
                                       {standing.team.name}
                                     </span>
                                   </div>
-                                  {standing.description && (
-                                    <span className="text-[0.75em] text-gray-500 ml-7">
-                                      {standing.description}
-                                    </span>
-                                  )}
                                 </TableCell>
                                 <TableCell className="text-center text-[0.9em]">
                                   {stats.played}
@@ -584,13 +579,6 @@ const LeagueStandingsFilter = () => {
                                 <span className="ml-2">👑</span>
                               )}
                             </div>
-                            {standing.description && (
-                              <span className="text-[0.75em] text-yellow-500">
-                                {standing.rank === 1
-                                  ? "Won title • CAF Champions League"
-                                  : standing.description}
-                              </span>
-                            )}
                           </TableCell>
                           <TableCell className="text-center text-[0.9em]">
                             {stats.played}
@@ -729,6 +717,19 @@ const LeagueStandingsFilter = () => {
                             </div>
                           </TableCell>
                         </TableRow>
+                      );
+                    })}
+                    {standings.league.standings[0]
+                    ?.slice(0, 7)
+                    .map((standing: Standing) => {
+                      return (
+                        standing.description ? (
+                          <TableRow key={`${standing.team.id}-description`} className="border-b border-gray-100">
+                            <TableCell colSpan={11} className="text-[0.75em] text-gray-500 italic">
+                              {standing.description}
+                            </TableCell>
+                          </TableRow>
+                        ) : null
                       );
                     })}
                 </TableBody>
