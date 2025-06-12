@@ -550,7 +550,7 @@ const LeagueStandingsFilter = () => {
                             key={standing.team.id}
                             className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
                           >
-                            <TableCell className="py-2 px-3 relative">
+                            <TableCell className="py-2 px-0 relative">
                               <div className="flex items-center">
                                 <div 
                                   className={`w-1 h-8 rounded-r-sm mr-2 ${getQualificationColor(standing.rank, standing.description)}`}
