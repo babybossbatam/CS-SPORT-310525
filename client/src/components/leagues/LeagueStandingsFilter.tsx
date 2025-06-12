@@ -839,7 +839,15 @@ const LeagueStandingsFilter = () => {
                         return (
                           <TableRow
                             key={standing.team.id}
-                            className="border-b border-gray-100 hover:bg-gray-100 transition-colors"
+                            className={`border-b transition-colors ${
+                              standing.rank === 1 
+                                ? "border-amber-200 hover:bg-amber-50" 
+                                : standing.rank === 2 
+                                ? "border-orange-200 hover:bg-orange-50" 
+                                : standing.rank === 3 
+                                ? "border-blue-200 hover:bg-blue-50" 
+                                : "border-gray-100 hover:bg-gray-100"
+                            }`}
                           >
                             <TableCell className="py-0 mt-0 mb-0 px-0 relative">
                               <div className="flex items-center">
