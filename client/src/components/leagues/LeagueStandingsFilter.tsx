@@ -533,139 +533,152 @@ const LeagueStandingsFilter = () => {
               </div>
             ) : (
               // Single league table
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-b border-gray-200">
-                    <TableHead className="w-[30px] text-center text-xs font-medium text-gray-600 py-2"></TableHead>
-                    <TableHead className="text-left text-xs font-medium text-gray-600 py-2 pl-2">Team</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[40px]">P</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[50px]">F:A</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[40px]">+/-</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[45px]">PTS</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[35px]">W</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[35px]">D</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[35px]">L</TableHead>
-                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[80px]">Form</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {standings.league.standings[0]
-                    ?.slice(0, 7)
-                    .map((standing: Standing) => {
-                      const stats = standing.all;
-                      const isNationalTeam =
-                        isNationalTeamCompetition(selectedLeagueName);
+              <div className="overflow-hidden rounded-lg border border-gray-200">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 border-b border-gray-200">
+                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 w-[40px]">#</TableHead>
+                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 min-w-[180px]">Team</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">P</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[60px]">F:A</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">+/-</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">PTS</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">W</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">D</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">L</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[100px]">Form</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {standings.league.standings[0]
+                      ?.slice(0, 7)
+                      .map((standing: Standing, index: number) => {
+                        const stats = standing.all;
+                        const isNationalTeam =
+                          isNationalTeamCompetition(selectedLeagueName);
+                        
+                        // Determine qualification status color
+                        const getQualificationColor = (rank: number, description?: string) => {
+                          if (!description) return 'bg-transparent';
+                          
+                          const desc = description.toLowerCase();
+                          if (desc.includes('champions league') || desc.includes('promotion')) {
+                            return 'bg-green-500';
+                          } else if (desc.includes('europa') || desc.includes('conference')) {
+                            return 'bg-blue-500';
+                          } else if (desc.includes('relegation') || desc.includes('play-off')) {
+                            return 'bg-red-500';
+                          }
+                          return 'bg-gray-400';
+                        };
 
-                      return (
-                        <TableRow
-                          key={standing.team.id}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                        >
-                          <TableCell className="text-center py-3 px-2">
-                            <div className="flex items-center justify-center">
-                              <span className="text-sm font-medium text-gray-700 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center">
-                                {standing.rank}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3 px-2">
-                            <div className="flex items-center">
-                              {isNationalTeam ? (
-                                <MyCircularFlag
-                                  teamName={standing.team.name}
-                                  size="20px"
-                                  className="mr-3"
-                                  fallbackUrl={standing.team.logo}
-                                />
-                              ) : (
-                                <img
-                                  src={standing.team.logo}
-                                  alt={standing.team.name}
-                                  className="mr-3 h-5 w-5 rounded-full"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src =
-                                      "/assets/fallback-logo.svg";
-                                  }}
-                                />
-                              )}
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
-                                  {standing.team.name}
-                                </span>
-                                {standing.description && (
-                                  <span className="text-xs text-orange-500 font-medium truncate max-w-[140px]">
-                                    {standing.description}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
-                            {stats.played}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
-                            {stats.goals.for}:{stats.goals.against}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
-                            {standing.goalsDiff > 0 ? "+" : ""}{standing.goalsDiff}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm font-bold text-gray-900">
-                            {standing.points}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
-                            {stats.win}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
-                            {stats.draw}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
-                            {stats.lose}
-                          </TableCell>
-                          <TableCell className="text-center py-3 px-2">
-                            <div className="flex gap-0.5 justify-center">
-                              {standing.form
-                                ?.split("")
-                                .slice(-5)
-                                .map((result, i) => (
-                                  <span
-                                    key={i}
-                                    className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-bold text-white ${
-                                      result === "W"
-                                        ? "bg-green-500"
-                                        : result === "D"
-                                          ? "bg-yellow-500"
-                                          : result === "L"
-                                            ? "bg-red-500"
-                                            : "bg-gray-400"
-                                    }`}
-                                  >
-                                    {result}
-                                  </span>
-                                ))}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  {standings.league.standings[0]
-                    ?.slice(0, 7)
-                    .map((standing: Standing) => {
-                      return standing.description ? (
-                        <TableRow
-                          key={`${standing.team.id}-description`}
-                          className="border-b border-gray-100"
-                        >
-                          <TableCell
-                            colSpan={11}
-                            className="text-[0.75em] text-gray-500 italic"
+                        return (
+                          <TableRow
+                            key={standing.team.id}
+                            className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
                           >
-                            {standing.description}
-                          </TableCell>
-                        </TableRow>
-                      ) : null;
-                    })}
-                </TableBody>
-              </Table>
+                            <TableCell className="py-2 px-3 relative">
+                              <div className="flex items-center">
+                                <div 
+                                  className={`w-1 h-8 rounded-r-sm mr-2 ${getQualificationColor(standing.rank, standing.description)}`}
+                                />
+                                <span className="text-sm font-medium text-gray-900">
+                                  {standing.rank}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-2 px-3">
+                              <div className="flex items-center">
+                                {isNationalTeam ? (
+                                  <MyCircularFlag
+                                    teamName={standing.team.name}
+                                    size="24px"
+                                    className="mr-3 flex-shrink-0"
+                                    fallbackUrl={standing.team.logo}
+                                  />
+                                ) : (
+                                  <img
+                                    src={standing.team.logo}
+                                    alt={standing.team.name}
+                                    className="mr-3 h-6 w-6 rounded-full flex-shrink-0"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src =
+                                        "/assets/fallback-logo.svg";
+                                    }}
+                                  />
+                                )}
+                                <div className="flex flex-col min-w-0 flex-1">
+                                  <span className="text-sm font-medium text-gray-900 truncate">
+                                    {standing.team.name}
+                                  </span>
+                                  {standing.description && (
+                                    <span className="text-xs text-gray-500 truncate">
+                                      {standing.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                              {stats.played}
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                              <span className="font-medium">{stats.goals.for}</span>
+                              <span className="text-gray-400 mx-0.5">:</span>
+                              <span>{stats.goals.against}</span>
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm">
+                              <span className={`font-medium ${
+                                standing.goalsDiff > 0 
+                                  ? 'text-green-600' 
+                                  : standing.goalsDiff < 0 
+                                    ? 'text-red-600' 
+                                    : 'text-gray-700'
+                              }`}>
+                                {standing.goalsDiff > 0 ? '+' : ''}{standing.goalsDiff}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm font-bold text-gray-900">
+                              {standing.points}
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                              {stats.win}
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                              {stats.draw}
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
+                              {stats.lose}
+                            </TableCell>
+                            <TableCell className="text-center py-2 px-2">
+                              <div className="flex gap-1 justify-center">
+                                {standing.form
+                                  ?.split("")
+                                  .slice(-5)
+                                  .map((result, i) => (
+                                    <span
+                                      key={i}
+                                      className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-bold text-white ${
+                                        result === "W"
+                                          ? "bg-green-500"
+                                          : result === "D"
+                                            ? "bg-yellow-500"
+                                            : result === "L"
+                                              ? "bg-red-500"
+                                              : "bg-gray-400"
+                                      }`}
+                                    >
+                                      {result}
+                                    </span>
+                                  ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </div>
             )
           ) : (
             <div className="text-center py-8 text-gray-500">
