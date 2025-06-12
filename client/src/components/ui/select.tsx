@@ -83,7 +83,6 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
-      <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
           "p-1 bg-white border border-gray-500 hover:bg-stone-200 max-w-[400px] overflow-x-hidden",
@@ -93,7 +92,6 @@ const SelectContent = React.forwardRef<
       >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));

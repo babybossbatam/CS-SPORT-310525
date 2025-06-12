@@ -109,9 +109,23 @@ body {
   overflow: hidden !important;
 }
 
-/* Hide dropdown scroll arrows */
+/* Hide dropdown scroll arrows - comprehensive approach */
 [data-radix-select-scroll-up-button],
-[data-radix-select-scroll-down-button] {
+[data-radix-select-scroll-down-button],
+[data-radix-scroll-area-scrollbar] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Hide any chevron elements in select content */
+[data-radix-select-content] svg[data-chevron],
+[data-radix-select-content] .lucide-chevron-up,
+[data-radix-select-content] .lucide-chevron-down {
   display: none !important;
 }
 
