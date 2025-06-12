@@ -401,7 +401,9 @@ const LeagueStandingsFilter = () => {
                             <TableHead className="w-[40px] text-center">
                               #
                             </TableHead>
-                            <TableHead className="pl-4 min-w-[200px]">Team</TableHead>
+                            <TableHead className="pl-2 min-w-[200px]">
+                              Team
+                            </TableHead>
                             <TableHead className="text-center">P</TableHead>
                             <TableHead className="text-center">F:A</TableHead>
                             <TableHead className="text-center">+/-</TableHead>
@@ -426,7 +428,7 @@ const LeagueStandingsFilter = () => {
                                 <TableCell className="font-medium text-[0.9em] text-center">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal pl-4">
+                                <TableCell className="flex flex-col font-normal pl-2">
                                   <div className="flex items-center">
                                     {isNationalTeam ? (
                                       <MyCircularFlag
@@ -600,48 +602,49 @@ const LeagueStandingsFilter = () => {
                               </div>
                             </div>
                           </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
-                                  {stats.played}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
-                                  {stats.goals.for}:{stats.goals.against}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
-                                  {standing.goalsDiff > 0 ? '+' : ''}{standing.goalsDiff}
-                                </TableCell>
-                                <TableCell className="text-center font-bold text-[0.9em]">
-                                  {standing.points}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
-                                  {stats.win}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
-                                  {stats.draw}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
-                                  {stats.lose}
-                                </TableCell>
-                                <TableCell className="text-center">
-                                  <div className="flex gap-1 justify-center">
-                                    {standing.form
-                                      ?.split("")
-                                      .slice(-5)
-                                      .map((result, i) => (
-                                        <span
-                                          key={i}
-                                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white ${
-                                            result === "W"
-                                              ? "bg-green-500"
-                                              : result === "D"
-                                                ? "bg-yellow-500"
-                                                : "bg-red-500"
-                                          }`}
-                                        >
-                                          {result}
-                                        </span>
-                                      ))}
-                                  </div>
-                                </TableCell>
+                          <TableCell className="text-center text-[0.9em]">
+                            {stats.played}
+                          </TableCell>
+                          <TableCell className="text-center text-[0.9em]">
+                            {stats.goals.for}:{stats.goals.against}
+                          </TableCell>
+                          <TableCell className="text-center text-[0.9em]">
+                            {standing.goalsDiff > 0 ? "+" : ""}
+                            {standing.goalsDiff}
+                          </TableCell>
+                          <TableCell className="text-center font-bold text-[0.9em]">
+                            {standing.points}
+                          </TableCell>
+                          <TableCell className="text-center text-[0.9em]">
+                            {stats.win}
+                          </TableCell>
+                          <TableCell className="text-center text-[0.9em]">
+                            {stats.draw}
+                          </TableCell>
+                          <TableCell className="text-center text-[0.9em]">
+                            {stats.lose}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex gap-1 justify-center">
+                              {standing.form
+                                ?.split("")
+                                .slice(-5)
+                                .map((result, i) => (
+                                  <span
+                                    key={i}
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white ${
+                                      result === "W"
+                                        ? "bg-green-500"
+                                        : result === "D"
+                                          ? "bg-yellow-500"
+                                          : "bg-red-500"
+                                    }`}
+                                  >
+                                    {result}
+                                  </span>
+                                ))}
+                            </div>
+                          </TableCell>
                           <TableCell className="px-2 py-2 relative group">
                             <div className="flex items-center justify-center gap-2">
                               {standings?.league?.standings?.[0]?.find(
