@@ -404,6 +404,26 @@ const LeagueStandingsFilter = () => {
     );
   }
 
+  // Helper function to determine championship title based on rank and description
+  const getChampionshipTitle = (rank: number, description?: string): string => {
+    if (rank === 1) {
+      return "Won the";
+    } else if (description?.toLowerCase().includes('champions league elite')) {
+      return "AFC Champions League Elite";
+    } else if (description?.toLowerCase().includes('champions league')) {
+      return "Champions League";
+    } else if (description?.toLowerCase().includes('europa league')) {
+      return "Europa League";
+    } else if (description?.toLowerCase().includes('conference league')) {
+      return "Conference League";
+    } else if (description?.toLowerCase().includes('promotion')) {
+      return "Promotion";
+    } else if (description?.toLowerCase().includes('relegation')) {
+      return "Relegation";
+    }
+    return description || "";
+  };
+
   return (
     <Card>
       <CardHeader className=" flex-row items-center justify-between h-10 column px-0 pt-4">
@@ -679,12 +699,21 @@ const LeagueStandingsFilter = () => {
                                   }}
                                 />
                                 <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-[0.85rem] font-semi-bold text-gray-900 truncate">
+                                  <span className="text-xs font-medium text-gray-900 truncate">
                                     {standing.team.name}
                                   </span>
                                   {standing.description && (
-                                    <span className="text-[0.65rem] text-gray-500 truncate">
-                                      {standing.description}
+                                    <span 
+                                      className="text-[0.65rem] font-medium truncate"
+                                      style={{
+                                        color: standing.rank === 1 ? '#FFD700' : 
+                                               standing.rank <= 4 && standing.description?.toLowerCase().includes('champions') ? '#4A90E2' :
+                                               standing.description?.toLowerCase().includes('europa') ? '#4A90E2' :
+                                               standing.description?.toLowerCase().includes('conference') ? '#4A90E2' :
+                                               '#6B7280'
+                                      }}
+                                    >
+                                      {getChampionshipTitle(standing.rank, standing.description)}
                                     </span>
                                   )}
                                 </div>
