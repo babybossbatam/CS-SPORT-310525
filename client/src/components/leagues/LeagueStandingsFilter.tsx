@@ -387,7 +387,7 @@ const LeagueStandingsFilter = () => {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         <div className="relative">
           {standings?.league?.standings?.length > 0 ? (
             // Check if this is a group-based competition
