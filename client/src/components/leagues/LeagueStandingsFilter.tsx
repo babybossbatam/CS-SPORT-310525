@@ -196,7 +196,7 @@ const LeagueStandingsFilter = () => {
             <SelectValue>
               <div className="flex items-center gap-2">
                 <img
-                  src={popularLeagues.find(l => l && l.id && l.id.toString() === selectedLeague)?.logo}
+                  src={popularLeagues.find(l => l && l.id && l.id.toString() === selectedLeague)?.logo || '/assets/fallback-logo.svg'}
                   alt={selectedLeagueName}
                   className="h-5 w-5 object-contain"
                   onError={(e) => {
@@ -207,12 +207,12 @@ const LeagueStandingsFilter = () => {
               </div>
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            {popularLeagues.filter(league => league && league.id && league.name && league.logo).map((league) => (
+          <SelectContent side="bottom" align="start">
+            {popularLeagues.filter(league => league && league.id && league.name).map((league) => (
               <SelectItem key={league.id} value={league.id.toString()}>
                 <div className="flex items-center gap-2">
                   <img
-                    src={league.logo}
+                    src={league.logo || '/assets/fallback-logo.svg'}
                     alt={league.name}
                     className="h-5 w-5 object-contain"
                     onError={(e) => {
