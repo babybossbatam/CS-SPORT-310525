@@ -7,16 +7,26 @@ import { TrendingUp } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// Current popular leagues for top scorers - matches PopularLeaguesList
+// Comprehensive leagues for top scorers - matches LeagueStandingsFilter dropdown
 const POPULAR_LEAGUES = [
+  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
+  { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png' },
+  { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png' },
+  { id: 32, name: 'World Cup - Qualification Europe', logo: 'https://media.api-sports.io/football/leagues/32.png' },
+  { id: 33, name: 'World Cup - Qualification Oceania', logo: 'https://media.api-sports.io/football/leagues/33.png' },
+  { id: 34, name: 'World Cup - Qualification South America', logo: 'https://media.api-sports.io/football/leagues/34.png' },
+  { id: 35, name: 'Asian Cup - Qualification', logo: 'https://media.api-sports.io/football/leagues/35.png' },
+  { id: 36, name: 'Africa Cup of Nations - Qualification', logo: 'https://media.api-sports.io/football/leagues/36.png' },
+  { id: 37, name: 'World Cup - Qualification Intercontinental Play-offs', logo: 'https://media.api-sports.io/football/leagues/37.png' },
   { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
   { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
   { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
   { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
   { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
-  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
-  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
-  { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
+  { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png' },
+  { id: 48, name: 'League Cup', logo: 'https://media.api-sports.io/football/leagues/48.png' },
 ];
 
 interface Player {
@@ -162,14 +172,24 @@ const HomeTopScorersList = () => {
                   onClick={() => navigate(`/league/${selectedLeague}/stats`)}
                 >
                   <div className="flex items-center justify-center">
+                    {selectedLeague.toString() === '2' && 'Champions League Stats'}
+                    {selectedLeague.toString() === '3' && 'Europa League Stats'}
+                    {selectedLeague.toString() === '848' && 'Conference League Stats'}
+                    {selectedLeague.toString() === '5' && 'Nations League Stats'}
+                    {selectedLeague.toString() === '15' && 'Club World Cup Stats'}
+                    {selectedLeague.toString() === '32' && 'WC Qualification Europe Stats'}
+                    {selectedLeague.toString() === '33' && 'WC Qualification Oceania Stats'}
+                    {selectedLeague.toString() === '34' && 'WC Qualification South America Stats'}
+                    {selectedLeague.toString() === '35' && 'Asian Cup Qualification Stats'}
+                    {selectedLeague.toString() === '36' && 'AFCON Qualification Stats'}
+                    {selectedLeague.toString() === '37' && 'WC Intercontinental Play-offs Stats'}
                     {selectedLeague.toString() === '39' && 'Premier League Stats'}
                     {selectedLeague.toString() === '140' && 'La Liga Stats'}
                     {selectedLeague.toString() === '135' && 'Serie A Stats'}
                     {selectedLeague.toString() === '78' && 'Bundesliga Stats'}
                     {selectedLeague.toString() === '61' && 'Ligue 1 Stats'}
-                    {selectedLeague.toString() === '2' && 'Champions League Stats'}
-                    {selectedLeague.toString() === '3' && 'Europa League Stats'}
-                    {selectedLeague.toString() === '848' && 'Conference League Stats'}
+                    {selectedLeague.toString() === '45' && 'FA Cup Stats'}
+                    {selectedLeague.toString() === '48' && 'League Cup Stats'}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
                       <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
