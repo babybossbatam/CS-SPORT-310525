@@ -6,47 +6,38 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { getPopularLeagues, LeagueData, getLeagueLogoWithCache } from '@/lib/leagueDataCache';
+
+// Current popular leagues list - matches HomeTopScorersList
+const CURRENT_POPULAR_LEAGUES = [
+  { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England' },
+  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain' },
+  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy' },
+  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany' },
+  { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png', country: 'France' },
+  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe' },
+  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe' },
+  { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe' },
+  { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe' },
+  { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy' },
+  { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England' },
+  { id: 143, name: 'Copa del Rey', logo: 'https://media.api-sports.io/football/leagues/143.png', country: 'Spain' },
+  { id: 81, name: 'DFB Pokal', logo: 'https://media.api-sports.io/football/leagues/81.png', country: 'Germany' },
+  { id: 307, name: 'Saudi Pro League', logo: 'https://media.api-sports.io/football/leagues/307.png', country: 'Saudi Arabia' },
+  { id: 233, name: 'Egyptian Premier League', logo: 'https://media.api-sports.io/football/leagues/233.png', country: 'Egypt' },
+];
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
-  const [leagueData, setLeagueData] = useState<LeagueData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const loadLeagues = async () => {
-      try {
-        setIsLoading(true);
-        const leagues = await getPopularLeagues();
-        
-        // Process leagues to ensure we have proper names and logos
-        const processedLeagues = await Promise.all(
-          leagues.map(async (league) => {
-            // Get cached logo with proper fallback
-            const logoUrl = await getLeagueLogoWithCache(league.id, league.name, league.logo);
-            
-            return {
-              ...league,
-              logo: logoUrl,
-              // Ensure we have a proper name, fallback to a meaningful default
-              name: league.name || `${league.country} League`
-            };
-          })
-        );
-        
-        setLeagueData(processedLeagues);
-        console.log('Loaded popular leagues:', processedLeagues);
-      } catch (error) {
-        console.error('Failed to load league data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadLeagues();
+    // Use the current popular leagues list directly
+    setLeagueData(CURRENT_POPULAR_LEAGUES);
+    setIsLoading(false);
   }, []);
 
   const toggleFavorite = (leagueId: number) => {
@@ -89,7 +80,7 @@ const PopularLeaguesList = () => {
         <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
           <div className="space-y-2">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="flex items-center py-1.5 px-2 animate-pulse">
                 <div className="w-5 h-5 bg-gray-200 rounded"></div>
                 <div className="ml-3 flex-1">
@@ -128,11 +119,9 @@ const PopularLeaguesList = () => {
                 />
                 <div className="ml-3 flex-1">
                   <div className="text-sm">{league.name}</div>
-                  {league.country && (
-                    <span className="text-xs text-gray-500 truncate">
-                      {typeof league.country === 'string' ? league.country : league.country?.name || 'Unknown'}
-                    </span>
-                  )}
+                  <span className="text-xs text-gray-500 truncate">
+                    {league.country}
+                  </span>
                 </div>
                 <button
                   onClick={(e) => {
