@@ -84,8 +84,71 @@ const LeagueStandingsFilter = () => {
         setLeaguesLoading(true);
         const leagues = await getPopularLeagues();
 
+        // Filter to show only current/active leagues (exclude historical tournaments)
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+
+        const currentLeagues = leagues.filter((league) => {
+          const leagueName = league.name?.toLowerCase() || "";
+          const country = league.country?.toLowerCase() || "";
+
+          // Always exclude clearly historical tournaments that are not running now
+          const isHistoricalTournament = 
+            // Past major tournaments (these run on specific cycles)
+            (leagueName.includes("euro championship") && currentYear !== 2024) ||
+            (leagueName.includes("copa america") && currentYear !== 2024) ||
+            (leagueName.includes("world cup") && !leagueName.includes("qualification") && currentYear !== 2026) ||
+            (leagueName.includes("fifa club world cup") && currentYear < 2025) ||
+            // Friendlies are usually not league standings
+            leagueName.includes("friendlies") ||
+            // Completed tournaments
+            leagueName.includes("african cup of nations") && currentYear !== 2025 ||
+            leagueName.includes("asian cup") && currentYear !== 2025 ||
+            // Old qualification rounds that are completed
+            (leagueName.includes("qualification") && 
+             !leagueName.includes("champions league") && 
+             !leagueName.includes("europa") &&
+             currentMonth > 11) || // Most qualifications end by November
+            // Women's leagues if specifically excluded
+            leagueName.includes("women") ||
+            // Youth leagues
+            leagueName.includes("u21") || leagueName.includes("under 21") ||
+            leagueName.includes("u19") || leagueName.includes("under 19") ||
+            leagueName.includes("u17") || leagueName.includes("under 17");
+
+          // Keep current ongoing leagues
+          const isCurrentLeague = 
+            // Major European leagues (run most of the year)
+            leagueName.includes("premier league") ||
+            leagueName.includes("la liga") ||
+            leagueName.includes("serie a") ||
+            leagueName.includes("bundesliga") ||
+            leagueName.includes("ligue 1") ||
+            // Continental competitions (ongoing)
+            leagueName.includes("champions league") ||
+            leagueName.includes("europa league") ||
+            leagueName.includes("conference league") ||
+            leagueName.includes("nations league") ||
+            // Major leagues from other regions
+            country.includes("brazil") ||
+            country.includes("argentina") ||
+            country.includes("saudi arabia") ||
+            country.includes("united arab emirates") ||
+            country.includes("egypt") ||
+            country.includes("colombia") ||
+            country.includes("united states") ||
+            // Current ongoing competitions
+            (leagueName.includes("qualification") && currentMonth <= 11) ||
+            // Current cup competitions
+            (leagueName.includes("cup") && !leagueName.includes("world cup") && !leagueName.includes("euro")) ||
+            (leagueName.includes("copa") && !leagueName.includes("copa america"));
+
+          return !isHistoricalTournament && isCurrentLeague;
+        });
+
         // Process leagues to ensure we have proper names and logos
-        const processedLeagues = leagues.map((league) => ({
+        const processedLeagues = currentLeagues.map((league) => ({
           ...league,
           // Ensure we have a proper name, fallback to a meaningful default
           name: league.name || `${league.country} League`,
