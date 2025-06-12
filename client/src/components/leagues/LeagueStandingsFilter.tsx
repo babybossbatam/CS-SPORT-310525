@@ -535,18 +535,17 @@ const LeagueStandingsFilter = () => {
               // Single league table
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[40px] text-center]"></TableHead>
-                    <TableHead className="pl-4 min-w-[200px]"></TableHead>
-                    <TableHead className="text-center">P</TableHead>
-                    <TableHead className="text-center">F:A</TableHead>
-                    <TableHead className="text-center">+/-</TableHead>
-                    <TableHead className="text-center">PTS</TableHead>
-                    <TableHead className="text-center">W</TableHead>
-                    <TableHead className="text-center">D</TableHead>
-                    <TableHead className="text-center">L</TableHead>
-                    <TableHead className="text-center">Form</TableHead>
-                    <TableHead className="text-center">Next</TableHead>
+                  <TableRow className="border-b border-gray-200">
+                    <TableHead className="w-[30px] text-center text-xs font-medium text-gray-600 py-2"></TableHead>
+                    <TableHead className="text-left text-xs font-medium text-gray-600 py-2 pl-2">Team</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[40px]">P</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[50px]">F:A</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[40px]">+/-</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[45px]">PTS</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[35px]">W</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[35px]">D</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[35px]">L</TableHead>
+                    <TableHead className="text-center text-xs font-medium text-gray-600 py-2 w-[80px]">Form</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -560,25 +559,29 @@ const LeagueStandingsFilter = () => {
                       return (
                         <TableRow
                           key={standing.team.id}
-                          className="border-b border-gray-100"
+                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                         >
-                          <TableCell className="font-medium text-[0.9em] text-center pl-0">
-                            {standing.rank}
+                          <TableCell className="text-center py-3 px-2">
+                            <div className="flex items-center justify-center">
+                              <span className="text-sm font-medium text-gray-700 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center">
+                                {standing.rank}
+                              </span>
+                            </div>
                           </TableCell>
-                          <TableCell className="flex flex-col font-normal pl-4">
+                          <TableCell className="py-3 px-2">
                             <div className="flex items-center">
                               {isNationalTeam ? (
                                 <MyCircularFlag
                                   teamName={standing.team.name}
                                   size="20px"
-                                  className="mr-2"
+                                  className="mr-3"
                                   fallbackUrl={standing.team.logo}
                                 />
                               ) : (
                                 <img
                                   src={standing.team.logo}
                                   alt={standing.team.name}
-                                  className="mr-2 h-5 w-5 rounded-full"
+                                  className="mr-3 h-5 w-5 rounded-full"
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src =
                                       "/assets/fallback-logo.svg";
@@ -586,160 +589,59 @@ const LeagueStandingsFilter = () => {
                                 />
                               )}
                               <div className="flex flex-col">
-                                <div className="flex items-center">
-                                  <span className="text-[0.9em] font-medium">
-                                    {standing.team.name}
-                                  </span>
-                                  {standing.rank === 1 && (
-                                    <span className="ml-2">👑</span>
-                                  )}
-                                </div>
+                                <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
+                                  {standing.team.name}
+                                </span>
                                 {standing.description && (
-                                  <span className="text-[0.75em] text-blue-500 font-medium">
+                                  <span className="text-xs text-orange-500 font-medium truncate max-w-[140px]">
                                     {standing.description}
                                   </span>
                                 )}
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
+                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
                             {stats.played}
                           </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
+                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
                             {stats.goals.for}:{stats.goals.against}
                           </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
-                            {standing.goalsDiff > 0 ? "+" : ""}
-                            {standing.goalsDiff}
+                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
+                            {standing.goalsDiff > 0 ? "+" : ""}{standing.goalsDiff}
                           </TableCell>
-                          <TableCell className="text-center font-bold text-[0.9em]">
+                          <TableCell className="text-center py-3 px-2 text-sm font-bold text-gray-900">
                             {standing.points}
                           </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
+                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
                             {stats.win}
                           </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
+                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
                             {stats.draw}
                           </TableCell>
-                          <TableCell className="text-center text-[0.9em]">
+                          <TableCell className="text-center py-3 px-2 text-sm text-gray-700">
                             {stats.lose}
                           </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex gap-1 justify-center">
+                          <TableCell className="text-center py-3 px-2">
+                            <div className="flex gap-0.5 justify-center">
                               {standing.form
                                 ?.split("")
                                 .slice(-5)
                                 .map((result, i) => (
                                   <span
                                     key={i}
-                                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white ${
+                                    className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-bold text-white ${
                                       result === "W"
                                         ? "bg-green-500"
                                         : result === "D"
                                           ? "bg-yellow-500"
-                                          : "bg-red-500"
+                                          : result === "L"
+                                            ? "bg-red-500"
+                                            : "bg-gray-400"
                                     }`}
                                   >
                                     {result}
                                   </span>
                                 ))}
-                            </div>
-                          </TableCell>
-                          <TableCell className="px-2 py-2 relative group">
-                            <div className="flex items-center justify-center gap-2">
-                              {standings?.league?.standings?.[0]?.find(
-                                (opponent) =>
-                                  opponent.team.id !== standing.team.id &&
-                                  opponent.rank > standing.rank,
-                              ) && (
-                                <>
-                                  {isNationalTeam ? (
-                                    <MyCircularFlag
-                                      teamName={
-                                        standings?.league?.standings?.[0]?.find(
-                                          (opponent) =>
-                                            opponent.team.id !==
-                                              standing.team.id &&
-                                            opponent.rank > standing.rank,
-                                        )?.team.name || ""
-                                      }
-                                      size="16px"
-                                      className="hover:scale-110 transition-transform"
-                                      fallbackUrl={
-                                        standings?.league?.standings?.[0]?.find(
-                                          (opponent) =>
-                                            opponent.team.id !==
-                                              standing.team.id &&
-                                            opponent.rank > standing.rank,
-                                        )?.team.logo
-                                      }
-                                    />
-                                  ) : (
-                                    <img
-                                      src={
-                                        standings?.league?.standings?.[0]?.find(
-                                          (opponent) =>
-                                            opponent.team.id !==
-                                              standing.team.id &&
-                                            opponent.rank > standing.rank,
-                                        )?.team.logo
-                                      }
-                                      alt={`Next opponent: ${
-                                        standings?.league?.standings?.[0]?.find(
-                                          (opponent) =>
-                                            opponent.team.id !==
-                                              standing.team.id &&
-                                            opponent.rank > standing.rank,
-                                        )?.team.name
-                                      }`}
-                                      className="w-4 h-4 hover:scale-110 transition-transform"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).src =
-                                          "/assets/fallback-logo.svg";
-                                      }}
-                                    />
-                                  )}
-                                  <div className="absolute opacity-0 group-hover:opacity-100 bg-white shadow-lg rounded-md p-2 z-50 right-8 top-1/2 transform -translate-y-1/2 whitespace-nowrap transition-opacity duration-200">
-                                    <div className="text-xs">
-                                      <span className="font-medium">
-                                        {standing.team.name}
-                                      </span>
-                                      <span className="mx-2">vs</span>
-                                      <span className="font-medium">
-                                        {
-                                          standings?.league?.standings?.[0]?.find(
-                                            (opponent) =>
-                                              opponent.team.id !==
-                                                standing.team.id &&
-                                              opponent.rank > standing.rank,
-                                          )?.team.name
-                                        }
-                                      </span>
-                                      <div className="text-gray-500 mt-1">
-                                        {(() => {
-                                          const nextMatch = fixtures?.find(
-                                            (f) =>
-                                              (f.teams.home.id ===
-                                                standing.team.id ||
-                                                f.teams.away.id ===
-                                                  standing.team.id) &&
-                                              new Date(f.fixture.date) >
-                                                new Date(),
-                                          );
-                                          return nextMatch
-                                            ? format(
-                                                parseISO(
-                                                  nextMatch.fixture.date,
-                                                ),
-                                                "dd/MM/yyyy",
-                                              )
-                                            : "No upcoming matches";
-                                        })()}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
                             </div>
                           </TableCell>
                         </TableRow>
