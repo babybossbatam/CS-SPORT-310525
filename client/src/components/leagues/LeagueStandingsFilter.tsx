@@ -584,23 +584,22 @@ const LeagueStandingsFilter = () => {
                                 />
                               )}
                               <div className="flex flex-col">
-                                        <div className="flex items-center">
-                                          <span className="text-[0.9em] font-medium">
-                                            {standing.team.name}
-                                          </span>
-                                          {standing.rank === 1 && (
-                                            <span className="ml-2">👑</span>
-                                          )}
-                                        </div>
-                                        {standing.description && (
-                                          <span className="text-[0.75em] text-blue-500 font-medium">
-                                            {standing.description}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </TableCell>
+                                <div className="flex items-center">
+                                  <span className="text-[0.9em] font-medium">
+                                    {standing.team.name}
+                                  </span>
+                                  {standing.rank === 1 && (
+                                    <span className="ml-2">👑</span>
+                                  )}
+                                </div>
+                                {standing.description && (
+                                  <span className="text-[0.75em] text-blue-500 font-medium">
+                                    {standing.description}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
                                 <TableCell className="text-center text-[0.9em]">
                                   {stats.played}
                                 </TableCell>
