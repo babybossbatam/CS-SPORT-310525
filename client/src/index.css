@@ -99,6 +99,25 @@ body {
   border-radius: 50%;
 }
 
+/* Fix for dropdown causing main layout shift */
+[data-radix-select-content] {
+  position: fixed !important;
+  z-index: 9999 !important;
+  max-width: 400px !important;
+  transform-origin: var(--radix-select-content-transform-origin);
+}
+
+/* Ensure select trigger doesn't overflow */
+[data-radix-select-trigger] {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Prevent horizontal overflow on main content */
+main {
+  overflow-x: hidden !important;
+}
+
 :root {
       --background: 0 0% 100%;
 --foreground: 20 14.3% 4.1%;

@@ -283,7 +283,9 @@ const LeagueStandingsFilter = () => {
             align="start"
             sideOffset={4}
             position="popper"
-            className="z-[100] min-w-[var(--radix-select-trigger-width)] max-h-60 overflow-auto"
+            className="z-[9999] min-w-[var(--radix-select-trigger-width)] max-w-[400px] max-h-60 overflow-auto"
+            avoidCollisions={true}
+            collisionPadding={8}
           >
             {popularLeagues
               .filter((league) => league && league.id && league.name)
