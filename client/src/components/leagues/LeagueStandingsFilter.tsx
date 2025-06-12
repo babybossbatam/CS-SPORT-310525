@@ -435,27 +435,18 @@ const LeagueStandingsFilter = () => {
                                 </TableCell>
                                 <TableCell className="flex flex-col font-normal pl-2 ">
                                   <div className="flex items-center">
-                                    {isNationalTeam ? (
-                                      <MyCircularFlag
-                                        teamName={standing.team.name}
-                                        size="20px"
-                                        className="mr-2"
-                                        fallbackUrl={standing.team.logo}
-                                      />
-                                    ) : (
-                                      <img
-                                        src={standing.team.logo}
-                                        alt={standing.team.name}
-                                        className="mr-2 h-5 w-5 rounded-full"
-                                        onError={(e) => {
-                                          (e.target as HTMLImageElement).src =
-                                            "/assets/fallback-logo.svg";
-                                          <span className="text-[0.9em]">
-                                            {standing.team.name}
-                                          </span>;
-                                        }}
-                                      />
-                                    )}
+                                    <img
+                                      src={standing.team.logo}
+                                      alt={standing.team.name}
+                                      className="mr-2 h-5 w-5 rounded-md object-contain"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).src =
+                                          "/assets/fallback-logo.svg";
+                                      }}
+                                    />
+                                    <span className="text-[0.9em]">
+                                      {standing.team.name}
+                                    </span>
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-center text-[0.9em]">
@@ -486,45 +477,22 @@ const LeagueStandingsFilter = () => {
                                         opponent.team.id !== standing.team.id &&
                                         opponent.rank > standing.rank,
                                     ) &&
-                                      (isNationalTeam ? (
-                                        <MyCircularFlag
-                                          teamName={
-                                            group.find(
-                                              (opponent) =>
-                                                opponent.team.id !==
-                                                  standing.team.id &&
-                                                opponent.rank > standing.rank,
-                                            )?.team.name || ""
-                                          }
-                                          size="16px"
-                                          className="hover:scale-110 transition-transform"
-                                          fallbackUrl={
-                                            group.find(
-                                              (opponent) =>
-                                                opponent.team.id !==
-                                                  standing.team.id &&
-                                                opponent.rank > standing.rank,
-                                            )?.team.logo
-                                          }
-                                        />
-                                      ) : (
-                                        <img
-                                          src={
-                                            group.find(
-                                              (opponent) =>
-                                                opponent.team.id !==
-                                                  standing.team.id &&
-                                                opponent.rank > standing.rank,
-                                            )?.team.logo
-                                          }
-                                          alt={`Next opponent`}
-                                          className="w-4 h-4 hover:scale-110 transition-transform"
-                                          onError={(e) => {
-                                            (e.target as HTMLImageElement).src =
-                                              "/assets/fallback-logo.svg";
-                                          }}
-                                        />
-                                      ))}
+                                      <img
+                                        src={
+                                          group.find(
+                                            (opponent) =>
+                                              opponent.team.id !==
+                                                standing.team.id &&
+                                              opponent.rank > standing.rank,
+                                          )?.team.logo
+                                        }
+                                        alt={`Next opponent`}
+                                        className="w-4 h-4 rounded-sm object-contain hover:scale-110 transition-transform"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).src =
+                                            "/assets/fallback-logo.svg";
+                                        }}
+                                      />}
                                   </div>
                                 </TableCell>
                               </TableRow>
@@ -594,24 +562,15 @@ const LeagueStandingsFilter = () => {
                             </TableCell>
                             <TableCell className="py-2 px-3">
                               <div className="flex items-center">
-                                {isNationalTeam ? (
-                                  <MyCircularFlag
-                                    teamName={standing.team.name}
-                                    size="24px"
-                                    className="mr-3 flex-shrink-0"
-                                    fallbackUrl={standing.team.logo}
-                                  />
-                                ) : (
-                                  <img
-                                    src={standing.team.logo}
-                                    alt={standing.team.name}
-                                    className="mr-3 h-6 w-6 rounded-full flex-shrink-0"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src =
-                                        "/assets/fallback-logo.svg";
-                                    }}
-                                  />
-                                )}
+                                <img
+                                  src={standing.team.logo}
+                                  alt={standing.team.name}
+                                  className="mr-3 h-6 w-6 rounded-md flex-shrink-0 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src =
+                                      "/assets/fallback-logo.svg";
+                                  }}
+                                />
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="text-sm font-medium text-gray-900 truncate">
                                     {standing.team.name}
