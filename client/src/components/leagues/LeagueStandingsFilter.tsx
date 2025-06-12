@@ -93,13 +93,29 @@ const LeagueStandingsFilter = () => {
       } catch (error) {
         console.error('Failed to load league data:', error);
         
-        // Fallback to popular leagues if network fails
+        // Fallback to popular leagues including recent international competitions
         const fallbackLeagues = [
+          { id: 2, name: 'UEFA Champions League', logo: '', country: 'Europe' },
+          { id: 3, name: 'UEFA Europa League', logo: '', country: 'Europe' },
+          { id: 848, name: 'UEFA Conference League', logo: '', country: 'Europe' },
+          { id: 5, name: 'UEFA Nations League', logo: '', country: 'Europe' },
+          { id: 4, name: 'Euro Championship', logo: '', country: 'Europe' },
+          { id: 15, name: 'FIFA World Cup', logo: '', country: 'World' },
+          { id: 32, name: 'UEFA WC Qualification - Group A', logo: '', country: 'Europe' },
+          { id: 33, name: 'UEFA WC Qualification - Group B', logo: '', country: 'Europe' },
+          { id: 34, name: 'UEFA WC Qualification - Group C', logo: '', country: 'Europe' },
+          { id: 35, name: 'UEFA WC Qualification - Group D', logo: '', country: 'Europe' },
+          { id: 36, name: 'UEFA WC Qualification - Group E', logo: '', country: 'Europe' },
+          { id: 37, name: 'UEFA WC Qualification - Group F', logo: '', country: 'Europe' },
+          { id: 38, name: 'UEFA WC Qualification - Group G', logo: '', country: 'Europe' },
           { id: 39, name: 'Premier League', logo: '', country: 'England' },
           { id: 140, name: 'La Liga', logo: '', country: 'Spain' },
           { id: 135, name: 'Serie A', logo: '', country: 'Italy' },
           { id: 78, name: 'Bundesliga', logo: '', country: 'Germany' },
           { id: 61, name: 'Ligue 1', logo: '', country: 'France' },
+          { id: 9, name: 'Copa America', logo: '', country: 'South America' },
+          { id: 10, name: 'African Cup of Nations', logo: '', country: 'Africa' },
+          { id: 11, name: 'Asian Cup', logo: '', country: 'Asia' },
         ];
         
         setPopularLeagues(fallbackLeagues);

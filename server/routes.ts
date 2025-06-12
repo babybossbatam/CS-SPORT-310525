@@ -478,18 +478,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try to get from cached leagues first
       const allLeagues = await storage.getAllCachedLeagues();
 
-      // Define popular league IDs with priorities
+      // Define popular league IDs with priorities including recent international competitions
       const popularLeagueIds = [
         { id: 2, priority: 1 }, // Champions League
-        { id: 39, priority: 2 }, // Premier League
-        { id: 140, priority: 3 }, // La Liga
-        { id: 135, priority: 4 }, // Serie A
-        { id: 78, priority: 5 }, // Bundesliga
-        { id: 3, priority: 6 }, // Europa League
-        { id: 137, priority: 7 }, // Coppa Italia
-        { id: 45, priority: 8 }, // FA Cup
-        { id: 40, priority: 9 }, // Community Shield
-        { id: 48, priority: 10 } // EFL Cup
+        { id: 3, priority: 2 }, // Europa League
+        { id: 848, priority: 3 }, // Conference League
+        { id: 5, priority: 4 }, // UEFA Nations League
+        { id: 4, priority: 5 }, // Euro Championship
+        { id: 15, priority: 6 }, // FIFA World Cup
+        { id: 32, priority: 7 }, // UEFA WC Qualification
+        { id: 39, priority: 8 }, // Premier League
+        { id: 140, priority: 9 }, // La Liga
+        { id: 135, priority: 10 }, // Serie A
+        { id: 78, priority: 11 }, // Bundesliga
+        { id: 61, priority: 12 }, // Ligue 1
+        { id: 9, priority: 13 }, // Copa America
+        { id: 10, priority: 14 }, // African Cup of Nations
+        { id: 11, priority: 15 }, // Asian Cup
+        { id: 137, priority: 16 }, // Coppa Italia
+        { id: 45, priority: 17 }, // FA Cup
+        { id: 40, priority: 18 }, // Community Shield
+        { id: 48, priority: 19 } // EFL Cup
       ];
 
       // If we have cached leagues, filter and sort them
