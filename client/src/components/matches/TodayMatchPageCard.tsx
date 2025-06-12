@@ -207,11 +207,12 @@ export const TodayMatchPageCard = ({
                       "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
                     row: "flex w-full mt-2",
                     cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                    day: "h-6 w-6 p-0 font-normal aria-selected:opacity-100 hover:bg-gray-100 rounded-full",
+                    day: "h-6 w-6 p-0 text-xs font-normal aria-selected:opacity-100 hover:bg-gray-300 rounded-full border-transparent",
                     day_range_end: "day-range-end",
                     day_selected:
                       "bg-blue-500 text-white hover:bg-stone-300 hover:text-gray-900 focus:bg-blue-400 focus:text-white rounded-full",
-                    day_today: "text-blue-600 font-normal rounded-full",
+                    day_today:
+                      "text-blue-500 font-normal hover:text-gray-900 hover:bg-stone-300 rounded-full ",
                     day_outside:
                       "day-outside text-gray-400 opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-100",
                     day_disabled: "text-gray-400 opacity-50",
@@ -220,10 +221,10 @@ export const TodayMatchPageCard = ({
                     day_hidden: "invisible",
                   }}
                 />
-                <div className="flex justify-center pt-3 border-t mt-3">
+                <div className="flex justify-center pt-2 ">
                   <button
                     onClick={goToToday}
-                    className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                    className="text-blue-500 hover:bg-stone-300 text-sm font-medium"
                   >
                     Today
                   </button>
