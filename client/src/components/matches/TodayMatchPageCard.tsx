@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card } from "../ui/card";
-import { Calendar, Filter, Activity } from "lucide-react";
+import { Filter, Activity } from "lucide-react";
+import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useTodayPopularFixtures } from "../../hooks/useTodayPopularFixtures";
@@ -17,7 +18,10 @@ import {
   getCurrentUTCDateString,
 } from "@/lib/dateUtilsUpdated";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { shouldExcludeFromPopularLeagues, isRestrictedUSLeague } from "@/lib/MyPopularLeagueExclusion";
+import {
+  shouldExcludeFromPopularLeagues,
+  isRestrictedUSLeague,
+} from "@/lib/MyPopularLeagueExclusion";
 
 interface TodayMatchPageCardProps {
   fixtures: any[];
@@ -133,7 +137,9 @@ export const TodayMatchPageCard = ({
   // Use the shared fixtures data for all components
   const { filteredFixtures, isLoading } = useTodayPopularFixtures(selectedDate);
 
-  console.log(`📊 [TodayMatchPageCard] Got ${filteredFixtures.length} fixtures for ${selectedDate}`);
+  console.log(
+    `📊 [TodayMatchPageCard] Got ${filteredFixtures.length} fixtures for ${selectedDate}`,
+  );
 
   // Extract the same fixtures that TodayPopularFootballLeaguesNew would show
   // We need to flatten the fixtures from the country/league structure to individual matches
@@ -158,7 +164,10 @@ export const TodayMatchPageCard = ({
           <div className="relative h-full flex items-center" ref={calendarRef}>
             <button
               onClick={() => {
-                console.log("Calendar button clicked, current state:", isCalendarOpen);
+                console.log(
+                  "Calendar button clicked, current state:",
+                  isCalendarOpen,
+                );
                 setIsCalendarOpen(!isCalendarOpen);
               }}
               className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
@@ -333,7 +342,9 @@ export const TodayMatchPageCard = ({
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component with shared data
         <>
-          {console.log(`📊 [TodayMatchPageCard] Passing ${popularLeagueFixtures.length} fixtures to TodayMatchByTime`)}
+          {console.log(
+            `📊 [TodayMatchPageCard] Passing ${popularLeagueFixtures.length} fixtures to TodayMatchByTime`,
+          )}
           <TodayMatchByTime
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
