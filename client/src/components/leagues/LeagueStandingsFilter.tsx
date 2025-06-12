@@ -419,7 +419,7 @@ const LeagueStandingsFilter = () => {
             }
           }}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full px-0">
             <SelectValue>
               <div className="flex items-center gap-2">
                 <img
