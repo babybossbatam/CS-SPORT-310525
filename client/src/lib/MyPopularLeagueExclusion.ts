@@ -26,8 +26,7 @@ export const popularLeagueExclusionTerms = [
   "u18",
   "u19",
   "u20",
-  "u21",
-  "u23",
+
   "youth",
   "junior",
   "reserve",
@@ -271,12 +270,8 @@ export function isPopularLeagueSuitable(
   }
 
   // Exclude leagues with problematic terms
-  const hasExclusionTerms = popularLeagueExclusionTerms.some(
-    (term) =>
-      (league.includes("u21") &&
-        !league.includes("uefa") &&
-        !league.includes("euro")) ||
-      league.includes(term),
+  const hasExclusionTerms = popularLeagueExclusionTerms.some((term) =>
+    league.includes(term),
   );
 
   return !hasExclusionTerms;

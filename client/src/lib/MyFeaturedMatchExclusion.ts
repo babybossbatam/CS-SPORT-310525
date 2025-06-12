@@ -27,8 +27,7 @@ export const featuredMatchExclusionTerms = [
   "u18",
   "u19",
   "u20",
-  "u21",
-  "u23",
+
   "youth",
   "junior",
   "reserve",
