@@ -245,7 +245,7 @@ const LeagueStandingsFilter = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className=" flex-row items-center justify-between h-18 column">
         <Select
           value={selectedLeague}
           onValueChange={(value) => {
@@ -283,7 +283,7 @@ const LeagueStandingsFilter = () => {
             align="start"
             sideOffset={4}
             position="popper"
-            className="z-50 min-w-[var(--radix-select-trigger-width)] max-h-60 overflow-auto"
+            className="z-[100] min-w-[var(--radix-select-trigger-width)] max-h-60 overflow-auto"
           >
             {popularLeagues
               .filter((league) => league && league.id && league.name)
