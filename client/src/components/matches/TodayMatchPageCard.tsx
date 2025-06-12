@@ -157,7 +157,10 @@ export const TodayMatchPageCard = ({
           </button>
           <div className="relative h-full flex items-center" ref={calendarRef}>
             <button
-              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              onClick={() => {
+                console.log("Calendar button clicked, current state:", isCalendarOpen);
+                setIsCalendarOpen(!isCalendarOpen);
+              }}
               className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
             >
               <span className="font-medium">
@@ -170,8 +173,8 @@ export const TodayMatchPageCard = ({
 
             {isCalendarOpen && (
               <div
-                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white rounded-lg shadow-lg p-2 w-[300px]"
-                style={{ marginLeft: "0px" }}
+                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-[320px]"
+                onClick={(e) => e.stopPropagation()}
               >
                 <Calendar
                   mode="single"
