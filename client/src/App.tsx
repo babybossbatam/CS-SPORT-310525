@@ -4,14 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Suspense, lazy, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { debugLogger } from "./lib/debugLogger";
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '@/lib/queryClient';
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 
-import React from 'react';
-import { Provider } from 'react-redux';
-import { store } from '@/lib/store';
-import { setupGlobalErrorHandlers } from './lib/errorHandler';
-import { CentralDataProvider } from './providers/CentralDataProvider';
+import React from "react";
+import { Provider } from "react-redux";
+import { store } from "@/lib/store";
+import { setupGlobalErrorHandlers } from "./lib/errorHandler";
+import { CentralDataProvider } from "./providers/CentralDataProvider";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -31,39 +31,32 @@ const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
-  );
-}
-
 function Router() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/football" component={Football} />
-        <Route path="/basketball" component={Basketball} />
-        <Route path="/baseball" component={Baseball} />
-        <Route path="/tennis" component={Tennis} />
-        <Route path="/hockey" component={Hockey} />
-        <Route path="/login" component={() => <Authentication mode="login" />} />
-        <Route path="/register" component={() => <Authentication mode="register" />} />
-        <Route path="/match/:id" component={MatchDetails} />
-        <Route path="/match/:id/:tab" component={MatchDetails} />
-        <Route path="/league/:id" component={LeagueDetails} />
-        <Route path="/league/:id/:tab" component={LeagueDetails} />
-        <Route path="/my-scores" component={MyScores} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/search" component={SearchResults} />
-        <Route path="/live" component={LiveMatches} />
-        <Route path="/news/:id" component={NewsPage} />
-        <Route path="/scoreboard-demo" component={ScoreboardDemo} />
-        <Route component={NotFound} />
-      </Switch>
-    </Suspense>
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/football" component={Football} />
+      <Route path="/basketball" component={Basketball} />
+      <Route path="/baseball" component={Baseball} />
+      <Route path="/tennis" component={Tennis} />
+      <Route path="/hockey" component={Hockey} />
+      <Route path="/login" component={() => <Authentication mode="login" />} />
+      <Route
+        path="/register"
+        component={() => <Authentication mode="register" />}
+      />
+      <Route path="/match/:id" component={MatchDetails} />
+      <Route path="/match/:id/:tab" component={MatchDetails} />
+      <Route path="/league/:id" component={LeagueDetails} />
+      <Route path="/league/:id/:tab" component={LeagueDetails} />
+      <Route path="/my-scores" component={MyScores} />
+      <Route path="/settings" component={Settings} />
+      <Route path="/search" component={SearchResults} />
+      <Route path="/live" component={LiveMatches} />
+      <Route path="/news/:id" component={NewsPage} />
+      <Route path="/scoreboard-demo" component={ScoreboardDemo} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
@@ -81,32 +74,29 @@ const cleanupCacheRefresh = () => {
 };
 
 const preloadData = () => {
-    // Implement logic to preload data for components
-}
+  // Implement logic to preload data for components
+};
 
 function AppContent() {
-  return (
-    <Router />
-  );
+  return <Router />;
 }
 
 function App() {
   // Initialize global error handlers
   React.useEffect(() => {
     setupGlobalErrorHandlers();
-  }, []);
-
-  useEffect(() => {
-    // Initialize cache refresh system
-    setupCacheRefresh();
-
-    // Preload critical data
-    preloadData();
-
-    // Cleanup on unmount
-    return () => {
-      cleanupCacheRefresh();
-    };
+    // Add additional error handling for dynamic imports
+    window.addEventListener("unhandledrejection", (event) => {
+      if (
+        event.reason?.message?.includes(
+          "Failed to fetch dynamically imported module",
+        )
+      ) {
+        console.error("Dynamic import error caught:", event.reason);
+        // Optionally show a user-friendly message
+        event.preventDefault();
+      }
+    });
   }, []);
 
   return (
@@ -114,7 +104,9 @@ function App() {
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
         <QueryClientProvider client={queryClient}>
-          <CentralDataProvider selectedDate={new Date().toISOString().slice(0, 10)}>
+          <CentralDataProvider
+            selectedDate={new Date().toISOString().slice(0, 10)}
+          >
             <Provider store={store}>
               <AppContent />
             </Provider>
