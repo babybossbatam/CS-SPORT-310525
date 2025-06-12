@@ -401,7 +401,7 @@ const LeagueStandingsFilter = () => {
                             <TableHead className="w-[40px] text-center">
                               #
                             </TableHead>
-                            <TableHead className="pl-4">Team</TableHead>
+                            <TableHead className="pl-4 min-w-[200px]">Team</TableHead>
                             <TableHead className="text-center">P</TableHead>
                             <TableHead className="text-center">F:A</TableHead>
                             <TableHead className="text-center">+/-</TableHead>
@@ -535,7 +535,7 @@ const LeagueStandingsFilter = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[40px] text-center">#</TableHead>
-                    <TableHead className="pl-4">Team</TableHead>
+                    <TableHead className="pl-4 min-w-[200px]">Team</TableHead>
                     <TableHead className="text-center">P</TableHead>
                     <TableHead className="text-center">F:A</TableHead>
                     <TableHead className="text-center">+/-</TableHead>
