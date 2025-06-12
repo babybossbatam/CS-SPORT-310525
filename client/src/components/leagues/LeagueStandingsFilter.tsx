@@ -659,7 +659,7 @@ const LeagueStandingsFilter = () => {
                                           teamName={standing.team.name}
                                           fallbackUrl={standing.team.logo}
                                           alt={standing.team.name}
-                                          size="20px"
+                                          size="28px"
                                           className="popular-leagues-size"
                                         />
                                       </div>
@@ -667,40 +667,40 @@ const LeagueStandingsFilter = () => {
                                       <img
                                         src={standing.team.logo}
                                         alt={standing.team.name}
-                                        className="mr-2 h-5 w-5 rounded-full object-contain"
+                                        className=" h-5 w-5 rounded-md object-cover"
                                         onError={(e) => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
                                         }}
                                       />
                                     )}
-                                    <span className="text-[0.9em]">
+                                    <span className="text-[0.9em] px-1">
                                       {standing.team.name}
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
+                                <TableCell className="text-center text-[0.9em] px-1">
                                   {stats.played}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
+                                <TableCell className="text-center text-[0.9em] px-1">
                                   {stats.goals.for}:{stats.goals.against}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
+                                <TableCell className="text-center text-[0.9em] px-1">
                                   {standing.goalsDiff}
                                 </TableCell>
-                                <TableCell className="text-center font-bold text-[0.9em]">
+                                <TableCell className="text-center font-bold text-[0.9em] px-1">
                                   {standing.points}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
+                                <TableCell className="text-center text-[0.9em] px-1">
                                   {stats.win}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
+                                <TableCell className="text-center text-[0.9em] px-1">
                                   {stats.draw}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em]">
+                                <TableCell className="text-center text-[0.9em] px-1">
                                   {stats.lose}
                                 </TableCell>
-                                <TableCell className="px-2 py-2">
+                                <TableCell className="px-1 py-1">
                                   <div className="flex items-center justify-center">
                                     {group.find(
                                       (opponent) =>
@@ -717,7 +717,7 @@ const LeagueStandingsFilter = () => {
                                           )?.team.logo
                                         }
                                         alt={`Next opponent`}
-                                        className="w-4 h-4 rounded-sm object-contain hover:scale-110 transition-transform"
+                                        className="w-5 h-5 rounded-full object-contain hover:scale-110 transition-transform"
                                         onError={(e) => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
