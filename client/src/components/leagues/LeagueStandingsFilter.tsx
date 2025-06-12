@@ -646,9 +646,9 @@ const LeagueStandingsFilter = () => {
                             return (
                               <TableRow
                                 key={standing.team.id}
-                                className="border-b border-gray-100"
+                                className="border-b  border-gray-100"
                               >
-                                <TableCell className="font-medium text-[0.9em] text-center pl-0">
+                                <TableCell className="font-medium text-[0.9dem] text-center px-4 py-0">
                                   {standing.rank}
                                 </TableCell>
                                 <TableCell className="flex flex-col font-normal pl-2 ">
@@ -656,7 +656,7 @@ const LeagueStandingsFilter = () => {
                                     <img
                                       src={standing.team.logo}
                                       alt={standing.team.name}
-                                      className="mr-2 h-5 w-5 rounded-md object-contain"
+                                      className="mr-2 h-5 w-5 rounded-full object-contain"
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).src =
                                           "/assets/fallback-logo.svg";
