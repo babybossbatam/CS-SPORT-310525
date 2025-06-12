@@ -7,15 +7,16 @@ import { TrendingUp } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// Popular leagues for top scorers excluding cups
+// Current popular leagues for top scorers - matches PopularLeaguesList
 const POPULAR_LEAGUES = [
-  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
+  { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
   { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
-  { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png' },
-  { id: 2, name: 'UCL', logo: 'https://media.api-sports.io/football/leagues/2.png' },
-  { id: 3, name: 'UEL', logo: 'https://media.api-sports.io/football/leagues/3.png' },
-  { id: 39, name: 'EPL', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
   { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
+  { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
+  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
 ];
 
 interface Player {
@@ -161,12 +162,14 @@ const HomeTopScorersList = () => {
                   onClick={() => navigate(`/league/${selectedLeague}/stats`)}
                 >
                   <div className="flex items-center justify-center">
-                    {selectedLeague.toString() === '140' && 'LaLiga Stats'}
                     {selectedLeague.toString() === '39' && 'Premier League Stats'}
+                    {selectedLeague.toString() === '140' && 'La Liga Stats'}
                     {selectedLeague.toString() === '135' && 'Serie A Stats'}
                     {selectedLeague.toString() === '78' && 'Bundesliga Stats'}
+                    {selectedLeague.toString() === '61' && 'Ligue 1 Stats'}
                     {selectedLeague.toString() === '2' && 'Champions League Stats'}
                     {selectedLeague.toString() === '3' && 'Europa League Stats'}
+                    {selectedLeague.toString() === '848' && 'Conference League Stats'}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
                       <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
