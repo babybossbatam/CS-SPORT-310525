@@ -10,6 +10,7 @@ interface LazyMatchItemProps {
   prefetchMargin?: string;
   onPrefetch?: () => Promise<void>;
   priority?: 'high' | 'normal' | 'low';
+  collapsed?: boolean;
 }
 
 // Global intersection observer for better performance
@@ -25,7 +26,8 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
   threshold = 0.1,
   prefetchMargin = '300px',
   onPrefetch,
-  priority = 'normal'
+  priority = 'normal',
+  collapsed = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -125,6 +127,11 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
       </div>
     </div>
   );
+
+  // Don't render anything if collapsed
+  if (collapsed) {
+    return null;
+  }
 
   return (
     <div 
