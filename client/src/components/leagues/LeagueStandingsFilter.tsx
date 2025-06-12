@@ -82,7 +82,9 @@ const LeagueStandingsFilter = () => {
     const loadLeagues = async () => {
       try {
         setLeaguesLoading(true);
-        console.log("🔄 Loading leagues with World Cup qualification support...");
+        console.log(
+          "🔄 Loading leagues with World Cup qualification support...",
+        );
         const leagues = await getPopularLeagues();
 
         // Filter to show only current/active leagues (exclude historical tournaments)
@@ -97,9 +99,10 @@ const LeagueStandingsFilter = () => {
           const country = league.country?.toLowerCase() || "";
 
           // Check if this is a World Cup qualification league - ALWAYS INCLUDE THESE
-          const isWCQualification = leagueName.includes("world cup") || 
-                                   leagueName.includes("wc qual") || 
-                                   leagueName.includes("uefa wc qualification");
+          const isWCQualification =
+            leagueName.includes("world cup") ||
+            leagueName.includes("wc qual") ||
+            leagueName.includes("uefa wc qualification");
 
           // If it's a World Cup qualification, always include it
           if (isWCQualification) {
@@ -183,16 +186,22 @@ const LeagueStandingsFilter = () => {
         }));
 
         console.log(`✅ Loaded ${processedLeagues.length} leagues total`);
-        const wcQualLeagues = processedLeagues.filter(l => 
-          l.name?.toLowerCase().includes("world cup") || 
-          l.name?.toLowerCase().includes("wc qual") || 
-          l.name?.toLowerCase().includes("uefa wc qualification")
+        const wcQualLeagues = processedLeagues.filter(
+          (l) =>
+            l.name?.toLowerCase().includes("world cup") ||
+            l.name?.toLowerCase().includes("wc qual") ||
+            l.name?.toLowerCase().includes("uefa wc qualification"),
         );
-        console.log(`🌍 World Cup qualification leagues found: ${wcQualLeagues.length}`, wcQualLeagues.map(l => l.name));
-        
+        console.log(
+          `🌍 World Cup qualification leagues found: ${wcQualLeagues.length}`,
+          wcQualLeagues.map((l) => l.name),
+        );
+
         // If no WC qualification leagues found, force use of fallback
         if (wcQualLeagues.length === 0) {
-          console.log("⚠️ No WC qualification leagues found in API response, using fallback");
+          console.log(
+            "⚠️ No WC qualification leagues found in API response, using fallback",
+          );
           throw new Error("No WC qualification leagues found");
         }
 
@@ -303,8 +312,18 @@ const LeagueStandingsFilter = () => {
           { id: 135, name: "Serie A", logo: "", country: "Italy" },
           { id: 78, name: "Bundesliga", logo: "", country: "Germany" },
           { id: 61, name: "Ligue 1", logo: "", country: "France" },
-          { id: 307, name: "Saudi Pro League", logo: "", country: "Saudi Arabia" },
-          { id: 233, name: "Egyptian Premier League", logo: "", country: "Egypt" },
+          {
+            id: 307,
+            name: "Saudi Pro League",
+            logo: "",
+            country: "Saudi Arabia",
+          },
+          {
+            id: 233,
+            name: "Egyptian Premier League",
+            logo: "",
+            country: "Egypt",
+          },
           { id: 9, name: "Copa America", logo: "", country: "South America" },
           {
             id: 10,
@@ -315,7 +334,9 @@ const LeagueStandingsFilter = () => {
           { id: 11, name: "Asian Cup", logo: "", country: "Asia" },
         ];
 
-        console.log("🔄 Using fallback leagues with all WC qualification groups");
+        console.log(
+          "🔄 Using fallback leagues with all WC qualification groups",
+        );
         setPopularLeagues(fallbackLeagues);
 
         // Set default to Premier League
@@ -423,7 +444,7 @@ const LeagueStandingsFilter = () => {
             align="start"
             sideOffset={4}
             position="popper"
-            className="z-[9999] min-w-[var(--radix-select-trigger-width)] max-w-[400px] max-h-96 overflow-auto"
+            className="z-[9999] min-w-[var(--radix-select-trigger-width)] max-w-[400px] max-h-52 overflow-auto"
             avoidCollisions={true}
             collisionPadding={8}
           >
@@ -537,7 +558,7 @@ const LeagueStandingsFilter = () => {
                                       (opponent) =>
                                         opponent.team.id !== standing.team.id &&
                                         opponent.rank > standing.rank,
-                                    ) &&
+                                    ) && (
                                       <img
                                         src={
                                           group.find(
@@ -553,7 +574,8 @@ const LeagueStandingsFilter = () => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
                                         }}
-                                      />}
+                                      />
+                                    )}
                                   </div>
                                 </TableCell>
                               </TableRow>
@@ -571,16 +593,36 @@ const LeagueStandingsFilter = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 border-b border-gray-200">
-                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 w-[40px]">#</TableHead>
-                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 min-w-[180px]">Team</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">P</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[60px]">F:A</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">+/-</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">PTS</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">W</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">D</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">L</TableHead>
-                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[100px]">Form</TableHead>
+                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 w-[40px]">
+                        #
+                      </TableHead>
+                      <TableHead className="text-left text-xs font-semibold text-gray-700 py-3 px-3 min-w-[180px]">
+                        Team
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                        P
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[60px]">
+                        F:A
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">
+                        +/-
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[50px]">
+                        PTS
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                        W
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                        D
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[40px]">
+                        L
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-gray-700 py-3 px-2 w-[100px]">
+                        Form
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -590,20 +632,32 @@ const LeagueStandingsFilter = () => {
                         const stats = standing.all;
                         const isNationalTeam =
                           isNationalTeamCompetition(selectedLeagueName);
-                        
+
                         // Determine qualification status color
-                        const getQualificationColor = (rank: number, description?: string) => {
-                          if (!description) return 'bg-transparent';
-                          
+                        const getQualificationColor = (
+                          rank: number,
+                          description?: string,
+                        ) => {
+                          if (!description) return "bg-transparent";
+
                           const desc = description.toLowerCase();
-                          if (desc.includes('champions league') || desc.includes('promotion')) {
-                            return 'bg-green-500';
-                          } else if (desc.includes('europa') || desc.includes('conference')) {
-                            return 'bg-blue-500';
-                          } else if (desc.includes('relegation') || desc.includes('play-off')) {
-                            return 'bg-red-500';
+                          if (
+                            desc.includes("champions league") ||
+                            desc.includes("promotion")
+                          ) {
+                            return "bg-green-500";
+                          } else if (
+                            desc.includes("europa") ||
+                            desc.includes("conference")
+                          ) {
+                            return "bg-blue-500";
+                          } else if (
+                            desc.includes("relegation") ||
+                            desc.includes("play-off")
+                          ) {
+                            return "bg-red-500";
                           }
-                          return 'bg-gray-400';
+                          return "bg-gray-400";
                         };
 
                         return (
@@ -613,7 +667,7 @@ const LeagueStandingsFilter = () => {
                           >
                             <TableCell className="py-2 px-0 relative">
                               <div className="flex items-center">
-                                <div 
+                                <div
                                   className={`w-1 h-8 rounded-r-sm mr-2 ${getQualificationColor(standing.rank, standing.description)}`}
                                 />
                                 <span className="text-sm font-medium text-gray-900">
@@ -648,19 +702,24 @@ const LeagueStandingsFilter = () => {
                               {stats.played}
                             </TableCell>
                             <TableCell className="text-center py-2 px-2 text-sm text-gray-700">
-                              <span className="font-medium">{stats.goals.for}</span>
+                              <span className="font-medium">
+                                {stats.goals.for}
+                              </span>
                               <span className="text-gray-400 mx-0.5">:</span>
                               <span>{stats.goals.against}</span>
                             </TableCell>
                             <TableCell className="text-center py-2 px-2 text-sm">
-                              <span className={`font-medium ${
-                                standing.goalsDiff > 0 
-                                  ? 'text-green-600' 
-                                  : standing.goalsDiff < 0 
-                                    ? 'text-red-600' 
-                                    : 'text-gray-700'
-                              }`}>
-                                {standing.goalsDiff > 0 ? '+' : ''}{standing.goalsDiff}
+                              <span
+                                className={`font-medium ${
+                                  standing.goalsDiff > 0
+                                    ? "text-green-600"
+                                    : standing.goalsDiff < 0
+                                      ? "text-red-600"
+                                      : "text-gray-700"
+                                }`}
+                              >
+                                {standing.goalsDiff > 0 ? "+" : ""}
+                                {standing.goalsDiff}
                               </span>
                             </TableCell>
                             <TableCell className="text-center py-2 px-2 text-sm font-bold text-gray-900">

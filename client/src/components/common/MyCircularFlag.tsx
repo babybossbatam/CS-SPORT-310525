@@ -1,4 +1,3 @@
-
 import React from "react";
 import { getCountryCode } from "@/lib/flagUtils";
 import { isNationalTeam } from "@/lib/teamLogoSources";
@@ -10,10 +9,6 @@ interface MyCircularFlagProps {
   size?: string;
   className?: string;
   moveLeft?: boolean;
-  leagueContext?: {
-    name: string;
-    country: string;
-  };
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
@@ -23,11 +18,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   size = "64px",
   className = "",
   moveLeft = false,
-  leagueContext,
 }) => {
-  // Check if this is a national team
-  const isNational = isNationalTeam({ name: teamName }, leagueContext);
-
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
@@ -95,39 +86,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     // Final fallback
     return fallbackUrl || "/assets/fallback-logo.svg";
   };
-
-  // If not a national team, render regular team logo
-  if (!isNational) {
-    return (
-      <div
-        className={`team-logo-container ${className}`}
-        style={{
-          width: size,
-          height: size,
-          position: "relative",
-          left: moveLeft ? "-16px" : "4px",
-        }}
-      >
-        <img
-          src={fallbackUrl || "/assets/fallback-logo.svg"}
-          alt={alt || teamName}
-          className="team-logo"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            borderRadius: "8px",
-          }}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            if (!target.src.includes("/assets/fallback-logo.svg")) {
-              target.src = "/assets/fallback-logo.svg";
-            }
-          }}
-        />
-      </div>
-    );
-  }
 
   // For national teams, use the circular flag format
   return (
