@@ -679,7 +679,7 @@ const LeagueStandingsFilter = () => {
                                   }}
                                 />
                                 <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-sm font-medium text-gray-900 truncate">
+                                  <span className="text-[0.85rem] font-semi-bold text-gray-900 truncate">
                                     {standing.team.name}
                                   </span>
                                   {standing.description && (
