@@ -1177,10 +1177,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             alt={teamName}
                             size="64px"
                             className="featured-match-size"
-                            leagueContext={{
-                              name: currentMatch?.league?.name || "",
-                              country: currentMatch?.league?.country || "",
-                            }}
                           />
                         </div>
                       );
@@ -1313,10 +1309,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           size="64px"
                           className="featured-match-size"
                           moveLeft={true}
-                          leagueContext={{
-                            name: currentMatch?.league?.name || "",
-                            country: currentMatch?.league?.country || "",
-                          }}
                         />
                       </div>
                     );
