@@ -656,7 +656,7 @@ const LeagueStandingsFilter = () => {
                   </TableHeader>
                   <TableBody>
                     {standings.league.standings[0]
-                      ?.slice(0, 7)
+                      ?.slice(0, 3)
                       .map((standing: Standing, index: number) => {
                         const stats = standing.all;
                         const isNationalTeam =
