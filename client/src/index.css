@@ -4,15 +4,8 @@
 
 /* Prevent scrollbars from reducing page width */
 html {
-  scrollbar-gutter: stable both-edges;
-  overflow-y: scroll;
-}
-
-/* Force consistent scrollbar space */
-body {
-  overflow-x: hidden;
-  overflow-y: auto;
   scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
 
 /* Modern browsers - overlay scrollbars */
@@ -42,14 +35,9 @@ body {
   background: rgba(0, 0, 0, 0.5);
 }
 
-/* Additional fix for dropdown-induced layout shift */
-* {
-  box-sizing: border-box;
-}
-
-/* Ensure dropdowns don't affect document flow */
-[data-radix-select-content] {
-  position: fixed !important;
+/* Ensure consistent viewport width */
+body {
+  overflow-x: hidden;
 }
 
 /* Disable card hover effect when star buttons are being hovered */
