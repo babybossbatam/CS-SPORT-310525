@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCachedQuery } from '@/lib/cachingHelper';
 import { useLocation } from 'wouter';
@@ -6,6 +6,17 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { TrendingUp } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+// Add CSS to hide scrollbars
+const scrollbarHideStyle = `
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
 
 // Comprehensive leagues for top scorers - matches LeagueStandingsFilter dropdown
 const POPULAR_LEAGUES = [
@@ -93,39 +104,59 @@ const HomeTopScorersList = () => {
     );
   }
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -200,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 200,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
+      <div className="space-y-4">
       <Tabs value={selectedLeague.toString()} onValueChange={(value) => setSelectedLeague(Number(value))}>
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => {
-              const currentIndex = POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague);
-              const prevLeague = currentIndex > 0 ? POPULAR_LEAGUES[currentIndex - 1] : POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1];
-              setSelectedLeague(prevLeague.id);
-            }}
-            className="p-1 hover:bg-gray-200 rounded"
+            onClick={scrollLeft}
+            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10"
           >
             ←
           </button>
-          <TabsList className="flex items-center gap-2 bg-transparent p-0 w-full overflow-x-auto">
-            {POPULAR_LEAGUES.map((league) => (
-              <TabsTrigger
-                key={league.id}
-                value={league.id.toString()}
-                className="text-xs py-1 px-2 flex items-center gap-2 bg-transparent hover:bg-gray-100 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
-                <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
-                {league.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div 
+            ref={scrollContainerRef}
+            className="overflow-x-auto overflow-y-hidden scrollbar-hide flex-1"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <TabsList className="flex items-center gap-2 bg-transparent p-0 w-max min-w-full">
+              {POPULAR_LEAGUES.map((league) => (
+                <TabsTrigger
+                  key={league.id}
+                  value={league.id.toString()}
+                  className="text-xs py-1 px-2 flex items-center gap-2 bg-transparent hover:bg-gray-100 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none whitespace-nowrap flex-shrink-0"
+                >
+                  <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
+                  {league.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
           <button 
-            onClick={() => {
-              const currentIndex = POPULAR_LEAGUES.findIndex(l => l.id === selectedLeague);
-              const nextLeague = currentIndex < POPULAR_LEAGUES.length - 1 ? POPULAR_LEAGUES[currentIndex + 1] : POPULAR_LEAGUES[0];
-              setSelectedLeague(nextLeague.id);
-            }}
-            className="p-1 hover:bg-gray-200 rounded"
+            onClick={scrollRight}
+            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10"
           >
             →
           </button>
@@ -204,6 +235,7 @@ const HomeTopScorersList = () => {
         ))}
       </Tabs>
     </div>
+    </>
   );
 };
 
