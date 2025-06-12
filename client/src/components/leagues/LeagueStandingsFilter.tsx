@@ -667,7 +667,7 @@ const LeagueStandingsFilter = () => {
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="py-2 px-3">
+                            <TableCell className="py-0 px-2">
                               <div className="flex items-center">
                                 <img
                                   src={standing.team.logo}
