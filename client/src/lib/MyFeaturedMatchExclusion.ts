@@ -1,4 +1,3 @@
-
 /**
  * Specialized exclusion filters for MyHomeFeaturedMatchNew component
  * This provides targeted filtering for the featured match display to ensure only high-quality matches are shown
@@ -73,19 +72,19 @@ export const featuredMatchExclusionTerms = [
   "oberliga niedersachsen",
   "oberliga rheinland",
   "oberliga schleswig",
-  "oberliga thüringen"
+  "oberliga thüringen",
 ];
 
 // Safe substring helper function
 function safeSubstring(str: string, start: number, end?: number): string {
-  if (!str || typeof str !== 'string') return '';
+  if (!str || typeof str !== "string") return "";
   return str.substring(start, end);
 }
 
 /**
  * Check if a fixture should be excluded from popular leagues display
  * This is the main exclusion function copied from MyPopularLeagueExclusion
- * 
+ *
  * @param leagueName League name
  * @param homeTeamName Home team name
  * @param awayTeamName Away team name
@@ -117,6 +116,9 @@ export const shouldExcludeFeaturedMatch = (
       !league.includes("u19") &&
       !league.includes("u20") &&
       !league.includes("u21") &&
+      (!league.includes("u21") ||
+        league.includes("uefa u21") ||
+        league.includes("euro u21")) &&
       !league.includes("u23")) ||
     (league.includes("champions league") && !league.includes("women")) ||
     (league.includes("europa league") && !league.includes("women")) ||
@@ -229,46 +231,56 @@ export function isPopularLeagueSuitable(
 export const isHighPriorityLeague = (match: any): boolean => {
   const name = (match.league?.name || "").toLowerCase();
   const popularLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-  
+
   // Popular domestic leagues
   if (popularLeagues.includes(match.league?.id)) {
     return true;
   }
 
   // Major international competitions
-  return (name.includes("champions league") ||
-          name.includes("europa league") ||
-          name.includes("conference league") ||
-          name.includes("uefa nations league") ||
-          name.includes("world cup") ||
-          name.includes("copa america") ||
-          name.includes("libertadores")) && !name.includes("women");
+  return (
+    (name.includes("champions league") ||
+      name.includes("europa league") ||
+      name.includes("conference league") ||
+      name.includes("uefa nations league") ||
+      name.includes("world cup") ||
+      name.includes("copa america") ||
+      name.includes("libertadores")) &&
+    !name.includes("women")
+  );
 };
 
 /**
  * Check if teams are considered "big" or popular enough for featuring
  */
-export const hasPopularTeams = (match: any, popularTeamIds: number[] = []): boolean => {
+export const hasPopularTeams = (
+  match: any,
+  popularTeamIds: number[] = [],
+): boolean => {
   const homeTeamId = match.teams?.home?.id;
   const awayTeamId = match.teams?.away?.id;
 
-  return popularTeamIds.includes(homeTeamId) || popularTeamIds.includes(awayTeamId);
+  return (
+    popularTeamIds.includes(homeTeamId) || popularTeamIds.includes(awayTeamId)
+  );
 };
 
 /**
  * Check if a match qualifies as "featured" based on multiple criteria
  */
 export const isFeaturedWorthy = (
-  match: any, 
-  popularTeamIds: number[] = []
+  match: any,
+  popularTeamIds: number[] = [],
 ): boolean => {
   // Must not be excluded
-  if (shouldExcludeFeaturedMatch(
-    match.league?.name || '',
-    match.teams?.home?.name || '',
-    match.teams?.away?.name || '',
-    match.league?.country || ''
-  )) {
+  if (
+    shouldExcludeFeaturedMatch(
+      match.league?.name || "",
+      match.teams?.home?.name || "",
+      match.teams?.away?.name || "",
+      match.league?.country || "",
+    )
+  ) {
     return false;
   }
 
@@ -283,13 +295,13 @@ export const isFeaturedWorthy = (
  * Filter and sort matches specifically for featured match display
  */
 export const filterFeaturedMatches = (
-  matches: any[], 
+  matches: any[],
   popularTeamIds: number[] = [],
-  maxMatches: number = 5
+  maxMatches: number = 5,
 ): any[] => {
   // Filter to featured-worthy matches
-  const featuredCandidates = matches.filter(match => 
-    isFeaturedWorthy(match, popularTeamIds)
+  const featuredCandidates = matches.filter((match) =>
+    isFeaturedWorthy(match, popularTeamIds),
   );
 
   // Simple sorting by match status and time
@@ -298,8 +310,12 @@ export const filterFeaturedMatches = (
     const aStatus = a.fixture?.status?.short;
     const bStatus = b.fixture?.status?.short;
 
-    const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(aStatus);
-    const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(bStatus);
+    const aIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(
+      aStatus,
+    );
+    const bIsLive = ["1H", "2H", "HT", "LIVE", "ET", "BT", "P"].includes(
+      bStatus,
+    );
 
     if (aIsLive && !bIsLive) return -1;
     if (!aIsLive && bIsLive) return 1;
@@ -312,7 +328,10 @@ export const filterFeaturedMatches = (
     if (!aHasPopular && bHasPopular) return 1;
 
     // Finally by time
-    return new Date(a.fixture?.date || 0).getTime() - new Date(b.fixture?.date || 0).getTime();
+    return (
+      new Date(a.fixture?.date || 0).getTime() -
+      new Date(b.fixture?.date || 0).getTime()
+    );
   });
 
   return sortedMatches.slice(0, maxMatches);
