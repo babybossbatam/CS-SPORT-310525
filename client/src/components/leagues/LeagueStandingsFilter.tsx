@@ -390,18 +390,20 @@ const LeagueStandingsFilter = () => {
 
   // Function to get team color from logo or team name
   const getTeamColor = (teamName: string, rank: number): string => {
+    // Use CS SPORT header gradient colors for top 2 positions
+    if (rank === 1) return '#F59E0B'; // Amber-500 (from CS SPORT gradient)
+    if (rank === 2) return '#EA580C'; // Orange-600 (from CS SPORT gradient)
+    
     const normalizedName = teamName.toLowerCase();
     
-    // Check if team exists in our color map
+    // Check if team exists in our color map for rank 3+
     for (const [key, colors] of Object.entries(teamColorMap)) {
       if (normalizedName.includes(key)) {
         return colors.accent;
       }
     }
     
-    // Fallback colors based on rank
-    if (rank === 1) return '#B8860B'; // Dark gold for champions
-    if (rank === 2) return '#C0C0C0'; // Silver for runner-up
+    // Fallback colors for rank 3+
     return '#CD7F32'; // Bronze for 3rd place
   };
 
