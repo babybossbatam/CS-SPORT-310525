@@ -679,28 +679,28 @@ const LeagueStandingsFilter = () => {
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0 ">
                                   {stats.played}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0 font-regular">
                                   {stats.goals.for}:{stats.goals.against}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0 font-regular">
                                   {standing.goalsDiff}
                                 </TableCell>
-                                <TableCell className="text-center font-bold text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center font-regular text-[0.9em] px-1 mx-0">
                                   {standing.points}
                                 </TableCell>
                                 <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {stats.win}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center text-[0.9em] font-regular px-1 mx-0">
                                   {stats.draw}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
+                                <TableCell className="text-center text-[0.9em] font-regular px-1 mx-0">
                                   {stats.lose}
                                 </TableCell>
-                                <TableCell className="px-1 py-1 mx-0">
+                                <TableCell className="px-1 py-1 mx-0 font-regular">
                                   <div className="flex items-center justify-center">
                                     {group.find(
                                       (opponent) =>
@@ -769,11 +769,11 @@ const LeagueStandingsFilter = () => {
               </div>
             ) : (
               // Single league table
-              <div className="overflow-hidden rounded-lg border border-gray-200">
+              <div className="overflow-hidden border-t">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 border-b border-gray-100">
-                      <TableHead className="text-left text-xs font-regular text-gray-400  px-3 w-[40px]"></TableHead>
+                      <TableHead className="text-left text-xs font-regular text-gray-400  px-1 w-[40px]"></TableHead>
                       <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px]"></TableHead>
                       <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         P
@@ -839,15 +839,7 @@ const LeagueStandingsFilter = () => {
                         return (
                           <TableRow
                             key={standing.team.id}
-                            className={`border-b transition-colors ${
-                              standing.rank === 1 
-                                ? "border-amber-200 hover:bg-amber-50" 
-                                : standing.rank === 2 
-                                ? "border-orange-200 hover:bg-orange-50" 
-                                : standing.rank === 3 
-                                ? "border-blue-200 hover:bg-blue-50" 
-                                : "border-gray-100 hover:bg-gray-100"
-                            }`}
+                            className="border-b border-gray-100 transition-colors"
                           >
                             <TableCell className="py-0 mt-0 mb-0 px-0 relative">
                               <div className="flex items-center">
