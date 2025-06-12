@@ -492,13 +492,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 135, priority: 10 }, // Serie A
         { id: 78, priority: 11 }, // Bundesliga
         { id: 61, priority: 12 }, // Ligue 1
-        { id: 9, priority: 13 }, // Copa America
-        { id: 10, priority: 14 }, // African Cup of Nations
-        { id: 11, priority: 15 }, // Asian Cup
-        { id: 137, priority: 16 }, // Coppa Italia
-        { id: 45, priority: 17 }, // FA Cup
-        { id: 40, priority: 18 }, // Community Shield
-        { id: 48, priority: 19 } // EFL Cup
+        { id: 307, priority: 13 }, // Saudi Pro League
+        { id: 233, priority: 14 }, // Egyptian Premier League
+        { id: 9, priority: 15 }, // Copa America
+        { id: 10, priority: 16 }, // African Cup of Nations
+        { id: 11, priority: 17 }, // Asian Cup
+        { id: 137, priority: 18 }, // Coppa Italia
+        { id: 45, priority: 19 }, // FA Cup
+        { id: 40, priority: 20 }, // Community Shield
+        { id: 48, priority: 21 } // EFL Cup
       ];
 
       // If we have cached leagues, filter and sort them

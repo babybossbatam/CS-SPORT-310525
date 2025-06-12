@@ -229,6 +229,8 @@ const LeagueStandingsFilter = () => {
             logo: "",
             country: "Europe",
           },
+          { id: 307, name: "Saudi Pro League", logo: "", country: "Saudi Arabia" },
+          { id: 233, name: "Egyptian Premier League", logo: "", country: "Egypt" },
           {
             id: 38,
             name: "UEFA WC Qualification - Group G",
