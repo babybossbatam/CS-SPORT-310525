@@ -107,6 +107,23 @@ body {
   border-radius: 50%;
 }
 
+/* Flag circle container */
+.flag-circle {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flag-circle img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50%;
+}
+
 /* Fix for dropdown causing main layout shift */
 [data-radix-select-content] {
   position: fixed !important;
